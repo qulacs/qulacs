@@ -1,0 +1,131 @@
+#include <gtest/gtest.h>
+#include <vqcsim/parametric_gate_factory.hpp>
+#include <cppsim/gate_factory.hpp>
+#include <vqcsim/solver.hpp>
+#include <vqcsim/problem.hpp>
+#include <vqcsim/parametric_circuit_builder.hpp>
+
+class MyRandomCircuit : public ParametricCircuitBuilder{
+	ParametricQuantumCircuit* create_circuit(UINT output_dim, UINT param_count) const override{
+		ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(output_dim);
+		UINT depth = param_count / output_dim;
+		if (param_count%output_dim > 0) depth++;
+		UINT param_index = 0;
+		for (UINT d = 0; d < depth; ++d) {
+			for (UINT i = 0; i < output_dim; ++i) {
+				if (param_index < param_count) {
+					circuit->append_parametric_gate(gate::ParametricRX(i,0.));
+					param_index++;
+				}
+				else {
+					circuit->add_gate(gate::RX(i, 0.0));
+				}
+			}
+			for (UINT i = depth % 2; i + 1 < output_dim; ++i) {
+				circuit->add_gate(gate::CNOT(0, 1));
+			}
+		}
+		return circuit;
+	}
+};
+
+
+TEST(EnergyMinimization, SingleQubitClassical) {
+	const UINT n = 1;
+
+	// define quantum circuit as prediction model
+	std::function<ParametricQuantumCircuit*(UINT, UINT)> func = [](unsigned int qubit_count, unsigned int param_count) -> ParametricQuantumCircuit* {
+		ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(qubit_count);
+		for (unsigned int i = 0; i < qubit_count; ++i) {
+			circuit->append_parametric_gate(gate::ParametricRX(i));
+		}
+		return circuit;
+	};
+
+	Hamiltonian* ham = new Hamiltonian(n);
+	ham->add_operator(1.0, "Z 0");
+
+	EnergyMinimizationProblem* emp = new EnergyMinimizationProblem(ham);
+
+	QuantumCircuitEnergyMinimizationSolver qcems(&func, 0);
+	qcems.solve(emp, 1000, "GD");
+	double qc_loss = qcems.get_loss();
+
+	DiagonalizationEnergyMinimizationSolver dems;
+	dems.solve(emp);
+	double diag_loss = dems.get_loss();
+
+	EXPECT_NEAR(qc_loss, diag_loss,1e-2);
+}
+
+TEST(EnergyMinimization, SingleQubitComplex) {
+	const UINT n = 1;
+
+	// define quantum circuit as prediction model
+	std::function<ParametricQuantumCircuit*(UINT, UINT)> func = [](unsigned int qubit_count, unsigned int param_count) -> ParametricQuantumCircuit* {
+		ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(qubit_count);
+		for (unsigned int i = 0; i < qubit_count; ++i) {
+			circuit->append_parametric_gate(gate::ParametricRX(i));
+			circuit->append_parametric_gate(gate::ParametricRY(i));
+			circuit->append_parametric_gate(gate::ParametricRX(i));
+		}
+		return circuit;
+	};
+
+	Hamiltonian* ham = new Hamiltonian(n);
+	ham->add_operator(1.0, "Z 0");
+	ham->add_operator(1.0, "X 0");
+	ham->add_operator(1.0, "Y 0");
+
+	EnergyMinimizationProblem* emp = new EnergyMinimizationProblem(ham);
+
+	QuantumCircuitEnergyMinimizationSolver qcems(&func, 0);
+	qcems.solve(emp, 1000, "GD");
+	double qc_loss = qcems.get_loss();
+
+	DiagonalizationEnergyMinimizationSolver dems;
+	dems.solve(emp);
+	double diag_loss = dems.get_loss();
+
+	EXPECT_NEAR(qc_loss, diag_loss, 1e-2);
+}
+
+TEST(EnergyMinimization, MultiQubit) {
+	const UINT n = 2;
+
+	// define quantum circuit as prediction model
+	std::function<ParametricQuantumCircuit*(UINT, UINT)> func = [](unsigned int qubit_count, unsigned int param_count) -> ParametricQuantumCircuit* {
+		ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(qubit_count);
+		for (unsigned int i = 0; i < qubit_count; ++i) {
+			circuit->append_parametric_gate(gate::ParametricRX(i));
+			circuit->append_parametric_gate(gate::ParametricRY(i));
+			circuit->append_parametric_gate(gate::ParametricRX(i));
+		}
+		for (unsigned int i = 0; i + 1 < qubit_count; i += 2) {
+			circuit->add_CNOT_gate(i, i + 1);
+		}
+		for (unsigned int i = 0; i < qubit_count; ++i) {
+			circuit->append_parametric_gate(gate::ParametricRX(i));
+			circuit->append_parametric_gate(gate::ParametricRY(i));
+			circuit->append_parametric_gate(gate::ParametricRX(i));
+		}
+		return circuit;
+	};
+
+	Hamiltonian* ham = new Hamiltonian(n);
+	ham->add_operator(1.0, "Z 0 X 1");
+	ham->add_operator(-1.0, "Z 0 Y 1");
+	ham->add_operator(0.2, "Y 0 Y 1");
+
+	EnergyMinimizationProblem* emp = new EnergyMinimizationProblem(ham);
+
+	QuantumCircuitEnergyMinimizationSolver qcems(&func, 0);
+	qcems.solve(emp, 500, "GD");
+	double qc_loss = qcems.get_loss();
+
+	DiagonalizationEnergyMinimizationSolver dems;
+	dems.solve(emp);
+	double diag_loss = dems.get_loss();
+
+	EXPECT_NEAR(qc_loss, diag_loss, 1e-2);
+}
