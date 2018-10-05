@@ -1,0 +1,80 @@
+language: cpp
+sudo: required
+
+matrix:
+  include:
+    # 1/ OSX GCC7 build
+    - os: osx
+      compiler: gcc-7
+      env:
+        - CXX_COMPILER='g++-7'
+        - C_COMPILER='gcc-7'
+        - Fortran_COMPILER='gfortran'
+        - BUILD_TYPE='Release'
+        - PYTHON='--three'
+        - COVERAGE=OFF
+    # 2/ Linux GCC7 build
+    - os: linux
+      compiler: gcc-7
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - cmake3
+            - g++-7
+            - gcc-7
+            - gfortran-7
+            - lcov
+            - swig
+        env:
+        - CXX_COMPILER='g++-7'
+        - C_COMPILER='gcc-7'
+        - Fortran_COMPILER='gfortran-7'
+        - BUILD_TYPE='Debug'
+        - PYTHON='--three'
+        - COVERAGE=ON
+
+install:
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+      brew update &> /dev/null
+      brew cask uninstall --force oclint
+      brew upgrade cmake python
+      brew install gcc@7 pipenv swig
+      softwareupdate --list
+      softwareupdate --install "Command Line Tools (macOS High Sierra version 10.13) for Xcode-9.4"
+    # elif [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      # wget https://cmake.org/files/v3.12/cmake-3.12.3.tar.gz
+      # tar xzf cmake-3.12.3.tar.gz
+      # cd cmake-3.12.3
+      # ./configure && make && sudo make install
+      # cd ..
+    fi
+
+before_script:
+  - mkdir build
+  - cd build
+  - python --version
+  - python3 --version
+  - alias python='python3'
+  - export PATH=~/usr/local/bin/:$PATH
+  - echo $PATH
+  - python --version
+  - python3 --version
+  - which python
+  - which python3
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "osx" ]]; then
+      cmake -G "Unix Makefiles" -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=gcc-7 -D CMAKE_CXX_COMPILER=g++-7 ..
+    elif [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
+      wget https://cmake.org/files/v3.12/cmake-3.12.3-Linux-x86_64.sh
+      chmod +x cmake-3.12.3-Linux-x86_64.sh
+      sudo ./cmake-3.12.3-Linux-x86_64.sh -G "Unix Makefiles" -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ ..
+    fi
+
+script:
+  - make
+  - make test
+  - make python
+  - make pythontest

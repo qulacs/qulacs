@@ -2,6 +2,7 @@
 # VQCSIM
 
 ---
+[![Build Status](https://travis-ci.org/vqcsim/vqcsim.svg?branch=master)](https://travis-ci.org/vqcsim/vqcsim)
 
 ## ライブラリの概要
 
