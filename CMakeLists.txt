@@ -189,5 +189,5 @@ add_custom_target(python
 # test python
 add_custom_target(pythontest
 	DEPENDS pycppsim
-	COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_pycppsim.py ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+	COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_pycppsim.py ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
