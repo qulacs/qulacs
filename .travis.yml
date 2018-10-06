@@ -75,7 +75,7 @@ cache:
     - $HOME/.local
 
 before_install:
-  - pip install --upgrade pip
+  - sudo pip install --upgrade pip
   - sudo pip install -U --only-binary=numpy,scipy numpy scipy
 
 install:
