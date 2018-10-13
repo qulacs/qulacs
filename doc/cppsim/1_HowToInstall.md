@@ -23,7 +23,7 @@ python3には、numpyをインストールしてください。
 
 
 #### Windows
-msys2やcygwinを用いる場合gcc, g++, make, git, wget, cmake, python3をインストールしてください。python3には、numpyをインストールしてください。
+msys2やcygwinを用いる場合、gcc, g++, make, git, wget, cmake, python3をインストールしてください。python3には、numpyをインストールしてください。
 
 Visual Studioを用いる場合、Visual Studio 2017以降と、git, cmake, python3をインストールしてください。Visual Studioとpython3の連携はAnaconda3での動作を確認しています。
 
@@ -96,10 +96,10 @@ cmake -G "Visual Studio 15 2017 Win64" -D CMAKE_BUILD_TYPE=Release ..
 
 
 
-### 使い型
+### 使い方
 
 #### C++ライブラリの利用
-例えばcppsimの用いるとき、
+例えばcppsimを用いるとき、
 ```
 g++ -I ./vqcsim/include -I ./vqcsim/eigen_3_3_5 your_code.cpp ./vqcsim/lib/libcppsim.a
 ```
@@ -134,6 +134,6 @@ print(value)
 ```
 **pycppsimはpython3の関連ファイルでビルドされているので、pythonがpython3のエイリアスになっていない場合、必ずpython3からimportしてください。**
 
-関数やクラスのリストは一部委嘱されていない関数を除き、cppsimと同じです。
+関数やクラスのリストは一部移植されていない関数を除き、cppsimと同じです。
 実装例についてはドキュメントを参照してください。
 
