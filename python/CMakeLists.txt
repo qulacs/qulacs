@@ -6,14 +6,14 @@ if(MSYS OR MINGW OR CYGWIN)
 
 	file(GLOB PYQULACS_SRC "*.cpp")
 
-	execute_process(COMMAND python3-config --includes OUTPUT_VARIABLE PYTHON_INCLUDE_DIRS OUTPUT_STRIP_TRAILING_WHITESPACE)
-	execute_process(COMMAND python3-config --ldflags OUTPUT_VARIABLE PYTHON_LIB_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
-	execute_process(COMMAND python3-config --libs OUTPUT_VARIABLE PYTHON_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
-	#execute_process(COMMAND python3-config --extension-suffix OUTPUT_VARIABLE PYTHON_LIB_SUFFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
+	execute_process(COMMAND python-config --includes OUTPUT_VARIABLE PYTHON_INCLUDE_DIRS OUTPUT_STRIP_TRAILING_WHITESPACE)
+	execute_process(COMMAND python-config --ldflags OUTPUT_VARIABLE PYTHON_LIB_DIR OUTPUT_STRIP_TRAILING_WHITESPACE)
+	execute_process(COMMAND python-config --libs OUTPUT_VARIABLE PYTHON_LIBS OUTPUT_STRIP_TRAILING_WHITESPACE)
+	#execute_process(COMMAND python-config --extension-suffix OUTPUT_VARIABLE PYTHON_LIB_SUFFIX OUTPUT_STRIP_TRAILING_WHITESPACE)
 
-	# if python3-config is shell script and not executable, use sh command instead
+	# if python-config is shell script and not executable, use sh command instead
 	if(PYTHON_INCLUDE_DIRS STREQUAL "")
-		execute_process(COMMAND where python3-config OUTPUT_VARIABLE PYTHON_CONFIG_PATH OUTPUT_STRIP_TRAILING_WHITESPACE)
+		execute_process(COMMAND where python-config OUTPUT_VARIABLE PYTHON_CONFIG_PATH OUTPUT_STRIP_TRAILING_WHITESPACE)
 		string(REPLACE "\n" ";" PYTHON_CONFIG_PATH_LIST ${PYTHON_CONFIG_PATH})
 		list (GET PYTHON_CONFIG_PATH_LIST 0 PYTHON_CONFIG_PATH)
 
