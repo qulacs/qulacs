@@ -77,7 +77,7 @@ setup(
     name='Qulacs',
     version='0.0.1',
     author='QunaSys',
-    author_email='qunasys@hoge.com',
+    author_email='yan@qunasys.com',
     url='https://www.qulacs.org',
     description='Quantum circuit simulator for research',
     long_description='',
