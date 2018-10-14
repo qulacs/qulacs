@@ -1,24 +1,31 @@
 language: cpp
 sudo: required
 
-language: python
-python:
-  - '3.6'
-  - '2.7'
-
 matrix:
   include:
-    # OSX GCC7 build
+    # 1/ OSX GCC7 PYTHON3.6 build
     - os: osx
       compiler: gcc-7
       env:
+        - PYTHON=3.6
         - CXX_COMPILER='g++-7'
         - C_COMPILER='gcc-7'
         - Fortran_COMPILER='gfortran'
         - BUILD_TYPE='Release'
         - PYTHON='--three'
         - COVERAGE=OFF
-    # Linux GCC7 build
+    # 2/ OSX GCC7 PYTHON2.7 build
+    - os: osx
+      compiler: gcc-7
+      env:
+        - PYTHON=2.7
+        - CXX_COMPILER='g++-7'
+        - C_COMPILER='gcc-7'
+        - Fortran_COMPILER='gfortran'
+        - BUILD_TYPE='Release'
+        - PYTHON='--three'
+        - COVERAGE=OFF
+    # 3/ Linux GCC7 PYTHON3.6 build
     - os: linux
       compiler: gcc-7
       addons:
@@ -33,6 +40,29 @@ matrix:
             - lcov
             - swig
       env:
+        - PYTHON=3.6
+        - CXX_COMPILER='g++-7'
+        - C_COMPILER='gcc-7'
+        - Fortran_COMPILER='gfortran-7'
+        - BUILD_TYPE='Debug'
+        - PYTHON='--three'
+        - COVERAGE=ON
+    # 4/ Linux GCC7 PYTHON2.7 build
+    - os: linux
+      compiler: gcc-7
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - cmake3
+            - g++-7
+            - gcc-7
+            - gfortran-7
+            - lcov
+            - swig
+      env:
+        - PYTHON=2.7
         - CXX_COMPILER='g++-7'
         - C_COMPILER='gcc-7'
         - Fortran_COMPILER='gfortran-7'
