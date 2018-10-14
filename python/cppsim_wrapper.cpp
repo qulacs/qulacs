@@ -28,7 +28,7 @@ extern "C" {
 #include <cppsim/simulator.hpp>
 
 namespace py = pybind11;
-PYBIND11_MODULE(pycppsim, m) {
+PYBIND11_MODULE(qulacs, m) {
 	m.doc() = "cppsim python interface";
 
 	py::class_<PauliOperator>(m, "PauliOperator")
@@ -222,6 +222,8 @@ PYBIND11_MODULE(pycppsim, m) {
 		.def("add_dense_matrix_gate", (void (QuantumCircuit::*)(std::vector<unsigned int>, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate)
 		.def("__repr__", [](const QuantumCircuit &p) {return p.to_string(); });
 	;
+
+
 	auto mcircuit = m.def_submodule("circuit");
 	py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
 		.def(py::init<>())

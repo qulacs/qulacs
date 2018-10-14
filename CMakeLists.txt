@@ -201,11 +201,11 @@ add_custom_target(bench
 
 # python binding
 add_custom_target(python
-	DEPENDS pycppsim
+	DEPENDS qulacs
 )
 
 # test python
 add_custom_target(pythontest
-	DEPENDS pycppsim
-	COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_pycppsim.py ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+	DEPENDS qulacs
+	COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_qulacs.py ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
