@@ -83,6 +83,18 @@ double PauliOperator::get_expectation_value(const QuantumStateBase* state) const
 	);
 }
 
+CPPCTYPE PauliOperator::get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const {
+	return _coef * transition_amplitude_multi_qubit_Pauli_operator_partial_list(
+		this->get_index_list().data(),
+		this->get_pauli_id_list().data(),
+		(UINT)this->get_index_list().size(),
+		state_bra->data_c(),
+		state_ket->data_c(),
+		state_bra->dim
+	);
+}
+
+
 PauliOperator* PauliOperator::copy() const {
 	auto pauli = new PauliOperator(this->_coef);
 	for (auto val : this->_pauli_list) {

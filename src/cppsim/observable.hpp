@@ -117,6 +117,16 @@ public:
 	double get_expectation_value(const QuantumStateBase* state) const ;
 
 	/**
+	 * \~japanese-en
+	 * オブザーバブルによってある状態が別の状態に移る遷移振幅を計算して返す
+	 *
+	 * @param[in] state_bra 遷移先の量子状態
+	 * @param[in] state_ket 遷移前の量子状態
+	 * @return 入力で与えた量子状態に対応するオブザーバブルの遷移振幅
+	 */
+	CPPCTYPE get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const;
+
+	/**
      * \~japanese-en
      * OpenFermion形式のファイルを読んで、対角なObservableと非対角なObservableを返す。オブザーバブルのqubit数はファイル読み込み時に、オブザーバブルの構成に必要なqubit数となります。
      *

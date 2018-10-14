@@ -87,6 +87,14 @@ double Observable::get_expectation_value(const QuantumStateBase* state) const {
 	return sum;
 }
 
+CPPCTYPE Observable::get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const {
+	CPPCTYPE sum = 0;
+	for (auto pauli : this->_operator_list) {
+		sum += pauli->get_transition_amplitude(state_bra, state_ket);
+	}
+	return sum;
+}
+
 std::pair<Observable*, Observable*> Observable::get_split_observable(std::string filename){
     UINT qubit_count = 0;
 
