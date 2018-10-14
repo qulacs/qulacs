@@ -507,34 +507,34 @@ print(circuit)
 ```
 
 
-## ハミルトニアン
-### ハミルトニアンの生成
-ハミルトニアンはパウリ演算子の集合として表現されます。
+## オブザーバブル
+### オブザーバブルの生成
+オブザーバブルはパウリ演算子の集合として表現されます。
 パウリ演算子は下記のように定義できます。
 ```python
-from pycppsim import Hamiltonian
+from pycppsim import Observable
 n = 5
 coef = 2.0
 # 2.0 X_0 X_1 Y_2 Z_4というパウリ演算子を設定
 Pauli_string = "X 0 X 1 Y 2 Z 4"
-hamiltonian = Hamiltonian(n)
-hamiltonian.add_operator(coef,Pauli_string)
+observable = Observable(n)
+observable.add_operator(coef,Pauli_string)
 ```
 
-### ハミルトニアンの評価
-状態に対してハミルトニアンの期待値を評価できます。
+### オブザーバブルの評価
+状態に対してオブザーバブルの期待値を評価できます。
 ```python
-from pycppsim import Hamiltonian, QuantumState
+from pycppsim import Observable, QuantumState
 
 n = 5
 coef = 2.0
 Pauli_string = "X 0 X 1 Y 2 Z 4"
-hamiltonian = Hamiltonian(n)
-hamiltonian.add_operator(coef,Pauli_string)
+observable = Observable(n)
+observable.add_operator(coef,Pauli_string)
 
 state = QuantumState(n)
 state.set_Haar_random_state()
 # 期待値の計算
-value = hamiltonian.get_expectation_value(state)
+value = observable.get_expectation_value(state)
 print(value)
 ```

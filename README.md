@@ -71,7 +71,7 @@ Example of C++ code:
 #include <iostream>
 #include <cppsim/state.hpp>
 #include <cppsim/circuit.hpp>
-#include <cppsim/hamiltonian.hpp>
+#include <cppsim/observable.hpp>
 
 int main(){
     QuantumState state(3);
@@ -84,10 +84,10 @@ int main(){
     circuit.add_RX_gate(1,0.5);
     circuit.update_quantum_state(&state);
 
-    Hamiltonian ham(3)
-    ham.add_operator(2.0, "X 2 Y 1 Z 0")
-    ham.add_operator(-3.0, "Z 2")
-    auto value = ham.get_expectation_value(&state)
+    Observable observable(3)
+    observable.add_operator(2.0, "X 2 Y 1 Z 0")
+    observable.add_operator(-3.0, "Z 2")
+    auto value = observable.get_expectation_value(&state)
     std::cout << value << std::endl;
     return 0;
 }
@@ -103,7 +103,7 @@ You can use features by simply importing `pycppsim`.
 
 Example of python code:
 ```python
-from pycppsim import Hamiltonian, QuantumCircuit, QuantumState
+from pycppsim import Observable, QuantumCircuit, QuantumState
 from pycppsim.gate import Y,CNOT,merge
 
 state = QuantumState(3)
@@ -116,9 +116,9 @@ circuit.add_gate(merged_gate)
 circuit.add_RX_gate(1,0.5)
 circuit.update_quantum_state(state)
 
-ham = Hamiltonian(3)
-ham.add_operator(2.0, "X 2 Y 1 Z 0")
-ham.add_operator(-3.0, "Z 2")
-value = ham.get_expectation_value(state)
+observable = Observable(3)
+observable.add_operator(2.0, "X 2 Y 1 Z 0")
+observable.add_operator(-3.0, "Z 2")
+value = observable.get_expectation_value(state)
 print(value)
 ```
