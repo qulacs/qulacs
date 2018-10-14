@@ -57,9 +57,6 @@ install:
       brew install gcc@7 pipenv swig
       softwareupdate --list
       softwareupdate --install "Command Line Tools (macOS High Sierra version 10.13) for Xcode-9.4"
-    elif [[ "${TRAVIS_OS_NAME}" == "linux" ]]; then
-      chmod +x scripts/install_cmake.sh
-      sudo ./scripts/install_cmake.sh
     fi
 
 before_script:
