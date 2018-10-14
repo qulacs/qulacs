@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdio.h>
-#include "hamiltonian.hpp"
+#include "observable.hpp"
 #include "pauli_operator.hpp"
 #include "type.hpp"
 #include "utility.hpp"
@@ -16,11 +16,11 @@
 
 
 
-Hamiltonian::Hamiltonian(UINT qubit_count){
+Observable::Observable(UINT qubit_count){
     _qubit_count = qubit_count;
 }
 
-Hamiltonian::Hamiltonian(std::string filename)
+Observable::Observable(std::string filename)
 {
     UINT qubit_count = 0;
 
@@ -65,21 +65,21 @@ Hamiltonian::Hamiltonian(std::string filename)
     }
 }
 
-Hamiltonian::~Hamiltonian(){
+Observable::~Observable(){
     for(auto& term : this->_operator_list){
         delete term;
     }
 }
 
-void Hamiltonian::add_operator(PauliOperator* mpt){
+void Observable::add_operator(PauliOperator* mpt){
     this->_operator_list.push_back(mpt);
 }
 
-void Hamiltonian::add_operator(double coef, std::string pauli_string) {
+void Observable::add_operator(double coef, std::string pauli_string) {
 	this->add_operator(new PauliOperator(pauli_string, coef));
 }
 
-double Hamiltonian::get_expectation_value(const QuantumStateBase* state) const {
+double Observable::get_expectation_value(const QuantumStateBase* state) const {
 	double sum = 0;
 	for (auto pauli : this->_operator_list) {
 		sum += pauli->get_expectation_value(state);
@@ -87,7 +87,7 @@ double Hamiltonian::get_expectation_value(const QuantumStateBase* state) const {
 	return sum;
 }
 
-std::pair<Hamiltonian*, Hamiltonian*> Hamiltonian::get_split_hamiltonian(std::string filename){
+std::pair<Observable*, Observable*> Observable::get_split_observable(std::string filename){
     UINT qubit_count = 0;
 
     std::ifstream ifs;
@@ -126,16 +126,16 @@ std::pair<Hamiltonian*, Hamiltonian*> Hamiltonian::get_split_hamiltonian(std::st
     }
     ifs.close();
 
-    Hamiltonian* ham_diag =  new Hamiltonian(qubit_count);
-    Hamiltonian* ham_non_diag =  new Hamiltonian(qubit_count);
+    Observable* observable_diag =  new Observable(qubit_count);
+    Observable* observable_non_diag =  new Observable(qubit_count);
 
     for (UINT i = 0; i < ops.size(); ++i){
         if (ops[i].find("X") != std::string::npos || ops[i].find("Y") != std::string::npos){
-            ham_non_diag->add_operator(new PauliOperator(ops[i].c_str(), coefs[i].real()));
+            observable_non_diag->add_operator(new PauliOperator(ops[i].c_str(), coefs[i].real()));
         }else{
-            ham_diag->add_operator(new PauliOperator(ops[i].c_str(), coefs[i].real()));
+            observable_diag->add_operator(new PauliOperator(ops[i].c_str(), coefs[i].real()));
         }
     }
 
-    return std::make_pair(ham_diag, ham_non_diag);
+    return std::make_pair(observable_diag, observable_non_diag);
 }

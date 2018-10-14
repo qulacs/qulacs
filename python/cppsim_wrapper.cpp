@@ -17,7 +17,7 @@ extern "C" {
 #include <csim/stat_ops.h>
 #endif
 
-#include <cppsim/hamiltonian.hpp>
+#include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/state.hpp>
 #include <cppsim/gate_factory.hpp>
@@ -42,17 +42,17 @@ PYBIND11_MODULE(qulacs, m) {
 		.def("copy", &PauliOperator::copy)
 		;
 
-	py::class_<Hamiltonian>(m, "Hamiltonian")
+	py::class_<Observable>(m, "Observable")
 		.def(py::init<unsigned int>())
 		.def(py::init<std::string>())
-		.def("add_operator", (void (Hamiltonian::*)(PauliOperator*)) &Hamiltonian::add_operator)
-		.def("add_operator", (void (Hamiltonian::*)(double coef, std::string))&Hamiltonian::add_operator)
-		.def("get_qubit_count", &Hamiltonian::get_qubit_count)
-		.def("get_state_dim", &Hamiltonian::get_state_dim)
-		.def("get_term_count", &Hamiltonian::get_term_count)
-		.def("get_term", &Hamiltonian::get_term, pybind11::return_value_policy::automatic_reference)
-		.def("get_expectation_value", &Hamiltonian::get_expectation_value)
-		//.def_static("get_split_Hamiltonian", &(Hamiltonian::get_split_hamiltonian));
+		.def("add_operator", (void (Observable::*)(PauliOperator*)) &Observable::add_operator)
+		.def("add_operator", (void (Observable::*)(double coef, std::string))&Observable::add_operator)
+		.def("get_qubit_count", &Observable::get_qubit_count)
+		.def("get_state_dim", &Observable::get_state_dim)
+		.def("get_term_count", &Observable::get_term_count)
+		.def("get_term", &Observable::get_term, pybind11::return_value_policy::automatic_reference)
+		.def("get_expectation_value", &Observable::get_expectation_value)
+		//.def_static("get_split_Observable", &(Observable::get_split_observable));
 		;
 
 	py::class_<QuantumStateBase>(m, "QuantumStateBase");

@@ -1,7 +1,7 @@
 
 #include "simulator.hpp"
 #include "state.hpp"
-#include "hamiltonian.hpp"
+#include "observable.hpp"
 #include "circuit.hpp"
 
 QuantumCircuitSimulator::QuantumCircuitSimulator(QuantumCircuit* circuit, QuantumStateBase* initial_state)
@@ -30,8 +30,8 @@ void QuantumCircuitSimulator::simulate_range(UINT start, UINT end) {
 	_circuit->update_quantum_state(_state, start, end);
 }
 
-double QuantumCircuitSimulator::get_expectation_value(const Hamiltonian* hamiltonian) {
-	return hamiltonian->get_expectation_value(_state);
+double QuantumCircuitSimulator::get_expectation_value(const Observable* observable) {
+	return observable->get_expectation_value(_state);
 }
 
 UINT QuantumCircuitSimulator::get_gate_count() { 

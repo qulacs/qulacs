@@ -5,7 +5,7 @@
 #include "type.hpp"
 #include "circuit.hpp"
 class QuantumStateBase;
-class Hamiltonian;
+class Observable;
 
 
 /**
@@ -55,12 +55,12 @@ public:
 	void simulate_range(UINT start, UINT end);
 
 	/**
-	 * \~japanese-en 現在の量子状態の受け取ったハミルトニアンの期待値を計算する。
+	 * \~japanese-en 現在の量子状態の受け取ったオブザーバブルの期待値を計算する。
 	 * 
-	 * @param hamiltonian ハミルトニアン
+	 * @param observable オブザーバブル
 	 * @return 期待値
 	 */
-	double get_expectation_value(const Hamiltonian* hamiltonian);
+	double get_expectation_value(const Observable* observable);
 
 	/**
 	 * \~japanese-en 量子回路中のゲートの数を取得する

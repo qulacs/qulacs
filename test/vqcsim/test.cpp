@@ -42,10 +42,10 @@ TEST(EnergyMinimization, SingleQubitClassical) {
 		return circuit;
 	};
 
-	Hamiltonian* ham = new Hamiltonian(n);
-	ham->add_operator(1.0, "Z 0");
+	Observable* observable = new Observable(n);
+	observable->add_operator(1.0, "Z 0");
 
-	EnergyMinimizationProblem* emp = new EnergyMinimizationProblem(ham);
+	EnergyMinimizationProblem* emp = new EnergyMinimizationProblem(observable);
 
 	QuantumCircuitEnergyMinimizationSolver qcems(&func, 0);
 	qcems.solve(emp, 1000, "GD");
@@ -72,12 +72,12 @@ TEST(EnergyMinimization, SingleQubitComplex) {
 		return circuit;
 	};
 
-	Hamiltonian* ham = new Hamiltonian(n);
-	ham->add_operator(1.0, "Z 0");
-	ham->add_operator(1.0, "X 0");
-	ham->add_operator(1.0, "Y 0");
+	Observable* observable = new Observable(n);
+	observable->add_operator(1.0, "Z 0");
+	observable->add_operator(1.0, "X 0");
+	observable->add_operator(1.0, "Y 0");
 
-	EnergyMinimizationProblem* emp = new EnergyMinimizationProblem(ham);
+	EnergyMinimizationProblem* emp = new EnergyMinimizationProblem(observable);
 
 	QuantumCircuitEnergyMinimizationSolver qcems(&func, 0);
 	qcems.solve(emp, 1000, "GD");
@@ -112,12 +112,12 @@ TEST(EnergyMinimization, MultiQubit) {
 		return circuit;
 	};
 
-	Hamiltonian* ham = new Hamiltonian(n);
-	ham->add_operator(1.0, "Z 0 X 1");
-	ham->add_operator(-1.0, "Z 0 Y 1");
-	ham->add_operator(0.2, "Y 0 Y 1");
+	Observable* observable = new Observable(n);
+	observable->add_operator(1.0, "Z 0 X 1");
+	observable->add_operator(-1.0, "Z 0 Y 1");
+	observable->add_operator(0.2, "Y 0 Y 1");
 
-	EnergyMinimizationProblem* emp = new EnergyMinimizationProblem(ham);
+	EnergyMinimizationProblem* emp = new EnergyMinimizationProblem(observable);
 
 	QuantumCircuitEnergyMinimizationSolver qcems(&func, 0);
 	qcems.solve(emp, 500, "GD");

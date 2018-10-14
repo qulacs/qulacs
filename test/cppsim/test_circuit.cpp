@@ -13,7 +13,7 @@
 #include <cppsim/circuit_optimizer.hpp>
 #include <utility>
 #include <unsupported/Eigen/MatrixFunctions>
-#include <cppsim/hamiltonian.hpp>
+#include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
 
 
@@ -560,8 +560,8 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
     double res;
     CPPCTYPE test_res;
 
-    Hamiltonian diag_ham(n), non_diag_ham(n), ham(n);
-    Eigen::MatrixXcd test_ham;
+    Observable diag_observable(n), non_diag_observable(n), observable(n);
+    Eigen::MatrixXcd test_observable;
 
     QuantumState state(n);
     Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
@@ -576,38 +576,38 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
     angle = 2 * PI * random.uniform();
 
 
-	ham.add_operator(coef[0], "Z 0 I 1");
-	ham.add_operator(coef[1], "X 0 Y 1");
-	ham.add_operator(coef[2], "Z 0 Z 1");
-	ham.add_operator(coef[3], "Z 0 X 1");
-	ham.add_operator(coef[4], "Y 0 X 1");
-	ham.add_operator(coef[5], "I 0 Z 1");
+	observable.add_operator(coef[0], "Z 0 I 1");
+	observable.add_operator(coef[1], "X 0 Y 1");
+	observable.add_operator(coef[2], "Z 0 Z 1");
+	observable.add_operator(coef[3], "Z 0 X 1");
+	observable.add_operator(coef[4], "Y 0 X 1");
+	observable.add_operator(coef[5], "I 0 Z 1");
 
-	test_ham = coef[0] * get_expanded_eigen_matrix_with_identity(0, Z, n);
-	test_ham += coef[1] * kronecker_product(Y, X);
-	test_ham += coef[2] * kronecker_product(Z, Z);
-	test_ham += coef[3] * kronecker_product(X, Z);
-	test_ham += coef[4] * kronecker_product(X, Y);
-	test_ham += coef[5] * get_expanded_eigen_matrix_with_identity(1, Z, n);
+	test_observable = coef[0] * get_expanded_eigen_matrix_with_identity(0, Z, n);
+	test_observable += coef[1] * kronecker_product(Y, X);
+	test_observable += coef[2] * kronecker_product(Z, Z);
+	test_observable += coef[3] * kronecker_product(X, Z);
+	test_observable += coef[4] * kronecker_product(X, Y);
+	test_observable += coef[5] * get_expanded_eigen_matrix_with_identity(1, Z, n);
 
     num_repeats = (UINT) std::ceil(angle * (double)n* 100.);
-	// circuit.add_diagonal_hamiltonian_rotation_gate(diag_ham, angle);
-	circuit.add_hamiltonian_rotation_gate(ham, angle, num_repeats);
+	// circuit.add_diagonal_observable_rotation_gate(diag_observable, angle);
+	circuit.add_observable_rotation_gate(observable, angle, num_repeats);
 
-    test_circuit = J * angle * test_ham;
+    test_circuit = J * angle * test_observable;
 	test_circuit = test_circuit.exp();
 
     state.set_computational_basis(0);
 	test_state(0) = 1.;
 
-	res = ham.get_expectation_value(&state);
-	test_res = (test_state.adjoint() * test_ham * test_state);
+	res = observable.get_expectation_value(&state);
+	test_res = (test_state.adjoint() * test_observable * test_state);
 
 	circuit.update_quantum_state(&state);
 	test_state = test_circuit * test_state;
 
-    res = ham.get_expectation_value(&state);
-	test_res = (test_state.adjoint() * test_ham * test_state);
+    res = observable.get_expectation_value(&state);
+	test_res = (test_state.adjoint() * test_observable * test_state);
 	ASSERT_NEAR(abs(test_res.real() - res)/ res, 0, 0.01);
 
 
@@ -617,13 +617,13 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
 	test_state = test_circuit * test_state;
 	circuit.update_quantum_state(&state);
 
-	res = ham.get_expectation_value(&state);
-	test_res = (test_state.adjoint() * test_ham * test_state);
+	res = observable.get_expectation_value(&state);
+	test_res = (test_state.adjoint() * test_observable * test_state);
 	ASSERT_NEAR(abs(test_res.real() - res)/ res, 0, 0.01);
 }
 
 
-TEST(CircuitTest, RotateDiagonalHamiltonian){
+TEST(CircuitTest, RotateDiagonalObservable){
     CPPCTYPE J(0.0, 1.0);
     Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
     Identity << 1, 0, 0, 1;
@@ -641,8 +641,8 @@ TEST(CircuitTest, RotateDiagonalHamiltonian){
 	double res;
 	CPPCTYPE test_res;
 
-	Hamiltonian ham(n);
-    Eigen::MatrixXcd test_ham;
+	Observable observable(n);
+    Eigen::MatrixXcd test_observable;
 
 	QuantumState state(n);
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
@@ -655,14 +655,14 @@ TEST(CircuitTest, RotateDiagonalHamiltonian){
     angle = 2 * PI * random.uniform();
 
 
-	ham.add_operator(coef1, "Z 0");
-	ham.add_operator(coef2, "Z 0 Z 1");
+	observable.add_operator(coef1, "Z 0");
+	observable.add_operator(coef2, "Z 0 Z 1");
 
-	test_ham = coef1 * get_expanded_eigen_matrix_with_identity(0, Z, n);
-    test_ham += coef2 * kronecker_product(Z, Z);
+	test_observable = coef1 * get_expanded_eigen_matrix_with_identity(0, Z, n);
+    test_observable += coef2 * kronecker_product(Z, Z);
 
-	circuit.add_diagonal_hamiltonian_rotation_gate(ham, angle);
-    test_circuit = (J * angle * test_ham).exp();
+	circuit.add_diagonal_observable_rotation_gate(observable, angle);
+    test_circuit = (J * angle * test_observable).exp();
 
     state.set_computational_basis(0);
 	test_state(0) = 1.;
@@ -672,8 +672,8 @@ TEST(CircuitTest, RotateDiagonalHamiltonian){
 	circuit.update_quantum_state(&state);
 	test_state = test_circuit * test_state;
 
-    res = ham.get_expectation_value(&state);
-	test_res = (test_state.adjoint() * test_ham * test_state);
+    res = observable.get_expectation_value(&state);
+	test_res = (test_state.adjoint() * test_observable * test_state);
 
     // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
 	ASSERT_NEAR(abs(test_res.real() - res)/test_res.real(), 0, 0.01);
@@ -682,14 +682,14 @@ TEST(CircuitTest, RotateDiagonalHamiltonian){
     state.set_Haar_random_state();
 	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state.data_cpp()[i];
 
-	res = ham.get_expectation_value(&state);
-	test_res = (test_state.adjoint() * test_ham * test_state);
+	res = observable.get_expectation_value(&state);
+	test_res = (test_state.adjoint() * test_observable * test_state);
 
 	test_state = test_circuit * test_state;
 	circuit.update_quantum_state(&state);
 
-	res = ham.get_expectation_value(&state);
-	test_res = (test_state.adjoint() * test_ham * test_state);
+	res = observable.get_expectation_value(&state);
+	test_res = (test_state.adjoint() * test_observable * test_state);
 
     // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
 	ASSERT_NEAR(abs(test_res.real() - res)/test_res.real(), 0, 0.01);

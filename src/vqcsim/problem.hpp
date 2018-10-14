@@ -2,7 +2,7 @@
 
 #include <cppsim/type.hpp>
 #include <cppsim/state.hpp>
-#include <cppsim/hamiltonian.hpp>
+#include <cppsim/observable.hpp>
 #include "boolean_formula.hpp"
 #include "loss_function.hpp"
 #include <functional>
@@ -67,19 +67,19 @@ public:
 
 class EnergyMinimizationProblem {
 private:
-	Hamiltonian* _hamiltonian;
+	Observable* _observable;
 public:
-	EnergyMinimizationProblem(Hamiltonian* hamiltonian) : _hamiltonian(hamiltonian) {};
+	EnergyMinimizationProblem(Observable* observable) : _observable(observable) {};
 	virtual ~EnergyMinimizationProblem() {
-		delete _hamiltonian;
+		delete _observable;
 	}
 
-	virtual UINT get_term_count() const { return _hamiltonian->get_term_count(); }
-	virtual const PauliOperator* get_Pauli_operator(UINT index) const { return _hamiltonian->get_term(index); }
-	virtual ITYPE get_state_dim() const { return _hamiltonian->get_state_dim(); }
-	virtual UINT get_qubit_count() const { return _hamiltonian->get_qubit_count(); }
+	virtual UINT get_term_count() const { return _observable->get_term_count(); }
+	virtual const PauliOperator* get_Pauli_operator(UINT index) const { return _observable->get_term(index); }
+	virtual ITYPE get_state_dim() const { return _observable->get_state_dim(); }
+	virtual UINT get_qubit_count() const { return _observable->get_qubit_count(); }
 	virtual double compute_loss(const QuantumStateBase* state) const {
-		return _hamiltonian->get_expectation_value(state);
+		return _observable->get_expectation_value(state);
 	};
 };
 

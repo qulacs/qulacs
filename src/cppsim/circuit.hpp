@@ -14,7 +14,7 @@
 class QuantumStateBase;
 class QuantumGateBase;
 class PauliOperator;
-class Hamiltonian;
+class Observable;
 
 /**
  * \~japanese-en 量子回路のクラス
@@ -409,23 +409,23 @@ public:
 	virtual void add_multi_Pauli_rotation_gate(const PauliOperator& pauli_operator);
 
     /**
-     * \~japanese-en n-qubitハミルトニアン回転ゲートを追加する。(対角のみ)
+     * \~japanese-en n-qubitオブザーバブル回転ゲートを追加する。(対角のみ)
      * 
-     * n-qubitハミルトニアン回転ゲートを作用する。ここで用いるハミルトニアンは、対角である必要がある。
-     * @param[in] hamiltonian 追加するハミルトニアン
+     * n-qubitオブザーバブル回転ゲートを作用する。ここで用いるオブザーバブルは、対角である必要がある。
+     * @param[in] observable 追加するオブザーバブル
      * @param[in] angle 回転角
      */
-    virtual void add_diagonal_hamiltonian_rotation_gate(const Hamiltonian& hamiltonian, double angle);
+    virtual void add_diagonal_observable_rotation_gate(const Observable& observable, double angle);
 
     /**
-     * \~japanese-en n-qubitハミルトニアン回転ゲートを追加する。
+     * \~japanese-en n-qubitオブザーバブル回転ゲートを追加する。
      * 
-     * Suzuki-Trotter展開によりn-qubitハミルトニアン回転ゲートを作用する。ここで用いるハミルトニアンは、対角でなくてもよい。
-     * @param[in] hamiltonian 追加するハミルトニアン
+     * Suzuki-Trotter展開によりn-qubitオブザーバブル回転ゲートを作用する。ここで用いるオブザーバブルは、対角でなくてもよい。
+     * @param[in] observable 追加するオブザーバブル
      * @param[in] angle 回転角 \f$ \theta \f$
      * @param[in] num_repeats Trotter展開をする際の分割数\f$N\f$。指定しない場合は、関数内部で\f$ \#qubit \cdot \theta / N = 0.01\f$ となるように設定される。
 */
-    virtual void add_hamiltonian_rotation_gate(const Hamiltonian& hamiltonian, double angle, UINT num_repeats = 0);
+    virtual void add_observable_rotation_gate(const Observable& observable, double angle, UINT num_repeats = 0);
     /**
      * \~japanese-en 1-qubitのdenseな行列のゲートを追加する。
      * 
