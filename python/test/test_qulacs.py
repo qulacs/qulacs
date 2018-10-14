@@ -7,13 +7,13 @@ sys.argv = sys.argv[:1]
 
 import numpy as np
 import unittest
-import pycppsim
+import qulacs
 
 class TestQuantumState(unittest.TestCase):
     def setUp(self):
         self.n = 4
         self.dim = 2**self.n
-        self.state = pycppsim.QuantumState(self.n)
+        self.state = qulacs.QuantumState(self.n)
 
     def tearDown(self):
         del self.state
@@ -41,8 +41,8 @@ class TestQuantumCircuit(unittest.TestCase):
     def setUp(self):
         self.n = 4
         self.dim = 2**self.n
-        self.state = pycppsim.QuantumState(self.n)
-        self.circuit = pycppsim.QuantumCircuit(self.n)
+        self.state = qulacs.QuantumState(self.n)
+        self.circuit = qulacs.QuantumCircuit(self.n)
 
     def tearDown(self):
         del self.state

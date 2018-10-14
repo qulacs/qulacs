@@ -95,7 +95,6 @@ public:
 		double r = random.uniform();
 
 		double sum = 0.;
-		QuantumGateBase* chosen_gate = NULL;
 		double org_norm = state->get_norm();
 
 		auto buffer = state->copy();
@@ -166,7 +165,6 @@ public:
 		double r = random.uniform();
 
 		double sum = 0.;
-		QuantumGateBase* chosen_gate = NULL;
 		double org_norm = state->get_norm();
 
 		auto buffer = state->copy();
