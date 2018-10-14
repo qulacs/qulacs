@@ -94,8 +94,12 @@ set(WARNING_CPP "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs
 
 ##### set output directory #####
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
+
+message(STATUS "OUTDIR = ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../lib)
+endif()
 
 
 ##### set flags #####
