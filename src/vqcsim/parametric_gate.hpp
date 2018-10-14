@@ -13,7 +13,10 @@ extern "C" {
 #include <cppsim/state.hpp>
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/utility.hpp>
-using namespace std::complex_literals;
+
+#ifndef _MSC_VER
+#include <complex.h>
+#endif
 
 
 class QuantumGate_SingleParameter : public QuantumGateBase {
