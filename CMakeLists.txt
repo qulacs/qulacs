@@ -1,4 +1,12 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 2.8)
+
+if(${CMAKE_C_COMPILER_VERSION} VERSION_LESS 7.0.0)
+	message(FATAL_ERROR, "gcc >= 7.0.0 is required.")
+endif()
+if(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 7.0.0)
+	message(FATAL_ERROR, "g++ >= 7.0.0 is required.")
+endif()
+
 
 ##### configure include files #####
 file(GLOB_RECURSE header_files ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp  ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
@@ -13,7 +21,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 ##### set external projects #####
 include(ExternalProject)
-include(FetchContent)
+
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0") 
+	include(FetchContent)
+else()
+	include(${CMAKE_SOURCE_DIR}/FetchContent.cmake)
+endif()
+
 
 # Google test
 FetchContent_Declare(
