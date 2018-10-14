@@ -85,6 +85,8 @@ install:
       brew cask uninstall --force oclint
       brew upgrade cmake python
       brew install gcc@7 pipenv swig
+      softwareupdate --list
+      softwareupdate --install "Command Line Tools (macOS High Sierra version 10.13) for Xcode-9.4"
     fi
 
 before_script:
