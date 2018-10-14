@@ -1,4 +1,12 @@
-cmake_minimum_required(VERSION 3.11)
+cmake_minimum_required(VERSION 2.8)
+
+if(${CMAKE_C_COMPILER_VERSION} VERSION_LESS 7.0.0)
+	message(FATAL_ERROR, "gcc >= 7.0.0 is required.")
+endif()
+if(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 7.0.0)
+	message(FATAL_ERROR, "g++ >= 7.0.0 is required.")
+endif()
+
 
 ##### configure include files #####
 file(GLOB_RECURSE header_files ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp  ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
@@ -13,7 +21,13 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 
 ##### set external projects #####
 include(ExternalProject)
-include(FetchContent)
+
+if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0") 
+	include(FetchContent)
+else()
+	include(${CMAKE_SOURCE_DIR}/FetchContent.cmake)
+endif()
+
 
 # Google test
 FetchContent_Declare(
@@ -94,8 +108,12 @@ set(WARNING_CPP "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs
 
 ##### set output directory #####
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
+
+message(STATUS "OUTDIR = ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
+if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../lib)
+endif()
 
 
 ##### set flags #####
@@ -189,5 +207,5 @@ add_custom_target(python
 # test python
 add_custom_target(pythontest
 	DEPENDS pycppsim
-	COMMAND python3 ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_pycppsim.py ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+	COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_pycppsim.py ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )
