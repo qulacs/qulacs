@@ -10,7 +10,7 @@ VQCSIMはCPPSIMに、CPPSIMはCSIMに依存するライブラリです。
 
 ## CPPSIM (C++ Simulator)
 C++言語で記述された、CSIMをより扱いやすくするためのツール群です。
-Eigenに依存してます。
+Eigenに依存しています。
 今後、Openfermionとの接続やQASMの読み込みなどを実装していく予定です。
 
 ## VQCSIM (Variational Quantum Circuit Simulator)
