@@ -1,5 +1,6 @@
  
 # Qulacs
+[![Build Status](https://travis-ci.org/qulacs/qulacs.svg?branch=master)](https://travis-ci.org/qulacs/qulacs)
 
 Qulacs is a fast quantum circuit simulator for simulating large, noisy, or parametric quantum circuits.
 
