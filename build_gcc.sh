@@ -1,18 +1,17 @@
 #!/bin/sh
 
-GCC_COMMAND = "gcc"
-GXX_COMMAND = "g++"
+GCC_COMMAND=gcc
+GXX_COMMAND=g++
 
 # if gcc/g++ version is less than 7, use gcc-7/g++-7
 GCC_VERSION=$(gcc -dumpversion | awk -F. '{printf "%2d%02d%02d", $1,$2,$3}')
 if [ "$GCC_VERSION" -lt 70000 ]; then
-  GCC_COMMAND = "gcc-7"
+  GCC_COMMAND=gcc-7
 fi
 GCC_VERSION=$(gcc -dumpversion | awk -F. '{printf "%2d%02d%02d", $1,$2,$3}')
 if [ "$GCC_VERSION" -lt 70000 ]; then
-  GCC_COMMAND = "g++-7"
+  GXX_COMMAND=g++-7
 fi
-
 
 mkdir ./build
 cd ./build

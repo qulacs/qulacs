@@ -45,9 +45,24 @@ class CMakeBuild(build_ext):
                 cmake_args += ['-A', 'x64']
             build_args += ['--', '/m']
         else:
+            try:
+                gcc_out = subprocess.check_output(['gcc', '-dumpversion']).decode()
+                gcc_version = LooseVersion(gcc_out)
+                gxx_out = subprocess.check_output(['g++', '-dumpversion']).decode()
+                gxx_version = LooseVersion(gxx_out)
+            except OSError:
+                raise RuntimeError("gcc/g++ must be installed to build the following extensions: " +
+                               ", ".join(e.name for e in self.extensions))
+            if(gcc_version >= LooseVersion('7.0.0')):
+                cmake_args += ['-DCMAKE_C_COMPILER=gcc']
+            else:
+                cmake_args += ['-DCMAKE_C_COMPILER=gcc-7']
+            if(gxx_version >= LooseVersion('7.0.0')):
+                cmake_args += ['-DCMAKE_CXX_COMPILER=g++']
+            else:
+                cmake_args += ['-DCMAKE_CXX_COMPILER=g++-7']
+
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-            cmake_args += ['-DCMAKE_C_COMPILER=gcc-7']
-            cmake_args += ['-DCMAKE_CXX_COMPILER=g++-7']
             build_args += ['--', '-j2']
 
         env = os.environ.copy()
@@ -55,9 +70,6 @@ class CMakeBuild(build_ext):
                                                               self.distribution.get_version())
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
-        print(cmake_args)
-        print(build_args)
-        #exit(0)
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.', '--target', 'python'] + build_args, cwd=self.build_temp)
 
