@@ -117,7 +117,7 @@ public:
 		const UINT term_count = instance->get_term_count();
 		const ITYPE matrix_dim = 1ULL << qubit_count;
 
-		ComplexMatrix hamiltonian_matrix = ComplexMatrix::Zero(matrix_dim, matrix_dim);
+		ComplexMatrix observable_matrix = ComplexMatrix::Zero(matrix_dim, matrix_dim);
 		for (UINT term_index = 0; term_index < term_count; ++term_index) {
 			auto Pauli_operator = instance->get_Pauli_operator(term_index);
 			double coef = Pauli_operator->get_coef();
@@ -131,11 +131,11 @@ public:
 
 			ComplexMatrix pauli_matrix;
 			get_Pauli_matrix(pauli_matrix,whole_pauli_id_list);
-			hamiltonian_matrix += coef*pauli_matrix;
+			observable_matrix += coef*pauli_matrix;
 		}
 
-		hamiltonian_matrix.eigenvalues();
-		Eigen::SelfAdjointEigenSolver<ComplexMatrix> eigen_solver(hamiltonian_matrix);
+		observable_matrix.eigenvalues();
+		Eigen::SelfAdjointEigenSolver<ComplexMatrix> eigen_solver(observable_matrix);
 		loss = eigen_solver.eigenvalues()[0];
 
 		if (verbose)	std::cout << "Eigenvalues : " << std::endl << eigen_solver.eigenvalues() << std::endl;

@@ -17,7 +17,7 @@ extern "C" {
 #include <csim/stat_ops.h>
 #endif
 
-#include <cppsim/hamiltonian.hpp>
+#include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/state.hpp>
 #include <cppsim/gate_factory.hpp>
@@ -27,8 +27,11 @@ extern "C" {
 #include <cppsim/circuit_optimizer.hpp>
 #include <cppsim/simulator.hpp>
 
+#include <vqcsim/parametric_gate_factory.hpp>
+#include <vqcsim/parametric_circuit.hpp>
+
 namespace py = pybind11;
-PYBIND11_MODULE(pycppsim, m) {
+PYBIND11_MODULE(qulacs, m) {
 	m.doc() = "cppsim python interface";
 
 	py::class_<PauliOperator>(m, "PauliOperator")
@@ -39,20 +42,22 @@ PYBIND11_MODULE(pycppsim, m) {
 		.def("get_coef", &PauliOperator::get_coef)
 		.def("add_single_Pauli", &PauliOperator::add_single_Pauli)
 		.def("get_expectation_value", &PauliOperator::get_expectation_value)
+		.def("get_transition_amplitude", &PauliOperator::get_transition_amplitude)
 		.def("copy", &PauliOperator::copy)
 		;
 
-	py::class_<Hamiltonian>(m, "Hamiltonian")
+	py::class_<Observable>(m, "Observable")
 		.def(py::init<unsigned int>())
 		.def(py::init<std::string>())
-		.def("add_operator", (void (Hamiltonian::*)(PauliOperator*)) &Hamiltonian::add_operator)
-		.def("add_operator", (void (Hamiltonian::*)(double coef, std::string))&Hamiltonian::add_operator)
-		.def("get_qubit_count", &Hamiltonian::get_qubit_count)
-		.def("get_state_dim", &Hamiltonian::get_state_dim)
-		.def("get_term_count", &Hamiltonian::get_term_count)
-		.def("get_term", &Hamiltonian::get_term, pybind11::return_value_policy::automatic_reference)
-		.def("get_expectation_value", &Hamiltonian::get_expectation_value)
-		//.def_static("get_split_Hamiltonian", &(Hamiltonian::get_split_hamiltonian));
+		.def("add_operator", (void (Observable::*)(PauliOperator*)) &Observable::add_operator)
+		.def("add_operator", (void (Observable::*)(double coef, std::string))&Observable::add_operator)
+		.def("get_qubit_count", &Observable::get_qubit_count)
+		.def("get_state_dim", &Observable::get_state_dim)
+		.def("get_term_count", &Observable::get_term_count)
+		.def("get_term", &Observable::get_term, pybind11::return_value_policy::automatic_reference)
+		.def("get_expectation_value", &Observable::get_expectation_value)
+		.def("get_transition_amplitude", &Observable::get_transition_amplitude)
+		//.def_static("get_split_Observable", &(Observable::get_split_observable));
 		;
 
 	py::class_<QuantumStateBase>(m, "QuantumStateBase");
@@ -177,14 +182,20 @@ PYBIND11_MODULE(pycppsim, m) {
 	mgate.def("Adaptive", &gate::Adaptive, pybind11::return_value_policy::automatic_reference);
 
 
+	mgate.def("ParametricRX", &gate::ParametricRX);
+	mgate.def("ParametricRY", &gate::ParametricRY);
+	mgate.def("ParametricRZ", &gate::ParametricRZ);
+	mgate.def("ParametricPauliRotation", &gate::ParametricPauliRotation);
+
+
 	py::class_<QuantumCircuit>(m, "QuantumCircuit")
 		.def(py::init<unsigned int>())
 		.def("copy", &QuantumCircuit::copy)
 		.def("add_gate", (void (QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate)
-		.def("add_gate", (void (QuantumCircuit::*)(QuantumGateBase*,unsigned int))&QuantumCircuit::add_gate)
+		.def("add_gate", (void (QuantumCircuit::*)(QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate)
 		.def("remove_gate", &QuantumCircuit::remove_gate)
-		.def("update_quantum_state",(void (QuantumCircuit::*)(QuantumStateBase*))&QuantumCircuit::update_quantum_state)
-		.def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*,unsigned int, unsigned int))&QuantumCircuit::update_quantum_state)
+		.def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*))&QuantumCircuit::update_quantum_state)
+		.def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*, unsigned int, unsigned int))&QuantumCircuit::update_quantum_state)
 		.def("calculate_depth", &QuantumCircuit::calculate_depth)
 		.def("to_string", &QuantumCircuit::to_string)
 
@@ -220,8 +231,33 @@ PYBIND11_MODULE(pycppsim, m) {
 		.def("add_multi_Pauli_rotation_gate", (void (QuantumCircuit::*)(const PauliOperator&))&QuantumCircuit::add_multi_Pauli_rotation_gate)
 		.def("add_dense_matrix_gate", (void (QuantumCircuit::*)(unsigned int, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate)
 		.def("add_dense_matrix_gate", (void (QuantumCircuit::*)(std::vector<unsigned int>, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate)
+		.def("add_diagonal_observable_rotation_gate", &QuantumCircuit::add_diagonal_observable_rotation_gate)
+		.def("add_observable_rotation_gate", &QuantumCircuit::add_observable_rotation_gate)
 		.def("__repr__", [](const QuantumCircuit &p) {return p.to_string(); });
 	;
+
+	py::class_<ParametricQuantumCircuit, QuantumCircuit>(m, "ParametricQuantumCircuit")
+		.def(py::init<unsigned int>())
+		.def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate))  &ParametricQuantumCircuit::add_parametric_gate)
+		.def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate, UINT))  &ParametricQuantumCircuit::add_parametric_gate)
+		.def("add_gate", (void (ParametricQuantumCircuit::*)(QuantumGateBase* gate))  &ParametricQuantumCircuit::add_gate )
+		.def("add_gate", (void (ParametricQuantumCircuit::*)(QuantumGateBase* gate))  &ParametricQuantumCircuit::add_gate)
+		.def("get_parameter_count", &ParametricQuantumCircuit::get_parameter_count)
+		.def("get_parameter", &ParametricQuantumCircuit::get_parameter)
+		.def("set_parameter", &ParametricQuantumCircuit::set_parameter)
+		.def("get_parametric_gate_position", &ParametricQuantumCircuit::get_parametric_gate_position)
+		.def("remove_gate", &ParametricQuantumCircuit::remove_gate)
+
+		.def("add_parametric_RX_gate", &ParametricQuantumCircuit::add_parametric_RX_gate)
+		.def("add_parametric_RY_gate", &ParametricQuantumCircuit::add_parametric_RY_gate)
+		.def("add_parametric_RZ_gate", &ParametricQuantumCircuit::add_parametric_RZ_gate)
+		.def("add_parametric_multi_Pauli_rotation_gate", &ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate)
+
+		.def("__repr__", [](const ParametricQuantumCircuit &p) {return p.to_string(); });
+	;
+
+
+
 	auto mcircuit = m.def_submodule("circuit");
 	py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
 		.def(py::init<>())

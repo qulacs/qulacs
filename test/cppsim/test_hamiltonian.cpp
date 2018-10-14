@@ -4,14 +4,14 @@
 #include "../util/util.h"
 #include <cppsim/state.hpp>
 #include <cppsim/circuit.hpp>
-#include <cppsim/hamiltonian.hpp>
+#include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/utility.hpp>
 #include <fstream>
 
 
 
-TEST(HamiltonianTest, CheckExpectationValue) {
+TEST(ObservableTest, CheckExpectationValue) {
 	const UINT n = 4;
 	const UINT dim = 1ULL << n;
 	const double eps = 1e-14;
@@ -29,20 +29,20 @@ TEST(HamiltonianTest, CheckExpectationValue) {
 	test_state(0) = 1.;
 
 	coef = random.uniform();
-	Hamiltonian ham(n);
-	ham.add_operator(coef, "X 0");
-	Eigen::MatrixXcd test_ham = Eigen::MatrixXcd::Zero(dim, dim);
-	test_ham += coef*get_expanded_eigen_matrix_with_identity(0, X, n);
+	Observable observable(n);
+	observable.add_operator(coef, "X 0");
+	Eigen::MatrixXcd test_observable = Eigen::MatrixXcd::Zero(dim, dim);
+	test_observable += coef*get_expanded_eigen_matrix_with_identity(0, X, n);
 
-	res = ham.get_expectation_value(&state);
-	test_res = (test_state.adjoint() * test_ham * test_state);
+	res = observable.get_expectation_value(&state);
+	test_res = (test_state.adjoint() * test_observable * test_state);
 	ASSERT_NEAR(test_res.real(), res, eps);
 	ASSERT_NEAR(test_res.imag(), 0, eps);
 
 	state.set_Haar_random_state();
 	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state.data_cpp()[i];
-	res = ham.get_expectation_value(&state);
-	test_res = (test_state.adjoint() * test_ham * test_state);
+	res = observable.get_expectation_value(&state);
+	test_res = (test_state.adjoint() * test_observable * test_state);
 	ASSERT_NEAR(test_res.real(), res, eps);
 	ASSERT_NEAR(test_res.imag(), 0, eps);
 
@@ -50,20 +50,20 @@ TEST(HamiltonianTest, CheckExpectationValue) {
 
 	for (UINT repeat = 0; repeat < 10; ++repeat) {
 
-		Hamiltonian rand_ham(n);
-		Eigen::MatrixXcd test_rand_ham = Eigen::MatrixXcd::Zero(dim, dim);
+		Observable rand_observable(n);
+		Eigen::MatrixXcd test_rand_observable = Eigen::MatrixXcd::Zero(dim, dim);
 
 		UINT term_count = random.int32() % 10+1;
 		for (UINT term = 0; term < term_count; ++term) {
 			std::vector<UINT> paulis(n,0);
-			Eigen::MatrixXcd test_rand_ham_term = Eigen::MatrixXcd::Identity(dim, dim);
+			Eigen::MatrixXcd test_rand_observable_term = Eigen::MatrixXcd::Identity(dim, dim);
 			coef = random.uniform();
 			for (UINT i = 0; i < paulis.size(); ++i) {
 				paulis[i] = random.int32() % 4;
 
-				test_rand_ham_term *= get_expanded_eigen_matrix_with_identity(i, get_eigen_matrix_single_Pauli(paulis[i]) , n);
+				test_rand_observable_term *= get_expanded_eigen_matrix_with_identity(i, get_eigen_matrix_single_Pauli(paulis[i]) , n);
 			}
-			test_rand_ham += coef* test_rand_ham_term;
+			test_rand_observable += coef* test_rand_observable_term;
 
 			std::string str = "";
 			for (UINT ind = 0; ind < paulis.size(); ind++) {
@@ -75,21 +75,21 @@ TEST(HamiltonianTest, CheckExpectationValue) {
 					str += " " + std::to_string(ind);
 				}
 			}
-			rand_ham.add_operator(coef, str.c_str());
+			rand_observable.add_operator(coef, str.c_str());
 		}
 
 		state.set_Haar_random_state();
 		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state.data_cpp()[i];
 
-		res = rand_ham.get_expectation_value(&state);
-		test_res = test_state.adjoint() * test_rand_ham * test_state;
+		res = rand_observable.get_expectation_value(&state);
+		test_res = test_state.adjoint() * test_rand_observable * test_state;
 		ASSERT_NEAR(test_res.real(), res, eps);
 		ASSERT_NEAR(test_res.imag(), 0, eps);
 
 	}
 }
 
-TEST(HamiltonianTest, CheckParsedHamiltonian){
+TEST(ObservableTest, CheckParsedObservable){
 	auto func = [](const std::string path, const QuantumStateBase* state) -> double {
 		    std::ifstream ifs;
 			ifs.open(path);
@@ -133,13 +133,13 @@ TEST(HamiltonianTest, CheckParsedHamiltonian){
 	double res, test_res;
 
 
-	Hamiltonian ham(filename);
-    UINT qubit_count = ham.get_qubit_count();
+	Observable observable(filename);
+    UINT qubit_count = observable.get_qubit_count();
 
 	QuantumState state(qubit_count);
 	state.set_computational_basis(0);
 
-	res = ham.get_expectation_value(&state);
+	res = observable.get_expectation_value(&state);
 	test_res = func(filename, &state);
 
 	ASSERT_EQ(test_res, res);
@@ -147,13 +147,13 @@ TEST(HamiltonianTest, CheckParsedHamiltonian){
 
 	state.set_Haar_random_state();
 
-	res = ham.get_expectation_value(&state);
+	res = observable.get_expectation_value(&state);
 	test_res = func(filename, &state);
 
 	ASSERT_NEAR(test_res, res, eps);
 }
 
-TEST(HamiltonianTest, CheckSplitHamiltonian){
+TEST(ObservableTest, CheckSplitObservable){
 	auto func = [](const std::string path, const QuantumStateBase* state) -> double {
 		    std::ifstream ifs;
 			CPPCTYPE coef;
@@ -197,15 +197,15 @@ TEST(HamiltonianTest, CheckSplitHamiltonian){
 
 	double diag_res, test_res, non_diag_res;
 
-    std::pair<Hamiltonian*, Hamiltonian*> hams = Hamiltonian::get_split_hamiltonian(filename);
+    std::pair<Observable*, Observable*> observables = Observable::get_split_observable(filename);
 
-    UINT qubit_count = hams.first->get_qubit_count();
+    UINT qubit_count = observables.first->get_qubit_count();
     QuantumState state(qubit_count);
 	state.set_computational_basis(0);
 
 
-	diag_res = hams.first->get_expectation_value(&state);
-	non_diag_res = hams.second->get_expectation_value(&state);
+	diag_res = observables.first->get_expectation_value(&state);
+	non_diag_res = observables.second->get_expectation_value(&state);
 	test_res = func(filename, &state);
 
 	ASSERT_NEAR(test_res, diag_res + non_diag_res, eps);
@@ -213,8 +213,8 @@ TEST(HamiltonianTest, CheckSplitHamiltonian){
 
 	state.set_Haar_random_state();
 
-	diag_res = hams.first->get_expectation_value(&state);
-	non_diag_res = hams.second->get_expectation_value(&state);
+	diag_res = observables.first->get_expectation_value(&state);
+	non_diag_res = observables.second->get_expectation_value(&state);
 	test_res = func(filename, &state);
 
 	ASSERT_NEAR(test_res, diag_res + non_diag_res, eps);

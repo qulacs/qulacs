@@ -130,6 +130,9 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+	if(NOT MINGW)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
+	endif()
 
 	if(USE_OMP)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
@@ -201,11 +204,11 @@ add_custom_target(bench
 
 # python binding
 add_custom_target(python
-	DEPENDS pycppsim
+	DEPENDS qulacs
 )
 
 # test python
 add_custom_target(pythontest
-	DEPENDS pycppsim
-	COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_pycppsim.py ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+	DEPENDS qulacs
+	COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_qulacs.py ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 )

@@ -14,6 +14,10 @@ extern "C" {
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/utility.hpp>
 
+#ifndef _MSC_VER
+#include <complex.h>
+#endif
+
 
 class QuantumGate_SingleParameter : public QuantumGateBase {
 protected:

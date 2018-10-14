@@ -184,6 +184,16 @@ public:
      */
 	virtual double get_expectation_value(const QuantumStateBase* state) const;
 
+	/**
+	 * \~japanese-en
+	 * 量子状態に対応するパウリ演算子の遷移振幅を計算する
+	 *
+	 * @param[in] state_bra 遷移先の量子状態
+	 * @param[in] state_ket 遷移元の量子状態
+	 * @return state_bra, state_ketに対応する遷移振幅
+	 */
+	virtual CPPCTYPE get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const;
+
     /**
      * \~japanese-en
      * 自身のディープコピーを生成する

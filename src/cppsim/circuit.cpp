@@ -12,7 +12,7 @@
 #include "circuit.hpp"
 #include "gate_factory.hpp"
 #include "pauli_operator.hpp"
-#include "hamiltonian.hpp"
+#include "observable.hpp"
 
 void QuantumCircuit::update_quantum_state(QuantumStateBase* state){
     for(const auto& gate : this->_gate_list){
@@ -250,18 +250,18 @@ void QuantumCircuit::add_multi_Pauli_rotation_gate(std::vector<UINT> target_inde
 void QuantumCircuit::add_multi_Pauli_rotation_gate(const PauliOperator& pauli_operator) {
 	this->add_gate(gate::PauliRotation(pauli_operator.get_index_list(), pauli_operator.get_pauli_id_list(), pauli_operator.get_coef() ));
 }
-void QuantumCircuit::add_diagonal_hamiltonian_rotation_gate(const Hamiltonian& hamiltonian, double angle) {
-    std::vector<PauliOperator*> operator_list = hamiltonian.get_terms();
+void QuantumCircuit::add_diagonal_observable_rotation_gate(const Observable& observable, double angle) {
+    std::vector<PauliOperator*> operator_list = observable.get_terms();
     for (auto pauli: operator_list){
         auto pauli_rotation = gate::PauliRotation(pauli->get_index_list(), pauli->get_pauli_id_list(), pauli->get_coef() * angle);
         if (!pauli_rotation->is_diagonal())
-            std::cerr << "ERROR: Hamiltonian is not diagonal" << std::endl;
+            std::cerr << "ERROR: Observable is not diagonal" << std::endl;
         this->add_gate(pauli_rotation);
     }
 }
-void QuantumCircuit::add_hamiltonian_rotation_gate(const Hamiltonian& hamiltonian, double angle, UINT num_repeats) {
-    UINT qubit_count_ = hamiltonian.get_qubit_count();
-    std::vector<PauliOperator*> operator_list = hamiltonian.get_terms();
+void QuantumCircuit::add_observable_rotation_gate(const Observable& observable, double angle, UINT num_repeats) {
+    UINT qubit_count_ = observable.get_qubit_count();
+    std::vector<PauliOperator*> operator_list = observable.get_terms();
     if (num_repeats == 0)
         num_repeats = (UINT) std::ceil(angle * (double)qubit_count_ * 100.);
     // std::cout << num_repeats << std::endl;

@@ -185,7 +185,7 @@ public:
 	 * @param[in] sampling_count サンプリングを行う回数
 	 * @return サンプルされた値のリスト
 	 */
-	virtual std::vector<ITYPE> sampling(UINT sampling_count) const = 0;
+	virtual std::vector<ITYPE> sampling(UINT sampling_count) = 0;
 	
 
 	/**
@@ -382,7 +382,7 @@ public:
 	 * @param[in] sampling_count サンプリングを行う回数
 	 * @return サンプルされた値のリスト
 	 */
-	virtual std::vector<ITYPE> sampling(UINT sampling_count) const override{
+	virtual std::vector<ITYPE> sampling(UINT sampling_count) override{
 		std::vector<double> stacked_prob;
 		std::vector<ITYPE> result;
 		double sum = 0.;
@@ -393,7 +393,6 @@ public:
 			stacked_prob.push_back(sum);
 		}
 
-		Random random;
 		for (UINT count = 0; count < sampling_count; ++count) {
 			double r = random.uniform();
 			auto ite = std::lower_bound(stacked_prob.begin(), stacked_prob.end(), r);
