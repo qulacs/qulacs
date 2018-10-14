@@ -24,7 +24,7 @@ public:
 
 	virtual std::string to_string() const;
 	friend DllExport std::ostream& operator<<(std::ostream& os, const ParametricQuantumCircuit&);
-	friend DllExport std::ostream& operator<<(std::ostream& os, ParametricQuantumCircuit* circuit);
+	friend DllExport std::ostream& operator<<(std::ostream& os, const ParametricQuantumCircuit* circuit);
 
 	virtual void add_parametric_RX_gate(UINT target_index, double initial_angle);
 	virtual void add_parametric_RY_gate(UINT target_index, double initial_angle);
