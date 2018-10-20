@@ -78,7 +78,7 @@ setup(
     version='0.0.1',
     author='QunaSys',
     author_email='yan@qunasys.com',
-    url='https://www.qulacs.org',
+    url='http://www.qulacs.org',
     description='Quantum circuit simulator for research',
     long_description='',
     ext_modules=[CMakeExtension('qulacs')],
