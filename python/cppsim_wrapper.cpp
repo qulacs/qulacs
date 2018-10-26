@@ -48,7 +48,7 @@ PYBIND11_MODULE(qulacs, m) {
 
 	py::class_<Observable>(m, "Observable")
 		.def(py::init<unsigned int>())
-		.def(py::init<std::string>())
+		// .def(py::init<std::string>())
 		.def("add_operator", (void (Observable::*)(PauliOperator*)) &Observable::add_operator)
 		.def("add_operator", (void (Observable::*)(double coef, std::string))&Observable::add_operator)
 		.def("get_qubit_count", &Observable::get_qubit_count)
@@ -59,6 +59,11 @@ PYBIND11_MODULE(qulacs, m) {
 		.def("get_transition_amplitude", &Observable::get_transition_amplitude)
 		//.def_static("get_split_Observable", &(Observable::get_split_observable));
 		;
+    auto mobservable = m.def_submodule("observable");
+    mobservable.def("create_observable_from_openfermion_file", &observable::create_observable_from_openfermion_file, pybind11::return_value_policy::automatic_reference);
+    mobservable.def("create_observable_from_openfermion_text", &observable::create_observable_from_openfermion_text, pybind11::return_value_policy::automatic_reference);
+    mobservable.def("create_split_observable", &observable::create_split_observable, pybind11::return_value_policy::automatic_reference);
+
 
 	py::class_<QuantumStateBase>(m, "QuantumStateBase");
 	py::class_<QuantumState,QuantumStateBase>(m, "QuantumState")
