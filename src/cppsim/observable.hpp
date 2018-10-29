@@ -38,17 +38,6 @@ public:
 	Observable(UINT qubit_count);
 
 	/**
-	 * \~japanese-en
-	 * コンストラクタ。
-	 *
-	 * OpenFermionから出力されたオブザーバブルのテキストファイルを読み込んでObservableを生成します。
-	 *
-	 * @param[in] filename OpenFermion形式のオブザーバブルのファイル名
-	 * @return Observableのインスタンス
-	 **/
-	Observable(std::string filename);
-
-	/**
      * \~japanese-en
 	 * デストラクタ。このとき、オブザーバブルが保持しているPauliOperatorは解放される。
 	 */
@@ -126,11 +115,34 @@ public:
 	 */
 	CPPCTYPE get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const;
 
-	/**
+};
+
+namespace observable{
+    /**
+	 * \~japanese-en
+	 *
+	 * OpenFermionから出力されたオブザーバブルのテキストファイルを読み込んでObservableを生成します。オブザーバブルのqubit数はファイル読み込み時に、オブザーバブルの構成に必要なqubit数となります。
+	 *
+	 * @param[in] filename OpenFermion形式のオブザーバブルのファイル名
+	 * @return Observableのインスタンス
+	 **/
+    DllExport Observable* create_observable_from_openfermion_file(std::string file_path);
+
+    /**
+	 * \~japanese-en
+	 *
+	 * OpenFermionの出力テキストを読み込んでObservableを生成します。オブザーバブルのqubit数はファイル読み込み時に、オブザーバブルの構成に必要なqubit数となります。
+	 *
+	 * @param[in] filename OpenFermion形式のテキスト
+	 * @return Observableのインスタンス
+	 **/
+    DllExport Observable* create_observable_from_openfermion_text(std::string text);
+
+    /**
      * \~japanese-en
      * OpenFermion形式のファイルを読んで、対角なObservableと非対角なObservableを返す。オブザーバブルのqubit数はファイル読み込み時に、オブザーバブルの構成に必要なqubit数となります。
      *
 	 * @param[in] filename OpenFermion形式のオブザーバブルのファイル名
      */
-	static std::pair<Observable*, Observable*> get_split_observable(std::string filename);
-};
+    DllExport std::pair<Observable*, Observable*> create_split_observable(std::string file_path);
+}
