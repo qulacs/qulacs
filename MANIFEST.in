@@ -1,0 +1,9 @@
+include *.cmake
+include FetchContent/*.cmake.in
+include build_gcc.sh
+include generate_msvc_project.bat
+include CMakeLists.txt
+recursive-include src *
+recursive-include test *
+recursive-include python *
+recursive-include benchmark *
