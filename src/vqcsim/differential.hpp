@@ -10,10 +10,10 @@
 
 class DllExport QuantumCircuitGradientDifferentiation {
 public:
-	virtual double compute_gradient(ParametricQuantumCircuitSimulator* sim, const EnergyMinimizationProblem* instance, const std::vector<double>& parameter, std::vector<double>* gradient) = 0;
+    virtual double compute_gradient(ParametricQuantumCircuitSimulator* sim, const EnergyMinimizationProblem* instance, const std::vector<double>& parameter, std::vector<double>* gradient) = 0;
 };
 
 class DllExport GradientByHalfPi : public QuantumCircuitGradientDifferentiation {
 public:
-	virtual double compute_gradient(ParametricQuantumCircuitSimulator* sim, const EnergyMinimizationProblem* instance, const std::vector<double>& parameter, std::vector<double>* gradient) override;
+    virtual double compute_gradient(ParametricQuantumCircuitSimulator* sim, const EnergyMinimizationProblem* instance, const std::vector<double>& parameter, std::vector<double>* gradient) override;
 };

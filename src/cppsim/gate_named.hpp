@@ -17,27 +17,27 @@ protected:
 
     QuantumGate_OneQubit() {};
 public:
-	/**
-	 * \~japanese-en 量子状態を更新する
-	 * 
-	 * @param state 更新する量子状態
-	 */
+    /**
+     * \~japanese-en 量子状態を更新する
+     * 
+     * @param state 更新する量子状態
+     */
     virtual void update_quantum_state(QuantumStateBase* state) override{
         _update_func(this->_target_qubit_list[0].index(), state->data_c(), state->dim);
     };
-	/**
-	 * \~japanese-en 自身のディープコピーを生成する
-	 * 
-	 * @return 自身のディープコピー
-	 */
+    /**
+     * \~japanese-en 自身のディープコピーを生成する
+     * 
+     * @return 自身のディープコピー
+     */
     virtual QuantumGateBase* copy() const override{
         return new QuantumGate_OneQubit(*this);
     };
-	/**
-	 * \~japanese-en 自身のゲート行列をセットする
-	 * 
-	 * @param matrix 行列をセットする変数の参照
-	 */
+    /**
+     * \~japanese-en 自身のゲート行列をセットする
+     * 
+     * @param matrix 行列をセットする変数の参照
+     */
     virtual void set_matrix(ComplexMatrix& matrix) const override{
         matrix = this->_matrix_element;
     }
@@ -54,27 +54,27 @@ protected:
 
     QuantumGate_TwoQubit() {};
 public:
-	/**
-	 * \~japanese-en 量子状態を更新する
-	 * 
-	 * @param state 更新する量子状態
-	 */
+    /**
+     * \~japanese-en 量子状態を更新する
+     * 
+     * @param state 更新する量子状態
+     */
     virtual void update_quantum_state(QuantumStateBase* state) override{
         _update_func(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data_c(), state->dim);
     };
-	/**
-	 * \~japanese-en 自身のディープコピーを生成する
-	 * 
-	 * @return 自身のディープコピー
-	 */
+    /**
+     * \~japanese-en 自身のディープコピーを生成する
+     * 
+     * @return 自身のディープコピー
+     */
     virtual QuantumGateBase* copy() const override{
         return new QuantumGate_TwoQubit(*this);
     };
-	/**
-	 * \~japanese-en 自身のゲート行列をセットする
-	 * 
-	 * @param matrix 行列をセットする変数の参照
-	 */
+    /**
+     * \~japanese-en 自身のゲート行列をセットする
+     * 
+     * @param matrix 行列をセットする変数の参照
+     */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         matrix = this->_matrix_element;
     }
@@ -85,36 +85,36 @@ public:
  */
 class QuantumGate_OneControlOneTarget : public QuantumGateBase {
 protected:
-	typedef void (T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
-	T_UPDATE_FUNC* _update_func;
-	ComplexMatrix _matrix_element;
+    typedef void (T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
+    T_UPDATE_FUNC* _update_func;
+    ComplexMatrix _matrix_element;
 
-	QuantumGate_OneControlOneTarget() {};
+    QuantumGate_OneControlOneTarget() {};
 public:
-	/**
-	 * \~japanese-en 量子状態を更新する
-	 * 
-	 * @param state 更新する量子状態
-	 */
-	virtual void update_quantum_state(QuantumStateBase* state) override {
-		_update_func(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data_c(), state->dim);
-	};
-	/**
-	 * \~japanese-en 自身のディープコピーを生成する
-	 * 
-	 * @return 自身のディープコピー
-	 */
-	virtual QuantumGateBase* copy() const override {
-		return new QuantumGate_OneControlOneTarget(*this);
-	};
-	/**
-	 * \~japanese-en 自身のゲート行列をセットする
-	 * 
-	 * @param matrix 行列をセットする変数の参照
-	 */
-	virtual void set_matrix(ComplexMatrix& matrix) const override {
-		matrix = this->_matrix_element;
-	}
+    /**
+     * \~japanese-en 量子状態を更新する
+     * 
+     * @param state 更新する量子状態
+     */
+    virtual void update_quantum_state(QuantumStateBase* state) override {
+        _update_func(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+    };
+    /**
+     * \~japanese-en 自身のディープコピーを生成する
+     * 
+     * @return 自身のディープコピー
+     */
+    virtual QuantumGateBase* copy() const override {
+        return new QuantumGate_OneControlOneTarget(*this);
+    };
+    /**
+     * \~japanese-en 自身のゲート行列をセットする
+     * 
+     * @param matrix 行列をセットする変数の参照
+     */
+    virtual void set_matrix(ComplexMatrix& matrix) const override {
+        matrix = this->_matrix_element;
+    }
 };
 
 /**
@@ -129,27 +129,27 @@ protected:
 
     QuantumGate_OneQubitRotation(double angle) : _angle(angle) {};
 public:
-	/**
-	 * \~japanese-en 量子状態を更新する
-	 * 
-	 * @param state 更新する量子状態
-	 */
+    /**
+     * \~japanese-en 量子状態を更新する
+     * 
+     * @param state 更新する量子状態
+     */
     virtual void update_quantum_state(QuantumStateBase* state) override{
         _update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
     };
-	/**
-	 * \~japanese-en 自身のディープコピーを生成する
-	 * 
-	 * @return 自身のディープコピー
-	 */
+    /**
+     * \~japanese-en 自身のディープコピーを生成する
+     * 
+     * @return 自身のディープコピー
+     */
     virtual QuantumGateBase* copy() const override{
         return new QuantumGate_OneQubitRotation(*this);
     };
-	/**
-	 * \~japanese-en 自身のゲート行列をセットする
-	 * 
-	 * @param matrix 行列をセットする変数の参照
-	 */
+    /**
+     * \~japanese-en 自身のゲート行列をセットする
+     * 
+     * @param matrix 行列をセットする変数の参照
+     */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         matrix = this->_matrix_element;
     }

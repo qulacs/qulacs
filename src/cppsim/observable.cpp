@@ -28,23 +28,23 @@ void Observable::add_operator(PauliOperator* mpt){
 }
 
 void Observable::add_operator(double coef, std::string pauli_string) {
-	this->add_operator(new PauliOperator(pauli_string, coef));
+    this->add_operator(new PauliOperator(pauli_string, coef));
 }
 
 double Observable::get_expectation_value(const QuantumStateBase* state) const {
-	double sum = 0;
-	for (auto pauli : this->_operator_list) {
-		sum += pauli->get_expectation_value(state);
-	}
-	return sum;
+    double sum = 0;
+    for (auto pauli : this->_operator_list) {
+        sum += pauli->get_expectation_value(state);
+    }
+    return sum;
 }
 
 CPPCTYPE Observable::get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const {
-	CPPCTYPE sum = 0;
-	for (auto pauli : this->_operator_list) {
-		sum += pauli->get_transition_amplitude(state_bra, state_ket);
-	}
-	return sum;
+    CPPCTYPE sum = 0;
+    for (auto pauli : this->_operator_list) {
+        sum += pauli->get_transition_amplitude(state_bra, state_ket);
+    }
+    return sum;
 }
 
 namespace observable{

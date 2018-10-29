@@ -44,7 +44,7 @@ namespace gate{
      * @param[in] gate_string ゲートを生成する文字列
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* create_quantum_gate_from_string(std::string gate_string);
+    DllExport QuantumGateBase* create_quantum_gate_from_string(std::string gate_string);
 
     /**
      * \~japanese-en Identityゲートを作成する。
@@ -53,7 +53,7 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* Identity(UINT qubit_index);
+    DllExport QuantumGateBase* Identity(UINT qubit_index);
 
     /**
      * \~japanese-en \f$X\f$ゲートを作成する。
@@ -61,7 +61,7 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* X(UINT qubit_index);
+    DllExport QuantumGateBase* X(UINT qubit_index);
 
     /**
      * \~japanese-en \f$Y\f$ゲートを作成する。
@@ -69,7 +69,7 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* Y(UINT qubit_index);
+    DllExport QuantumGateBase* Y(UINT qubit_index);
 
     /**
      * \~japanese-en \f$Z\f$ゲートを作成する。
@@ -77,7 +77,7 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* Z(UINT qubit_index);
+    DllExport QuantumGateBase* Z(UINT qubit_index);
 
     /**
      * \~japanese-en Hadamardゲートを作成する。
@@ -85,7 +85,7 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* H(UINT qubit_index);
+    DllExport QuantumGateBase* H(UINT qubit_index);
 
     /**
      * \~japanese-en \f$S\f$ゲートを作成する。
@@ -93,7 +93,7 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* S(UINT qubit_index);
+    DllExport QuantumGateBase* S(UINT qubit_index);
 
     /**
      * \~japanese-en \f$S^{\dagger}\f$ゲートを作成する。
@@ -101,7 +101,7 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* Sdag(UINT qubit_index);
+    DllExport QuantumGateBase* Sdag(UINT qubit_index);
 
     /**
      * \~japanese-en \f$T\f$ゲートを作成する。
@@ -109,7 +109,7 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* T(UINT qubit_index);
+    DllExport QuantumGateBase* T(UINT qubit_index);
 
     /**
      * \~japanese-en \f$T^{\dagger}\f$ゲートを作成する。
@@ -117,7 +117,7 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* Tdag(UINT qubit_index);
+    DllExport QuantumGateBase* Tdag(UINT qubit_index);
 
     /**
      * \~japanese-en \f$\sqrt{X}\f$ゲートを作成する。
@@ -125,7 +125,7 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* sqrtX(UINT qubit_index);
+    DllExport QuantumGateBase* sqrtX(UINT qubit_index);
 
     /**
      * \~japanese-en \f$\sqrt{X}^{\dagger}\f$ゲートを作成する。
@@ -133,7 +133,7 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* sqrtXdag(UINT qubit_index);
+    DllExport QuantumGateBase* sqrtXdag(UINT qubit_index);
 
     /**
      * \~japanese-en \f$\sqrt{Y}\f$ゲートを作成する。
@@ -141,7 +141,7 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* sqrtY(UINT qubit_index);
+    DllExport QuantumGateBase* sqrtY(UINT qubit_index);
 
     /**
      * \~japanese-en \f$\sqrt{Y}^{\dagger}\f$ゲートを作成する。
@@ -149,7 +149,7 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* sqrtYdag(UINT qubit_index);
+    DllExport QuantumGateBase* sqrtYdag(UINT qubit_index);
 
     /**
      * \~japanese-en <code>qubit_index</code>を0へ射影するゲートを作成する
@@ -157,7 +157,7 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* P0(UINT qubit_index);
+    DllExport QuantumGateBase* P0(UINT qubit_index);
 
     /**
      * \~japanese-en <code>qubit_index</code>を1へ射影するゲートを作成する
@@ -165,7 +165,7 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* P1(UINT qubit_index);
+    DllExport QuantumGateBase* P1(UINT qubit_index);
 
     /**
      * \~japanese-en OpenQASMのU1ゲートを作成する。
@@ -175,7 +175,7 @@ namespace gate{
      * @param[in] lambda 回転角の第一引数
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* U1(UINT qubit_index, double lambda);
+    DllExport QuantumGateBase* U1(UINT qubit_index, double lambda);
 
     /**
      * \~japanese-en OpenQASMのU2ゲートを作成する。
@@ -186,7 +186,7 @@ namespace gate{
      * @param[in] phi 回転角の第二引数
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* U2(UINT qubit_index, double phi, double lambda);
+    DllExport QuantumGateBase* U2(UINT qubit_index, double phi, double lambda);
 
     /**
      * \~japanese-en OpenQASMのU3ゲートを作成する。
@@ -198,7 +198,7 @@ namespace gate{
      * @param[in] theta 回転角の第三引数
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* U3(UINT qubit_index, double theta, double phi, double lambda);
+    DllExport QuantumGateBase* U3(UINT qubit_index, double theta, double phi, double lambda);
 
     /**
      * \~japanese-en \f$X\f$回転ゲートを作成する。
@@ -207,7 +207,7 @@ namespace gate{
      * @param[in] angle 回転角
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* RX(UINT qubit_index,double angle);
+    DllExport QuantumGateBase* RX(UINT qubit_index,double angle);
 
     /**
      * \~japanese-en \f$Y\f$回転ゲートを作成する。
@@ -216,7 +216,7 @@ namespace gate{
      * @param[in] angle 回転角
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* RY(UINT qubit_index, double angle);
+    DllExport QuantumGateBase* RY(UINT qubit_index, double angle);
 
     /**
      * \~japanese-en \f$Z\f$回転ゲートを作成する。
@@ -225,7 +225,7 @@ namespace gate{
      * @param[in] angle 回転角
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* RZ(UINT qubit_index, double angle);
+    DllExport QuantumGateBase* RZ(UINT qubit_index, double angle);
 
     /**
      * \~japanese-en CNOTゲートを作成する
@@ -234,7 +234,7 @@ namespace gate{
      * @param[in] target_qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* CNOT(UINT control_qubit_index, UINT target_qubit_index);
+    DllExport QuantumGateBase* CNOT(UINT control_qubit_index, UINT target_qubit_index);
 
     /**
      * \~japanese-en CZゲートを作成する
@@ -243,7 +243,7 @@ namespace gate{
      * @param[in] target_qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* CZ(UINT control_qubit_index, UINT target_qubit_index);
+    DllExport QuantumGateBase* CZ(UINT control_qubit_index, UINT target_qubit_index);
 
     /**
      * \~japanese-en SWAPゲートを作成する
@@ -252,7 +252,7 @@ namespace gate{
      * @param[in] qubit_index2 ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* SWAP(UINT qubit_index1, UINT qubit_index2);
+    DllExport QuantumGateBase* SWAP(UINT qubit_index1, UINT qubit_index2);
 
     /**
      * \f$n\f$-qubit パウリ演算子のゲートを作成する
@@ -262,7 +262,7 @@ namespace gate{
      * @param[in] pauli_id_list その量子ビットに作用するパウリ演算子。\f${I,X,Y,Z}\f$が\f${0,1,2,3}\f$に対応する。
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* Pauli(std::vector<UINT> target_qubit_index_list, std::vector<UINT> pauli_id_list);
+    DllExport QuantumGateBase* Pauli(std::vector<UINT> target_qubit_index_list, std::vector<UINT> pauli_id_list);
 
     /**
      * \f$n\f$-qubit パウリ演算子の回転ゲートを作成する
@@ -273,7 +273,7 @@ namespace gate{
      * @param[in] angle 回転角
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateBase* PauliRotation(std::vector<UINT> target_qubit_index_list, std::vector<UINT> pauli_id_list, double angle);
+    DllExport QuantumGateBase* PauliRotation(std::vector<UINT> target_qubit_index_list, std::vector<UINT> pauli_id_list, double angle);
 
     /**
      * \f$n\f$-qubit 行列を用いて1-qubitゲートを生成する。
@@ -282,7 +282,7 @@ namespace gate{
      * @param[in] matrix 作用するゲートの\f$2\times 2\f$の複素行列
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateMatrix* DenseMatrix(UINT target_qubit_index, ComplexMatrix matrix);
+    DllExport QuantumGateMatrix* DenseMatrix(UINT target_qubit_index, ComplexMatrix matrix);
 
     /**
      * \f$n\f$-qubit 行列を用いてn-qubitゲートを生成する。
@@ -292,54 +292,54 @@ namespace gate{
      * @param[in] matrix 作用するゲートの複素行列。
      * @return 作成されたゲートのインスタンス
      */
-	DllExport QuantumGateMatrix* DenseMatrix(std::vector<UINT> target_qubit_index_list, ComplexMatrix matrix);
+    DllExport QuantumGateMatrix* DenseMatrix(std::vector<UINT> target_qubit_index_list, ComplexMatrix matrix);
 
 
-	/**
-	 * bit-flipノイズを発生させるゲート
-	 *
-	 * @param[in] target_index ターゲットとなる量子ビットの添え字
-	 * @param[in] prob エラーが生じる確率
-	 * @return 作成されたゲートのインスタンス
-	 */
-	DllExport QuantumGateBase* BitFlipNoise(UINT target_index, double prob);
+    /**
+     * bit-flipノイズを発生させるゲート
+     *
+     * @param[in] target_index ターゲットとなる量子ビットの添え字
+     * @param[in] prob エラーが生じる確率
+     * @return 作成されたゲートのインスタンス
+     */
+    DllExport QuantumGateBase* BitFlipNoise(UINT target_index, double prob);
 
-	/**
-	 * phase-flipノイズを発生させるゲート
-	 *
-	 * @param[in] target_index ターゲットとなる量子ビットの添え字
-	 * @param[in] prob エラーが生じる確率
-	 * @return 作成されたゲートのインスタンス
-	 */
-	DllExport QuantumGateBase* DephasingNoise(UINT target_index, double prob);
+    /**
+     * phase-flipノイズを発生させるゲート
+     *
+     * @param[in] target_index ターゲットとなる量子ビットの添え字
+     * @param[in] prob エラーが生じる確率
+     * @return 作成されたゲートのインスタンス
+     */
+    DllExport QuantumGateBase* DephasingNoise(UINT target_index, double prob);
 
-	/**
-	 * bit-flipとphase-flipを同じ確率でノイズを発生させるゲート
-	 *
-	 * @param[in] target_index ターゲットとなる量子ビットの添え字
-	 * @param[in] prob エラーが生じる確率
-	 * @return 作成されたゲートのインスタンス
-	 */
-	DllExport QuantumGateBase* IndependentXZNoise(UINT target_index, double prob);
+    /**
+     * bit-flipとphase-flipを同じ確率でノイズを発生させるゲート
+     *
+     * @param[in] target_index ターゲットとなる量子ビットの添え字
+     * @param[in] prob エラーが生じる確率
+     * @return 作成されたゲートのインスタンス
+     */
+    DllExport QuantumGateBase* IndependentXZNoise(UINT target_index, double prob);
 
-	/**
-	 * Depolarizin noiseを発生させるゲート
-	 *
-	 * X,Y,Zがそれぞれ<code>prob/3</code>の確率で生じる。
-	 * @param[in] target_index ターゲットとなる量子ビットの添え字
-	 * @param[in] prob エラーが生じる確率
-	 * @return 作成されたゲートのインスタンス
-	 */
-	DllExport QuantumGateBase* DepolarizingNoise(UINT target_index, double prob);
+    /**
+     * Depolarizin noiseを発生させるゲート
+     *
+     * X,Y,Zがそれぞれ<code>prob/3</code>の確率で生じる。
+     * @param[in] target_index ターゲットとなる量子ビットの添え字
+     * @param[in] prob エラーが生じる確率
+     * @return 作成されたゲートのインスタンス
+     */
+    DllExport QuantumGateBase* DepolarizingNoise(UINT target_index, double prob);
 
-	/**
-	 * 測定を行う
-	 *
-	 * @param[in] target_index ターゲットとなる量子ビットの添え字
-	 * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
-	 * @return 作成されたゲートのインスタンス
-	 */
-	DllExport QuantumGateBase* Measurement(UINT target_index, UINT classical_register_address);
+    /**
+     * 測定を行う
+     *
+     * @param[in] target_index ターゲットとなる量子ビットの添え字
+     * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
+     * @return 作成されたゲートのインスタンス
+     */
+    DllExport QuantumGateBase* Measurement(UINT target_index, UINT classical_register_address);
 
 
 }

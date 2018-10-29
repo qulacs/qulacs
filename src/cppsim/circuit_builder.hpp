@@ -11,12 +11,12 @@ class ParametricQuantumCircuit;
 class QuantumCircuitBuilder {
 private:
 public:
-	/**
-	 * \~japanese-en 量子回路を生成する
-	 * 
-	 * @param[in] qubit_count 量子ビット数
-	 * @return 生成された量子回路
-	 */
-	virtual QuantumCircuit* create_circuit(UINT qubit_count) const = 0;
+    /**
+     * \~japanese-en 量子回路を生成する
+     * 
+     * @param[in] qubit_count 量子ビット数
+     * @return 生成された量子回路
+     */
+    virtual QuantumCircuit* create_circuit(UINT qubit_count) const = 0;
 };
 

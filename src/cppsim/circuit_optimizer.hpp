@@ -49,7 +49,7 @@ public:
      * @param[in] circuit 量子回路のインスタンス
      * @return 変換された量子ゲート
      */
-	QuantumGateMatrix* merge_all(const QuantumCircuit* circuit);
+    QuantumGateMatrix* merge_all(const QuantumCircuit* circuit);
 };
 
 
