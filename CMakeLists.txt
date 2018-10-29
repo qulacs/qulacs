@@ -22,11 +22,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 ##### set external projects #####
 include(ExternalProject)
 
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0") 
-	include(FetchContent)
-else()
-	include(${CMAKE_SOURCE_DIR}/FetchContent.cmake)
-endif()
+include(${CMAKE_SOURCE_DIR}/FetchContent.cmake)
+#if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0") 
+#	include(FetchContent)
+#else()
+#	include(${CMAKE_SOURCE_DIR}/FetchContent.cmake)
+#endif()
 
 
 # Google test
