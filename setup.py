@@ -6,7 +6,7 @@ import sys
 import platform
 import subprocess
 
-from setuptools import setup, Extension
+from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
@@ -75,12 +75,14 @@ class CMakeBuild(build_ext):
 
 setup(
     name='Qulacs',
-    version='0.0.1',
+    version='0.0.2',
     author='QunaSys',
     author_email='yan@qunasys.com',
     url='http://www.qulacs.org',
     description='Quantum circuit simulator for research',
     long_description='',
+    packages=find_packages(),
+    include_package_data=True,
     ext_modules=[CMakeExtension('qulacs')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
@@ -96,6 +98,7 @@ setup(
         'Programming Language :: Python',
         'Topic :: Communications :: Email',
     ],
+
 
 )
 
