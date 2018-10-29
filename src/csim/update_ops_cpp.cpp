@@ -25,9 +25,9 @@ void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UI
     // loop variables
     const ITYPE loop_dim = dim >> target_qubit_index_count;
 
-	ITYPE state_index;
-	for(state_index = 0 ; state_index < loop_dim ; ++state_index ){
-		// create base index
+    ITYPE state_index;
+    for(state_index = 0 ; state_index < loop_dim ; ++state_index ){
+        // create base index
         ITYPE basis_0 = state_index;
         for(UINT cursor=0; cursor < target_qubit_index_count ; cursor++){
             UINT insert_index = sorted_insert_index_list[cursor];
@@ -46,8 +46,8 @@ void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UI
             eigen_state[basis_0 ^ matrix_mask_list[y]] = buffer[y];
         }
     }
-	free((UINT*)sorted_insert_index_list);
-	free((ITYPE*)matrix_mask_list);
+    free((UINT*)sorted_insert_index_list);
+    free((ITYPE*)matrix_mask_list);
 }
 
 void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const Eigen::Matrix<std::complex<double>,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor>& eigen_matrix, CTYPE* state, ITYPE dim){
@@ -63,9 +63,9 @@ void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UI
     // loop variables
     const ITYPE loop_dim = dim >> target_qubit_index_count;
 
-	ITYPE state_index;
-	for(state_index = 0 ; state_index < loop_dim ; ++state_index ){
-		// create base index
+    ITYPE state_index;
+    for(state_index = 0 ; state_index < loop_dim ; ++state_index ){
+        // create base index
         ITYPE basis_0 = state_index;
         for(UINT cursor=0; cursor < target_qubit_index_count ; cursor++){
             UINT insert_index = sorted_insert_index_list[cursor];
@@ -84,8 +84,8 @@ void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UI
             eigen_state[basis_0 ^ matrix_mask_list[y]] = buffer[y];
         }
     }
-	free((UINT*)sorted_insert_index_list);
-	free((ITYPE*)matrix_mask_list);
+    free((UINT*)sorted_insert_index_list);
+    free((ITYPE*)matrix_mask_list);
 }
 
 void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const Eigen::MatrixXcd& eigen_matrix, CTYPE* state, ITYPE dim) {
@@ -102,9 +102,9 @@ void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UI
     // loop variables
     const ITYPE loop_dim = dim >> target_qubit_index_count;
 
-	ITYPE state_index;
-	for(state_index = 0 ; state_index < loop_dim ; ++state_index ){
-		// create base index
+    ITYPE state_index;
+    for(state_index = 0 ; state_index < loop_dim ; ++state_index ){
+        // create base index
         ITYPE basis_0 = state_index;
         for(UINT cursor=0; cursor < target_qubit_index_count ; cursor++){
             UINT insert_index = sorted_insert_index_list[cursor];
@@ -123,6 +123,6 @@ void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UI
             cppstate[basis_0 ^ matrix_mask_list[y]] = buffer[y];
         }
     }
-	free((UINT*)sorted_insert_index_list);
-	free((ITYPE*)matrix_mask_list);
+    free((UINT*)sorted_insert_index_list);
+    free((ITYPE*)matrix_mask_list);
 }

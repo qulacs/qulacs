@@ -24,13 +24,13 @@ QuantumGateMatrix::QuantumGateMatrix(const std::vector<UINT>& target_qubit_index
         this->_control_qubit_list.push_back(ControlQubitInfo(val,1));
     }
     this->_matrix_element = ComplexMatrix(matrix_element);
-	this->_name = "DenseMatrix";
+    this->_name = "DenseMatrix";
 }
 QuantumGateMatrix::QuantumGateMatrix(const std::vector<TargetQubitInfo>& target_qubit_index_list_, const ComplexMatrix& matrix_element, const std::vector<ControlQubitInfo>& control_qubit_index_list_){
     this->_target_qubit_list = std::vector<TargetQubitInfo>(target_qubit_index_list_);
     this->_control_qubit_list = std::vector<ControlQubitInfo>(control_qubit_index_list_);
     this->_matrix_element = ComplexMatrix(matrix_element);
-	this->_name = "DenseMatrix";
+    this->_name = "DenseMatrix";
 }
 
 // In construction, "move" a given matrix, which surpess the cost of copying large matrix element.
@@ -42,13 +42,13 @@ QuantumGateMatrix::QuantumGateMatrix(const std::vector<UINT>& target_qubit_index
         this->_control_qubit_list.push_back(ControlQubitInfo(val,1));
     }
     this->_matrix_element.swap(*matrix_element);
-	this->_name = "DenseMatrix";
+    this->_name = "DenseMatrix";
 }
 QuantumGateMatrix::QuantumGateMatrix(const std::vector<TargetQubitInfo>& target_qubit_index_list_, ComplexMatrix* matrix_element, const std::vector<ControlQubitInfo>& control_qubit_index_list_){
     this->_target_qubit_list = std::vector<TargetQubitInfo>(target_qubit_index_list_);
     this->_control_qubit_list = std::vector<ControlQubitInfo>(control_qubit_index_list_);
     this->_matrix_element.swap(*matrix_element);
-	this->_name = "DenseMatrix";
+    this->_name = "DenseMatrix";
 }
 
 
@@ -56,9 +56,9 @@ QuantumGateMatrix::QuantumGateMatrix(const std::vector<TargetQubitInfo>& target_
 void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
     ITYPE dim = 1ULL << state->qubit_count;
 
-	//Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> row_matrix(this->_matrix_element);
-	//const CTYPE* matrix_ptr = reinterpret_cast<const CTYPE*>(row_matrix.data());
-	const CTYPE* matrix_ptr = reinterpret_cast<const CTYPE*>(this->_matrix_element.data());
+    //Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> row_matrix(this->_matrix_element);
+    //const CTYPE* matrix_ptr = reinterpret_cast<const CTYPE*>(row_matrix.data());
+    const CTYPE* matrix_ptr = reinterpret_cast<const CTYPE*>(this->_matrix_element.data());
 
     // convert list of QubitInfo to list of UINT
     std::vector<UINT> target_index;
@@ -69,7 +69,7 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
     }
     for(auto val : this->_control_qubit_list){
         control_index.push_back(val.index());
-		control_value.push_back(val.control_value());
+        control_value.push_back(val.control_value());
     }
 
     // single qubit dense matrix gate
@@ -125,24 +125,24 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
 
 
 void QuantumGateMatrix::add_control_qubit(UINT qubit_index, UINT control_value) {
-	this->_control_qubit_list.push_back(ControlQubitInfo(qubit_index, control_value));
-	this->_gate_property &= (~FLAG_PAULI);
-	this->_gate_property &= (~FLAG_GAUSSIAN);
+    this->_control_qubit_list.push_back(ControlQubitInfo(qubit_index, control_value));
+    this->_gate_property &= (~FLAG_PAULI);
+    this->_gate_property &= (~FLAG_GAUSSIAN);
 }
 
 std::string QuantumGateMatrix::to_string() const {
-	std::stringstream os;
-	os << QuantumGateBase::to_string();
-	os << " * Matrix" << std::endl;
-	os << this->_matrix_element << std::endl;
-	return os.str();
+    std::stringstream os;
+    os << QuantumGateBase::to_string();
+    os << " * Matrix" << std::endl;
+    os << this->_matrix_element << std::endl;
+    return os.str();
 }
 
 std::ostream& operator<<(std::ostream& os, const QuantumGateMatrix& gate) {
-	os << gate.to_string();
-	return os;
+    os << gate.to_string();
+    return os;
 }
 std::ostream& operator<<(std::ostream& os, QuantumGateMatrix* gate) {
-	os << *gate;
-	return os;
+    os << *gate;
+    return os;
 }

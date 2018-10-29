@@ -9,18 +9,18 @@ bool QuantumGateBase::is_commute(const QuantumGateBase* gate) const{
     for(auto val1 : this->_target_qubit_list){
         for(auto val2 : gate->_target_qubit_list){
             // check gate1 target qubit - gate2 target qubit are commuting
-			if ( val1.is_commute_with(val2) == false) return false;
+            if ( val1.is_commute_with(val2) == false) return false;
         }
         for(auto val2 : gate->_control_qubit_list){
             // check gate1 target qubit - gate2 control qubit are commuting
-			if ( val1.is_commute_with(val2) == false) return false;
-		}
+            if ( val1.is_commute_with(val2) == false) return false;
+        }
     }
     for(auto val1 : this->_control_qubit_list){
         for(auto val2 : gate->_target_qubit_list){
             // check gate1 control qubit - gate2 target qubit are commuting
-			if ( val1.is_commute_with(val2) == false) return false;
-		}
+            if ( val1.is_commute_with(val2) == false) return false;
+        }
     }
     // Note: gate1 control - gate2 control are always commuting
     return true;
@@ -50,7 +50,7 @@ bool QuantumGateBase::is_diagonal() const{
 }
 
 UINT QuantumGateBase::get_property_value() const {
-	return this->_gate_property;
+    return this->_gate_property;
 }
 
 bool QuantumGateBase::commute_Pauli_at(UINT qubit_index, UINT pauli_type) const{
@@ -83,34 +83,34 @@ bool QuantumGateBase::commute_Pauli_at(UINT qubit_index, UINT pauli_type) const{
 }
 
 std::string QuantumGateBase::to_string() const {
-	std::stringstream stream;
-	stream << " *** gate info *** " << std::endl;
-	stream << " * gate name : " << this->_name << std::endl;
-	stream << " * target    : " << std::endl;
-	for (auto val : this->_target_qubit_list) {
-		stream << " " << val.index() << " : commute "
-			<< (val.is_commute_X() ? "X" : " ") << " "
-			<< (val.is_commute_Y() ? "Y" : " ") << " "
-			<< (val.is_commute_Z() ? "Z" : " ") << " "
-			<< std::endl;
-	}
-	stream << " * control   : " << std::endl;
-	for (auto val : this->_control_qubit_list) {
-		stream << " " << val.index() << " : value " << val.control_value() << std::endl;
-	}
-	stream << " * Pauli     : " << (this->is_Pauli() ? "yes" : "no") << std::endl;
-	stream << " * Clifford  : " << (this->is_Clifford() ? "yes" : "no") << std::endl;
-	stream << " * Gaussian  : " << (this->is_Gaussian() ? "yes" : "no") << std::endl;
-	stream << " * Parametric: " << (this->is_parametric() ? "yes" : "no") << std::endl;
-	stream << " * Diagonal  : " << (this->is_diagonal() ? "yes" : "no") << std::endl;
-	return stream.str();
+    std::stringstream stream;
+    stream << " *** gate info *** " << std::endl;
+    stream << " * gate name : " << this->_name << std::endl;
+    stream << " * target    : " << std::endl;
+    for (auto val : this->_target_qubit_list) {
+        stream << " " << val.index() << " : commute "
+            << (val.is_commute_X() ? "X" : " ") << " "
+            << (val.is_commute_Y() ? "Y" : " ") << " "
+            << (val.is_commute_Z() ? "Z" : " ") << " "
+            << std::endl;
+    }
+    stream << " * control   : " << std::endl;
+    for (auto val : this->_control_qubit_list) {
+        stream << " " << val.index() << " : value " << val.control_value() << std::endl;
+    }
+    stream << " * Pauli     : " << (this->is_Pauli() ? "yes" : "no") << std::endl;
+    stream << " * Clifford  : " << (this->is_Clifford() ? "yes" : "no") << std::endl;
+    stream << " * Gaussian  : " << (this->is_Gaussian() ? "yes" : "no") << std::endl;
+    stream << " * Parametric: " << (this->is_parametric() ? "yes" : "no") << std::endl;
+    stream << " * Diagonal  : " << (this->is_diagonal() ? "yes" : "no") << std::endl;
+    return stream.str();
 }
 
 std::ostream& operator<<(std::ostream& stream, const QuantumGateBase& gate) {
-	stream << gate.to_string();
-	return stream;
+    stream << gate.to_string();
+    return stream;
 }
 std::ostream& operator<<(std::ostream& stream, const QuantumGateBase* gate) {
-	stream << *gate;
-	return stream;
+    stream << *gate;
+    return stream;
 }

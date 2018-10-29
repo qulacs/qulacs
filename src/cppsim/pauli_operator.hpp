@@ -20,8 +20,8 @@ class QuantumStateBase;
  */
 class DllExport SinglePauliOperator {
 protected:
-	UINT _index;
-	UINT _pauli_id;
+    UINT _index;
+    UINT _pauli_id;
 public:
     /**
      * \~japanese-en
@@ -33,9 +33,9 @@ public:
      * @param[in] pauli_id_ パウリ演算子を表す整数。(I,X,Y,Z)が(0,1,2,3)に対応する。
      * @return 新しいインスタンス
      */
-	SinglePauliOperator(UINT index_, UINT pauli_id_) : _index(index_), _pauli_id(pauli_id_) {
-		assert(pauli_id_ <= 3);
-	};
+    SinglePauliOperator(UINT index_, UINT pauli_id_) : _index(index_), _pauli_id(pauli_id_) {
+        assert(pauli_id_ <= 3);
+    };
 
     /**
      * \~japanese-en
@@ -43,7 +43,7 @@ public:
      *
      * @return 自身が作用する添字
      */
-	UINT index() const { return _index; }
+    UINT index() const { return _index; }
 
     /**
      * \~japanese-en
@@ -51,7 +51,7 @@ public:
      *
      * @return 自身のもつパウリ演算子を表す整数。(I,X,Y,Z)が(0,1,2,3)に対応する。
      */
-	UINT pauli_id() const { return _pauli_id; }
+    UINT pauli_id() const { return _pauli_id; }
 };
 
 /**
@@ -62,7 +62,7 @@ public:
  */
 class DllExport PauliOperator{
 private:
-	std::vector<SinglePauliOperator> _pauli_list;
+    std::vector<SinglePauliOperator> _pauli_list;
     double _coef;
 public:
     /**
@@ -73,11 +73,11 @@ public:
      * 
      * @return 自身の保持するパウリ演算子が作用する添字のリスト。
      */
-	std::vector<UINT> get_index_list() const {
-		std::vector<UINT> res;
-		for (auto val : _pauli_list) res.push_back(val.index());
-		return res;
-	}
+    std::vector<UINT> get_index_list() const {
+        std::vector<UINT> res;
+        for (auto val : _pauli_list) res.push_back(val.index());
+        return res;
+    }
 
     /**
      * \~japanese-en
@@ -87,11 +87,11 @@ public:
      *
      * @return 自身の保持するパウリ演算子のリスト。(I,X,Y,Z)が(0,1,2,3)に対応する。
      */
-	std::vector<UINT> get_pauli_id_list() const {
-		std::vector<UINT> res;
-		for (auto val : _pauli_list) res.push_back(val.pauli_id());
-		return res;
-	}
+    std::vector<UINT> get_pauli_id_list() const {
+        std::vector<UINT> res;
+        for (auto val : _pauli_list) res.push_back(val.pauli_id());
+        return res;
+    }
 
     /**
      * \~japanese-en
@@ -128,7 +128,7 @@ public:
      * @param[in] coef 係数
      * @return 入力として与えたパウリ演算子のリストと添字のリスト、係数から生成されるPauliOperatorのインスタンス
      */
-	PauliOperator(const std::vector<UINT>& target_qubit_index_list, std::string Pauli_operator_type_list, double coef = 1.);
+    PauliOperator(const std::vector<UINT>& target_qubit_index_list, std::string Pauli_operator_type_list, double coef = 1.);
 
     /**
      * \~japanese-en
@@ -139,7 +139,7 @@ public:
      * @param[in] coef 係数
      * @return pauli_listの添字に対応するqubitに作用するパウリ演算子と係数をもつインスタンス
      */
-	PauliOperator(const std::vector<UINT>& pauli_list, double coef = 1.);
+    PauliOperator(const std::vector<UINT>& pauli_list, double coef = 1.);
 
     /**
      * \~japanese-en
@@ -153,7 +153,7 @@ public:
      * @param[in] coef 係数
      * @return 入力として与えたパウリ演算子のリストと添字のリスト、係数から生成されるPauliOperatorのインスタンス
      */
-	PauliOperator(const std::vector<UINT>& target_qubit_index_list, const std::vector<UINT>& target_qubit_pauli_list, double coef=1.);
+    PauliOperator(const std::vector<UINT>& target_qubit_index_list, const std::vector<UINT>& target_qubit_pauli_list, double coef=1.);
 
 
     /**
@@ -162,7 +162,7 @@ public:
      *
      * @return 自身の係数
      */
-	virtual double get_coef() const { return _coef; }
+    virtual double get_coef() const { return _coef; }
 
     virtual ~PauliOperator(){};
 
@@ -182,17 +182,17 @@ public:
      * @param[in] state 期待値をとるときの量子状態
      * @return stateに対応する期待値
      */
-	virtual double get_expectation_value(const QuantumStateBase* state) const;
+    virtual double get_expectation_value(const QuantumStateBase* state) const;
 
-	/**
-	 * \~japanese-en
-	 * 量子状態に対応するパウリ演算子の遷移振幅を計算する
-	 *
-	 * @param[in] state_bra 遷移先の量子状態
-	 * @param[in] state_ket 遷移元の量子状態
-	 * @return state_bra, state_ketに対応する遷移振幅
-	 */
-	virtual CPPCTYPE get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const;
+    /**
+     * \~japanese-en
+     * 量子状態に対応するパウリ演算子の遷移振幅を計算する
+     *
+     * @param[in] state_bra 遷移先の量子状態
+     * @param[in] state_ket 遷移元の量子状態
+     * @return state_bra, state_ketに対応する遷移振幅
+     */
+    virtual CPPCTYPE get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const;
 
     /**
      * \~japanese-en
@@ -200,6 +200,6 @@ public:
      *
      * @return 自身のディープコピー
      */
-	virtual PauliOperator* copy() const;
+    virtual PauliOperator* copy() const;
 
 };

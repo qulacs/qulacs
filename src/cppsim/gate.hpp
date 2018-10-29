@@ -97,21 +97,21 @@ public:
      * 
      * @return 量子ビットの添え字のリスト
      */
-	std::vector<UINT> get_target_index_list() const {
-		std::vector<UINT> res(target_qubit_list.size());
-		for (UINT i = 0; i < target_qubit_list.size(); ++i) res[i] = target_qubit_list[i].index();
-		return res;
-	}
+    std::vector<UINT> get_target_index_list() const {
+        std::vector<UINT> res(target_qubit_list.size());
+        for (UINT i = 0; i < target_qubit_list.size(); ++i) res[i] = target_qubit_list[i].index();
+        return res;
+    }
     /**
      * \~japanese-en コントロール量子ビットの添え字のリストを取得する
      * 
      * @return 量子ビットの添え字のリスト
      */
-	std::vector<UINT> get_control_index_list() const {
-		std::vector<UINT> res(control_qubit_list.size());
-		for (UINT i = 0; i < control_qubit_list.size(); ++i) res[i] = control_qubit_list[i].index();
-		return res;
-	}
+    std::vector<UINT> get_control_index_list() const {
+        std::vector<UINT> res(control_qubit_list.size());
+        for (UINT i = 0; i < control_qubit_list.size(); ++i) res[i] = control_qubit_list[i].index();
+        return res;
+    }
 
     /**
      * \~japanese-en 量子状態を更新する
@@ -184,7 +184,7 @@ public:
      * ゲートのプロパティ値はゲートがパウリかどうかなどのゲート全体の性質の情報を持つ
      * @return プロパティ値
      */
-	UINT get_property_value() const;
+    UINT get_property_value() const;
 
     /**
      * \~japanese-en ゲートがある添え字の量子ビットにおいて、与えられたパウリ演算子と可換かどうかを判定する。
@@ -196,24 +196,24 @@ public:
      */
     bool commute_Pauli_at(UINT qubit_index, UINT pauli_type) const;
 
-	/**
-	 * \~japanese-en 量子ゲートのデバッグ情報の文字列を生成する
-	 *
-	 * @return 生成した文字列
-	 */
-	virtual std::string to_string() const;
+    /**
+     * \~japanese-en 量子ゲートのデバッグ情報の文字列を生成する
+     *
+     * @return 生成した文字列
+     */
+    virtual std::string to_string() const;
 
     /**
      * \~japanese-en 量子回路のデバッグ情報を出力する。
      * 
      * @return 受け取ったストリーム
      */
-	friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumGateBase&);
+    friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumGateBase&);
     /**
      * \~japanese-en 量子回路のデバッグ情報を出力する。
      * 
      * @return 受け取ったストリーム
      */
-	friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumGateBase* gate);
+    friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumGateBase* gate);
 };
 
