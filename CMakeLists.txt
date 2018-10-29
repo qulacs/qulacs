@@ -22,11 +22,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 ##### set external projects #####
 include(ExternalProject)
 
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0") 
-	include(FetchContent)
-else()
-	include(${CMAKE_SOURCE_DIR}/FetchContent.cmake)
-endif()
+include(${CMAKE_SOURCE_DIR}/FetchContent.cmake)
+#if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0") 
+#	include(FetchContent)
+#else()
+#	include(${CMAKE_SOURCE_DIR}/FetchContent.cmake)
+#endif()
 
 
 # Google test
@@ -141,6 +142,10 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
+
+	if(${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER 8.0.0)
+		set(PYBIND11_CPP_STANDARD -std=gnu++11)
+	endif()
 
 elseif(MSVC)
 	SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
