@@ -6,18 +6,30 @@ Qulacs is a fast quantum circuit simulator for simulating large, noisy, or param
 
 Qulacs is licensed under the [MIT licence](https://github.com/qulacs/qulacs/blob/master/LICENSE).
 
-## Install
+## Performance
+- Compared processing time with following Library on October 1st, 2018
+    - Qulacs(ours)
+    - [Cirq](https://github.com/quantumlib/Cirq)
+    - [ProjectQ](https://github.com/ProjectQ-Framework/ProjectQ)
+    - [pyQuil](https://github.com/rigetticomputing/pyquil)
+    - [Q#](https://github.com/Microsoft/Quantum)
+    - [Qiskit Terra QASM Simulator](https://github.com/Qiskit/qiskit-terra/tree/master/src/qasm-simulator-cpp)
+    - [QuPy CPU & GPU](https://github.com/ken-nakanishi/qupy)
 
-If you encounter some troubles, see [troubleshootings](./).
+- Test enviroment:
+    - 100 shot sampling of 10 layers of all random rotation X gate and all neighboring CNOT
+    - Intel Core i7 CPU
+    - Nvidia GTX 1050 Ti GPU
+    - Open-MP enabled
+    - MKL enabled (numpy runs in multi core)
+    
 
-### Suppoted systems
-Qulacs is tested and supported on the following systems.
+## Quick Install
 
-- Ubuntu 16.04
-- MacOS X Sierra
-- Windows 10
+```pip install qulacs```
 
-Python library is tested on python-2.7.15 and python-3.6.6.
+## Install from Source
+If you encounter some troubles, see [troubleshootings(Japanese)](http://qulacs.org/md_4__trouble_shooting.html).
 
 ### Requirements
 
@@ -26,7 +38,7 @@ Python library is tested on python-2.7.15 and python-3.6.6.
 - cmake >= 2.8
 - git
 
-### C++ Library
+### C++ Library(cppsim)
 
 #### GCC
 ```
@@ -43,7 +55,7 @@ generate_msvc_project.bat
 ```
 Then, open `Project.sln` in `./qulacs/visualstudio/`, and build all.
 
-### Python Interface
+### Python Interface(Qulacs)
 
 Install
 ```
@@ -59,7 +71,11 @@ pip uninstall qulacs
 
 ## Gettig started
 
-See [Tutorial](./) and [API document](./) for more details.
+See the following document for more detail.  
+[C++ Tutorial](http://qulacs.org/md_2__tutorial__c_p_p.html)  
+[Python Tutorial](http://qulacs.org/md_3__tutorial_python.html)   
+[Examples](https://github.com/qulacs/quantum-circuits)  
+[API document](http://qulacs.org/annotated.html)   
 
 ### C++ Libraries
 
@@ -99,12 +115,12 @@ g++ -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lcppsim.s
 ```
 
 ### Python Libraries
-You can use features by simply importing `pycppsim`.
+You can use features by simply importing `qulacs`.
 
 Example of python code:
 ```python
-from pycppsim import Observable, QuantumCircuit, QuantumState
-from pycppsim.gate import Y,CNOT,merge
+from qulacs import Observable, QuantumCircuit, QuantumState
+from qulacs.gate import Y,CNOT,merge
 
 state = QuantumState(3)
 state.set_Haar_random_state()
@@ -122,3 +138,12 @@ observable.add_operator(-3.0, "Z 2")
 value = observable.get_expectation_value(state)
 print(value)
 ```
+
+### Suppoted systems
+Qulacs is tested on the following systems.
+
+- Ubuntu 16.04
+- MacOS X Sierra
+- Windows 10
+
+Python library is tested on python-2.7.15 and python-3.6.6.
