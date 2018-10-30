@@ -46,9 +46,9 @@ class CMakeBuild(build_ext):
             build_args += ['--', '/m']
         else:
             try:
-                gcc_out = subprocess.check_output(['gcc', '-dumpversion']).decode()
+                gcc_out = subprocess.check_output(['gcc', '-dumpfullversion', '-dumpversion']).decode()
                 gcc_version = LooseVersion(gcc_out)
-                gxx_out = subprocess.check_output(['g++', '-dumpversion']).decode()
+                gxx_out = subprocess.check_output(['g++', '-dumpfullversion', '-dumpversion']).decode()
                 gxx_version = LooseVersion(gxx_out)
             except OSError:
                 raise RuntimeError("gcc/g++ must be installed to build the following extensions: " +
