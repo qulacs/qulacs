@@ -6,6 +6,12 @@ Qulacs is a fast quantum circuit simulator for simulating large, noisy, or param
 
 Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob/master/LICENSE).
 
+## Quick Install
+
+```pip install qulacs```
+
+
+
 ## Performance
 - Compared processing time with following Library on October 1st, 2018
     - Qulacs(ours)
@@ -17,17 +23,13 @@ Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob
     - [QuPy CPU & GPU](https://github.com/ken-nakanishi/qupy)
 
 - Test environment:
-    - 100 shot sampling of 10 layers of all random rotation X gate and all neighboring CNOT
+    - 100 shot sampling of 10 layers of all random rotation X gate and 9 layers of all neighboring CNOT
     - Intel Core i7 CPU
     - Nvidia GTX 1050 Ti GPU
     - Open-MP enabled
     - MKL enabled (numpy runs in multi core)
     
 ![benchmark](http://www.qunasys.com/wp-content/uploads/2018/10/plot_2.png)
-
-## Quick Install
-
-```pip install qulacs```
 
 ## Install from Source
 If you encounter some troubles, see [troubleshooting (Japanese)](http://qulacs.org/md_4__trouble_shooting.html).
