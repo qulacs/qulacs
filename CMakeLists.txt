@@ -143,7 +143,7 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
 
-	if(${CMAKE_CXX_COMPILER_VERSION} VERSION_GREATER_EQUAL 8.0.0)
+	if(8.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
 		set(PYBIND11_CPP_STANDARD -std=gnu++11)
 	endif()
 

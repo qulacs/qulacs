@@ -49,7 +49,7 @@ public:
      *
      * @param[in] mpt 追加するPauliOperatorのインスタンス
      */
-    void add_operator(PauliOperator* mpt);
+    void add_operator(const PauliOperator* mpt);
 
     /**
      * \~japanese-en

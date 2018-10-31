@@ -23,8 +23,9 @@ Observable::~Observable(){
     }
 }
 
-void Observable::add_operator(PauliOperator* mpt){
-    this->_operator_list.push_back(mpt);
+void Observable::add_operator(const PauliOperator* mpt){
+    PauliOperator* _mpt = mpt->copy();
+    this->_operator_list.push_back(_mpt);
 }
 
 void Observable::add_operator(double coef, std::string pauli_string) {
