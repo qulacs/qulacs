@@ -1,126 +1,129 @@
+ 
+# Qulacs
+[![Build Status](https://travis-ci.org/qulacs/qulacs.svg?branch=master)](https://travis-ci.org/qulacs/qulacs)
 
-# VQCSIM
+Qulacs is a fast quantum circuit simulator for simulating large, noisy, or parametric quantum circuits.
 
----
-[![Build Status](https://travis-ci.org/vqcsim/vqcsim.svg?branch=master)](https://travis-ci.org/vqcsim/vqcsim)
+Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob/master/LICENSE).
 
-## ライブラリの概要
+## Quick Install
 
-VQCSIMは研究のための量子回路のシミュレータです。
-- 巨大な量子回路のシミュレーション
-- デバイスごとの速度のベンチマーク
-- ノイジーな量子回路のシミュレート
-- パラメトリックな量子回路の最適化
-
-などの数値計算で利用できます。
-
-## 動作環境
-以下の環境で動作を確認しています
-
-- Linux (gcc)
-- Mac (gcc)
-- Windows (msys2-mingw64-gcc, cygwin64-gcc, WSL-ubuntu-gcc, VisualStudio 2017 Win64)
-
-## インストール
-
-### 必要なファイルのインストール
-#### Linux
-gcc-7, g++-7, make, git, cmake, python3-dev, python3-numpyが必要になります。cmakeはv3.11以降が必要になります。
-
-#### Mac OS
-gcc-7, g++-7, make, git, cmake, python3-dev, python3-numpyが必要になります。
-Macのデフォルトのgccとg++はclangとなっているので、別途gccを導入してください。cmakeはv3.11以降が必要になります。
+```pip install qulacs```
 
 
-#### Windows
-msys2やcygwinを用いる場合、gcc, g++, make, git, cmake, python3をインストールしてください。python3には、numpyをインストールしてください。cmakeはv3.11以降が必要になります。
 
-WSL上で動作させる場合はLinuxと要件は同じです。
+## Performance
+- Compared processing time with following Library on October 1st, 2018
+    - Qulacs(ours)
+    - [Cirq](https://github.com/quantumlib/Cirq)
+    - [ProjectQ](https://github.com/ProjectQ-Framework/ProjectQ)
+    - [pyQuil](https://github.com/rigetticomputing/pyquil)
+    - [Q#](https://github.com/Microsoft/Quantum)
+    - [Qiskit Terra QASM Simulator](https://github.com/Qiskit/qiskit-terra/tree/master/src/qasm-simulator-cpp)
+    - [QuPy CPU & GPU](https://github.com/ken-nakanishi/qupy)
 
-Visual Studioを用いる場合、Visual Studio 2017以降と、git, cmake, python3をインストールしてください。Visual Studioとpython3の連携はAnaconda3での動作を確認しています。
+- Test environment:
+    - 100 shot sampling of 10 layers of all random rotation X gate and 9 layers of all neighboring CNOT
+    - Intel Core i7 CPU
+    - Nvidia GTX 1050 Ti GPU
+    - Open-MP enabled
+    - MKL enabled (numpy runs in multi core)
+    
+![benchmark](http://www.qunasys.com/wp-content/uploads/2018/10/plot_2.png)
 
-### gccでのビルド
+## Install from Source
+If you encounter some troubles, see [troubleshooting (Japanese)](http://qulacs.org/md_4__trouble_shooting.html).
 
-#### ライブラリのビルド
-作業ディレクトリに移動し、以下のコマンドを実行してください。
+### Requirements
+
+- python 2.7 or 3.x
+- gcc/g++ >= 7.0.0 or VisualStudio 2017
+- cmake >= 2.8
+- git
+
+### C++ Library(cppsim)
+
+#### GCC
+```
+git clone https://github.com/qulacs/qulacs.git
+cd qulacs
+./build_gcc.sh
+```
+
+#### MSVC
+```
+git clone https://github.com/qulacs/qulacs.git
+cd qulacs
+generate_msvc_project.bat
+```
+Then, open `Project.sln` in `./qulacs/visualstudio/`, and build all.
+
+### Python Interface(Qulacs)
+
+Install
+```
+git clone https://github.com/qulacs/qulacs.git
+cd qulacs
+python setup.py install
+```
+
+Uninstall
+```
+pip uninstall qulacs
+```
+
+## Gettig started
+
+See the following document for more detail.  
+[C++ Tutorial](http://qulacs.org/md_2__tutorial__c_p_p.html)  
+[Python Tutorial](http://qulacs.org/md_3__tutorial_python.html)   
+[Examples](https://github.com/qulacs/quantum-circuits)  
+[API document](http://qulacs.org/annotated.html)   
+
+### C++ Libraries
+
+Add `./<qulacs_path>/include/` to include path, and `./<qulacs_path>/lib/` to library path. If you use dynamic link library, add `./<qulacs_path>/bin/` to library path instead.
+
+
+Example of C++ code:
+```cpp
+#include <iostream>
+#include <cppsim/state.hpp>
+#include <cppsim/circuit.hpp>
+#include <cppsim/observable.hpp>
+
+int main(){
+    QuantumState state(3);
+    state.set_Haar_random_state();
+
+    QuantumCircuit circuit(3);
+    circuit.add_X_gate(0);
+    auto merged_gate = gate::merge(gate::CNOT(0,1),gate::Y(1));
+    circuit.add_gate(merged_gate);
+    circuit.add_RX_gate(1,0.5);
+    circuit.update_quantum_state(&state);
+
+    Observable observable(3)
+    observable.add_operator(2.0, "X 2 Y 1 Z 0")
+    observable.add_operator(-3.0, "Z 2")
+    auto value = observable.get_expectation_value(&state)
+    std::cout << value << std::endl;
+    return 0;
+}
+```
+
+Example of build command:
 ```sh
-git clone https://github.com/vqcsim/vqcsim.git
-cd vqcsim
-mkdir build
-cd build
-cmake -G "Unix Makefiles" -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=gcc -D CMAKE_CXX_COMPILER=g++ ..
+g++ -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lcppsim.so
 ```
 
-gcc/g++が古かったり、MacOSでバックエンドがclangである場合は、上記のcmakeコマンドのgcc/g++をgcc-7,g++-7に置き換えてください。
+### Python Libraries
+You can use features by simply importing `qulacs`.
 
-並列化を無効にしたい場合はcmakeのフラグに"-D USE_OMP=no"を加えてください。
-
-cmakeが完了したら、下記のコマンドでライブラリをビルドします。
-```sh
-make
-```
-
-#### ライブラリのテスト
-下記のコマンドでgoogle testが実行されます。
-```sh
-make test
-```
-
-#### ライブラリのベンチマーク
-下記のコマンドで簡易的なベンチマークが実行されます。
-```sh
-make bench
-```
-
-#### pythonライブラリの生成
-下記のコマンドでpythonのライブラリが生成されます。
-```sh
-make python
-```
-エラーが生じてしまう場合はドキュメントのトラブルシューティングを参照してください。
-
-#### pythonライブラリのテスト
-下記のコマンドでpythonのライブラリのテストが実行されます。
-```sh
-make pythontest
-```
-
-
-### Visual Studioでのビルド
-#### プロジェクトファイルの作成
-作業ディレクトリに移動し、以下のコマンドを実行してください。
-```sh
-git clone https://github.com/vqcsim/vqcsim.git
-cd vqcsim
-mkdir build
-cd build
-cmake -G "Visual Studio 15 2017 Win64" -D CMAKE_BUILD_TYPE=Release ..
-```
-上記コマンドで、Project.slnが生成されるので、これを開いてください。
-
-次に、上部ボックスでReleaseを選択し、メニューの「ビルド」からリビルドを選択します。
-
-
-
-### 使い方
-
-#### C++ライブラリの利用
-例えばcppsimを用いるとき、
-```
-g++ -I ./vqcsim/include -I ./vqcsim/eigen/include your_code.cpp ./vqcsim/lib/libcppsim.a
-```
-としてビルドできます。(Windowsの場合は拡張子は.aではなく.libです。)
-関数のリストや実装例についてはドキュメントを参照してください。
-
-
-### pythonライブラリの利用
-pybind11を用いてcppsimがpython用のライブラリとして出力されています。
-
-環境に応じて、拡張子が.dllか.pydのpycppsimライブラリが、binフォルダかlibフォルダに生成されます。
-このdllをpythonスクリプトから参照できる位置に配置することで、以下のようにpythonから呼び出せます。
+Example of python code:
 ```python
-from pycppsim import Hamiltonian, QuantumCircuit, QuantumState
-from pycppsim.gate import Y,CNOT,merge
+from qulacs import Observable, QuantumCircuit, QuantumState
+from qulacs.gate import Y,CNOT,merge
 
 state = QuantumState(3)
 state.set_Haar_random_state()
@@ -132,14 +135,18 @@ circuit.add_gate(merged_gate)
 circuit.add_RX_gate(1,0.5)
 circuit.update_quantum_state(state)
 
-ham = Hamiltonian(3)
-ham.add_operator(2.0, "X 2 Y 1 Z 0")
-ham.add_operator(-3.0, "Z 2")
-value = ham.get_expectation_value(state)
+observable = Observable(3)
+observable.add_operator(2.0, "X 2 Y 1 Z 0")
+observable.add_operator(-3.0, "Z 2")
+value = observable.get_expectation_value(state)
 print(value)
 ```
-**pycppsimはpython3の関連ファイルでビルドされているので、pythonがpython3のエイリアスになっていない場合、必ずpython3からimportしてください。**
 
-関数やクラスのリストは一部移植されていない関数を除き、cppsimと同じです。
-実装例についてはドキュメントを参照してください。
+### Supported systems
+Qulacs is tested on the following systems.
 
+- Ubuntu 16.04
+- MacOS X Sierra
+- Windows 10
+
+Python library is tested on python-2.7.15 and python-3.6.6.

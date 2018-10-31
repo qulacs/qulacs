@@ -14,7 +14,7 @@
 class QuantumStateBase;
 class QuantumGateBase;
 class PauliOperator;
-class Hamiltonian;
+class Observable;
 
 /**
  * \~japanese-en 量子回路のクラス
@@ -25,15 +25,15 @@ class Hamiltonian;
 class DllExport QuantumCircuit{
 private:
     std::vector<QuantumGateBase*> _gate_list; 
-	UINT _qubit_count;                 
+    UINT _qubit_count;                 
 
     // prohibit shallow copy
     QuantumCircuit(const QuantumCircuit&) = default;
     QuantumCircuit& operator= (const QuantumCircuit&) = default;
 
 public:
-	const UINT& qubit_count = _qubit_count; /**< \~japanese-en 量子ビットの数*/
-	const std::vector<QuantumGateBase*>& gate_list = _gate_list; /**< \~japanese-en 量子ゲートのリスト*/
+    const UINT& qubit_count = _qubit_count; /**< \~japanese-en 量子ビットの数*/
+    const std::vector<QuantumGateBase*>& gate_list = _gate_list; /**< \~japanese-en 量子ゲートのリスト*/
 
     /**
      * \~japanese-en 空の量子回路を作成する
@@ -166,124 +166,124 @@ public:
      */
     UINT calculate_depth() const;
 
-	/**
-	 * \~japanese-en 量子回路のデバッグ情報の文字列を生成する
-	 *
-	 * @return 生成した文字列
-	 */
-	virtual std::string to_string() const;
+    /**
+     * \~japanese-en 量子回路のデバッグ情報の文字列を生成する
+     *
+     * @return 生成した文字列
+     */
+    virtual std::string to_string() const;
 
     /**
      * \~japanese-en 量子回路のデバッグ情報を出力する。
      * 
      * @return 受け取ったストリーム
      */
-	friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumCircuit&);
+    friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumCircuit&);
 
     /**
      * \~japanese-en 量子回路のデバッグ情報を出力する。
      * 
      * @return 受け取ったストリーム
      */
-	friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumCircuit* gate);
+    friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumCircuit* gate);
 
     /**
      * \~japanese-en \f$X\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
-	virtual void add_X_gate(UINT target_index);
+    virtual void add_X_gate(UINT target_index);
 
     /**
      * \~japanese-en \f$Y\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
-	virtual void add_Y_gate(UINT target_index);
+    virtual void add_Y_gate(UINT target_index);
 
     /**
      * \~japanese-en \f$Z\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
-	virtual void add_Z_gate(UINT target_index);
+    virtual void add_Z_gate(UINT target_index);
 
     /**
      * \~japanese-en Hadamard gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
-	virtual void add_H_gate(UINT target_index);
+    virtual void add_H_gate(UINT target_index);
 
     /**
      * \~japanese-en \f$S\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
-	virtual void add_S_gate(UINT target_index);
+    virtual void add_S_gate(UINT target_index);
 
     /**
      * \~japanese-en \f$S^{\dagger}\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
-	virtual void add_Sdag_gate(UINT target_index);
+    virtual void add_Sdag_gate(UINT target_index);
 
     /**
      * \~japanese-en \f$T\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
-	virtual void add_T_gate(UINT target_index);
+    virtual void add_T_gate(UINT target_index);
 
     /**
      * \~japanese-en \f$T^{\dagger}\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
-	virtual void add_Tdag_gate(UINT target_index);
+    virtual void add_Tdag_gate(UINT target_index);
 
     /**
      * \~japanese-en \f$\sqrt{X}\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
-	virtual void add_sqrtX_gate(UINT target_index);
+    virtual void add_sqrtX_gate(UINT target_index);
 
     /**
      * \~japanese-en \f$\sqrt{X}^{\dagger}\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
-	virtual void add_sqrtXdag_gate(UINT target_index);
+    virtual void add_sqrtXdag_gate(UINT target_index);
 
     /**
      * \~japanese-en \f$\sqrt{Y}\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
-	virtual void add_sqrtY_gate(UINT target_index);
+    virtual void add_sqrtY_gate(UINT target_index);
 
     /**
      * \~japanese-en \f$\sqrt{Y}^{\dagger}\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
-	virtual void add_sqrtYdag_gate(UINT target_index);
+    virtual void add_sqrtYdag_gate(UINT target_index);
 
     /**
      * \~japanese-en 0状態への射影演算を追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
-	virtual void add_P0_gate(UINT target_index);
+    virtual void add_P0_gate(UINT target_index);
 
     /**
      * \~japanese-en 1状態への射影演算を追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
-	virtual void add_P1_gate(UINT target_index);
+    virtual void add_P1_gate(UINT target_index);
 
     /**
      * \~japanese-en CNOT gateを追加する。
@@ -291,7 +291,7 @@ public:
      * @param[in] control_index 作用するcontrol qubitの添え字
      * @param[in] target_index 作用するtarget qubitの添え字
      */
-	virtual void add_CNOT_gate(UINT control_index, UINT target_index);
+    virtual void add_CNOT_gate(UINT control_index, UINT target_index);
 
     /**
      * \~japanese-en Control-Z gateを追加する。
@@ -299,7 +299,7 @@ public:
      * @param[in] control_index 作用するcontrol qubitの添え字
      * @param[in] target_index 作用するtarget qubitの添え字
      */
-	virtual void add_CZ_gate(UINT control_index, UINT target_index);
+    virtual void add_CZ_gate(UINT control_index, UINT target_index);
 
     /**
      * \~japanese-en SWAP gateを追加する。
@@ -307,7 +307,7 @@ public:
      * @param[in] target_index1 作用するtarget qubitの添え字
      * @param[in] target_index2 作用するもう一方のtarget qubitの添え字
      */
-	virtual void add_SWAP_gate(UINT target_index1, UINT target_index2);
+    virtual void add_SWAP_gate(UINT target_index1, UINT target_index2);
 
     /**
      * \~japanese-en X-rotation gateを追加する。
@@ -316,7 +316,7 @@ public:
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] angle 回転角\f$\theta\f$
      */
-	virtual void add_RX_gate(UINT target_index, double angle);
+    virtual void add_RX_gate(UINT target_index, double angle);
 
     /**
      * \~japanese-en Y-rotation gateを追加する。
@@ -325,7 +325,7 @@ public:
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] angle 回転角\f$\theta\f$
      */
-	virtual void add_RY_gate(UINT target_index, double angle);
+    virtual void add_RY_gate(UINT target_index, double angle);
 
     /**
      * \~japanese-en Z-rotation gateを追加する。
@@ -334,7 +334,7 @@ public:
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] angle 回転角\f$\theta\f$
      */
-	virtual void add_RZ_gate(UINT target_index, double angle);
+    virtual void add_RZ_gate(UINT target_index, double angle);
 
     /**
      * \~japanese-en OpenQASMのu1 gateを追加する。
@@ -343,7 +343,7 @@ public:
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] phi 回転角\f$\phi\f$
      */
-	virtual void add_U1_gate(UINT target_index, double phi);
+    virtual void add_U1_gate(UINT target_index, double phi);
 
     /**
      * \~japanese-en OpenQASMのu2 gateを追加する。
@@ -353,7 +353,7 @@ public:
      * @param[in] phi 回転角\f$\phi\f$
      * @param[in] psi 回転角\f$\psi\f$
      */
-	virtual void add_U2_gate(UINT target_index, double phi, double psi);
+    virtual void add_U2_gate(UINT target_index, double phi, double psi);
 
     /**
      * \~japanese-en OpenQASMのu3 gateを追加する。
@@ -364,7 +364,7 @@ public:
      * @param[in] psi 回転角\f$\psi\f$
      * @param[in] lambda 回転角\f$\lambda\f$
      */
-	virtual void add_U3_gate(UINT target_index, double phi, double psi, double lambda);
+    virtual void add_U3_gate(UINT target_index, double phi, double psi, double lambda);
 
     /**
      * \~japanese-en n-qubitパウリゲートを追加する。
@@ -376,7 +376,7 @@ public:
      * @param[in] target_index_list 作用するtarget qubitの添え字のリスト
      * @param[in] pauli_id_list target_index_listに対応したパウリ演算子のid
      */
-	virtual void add_multi_Pauli_gate(std::vector<UINT> target_index_list, std::vector<UINT> pauli_id_list);
+    virtual void add_multi_Pauli_gate(std::vector<UINT> target_index_list, std::vector<UINT> pauli_id_list);
 
     /**
      * \~japanese-en n-qubitパウリゲートを追加する。
@@ -384,7 +384,7 @@ public:
      * n-qubitパウリゲートを作用する。
      * @param[in] pauli_operator 追加するパウリ演算子
      */
-	virtual void add_multi_Pauli_gate(const PauliOperator& pauli_operator);
+    virtual void add_multi_Pauli_gate(const PauliOperator& pauli_operator);
 
     /**
      * \~japanese-en n-qubitパウリ回転ゲートを追加する。
@@ -397,7 +397,7 @@ public:
      * @param[in] pauli_id_list target_index_listに対応したパウリ演算子のid
      * @param[in] angle 回転角
      */
-	virtual void add_multi_Pauli_rotation_gate(std::vector<UINT> target_index_list, std::vector<UINT> pauli_id_list, double angle);
+    virtual void add_multi_Pauli_rotation_gate(std::vector<UINT> target_index_list, std::vector<UINT> pauli_id_list, double angle);
 
     /**
      * \~japanese-en n-qubitパウリ回転ゲートを追加する。
@@ -406,26 +406,26 @@ public:
      * 回転角はPauliOperatorの係数を用いる。
      * @param[in] pauli_operator 追加するパウリ演算子
      */
-	virtual void add_multi_Pauli_rotation_gate(const PauliOperator& pauli_operator);
+    virtual void add_multi_Pauli_rotation_gate(const PauliOperator& pauli_operator);
 
     /**
-     * \~japanese-en n-qubitハミルトニアン回転ゲートを追加する。(対角のみ)
+     * \~japanese-en n-qubitオブザーバブル回転ゲートを追加する。(対角のみ)
      * 
-     * n-qubitハミルトニアン回転ゲートを作用する。ここで用いるハミルトニアンは、対角である必要がある。
-     * @param[in] hamiltonian 追加するハミルトニアン
+     * n-qubitオブザーバブル回転ゲートを作用する。ここで用いるオブザーバブルは、対角である必要がある。
+     * @param[in] observable 追加するオブザーバブル
      * @param[in] angle 回転角
      */
-    virtual void add_diagonal_hamiltonian_rotation_gate(const Hamiltonian& hamiltonian, double angle);
+    virtual void add_diagonal_observable_rotation_gate(const Observable& observable, double angle);
 
     /**
-     * \~japanese-en n-qubitハミルトニアン回転ゲートを追加する。
+     * \~japanese-en n-qubitオブザーバブル回転ゲートを追加する。
      * 
-     * Suzuki-Trotter展開によりn-qubitハミルトニアン回転ゲートを作用する。ここで用いるハミルトニアンは、対角でなくてもよい。
-     * @param[in] hamiltonian 追加するハミルトニアン
+     * Suzuki-Trotter展開によりn-qubitオブザーバブル回転ゲートを作用する。ここで用いるオブザーバブルは、対角でなくてもよい。
+     * @param[in] observable 追加するオブザーバブル
      * @param[in] angle 回転角 \f$ \theta \f$
      * @param[in] num_repeats Trotter展開をする際の分割数\f$N\f$。指定しない場合は、関数内部で\f$ \#qubit \cdot \theta / N = 0.01\f$ となるように設定される。
 */
-    virtual void add_hamiltonian_rotation_gate(const Hamiltonian& hamiltonian, double angle, UINT num_repeats = 0);
+    virtual void add_observable_rotation_gate(const Observable& observable, double angle, UINT num_repeats = 0);
     /**
      * \~japanese-en 1-qubitのdenseな行列のゲートを追加する。
      * 
@@ -433,7 +433,7 @@ public:
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] matrix 作用する2*2の行列
      */
-	virtual void add_dense_matrix_gate(UINT target_index, const ComplexMatrix& matrix);
+    virtual void add_dense_matrix_gate(UINT target_index, const ComplexMatrix& matrix);
 
     /**
      * \~japanese-en multi qubitのdenseな行列のゲートを追加する。
@@ -443,7 +443,7 @@ public:
      * @param[in] target_index_list 作用するtarget qubitの添え字のリスト
      * @param[in] matrix 作用する行列
      */
-	virtual void add_dense_matrix_gate(std::vector<UINT> target_index_list, const ComplexMatrix& matrix);
+    virtual void add_dense_matrix_gate(std::vector<UINT> target_index_list, const ComplexMatrix& matrix);
 };
 
 

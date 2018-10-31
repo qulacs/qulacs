@@ -24,6 +24,6 @@ add_dependencies(csim_static eigen)
 add_dependencies(csim_shared eigen)
 
 if(MSVC)
-	set_target_properties ( csim_static PROPERTIES LINKER_LANGUAGE CXX )
-	set_target_properties ( csim_shared PROPERTIES LINKER_LANGUAGE CXX )
+    set_target_properties ( csim_static PROPERTIES LINKER_LANGUAGE CXX )
+    set_target_properties ( csim_shared PROPERTIES LINKER_LANGUAGE CXX )
 endif()

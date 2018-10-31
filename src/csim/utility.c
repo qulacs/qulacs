@@ -77,21 +77,21 @@ ITYPE* create_matrix_mask_list(const UINT* qubit_index_list, UINT qubit_index_co
 
     for(cursor=0;cursor < matrix_dim; ++cursor){
         for(UINT bit_cursor = 0;bit_cursor < qubit_index_count;++bit_cursor){
-			if ((cursor >> bit_cursor) % 2) {
-				UINT bit_index = qubit_index_list[bit_cursor];
-				mask_list[cursor] ^= (1ULL << bit_index);
-			}
+            if ((cursor >> bit_cursor) % 2) {
+                UINT bit_index = qubit_index_list[bit_cursor];
+                mask_list[cursor] ^= (1ULL << bit_index);
+            }
         }
     }
     return mask_list;
 }
 
 ITYPE create_control_mask(const UINT* qubit_index_list, const UINT* value_list, UINT size) {
-	ITYPE mask = 0;
-	for (UINT cursor = 0; cursor < size; ++cursor) {
-		mask ^= (1ULL << qubit_index_list[cursor]) * value_list[cursor];
-	}
-	return mask;
+    ITYPE mask = 0;
+    for (UINT cursor = 0; cursor < size; ++cursor) {
+        mask ^= (1ULL << qubit_index_list[cursor]) * value_list[cursor];
+    }
+    return mask;
 }
 
 
