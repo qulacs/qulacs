@@ -75,7 +75,7 @@ class CMakeBuild(build_ext):
 
 setup(
     name='Qulacs',
-    version='0.0.2',
+    version='0.0.3',
     author='QunaSys',
     author_email='yan@qunasys.com',
     url='http://www.qulacs.org',
