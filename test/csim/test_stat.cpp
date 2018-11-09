@@ -237,6 +237,50 @@ TEST(StatOperationTest, MultiQubitExpectationValueWholeTest) {
 }
 
 
+
+// multi qubit expectation value whole
+TEST(StatOperationTest, MultiQubitExpectationValueZopWholeTest) {
+	const UINT n = 6;
+	const ITYPE dim = 1ULL << n;
+	const UINT max_repeat = 10;
+	const double eps = 1e-14;
+
+	CTYPE* state = allocate_quantum_state(dim);
+	Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
+	Eigen::MatrixXcd pauli_op;
+	Identity << 1, 0, 0, 1;
+	X << 0, 1, 1, 0;
+	Z << 1, 0, 0, -1;
+	Y << 0, -1.i, 1.i, 0;
+
+	for (UINT rep = 0; rep < max_repeat; ++rep) {
+		initialize_Haar_random_state(state, dim);
+		ASSERT_NEAR(state_norm(state, dim), 1, eps);
+		Eigen::VectorXcd test_state(dim);
+		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+
+		for (UINT target = 0; target < n; ++target) {
+			// multi qubit expectation whole list value check
+			Eigen::MatrixXcd mat = Eigen::MatrixXcd::Identity(1, 1);
+			std::vector<UINT> pauli_whole;
+			for (UINT i = 0; i < n; ++i) {
+				UINT pauli = rand_int(2);
+				if (pauli == 1) pauli = 3;
+				if (pauli == 0) pauli_op = Identity;
+				else pauli_op = Z;
+				mat = kronecker_product(pauli_op, mat);
+				pauli_whole.push_back(pauli);
+			}
+			std::complex<double> value = (test_state.adjoint()*mat*test_state);
+			ASSERT_NEAR(value.imag(), 0, eps);
+			double test_expectation = value.real();
+			double expectation = expectation_value_multi_qubit_Pauli_operator_whole_list(pauli_whole.data(), n, state, dim);
+			ASSERT_NEAR(expectation, test_expectation, eps);
+		}
+	}
+	release_quantum_state(state);
+}
+
 // multi qubit expectation value whole
 TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
     const UINT n = 6;
@@ -290,6 +334,278 @@ TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
     release_quantum_state(state);
 }
 
+// multi qubit expectation value whole
+TEST(StatOperationTest, MultiQubitExpectationValueZopPartialTest) {
+	const UINT n = 6;
+	const ITYPE dim = 1ULL << n;
+	const double eps = 1e-14;
+	const UINT max_repeat = 10;
+
+	CTYPE* state = allocate_quantum_state(dim);
+	for (UINT rep = 0; rep < max_repeat; ++rep) {
+		initialize_Haar_random_state(state, dim);
+		ASSERT_NEAR(state_norm(state, dim), 1, eps);
+		Eigen::VectorXcd test_state(dim);
+		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+
+		Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
+		Identity << 1, 0, 0, 1;
+		X << 0, 1, 1, 0;
+		Z << 1, 0, 0, -1;
+		Y << 0, -1.i, 1.i, 0;
+
+		for (UINT target = 0; target < n; ++target) {
+			// multi qubit expectation partial list value check
+			Eigen::MatrixXcd mat = Eigen::MatrixXcd::Identity(1, 1);
+			Eigen::MatrixXcd pauli_op;
+
+			std::vector<UINT> pauli_partial, pauli_index;
+			std::vector<std::pair<UINT, UINT>> pauli_partial_pair;
+			for (UINT i = 0; i < n; ++i) {
+				UINT pauli = rand_int(2);
+				if (pauli == 1) pauli = 3;
+				if (pauli == 0) pauli_op = Identity;
+				else pauli_op = Z;
+				mat = kronecker_product(pauli_op, mat);
+				if (pauli != 0) {
+					pauli_partial_pair.push_back(std::make_pair(i, pauli));
+				}
+			}
+			std::random_shuffle(pauli_partial_pair.begin(), pauli_partial_pair.end());
+			for (auto val : pauli_partial_pair) {
+				pauli_index.push_back(val.first);
+				pauli_partial.push_back(val.second);
+			}
+			std::complex<double> value = (test_state.adjoint()*mat*test_state);
+			ASSERT_NEAR(value.imag(), 0, eps);
+			double test_expectation = value.real();
+			double expectation = expectation_value_multi_qubit_Pauli_operator_partial_list(pauli_index.data(), pauli_partial.data(), (UINT)pauli_index.size(), state, dim);
+			ASSERT_NEAR(expectation, test_expectation, eps);
+		}
+	}
+	release_quantum_state(state);
+}
 
 
 
+
+
+// multi qubit expectation value whole
+TEST(StatOperationTest, MultiQubitTransitionAmplitudeWholeTest) {
+	const UINT n = 6;
+	const ITYPE dim = 1ULL << n;
+	const UINT max_repeat = 10;
+	const double eps = 1e-14;
+
+	CTYPE* state_ket = allocate_quantum_state(dim);
+	CTYPE* state_bra = allocate_quantum_state(dim);
+	Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
+	Eigen::MatrixXcd pauli_op;
+	Identity << 1, 0, 0, 1;
+	X << 0, 1, 1, 0;
+	Z << 1, 0, 0, -1;
+	Y << 0, -1.i, 1.i, 0;
+
+	for (UINT rep = 0; rep < max_repeat; ++rep) {
+		initialize_Haar_random_state(state_ket, dim);
+		initialize_Haar_random_state(state_bra, dim);
+		ASSERT_NEAR(state_norm(state_ket, dim), 1, eps);
+		ASSERT_NEAR(state_norm(state_bra, dim), 1, eps);
+
+		Eigen::VectorXcd test_state_ket(dim);
+		Eigen::VectorXcd test_state_bra(dim);
+		for (ITYPE i = 0; i < dim; ++i) test_state_ket[i] = state_ket[i];
+		for (ITYPE i = 0; i < dim; ++i) test_state_bra[i] = state_bra[i];
+
+		for (UINT target = 0; target < n; ++target) {
+			// multi qubit expectation whole list value check
+			Eigen::MatrixXcd mat = Eigen::MatrixXcd::Identity(1, 1);
+			std::vector<UINT> pauli_whole;
+			for (UINT i = 0; i < n; ++i) {
+				UINT pauli = rand_int(4);
+				if (pauli == 0) pauli_op = Identity;
+				else if (pauli == 1) pauli_op = X;
+				else if (pauli == 2) pauli_op = Y;
+				else if (pauli == 3) pauli_op = Z;
+				mat = kronecker_product(pauli_op, mat);
+				pauli_whole.push_back(pauli);
+			}
+			std::complex<double> test_transition_amplitude = (test_state_bra.adjoint()*mat*test_state_ket);
+			CTYPE transition_amplitude = transition_amplitude_multi_qubit_Pauli_operator_whole_list(pauli_whole.data(), n, state_bra, state_ket, dim);
+			ASSERT_NEAR(creal(transition_amplitude), creal(test_transition_amplitude), eps);
+			ASSERT_NEAR(cimag(transition_amplitude), cimag(test_transition_amplitude), eps);
+		}
+	}
+	release_quantum_state(state_ket);
+	release_quantum_state(state_bra);
+}
+
+// multi qubit expectation value whole
+TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopWholeTest) {
+	const UINT n = 6;
+	const ITYPE dim = 1ULL << n;
+	const UINT max_repeat = 10;
+	const double eps = 1e-14;
+
+	CTYPE* state_ket = allocate_quantum_state(dim);
+	CTYPE* state_bra = allocate_quantum_state(dim);
+	Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
+	Eigen::MatrixXcd pauli_op;
+	Identity << 1, 0, 0, 1;
+	X << 0, 1, 1, 0;
+	Z << 1, 0, 0, -1;
+	Y << 0, -1.i, 1.i, 0;
+
+	for (UINT rep = 0; rep < max_repeat; ++rep) {
+		initialize_Haar_random_state(state_ket, dim);
+		initialize_Haar_random_state(state_bra, dim);
+		ASSERT_NEAR(state_norm(state_ket, dim), 1, eps);
+		ASSERT_NEAR(state_norm(state_bra, dim), 1, eps);
+
+		Eigen::VectorXcd test_state_ket(dim);
+		Eigen::VectorXcd test_state_bra(dim);
+		for (ITYPE i = 0; i < dim; ++i) test_state_ket[i] = state_ket[i];
+		for (ITYPE i = 0; i < dim; ++i) test_state_bra[i] = state_bra[i];
+
+		for (UINT target = 0; target < n; ++target) {
+			// multi qubit expectation whole list value check
+			Eigen::MatrixXcd mat = Eigen::MatrixXcd::Identity(1, 1);
+			std::vector<UINT> pauli_whole;
+			for (UINT i = 0; i < n; ++i) {
+				UINT pauli = rand_int(2);
+				if (pauli == 1) pauli = 3;
+				if (pauli == 0) pauli_op = Identity;
+				else pauli_op = Z;
+				mat = kronecker_product(pauli_op, mat);
+				pauli_whole.push_back(pauli);
+			}
+			std::complex<double> test_transition_amplitude = (test_state_bra.adjoint()*mat*test_state_ket);
+			CTYPE transition_amplitude = transition_amplitude_multi_qubit_Pauli_operator_whole_list(pauli_whole.data(), n, state_bra, state_ket, dim);
+			ASSERT_NEAR(creal(transition_amplitude), creal(test_transition_amplitude), eps);
+			ASSERT_NEAR(cimag(transition_amplitude), cimag(test_transition_amplitude), eps);
+		}
+	}
+	release_quantum_state(state_ket);
+	release_quantum_state(state_bra);
+}
+
+// multi qubit expectation value whole
+TEST(StatOperationTest, MultiQubitTransitionAmplitudePartialTest) {
+	const UINT n = 6;
+	const ITYPE dim = 1ULL << n;
+	const UINT max_repeat = 10;
+	const double eps = 1e-14;
+
+	CTYPE* state_ket = allocate_quantum_state(dim);
+	CTYPE* state_bra = allocate_quantum_state(dim);
+	Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
+	Eigen::MatrixXcd pauli_op;
+	Identity << 1, 0, 0, 1;
+	X << 0, 1, 1, 0;
+	Z << 1, 0, 0, -1;
+	Y << 0, -1.i, 1.i, 0;
+
+	for (UINT rep = 0; rep < max_repeat; ++rep) {
+		initialize_Haar_random_state(state_ket, dim);
+		initialize_Haar_random_state(state_bra, dim);
+		ASSERT_NEAR(state_norm(state_ket, dim), 1, eps);
+		ASSERT_NEAR(state_norm(state_bra, dim), 1, eps);
+
+		Eigen::VectorXcd test_state_ket(dim);
+		Eigen::VectorXcd test_state_bra(dim);
+		for (ITYPE i = 0; i < dim; ++i) test_state_ket[i] = state_ket[i];
+		for (ITYPE i = 0; i < dim; ++i) test_state_bra[i] = state_bra[i];
+
+		for (UINT target = 0; target < n; ++target) {
+			// multi qubit expectation partial list value check
+			Eigen::MatrixXcd mat = Eigen::MatrixXcd::Identity(1, 1);
+			Eigen::MatrixXcd pauli_op;
+
+			std::vector<UINT> pauli_partial, pauli_index;
+			std::vector<std::pair<UINT, UINT>> pauli_partial_pair;
+			for (UINT i = 0; i < n; ++i) {
+				UINT pauli = rand_int(4);
+				if (pauli == 0) pauli_op = Identity;
+				else if (pauli == 1) pauli_op = X;
+				else if (pauli == 2) pauli_op = Y;
+				else if (pauli == 3) pauli_op = Z;
+				mat = kronecker_product(pauli_op, mat);
+				if (pauli != 0) {
+					pauli_partial_pair.push_back(std::make_pair(i, pauli));
+				}
+			}
+			std::random_shuffle(pauli_partial_pair.begin(), pauli_partial_pair.end());
+			for (auto val : pauli_partial_pair) {
+				pauli_index.push_back(val.first);
+				pauli_partial.push_back(val.second);
+			}
+			std::complex<double> test_transition_amplitude = (test_state_bra.adjoint()*mat*test_state_ket);
+			CTYPE transition_amplitude = transition_amplitude_multi_qubit_Pauli_operator_partial_list(pauli_index.data(), pauli_partial.data(), (UINT)pauli_index.size(), state_bra, state_ket, dim);
+			ASSERT_NEAR(creal(transition_amplitude), creal(test_transition_amplitude), eps);
+			ASSERT_NEAR(cimag(transition_amplitude), cimag(test_transition_amplitude), eps);
+		}
+	}
+	release_quantum_state(state_ket);
+	release_quantum_state(state_bra);
+}
+
+
+
+// multi qubit expectation value whole
+TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
+	const UINT n = 6;
+	const ITYPE dim = 1ULL << n;
+	const UINT max_repeat = 10;
+	const double eps = 1e-14;
+
+	CTYPE* state_ket = allocate_quantum_state(dim);
+	CTYPE* state_bra = allocate_quantum_state(dim);
+	Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
+	Eigen::MatrixXcd pauli_op;
+	Identity << 1, 0, 0, 1;
+	X << 0, 1, 1, 0;
+	Z << 1, 0, 0, -1;
+	Y << 0, -1.i, 1.i, 0;
+
+	for (UINT rep = 0; rep < max_repeat; ++rep) {
+		initialize_Haar_random_state(state_ket, dim);
+		initialize_Haar_random_state(state_bra, dim);
+		ASSERT_NEAR(state_norm(state_ket, dim), 1, eps);
+		ASSERT_NEAR(state_norm(state_bra, dim), 1, eps);
+
+		Eigen::VectorXcd test_state_ket(dim);
+		Eigen::VectorXcd test_state_bra(dim);
+		for (ITYPE i = 0; i < dim; ++i) test_state_ket[i] = state_ket[i];
+		for (ITYPE i = 0; i < dim; ++i) test_state_bra[i] = state_bra[i];
+
+		for (UINT target = 0; target < n; ++target) {
+			// multi qubit expectation partial list value check
+			Eigen::MatrixXcd mat = Eigen::MatrixXcd::Identity(1, 1);
+			Eigen::MatrixXcd pauli_op;
+
+			std::vector<UINT> pauli_partial, pauli_index;
+			std::vector<std::pair<UINT, UINT>> pauli_partial_pair;
+			for (UINT i = 0; i < n; ++i) {
+				UINT pauli = rand_int(2);
+				if (pauli == 1) pauli = 3;
+				if (pauli == 0) pauli_op = Identity;
+				else pauli_op = Z;
+				mat = kronecker_product(pauli_op, mat);
+				if (pauli != 0) {
+					pauli_partial_pair.push_back(std::make_pair(i, pauli));
+				}
+			}
+			std::random_shuffle(pauli_partial_pair.begin(), pauli_partial_pair.end());
+			for (auto val : pauli_partial_pair) {
+				pauli_index.push_back(val.first);
+				pauli_partial.push_back(val.second);
+			}
+			std::complex<double> test_transition_amplitude = (test_state_bra.adjoint()*mat*test_state_ket);
+			CTYPE transition_amplitude = transition_amplitude_multi_qubit_Pauli_operator_partial_list(pauli_index.data(), pauli_partial.data(), (UINT)pauli_index.size(), state_bra, state_ket, dim);
+			ASSERT_NEAR(creal(transition_amplitude), creal(test_transition_amplitude), eps);
+			ASSERT_NEAR(cimag(transition_amplitude), cimag(test_transition_amplitude), eps);
+		}
+	}
+	release_quantum_state(state_ket);
+	release_quantum_state(state_bra);
+}

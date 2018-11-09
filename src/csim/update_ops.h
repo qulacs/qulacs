@@ -799,6 +799,32 @@ DllExport void multi_qubit_Pauli_rotation_gate_partial_list(const UINT* target_q
 
 /**
  * \~english
+ * Apply a two-qubit arbitrary gate.
+ *
+ * Apply a two-qubit arbitrary gate defined by a dense matrix as a one-dimentional array matrix[].
+ * @param[in] target_qubit_index1 index of the first target qubit
+ * @param[in] target_qubit_index2 index of the second target qubit
+ * @param[in] matrix description of a multi-qubit gate as a one-dimensional array with length 16
+ * @param[in,out] state quantum state
+ * @param[in] dim dimension
+ *
+ *
+ * \~japanese-en
+ * 任意の２量子ビット演算を作用させて状態を更新。
+ *
+ * 任意の２量子ビット演算を作用させて状態を更新。演算は、その行列成分を１次元配列として matrix[] で与える。(j,k)成分は、matrix[dim*j+k]に対応。
+ *
+ * @param[in] target_qubit_index1 作用する量子ビットの一つ目の添え字
+ * @param[in] target_qubit_index2 作用する量子ビットの二つ目の添え字
+ * @param[in] matrix 複数量子ビット演算を定義する長さ 16 の一次元配列。
+ * @param[in,out] state 量子状態
+ * @param[in] dim 次元
+ *
+ */
+DllExport void two_qubit_dense_matrix_gate(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim);
+
+/**
+ * \~english
  * Apply a multi-qubit arbitrary gate.
  *
  * Apply a multi-qubit arbitrary gate defined by a dense matrix as a one-dimentional array matrix[].
