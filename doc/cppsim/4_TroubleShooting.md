@@ -1,29 +1,37 @@
 
 
-# トラブルシューティング
+# Troubleshootings
 
-## C/C++のライブラリに関するエラー
+## Error in compilation of C/C++
 
-### csim_sharedのリンク時にエラーが発生する
-コンパイラがgcc/g++になっていません。cmakeコマンドを行う際にver7以降のgcc/g++を指定してください。Macの標準のgccはバックエンドがclangになっているので注意してください。
+### Error occurs when compiling csim_shared
+Codes are compiled with gcc/g++ ver>=7, probably.
+Please check codes are compiled with gcc and g++ of which the version is greater than or equal to 7.0.0.
 
-### mingwでpycppsimをコンパイルする時に、Posix系のヘッダファイル(crypt.h, sys/select.hなど)が見つからないというエラーが出る。リンク時に-lintlが見つからないというエラーが出る。
+For MacOS Users: the default backend of gcc/g++ command in terminal is actually clang, which is not supported in Qulacs.
 
-gcc/g++とpythonで32bit/64bitが異なると生じることを確認しています。
+### When we compile Qulacs with mingw, compiler says header files such as crypt.h or sys/select.h was not found. When objects are linked, linker says library -lintl was not found.
+
+This may occur when you try to build 32bit python library with 64bit compiler, or 64bit lib with 32bit.
+When you compile C++ with 32bit/64bit, the python library must be 32bit/64bit, respectively.
+
+## Error in python library
+
+### I have many versions of python, and want to build Qulacs for specific one.
+
+Qulacs is build for default python and python-config. Please set the version where you want to install Qulacs as a default using pyenv or conda.
+We can also specify python binary when we do cmake by adding -D PYTHON_EXECUTABLE:FILEPATH=/usr/bin/pythonx.x.
+
+## When I import library, python says there is no init function.
+If you use Qulacs from python and call functions directly using dll/pyd, the name of python library must not be changed. 
+If you change the dll/pyd name of python library, you will see this error.
+
+If you import python dll/pyd which is build for different version python, you may see this error.
+
+### Segmentation fault occurs when I import library. Python immediately exit after importing library. Python says functions starting with "Py_" was not found. Though there exists dll files, python says there is no dll/pyd. 
+
+If you import python dll/pyd which is build for different version python, you see these error.
+Error messages depend on the version of python.
 
 
-## pythonライブラリに関するエラー
-
-### 複数のpythonを抱えており、特定のバージョンに対してビルドを行いたい
-
-cmakeの際に-D PYTHON_EXECUTABLE:FILEPATH=/usr/bin/pythonx.xなどpythonのバイナリのパスを直接指定することでできます。しかし、原則的にpyenvやcondaを用いて標準のpythonを変えてからビルドすることをお勧めします。
-
-## import時に「init関数がない」旨のエラーが出る。
-生成した.dll,.pydは名前とモジュール名が一致している必要があるため、ライブラリ名を変更してimportを試みるとこのエラーが出ます。
-
-そうでない場合は、ビルドしたpythonとそれをimportしているpythonのバージョンが異なる可能性が高いです。
-
-### import時にSegmentation faultが生じる。何も出力せずにpythonが終了する。Py_...という関数が見つからないと言われる。importしようとしてもファイルが存在しないと言われる。など。
-
-ビルドしたpythonとそれをimportしているpythonのバージョンが異なる可能性が高いです。
 
