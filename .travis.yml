@@ -5,6 +5,7 @@ matrix:
   include:
     # 1/ OSX GCC7 PYTHON3.6 build
     - os: osx
+      osx_image: xcode10.1
       compiler: gcc-7
       env:
         - PYTHON=3.6
@@ -16,6 +17,7 @@ matrix:
         - COVERAGE=OFF
     # 2/ OSX GCC7 PYTHON2.7 build
     - os: osx
+      osx_image: xcode10.1
       compiler: gcc-7
       env:
         - PYTHON=2.7
