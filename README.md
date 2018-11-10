@@ -103,10 +103,10 @@ int main(){
     circuit.add_RX_gate(1,0.5);
     circuit.update_quantum_state(&state);
 
-    Observable observable(3)
-    observable.add_operator(2.0, "X 2 Y 1 Z 0")
-    observable.add_operator(-3.0, "Z 2")
-    auto value = observable.get_expectation_value(&state)
+    Observable observable(3);
+    observable.add_operator(2.0, "X 2 Y 1 Z 0");
+    observable.add_operator(-3.0, "Z 2");
+    auto value = observable.get_expectation_value(&state);
     std::cout << value << std::endl;
     return 0;
 }
