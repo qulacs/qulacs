@@ -5,6 +5,7 @@ matrix:
   include:
     # 1/ OSX GCC7 PYTHON3.6 build
     - os: osx
+      osx_image: xcode10.1
       compiler: gcc-7
       env:
         - PYTHON=3.6
@@ -16,6 +17,7 @@ matrix:
         - COVERAGE=OFF
     # 2/ OSX GCC7 PYTHON2.7 build
     - os: osx
+      osx_image: xcode10.1
       compiler: gcc-7
       env:
         - PYTHON=2.7
@@ -85,8 +87,6 @@ install:
       brew cask uninstall --force oclint
       brew upgrade cmake python
       brew install gcc@7 pipenv swig
-      softwareupdate --list
-      softwareupdate --install "Command Line Tools (macOS High Sierra version 10.13) for Xcode-9.4"
     fi
 
 before_script:
