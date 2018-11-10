@@ -1,7 +1,7 @@
 # How to install
 
 ## Install from Source
-If you encounter some troubles, see [troubleshooting (Japanese)](http://qulacs.org/md_4__trouble_shooting.html).
+If you encounter some troubles, see [troubleshooting](http://qulacs.org/md_4__trouble_shooting.html).
 
 ### Requirements
 
