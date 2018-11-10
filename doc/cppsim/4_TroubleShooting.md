@@ -2,13 +2,13 @@
 
 # Troubleshootings
 
-## Error in compilation of C/C++
+## Compile error in C/C++
 
 ### Error occurs when compiling csim_shared
-Codes are compiled with gcc/g++ ver>=7, probably.
-Please check codes are compiled with gcc and g++ of which the version is greater than or equal to 7.0.0.
+Codes might not be compiled with gcc/g++ ver>=7.
+Please check codes are compiled with gcc and g++ and it's version is greater or equal to 7.0.0.
 
-For MacOS Users: the default backend of gcc/g++ command in terminal is actually clang, which is not supported in Qulacs.
+For MacOS Users: the default backend of gcc/g++ command is clang, which is not supported in Qulacs.
 
 ### When we compile Qulacs with mingw, compiler says header files such as crypt.h or sys/select.h was not found. When objects are linked, linker says library -lintl was not found.
 
@@ -26,12 +26,12 @@ We can also specify python binary when we do cmake by adding -D PYTHON_EXECUTABL
 If you use Qulacs from python and call functions directly using dll/pyd, the name of python library must not be changed. 
 If you change the dll/pyd name of python library, you will see this error.
 
-If you import python dll/pyd which is build for different version python, you may see this error.
+If you import python dll/pyd which is build for different python version, you may see this error.
 
 ### Segmentation fault occurs when I import library. Python immediately exit after importing library. Python says functions starting with "Py_" was not found. Though there exists dll files, python says there is no dll/pyd. 
 
-If you import python dll/pyd which is build for different version python, you see these error.
-Error messages depend on the version of python.
+If you import python dll/pyd which is build for different version python, you see these errors.
+Error messages depend on the python version.
 
 
 
