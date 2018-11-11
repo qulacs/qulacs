@@ -227,7 +227,7 @@ double expectation_value_multi_qubit_Pauli_operator_Z_mask(ITYPE phase_flip_mask
 #pragma omp parallel for reduction(+:sum)
 #endif
     for(state_index=0;state_index<loop_dim;++state_index){
-        UINT bit_parity = count_population(state_index & phase_flip_mask)%2;
+        int bit_parity = count_population(state_index & phase_flip_mask)%2;
         int sign = 1 - 2*bit_parity;
         sum += pow(cabs(state[state_index]),2) * sign;
     }
@@ -289,20 +289,21 @@ CTYPE transition_amplitude_multi_qubit_Pauli_operator_Z_mask(ITYPE phase_flip_ma
 #pragma omp parallel for reduction(+:sum)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
-        UINT bit_parity = count_population(state_index & phase_flip_mask) % 2;
+        int bit_parity = count_population(state_index & phase_flip_mask) % 2;
         double sign = 1 - 2 * bit_parity;
         sum += sign*state_ket[state_index] * conj(state_bra[state_index]);
     }
     return sum;
 
 #else
+
     double sum_real = 0.;
     double sum_imag = 0.;
 #ifdef _OPENMP
 #pragma omp parallel for reduction(+:sum_real, sum_imag)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
-        UINT bit_parity = count_population(state_index & phase_flip_mask) % 2;
+        int bit_parity = count_population(state_index & phase_flip_mask) % 2;
         double sign = 1 - 2 * bit_parity;
         CTYPE val = sign * state_ket[state_index] * conj(state_bra[state_index]);
         sum_real += creal(val);
@@ -345,7 +346,6 @@ double expectation_value_multi_qubit_Pauli_operator_whole_list(const UINT* Pauli
     }
     return result;
 }
-
 
 
 CTYPE transition_amplitude_multi_qubit_Pauli_operator_partial_list(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
