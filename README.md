@@ -29,7 +29,7 @@ Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob
 
 - Test environment:
     - 100 shot sampling of 10 layers of all random rotation X gate and 9 layers of all neighboring CNOT
-    - Intel Core i7 CPU
+    - Intel Core-i7 8700 CPU
     - NVIDIA GTX 1050 Ti GPU
     - OpenMP enabled
     - MKL enabled (numpy runs in multi thread)
