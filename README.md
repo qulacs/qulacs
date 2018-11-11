@@ -64,7 +64,21 @@ If you encounter some troubles, see [troubleshooting (Japanese)](http://qulacs.o
 - python 2.7 or 3.x
 - cmake >= 3.0
 
-### C++ Library
+### Build python library and install
+
+Install
+```
+git clone https://github.com/qulacs/qulacs.git
+cd qulacs
+python setup.py install
+```
+
+Uninstall
+```
+pip uninstall qulacs
+```
+
+### Build C++ and python library
 
 #### GCC
 ```
@@ -82,29 +96,15 @@ cmake --build ./visualstudio --target ALL_BUILD --config Release
 cmake --build ./visualstudio --target python --config Release
 ```
 
-### Python Interface(Qulacs)
+## Getting started
 
-Install
-```
-git clone https://github.com/qulacs/qulacs.git
-cd qulacs
-python setup.py install
-```
-
-Uninstall
-```
-pip uninstall qulacs
-```
-
-## Gettig started
-
-See the following document for more detail.  
+See the following documents for more detail.
 [C++ Tutorial](http://qulacs.org/md_2__tutorial__c_p_p.html)  
 [Python Tutorial](http://qulacs.org/md_3__tutorial_python.html)   
 [Examples](https://github.com/qulacs/quantum-circuits)  
 [API document](http://qulacs.org/annotated.html)   
 
-### Sample codes (Python)
+### Sample code (Python)
 ```python
 from qulacs import Observable, QuantumCircuit, QuantumState
 from qulacs.gate import Y,CNOT,merge
@@ -127,7 +127,7 @@ print(value)
 ```
 
 
-### Sample codes (C++)
+### Sample code (C++)
 
 ```cpp
 #include <iostream>
