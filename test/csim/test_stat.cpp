@@ -432,8 +432,8 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeWholeTest) {
 			}
 			std::complex<double> test_transition_amplitude = (test_state_bra.adjoint()*mat*test_state_ket);
 			CTYPE transition_amplitude = transition_amplitude_multi_qubit_Pauli_operator_whole_list(pauli_whole.data(), n, state_bra, state_ket, dim);
-			ASSERT_NEAR(creal(transition_amplitude), creal(test_transition_amplitude), eps);
-			ASSERT_NEAR(cimag(transition_amplitude), cimag(test_transition_amplitude), eps);
+			ASSERT_NEAR(creal(transition_amplitude), test_transition_amplitude.real(), eps);
+			ASSERT_NEAR(cimag(transition_amplitude), test_transition_amplitude.imag(), eps);
 		}
 	}
 	release_quantum_state(state_ket);
@@ -481,8 +481,8 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopWholeTest) {
 			}
 			std::complex<double> test_transition_amplitude = (test_state_bra.adjoint()*mat*test_state_ket);
 			CTYPE transition_amplitude = transition_amplitude_multi_qubit_Pauli_operator_whole_list(pauli_whole.data(), n, state_bra, state_ket, dim);
-			ASSERT_NEAR(creal(transition_amplitude), creal(test_transition_amplitude), eps);
-			ASSERT_NEAR(cimag(transition_amplitude), cimag(test_transition_amplitude), eps);
+			ASSERT_NEAR(creal(transition_amplitude), test_transition_amplitude.real(), eps);
+			ASSERT_NEAR(cimag(transition_amplitude), test_transition_amplitude.imag(), eps);
 		}
 	}
 	release_quantum_state(state_ket);
@@ -541,8 +541,8 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudePartialTest) {
 			}
 			std::complex<double> test_transition_amplitude = (test_state_bra.adjoint()*mat*test_state_ket);
 			CTYPE transition_amplitude = transition_amplitude_multi_qubit_Pauli_operator_partial_list(pauli_index.data(), pauli_partial.data(), (UINT)pauli_index.size(), state_bra, state_ket, dim);
-			ASSERT_NEAR(creal(transition_amplitude), creal(test_transition_amplitude), eps);
-			ASSERT_NEAR(cimag(transition_amplitude), cimag(test_transition_amplitude), eps);
+			ASSERT_NEAR(creal(transition_amplitude), test_transition_amplitude.real(), eps);
+			ASSERT_NEAR(cimag(transition_amplitude), test_transition_amplitude.imag(), eps);
 		}
 	}
 	release_quantum_state(state_ket);
@@ -602,8 +602,8 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
 			}
 			std::complex<double> test_transition_amplitude = (test_state_bra.adjoint()*mat*test_state_ket);
 			CTYPE transition_amplitude = transition_amplitude_multi_qubit_Pauli_operator_partial_list(pauli_index.data(), pauli_partial.data(), (UINT)pauli_index.size(), state_bra, state_ket, dim);
-			ASSERT_NEAR(creal(transition_amplitude), creal(test_transition_amplitude), eps);
-			ASSERT_NEAR(cimag(transition_amplitude), cimag(test_transition_amplitude), eps);
+			ASSERT_NEAR(creal(transition_amplitude), test_transition_amplitude.real(), eps);
+			ASSERT_NEAR(cimag(transition_amplitude), test_transition_amplitude.imag(), eps);
 		}
 	}
 	release_quantum_state(state_ket);
