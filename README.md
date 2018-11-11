@@ -96,7 +96,7 @@ cmake --build ./visualstudio --target ALL_BUILD --config Release
 cmake --build ./visualstudio --target python --config Release
 ```
 
-## Getting started
+## Tutorial and API document
 
 See the following documents for more detail.
 
@@ -105,7 +105,8 @@ See the following documents for more detail.
 - [Examples](https://github.com/qulacs/quantum-circuits)  
 - [API document](http://qulacs.org/annotated.html)   
 
-### Sample code (Python)
+## Sample code
+### Python
 ```python
 from qulacs import Observable, QuantumCircuit, QuantumState
 from qulacs.gate import Y,CNOT,merge
@@ -128,7 +129,7 @@ print(value)
 ```
 
 
-### Sample code (C++)
+### C++
 
 ```cpp
 #include <iostream>
