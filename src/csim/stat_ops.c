@@ -348,7 +348,6 @@ double expectation_value_multi_qubit_Pauli_operator_whole_list(const UINT* Pauli
 }
 
 
-
 CTYPE transition_amplitude_multi_qubit_Pauli_operator_partial_list(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
     ITYPE bit_flip_mask = 0;
     ITYPE phase_flip_mask = 0;
