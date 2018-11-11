@@ -33,7 +33,7 @@ Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob
     - NVIDIA GTX 1050 Ti GPU
     - OpenMP enabled
     - MKL enabled (numpy runs in multi thread)
-    - Circuit compression disabled.
+    - Circuit compression disabled
     
 ![benchmark](http://www.qunasys.com/wp-content/uploads/2018/10/plot_2.png)
 
