@@ -99,10 +99,11 @@ cmake --build ./visualstudio --target python --config Release
 ## Getting started
 
 See the following documents for more detail.
-[C++ Tutorial](http://qulacs.org/md_2__tutorial__c_p_p.html)  
-[Python Tutorial](http://qulacs.org/md_3__tutorial_python.html)   
-[Examples](https://github.com/qulacs/quantum-circuits)  
-[API document](http://qulacs.org/annotated.html)   
+
+- [C++ Tutorial](http://qulacs.org/md_2__tutorial__c_p_p.html)  
+- [Python Tutorial](http://qulacs.org/md_3__tutorial_python.html)
+- [Examples](https://github.com/qulacs/quantum-circuits)  
+- [API document](http://qulacs.org/annotated.html)   
 
 ### Sample code (Python)
 ```python
