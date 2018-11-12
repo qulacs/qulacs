@@ -39,6 +39,8 @@ PYBIND11_MODULE(qulacs, m) {
         .def(py::init<std::string, double>())
         .def(py::init<std::vector<unsigned int>&, std::string, double>())
         .def(py::init<std::vector<unsigned int>&, double>())
+        .def("get_index_list", &PauliOperator::get_index_list)
+        .def("get_pauli_id_list", &PauliOperator::get_pauli_id_list)
         .def("get_coef", &PauliOperator::get_coef)
         .def("add_single_Pauli", &PauliOperator::add_single_Pauli)
         .def("get_expectation_value", &PauliOperator::get_expectation_value)
