@@ -17,8 +17,6 @@
 #include <cppsim/pauli_operator.hpp>
 
 
-
-
 TEST(CircuitTest, CircuitBasic) {
     Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2), H(2, 2), S(2, 2), T(2, 2), sqrtX(2, 2), sqrtY(2, 2), P0(2, 2), P1(2, 2);
 
@@ -696,3 +694,12 @@ TEST(CircuitTest, RotateDiagonalObservable){
     ASSERT_NEAR(test_res.imag(), 0, eps);
 
 }
+
+
+TEST(CircuitTest, SpecialGatesToString) {
+	auto gate = gate::DepolarizingNoise(0, 0.1);
+	QuantumCircuit c(3);
+	c.add_gate(gate);
+	std::string s = c.to_string();
+}
+
