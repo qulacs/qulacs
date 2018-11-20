@@ -29,7 +29,7 @@ Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob
     - Open-MP enabled
     - MKL enabled (numpy runs in multi core)
     
-![benchmark](http://www.qunasys.com/wp-content/uploads/2018/10/plot_2.png)
+![benchmark](https://storage.googleapis.com/qunasys/_plot.png)
 
 ## Install from Source
 If you encounter some troubles, see [troubleshooting (Japanese)](http://qulacs.org/md_4__trouble_shooting.html).
