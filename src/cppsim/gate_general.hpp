@@ -35,6 +35,12 @@ public:
 		}
     };
 
+	virtual ~QuantumGate_Probabilistic() {
+		for (int i = 0; i < _gate_list.size(); ++i) {
+			delete _gate_list[i];
+		}
+	}
+
     /**
      * \~japanese-en 量子状態を更新する
      *
@@ -89,6 +95,11 @@ public:
 			_gate_list.push_back(gate->copy());
 		}
 	};
+	virtual ~QuantumGate_CPTP() {
+		for (int i = 0; i < _gate_list.size(); ++i) {
+			delete _gate_list[i];
+		}
+	}
 
     /**
      * \~japanese-en 量子状態を更新する
@@ -161,6 +172,11 @@ public:
 			_gate_list.push_back(gate->copy());
 		}
 	};
+	virtual ~QuantumGate_Instrument() {
+		for (int i = 0; i < _gate_list.size(); ++i) {
+			delete _gate_list[i];
+		}
+	}
 
     /**
      * \~japanese-en 量子状態を更新する
@@ -233,6 +249,9 @@ public:
         _gate = gate->copy();
         _func = func;
     };
+	virtual ~QuantumGate_Adaptive() {
+		delete _gate;
+	}
 
     /**
      * \~japanese-en 量子状態を更新する
