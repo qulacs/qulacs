@@ -141,7 +141,6 @@ TEST(CircuitTest, CircuitBasic) {
 }
 
 
-
 TEST(CircuitTest, CircuitOptimize) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;
