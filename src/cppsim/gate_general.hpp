@@ -36,7 +36,7 @@ public:
     };
 
 	virtual ~QuantumGate_Probabilistic() {
-		for (int i = 0; i < _gate_list.size(); ++i) {
+		for (unsigned int i = 0; i < _gate_list.size(); ++i) {
 			delete _gate_list[i];
 		}
 	}
@@ -96,7 +96,7 @@ public:
 		}
 	};
 	virtual ~QuantumGate_CPTP() {
-		for (int i = 0; i < _gate_list.size(); ++i) {
+		for (unsigned int i = 0; i < _gate_list.size(); ++i) {
 			delete _gate_list[i];
 		}
 	}
@@ -173,7 +173,7 @@ public:
 		}
 	};
 	virtual ~QuantumGate_Instrument() {
-		for (int i = 0; i < _gate_list.size(); ++i) {
+		for (unsigned int i = 0; i < _gate_list.size(); ++i) {
 			delete _gate_list[i];
 		}
 	}
