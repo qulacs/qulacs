@@ -30,7 +30,9 @@ public:
             sum += val;
             _cumulative_distribution.push_back(sum);
         }
-        _gate_list = gate_list;
+		for (auto gate : gate_list) {
+			_gate_list.push_back(gate->copy());
+		}
     };
 
     /**
@@ -83,8 +85,10 @@ protected:
 
 public:
     QuantumGate_CPTP(std::vector<QuantumGateBase*> gate_list) {
-        _gate_list = gate_list;
-    };
+		for (auto gate : gate_list) {
+			_gate_list.push_back(gate->copy());
+		}
+	};
 
     /**
      * \~japanese-en 量子状態を更新する
@@ -153,8 +157,10 @@ protected:
 public:
     QuantumGate_Instrument(std::vector<QuantumGateBase*> gate_list, UINT classical_register_address) {
         _classical_register_address = classical_register_address;
-        _gate_list = gate_list;
-    };
+		for (auto gate : gate_list) {
+			_gate_list.push_back(gate->copy());
+		}
+	};
 
     /**
      * \~japanese-en 量子状態を更新する
@@ -224,7 +230,7 @@ protected:
     std::function<bool(const std::vector<UINT>&)> _func;
 public:
     QuantumGate_Adaptive(QuantumGateBase* gate, std::function<bool(const std::vector<UINT>&)> func) {
-        _gate = gate;
+        _gate = gate->copy();
         _func = func;
     };
 

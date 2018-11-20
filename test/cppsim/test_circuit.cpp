@@ -697,9 +697,10 @@ TEST(CircuitTest, RotateDiagonalObservable){
 
 
 TEST(CircuitTest, SpecialGatesToString) {
-	auto gate = gate::DepolarizingNoise(0, 0.1);
-	QuantumCircuit c(3);
-	c.add_gate(gate);
+	QuantumState state(1);
+	QuantumCircuit c(1);
+	c.add_gate(gate::DepolarizingNoise(0, 0));
+	c.update_quantum_state(&state);
 	std::string s = c.to_string();
 }
 
