@@ -2,7 +2,7 @@
 # Qulacs
 [![Build Status](https://travis-ci.org/qulacs/qulacs.svg?branch=master)](https://travis-ci.org/qulacs/qulacs)
 
-Qulacs is a fast quantum circuit simulator for simulating large, noisy, or parametric quantum circuits.
+Qulacs is a python/C++ library for fast simulation of large, noisy, or parametric quantum circuits.
 
 Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob/master/LICENSE).
 
@@ -10,11 +10,16 @@ Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob
 
 ```pip install qulacs```
 
-
+## Feature
+- Fast quantum circuit simulation with C/C++ backend
+- An arbitrary noisy quantum gate (i.e. CPTP-map and instrument are supported)
+- Parametric quantum gates for variational methods
+- Quantum circuit compression for fast numerical simulation.
+- Many utility functions for research
 
 ## Performance
-- Compared processing time with following Library on October 1st, 2018
-    - Qulacs(ours)
+- Compared processing time with following libraries on October 1st, 2018
+    - Qulacs (ours)
     - [Cirq](https://github.com/quantumlib/Cirq)
     - [ProjectQ](https://github.com/ProjectQ-Framework/ProjectQ)
     - [pyQuil](https://github.com/rigetticomputing/pyquil)
@@ -24,41 +29,42 @@ Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob
 
 - Test environment:
     - 100 shot sampling of 10 layers of all random rotation X gate and 9 layers of all neighboring CNOT
-    - Intel Core i7 CPU
-    - Nvidia GTX 1050 Ti GPU
-    - Open-MP enabled
-    - MKL enabled (numpy runs in multi core)
+    - Intel Core i7-8700 CPU
+    - NVIDIA GTX 1050 Ti GPU
+    - OpenMP enabled
+    - MKL enabled (numpy runs in multi thread)
+    - Circuit compression disabled
     
 ![benchmark](https://storage.googleapis.com/qunasys/_plot.png)
+
+## Supported environment
+Qulacs is tested on the following systems.
+
+- OS
+  - Ubuntu 16.04
+  - MacOS X Sierra
+  - Windows 10
+
+The following languages are supported.
+
+- C++
+  - gcc/g++ >= 7.0.0
+  - Microsoft VisualStudio C++ 2017
+- python
+  - python 2.7
+  - python 3.x
+
 
 ## Install from Source
 If you encounter some troubles, see [troubleshooting (Japanese)](http://qulacs.org/md_4__trouble_shooting.html).
 
 ### Requirements
 
+- gcc/g++ >= 7.0.0 or Microsoft VisualStudio C++ 2017
 - python 2.7 or 3.x
-- gcc/g++ >= 7.0.0 or VisualStudio 2017
-- cmake >= 2.8
-- git
+- cmake >= 3.0
 
-### C++ Library(cppsim)
-
-#### GCC
-```
-git clone https://github.com/qulacs/qulacs.git
-cd qulacs
-./build_gcc.sh
-```
-
-#### MSVC
-```
-git clone https://github.com/qulacs/qulacs.git
-cd qulacs
-generate_msvc_project.bat
-```
-Then, open `Project.sln` in `./qulacs/visualstudio/`, and build all.
-
-### Python Interface(Qulacs)
+### Build python library and install
 
 Install
 ```
@@ -72,55 +78,35 @@ Uninstall
 pip uninstall qulacs
 ```
 
-## Gettig started
+### Build C++ and python library
 
-See the following document for more detail.  
-[C++ Tutorial](http://qulacs.org/md_2__tutorial__c_p_p.html)  
-[Python Tutorial](http://qulacs.org/md_3__tutorial_python.html)   
-[Examples](https://github.com/qulacs/quantum-circuits)  
-[API document](http://qulacs.org/annotated.html)   
-
-### C++ Libraries
-
-Add `./<qulacs_path>/include/` to include path, and `./<qulacs_path>/lib/` to library path. If you use dynamic link library, add `./<qulacs_path>/bin/` to library path instead.
-
-
-Example of C++ code:
-```cpp
-#include <iostream>
-#include <cppsim/state.hpp>
-#include <cppsim/circuit.hpp>
-#include <cppsim/observable.hpp>
-
-int main(){
-    QuantumState state(3);
-    state.set_Haar_random_state();
-
-    QuantumCircuit circuit(3);
-    circuit.add_X_gate(0);
-    auto merged_gate = gate::merge(gate::CNOT(0,1),gate::Y(1));
-    circuit.add_gate(merged_gate);
-    circuit.add_RX_gate(1,0.5);
-    circuit.update_quantum_state(&state);
-
-    Observable observable(3)
-    observable.add_operator(2.0, "X 2 Y 1 Z 0")
-    observable.add_operator(-3.0, "Z 2")
-    auto value = observable.get_expectation_value(&state)
-    std::cout << value << std::endl;
-    return 0;
-}
+#### GCC
+```
+git clone https://github.com/qulacs/qulacs.git
+cd qulacs
+./build_gcc.sh
 ```
 
-Example of build command:
-```sh
-g++ -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lcppsim.so
+#### MSVC
+```
+git clone https://github.com/qulacs/qulacs.git
+cd qulacs
+generate_msvc_project.bat
+cmake --build ./visualstudio --target ALL_BUILD --config Release
+cmake --build ./visualstudio --target python --config Release
 ```
 
-### Python Libraries
-You can use features by simply importing `qulacs`.
+## Tutorial and API document
 
-Example of python code:
+See the following documents for more detail.
+
+- [Python Tutorial](http://qulacs.org/md_3__tutorial_python.html)
+- [C++ Tutorial](http://qulacs.org/md_2__tutorial__c_p_p.html)  
+- [Examples](https://github.com/qulacs/quantum-circuits)  
+- [API document](http://qulacs.org/annotated.html)   
+
+## Sample code
+### Python
 ```python
 from qulacs import Observable, QuantumCircuit, QuantumState
 from qulacs.gate import Y,CNOT,merge
@@ -142,11 +128,37 @@ value = observable.get_expectation_value(state)
 print(value)
 ```
 
-### Supported systems
-Qulacs is tested on the following systems.
 
-- Ubuntu 16.04
-- MacOS X Sierra
-- Windows 10
+### C++
 
-Python library is tested on python-2.7.15 and python-3.6.6.
+```cpp
+#include <iostream>
+#include <cppsim/state.hpp>
+#include <cppsim/circuit.hpp>
+#include <cppsim/observable.hpp>
+
+int main(){
+    QuantumState state(3);
+    state.set_Haar_random_state();
+
+    QuantumCircuit circuit(3);
+    circuit.add_X_gate(0);
+    auto merged_gate = gate::merge(gate::CNOT(0,1),gate::Y(1));
+    circuit.add_gate(merged_gate);
+    circuit.add_RX_gate(1,0.5);
+    circuit.update_quantum_state(&state);
+
+    Observable observable(3);
+    observable.add_operator(2.0, "X 2 Y 1 Z 0");
+    observable.add_operator(-3.0, "Z 2");
+    auto value = observable.get_expectation_value(&state);
+    std::cout << value << std::endl;
+    return 0;
+}
+```
+
+Build command for g++:
+```sh
+g++ -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lcppsim.so
+```
+

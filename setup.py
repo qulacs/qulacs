@@ -75,9 +75,9 @@ class CMakeBuild(build_ext):
 
 setup(
     name='Qulacs',
-    version='0.0.3',
+    version='0.0.4',
     author='QunaSys',
-    author_email='yan@qunasys.com',
+    author_email='qulacs@qunasys.com',
     url='http://www.qulacs.org',
     description='Quantum circuit simulator for research',
     long_description='',
