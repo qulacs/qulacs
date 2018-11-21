@@ -35,7 +35,7 @@ Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob
     - MKL enabled (numpy runs in multi thread)
     - Circuit compression disabled
     
-![benchmark](http://www.qunasys.com/wp-content/uploads/2018/10/plot_2.png)
+![benchmark](https://storage.googleapis.com/qunasys/_plot.png)
 
 ## Supported environment
 Qulacs is tested on the following systems.
