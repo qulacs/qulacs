@@ -38,3 +38,21 @@ TEST(StateTest, Sampling) {
     state.set_computational_basis(100);
     auto res2 = state.sampling(1024);
 }
+
+
+TEST(StateTest, SetState) {
+	const double eps = 1e-10;
+	const UINT n = 10;
+	QuantumState state(n);
+	const ITYPE dim = 1ULL << n;
+	std::vector<std::complex<double>> state_vector(dim);
+	for (UINT i = 0; i < dim; ++i) {
+		double d = (double)i;
+		state_vector[i] = d + std::complex<double>(0, 1)*(d + 0.1);
+	}
+	state.load(state_vector);
+	for (UINT i = 0; i < dim; ++i) {
+		ASSERT_NEAR(state.data_cpp()[i].real(), state_vector[i].real(), eps);
+		ASSERT_NEAR(state.data_cpp()[i].imag(), state_vector[i].imag(), eps);
+	}
+}
