@@ -561,11 +561,11 @@ circuit = ParametricQuantumCircuit(n)
 for d in range(depth):
 	for i in range(n):
 		angle = np.random.rand()
-		circuit.add_parametric_RX_gate(0,angle)
+		circuit.add_parametric_RX_gate(i,angle)
 		angle = np.random.rand()
-		circuit.add_parametric_RY_gate(0,angle)
+		circuit.add_parametric_RY_gate(i,angle)
 		angle = np.random.rand()
-		circuit.add_parametric_RZ_gate(0,angle)
+		circuit.add_parametric_RZ_gate(i,angle)
 	for i in range(d%2, n-1, 2):
 		circuit.add_CNOT_gate(i,i+1)
 
