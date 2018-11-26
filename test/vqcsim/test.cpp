@@ -5,6 +5,36 @@
 #include <vqcsim/problem.hpp>
 #include <vqcsim/parametric_circuit_builder.hpp>
 
+
+TEST(ParametricCircuit, GateApply) {
+	const UINT n = 3;
+	const UINT depth = 10;
+	ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(n);
+	Random random;
+	for (UINT d = 0; d < depth; ++d) {
+		for (UINT i = 0; i < n; ++i) {
+			circuit->add_parametric_RX_gate(i, random.uniform());
+			circuit->add_parametric_RY_gate(i, random.uniform());
+			circuit->add_parametric_RZ_gate(i, random.uniform());
+		}
+		for (UINT i = d % 2; i + 1 < n; i+=2) {
+			circuit->add_parametric_multi_Pauli_rotation_gate({ i,i + 1 }, { 3,3 }, random.uniform());
+		}
+	}
+
+	UINT param_count = circuit->get_parameter_count();
+	for (UINT p = 0; p < param_count; ++p) {
+		double current_angle = circuit->get_parameter(p);
+		circuit->set_parameter(p, current_angle + random.uniform());
+	}
+
+	QuantumState state(n);
+	circuit->update_quantum_state(&state);
+	//std::cout << state << std::endl;
+	//std::cout << circuit << std::endl;
+	delete circuit;
+}
+
 class MyRandomCircuit : public ParametricCircuitBuilder{
     ParametricQuantumCircuit* create_circuit(UINT output_dim, UINT param_count) const override{
         ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(output_dim);

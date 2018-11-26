@@ -538,3 +538,55 @@ state.set_Haar_random_state()
 value = observable.get_expectation_value(state)
 print(value)
 ```
+
+
+
+## 変分量子回路
+量子回路をParametricQuantumCircuitクラスとして定義すると、通所のQuantumCircuitクラスの関数に加え、変分法を用いて量子回路を最適化するのに便利ないくつかの関数を利用することができます。
+
+### 変分量子回路の利用例
+
+一つの回転角を持つ量子ゲート(X-rot, Y-rot, Z-rot, multi_qubit_pauli_rotation)はパラメトリックな量子ゲートとして量子回路に追加することができます。パラメトリックなゲートとして追加された量子ゲートについては、量子回路の構成後にパラメトリックなゲート数を取り出したり、後から回転角を変更することができます。
+
+```python
+from qulacs import ParametricQuantumCircuit
+from qulacs import QuantumState
+import numpy as np
+
+n = 5
+depth = 10
+
+# construct parametric quantum circuit with random rotation
+circuit = ParametricQuantumCircuit(n)
+for d in range(depth):
+	for i in range(n):
+		angle = np.random.rand()
+		circuit.add_parametric_RX_gate(0,angle)
+		angle = np.random.rand()
+		circuit.add_parametric_RY_gate(0,angle)
+		angle = np.random.rand()
+		circuit.add_parametric_RZ_gate(0,angle)
+	for i in range(d%2, n-1, 2):
+		circuit.add_CNOT_gate(i,i+1)
+
+# add multi-qubit Pauli rotation gate as parametric gate (X_0 Y_3 Y_1 X_4)
+target = [0,3,1,4]
+pauli_ids = [1,2,2,1]
+angle = np.random.rand()
+#circuit.add_parametric_multi_Pauli_rotation_gate(target, pauli_ids, angle)
+
+# get variable parameter count, and get current parameter
+parameter_count = circuit.get_parameter_count()
+param = [circuit.get_parameter(ind) for ind in range(parameter_count)]
+
+# set 3rd parameter to 0
+circuit.set_parameter(3, 0.)
+
+# update quantum state
+state = QuantumState(n)
+circuit.update_quantum_state(state)
+
+# output state and circuit info
+print(state)
+print(circuit)
+```
