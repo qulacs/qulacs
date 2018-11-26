@@ -573,7 +573,7 @@ for d in range(depth):
 target = [0,3,1,4]
 pauli_ids = [1,2,2,1]
 angle = np.random.rand()
-#circuit.add_parametric_multi_Pauli_rotation_gate(target, pauli_ids, angle)
+circuit.add_parametric_multi_Pauli_rotation_gate(target, pauli_ids, angle)
 
 # get variable parameter count, and get current parameter
 parameter_count = circuit.get_parameter_count()
