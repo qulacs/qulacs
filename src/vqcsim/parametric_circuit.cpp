@@ -32,7 +32,8 @@ void ParametricQuantumCircuit::set_parameter(UINT index, double value) {
 
 std::string ParametricQuantumCircuit::to_string() const {
     std::stringstream os;
-    os << "*** Parameter Info ***" << std::endl;
+	os << QuantumCircuit::to_string();
+	os << "*** Parameter Info ***" << std::endl;
     os << "# of parameter: " << this->get_parameter_count() << std::endl;
     return os.str();
 }
