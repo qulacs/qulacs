@@ -55,7 +55,7 @@ void Z_gate(UINT target_qubit_index, CTYPE *state, ITYPE dim){
 
 /** Hadamard gate  **/
 void H_gate(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
-	single_qubit_dense_matrix_gate(target_qubit_index, HADAMARD_MATRIX, state, dim);
+    single_qubit_dense_matrix_gate(target_qubit_index, HADAMARD_MATRIX, state, dim);
 }
 
 void CNOT_gate(UINT control_qubit_index, UINT target_qubit_index, CTYPE *state, ITYPE dim){

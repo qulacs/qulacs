@@ -166,7 +166,7 @@ void multi_qubit_control_single_qubit_dense_matrix_gate(const UINT* control_qubi
     const ITYPE target_mask = 1ULL << target_qubit_index;
 
     // control mask
-	ITYPE control_mask = create_control_mask(control_qubit_index_list, control_value_list, control_qubit_index_count);
+    ITYPE control_mask = create_control_mask(control_qubit_index_list, control_value_list, control_qubit_index_count);
     
     // loop variables
     const ITYPE loop_dim = dim >> insert_index_list_count;
@@ -185,7 +185,7 @@ void multi_qubit_control_single_qubit_dense_matrix_gate(const UINT* control_qubi
         }
 
         // flip controls
-		basis_c_t0 ^= control_mask;
+        basis_c_t0 ^= control_mask;
 
         // gather target
         ITYPE basis_c_t1 = basis_c_t0 ^ target_mask;

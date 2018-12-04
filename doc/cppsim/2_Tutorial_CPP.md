@@ -611,26 +611,27 @@ int main() {
 }
 ```
 
-## ハミルトニアン
+## オブザーバブル
 
-### ハミルトニアンの生成
-ハミルトニアンはパウリ演算子の集合として表現されます。
+### オブザーバブルの生成
+オブザーバブルはパウリ演算子の集合として表現されます。
 パウリ演算子は下記のように定義できます。
 ```cpp
-#include <cppsim/hamiltonian.hpp>
+#include <cppsim/observable.hpp>
 #include <string>
 
 int main() {
 	unsigned int n = 5;
 	double coef = 2.0;
 	std::string Pauli_string = "X 0 X 1 Y 2 Z 4";
-	Hamiltonian hamiltonian(n);
-	hamiltonian.add_operator(coef,Pauli_string.c_str());
+	Observable observable(n);
+	observable.add_operator(coef,Pauli_string.c_str());
 	return 0;
 }
 ```
 
-また、OpenFermionを用いて生成された以下のようなフォーマットのファイルから, ハミルトニアンを生成することができます。このとき、ハミルトニアンはそれを構成するのに必要最小限の大きさとなります。例えば、以下のようなopenfermionを用いて得られたハミルトニアンを読み込み、ハミルトニアンを生成することが可能です。
+### OpenFermionとの連携
+また、OpenFermionを用いて生成された以下のようなフォーマットのファイルから, オブザーバブルを生成することができます。このとき、オブザーバブルはそれを構成するのに必要最小限の大きさとなります。例えば、以下のようなopenfermionを用いて得られたオブザーバブルを読み込み、オブザーバブルを生成することが可能です。
 ```python
 from openfermion.ops import FermionOperator
 from openfermion.transforms import bravyi_kitaev
@@ -687,25 +688,25 @@ fp.close()
 (0.17434925+0j) [Z1 Z3] +
 (-0.22279649999999998+0j) [Z2]
 ```
-このような形式のファイルからハミルトニアンを生成するには、以下のようにコンストラクタの引数にファイルのパスを渡してやります。
+このような形式のファイルからオブザーバブルを生成するには、以下のようにコンストラクタの引数にファイルのパスを渡してやります。
 
 ```cpp
-#include <cppsim/hamiltonian.hpp>
+#include <cppsim/observable.hpp>
 #include <string>
 
 int main() {
 	unsigned int n = 5;
 	std::string filename = "H2.txt";
-	Hamiltonian hamiltonian(filename);
+	Observable observable(filename);
 	return 0;
 }
 ```
 
 
-### ハミルトニアンの評価
-状態に対してハミルトニアンの期待値を評価できます。
+### オブザーバブルの評価
+状態に対してオブザーバブルの期待値を評価できます。
 ```cpp
-#include <cppsim/hamiltonian.hpp>
+#include <cppsim/observable.hpp>
 #include <cppsim/state.hpp>
 #include <string>
 
@@ -713,21 +714,21 @@ int main() {
 	unsigned int n = 5;
 	double coef = 2.0;
 	std::string Pauli_string = "X 0 X 1 Y 2 Z 4";
-	Hamiltonian hamiltonian(n);
-	hamiltonian.add_operator(coef, Pauli_string.c_str());
+	Observable observable(n);
+	observable.add_operator(coef, Pauli_string.c_str());
 	
 	QuantumState state(n);
-	hamiltonian.get_expectation_value(&state);
+	observable.get_expectation_value(&state);
 	return 0;
 }
 ```
 
-### ハミルトニアンの回転
-ハミルトニアン\f$H\f$の回転\f$e^{i\theta H}\f$をTrotter展開によって行います。<code>num_repeats</code>はデフォルト値では以下のコードのようになっていますが、ユーザがオプションで指定することが可能です。
+### オブザーバブルの回転
+オブザーバブル\f$H\f$の回転\f$e^{i\theta H}\f$をTrotter展開によって行います。<code>num_repeats</code>はデフォルト値では以下のコードのようになっていますが、ユーザがオプションで指定することが可能です。
 ```cpp
 #include <cppsim/circuit.hpp>
 #include <cppsim/state.hpp>
-#include <cppsim/hamiltonian.hpp>
+#include <cppsim/observable.hpp>
 
 int maint() {
 	UINT n;
@@ -736,18 +737,18 @@ int maint() {
 
     double res;
 
-	Hamiltonian ham("../test/cppsim/H2.txt");	
+	Observable observable("../test/cppsim/H2.txt");	
     
-    n = ham.get_qubit_count();
+    n = observable.get_qubit_count();
 	QuantumState state(n);	
     state.set_computational_basis(0);
     
     QuantumCircuit circuit(n);
 	num_repeats = (UINT) std::ceil(theta * (double)n* 100.);
-	circuit.add_hamiltonian_rotation_gate(ham, angle, num_repeats);
+	circuit.add_hamiltonian_rotation_gate(observable, angle, num_repeats);
 	circuit.update_quantum_state(&state);
 
-    res = ham.get_expectation_value(&state);
+    res = observable.get_expectation_value(&state);
     
     return 0;
 }

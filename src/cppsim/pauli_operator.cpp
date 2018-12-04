@@ -18,7 +18,7 @@ PauliOperator::PauliOperator(std::string strings, double coef){
     UINT index, pauli_type=0;
     while(!ss.eof()){
         ss >> pauli_str >> index;
-		if (pauli_str.length() == 0) break;
+        if (pauli_str.length() == 0) break;
         if(pauli_str=="I" || pauli_str=="i") pauli_type = 0;
         else if(pauli_str=="X" || pauli_str=="x") pauli_type = 1;
         else if(pauli_str=="Y" || pauli_str=="y") pauli_type = 2;
@@ -54,39 +54,51 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list, std::st
 }
 
 PauliOperator::PauliOperator(const std::vector<UINT>& pauli_list, double coef) {
-	_coef = coef;
-	for (UINT term_index = 0; term_index < pauli_list.size(); ++term_index) {
-		if (pauli_list[term_index] != 0)
-			this->add_single_Pauli(term_index, pauli_list[term_index]);
-	}
+    _coef = coef;
+    for (UINT term_index = 0; term_index < pauli_list.size(); ++term_index) {
+        if (pauli_list[term_index] != 0)
+            this->add_single_Pauli(term_index, pauli_list[term_index]);
+    }
 }
 
 PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_index_list, const std::vector<UINT>& target_qubit_pauli_list, double coef) {
-	_coef = coef;
-	assert(target_qubit_index_list.size() == target_qubit_pauli_list.size());
-	for (UINT term_index = 0; term_index < target_qubit_index_list.size(); ++term_index) {
-		this->add_single_Pauli(target_qubit_index_list[term_index], target_qubit_pauli_list[term_index]);
-	}
+    _coef = coef;
+    assert(target_qubit_index_list.size() == target_qubit_pauli_list.size());
+    for (UINT term_index = 0; term_index < target_qubit_index_list.size(); ++term_index) {
+        this->add_single_Pauli(target_qubit_index_list[term_index], target_qubit_pauli_list[term_index]);
+    }
 }
 
 void PauliOperator::add_single_Pauli(UINT qubit_index, UINT pauli_type){
-	this->_pauli_list.push_back(SinglePauliOperator(qubit_index, pauli_type));
+    this->_pauli_list.push_back(SinglePauliOperator(qubit_index, pauli_type));
 }
 
 double PauliOperator::get_expectation_value(const QuantumStateBase* state) const {
-	return _coef * expectation_value_multi_qubit_Pauli_operator_partial_list(
-		this->get_index_list().data(),
-		this->get_pauli_id_list().data(),
-		(UINT)this->get_index_list().size(),
-		state->data_c(),
-		state->dim
-	);
+    return _coef * expectation_value_multi_qubit_Pauli_operator_partial_list(
+        this->get_index_list().data(),
+        this->get_pauli_id_list().data(),
+        (UINT)this->get_index_list().size(),
+        state->data_c(),
+        state->dim
+    );
 }
 
+CPPCTYPE PauliOperator::get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const {
+    return _coef * transition_amplitude_multi_qubit_Pauli_operator_partial_list(
+        this->get_index_list().data(),
+        this->get_pauli_id_list().data(),
+        (UINT)this->get_index_list().size(),
+        state_bra->data_c(),
+        state_ket->data_c(),
+        state_bra->dim
+    );
+}
+
+
 PauliOperator* PauliOperator::copy() const {
-	auto pauli = new PauliOperator(this->_coef);
-	for (auto val : this->_pauli_list) {
-		pauli->add_single_Pauli(val.index(), val.pauli_id());
-	}
-	return pauli;
+    auto pauli = new PauliOperator(this->_coef);
+    for (auto val : this->_pauli_list) {
+        pauli->add_single_Pauli(val.index(), val.pauli_id());
+    }
+    return pauli;
 }

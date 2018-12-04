@@ -17,11 +17,11 @@ extern "C"{
 class ClsIGate : public QuantumGate_OneQubit{
     static void idling(UINT,CTYPE*,ITYPE){};
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 */
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
     ClsIGate(UINT target_qubit_index) {
         this->_update_func = ClsIGate::idling;
         this->_name = "I";
@@ -37,11 +37,11 @@ public:
  */
 class ClsXGate : public QuantumGate_OneQubit{
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 */
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
     ClsXGate(UINT target_qubit_index) {
         this->_update_func = X_gate;
         this->_name = "X";
@@ -57,11 +57,11 @@ public:
  */
 class ClsYGate : public QuantumGate_OneQubit{
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 */
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
     ClsYGate(UINT target_qubit_index) {
         this->_update_func = Y_gate;
         this->_name = "Y";
@@ -77,15 +77,15 @@ public:
  */
 class ClsZGate : public QuantumGate_OneQubit{
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 */
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
     ClsZGate(UINT target_qubit_index){
         this->_update_func = Z_gate;
-		this->_name = "Z";
-		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE ));
+        this->_name = "Z";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE ));
         this->_gate_property = FLAG_PAULI | FLAG_CLIFFORD | FLAG_GAUSSIAN;
         this->_matrix_element = ComplexMatrix::Zero(2,2);
         this->_matrix_element << 1,0,0,-1;
@@ -97,20 +97,20 @@ public:
  */
 class ClsHGate : public QuantumGate_OneQubit{
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 */
-	ClsHGate(UINT target_qubit_index) {
-		this->_update_func = H_gate;
-		this->_name = "H";
-		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
-		this->_gate_property = FLAG_CLIFFORD;
-		this->_matrix_element = ComplexMatrix::Zero(2, 2);
-		this->_matrix_element << 1, 1, 1, -1;
-		this->_matrix_element /= sqrt(2.);
-	}
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    ClsHGate(UINT target_qubit_index) {
+        this->_update_func = H_gate;
+        this->_name = "H";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
+        this->_gate_property = FLAG_CLIFFORD;
+        this->_matrix_element = ComplexMatrix::Zero(2, 2);
+        this->_matrix_element << 1, 1, 1, -1;
+        this->_matrix_element /= sqrt(2.);
+    }
 };
 
 /**
@@ -118,19 +118,19 @@ public:
  */
 class ClsSGate : public QuantumGate_OneQubit{
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 */
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
     ClsSGate(UINT target_qubit_index){
-		this->_update_func = S_gate;
-		this->_name = "S";
-		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
-		this->_gate_property = FLAG_CLIFFORD | FLAG_GAUSSIAN;
-		this->_matrix_element = ComplexMatrix::Zero(2, 2);
-		this->_matrix_element << 1, 0, 0, 1.i;
-	}
+        this->_update_func = S_gate;
+        this->_name = "S";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
+        this->_gate_property = FLAG_CLIFFORD | FLAG_GAUSSIAN;
+        this->_matrix_element = ComplexMatrix::Zero(2, 2);
+        this->_matrix_element << 1, 0, 0, 1.i;
+    }
 };
 
 /**
@@ -138,19 +138,19 @@ public:
  */
 class ClsSdagGate : public QuantumGate_OneQubit{
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 */
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
     ClsSdagGate(UINT target_qubit_index){
-		this->_update_func = Sdag_gate;
-		this->_name = "Sdag";
-		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
-		this->_gate_property = FLAG_CLIFFORD | FLAG_GAUSSIAN;
-		this->_matrix_element = ComplexMatrix::Zero(2, 2);
-		this->_matrix_element << 1, 0, 0, -1.i;
-	}
+        this->_update_func = Sdag_gate;
+        this->_name = "Sdag";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
+        this->_gate_property = FLAG_CLIFFORD | FLAG_GAUSSIAN;
+        this->_matrix_element = ComplexMatrix::Zero(2, 2);
+        this->_matrix_element << 1, 0, 0, -1.i;
+    }
 };
 
 /**
@@ -158,19 +158,19 @@ public:
  */
 class ClsTGate : public QuantumGate_OneQubit{
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 */
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
     ClsTGate(UINT target_qubit_index){
-		this->_update_func = T_gate;
-		this->_name = "T";
-		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
-		this->_gate_property = FLAG_GAUSSIAN;
-		this->_matrix_element = ComplexMatrix::Zero(2, 2);
-		this->_matrix_element << 1, 0, 0, (1.+1.i)/sqrt(2.);
-	}
+        this->_update_func = T_gate;
+        this->_name = "T";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
+        this->_gate_property = FLAG_GAUSSIAN;
+        this->_matrix_element = ComplexMatrix::Zero(2, 2);
+        this->_matrix_element << 1, 0, 0, (1.+1.i)/sqrt(2.);
+    }
 };
 
 /**
@@ -178,19 +178,19 @@ public:
  */
 class ClsTdagGate : public QuantumGate_OneQubit{
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 */
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
     ClsTdagGate(UINT target_qubit_index){
-		this->_update_func = Tdag_gate;
-		this->_name = "Tdag";
-		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
-		this->_gate_property = FLAG_GAUSSIAN;
-		this->_matrix_element = ComplexMatrix::Zero(2, 2);
-		this->_matrix_element << 1, 0, 0, (1. - 1.i) / sqrt(2.);
-	}
+        this->_update_func = Tdag_gate;
+        this->_name = "Tdag";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
+        this->_gate_property = FLAG_GAUSSIAN;
+        this->_matrix_element = ComplexMatrix::Zero(2, 2);
+        this->_matrix_element << 1, 0, 0, (1. - 1.i) / sqrt(2.);
+    }
 };
 
 /**
@@ -198,19 +198,19 @@ public:
  */
 class ClsSqrtXGate : public QuantumGate_OneQubit {
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 */
-	ClsSqrtXGate(UINT target_qubit_index) {
-		this->_update_func = sqrtX_gate;
-		this->_name = "sqrtX";
-		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
-		this->_gate_property = FLAG_CLIFFORD;
-		this->_matrix_element = ComplexMatrix::Zero(2, 2);
-		this->_matrix_element << 0.5 + 0.5i, 0.5 - 0.5i, 0.5 - 0.5i, 0.5 + 0.5i;
-	}
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    ClsSqrtXGate(UINT target_qubit_index) {
+        this->_update_func = sqrtX_gate;
+        this->_name = "sqrtX";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
+        this->_gate_property = FLAG_CLIFFORD;
+        this->_matrix_element = ComplexMatrix::Zero(2, 2);
+        this->_matrix_element << 0.5 + 0.5i, 0.5 - 0.5i, 0.5 - 0.5i, 0.5 + 0.5i;
+    }
 };
 
 /**
@@ -218,19 +218,19 @@ public:
  */
 class ClsSqrtXdagGate : public QuantumGate_OneQubit {
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 */
-	ClsSqrtXdagGate(UINT target_qubit_index) {
-		this->_update_func = sqrtXdag_gate;
-		this->_name = "sqrtXdag";
-		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
-		this->_gate_property = FLAG_CLIFFORD;
-		this->_matrix_element = ComplexMatrix::Zero(2, 2);
-		this->_matrix_element << 0.5-0.5i, 0.5+0.5i, 0.5+0.5i, 0.5-0.5i;
-	}
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    ClsSqrtXdagGate(UINT target_qubit_index) {
+        this->_update_func = sqrtXdag_gate;
+        this->_name = "sqrtXdag";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
+        this->_gate_property = FLAG_CLIFFORD;
+        this->_matrix_element = ComplexMatrix::Zero(2, 2);
+        this->_matrix_element << 0.5-0.5i, 0.5+0.5i, 0.5+0.5i, 0.5-0.5i;
+    }
 };
 
 /**
@@ -238,19 +238,19 @@ public:
  */
 class ClsSqrtYGate : public QuantumGate_OneQubit {
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 */
-	ClsSqrtYGate(UINT target_qubit_index) {
-		this->_update_func = sqrtY_gate;
-		this->_name = "sqrtY";
-		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
-		this->_gate_property = FLAG_CLIFFORD;
-		this->_matrix_element = ComplexMatrix::Zero(2, 2);
-		this->_matrix_element << 0.5+0.5i, -0.5-0.5i, 0.5+0.5i, 0.5+0.5i;
-	}
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    ClsSqrtYGate(UINT target_qubit_index) {
+        this->_update_func = sqrtY_gate;
+        this->_name = "sqrtY";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
+        this->_gate_property = FLAG_CLIFFORD;
+        this->_matrix_element = ComplexMatrix::Zero(2, 2);
+        this->_matrix_element << 0.5+0.5i, -0.5-0.5i, 0.5+0.5i, 0.5+0.5i;
+    }
 };
 
 /**
@@ -258,19 +258,19 @@ public:
  */
 class ClsSqrtYdagGate : public QuantumGate_OneQubit {
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 */
-	ClsSqrtYdagGate(UINT target_qubit_index) {
-		this->_update_func = sqrtYdag_gate;
-		this->_name = "sqrtYdag";
-		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
-		this->_gate_property = FLAG_CLIFFORD;
-		this->_matrix_element = ComplexMatrix::Zero(2, 2);
-		this->_matrix_element << 0.5-0.5i, 0.5-0.5i, -0.5+0.5i, 0.5-0.5i;
-	}
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    ClsSqrtYdagGate(UINT target_qubit_index) {
+        this->_update_func = sqrtYdag_gate;
+        this->_name = "sqrtYdag";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
+        this->_gate_property = FLAG_CLIFFORD;
+        this->_matrix_element = ComplexMatrix::Zero(2, 2);
+        this->_matrix_element << 0.5-0.5i, 0.5-0.5i, -0.5+0.5i, 0.5-0.5i;
+    }
 };
 
 /**
@@ -278,19 +278,19 @@ public:
  */
 class ClsP0Gate : public QuantumGate_OneQubit{
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 */
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
     ClsP0Gate(UINT target_qubit_index){
-		this->_update_func = P0_gate;
-		this->_name = "Projection-0";
-		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
-		this->_gate_property = FLAG_CLIFFORD | FLAG_GAUSSIAN;
-		this->_matrix_element = ComplexMatrix::Zero(2, 2);
-		this->_matrix_element << 1, 0, 0, 0;
-	}
+        this->_update_func = P0_gate;
+        this->_name = "Projection-0";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
+        this->_gate_property = FLAG_CLIFFORD | FLAG_GAUSSIAN;
+        this->_matrix_element = ComplexMatrix::Zero(2, 2);
+        this->_matrix_element << 1, 0, 0, 0;
+    }
 };
 
 /**
@@ -298,19 +298,19 @@ public:
  */
 class ClsP1Gate : public QuantumGate_OneQubit{
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 */
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
     ClsP1Gate(UINT target_qubit_index){
-		this->_update_func = P1_gate;
-		this->_name = "Projection-1";
-		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
-		this->_gate_property = FLAG_CLIFFORD | FLAG_GAUSSIAN;
-		this->_matrix_element = ComplexMatrix::Zero(2, 2);
-		this->_matrix_element << 0, 0, 0, 1;
-	}
+        this->_update_func = P1_gate;
+        this->_name = "Projection-1";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
+        this->_gate_property = FLAG_CLIFFORD | FLAG_GAUSSIAN;
+        this->_matrix_element = ComplexMatrix::Zero(2, 2);
+        this->_matrix_element << 0, 0, 0, 1;
+    }
 };
 
 /**
@@ -318,16 +318,16 @@ public:
  */ 
 class ClsRXGate : public QuantumGate_OneQubitRotation{
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 * @param angle 回転角
-	 */
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     * @param angle 回転角
+     */
     ClsRXGate(UINT target_qubit_index, double angle) : QuantumGate_OneQubitRotation(angle) {
         this->_update_func = RX_gate;
-		this->_name = "X-rotation";
-		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE ));
+        this->_name = "X-rotation";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE ));
         this->_matrix_element = ComplexMatrix::Zero(2,2);
         this->_matrix_element << cos(_angle), sin(_angle) * 1.i, sin(_angle) * 1.i, cos(_angle);
     }
@@ -338,19 +338,19 @@ public:
  */ 
 class ClsRYGate : public QuantumGate_OneQubitRotation{
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 * @param angle 回転角
-	 */
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     * @param angle 回転角
+     */
     ClsRYGate(UINT target_qubit_index, double angle): QuantumGate_OneQubitRotation(angle){
-		this->_update_func = RY_gate;
-		this->_name = "Y-rotation";
-		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
-		this->_matrix_element = ComplexMatrix::Zero(2, 2);
-		this->_matrix_element << cos(_angle), sin(_angle), -sin(_angle), cos(_angle);
-	}
+        this->_update_func = RY_gate;
+        this->_name = "Y-rotation";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
+        this->_matrix_element = ComplexMatrix::Zero(2, 2);
+        this->_matrix_element << cos(_angle), sin(_angle), -sin(_angle), cos(_angle);
+    }
 };
 
 /**
@@ -358,17 +358,17 @@ public:
  */ 
 class ClsRZGate : public QuantumGate_OneQubitRotation{
 public:
-	/**
-	 * \~japanese-en コンストラクタ
-	 * 
-	 * @param target_qubit_index ターゲットの量子ビットの添え字
-	 * @param angle 回転角
-	 */
+    /**
+     * \~japanese-en コンストラクタ
+     * 
+     * @param target_qubit_index ターゲットの量子ビットの添え字
+     * @param angle 回転角
+     */
     ClsRZGate(UINT target_qubit_index, double angle): QuantumGate_OneQubitRotation(angle){
-		this->_update_func = RZ_gate;
-		this->_name = "Z-rotation";
-		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
-		this->_matrix_element = ComplexMatrix::Zero(2, 2);
-		this->_matrix_element << cos(_angle)+1.i*sin(_angle), 0, 0, cos(_angle) - 1.i * sin(_angle);
-	}
+        this->_update_func = RZ_gate;
+        this->_name = "Z-rotation";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
+        this->_matrix_element = ComplexMatrix::Zero(2, 2);
+        this->_matrix_element << cos(_angle)+1.i*sin(_angle), 0, 0, cos(_angle) - 1.i * sin(_angle);
+    }
 };

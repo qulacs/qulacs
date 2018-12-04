@@ -22,11 +22,12 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
 ##### set external projects #####
 include(ExternalProject)
 
-if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0") 
-	include(FetchContent)
-else()
-	include(${CMAKE_SOURCE_DIR}/FetchContent.cmake)
-endif()
+include(${CMAKE_SOURCE_DIR}/FetchContent.cmake)
+#if(${CMAKE_VERSION} VERSION_GREATER_EQUAL "3.11.0") 
+#	include(FetchContent)
+#else()
+#	include(${CMAKE_SOURCE_DIR}/FetchContent.cmake)
+#endif()
 
 
 # Google test
@@ -110,6 +111,11 @@ set(WARNING_CPP "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 
+if(MSVC)
+        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/../bin)
+        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/../bin)
+endif()
+
 message(STATUS "OUTDIR = ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
 if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
         set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../lib)
@@ -130,6 +136,9 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+	if(NOT MINGW)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
+	endif()
 
 	if(USE_OMP)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
@@ -138,6 +147,10 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
+
+	if(8.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
+		set(PYBIND11_CPP_STANDARD -std=gnu++11)
+	endif()
 
 elseif(MSVC)
 	SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})

@@ -1,71 +1,37 @@
 
 
-# トラブルシューティング
+# Troubleshootings
 
-## C/C++のライブラリに関するエラー
+## Compile error in C/C++
 
-### csim_sharedのリンク時にエラーが発生する
-コンパイラがgcc/g++になっていません。cmakeコマンドを行う際にver7以降のgcc/g++を指定してください。
+### Error occurs when compiling csim_shared
+Codes might not be compiled with gcc/g++ ver>=7.
+Please check codes are compiled with gcc and g++ and it's version is greater or equal to 7.0.0.
 
-### cmakeコマンドが終わらない、CMAKE_CXX_COMPILERがフルパスではないというエラーが出る
-CMakeLists.txtでset関数でCMAKE_CXX_COMPILERを設定し、かつ./vqcsim/python/CMakeLists.txtでpybind11がadd_subdirectoryされている場合に生じます。
-CMAKE_CXX_COMPILERをcmakeコマンドの引数として指定することで回避できます。
+For MacOS Users: the default backend of gcc/g++ command is clang, which is not supported in Qulacs.
 
-### mingwでpycppsimをコンパイルする時に、Posix系のヘッダファイル(crypt.h, sys/select.hなど)が見つからないというエラーが出る。リンク時に-lintlが見つからないというエラーが出る。
+### When we compile Qulacs with mingw, compiler says header files such as crypt.h or sys/select.h was not found. When objects are linked, linker says library -lintl was not found.
 
-gcc/g++とpythonで32bit/64bitが異なると生じます。
+This may occur when you try to build 32bit python library with 64bit compiler, or 64bit lib with 32bit.
+When you compile C++ with 32bit/64bit, the python library must be 32bit/64bit, respectively.
 
+## Error in python library
 
-## pythonライブラリに関するエラー
+### I have many versions of python, and want to build Qulacs for specific one.
 
-### 複数のpython3を抱えており、特定のバージョンに対してビルドを行いたい
+Qulacs is build for default python and python-config. Please set the version where you want to install Qulacs as a default using pyenv or conda.
+We can also specify python binary when we do cmake by adding -D PYTHON_EXECUTABLE:FILEPATH=/usr/bin/pythonx.x.
 
-cmakeの際に-D PYTHON_EXECUTABLE:FILEPATH=/usr/bin/pythonx.xなどpythonのバイナリのパスを直接指定することでできるかもしれません。
+## When I import library, python says there is no init function.
+If you use Qulacs from python and call functions directly using dll/pyd, the name of python library must not be changed. 
+If you change the dll/pyd name of python library, you will see this error.
 
-### 以下のいずれかのエラーが出る
-- cmake時にCould NOT find PythonLibsというエラーが出る
-- make python時に<Python.h>が見つかりませんというエラーが出る
-- make pythonでのpycppsimのリンク時に"Py_hoge"という名前のシンボルが見つからないというエラーが大量に出る
+If you import python dll/pyd which is build for different python version, you may see this error.
 
-pythonのライブラリの個所が正しく特定できていません。いくつかの環境で、pythonがインストールされているにもかかわらずこのエラーが出ることを確認しています。
+### Segmentation fault occurs when I import library. Python immediately exit after importing library. Python says functions starting with "Py_" was not found. Though there exists dll files, python says there is no dll/pyd. 
 
-以下の手順で正しくビルドできることがあります。
-
-1.
-
-```sh
-python3-config --includes
-python3-config --libs
-python3-config --ldflags
-```
-の三つのコマンドが実行可能で、一行ずつ出力があることを確認してください。python3-configが存在しない場合、python3-devがインストールされているか確認してください。
-
-2.
-
-./vqcsim/pythonのCMakeList.txtをCMakeLists.oldにリネームし、CMakeLists.subをCMakeLists.txtにリネームします。
-次にエディタでCMakeLists.txtを開き、
-```
-<paste output of python3-config --includes>
-<paste output of python3-config --libs>
-<paste output of python3-config --ldflags>
-```
-の３か所を、それぞれ1.のコマンドの出力の一行に差し替えます。
-
-3.
-
-この状態で再度cmakeを実行してください。
+If you import python dll/pyd which is build for different version python, you see these errors.
+Error messages depend on the python version.
 
 
-## import時に「init関数がない」旨のエラーが出る。
-生成した.dll,.pydは名前とモジュール名が一致している必要があるため、ライブラリ名を変更してimportを試みるとこのエラーが出ます。
-
-そうでない場合は、ビルドしたpythonとそれをimportしているpythonのバージョンが異なる可能性が高いです。pycppsimはpython3でビルドされているため、python3からimportしてください。
-
-### import時にSegmentation faultが生じる。あるいは何も出力せずにpythonが終了する
-
-ビルドしたpythonとそれをimportしているpythonのバージョンが異なる可能性が高いです。pycppsimはpython3でビルドされているため、python3からimportしてください。
-
-そうでない場合、LTO(Link Time Optimization)が悪さをしている可能性があります。一部の環境では-fltoオプションによる最適化を行うとライブラリのロード時にエラーが発生して終了するようです。主にMinGWでその現象が確認されていますが、-fltoオプションを外すことで問題が解決するかもしれません。
-
-上記でも改善しない場合は「cmake時にCould NOT found PythonLibsというエラーが出る」の対策を試してください。
 
