@@ -51,10 +51,11 @@ CPPCTYPE Observable::get_transition_amplitude(const QuantumStateBase* state_bra,
 namespace observable{
     Observable* create_observable_from_openfermion_file(std::string file_path){
         UINT qubit_count = 0;
+        UINT imag_idx;
 
         std::ifstream ifs;
         ifs.open(file_path);
-
+        double coef_real, coef_imag;
         if (!ifs){
             std::cerr << "ERROR: Cannot open file" << std::endl;
             std::exit(EXIT_FAILURE);
@@ -66,11 +67,25 @@ namespace observable{
         while (getline(ifs, str)) {
             std::vector<std::string> elems;
             std::vector<std::string> index_list;
-            elems = split(str, "()j[]+");
+            elems = split(str, "()[]+");
 
             chfmt(elems[3]);
 
-            CPPCTYPE coef(std::stod(elems[0]), std::stod(elems[1]));
+            imag_idx = 1;
+
+            if (elems[0].back() == 'j'){
+                coef_real = 0;
+                imag_idx = 0;
+                throw std::domain_error("Observable should be Hermitian.");
+            } else if (elems[1].back() != 'j'){
+                continue;
+            } else {
+                coef_real = std::stod(elems[imag_idx-1]);
+            }
+
+            coef_imag = std::stod(elems[imag_idx]);
+
+            CPPCTYPE coef(coef_real, coef_imag);
             coefs.push_back(coef);
             ops.push_back(elems[3]);
 
@@ -88,6 +103,10 @@ namespace observable{
 
         Observable* observable = new Observable(qubit_count);
 
+        // if (ops.size() == 0){
+        //     return observable;
+        // }
+
         for (UINT i = 0; i < ops.size(); ++i){
             observable->add_operator(new PauliOperator(ops[i].c_str(), coefs[i].real()));
         }
@@ -97,20 +116,38 @@ namespace observable{
 
     Observable* create_observable_from_openfermion_text(std::string text){
         UINT qubit_count = 0;
+        UINT imag_idx;
 
         std::vector<std::string> lines;
         std::vector<CPPCTYPE> coefs;
         std::vector<std::string> ops;
+        double coef_real, coef_imag;
+
         lines = split(text, "\n");
 
         for (std::string line: lines){
             std::vector<std::string> elems;
             std::vector<std::string> index_list;
-            elems = split(line, "()j[]+");
+            elems = split(line, "()[]+");
 
             chfmt(elems[3]);
 
-            CPPCTYPE coef(std::stod(elems[0]), std::stod(elems[1]));
+            imag_idx = 1;
+
+            if (elems[0].back() == 'j'){
+                coef_real = 0;
+                imag_idx = 0;
+                throw std::domain_error("Observable should be Hermitian.");
+            } else if (elems[1].back() != 'j'){
+                continue;
+            } else {
+                coef_real = std::stod(elems[imag_idx-1]);
+            }
+
+            coef_imag = std::stod(elems[imag_idx]);
+
+            CPPCTYPE coef(coef_real, coef_imag);
+
             coefs.push_back(coef);
             ops.push_back(elems[3]);
 
@@ -133,6 +170,7 @@ namespace observable{
 
     std::pair<Observable*, Observable*> create_split_observable(std::string file_path){
         UINT qubit_count = 0;
+        UINT imag_idx;
 
         std::ifstream ifs;
         ifs.open(file_path);
@@ -146,15 +184,30 @@ namespace observable{
         std::string str;
         std::vector<CPPCTYPE> coefs;
         std::vector<std::string> ops;
+        double coef_real, coef_imag;
 
         while (getline(ifs, str)) {
             std::vector<std::string> elems;
             std::vector<std::string> index_list;
-            elems = split(str, "()j[]+");
+            elems = split(str, "()[]+");
 
             chfmt(elems[3]);
 
-            CPPCTYPE coef(std::stod(elems[0]), std::stod(elems[1]));
+            imag_idx = 1;
+
+            if (elems[0].back() == 'j'){
+                coef_real = 0;
+                imag_idx = 0;
+                throw std::domain_error("Observable should be Hermitian.");
+            } else if (elems[1].back() != 'j'){
+                continue;
+            } else {
+                coef_real = std::stod(elems[imag_idx-1]);
+            }
+
+            coef_imag = std::stod(elems[imag_idx]);
+
+            CPPCTYPE coef(coef_real, coef_imag);
             coefs.push_back(coef);
             ops.push_back(elems[3]);
 
