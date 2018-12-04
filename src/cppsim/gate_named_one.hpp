@@ -44,6 +44,9 @@ public:
      */
     ClsXGate(UINT target_qubit_index) {
         this->_update_func = X_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = X_gate_host;
+#endif
         this->_name = "X";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE ));
         this->_gate_property = FLAG_PAULI | FLAG_CLIFFORD;
@@ -64,6 +67,9 @@ public:
      */
     ClsYGate(UINT target_qubit_index) {
         this->_update_func = Y_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = Y_gate_host;
+#endif
         this->_name = "Y";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE ));
         this->_gate_property = FLAG_PAULI | FLAG_CLIFFORD;
@@ -84,7 +90,10 @@ public:
      */
     ClsZGate(UINT target_qubit_index){
         this->_update_func = Z_gate;
-        this->_name = "Z";
+#ifdef _USE_GPU
+		this->_update_func_gpu = Z_gate_host;
+#endif
+	    this->_name = "Z";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE ));
         this->_gate_property = FLAG_PAULI | FLAG_CLIFFORD | FLAG_GAUSSIAN;
         this->_matrix_element = ComplexMatrix::Zero(2,2);
@@ -104,7 +113,10 @@ public:
      */
     ClsHGate(UINT target_qubit_index) {
         this->_update_func = H_gate;
-        this->_name = "H";
+#ifdef _USE_GPU
+		this->_update_func_gpu = H_gate_host;
+#endif
+	    this->_name = "H";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
         this->_gate_property = FLAG_CLIFFORD;
         this->_matrix_element = ComplexMatrix::Zero(2, 2);
@@ -125,6 +137,9 @@ public:
      */
     ClsSGate(UINT target_qubit_index){
         this->_update_func = S_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = S_gate_host;
+#endif
         this->_name = "S";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
         this->_gate_property = FLAG_CLIFFORD | FLAG_GAUSSIAN;
@@ -145,6 +160,9 @@ public:
      */
     ClsSdagGate(UINT target_qubit_index){
         this->_update_func = Sdag_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = Sdag_gate_host;
+#endif
         this->_name = "Sdag";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
         this->_gate_property = FLAG_CLIFFORD | FLAG_GAUSSIAN;
@@ -165,6 +183,9 @@ public:
      */
     ClsTGate(UINT target_qubit_index){
         this->_update_func = T_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = T_gate_host;
+#endif
         this->_name = "T";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
         this->_gate_property = FLAG_GAUSSIAN;
@@ -185,6 +206,9 @@ public:
      */
     ClsTdagGate(UINT target_qubit_index){
         this->_update_func = Tdag_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = Tdag_gate_host;
+#endif
         this->_name = "Tdag";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
         this->_gate_property = FLAG_GAUSSIAN;
@@ -205,6 +229,9 @@ public:
      */
     ClsSqrtXGate(UINT target_qubit_index) {
         this->_update_func = sqrtX_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = sqrtX_gate_host;
+#endif
         this->_name = "sqrtX";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
         this->_gate_property = FLAG_CLIFFORD;
@@ -225,6 +252,9 @@ public:
      */
     ClsSqrtXdagGate(UINT target_qubit_index) {
         this->_update_func = sqrtXdag_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = sqrtXdag_gate_host;
+#endif
         this->_name = "sqrtXdag";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
         this->_gate_property = FLAG_CLIFFORD;
@@ -245,6 +275,9 @@ public:
      */
     ClsSqrtYGate(UINT target_qubit_index) {
         this->_update_func = sqrtY_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = sqrtY_gate_host;
+#endif
         this->_name = "sqrtY";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
         this->_gate_property = FLAG_CLIFFORD;
@@ -265,6 +298,9 @@ public:
      */
     ClsSqrtYdagGate(UINT target_qubit_index) {
         this->_update_func = sqrtYdag_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = sqrtYdag_gate_host;
+#endif
         this->_name = "sqrtYdag";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
         this->_gate_property = FLAG_CLIFFORD;
@@ -285,6 +321,9 @@ public:
      */
     ClsP0Gate(UINT target_qubit_index){
         this->_update_func = P0_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = P0_gate_host;
+#endif
         this->_name = "Projection-0";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
         this->_gate_property = FLAG_CLIFFORD | FLAG_GAUSSIAN;
@@ -305,6 +344,9 @@ public:
      */
     ClsP1Gate(UINT target_qubit_index){
         this->_update_func = P1_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = P1_gate_host;
+#endif
         this->_name = "Projection-1";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
         this->_gate_property = FLAG_CLIFFORD | FLAG_GAUSSIAN;
@@ -326,6 +368,9 @@ public:
      */
     ClsRXGate(UINT target_qubit_index, double angle) : QuantumGate_OneQubitRotation(angle) {
         this->_update_func = RX_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = RX_gate_host;
+#endif
         this->_name = "X-rotation";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE ));
         this->_matrix_element = ComplexMatrix::Zero(2,2);
@@ -346,6 +391,9 @@ public:
      */
     ClsRYGate(UINT target_qubit_index, double angle): QuantumGate_OneQubitRotation(angle){
         this->_update_func = RY_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = RY_gate_host;
+#endif
         this->_name = "Y-rotation";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
         this->_matrix_element = ComplexMatrix::Zero(2, 2);
@@ -366,6 +414,9 @@ public:
      */
     ClsRZGate(UINT target_qubit_index, double angle): QuantumGate_OneQubitRotation(angle){
         this->_update_func = RZ_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = RZ_gate_host;
+#endif
         this->_name = "Z-rotation";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
         this->_matrix_element = ComplexMatrix::Zero(2, 2);
