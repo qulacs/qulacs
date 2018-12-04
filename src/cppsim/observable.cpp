@@ -68,6 +68,9 @@ namespace observable{
             std::vector<std::string> elems;
             std::vector<std::string> index_list;
             elems = split(str, "()[]+");
+            if (elems.size() < 3){
+                continue;
+            }
 
             chfmt(elems[3]);
 
@@ -103,10 +106,6 @@ namespace observable{
 
         Observable* observable = new Observable(qubit_count);
 
-        // if (ops.size() == 0){
-        //     return observable;
-        // }
-
         for (UINT i = 0; i < ops.size(); ++i){
             observable->add_operator(new PauliOperator(ops[i].c_str(), coefs[i].real()));
         }
@@ -129,7 +128,9 @@ namespace observable{
             std::vector<std::string> elems;
             std::vector<std::string> index_list;
             elems = split(line, "()[]+");
-
+            if (elems.size() < 3){
+                continue;
+            }
             chfmt(elems[3]);
 
             imag_idx = 1;
@@ -190,7 +191,9 @@ namespace observable{
             std::vector<std::string> elems;
             std::vector<std::string> index_list;
             elems = split(str, "()[]+");
-
+            if (elems.size() < 3){
+                continue;
+            }
             chfmt(elems[3]);
 
             imag_idx = 1;
