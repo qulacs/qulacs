@@ -76,10 +76,11 @@ namespace observable{
 
             imag_idx = 1;
 
-            if (elems[0].back() == 'j'){
+            if (elems[0].find("j") != std::string::npos){
                 coef_real = 0;
                 imag_idx = 0;
-                throw std::domain_error("Observable should be Hermitian.");
+                std::cerr << "ERROR: Observable should be Hermitian." << std::endl;
+                // throw std::domain_error("Observable should be Hermitian.");
             } else if (elems[1].back() != 'j'){
                 continue;
             } else {
@@ -135,11 +136,12 @@ namespace observable{
 
             imag_idx = 1;
 
-            if (elems[0].back() == 'j'){
+            if (elems[0].find("j") != std::string::npos){
                 coef_real = 0;
                 imag_idx = 0;
-                throw std::domain_error("Observable should be Hermitian.");
-            } else if (elems[1].back() != 'j'){
+                std::cerr << "ERROR: Observable should be Hermitian." << std::endl;
+                // throw std::domain_error("Observable should be Hermitian.");
+            } else if (elems[1].find("j") == std::string::npos){
                 continue;
             } else {
                 coef_real = std::stod(elems[imag_idx-1]);
@@ -198,11 +200,12 @@ namespace observable{
 
             imag_idx = 1;
 
-            if (elems[0].back() == 'j'){
+            if (elems[0].find("j") != std::string::npos){
                 coef_real = 0;
                 imag_idx = 0;
-                throw std::domain_error("Observable should be Hermitian.");
-            } else if (elems[1].back() != 'j'){
+                std::cerr << "ERROR: Observable should be Hermitian." << std::endl;
+                // throw std::domain_error("Observable should be Hermitian.");
+            } else if (elems[0].find("j") == std::string::npos){
                 continue;
             } else {
                 coef_real = std::stod(elems[imag_idx-1]);
