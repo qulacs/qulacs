@@ -48,7 +48,7 @@ inline __device__ double __shfl_down_double(double var, unsigned int srcLane, in
 }
 
 __device__ double warpReduceSum_double(double val) {
-	for (int offset = warpSize / 2; offset > 0; offset /= 2){
+	for (int offset = warpSize >> 1; offset > 0; offset >>= 1){
         val += __shfl_down_double(val, offset);
     }
 	return val;
@@ -56,14 +56,15 @@ __device__ double warpReduceSum_double(double val) {
 
 __global__ void state_norm_gpu(double* ret, GTYPE *state, ITYPE dim){
 	double sum = 0;
-	double tmp;
+	double real, imag;
     for (ITYPE index = blockIdx.x * blockDim.x + threadIdx.x; index < dim; index += blockDim.x * gridDim.x) {
-		tmp = cuCabs(state[index]);
-        sum += tmp*tmp;
+		real = cuCreal(state[index]);
+        imag = cuCimag(state[index]);
+        sum += real*real+imag*imag;
 	}
 	sum = warpReduceSum_double(sum);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		ret[0] = atomicAdd_double(&(ret[0]), sum);
+		atomicAdd_double(&(ret[0]), sum);
 	}
 }
 
@@ -90,6 +91,52 @@ __host__ double state_norm_host(void *state, ITYPE dim) {
 	checkCudaErrors(cudaFree(norm_gpu), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
     return norm;
+}
+
+
+__global__ void measurement_distribution_entropy_gpu(double* ret, const GTYPE *state, ITYPE dim){
+	double sum = 0;
+    const double eps = 1e-15;
+	
+    double prob;
+    for (ITYPE index = blockIdx.x * blockDim.x + threadIdx.x; index < dim; index += blockDim.x * gridDim.x) {
+		prob = cuCabs(state[index]);
+        prob = prob * prob;
+        if(prob > eps){
+            sum += -1.0*prob*log(prob);
+        } 
+	}
+	sum = warpReduceSum_double(sum);
+	if ((threadIdx.x & (warpSize - 1)) == 0){
+		atomicAdd_double(&(ret[0]), sum);
+	}
+}
+
+__host__ double measurement_distribution_entropy_host(void* state, ITYPE dim){
+	cudaError_t cudaStatus;
+    double ent;
+    double* ent_gpu;
+	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+
+	checkCudaErrors(cudaMalloc((void**)&ent_gpu, sizeof(double)), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemset(ent_gpu, 0, sizeof(double)), __FILE__, __LINE__);
+
+	unsigned int block = dim <= 1024 ? dim : 1024;
+	unsigned int grid = dim / block;
+    
+    measurement_distribution_entropy_gpu << <grid, block >> >(ent_gpu, state_gpu, dim);
+	
+	// Check for any errors launching the kernel
+	cudaStatus = cudaGetLastError();
+
+	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
+	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpy(&ent, ent_gpu, sizeof(double), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
+
+	checkCudaErrors(cudaFree(ent_gpu), __FILE__, __LINE__);
+	state = reinterpret_cast<void*>(state_gpu);
+    
+    return ent;
 }
 
 __global__ void inner_product_gpu(GTYPE *ret, GTYPE *psi, GTYPE *phi, ITYPE dim){

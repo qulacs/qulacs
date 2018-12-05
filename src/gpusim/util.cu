@@ -15,6 +15,8 @@
 #include "util.h"
 #include "util.cuh"
 #include "util_common.h"
+#include "memory_ops.h"
+
 
 inline __device__ double __shfl_down_double(double var, unsigned int srcLane, int width = 32) {
 	int2 a = *reinterpret_cast<int2*>(&var);
@@ -68,15 +70,44 @@ __global__ void deviceReduceWarpAtomicKernel(int *in, int* out, ITYPE N) {
 		atomicAdd(out, sum);
 }
 
+__global__ void set_computational_basis_gpu(ITYPE comp_basis, GTYPE* state, ITYPE dim){
+ 	ITYPE idx = blockIdx.x * blockDim.x + threadIdx.x;
+	if (idx < dim) {
+		state[idx] = make_cuDoubleComplex(0.0, 0.0);
+	}
+    if(idx==comp_basis) state[comp_basis] = make_cuDoubleComplex(1.0, 0.0);
+}
+
+__host__ void set_computational_basis_host(ITYPE comp_basis, void* state, ITYPE dim){
+	cudaError cudaStatus;
+    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+
+    unsigned int block = dim <= 1024 ? dim : 1024;
+	unsigned int grid = dim / block;
+	
+    set_computational_basis_gpu << <grid, block >> >(comp_basis, state_gpu, dim);
+
+    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	cudaStatus = cudaGetLastError();
+	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
+	
+    state = reinterpret_cast<void*>(state_gpu);
+}
+
+// copy state_gpu to state_gpu_copy
+void copy_quantum_state_host(void* state_gpu_copy, void* state_gpu, ITYPE dim){
+    GTYPE* psi_gpu = reinterpret_cast<GTYPE*>(state_gpu);
+    GTYPE* psi_gpu_copy = reinterpret_cast<GTYPE*>(state_gpu_copy);
+	checkCudaErrors(cudaMemcpy(psi_gpu_copy, psi_gpu, dim * sizeof(GTYPE), cudaMemcpyDeviceToDevice));
+    state_gpu = reinterpret_cast<void*>(psi_gpu);
+    state_gpu_copy = reinterpret_cast<void*>(psi_gpu_copy);
+}
+
+// copy state_gpu to psi_cpu_copy
 void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim){
     GTYPE* psi_gpu = reinterpret_cast<GTYPE*>(state_gpu);
-    // CTYPE* state_cpu=(CTYPE*)malloc(sizeof(CTYPE)*dim);
     psi_cpu_copy = reinterpret_cast<CTYPE*>(psi_cpu_copy);
-    checkCudaErrors(cudaDeviceSynchronize());
 	checkCudaErrors(cudaMemcpy(psi_cpu_copy, psi_gpu, dim * sizeof(CTYPE), cudaMemcpyDeviceToHost));
-    //state_cpu = reinterpret_cast<void*>(state_cpu);
-    //print_quantum_state(psi_gpu, dim);
-	//return psi_cpu_copy;
     state_gpu = reinterpret_cast<void*>(psi_gpu);
 }
 

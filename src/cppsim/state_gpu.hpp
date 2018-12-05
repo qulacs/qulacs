@@ -9,58 +9,54 @@
 
 class QuantumStateGpu : public QuantumStateBase {
 private:
-	GTYPE* _state_vector;
+	void* _state_vector; // vodi* is assumed as GTYPE* 
 	Random random;
 public:
 	/**
-	 * \~japanese-en ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+	 * \~japanese-en ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	 *
-	 * @param qubit_count_ —Êqƒrƒbƒg”
+	 * @param qubit_count_ é‡å­ãƒ“ãƒƒãƒˆæ•°
 	 */
 	QuantumStateGpu(UINT qubit_count_) : QuantumStateBase(qubit_count_) {
-		this->_state_vector = reinterpret_cast<CPPCTYPE*>(allocate_quantum_state_host(this->_dim));
+		this->_state_vector = reinterpret_cast<void*>(allocate_quantum_state_host(this->_dim));
 		initialize_quantum_state_host(this->data(), _dim);
 	}
 	/**
-	 * \~japanese-en ƒfƒXƒgƒ‰ƒNƒ^
+	 * \~japanese-en ãƒ‡ã‚¹ãƒˆãƒ©ã‚¯ã‚¿
 	 */
 	virtual ~QuantumStateGpu() {
-		release_quantum_state(this->data());
+		release_quantum_state_host(this->data());
 	}
 	/**
-	 * \~japanese-en —Êqó‘Ô‚ğŒvZŠî’ê‚Ì0ó‘Ô‚É‰Šú‰»‚·‚é
+	 * \~japanese-en é‡å­çŠ¶æ…‹ã‚’è¨ˆç®—åŸºåº•ã®0çŠ¶æ…‹ã«åˆæœŸåŒ–ã™ã‚‹
 	 */
 	virtual void set_zero_state() override {
 		initialize_quantum_state_host(this->data(), _dim);
 	}
 	/**
-	 * \~japanese-en —Êqó‘Ô‚ğ<code>comp_basis</code>‚ÌŠî’êó‘Ô‚É‰Šú‰»‚·‚é
+	 * \~japanese-en é‡å­çŠ¶æ…‹ã‚’<code>comp_basis</code>ã®åŸºåº•çŠ¶æ…‹ã«åˆæœŸåŒ–ã™ã‚‹
 	 *
-	 * @param comp_basis ‰Šú‰»‚·‚éŠî’ê‚ğ•\‚·®”
+	 * @param comp_basis åˆæœŸåŒ–ã™ã‚‹åŸºåº•ã‚’è¡¨ã™æ•´æ•°
 	 */
 	virtual void set_computational_basis(ITYPE comp_basis)  override {
-		set_zero_state();
-		_state_vector[0] = make_cuDoubleComplex(0.0, 0.0);
-		_state_vector[comp_basis] = make_cuDoubleComplex(1.0, 0.0);
+        set_computational_basis_host(comp_basis, _state_vector, _dim);
 	}
 	/**
-	 * \~japanese-en —Êqó‘Ô‚ğHaar random‚ÉƒTƒ“ƒvƒŠƒ“ƒO‚³‚ê‚½—Êqó‘Ô‚É‰Šú‰»‚·‚é
+	 * \~japanese-en é‡å­çŠ¶æ…‹ã‚’Haar randomã«ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°ã•ã‚ŒãŸé‡å­çŠ¶æ…‹ã«åˆæœŸåŒ–ã™ã‚‹
 	 */
 	virtual void set_Haar_random_state() override {
-		assert(0);
-		// TODO	
+		initialize_Haar_random_state_with_seed_host(this->data(), _dim, random.int32());
 	}
 	/**
-	 * \~japanese-en —Êqó‘Ô‚ğƒV[ƒh‚ğ—p‚¢‚ÄHaar random‚ÉƒTƒ“ƒvƒŠƒ“ƒO‚³‚ê‚½—Êqó‘Ô‚É‰Šú‰»‚·‚é
+	 * \~japanese-en é‡å­çŠ¶æ…‹ã‚’ã‚·ãƒ¼ãƒ‰ã‚’ç”¨ã„ã¦Haar randomã«ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°ã•ã‚ŒãŸé‡å­çŠ¶æ…‹ã«åˆæœŸåŒ–ã™ã‚‹
 	 */
 	virtual void set_Haar_random_state(UINT seed) override {
-		assert(0);
-		// TODO	
+        initialize_Haar_random_state_with_seed_host(this->data(), _dim, seed);
 	}
 	/**
-	 * \~japanese-en <code>target_qubit_index</code>‚Ì“Y‚¦š‚Ì—Êqƒrƒbƒg‚ğ‘ª’è‚µ‚½A0‚ªŠÏ‘ª‚³‚ê‚éŠm—¦‚ğŒvZ‚·‚éB
+	 * \~japanese-en <code>target_qubit_index</code>ã®æ·»ãˆå­—ã®é‡å­ãƒ“ãƒƒãƒˆã‚’æ¸¬å®šã—ãŸæ™‚ã€0ãŒè¦³æ¸¬ã•ã‚Œã‚‹ç¢ºç‡ã‚’è¨ˆç®—ã™ã‚‹ã€‚
 	 *
-	 * —Êqó‘Ô‚Í•ÏX‚µ‚È‚¢B
+	 * é‡å­çŠ¶æ…‹ã¯å¤‰æ›´ã—ãªã„ã€‚
 	 * @param target_qubit_index
 	 * @return double
 	 */
@@ -68,10 +64,10 @@ public:
 		return M0_prob_host(target_qubit_index, this->data(), _dim);
 	}
 	/**
-	 * \~japanese-en •¡”‚Ì—Êqƒrƒbƒg‚ğ‘ª’è‚µ‚½‚Ìü•ÓŠm—¦‚ğŒvZ‚·‚é
+	 * \~japanese-en è¤‡æ•°ã®é‡å­ãƒ“ãƒƒãƒˆã‚’æ¸¬å®šã—ãŸæ™‚ã®å‘¨è¾ºç¢ºç‡ã‚’è¨ˆç®—ã™ã‚‹
 	 *
-	 * @param measured_values —Êqƒrƒbƒg”‚Æ“¯‚¶’·‚³‚Ì0,1,2‚Ì”z—ñB0,1‚Í‚»‚Ì’l‚ªŠÏ‘ª‚³‚êA2‚Í‘ª’è‚ğ‚µ‚È‚¢‚±‚Æ‚ğ•\‚·B
-	 * @return ŒvZ‚³‚ê‚½ü•ÓŠm—¦
+	 * @param measured_values é‡å­ãƒ“ãƒƒãƒˆæ•°ã¨åŒã˜é•·ã•ã®0,1,2ã®é…åˆ—ã€‚0,1ã¯ãã®å€¤ãŒè¦³æ¸¬ã•ã‚Œã€2ã¯æ¸¬å®šã‚’ã—ãªã„ã“ã¨ã‚’è¡¨ã™ã€‚
+	 * @return è¨ˆç®—ã•ã‚ŒãŸå‘¨è¾ºç¢ºç‡
 	 */
 	virtual double get_marginal_probability(std::vector<UINT> measured_values) const override {
 		std::vector<UINT> target_index;
@@ -85,29 +81,28 @@ public:
 		return marginal_prob_host(target_index.data(), target_value.data(), (UINT)target_index.size(), this->data(), _dim);
 	}
 	/**
-	 * \~japanese-en ŒvZŠî’ê‚Å‘ª’è‚µ‚½“¾‚ç‚ê‚éŠm—¦•ª•z‚ÌƒGƒ“ƒgƒƒs[‚ğŒvZ‚·‚éB
+	 * \~japanese-en è¨ˆç®—åŸºåº•ã§æ¸¬å®šã—ãŸæ™‚å¾—ã‚‰ã‚Œã‚‹ç¢ºç‡åˆ†å¸ƒã®ã‚¨ãƒ³ãƒˆãƒ­ãƒ”ãƒ¼ã‚’è¨ˆç®—ã™ã‚‹ã€‚
 	 *
-	 * @return ƒGƒ“ƒgƒƒs[
+	 * @return ã‚¨ãƒ³ãƒˆãƒ­ãƒ”ãƒ¼
 	 */
 	virtual double get_entropy() const override {
-        assert(0);
-		// return measurement_distribution_entropy(this->data(), _dim);
+        return measurement_distribution_entropy_host(this->data(), _dim);
 	}
 
 	/**
-	 * \~japanese-en —Êqó‘Ô‚Ìƒmƒ‹ƒ€‚ğŒvZ‚·‚é
+	 * \~japanese-en é‡å­çŠ¶æ…‹ã®ãƒãƒ«ãƒ ã‚’è¨ˆç®—ã™ã‚‹
 	 *
-	 * —Êqó‘Ô‚Ìƒmƒ‹ƒ€‚Í”ñƒ†ƒjƒ^ƒŠ‚ÈƒQ[ƒg‚ğì—p‚µ‚½‚É¬‚³‚­‚È‚éB
-	 * @return ƒmƒ‹ƒ€
+	 * é‡å­çŠ¶æ…‹ã®ãƒãƒ«ãƒ ã¯éãƒ¦ãƒ‹ã‚¿ãƒªãªã‚²ãƒ¼ãƒˆã‚’ä½œç”¨ã—ãŸæ™‚ã«å°ã•ããªã‚‹ã€‚
+	 * @return ãƒãƒ«ãƒ 
 	 */
 	virtual double get_norm() const override {
 		return state_norm_host(this->data(), _dim);
 	}
 
 	/**
-	 * \~japanese-en —Êqó‘Ô‚ğ³‹K‰»‚·‚é
+	 * \~japanese-en é‡å­çŠ¶æ…‹ã‚’æ­£è¦åŒ–ã™ã‚‹
 	 *
-	 * @param norm ©g‚Ìƒmƒ‹ƒ€
+	 * @param norm è‡ªèº«ã®ãƒãƒ«ãƒ 
 	 */
 	virtual void normalize(double norm) override {
 		normalize_host(norm, this->data(), _dim);
@@ -115,56 +110,54 @@ public:
 
 
 	/**
-	 * \~japanese-en ƒoƒbƒtƒ@‚Æ‚µ‚Ä“¯‚¶ƒTƒCƒY‚Ì—Êqó‘Ô‚ğì¬‚·‚éB
+	 * \~japanese-en ãƒãƒƒãƒ•ã‚¡ã¨ã—ã¦åŒã˜ã‚µã‚¤ã‚ºã®é‡å­çŠ¶æ…‹ã‚’ä½œæˆã™ã‚‹ã€‚
 	 *
-	 * @return ¶¬‚³‚ê‚½—Êqó‘Ô
+	 * @return ç”Ÿæˆã•ã‚ŒãŸé‡å­çŠ¶æ…‹
 	 */
 	virtual QuantumStateBase* allocate_buffer() const override {
 		QuantumStateGpu* new_state = new QuantumStateGpu(this->_qubit_count);
 		return new_state;
 	}
 	/**
-	 * \~japanese-en ©g‚Ìó‘Ô‚ÌƒfƒB[ƒvƒRƒs[‚ğ¶¬‚·‚é
+	 * \~japanese-en è‡ªèº«ã®çŠ¶æ…‹ã®ãƒ‡ã‚£ãƒ¼ãƒ—ã‚³ãƒ”ãƒ¼ã‚’ç”Ÿæˆã™ã‚‹
 	 *
-	 * @return ©g‚ÌƒfƒB[ƒvƒRƒs[
+	 * @return è‡ªèº«ã®ãƒ‡ã‚£ãƒ¼ãƒ—ã‚³ãƒ”ãƒ¼
 	 */
 	virtual QuantumStateBase* copy() const override {
 		QUantumnStateGpu* new_state = new QUantumnStateGpu(this->_qubit_count);
-		memcpy(new_state->data_cpp(), _state_vector, (size_t)(sizeof(CPPCTYPE)*_dim));
-		for (UINT i = 0; i < _classical_register.size(); ++i) new_state->set_classical_value(i, _classical_register[i]);
+        copy_quantum_state_host(new_state->data(), _state_vector, _dim);
 		return new_state;
 	}
 	/**
-	 * \~japanese-en <code>state</code>‚Ì—Êqó‘Ô‚ğ©g‚ÖƒRƒs[‚·‚éB
+	 * \~japanese-en <code>state</code>ã®é‡å­çŠ¶æ…‹ã‚’è‡ªèº«ã¸ã‚³ãƒ”ãƒ¼ã™ã‚‹ã€‚
 	 */
 	virtual void load(QuantumStateBase* _state) {
-		this->_classical_register = _state->classical_register;
-		memcpy(this->data_cpp(), _state->data_cpp(), (size_t)(sizeof(CPPCTYPE)*_dim));
+        copy_quantum_state_host(this->data(), _state->data(), dim);
 	}
 	/**
-	 * \~japanese-en —Êqó‘Ô‚ª”z’u‚³‚ê‚Ä‚¢‚éƒƒ‚ƒŠ‚ğ•Û‚·‚éƒfƒoƒCƒX–¼‚ğæ“¾‚·‚éB
+	 * \~japanese-en é‡å­çŠ¶æ…‹ãŒé…ç½®ã•ã‚Œã¦ã„ã‚‹ãƒ¡ãƒ¢ãƒªã‚’ä¿æŒã™ã‚‹ãƒ‡ãƒã‚¤ã‚¹åã‚’å–å¾—ã™ã‚‹ã€‚
 	 */
 	virtual const char* get_device_name() const override { return "gpu"; }
 	/**
-	 * \~japanese-en —Êqó‘Ô‚ğC++‚Ì<code>std::complex\<double\></code>‚Ì”z—ñ‚Æ‚µ‚Äæ“¾‚·‚é
+	 * \~japanese-en é‡å­çŠ¶æ…‹ã‚’C++ã®<code>std::complex\<double\></code>ã®é…åˆ—ã¨ã—ã¦å–å¾—ã™ã‚‹
 	 *
-	 * @return •¡‘fƒxƒNƒgƒ‹‚Ìƒ|ƒCƒ“ƒ^
+	 * @return è¤‡ç´ ãƒ™ã‚¯ãƒˆãƒ«ã®ãƒã‚¤ãƒ³ã‚¿
 	 */
 	virtual CPPCTYPE* data_cpp() const override { return this->_state_vector; }
 	/**
-	 * \~japanese-en —Êqó‘Ô‚ğcsim‚ÌComplexŒ^‚Ì”z—ñ‚Æ‚µ‚Äæ“¾‚·‚é
+	 * \~japanese-en é‡å­çŠ¶æ…‹ã‚’csimã®Complexå‹ã®é…åˆ—ã¨ã—ã¦å–å¾—ã™ã‚‹
 	 *
-	 * @return •¡‘fƒxƒNƒgƒ‹‚Ìƒ|ƒCƒ“ƒ^
+	 * @return è¤‡ç´ ãƒ™ã‚¯ãƒˆãƒ«ã®ãƒã‚¤ãƒ³ã‚¿
 	 */
 	virtual void* data() const override {
 		return reinterpret_cast<void*>(this->_state_vector);
 	}
 
 	/**
-	 * \~japanese-en —Êqó‘Ô‚ğ‘ª’è‚µ‚½Û‚ÌŒvZŠî’ê‚ÌƒTƒ“ƒvƒŠƒ“ƒO‚ğs‚¤
+	 * \~japanese-en é‡å­çŠ¶æ…‹ã‚’æ¸¬å®šã—ãŸéš›ã®è¨ˆç®—åŸºåº•ã®ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°ã‚’è¡Œã†
 	 *
-	 * @param[in] sampling_count ƒTƒ“ƒvƒŠƒ“ƒO‚ğs‚¤‰ñ”
-	 * @return ƒTƒ“ƒvƒ‹‚³‚ê‚½’l‚ÌƒŠƒXƒg
+	 * @param[in] sampling_count ã‚µãƒ³ãƒ—ãƒªãƒ³ã‚°ã‚’è¡Œã†å›æ•°
+	 * @return ã‚µãƒ³ãƒ—ãƒ«ã•ã‚ŒãŸå€¤ã®ãƒªã‚¹ãƒˆ
 	 */
 	virtual std::vector<ITYPE> sampling(UINT sampling_count) override {
 		std::vector<double> stacked_prob;

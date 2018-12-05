@@ -13,5 +13,8 @@
 extern "C" DllExport __host__ void* allocate_quantum_state_host(ITYPE dim);
 extern "C" DllExport __host__ void initialize_quantum_state_host(void* state, ITYPE dim);
 extern "C" DllExport __host__ void release_quantum_state_host(void* state);
+extern "C" DllExport __host__ void initialize_Haar_random_state_host(void *state, ITYPE dim);
+extern "C" DllExport __host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim, UINT seed);
+
 #endif // _MEMORY_OPS_CU_H_
 

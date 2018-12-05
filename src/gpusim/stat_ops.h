@@ -9,6 +9,7 @@
 #include "util_common.h"
 
 extern "C" DllExport __host__ double state_norm_host(void *state, ITYPE dim);
+extern "C" DllExport __host__ double measurement_distribution_entropy_host(void* state, ITYPE dim);
 extern "C" DllExport CTYPE inner_product_host(void *psi, void *phi, ITYPE dim);
 extern "C" DllExport __host__ double expectation_value_single_qubit_Pauli_operator_host(unsigned int operator_index, unsigned int targetQubitIndex, GTYPE *psi_gpu, ITYPE dim);
 extern "C" DllExport __host__ void multi_Z_gate_host(int* gates, GTYPE *psi_gpu, ITYPE dim, int n_qubits);

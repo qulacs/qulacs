@@ -12,7 +12,7 @@
 class QuantumGate_OneQubit : public QuantumGateBase{
 protected:
     typedef void (T_UPDATE_FUNC)(UINT, CTYPE*, ITYPE);
-    T_UPDATE_FUNC* _update_func;
+    T_UPDATE_FUNC* _update_func, _update_func_gpu;
     ComplexMatrix _matrix_element;
 
     QuantumGate_OneQubit() {};
@@ -57,7 +57,7 @@ public:
 class QuantumGate_TwoQubit : public QuantumGateBase{
 protected:
     typedef void (T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
-    T_UPDATE_FUNC* _update_func;
+    T_UPDATE_FUNC* _update_func, _update_func_gpu;
     ComplexMatrix _matrix_element;
 
     QuantumGate_TwoQubit() {};
@@ -102,7 +102,7 @@ public:
 class QuantumGate_OneControlOneTarget : public QuantumGateBase {
 protected:
     typedef void (T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
-    T_UPDATE_FUNC* _update_func;
+    T_UPDATE_FUNC* _update_func, _update_func_gpu;
     ComplexMatrix _matrix_element;
 
     QuantumGate_OneControlOneTarget() {};
@@ -147,7 +147,7 @@ public:
 class QuantumGate_OneQubitRotation : public QuantumGateBase{
 protected:
     typedef void (T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
-    T_UPDATE_FUNC* _update_func;
+    T_UPDATE_FUNC* _update_func, _update_func_gpu;
     ComplexMatrix _matrix_element;
     double _angle;
 
