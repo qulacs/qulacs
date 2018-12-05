@@ -39,9 +39,9 @@ PYBIND11_MODULE(qulacs, m) {
         .def(py::init<std::string, double>())
         .def(py::init<std::vector<unsigned int>&, std::string, double>())
         .def(py::init<std::vector<unsigned int>&, double>())
-		.def("get_index_list", &PauliOperator::get_index_list)
-		.def("get_pauli_id_list", &PauliOperator::get_pauli_id_list)
-		.def("get_coef", &PauliOperator::get_coef)
+        .def("get_index_list", &PauliOperator::get_index_list)
+        .def("get_pauli_id_list", &PauliOperator::get_pauli_id_list)
+        .def("get_coef", &PauliOperator::get_coef)
         .def("add_single_Pauli", &PauliOperator::add_single_Pauli)
         .def("get_expectation_value", &PauliOperator::get_expectation_value)
         .def("get_transition_amplitude", &PauliOperator::get_transition_amplitude)
@@ -198,15 +198,15 @@ PYBIND11_MODULE(qulacs, m) {
 
     py::class_<QuantumCircuit>(m, "QuantumCircuit")
         .def(py::init<unsigned int>())
-		.def("copy", &QuantumCircuit::copy, pybind11::return_value_policy::automatic_reference)
-		// In order to avoid double release, we force using add_gate_copy in python
-		.def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate)
-		.def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate)
-		.def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase&))&QuantumCircuit::add_gate_copy)
-		.def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase&, unsigned int))&QuantumCircuit::add_gate_copy)
-		.def("remove_gate", &QuantumCircuit::remove_gate)
+        .def("copy", &QuantumCircuit::copy, pybind11::return_value_policy::automatic_reference)
+        // In order to avoid double release, we force using add_gate_copy in python
+        .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate)
+        .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate)
+        .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase&))&QuantumCircuit::add_gate_copy)
+        .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase&, unsigned int))&QuantumCircuit::add_gate_copy)
+        .def("remove_gate", &QuantumCircuit::remove_gate)
 
-		.def("get_gate", [](const QuantumCircuit& circuit, unsigned int index) -> QuantumGateBase* { return circuit.gate_list[index]->copy(); }, pybind11::return_value_policy::automatic_reference)
+        .def("get_gate", [](const QuantumCircuit& circuit, unsigned int index) -> QuantumGateBase* { return circuit.gate_list[index]->copy(); }, pybind11::return_value_policy::automatic_reference)
 
         .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*))&QuantumCircuit::update_quantum_state)
         .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*, unsigned int, unsigned int))&QuantumCircuit::update_quantum_state)
