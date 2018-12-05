@@ -77,7 +77,7 @@ __global__ void rand_normal_mtgp32(curandState* rnd_state, GTYPE* state, ITYPE d
     }
 }
 */
-
+/*
 __global__ void rand_normal_xorwow(curandState* rnd_state, GTYPE* state, ITYPE dim){
 	ITYPE idx = blockIdx.x * blockDim.x + threadIdx.x;
     double2 rnd;
@@ -88,8 +88,8 @@ __global__ void rand_normal_xorwow(curandState* rnd_state, GTYPE* state, ITYPE d
         rnd_state[idx] = localState;
     }
 }
+*/
 
-/*
 __global__ void rand_normal_xorwow(curandState* rnd_state, GTYPE* state, ITYPE dim){
 	ITYPE idx = blockIdx.x * blockDim.x + threadIdx.x;
     // double2 rnd;
@@ -108,7 +108,6 @@ __global__ void rand_normal_xorwow(curandState* rnd_state, GTYPE* state, ITYPE d
         rnd_state[idx] = localState;
     }
 }
-*/
 
 __host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim, UINT seed) {
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
@@ -135,6 +134,5 @@ __host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim
 
     norm = state_norm_host(state, dim);
     normalize_host(norm, state, dim);
-    
 }
 

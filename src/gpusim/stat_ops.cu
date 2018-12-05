@@ -17,6 +17,7 @@
 #include <complex.h>
 #endif
 
+#include <cublas_v2.h>
 #include <cuComplex.h>
 #include "util.h"
 #include "util.cuh"
@@ -54,6 +55,7 @@ __device__ double warpReduceSum_double(double val) {
 	return val;
 }
 
+// this function has some error!!
 __global__ void state_norm_gpu(double* ret, GTYPE *state, ITYPE dim){
 	double sum = 0;
 	double real, imag;
@@ -63,14 +65,51 @@ __global__ void state_norm_gpu(double* ret, GTYPE *state, ITYPE dim){
         sum += real*real+imag*imag;
 	}
 	sum = warpReduceSum_double(sum);
+    printf("ret: %.5f, sum: %.5f\n", ret, sum);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		atomicAdd_double(&(ret[0]), sum);
+        printf("id: %d, ret: %.5f, sum: %.5f\n", threadIdx.x, ret, sum);
+		atomicAdd_double(ret, sum);
 	}
+    printf("id: %d, ret: %.5f, sum: %.5f\n", threadIdx.x, ret, sum);
+}
+
+__host__ double state_norm_cublas_host(void *state, ITYPE dim) {
+	cudaError_t cudaStatus;
+    cublasStatus_t status;
+    cublasHandle_t handle;
+    double norm;
+	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+
+    /* Initialize CUBLAS */
+    status = cublasCreate(&handle);
+    if (status != CUBLAS_STATUS_SUCCESS){
+        fprintf(stderr, "!!!! CUBLAS initialization error\n");
+        return EXIT_FAILURE;
+    }
+
+    status = cublasDznrm2(handle, dim, state_gpu, 1, &norm);
+	if (status != CUBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! cublasDznrm2 execution error.\n");
+        return EXIT_FAILURE;
+    }
+
+    /* Shutdown */
+    status = cublasDestroy(handle);
+
+    if (status != CUBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! shutdown error\n");
+        return EXIT_FAILURE;
+    }
+ 
+	state = reinterpret_cast<void*>(state_gpu);
+    return norm;
 }
 
 __host__ double state_norm_host(void *state, ITYPE dim) {
-	cudaError_t cudaStatus;
+    cudaError_t cudaStatus;
     double norm;
+    norm = state_norm_cublas_host(state, dim);
+    /*
     double* norm_gpu;
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 
@@ -79,6 +118,7 @@ __host__ double state_norm_host(void *state, ITYPE dim) {
 
 	unsigned int block = dim <= 1024 ? dim : 1024;
 	unsigned int grid = dim / block;
+
 	state_norm_gpu << <grid, block >> >(norm_gpu, state_gpu, dim);
 	
 	// Check for any errors launching the kernel
@@ -90,9 +130,9 @@ __host__ double state_norm_host(void *state, ITYPE dim) {
 
 	checkCudaErrors(cudaFree(norm_gpu), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
+    */
     return norm;
 }
-
 
 __global__ void measurement_distribution_entropy_gpu(double* ret, const GTYPE *state, ITYPE dim){
 	double sum = 0;
@@ -147,8 +187,8 @@ __global__ void inner_product_gpu(GTYPE *ret, GTYPE *psi, GTYPE *phi, ITYPE dim)
 	sum.x = warpReduceSum_double(sum.x);
 	sum.y = warpReduceSum_double(sum.y);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		ret[0].x = atomicAdd_double(&(ret[0].x), sum.x);
-		ret[0].y = atomicAdd_double(&(ret[0].y), sum.y);
+		atomicAdd_double(&(ret[0].x), sum.x);
+		atomicAdd_double(&(ret[0].y), sum.y);
 	}
 }
 
@@ -193,7 +233,7 @@ __global__ void expectation_value_PauliX_gpu(double *ret, GTYPE *state, unsigned
 	}
 	sum = warpReduceSum_double(sum);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		ret[0] = atomicAdd_double(&(ret[0]), sum);
+		atomicAdd_double(&(ret[0]), sum);
     }
 }
 
@@ -210,7 +250,7 @@ __global__ void expectation_value_PauliY_gpu(double *ret, GTYPE *state, unsigned
 	}
 	sum = warpReduceSum_double(sum);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		ret[0]=atomicAdd_double(&(ret[0]), sum);
+		atomicAdd_double(&(ret[0]), sum);
     }
 }
 
@@ -223,7 +263,7 @@ __global__ void expectation_value_PauliZ_gpu(double *ret, GTYPE *state, unsigned
 	}
 	sum = warpReduceSum_double(sum);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		ret[0] = atomicAdd_double(&(ret[0]), sum);
+		atomicAdd_double(&(ret[0]), sum);
 	}
 }
 
@@ -247,8 +287,8 @@ __global__ void expectation_value_single_qubit_Pauli_operator_gpu(
 	sum.x = warpReduceSum_double(sum.x);
 	sum.y = warpReduceSum_double(sum.y);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		ret[0].x = atomicAdd_double(&(ret[0].x), sum.x);
-		ret[0].y = atomicAdd_double(&(ret[0].y), sum.y);
+		atomicAdd_double(&(ret[0].x), sum.x);
+		atomicAdd_double(&(ret[0].y), sum.y);
 	}
 }
 
@@ -360,8 +400,8 @@ __global__ void multi_Z_get_expectation_value_gpu(GTYPE *ret, ITYPE bit_mask, IT
 	sum.x = warpReduceSum_double(sum.x);
 	sum.y = warpReduceSum_double(sum.y);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		ret[0].x=atomicAdd_double(&(ret[0].x), sum.x);
-		ret[0].y=atomicAdd_double(&(ret[0].y), sum.y);
+		atomicAdd_double(&(ret[0].x), sum.x);
+		atomicAdd_double(&(ret[0].y), sum.y);
 	}
 }
 
@@ -406,8 +446,8 @@ __global__ void multipauli_get_expectation_value_gpu(GTYPE* ret, ITYPE DIM, GTYP
 	sum.x = warpReduceSum_double(sum.x);
 	sum.y = warpReduceSum_double(sum.y);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		ret[0].x=atomicAdd_double(&(ret[0].x), sum.x);
-		ret[0].y=atomicAdd_double(&(ret[0].y), sum.y);
+		atomicAdd_double(&(ret[0].x), sum.x);
+		atomicAdd_double(&(ret[0].y), sum.y);
 	}
 }
 
@@ -463,7 +503,7 @@ __global__ void M0_prob_gpu(double* ret, UINT target_qubit_index, const GTYPE* s
 	}
 	sum = warpReduceSum_double(sum);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		ret[0] = atomicAdd_double(&(ret[0]), sum);
+		atomicAdd_double(&(ret[0]), sum);
 	}
 }
 
@@ -502,7 +542,7 @@ __global__ void M1_prob_gpu(double* ret, UINT target_qubit_index, const GTYPE* s
 	}
 	sum = warpReduceSum_double(sum);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		ret[0] = atomicAdd_double(&(ret[0]), sum);
+		atomicAdd_double(&(ret[0]), sum);
 	}
 }
 
@@ -547,7 +587,7 @@ __global__ void marginal_prob_gpu(double* ret_gpu, const UINT* sorted_target_qub
 	}
 	sum = warpReduceSum_double(sum);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		ret_gpu[0] = atomicAdd_double(&(ret_gpu[0]), sum);
+		atomicAdd_double(&(ret_gpu[0]), sum);
 	}
 }
 
@@ -594,7 +634,7 @@ __global__ void expectation_value_multi_qubit_Pauli_operator_XZ_mask_gpu(double*
     }
 	sum = warpReduceSum_double(sum);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		ret_gpu[0] = atomicAdd_double(&(ret_gpu[0]), sum);
+		atomicAdd_double(&(ret_gpu[0]), sum);
 	}
 }
 
@@ -641,7 +681,7 @@ __global__ void expectation_value_multi_qubit_Pauli_operator_Z_mask_gpu(double* 
     }
 	sum = warpReduceSum_double(sum);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		ret_gpu[0] = atomicAdd_double(&(ret_gpu[0]), sum);
+		atomicAdd_double(&(ret_gpu[0]), sum);
 	}
 }
 
@@ -722,8 +762,8 @@ __global__ void transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_gpu(GTYP
 	sum.x = warpReduceSum_double(sum.x);
 	sum.y = warpReduceSum_double(sum.y);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		ret_gpu[0].x = atomicAdd_double(&(ret_gpu[0].x), sum.x);
-		ret_gpu[0].y = atomicAdd_double(&(ret_gpu[0].y), sum.y);
+		atomicAdd_double(&(ret_gpu[0].x), sum.x);
+		atomicAdd_double(&(ret_gpu[0].y), sum.y);
 	}
 }
 
@@ -768,8 +808,8 @@ __global__ void transition_amplitude_multi_qubit_Pauli_operator_Z_mask_gpu(GTYPE
 	sum.x = warpReduceSum_double(sum.x);
 	sum.y = warpReduceSum_double(sum.y);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
-		ret[0].x = atomicAdd_double(&(ret[0].x), sum.x);
-		ret[0].y = atomicAdd_double(&(ret[0].y), sum.y);
+		atomicAdd_double(&(ret[0].x), sum.x);
+		atomicAdd_double(&(ret[0].y), sum.y);
 	}
 }
 

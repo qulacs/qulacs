@@ -391,10 +391,9 @@ __host__ void P1_gate_host(UINT target_qubit_index, void *state, ITYPE dim){
 	state = reinterpret_cast<void*>(state_gpu);
 }
 
-__global__ void normalize_gpu(double normalize_factor, GTYPE *state_gpu, ITYPE dim){
+__global__ void normalize_gpu(const double normalize_factor, GTYPE *state_gpu, ITYPE dim){
 	ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x;
     const ITYPE loop_dim = dim;
-    //const double normalize_factor = sqrt(1./norm);
     
     if(state_index<loop_dim){
         state_gpu[state_index] = make_cuDoubleComplex(
@@ -408,7 +407,8 @@ __host__ void normalize_host(double norm, void* state, ITYPE dim){
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     cudaError cudaStatus;
     const ITYPE loop_dim = dim;
-    const double normalize_factor = sqrt(1./norm);
+    // const double normalize_factor = sqrt(1./norm);
+    const double normalize_factor = 1./norm;
 
 	unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
 	unsigned int grid = loop_dim / block;
