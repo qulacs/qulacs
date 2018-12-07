@@ -80,18 +80,6 @@ __global__ void rand_normal_mtgp32(curandState* rnd_state, GTYPE* state, ITYPE d
 
 __global__ void rand_normal_xorwow(curandState* rnd_state, GTYPE* state, ITYPE dim){
 	ITYPE idx = blockIdx.x * blockDim.x + threadIdx.x;
-    double2 rnd;
-    curandStateXORWOW localState = rnd_state[idx];
-	if (idx < dim) {
-        rnd = curand_normal2_double(&localState);
-        state[idx] = make_cuDoubleComplex(rnd.x, rnd.y);
-        rnd_state[idx] = localState;
-    }
-}
-
-/*
-__global__ void rand_normal_xorwow(curandState* rnd_state, GTYPE* state, ITYPE dim){
-	ITYPE idx = blockIdx.x * blockDim.x + threadIdx.x;
     // double2 rnd;
     double tmp1, tmp2;
     double real, imag;
@@ -108,7 +96,6 @@ __global__ void rand_normal_xorwow(curandState* rnd_state, GTYPE* state, ITYPE d
         rnd_state[idx] = localState;
     }
 }
-*/
 
 __host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim, UINT seed) {
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
@@ -121,20 +108,21 @@ __host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim
     // CURAND_RNG_PSEUDO_XORWOW
     // CURAND_RNG_PSEUDO_MT19937 offset cannot be used and need sm_35 or higher.
 	
-	unsigned int block = dim <= 1024 ? dim : 1024;
-	unsigned int grid = dim / block;
+	unsigned int block = dim <= 512 ? dim : 512;
+	unsigned int grid = min( (int)(dim / block), 512);
 	
     init_rnd <<< grid, block >>>(rnd_state, seed);
 	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
+    // checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
     
     rand_normal_xorwow <<< grid, block >>>(rnd_state, state_gpu, dim);
 	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
 
+    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
     checkCudaErrors(cudaFree(rnd_state), __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 
     norm = state_norm_host(state, dim);
     normalize_host(norm, state, dim);
-    
 }
 
