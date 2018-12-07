@@ -119,6 +119,17 @@ __global__ void Z_gate_gpu(unsigned int target_qubit_index, GTYPE *state_gpu, IT
 	}
 }
 
+__global__ void Z_gate_stride_gpu(unsigned int target_qubit_index, GTYPE *state_gpu, ITYPE DIM) {
+	// ITYPE j = blockIdx.x * blockDim.x + threadIdx.x;
+	ITYPE basis0, basis1;
+    ITYPE half_dim = DIM>>1;
+    for (ITYPE i = blockIdx.x * blockDim.x + threadIdx.x; i < half_dim; i += blockDim.x * gridDim.x){
+		basis0 = insert_zero_to_basis_index_device(i, target_qubit_index);
+		basis1 = basis0^(1ULL<<target_qubit_index);
+		state_gpu[basis1] = make_cuDoubleComplex(-cuCreal(state_gpu[basis1]), -cuCimag(state_gpu[basis1]));
+	}
+}
+
 __host__ void Z_gate_host(unsigned int target_qubit_index, void *state, ITYPE dim){
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
@@ -127,8 +138,8 @@ __host__ void Z_gate_host(unsigned int target_qubit_index, void *state, ITYPE di
 	unsigned int grid = half_dim / block;
 
 	Z_gate_gpu << <grid, block >> >(target_qubit_index, state_gpu, dim);
-
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	
+    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
@@ -202,7 +213,7 @@ __host__ void CZ_gate_host(unsigned int control_qubit_index, unsigned int target
 	}
 	
     unsigned int block = quad_dim <= 1024 ? quad_dim : 1024;
-	unsigned int grid = dim / block;
+	unsigned int grid = quad_dim / block;
 
 	CZ_gate_gpu << <grid, block >> >(large_index, small_index, state_gpu, dim);
 
@@ -304,8 +315,8 @@ __global__ void SWAP_gate_gpu(unsigned int target_qubit_index0, unsigned int tar
 		body = (j & ((1ULL << (target_qubit_index1 - 1)) - 1)) >> target_qubit_index0; // (j % 2^(k-1)) >> i
 		tail = j & ((1ULL << target_qubit_index0) - 1); // j%(2^i)
 
-		basis01 = (head << (target_qubit_index1 + 1)) + (body << (target_qubit_index0 + 1)) + (1ULL << target_qubit_index1) + tail;
-		basis10 = (head << (target_qubit_index1 + 1)) + (body << (target_qubit_index0 + 1)) + (1ULL << target_qubit_index0) + tail;
+		basis01 = (head << (target_qubit_index1 + 1)) + (body << (target_qubit_index0 + 1)) + (1ULL << target_qubit_index0) + tail;
+		basis10 = (head << (target_qubit_index1 + 1)) + (body << (target_qubit_index0 + 1)) + (1ULL << target_qubit_index1) + tail;
 
 		tmp = state_gpu[basis01];
 		state_gpu[basis01] = state_gpu[basis10];
@@ -319,7 +330,7 @@ __host__ void SWAP_gate_host(unsigned int target_qubit_index0, unsigned int targ
 	unsigned int large_index, small_index;
 	ITYPE quad_dim = dim >> 2;
 	unsigned int block = quad_dim <= 1024 ? quad_dim : 1024;
-	unsigned int grid = dim / block;
+	unsigned int grid = quad_dim / block;
     
     if (target_qubit_index1 > target_qubit_index0) {
 		large_index = target_qubit_index1;
@@ -330,7 +341,7 @@ __host__ void SWAP_gate_host(unsigned int target_qubit_index0, unsigned int targ
 		small_index = target_qubit_index1;
 	}
 
-	SWAP_gate_gpu << <grid, block >> >(large_index, small_index, state_gpu, dim);
+	SWAP_gate_gpu << <grid, block >> >(small_index, large_index, state_gpu, dim);
 
     checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
@@ -391,10 +402,9 @@ __host__ void P1_gate_host(UINT target_qubit_index, void *state, ITYPE dim){
 	state = reinterpret_cast<void*>(state_gpu);
 }
 
-__global__ void normalize_gpu(double normalize_factor, GTYPE *state_gpu, ITYPE dim){
+__global__ void normalize_gpu(const double normalize_factor, GTYPE *state_gpu, ITYPE dim){
 	ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x;
     const ITYPE loop_dim = dim;
-    //const double normalize_factor = sqrt(1./norm);
     
     if(state_index<loop_dim){
         state_gpu[state_index] = make_cuDoubleComplex(
@@ -408,7 +418,8 @@ __host__ void normalize_host(double norm, void* state, ITYPE dim){
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     cudaError cudaStatus;
     const ITYPE loop_dim = dim;
-    const double normalize_factor = sqrt(1./norm);
+    // const double normalize_factor = sqrt(1./norm);
+    const double normalize_factor = 1./norm;
 
 	unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
 	unsigned int grid = loop_dim / block;
