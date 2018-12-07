@@ -116,9 +116,10 @@ __host__ double state_norm_host(void *state, ITYPE dim) {
     if(dim<=INT_MAX){
         return state_norm_cublas_host(state, dim);
     }
-    
+
     cudaError_t cudaStatus;
     double norm;
+    norm = state_norm_cublas_host(state, dim);
     double* norm_gpu;
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 
@@ -129,7 +130,7 @@ __host__ double state_norm_host(void *state, ITYPE dim) {
 	unsigned int grid = dim / block;
     
     state_norm_gpu <<< grid, block >>>(norm_gpu, state_gpu, dim);
-	
+
 	// Check for any errors launching the kernel
 	cudaStatus = cudaGetLastError();
 
