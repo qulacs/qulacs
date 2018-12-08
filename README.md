@@ -1,8 +1,9 @@
- 
+
 # Qulacs
 [![Build Status](https://travis-ci.org/qulacs/qulacs.svg?branch=master)](https://travis-ci.org/qulacs/qulacs)
 
 Qulacs is a python/C++ library for fast simulation of large, noisy, or parametric quantum circuits.
+I am practcing git hub now.
 
 Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob/master/LICENSE).
 
@@ -34,7 +35,7 @@ Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob
     - OpenMP enabled
     - MKL enabled (numpy runs in multi thread)
     - Circuit compression disabled
-    
+
 ![benchmark](https://storage.googleapis.com/qunasys/_plot.png)
 
 ## Supported environment
@@ -161,4 +162,3 @@ Build command for g++:
 ```sh
 g++ -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lcppsim.so
 ```
-
