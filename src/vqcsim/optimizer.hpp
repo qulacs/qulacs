@@ -5,7 +5,6 @@
 
 class ParametricQuantumCircuitModel;
 
-
 class Optimizer {
 protected:
     UINT _trainable_parameter_count;
