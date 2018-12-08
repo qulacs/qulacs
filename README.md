@@ -1,4 +1,3 @@
- 
 # Qulacs
 [![Build Status](https://travis-ci.org/qulacs/qulacs.svg?branch=master)](https://travis-ci.org/qulacs/qulacs)
 

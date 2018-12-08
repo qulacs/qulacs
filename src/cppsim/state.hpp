@@ -122,7 +122,17 @@ public:
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
-    virtual void load(QuantumStateBase* state) = 0;
+    virtual void load(const QuantumStateBase* state) = 0;
+
+    /**
+     * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
+     */
+    virtual void load(const std::vector<CPPCTYPE>& state) = 0;
+
+	/**
+     * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
+     */
+	virtual void load(const CPPCTYPE* state) = 0;
 
     /**
      * \~japanese-en 量子状態が配置されているメモリを保持するデバイス名を取得する。
@@ -353,11 +363,26 @@ public:
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
-    virtual void load(QuantumStateBase* _state) {
+    virtual void load(const QuantumStateBase* _state) {
         this->_classical_register = _state->classical_register;
         memcpy(this->data_cpp(), _state->data_cpp(), (size_t)(sizeof(CPPCTYPE)*_dim));
     }
-    /**
+	/**
+	 * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
+	 */
+	virtual void load(const std::vector<CPPCTYPE>& _state) {
+		assert(_state.size() == _dim);
+		memcpy(this->data_cpp(), _state.data(), (size_t)(sizeof(CPPCTYPE)*_dim));
+	}
+
+	/**
+	 * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
+	 */
+	virtual void load(const CPPCTYPE* _state) {
+		memcpy(this->data_cpp(), _state, (size_t)(sizeof(CPPCTYPE)*_dim));
+	}
+	
+	/**
      * \~japanese-en 量子状態が配置されているメモリを保持するデバイス名を取得する。
      */
     virtual const char* get_device_name() const override {return "cpu";}

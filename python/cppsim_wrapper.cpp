@@ -45,7 +45,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("add_single_Pauli", &PauliOperator::add_single_Pauli)
         .def("get_expectation_value", &PauliOperator::get_expectation_value)
         .def("get_transition_amplitude", &PauliOperator::get_transition_amplitude)
-        .def("copy", &PauliOperator::copy)
+        .def("copy", &PauliOperator::copy, pybind11::return_value_policy::automatic_reference)
         ;
 
     py::class_<Observable>(m, "Observable")
@@ -79,9 +79,10 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_entropy", &QuantumState::get_entropy)
         .def("get_norm", &QuantumState::get_norm)
         .def("normalize", &QuantumState::normalize)
-        .def("allocate_buffer", &QuantumState::allocate_buffer)
-        .def("copy", &QuantumState::copy)
-        .def("load", &QuantumState::load)
+        .def("allocate_buffer", &QuantumState::allocate_buffer, pybind11::return_value_policy::automatic_reference)
+        .def("copy", &QuantumState::copy, pybind11::return_value_policy::automatic_reference)
+        .def("load", (void (QuantumState::*)(const QuantumStateBase*))&QuantumState::load)
+        .def("load", (void (QuantumState::*)(const std::vector<CPPCTYPE>&))&QuantumState::load)
         .def("get_device_name", &QuantumState::get_device_name)
         .def("data_cpp", &QuantumState::data_cpp)
         .def("data_c", &QuantumState::data_c)
@@ -101,7 +102,7 @@ PYBIND11_MODULE(qulacs, m) {
 
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
         .def("update_quantum_state", &QuantumGateBase::update_quantum_state)
-        .def("copy",&QuantumGateBase::copy)
+        .def("copy",&QuantumGateBase::copy, pybind11::return_value_policy::automatic_reference)
         .def("to_string", &QuantumGateBase::to_string)
 
         .def("get_matrix", [](const QuantumGateBase& gate) {
@@ -116,7 +117,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("update_quantum_state", &QuantumGateMatrix::update_quantum_state)
         .def("add_control_qubit", &QuantumGateMatrix::add_control_qubit)
         .def("multiply_scalar", &QuantumGateMatrix::multiply_scalar)
-        .def("copy", &QuantumGateMatrix::copy)
+        .def("copy", &QuantumGateMatrix::copy, pybind11::return_value_policy::automatic_reference)
         .def("to_string", &QuantumGateMatrix::to_string)
 
         .def("get_matrix", [](const QuantumGateMatrix& gate) {
@@ -197,13 +198,16 @@ PYBIND11_MODULE(qulacs, m) {
 
     py::class_<QuantumCircuit>(m, "QuantumCircuit")
         .def(py::init<unsigned int>())
-        .def("copy", &QuantumCircuit::copy)
-		// In order to avoid double release, we force using add_gate_copy in python
+        .def("copy", &QuantumCircuit::copy, pybind11::return_value_policy::automatic_reference)
+        // In order to avoid double release, we force using add_gate_copy in python
         .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate)
         .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate)
-		.def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase&))&QuantumCircuit::add_gate_copy)
-		.def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase&, unsigned int))&QuantumCircuit::add_gate_copy)
-		.def("remove_gate", &QuantumCircuit::remove_gate)
+        .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase&))&QuantumCircuit::add_gate_copy)
+        .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase&, unsigned int))&QuantumCircuit::add_gate_copy)
+        .def("remove_gate", &QuantumCircuit::remove_gate)
+
+        .def("get_gate", [](const QuantumCircuit& circuit, unsigned int index) -> QuantumGateBase* { return circuit.gate_list[index]->copy(); }, pybind11::return_value_policy::automatic_reference)
+
         .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*))&QuantumCircuit::update_quantum_state)
         .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*, unsigned int, unsigned int))&QuantumCircuit::update_quantum_state)
         .def("calculate_depth", &QuantumCircuit::calculate_depth)
