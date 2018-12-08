@@ -1,10 +1,8 @@
-
 #pragma once
 #include <cppsim/type.hpp>
 #include <vector>
 
 class ParametricQuantumCircuitModel;
-
 
 class Optimizer {
 protected:
