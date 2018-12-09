@@ -207,6 +207,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("remove_gate", &QuantumCircuit::remove_gate)
 
         .def("get_gate", [](const QuantumCircuit& circuit, unsigned int index) -> QuantumGateBase* { return circuit.gate_list[index]->copy(); }, pybind11::return_value_policy::automatic_reference)
+        .def("get_gate_count", [](const QuantumCircuit& circuit) -> unsigned int {return circuit.gate_list.size(); })
 
         .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*))&QuantumCircuit::update_quantum_state)
         .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*, unsigned int, unsigned int))&QuantumCircuit::update_quantum_state)
