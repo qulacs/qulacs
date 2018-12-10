@@ -260,7 +260,7 @@ PYBIND11_MODULE(qulacs, m) {
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(m, "ParametricQuantumCircuit")
         .def(py::init<unsigned int>())
-        .def("copy_as_parametric", &ParametricQuantumCircuit::copy_as_parametric, pybind11::return_value_policy::automatic_reference)
+        .def("copy", &ParametricQuantumCircuit::copy, pybind11::return_value_policy::automatic_reference)
         .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate))  &ParametricQuantumCircuit::add_parametric_gate)
         .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate, UINT))  &ParametricQuantumCircuit::add_parametric_gate)
         .def("add_gate", (void (ParametricQuantumCircuit::*)(QuantumGateBase* gate))  &ParametricQuantumCircuit::add_gate )
