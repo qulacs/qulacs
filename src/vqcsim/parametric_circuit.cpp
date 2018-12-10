@@ -9,6 +9,23 @@ ParametricQuantumCircuit::ParametricQuantumCircuit(std::string qasm_path, std::s
     // TODO: enables load of parametric gate
 };
 
+
+ParametricQuantumCircuit* ParametricQuantumCircuit::copy_as_parametric() const {
+	ParametricQuantumCircuit* new_circuit = new ParametricQuantumCircuit(this->qubit_count);
+	for (UINT gate_pos = 0; gate_pos < this->gate_list.size() ; gate_pos++){
+		auto pos = std::find(this->_parametric_gate_position.begin(), this->_parametric_gate_position.end(), gate_pos);
+		bool is_parametric = (pos == this->_parametric_gate_position.end());
+
+		if (is_parametric) {
+			new_circuit->add_parametric_gate((QuantumGate_SingleParameter*)this->gate_list[gate_pos]->copy());
+		}
+		else {
+			new_circuit->add_gate(this->gate_list[gate_pos]->copy());
+		}
+	}
+	return new_circuit;
+}
+
 void ParametricQuantumCircuit::add_parametric_gate(QuantumGate_SingleParameter* gate) {
     _parametric_gate_position.push_back((UINT)gate_list.size());
     QuantumCircuit::add_gate(gate);
