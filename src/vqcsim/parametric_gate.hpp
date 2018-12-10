@@ -56,7 +56,7 @@ public:
 	}
 	virtual void set_matrix(ComplexMatrix& matrix) const override {
 		matrix = ComplexMatrix::Zero(2, 2);
-		matrix << cos(_angle), sin(_angle) * 1.i, sin(_angle) * 1.i, cos(_angle);
+		matrix << cos(_angle/2), sin(_angle/2) * 1.i, sin(_angle/2) * 1.i, cos(_angle/2);
 	}
 	virtual QuantumGateBase* copy() const override {
 		return new ClsParametricRXGate(*this);
@@ -72,7 +72,7 @@ public:
 	}
 	virtual void set_matrix(ComplexMatrix& matrix) const override {
 		matrix = ComplexMatrix::Zero(2, 2);
-		matrix << cos(_angle), sin(_angle), -sin(_angle), cos(_angle);
+		matrix << cos(_angle/2), sin(_angle/2), -sin(_angle/2), cos(_angle/2);
 	}
 	virtual QuantumGateBase* copy() const override {
 		return new ClsParametricRYGate(*this);
@@ -88,7 +88,7 @@ public:
 	}
 	virtual void set_matrix(ComplexMatrix& matrix) const override {
 		matrix = ComplexMatrix::Zero(2, 2);
-		matrix << cos(_angle) + 1.i*sin(_angle), 0, 0, cos(_angle) - 1.i * sin(_angle);
+		matrix << cos(_angle/2) + 1.i*sin(_angle/2), 0, 0, cos(_angle/2) - 1.i * sin(_angle/2);
 	}
 	virtual QuantumGateBase* copy() const override {
 		return new ClsParametricRZGate(*this);
@@ -130,7 +130,7 @@ public:
     };
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         get_Pauli_matrix(matrix, _pauli->get_pauli_id_list());
-        matrix = cos(_angle)*ComplexMatrix::Identity(matrix.rows(), matrix.cols()) + 1.i * sin(_angle) * matrix;
+        matrix = cos(_angle/2)*ComplexMatrix::Identity(matrix.rows(), matrix.cols()) + 1.i * sin(_angle/2) * matrix;
     }
 };
 
