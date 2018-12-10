@@ -214,6 +214,9 @@ del dense_gate
 - Measurement : Measurement
 - Noise : BitFlipNoise, DephasingNoise, IndepenedentXZNoise, DepolarizingNoise
 
+回転ゲートである<code>RX</code>,<code>RY</code>,<code>RZ</code>,<code>PauliRotation</code>は所定のパウリ演算子$P$について、引数$\theta$に対して$\exp(i\frac{\theta}{2}P)$という操作を行います。
+それぞれのゲートの詳細はAPIドキュメントを参照してください。
+
 
 ### 量子ゲートの合成
 続けて作用する量子ゲートを合成し、新たな単一の量子ゲートを生成できます。これにより量子状態へのアクセスを減らせます。
@@ -402,25 +405,28 @@ print(state)
 print(result)
 ```
 
-<!--
 - Adaptive
-古典レジスタに書き込まれた値に応じて操作を行ったり行わなかったりします。cppsimでは<code>[unsigned int]</code>型のレジスタを引数として受け取り、<code>bool</code>型を返す関数を指定し、これを実現します。
+古典レジスタに書き込まれた値を用いた条件に応じて操作を行うか決定します。
+条件はpythonの関数として記述することができます。pythonの関数は<code>unsigned int</code>型のリストを引数として受け取り、<code>bool</code>型を返す関数でなくてはなりません。
 
 ```python
 from qulacs.gate import Adaptive, X
 
-classical_pos = 0
 def func(list):
-    return list[2]==1
+    return list[0]==1
 gate = Adaptive(X(0), func)
 
 state = QuantumState(2)
 state.set_Haar_random_state()
+
+# func returns False, and gate is not applied
+gate.set_classical_value(0,0)
 gate.update_quantum_state(state)
-result = state.get_classical_value(classical_pos)
-print(result)
+
+# func returns True, and gate is applied
+gate.set_classical_value(0,1)
+gate.update_quantum_state(state)
 ```
--->
 
 #### CP-map
 Kraus-rankが1の場合は、上記の単体のクラウス演算子として扱ってください。それ以外の場合は、TPになるようにクラウス演算子を調整した後、<code>multiply_scalar</code>関数で定数倍にした<code>Identity</code>オペレータを作用するなどして調整してください。
