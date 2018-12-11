@@ -106,17 +106,17 @@ TEST(CircuitTest, CircuitBasic) {
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
     circuit.add_RX_gate(target,angle);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle)*Identity + 1.i*sin(angle)*X, n)*state_eigen;
+    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + 1.i*sin(angle/2)*X, n)*state_eigen;
 
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
     circuit.add_RY_gate(target, angle);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle)*Identity + 1.i*sin(angle)*Y, n)*state_eigen;
+    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + 1.i*sin(angle/2)*Y, n)*state_eigen;
 
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
     circuit.add_RZ_gate(target, angle);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle)*Identity + 1.i*sin(angle)*Z, n)*state_eigen;
+    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + 1.i*sin(angle/2)*Z, n)*state_eigen;
 
     target = random.int32() % n;
     target_sub = random.int32() % (n-1);

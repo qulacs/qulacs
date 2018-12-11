@@ -36,7 +36,7 @@ void single_qubit_Pauli_rotation_gate(UINT target_qubit_index, UINT Pauli_operat
     CTYPE rotation_gate[4];
     for(i = 0; i < 2; ++i)
         for(j = 0; j < 2; ++j)
-            rotation_gate[i*2+j] = cos(angle) * PAULI_MATRIX[0][i*2+j] + sin(angle) * 1.0i * PAULI_MATRIX[Pauli_operator_index][i*2+j];
+            rotation_gate[i*2+j] = cos(angle/2) * PAULI_MATRIX[0][i*2+j] + sin(angle/2) * 1.0i * PAULI_MATRIX[Pauli_operator_index][i*2+j];
 
     single_qubit_dense_matrix_gate(target_qubit_index, rotation_gate, state, dim);
 }

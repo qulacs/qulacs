@@ -11,7 +11,10 @@ private:
 public:
     ParametricQuantumCircuit(UINT qubit_count);
     ParametricQuantumCircuit(std::string qasm_path, std::string qasm_loader_script_path = "qasmloader.py");
-    virtual void add_parametric_gate(QuantumGate_SingleParameter* gate);
+
+	ParametricQuantumCircuit* copy() const;
+	
+	virtual void add_parametric_gate(QuantumGate_SingleParameter* gate);
     virtual void add_parametric_gate(QuantumGate_SingleParameter* gate, UINT index);
     virtual UINT get_parameter_count() const;
     virtual double get_parameter(UINT index) const;

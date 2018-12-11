@@ -98,7 +98,7 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile){
             ifs.open(path);
             if (!ifs){
                 std::cerr << "ERROR: Cannot open file" << std::endl;
-                std::exit(EXIT_FAILURE);
+				return -1.;
             }
 
             CPPCTYPE energy = 0;
@@ -125,6 +125,7 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile){
             }
             if (!ifs.eof()) {
                 std::cerr << "ERROR: Invalid format" << std::endl;
+				return -1.;
             }
             ifs.close();
             return energy;
@@ -138,6 +139,7 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile){
 
     Observable* observable;
     observable = observable::create_observable_from_openfermion_file(filename);
+	ASSERT_NE(observable, (Observable*)NULL);
     UINT qubit_count = observable->get_qubit_count();
 
     QuantumState state(qubit_count);
@@ -210,7 +212,8 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText){
 
     Observable* observable;
     observable = observable::create_observable_from_openfermion_text(text);
-    UINT qubit_count = observable->get_qubit_count();
+	ASSERT_NE(observable, (Observable*)NULL);
+	UINT qubit_count = observable->get_qubit_count();
 
     QuantumState state(qubit_count);
     state.set_computational_basis(0);
@@ -240,7 +243,7 @@ TEST(ObservableTest, CheckSplitObservable){
             ifs.open(path);
             if (!ifs){
                 std::cerr << "ERROR: Cannot open file" << std::endl;
-                std::exit(EXIT_FAILURE);
+				return -1.;
             }
 
             CPPCTYPE energy = 0;
@@ -267,6 +270,7 @@ TEST(ObservableTest, CheckSplitObservable){
             }
             if (!ifs.eof()) {
                 std::cerr << "ERROR: Invalid format" << std::endl;
+				return -1.;
             }
             ifs.close();
             return energy;
@@ -279,6 +283,8 @@ TEST(ObservableTest, CheckSplitObservable){
 
     std::pair<Observable*, Observable*> observables;
     observables = observable::create_split_observable(filename);
+	ASSERT_NE(observables.first, (Observable*)NULL);
+	ASSERT_NE(observables.second, (Observable*)NULL);
 
     UINT qubit_count = observables.first->get_qubit_count();
     QuantumState state(qubit_count);
