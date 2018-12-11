@@ -7,6 +7,7 @@
 #pragma once
 
 #include "type.hpp"
+#include <iostream>
 #include <vector>
 #include <utility>
 #include <string>
@@ -87,7 +88,13 @@ public:
      * @param[in] index オブザーバブルが保持するPauliOperatorのリストの添字
      * @return 指定したindexにあるPauliOperator
      */
-    const PauliOperator* get_term(UINT index) const { return _operator_list[index]; }
+    const PauliOperator* get_term(UINT index) const { 
+		if (index >= _operator_list.size()) {
+			std::cerr << "Error: PauliOperator::get_term(UINT): index out of range" << std::endl;
+			return NULL;
+		}
+		return _operator_list[index]; 
+	}
 
     /**
      * \~japanese-en

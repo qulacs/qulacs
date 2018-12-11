@@ -110,7 +110,7 @@ TEST(GateTest, ApplySingleQubitRotationGate) {
             double angle = random.uniform() * 3.14159;
 
             auto func = func_mat.first;
-            auto mat = cos(angle) * Eigen::MatrixXcd::Identity(2,2) + 1.i * sin(angle)* func_mat.second;
+            auto mat = cos(angle/2) * Eigen::MatrixXcd::Identity(2,2) + 1.i * sin(angle/2)* func_mat.second;
 
             state.set_Haar_random_state();
             for (ITYPE i = 0; i < dim; ++i) test_state1[i] = state.data_cpp()[i];
@@ -266,7 +266,7 @@ TEST(GateTest, ApplyMultiQubitGate) {
         }
         double angle = random.uniform()*3.14159;
 
-        Eigen::MatrixXcd large_mat = cos(angle)*Eigen::MatrixXcd::Identity(dim,dim) + 1.i*sin(angle)*get_eigen_matrix_full_qubit_pauli(pauli.get_index_list(), pauli.get_pauli_id_list(), n);
+        Eigen::MatrixXcd large_mat = cos(angle/2)*Eigen::MatrixXcd::Identity(dim,dim) + 1.i*sin(angle/2)*get_eigen_matrix_full_qubit_pauli(pauli.get_index_list(), pauli.get_pauli_id_list(), n);
         test_state1 = large_mat * test_state1;
 
         auto gate = gate::PauliRotation(pauli.get_index_list(), pauli.get_pauli_id_list(),angle);
@@ -532,7 +532,7 @@ TEST(GateTest, RandomPauliRotationMerge) {
             new_gate->update_quantum_state(&test_state);
 
             // update eigen state with matrix mul
-            auto new_gate_matrix = get_expanded_eigen_matrix_with_identity(target, cos(angle)*ComplexMatrix::Identity(2,2) + 1.i * sin(angle)* get_eigen_matrix_single_Pauli(new_pauli_id), n);
+            auto new_gate_matrix = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*ComplexMatrix::Identity(2,2) + 1.i * sin(angle/2)* get_eigen_matrix_single_Pauli(new_pauli_id), n);
             total_matrix = new_gate_matrix * total_matrix;
             test_state_eigen = new_gate_matrix * test_state_eigen;
 
