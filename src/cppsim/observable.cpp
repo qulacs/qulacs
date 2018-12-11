@@ -83,6 +83,7 @@ namespace observable{
     Observable* create_observable_from_openfermion_file(std::string file_path){
         UINT qubit_count = 0;
         UINT imag_idx;
+        UINT str_idx;
 
         std::ifstream ifs;
         ifs.open(file_path);
@@ -103,16 +104,14 @@ namespace observable{
                 continue;
             }
 
-            chfmt(elems[3]);
 
             imag_idx = 1;
+            str_idx = 3;
 
             if (elems[0].find("j") != std::string::npos){
                 coef_real = 0;
                 imag_idx = 0;
-                // std::cerr << "ERROR: Observable should be Hermitian." << std::endl;
-                // throw std::domain_error("Observable should be Hermitian.");
-                // continue;
+                str_idx = 1;
             } else if (elems[1].find("j") != std::string::npos){
                 coef_real = std::stod(elems[imag_idx-1]);
             } else {
@@ -120,12 +119,13 @@ namespace observable{
             }
 
             coef_imag = std::stod(elems[imag_idx]);
+            chfmt(elems[str_idx]);
 
             CPPCTYPE coef(coef_real, coef_imag);
             coefs.push_back(coef);
-            ops.push_back(elems[3]);
+            ops.push_back(elems[str_idx]);
 
-            index_list = split(elems[3], "XYZ ");
+            index_list = split(elems[str_idx], "XYZ ");
             for (UINT i = 0; i < index_list.size(); ++i){
                 UINT n = std::stoi(index_list[i]) + 1;
                 if (qubit_count < n)
@@ -150,6 +150,7 @@ namespace observable{
     Observable* create_observable_from_openfermion_text(std::string text){
         UINT qubit_count = 0;
         UINT imag_idx;
+        UINT str_idx;
 
         std::vector<std::string> lines;
         std::vector<CPPCTYPE> coefs;
@@ -165,16 +166,13 @@ namespace observable{
             if (elems.size() < 3){
                 continue;
             }
-            chfmt(elems[3]);
 
             imag_idx = 1;
-
+            str_idx = 3;
             if (elems[0].find("j") != std::string::npos){
                 coef_real = 0;
                 imag_idx = 0;
-                // std::cerr << "ERROR: Observable should be Hermitian." << std::endl;
-                // throw std::domain_error("Observable should be Hermitian.");
-                // continue;
+                str_idx = 1;
             } else if (elems[1].find("j") != std::string::npos){
                 coef_real = std::stod(elems[imag_idx-1]);
             } else {
@@ -182,13 +180,14 @@ namespace observable{
             }
 
             coef_imag = std::stod(elems[imag_idx]);
+            chfmt(elems[str_idx]);
 
             CPPCTYPE coef(coef_real, coef_imag);
 
             coefs.push_back(coef);
-            ops.push_back(elems[3]);
+            ops.push_back(elems[str_idx]);
 
-            index_list = split(elems[3], "XYZ ");
+            index_list = split(elems[str_idx], "XYZ ");
             for (UINT i = 0; i < index_list.size(); ++i){
                 UINT n = std::stoi(index_list[i]) + 1;
                 if (qubit_count < n)
@@ -208,7 +207,7 @@ namespace observable{
     std::pair<Observable*, Observable*> create_split_observable(std::string file_path){
         UINT qubit_count = 0;
         UINT imag_idx;
-
+        UINT str_idx;
         std::ifstream ifs;
         ifs.open(file_path);
 
@@ -230,16 +229,13 @@ namespace observable{
             if (elems.size() < 3){
                 continue;
             }
-            chfmt(elems[3]);
 
             imag_idx = 1;
-
+            str_idx = 3;
             if (elems[0].find("j") != std::string::npos){
                 coef_real = 0;
                 imag_idx = 0;
-                // std::cerr << "ERROR: Observable should be Hermitian." << std::endl;
-                // throw std::domain_error("Observable should be Hermitian.");
-                // continue;
+                str_idx = 1;
             } else if (elems[1].find("j") == std::string::npos){
                 coef_real = std::stod(elems[imag_idx-1]);
             } else {
@@ -247,12 +243,13 @@ namespace observable{
             }
 
             coef_imag = std::stod(elems[imag_idx]);
+            chfmt(elems[str_idx]);
 
             CPPCTYPE coef(coef_real, coef_imag);
             coefs.push_back(coef);
-            ops.push_back(elems[3]);
+            ops.push_back(elems[str_idx]);
 
-            index_list = split(elems[3], "XYZ ");
+            index_list = split(elems[str_idx], "XYZ ");
             for (UINT i = 0; i < index_list.size(); ++i){
                 UINT n = std::stoi(index_list[i]) + 1;
                 if (qubit_count < n)
