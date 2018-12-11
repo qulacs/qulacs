@@ -60,7 +60,7 @@ public:
      * @param observable オブザーバブル
      * @return 期待値
      */
-    double get_expectation_value(const Observable* observable);
+    CPPCTYPE get_expectation_value(const Observable* observable);
 
     /**
      * \~japanese-en 量子回路中のゲートの数を取得する

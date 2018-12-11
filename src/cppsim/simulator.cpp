@@ -30,7 +30,7 @@ void QuantumCircuitSimulator::simulate_range(UINT start, UINT end) {
     _circuit->update_quantum_state(_state, start, end);
 }
 
-double QuantumCircuitSimulator::get_expectation_value(const Observable* observable) {
+CPPCTYPE QuantumCircuitSimulator::get_expectation_value(const Observable* observable) {
     return observable->get_expectation_value(_state);
 }
 

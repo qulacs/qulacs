@@ -554,7 +554,7 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
     Random random;
     random.set_seed(seed);
 
-    double res;
+    CPPCTYPE res;
     CPPCTYPE test_res;
 
     Observable diag_observable(n), non_diag_observable(n), observable(n);
@@ -605,7 +605,7 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
 
     res = observable.get_expectation_value(&state);
     test_res = (test_state.adjoint() * test_observable * test_state);
-    ASSERT_NEAR(abs(test_res.real() - res)/ res, 0, 0.01);
+    ASSERT_NEAR(abs(test_res.real() - res.real())/ test_res.real(), 0, 0.01);
 
 
     state.set_Haar_random_state(seed);
@@ -616,7 +616,7 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
 
     res = observable.get_expectation_value(&state);
     test_res = (test_state.adjoint() * test_observable * test_state);
-    ASSERT_NEAR(abs(test_res.real() - res)/ res, 0, 0.01);
+    ASSERT_NEAR(abs(test_res.real() - res.real())/ test_res.real(), 0, 0.01);
 }
 
 
@@ -635,7 +635,7 @@ TEST(CircuitTest, RotateDiagonalObservable){
     double angle, coef1, coef2;
     Random random;
 
-    double res;
+    CPPCTYPE res;
     CPPCTYPE test_res;
 
     Observable observable(n);
@@ -673,8 +673,10 @@ TEST(CircuitTest, RotateDiagonalObservable){
     test_res = (test_state.adjoint() * test_observable * test_state);
 
     // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
-    ASSERT_NEAR(abs(test_res.real() - res)/test_res.real(), 0, 0.01);
+    ASSERT_NEAR(abs(test_res.real() - res.real())/test_res.real(), 0, 0.01);
+    ASSERT_NEAR(res.imag(), 0, eps);
     ASSERT_NEAR(test_res.imag(), 0, eps);
+
 
     state.set_Haar_random_state();
     for (ITYPE i = 0; i < dim; ++i) test_state[i] = state.data_cpp()[i];
@@ -689,7 +691,8 @@ TEST(CircuitTest, RotateDiagonalObservable){
     test_res = (test_state.adjoint() * test_observable * test_state);
 
     // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
-    ASSERT_NEAR(abs(test_res.real() - res)/test_res.real(), 0, 0.01);
+    ASSERT_NEAR(abs(test_res.real() - res.real())/test_res.real(), 0, 0.01);
+    ASSERT_NEAR(res.imag(), 0, eps);
     ASSERT_NEAR(test_res.imag(), 0, eps);
 
 }

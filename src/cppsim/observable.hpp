@@ -58,7 +58,7 @@ public:
      * @param[in] coef pauli_stringで作られるPauliOperatorの係数
      * @param[in] pauli_string パウリ演算子と掛かるindexの組からなる文字列。(example: "X 1 Y 2 Z 5")
      */
-    void add_operator(double coef, std::string pauli_string);
+    void add_operator(CPPCTYPE coef, std::string pauli_string);
 
     /**
      * \~japanese-en
@@ -103,7 +103,7 @@ public:
      * @param[in] state 期待値をとるときの量子状態
      * @return 入力で与えた量子状態に対応するオブザーバブルの期待値
      */
-    double get_expectation_value(const QuantumStateBase* state) const ;
+    CPPCTYPE get_expectation_value(const QuantumStateBase* state) const ;
 
     /**
      * \~japanese-en

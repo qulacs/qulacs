@@ -28,12 +28,12 @@ void Observable::add_operator(const PauliOperator* mpt){
     this->_operator_list.push_back(_mpt);
 }
 
-void Observable::add_operator(double coef, std::string pauli_string) {
+void Observable::add_operator(CPPCTYPE coef, std::string pauli_string) {
     this->add_operator(new PauliOperator(pauli_string, coef));
 }
 
-double Observable::get_expectation_value(const QuantumStateBase* state) const {
-    double sum = 0;
+CPPCTYPE Observable::get_expectation_value(const QuantumStateBase* state) const {
+    CPPCTYPE sum = 0;
     for (auto pauli : this->_operator_list) {
         sum += pauli->get_expectation_value(state);
     }
@@ -79,13 +79,13 @@ namespace observable{
             if (elems[0].find("j") != std::string::npos){
                 coef_real = 0;
                 imag_idx = 0;
-                std::cerr << "ERROR: Observable should be Hermitian." << std::endl;
+                // std::cerr << "ERROR: Observable should be Hermitian." << std::endl;
                 // throw std::domain_error("Observable should be Hermitian.");
-                continue;
-            } else if (elems[1].find("j") == std::string::npos){
-                continue;
-            } else {
+                // continue;
+            } else if (elems[1].find("j") != std::string::npos){
                 coef_real = std::stod(elems[imag_idx-1]);
+            } else {
+                continue;
             }
 
             coef_imag = std::stod(elems[imag_idx]);
@@ -109,7 +109,7 @@ namespace observable{
         Observable* observable = new Observable(qubit_count);
 
         for (UINT i = 0; i < ops.size(); ++i){
-            observable->add_operator(new PauliOperator(ops[i].c_str(), coefs[i].real()));
+            observable->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
         }
 
         return observable;
@@ -140,13 +140,13 @@ namespace observable{
             if (elems[0].find("j") != std::string::npos){
                 coef_real = 0;
                 imag_idx = 0;
-                std::cerr << "ERROR: Observable should be Hermitian." << std::endl;
+                // std::cerr << "ERROR: Observable should be Hermitian." << std::endl;
                 // throw std::domain_error("Observable should be Hermitian.");
-                continue;
-            } else if (elems[1].find("j") == std::string::npos){
-                continue;
-            } else {
+                // continue;
+            } else if (elems[1].find("j") != std::string::npos){
                 coef_real = std::stod(elems[imag_idx-1]);
+            } else {
+                continue;
             }
 
             coef_imag = std::stod(elems[imag_idx]);
@@ -167,7 +167,7 @@ namespace observable{
         Observable* observable = new Observable(qubit_count);
 
         for (UINT i = 0; i < ops.size(); ++i){
-            observable->add_operator(new PauliOperator(ops[i].c_str(), coefs[i].real()));
+            observable->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
         }
 
         return observable;
@@ -205,13 +205,13 @@ namespace observable{
             if (elems[0].find("j") != std::string::npos){
                 coef_real = 0;
                 imag_idx = 0;
-                std::cerr << "ERROR: Observable should be Hermitian." << std::endl;
+                // std::cerr << "ERROR: Observable should be Hermitian." << std::endl;
                 // throw std::domain_error("Observable should be Hermitian.");
-                continue;
+                // continue;
             } else if (elems[1].find("j") == std::string::npos){
-                continue;
-            } else {
                 coef_real = std::stod(elems[imag_idx-1]);
+            } else {
+                continue;
             }
 
             coef_imag = std::stod(elems[imag_idx]);
@@ -237,9 +237,9 @@ namespace observable{
 
         for (UINT i = 0; i < ops.size(); ++i){
             if (ops[i].find("X") != std::string::npos || ops[i].find("Y") != std::string::npos){
-                observable_non_diag->add_operator(new PauliOperator(ops[i].c_str(), coefs[i].real()));
+                observable_non_diag->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
             }else{
-                observable_diag->add_operator(new PauliOperator(ops[i].c_str(), coefs[i].real()));
+                observable_diag->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
             }
         }
 

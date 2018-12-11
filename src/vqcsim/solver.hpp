@@ -120,7 +120,7 @@ public:
         ComplexMatrix observable_matrix = ComplexMatrix::Zero(matrix_dim, matrix_dim);
         for (UINT term_index = 0; term_index < term_count; ++term_index) {
             auto Pauli_operator = instance->get_Pauli_operator(term_index);
-            double coef = Pauli_operator->get_coef();
+            CPPCTYPE coef = Pauli_operator->get_coef();
             auto target_index_list = Pauli_operator->get_index_list();
             auto pauli_id_list = Pauli_operator->get_pauli_id_list();
             
