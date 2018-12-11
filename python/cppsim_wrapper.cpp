@@ -53,7 +53,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def(py::init<unsigned int>())
         // .def(py::init<std::string>())
         .def("add_operator", (void (Observable::*)(const PauliOperator*)) &Observable::add_operator)
-        .def("add_operator", (void (Observable::*)(double coef, std::string))&Observable::add_operator)
+        .def("add_operator", (void (Observable::*)(std::complex<double> coef, std::string))&Observable::add_operator)
         .def("get_qubit_count", &Observable::get_qubit_count)
         .def("get_state_dim", &Observable::get_state_dim)
         .def("get_term_count", &Observable::get_term_count)
