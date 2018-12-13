@@ -4,12 +4,14 @@
 
 #ifdef _USE_GPU
 
-#include <gpusim/util.h>
 #include <gpusim/update_ops_cuda.h>
+#include <gpusim/memory_ops.h>
+#include <gpusim/stat_ops.h>
+#include <gpusim/util_func.h>
 
 class QuantumStateGpu : public QuantumStateBase {
 private:
-	void* _state_vector; // vodi* is assumed as GTYPE* 
+	void* _state_vector; // void* is assumed as GTYPE* 
 	Random random;
 public:
 	/**
@@ -124,26 +126,57 @@ public:
 	 * @return 自身のディープコピー
 	 */
 	virtual QuantumStateBase* copy() const override {
-		QUantumnStateGpu* new_state = new QUantumnStateGpu(this->_qubit_count);
+		QuantumStateGpu* new_state = new QuantumStateGpu(this->_qubit_count);
         copy_quantum_state_host(new_state->data(), _state_vector, _dim);
 		return new_state;
 	}
 	/**
 	 * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
 	 */
-	virtual void load(QuantumStateBase* _state) {
+	virtual void load(const QuantumStateBase* _state) override{
         copy_quantum_state_host(this->data(), _state->data(), dim);
+	}
+
+	/**
+	* \~japanese-en <code>state</code>の量子状態を自身へコピーする。
+	*/
+	virtual void load(const std::vector<CPPCTYPE>& _state) override{
+		copy_quantum_state_host(this->data(), _state.data(), dim);
+	}
+
+	/**
+	* \~japanese-en <code>state</code>の量子状態を自身へコピーする。
+	*/
+	virtual void load(const CPPCTYPE* _state) override{
+		copy_quantum_state_host(this->data(), _state, dim);
 	}
 	/**
 	 * \~japanese-en 量子状態が配置されているメモリを保持するデバイス名を取得する。
 	 */
 	virtual const char* get_device_name() const override { return "gpu"; }
+
 	/**
 	 * \~japanese-en 量子状態をC++の<code>std::complex\<double\></code>の配列として取得する
 	 *
 	 * @return 複素ベクトルのポインタ
 	 */
-	virtual CPPCTYPE* data_cpp() const override { return this->_state_vector; }
+	virtual CPPCTYPE* data_cpp() const override { 
+		CPPCTYPE* _copy_state = (CPPCTYPE*)malloc(sizeof(CPPCTYPE)*dim);
+		get_quantum_state_host(this->_state_vector,_copy_state, dim);
+		return _copy_state;
+	}
+
+	/**
+	* \~japanese-en 量子状態をC++の<code>std::complex\<double\></code>の配列として取得する
+	*
+	* @return 複素ベクトルのポインタ
+	*/
+	virtual CTYPE* data_c() const override {
+		CTYPE* _copy_state = (CTYPE*)malloc(sizeof(CTYPE)*dim);
+		get_quantum_state_host(this->_state_vector, _copy_state, dim);
+		return _copy_state;
+	}
+
 	/**
 	 * \~japanese-en 量子状態をcsimのComplex型の配列として取得する
 	 *
@@ -180,5 +213,17 @@ public:
 	}
 };
 
+namespace state {
+	/**
+	* \~japanese-en 量子状態間の内積を計算する
+	*
+	* @param[in] state_bra 内積のブラ側の量子状態
+	* @param[in] state_ket 内積のケット側の量子状態
+	* @return 内積の値
+	*/
+	//CPPCTYPE DllExport inner_product(const QuantumStateGpu* state_bra, const QuantumStateGpu* state_ket) {
+	//	return inner_product_host(state_bra, state_ket, state_ket->dim);
+	//}
+}
 
 #endif // _USE_GPU

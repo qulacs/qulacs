@@ -7,5 +7,8 @@ else()
 endif()
 
 add_subdirectory(csim)
+if(USE_GPU)
+	add_subdirectory(gpusim)
+endif()
 add_subdirectory(cppsim)
 add_subdirectory(vqcsim)

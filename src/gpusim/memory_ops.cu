@@ -13,8 +13,8 @@
 #include <assert.h>
 #include <algorithm>
 #include <cuComplex.h>
-#include "util.h"
-#include "util_common.h"
+#include "util_type.h"
+#include "util_type_internal.h"
 #include "util.cuh"
 #include "memory_ops.h"
 #include "stat_ops.h"
