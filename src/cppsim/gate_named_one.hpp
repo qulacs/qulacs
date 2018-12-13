@@ -20,6 +20,7 @@ extern "C"{
  */
 class ClsIGate : public QuantumGate_OneQubit{
     static void idling(UINT,CTYPE*,ITYPE){};
+	static void idling_gpu(UINT, void*, ITYPE) {};
 public:
     /**
      * \~japanese-en コンストラクタ
@@ -28,7 +29,8 @@ public:
      */
     ClsIGate(UINT target_qubit_index) {
         this->_update_func = ClsIGate::idling;
-        this->_name = "I";
+		this->_update_func_gpu = ClsIGate::idling_gpu;
+		this->_name = "I";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE | FLAG_Y_COMMUTE | FLAG_Z_COMMUTE ));
         this->_gate_property = FLAG_PAULI | FLAG_CLIFFORD | FLAG_GAUSSIAN;
         this->_matrix_element = ComplexMatrix::Zero(2,2);

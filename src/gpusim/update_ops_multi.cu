@@ -510,8 +510,8 @@ __device__ void multi_qubit_Pauli_rotation_gate_XZ_mask_device(ITYPE bit_flip_ma
 	ITYPE loop_dim = dim>>1;
 
 	// coefs
-	double cosval = cos(angle);
-	double sinval = sin(angle);
+	double cosval = cos(angle/2);
+	double sinval = sin(angle/2);
 	//GTYPE PHASE_90ROT[4] = {make_cuDoubleComplex(1.0,0.0), make_cuDoubleComplex(0.0,1.0), make_cuDoubleComplex(-1.0,0.0), make_cuDoubleComplex(0.0,-1.0)};
 	GTYPE PHASE_M90ROT[4] = { make_cuDoubleComplex(1.0,0.0), make_cuDoubleComplex(0.0,-1), make_cuDoubleComplex(-1,0.0), make_cuDoubleComplex(0.0,1)};
 	if(state_index<loop_dim){
@@ -563,8 +563,8 @@ __device__ void multi_qubit_Pauli_rotation_gate_Z_mask_device(ITYPE phase_flip_m
 	const ITYPE loop_dim = dim;
 	ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x;
 	// coefs
-	const double cosval = cos(angle);
-	const double sinval = sin(angle);
+	const double cosval = cos(angle/2);
+	const double sinval = sin(angle/2);
 
 	if(state_index<loop_dim){
 		// determine sign

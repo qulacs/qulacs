@@ -232,14 +232,27 @@ add_subdirectory(benchmark)
 ##### custom target #####
 # testing
 if(USE_TEST)
-	add_custom_target(test
-		DEPENDS csim_test
-		DEPENDS cppsim_test
-		DEPENDS vqcsim_test
-		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/csim_test
-		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_test
-		COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
-	)
+	if(USE_GPU)
+		add_custom_target(test
+			DEPENDS csim_test
+			DEPENDS cppsim_test
+			DEPENDS gpusim_test
+			DEPENDS vqcsim_test
+			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/csim_test
+			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_test
+			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/gpusim_test
+			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
+		)
+	else()
+		add_custom_target(test
+			DEPENDS csim_test
+			DEPENDS cppsim_test
+			DEPENDS vqcsim_test
+			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/csim_test
+			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_test
+			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
+		)
+	endif()
 endif()
 
 # benchmark

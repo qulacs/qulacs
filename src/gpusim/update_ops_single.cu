@@ -41,20 +41,20 @@ __host__ void single_qubit_Pauli_rotation_gate_host(unsigned int target_qubit_in
     CPPCTYPE rotation_gate[4];
 
 	rotation_gate[0] = CPPCTYPE(
-		cos(angle) - sin(angle)* PAULI_MATRIX[op_idx][0].imag(),
-		sin(angle) * PAULI_MATRIX[op_idx][0].real()
+		cos(angle/2) - sin(angle/2)* PAULI_MATRIX[op_idx][0].imag(),
+		sin(angle/2) * PAULI_MATRIX[op_idx][0].real()
 		);
 	rotation_gate[1] = CPPCTYPE(
-		-sin(angle)* PAULI_MATRIX[op_idx][1].imag(),
-		sin(angle) * PAULI_MATRIX[op_idx][1].real()
+		-sin(angle/2)* PAULI_MATRIX[op_idx][1].imag(),
+		sin(angle/2) * PAULI_MATRIX[op_idx][1].real()
 		);
 	rotation_gate[2] = CPPCTYPE(
-		-sin(angle)* PAULI_MATRIX[op_idx][2].imag(),
-		sin(angle) * PAULI_MATRIX[op_idx][2].real()
+		-sin(angle/2)* PAULI_MATRIX[op_idx][2].imag(),
+		sin(angle/2) * PAULI_MATRIX[op_idx][2].real()
 		);
 	rotation_gate[3] = CPPCTYPE(
-		cos(angle) - sin(angle)* PAULI_MATRIX[op_idx][3].imag(),
-		sin(angle) * PAULI_MATRIX[op_idx][3].real()
+		cos(angle/2) - sin(angle/2)* PAULI_MATRIX[op_idx][3].imag(),
+		sin(angle/2) * PAULI_MATRIX[op_idx][3].real()
 		);
 
     single_qubit_dense_matrix_gate_host(target_qubit_index, rotation_gate, state_gpu, dim);

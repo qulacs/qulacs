@@ -138,7 +138,7 @@ public:
     /**
      * \~japanese-en 量子状態が配置されているメモリを保持するデバイス名を取得する。
      */
-    virtual const char* get_device_name() const = 0;
+    virtual const std::string get_device_name() const = 0;
 
 	virtual void* data() const = 0;
 
@@ -409,7 +409,7 @@ public:
 	/**
      * \~japanese-en 量子状態が配置されているメモリを保持するデバイス名を取得する。
      */
-    virtual const char* get_device_name() const override {return "cpu";}
+    virtual const std::string get_device_name() const override {return "cpu";}
 
 	/**
 	 * \~japanese-en 量子状態のポインタをvoid*型として返す

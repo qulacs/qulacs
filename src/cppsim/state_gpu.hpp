@@ -153,7 +153,7 @@ public:
 	/**
 	 * \~japanese-en 量子状態が配置されているメモリを保持するデバイス名を取得する。
 	 */
-	virtual const char* get_device_name() const override { return "gpu"; }
+	virtual const std::string get_device_name() const override { return "gpu"; }
 
 	/**
 	 * \~japanese-en 量子状態をC++の<code>std::complex\<double\></code>の配列として取得する
