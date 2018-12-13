@@ -27,7 +27,7 @@ public:
     virtual void update_quantum_state(QuantumStateBase* state) override{
 #ifdef _USE_GPU
 		if (state->get_device_name() == "gpu") {
-			_update_func_gpu(this->target_qubit_list[0].index(), state->data_c(), state->dim);
+			_update_func_gpu(this->target_qubit_list[0].index(), state->data(), state->dim);
 		} else {
 			_update_func(this->_target_qubit_list[0].index(), state->data_c(), state->dim);
 		}
