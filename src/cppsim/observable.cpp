@@ -33,7 +33,7 @@ CPPCTYPE RealValuedQuantumOperator::get_expectation_value(const QuantumStateBase
     return GeneralQuantumOperator::get_expectation_value(state).real();
 }
 
-namespace realValuedQuantumOperator{
+namespace observable{
     RealValuedQuantumOperator* create_observable_from_openfermion_file(std::string file_path){
         UINT qubit_count = 0;
         UINT imag_idx;

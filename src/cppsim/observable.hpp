@@ -62,7 +62,7 @@ public:
     CPPCTYPE get_expectation_value(const QuantumStateBase* state) const ;
 };
 
-namespace realValuedQuantumOperator{
+namespace observable{
     /**
      * \~japanese-en
      *
@@ -94,4 +94,3 @@ namespace realValuedQuantumOperator{
 }
 
 typedef RealValuedQuantumOperator Observable;
-namespace observable = realValuedQuantumOperator;
