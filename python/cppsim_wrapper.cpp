@@ -49,7 +49,25 @@ PYBIND11_MODULE(qulacs, m) {
         .def("copy", &PauliOperator::copy, pybind11::return_value_policy::automatic_reference)
         ;
 
-    py::class_<Observable>(m, "Observable")
+    py::class_<GeneralQuantumOperator>(m, "GeneralQuantumOperator")
+        .def(py::init<unsigned int>())
+        // .def(py::init<std::string>())
+        .def("add_operator", (void (GeneralQuantumOperator::*)(const PauliOperator*)) &GeneralQuantumOperator::add_operator)
+        .def("add_operator", (void (GeneralQuantumOperator::*)(std::complex<double> coef, std::string))&GeneralQuantumOperator::add_operator)
+        .def("get_qubit_count", &GeneralQuantumOperator::get_qubit_count)
+        .def("get_state_dim", &GeneralQuantumOperator::get_state_dim)
+        .def("get_term_count", &GeneralQuantumOperator::get_term_count)
+        .def("get_term", &GeneralQuantumOperator::get_term, pybind11::return_value_policy::automatic_reference)
+        .def("get_expectation_value", &GeneralQuantumOperator::get_expectation_value)
+        .def("get_transition_amplitude", &GeneralQuantumOperator::get_transition_amplitude)
+        //.def_static("get_split_GeneralQuantumOperator", &(GeneralQuantumOperator::get_split_observable));
+        ;
+    auto mgeneral_quantum_operator = m.def_submodule("generalQuantumOperator");
+    mgeneral_quantum_operator.def("create_general_quantum_operator_from_openfermion_file", &generalQuantumOperator::create_general_quantum_operator_from_openfermion_file, pybind11::return_value_policy::automatic_reference);
+    mgeneral_quantum_operator.def("create_general_quantum_operator_from_openfermion_text", &generalQuantumOperator::create_general_quantum_operator_from_openfermion_text, pybind11::return_value_policy::automatic_reference);
+    mgeneral_quantum_operator.def("create_split_general_quantum_operator", &generalQuantumOperator::create_split_general_quantum_operator, pybind11::return_value_policy::automatic_reference);
+
+    py::class_<Observable, GeneralQuantumOperator>(m, "Observable")
         .def(py::init<unsigned int>())
         // .def(py::init<std::string>())
         .def("add_operator", (void (Observable::*)(const PauliOperator*)) &Observable::add_operator)
