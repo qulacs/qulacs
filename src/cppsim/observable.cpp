@@ -6,12 +6,23 @@
 #include "pauli_operator.hpp"
 #include "type.hpp"
 #include "utility.hpp"
+#include "state.hpp"
 #include <vector>
 #include <string>
 #include <fstream>
 #include <iostream>
 #include <utility>
 
+bool check_Pauli_operator(const Observable* observable, const PauliOperator* pauli_operator);
+
+bool check_Pauli_operator(const Observable* observable, const PauliOperator* pauli_operator) {
+	auto vec = pauli_operator->get_index_list();
+	UINT val = 0;
+	if (vec.size() > 0) {
+		val = std::max(val, *std::max_element(vec.begin(), vec.end()));
+	}
+	return val < (observable->get_qubit_count());
+}
 
 Observable::Observable(UINT qubit_count){
     _qubit_count = qubit_count;
@@ -25,14 +36,29 @@ Observable::~Observable(){
 
 void Observable::add_operator(const PauliOperator* mpt){
     PauliOperator* _mpt = mpt->copy();
+	if (!check_Pauli_operator(this, _mpt)) {
+		std::cerr << "Error: Observable::add_operator(const PauliOperator*): pauli_operator applies target qubit of which the index is larger than qubit_count" << std::endl;
+		return;
+	}
+
     this->_operator_list.push_back(_mpt);
 }
 
 void Observable::add_operator(double coef, std::string pauli_string) {
-    this->add_operator(new PauliOperator(pauli_string, coef));
+	PauliOperator* _mpt = new PauliOperator(pauli_string, coef);
+	if (!check_Pauli_operator(this, _mpt)) {
+		std::cerr << "Error: Observable::add_operator(double,std::string): pauli_operator applies target qubit of which the index is larger than qubit_count" << std::endl;
+		return;
+	}
+	this->add_operator(_mpt);
 }
 
 double Observable::get_expectation_value(const QuantumStateBase* state) const {
+	if (this->_qubit_count != state->qubit_count) {
+		std::cerr << "Error: Observable::get_expectation_value(const QuantumStateBase*): invalid qubit count" << std::endl;
+		return 0.;
+	}
+
     double sum = 0;
     for (auto pauli : this->_operator_list) {
         sum += pauli->get_expectation_value(state);
@@ -41,7 +67,12 @@ double Observable::get_expectation_value(const QuantumStateBase* state) const {
 }
 
 CPPCTYPE Observable::get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const {
-    CPPCTYPE sum = 0;
+	if (this->_qubit_count != state_bra->qubit_count || this->_qubit_count != state_ket->qubit_count) {
+		std::cerr << "Error: Observable::get_transition_amplitude(const QuantumStateBase*, const QuantumStateBase*): invalid qubit count" << std::endl;
+		return 0.;
+	}
+	
+	CPPCTYPE sum = 0;
     for (auto pauli : this->_operator_list) {
         sum += pauli->get_transition_amplitude(state_bra, state_ket);
     }
@@ -57,8 +88,8 @@ namespace observable{
 
         if (!ifs){
             std::cerr << "ERROR: Cannot open file" << std::endl;
-            std::exit(EXIT_FAILURE);
-        }
+			return NULL;
+		}
 
         std::string str;
         std::vector<CPPCTYPE> coefs;
@@ -83,7 +114,8 @@ namespace observable{
         }
         if (!ifs.eof()){
             std::cerr << "ERROR: Invalid format" << std::endl;
-        }
+			return NULL;
+		}
         ifs.close();
 
         Observable* observable = new Observable(qubit_count);
@@ -139,7 +171,7 @@ namespace observable{
 
         if (!ifs){
             std::cerr << "ERROR: Cannot open file" << std::endl;
-            std::exit(EXIT_FAILURE);
+			return std::make_pair((Observable*)NULL, (Observable*)NULL);
         }
 
         // loading lines and check qubit_count
@@ -167,7 +199,8 @@ namespace observable{
         }
         if (!ifs.eof()){
             std::cerr << "ERROR: Invalid format" << std::endl;
-        }
+			return std::make_pair((Observable*)NULL, (Observable*)NULL);
+		}
         ifs.close();
 
         Observable* observable_diag =  new Observable(qubit_count);

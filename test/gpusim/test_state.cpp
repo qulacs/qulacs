@@ -2,6 +2,7 @@
 #include "../util/util.h"
 #include <cppsim/state.hpp>
 #include <cppsim/utility.hpp>
+#include <cppsim/state_gpu.hpp>
 
 TEST(StateTest, GenerateAndRelease) {    
     UINT n = 10;

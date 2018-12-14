@@ -66,8 +66,8 @@ void multi_qubit_Pauli_rotation_gate_XZ_mask(ITYPE bit_flip_mask, ITYPE phase_fl
     ITYPE state_index;
 
     // coefs
-    const double cosval = cos(angle);
-    const double sinval = sin(angle);
+    const double cosval = cos(angle/2);
+    const double sinval = sin(angle/2);
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
@@ -121,8 +121,8 @@ void multi_qubit_Pauli_rotation_gate_Z_mask(ITYPE phase_flip_mask, double angle,
     ITYPE state_index;
 
     // coefs
-    const double cosval = cos(angle);
-    const double sinval = sin(angle);
+    const double cosval = cos(angle/2);
+    const double sinval = sin(angle/2);
 
 #ifdef _OPENMP
 #pragma omp parallel for

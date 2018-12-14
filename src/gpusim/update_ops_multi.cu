@@ -1,9 +1,10 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 #include <cuComplex.h>
-#include "util.h"
+#include "util_type.h"
+#include "util_type_internal.h"
+#include "util_func.h"
 #include "util.cuh"
-#include "util_common.h"
 #include "update_ops_cuda.h"
 #include <cublas_v2.h>
 #include <stdio.h>
@@ -23,10 +24,10 @@ __constant__ UINT sorted_insert_index_list_gpu[10];
  * bit_flip_mask, phase_flip_mask, global_phase_90rot_count, and pivot_qubit_index must be computed before calling this function.
  * See get_masks_from_*_list for the above four arguemnts.
  */
-void multi_qubit_Pauli_gate_XZ_mask(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count,UINT pivot_qubit_index, CTYPE* state, ITYPE dim);
-void multi_qubit_Pauli_rotation_gate_XZ_mask(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count, UINT pivot_qubit_index, double angle, CTYPE* state, ITYPE dim);
-void multi_qubit_Pauli_gate_Z_mask(ITYPE phase_flip_mask, CTYPE* state, ITYPE dim);
-void multi_qubit_Pauli_rotation_gate_Z_mask(ITYPE phase_flip_mask, double angle, CTYPE* state, ITYPE dim);
+void multi_qubit_Pauli_gate_XZ_mask(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count,UINT pivot_qubit_index, CPPCTYPE* state, ITYPE dim);
+void multi_qubit_Pauli_rotation_gate_XZ_mask(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count, UINT pivot_qubit_index, double angle, CPPCTYPE* state, ITYPE dim);
+void multi_qubit_Pauli_gate_Z_mask(ITYPE phase_flip_mask, CPPCTYPE* state, ITYPE dim);
+void multi_qubit_Pauli_rotation_gate_Z_mask(ITYPE phase_flip_mask, double angle, CPPCTYPE* state, ITYPE dim);
 
 //penta
 __global__ void penta_qubit_dense_matrix_gate_gpu(unsigned int target4_qubit_index, unsigned int target3_qubit_index, unsigned int target2_qubit_index, unsigned int target1_qubit_index, unsigned int target0_qubit_index, GTYPE *state_gpu, ITYPE dim){
@@ -93,7 +94,7 @@ __global__ void penta_qubit_dense_matrix_gate_gpu(unsigned int target4_qubit_ind
 	}
 }
 
-__host__ void penta_qubit_dense_matrix_gate_host(unsigned int target_qubit_index[5], CTYPE matrix[1024], void* state, ITYPE dim) {
+__host__ void penta_qubit_dense_matrix_gate_host(unsigned int target_qubit_index[5], CPPCTYPE matrix[1024], void* state, ITYPE dim) {
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
 	unsigned int target0_qubit_index, target1_qubit_index, target2_qubit_index, target3_qubit_index, target4_qubit_index;
@@ -181,7 +182,7 @@ __global__ void quad_qubit_dense_matrix_gate_gpu(unsigned int target3_qubit_inde
 	}
 }
 
-__host__ void quad_qubit_dense_matrix_gate_host(unsigned int target_qubit_index[4], CTYPE matrix[256], void* state, ITYPE dim) {
+__host__ void quad_qubit_dense_matrix_gate_host(unsigned int target_qubit_index[4], CPPCTYPE matrix[256], void* state, ITYPE dim) {
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
 	unsigned int target0_qubit_index, target1_qubit_index, target2_qubit_index, target3_qubit_index;
@@ -258,7 +259,7 @@ __global__ void triple_qubit_dense_matrix_gate_gpu(unsigned int target1_qubit_in
 	}
 }
 
-__host__ void triple_qubit_dense_matrix_gate_host(unsigned int target1_qubit_index, unsigned int target2_qubit_index, unsigned int target3_qubit_index, CTYPE matrix[64], void* state, ITYPE dim) {
+__host__ void triple_qubit_dense_matrix_gate_host(unsigned int target1_qubit_index, unsigned int target2_qubit_index, unsigned int target3_qubit_index, CPPCTYPE matrix[64], void* state, ITYPE dim) {
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
 
@@ -379,7 +380,7 @@ __global__ void double_qubit_dense_matrix_gate_gpu(unsigned int target1_qubit_in
 	}
 }
 
-__host__ void double_qubit_dense_matrix_gate_host(unsigned int target1_qubit_index, unsigned int target0_qubit_index, CTYPE matrix[16], void* state, ITYPE dim) {
+__host__ void double_qubit_dense_matrix_gate_host(unsigned int target1_qubit_index, unsigned int target0_qubit_index, CPPCTYPE matrix[16], void* state, ITYPE dim) {
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
 	unsigned int tmp;
@@ -400,7 +401,7 @@ __host__ void double_qubit_dense_matrix_gate_host(unsigned int target1_qubit_ind
 	state = reinterpret_cast<void*>(state_gpu);
 }
 
-__host__ void double_qubit_dense_matrix_gate_local_variable_host(unsigned int target1_qubit_index, unsigned int target0_qubit_index, CTYPE matrix[16], void* state, ITYPE dim) {
+__host__ void double_qubit_dense_matrix_gate_local_variable_host(unsigned int target1_qubit_index, unsigned int target0_qubit_index, CPPCTYPE matrix[16], void* state, ITYPE dim) {
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
 	unsigned int tmp;
@@ -499,8 +500,8 @@ __host__ void multi_qubit_Pauli_gate_XZ_mask_host(ITYPE bit_flip_mask, ITYPE pha
 }
 
 /*
-const CTYPE PHASE_90ROT[4] = {1., 1.i, -1, -1.i};
-const CTYPE PHASE_M90ROT[4] = { 1., -1.i, -1, 1.i };
+const CPPCTYPE PHASE_90ROT[4] = {1., 1.i, -1, -1.i};
+const CPPCTYPE PHASE_M90ROT[4] = { 1., -1.i, -1, 1.i };
 */
 
 __device__ void multi_qubit_Pauli_rotation_gate_XZ_mask_device(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count, UINT pivot_qubit_index, double angle, GTYPE* state_gpu, ITYPE dim){
@@ -509,8 +510,8 @@ __device__ void multi_qubit_Pauli_rotation_gate_XZ_mask_device(ITYPE bit_flip_ma
 	ITYPE loop_dim = dim>>1;
 
 	// coefs
-	double cosval = cos(angle);
-	double sinval = sin(angle);
+	double cosval = cos(angle/2);
+	double sinval = sin(angle/2);
 	//GTYPE PHASE_90ROT[4] = {make_cuDoubleComplex(1.0,0.0), make_cuDoubleComplex(0.0,1.0), make_cuDoubleComplex(-1.0,0.0), make_cuDoubleComplex(0.0,-1.0)};
 	GTYPE PHASE_M90ROT[4] = { make_cuDoubleComplex(1.0,0.0), make_cuDoubleComplex(0.0,-1), make_cuDoubleComplex(-1,0.0), make_cuDoubleComplex(0.0,1)};
 	if(state_index<loop_dim){
@@ -562,8 +563,8 @@ __device__ void multi_qubit_Pauli_rotation_gate_Z_mask_device(ITYPE phase_flip_m
 	const ITYPE loop_dim = dim;
 	ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x;
 	// coefs
-	const double cosval = cos(angle);
-	const double sinval = sin(angle);
+	const double cosval = cos(angle/2);
+	const double sinval = sin(angle/2);
 
 	if(state_index<loop_dim){
 		// determine sign
@@ -599,7 +600,7 @@ __host__ void multi_qubit_Pauli_gate_partial_list_host(const UINT* target_qubit_
 	ITYPE phase_flip_mask = 0;
 	UINT global_phase_90rot_count = 0;
 	UINT pivot_qubit_index = 0;
-	get_Pauli_masks_partial_list(target_qubit_index_list, Pauli_operator_type_list, target_qubit_index_count,
+	get_Pauli_masks_partial_list_gsim(target_qubit_index_list, Pauli_operator_type_list, target_qubit_index_count,
 		&bit_flip_mask, &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
 	if(bit_flip_mask == 0){
 		multi_qubit_Pauli_gate_Z_mask_host(phase_flip_mask, state, dim);
@@ -614,7 +615,7 @@ __host__ void multi_qubit_Pauli_gate_whole_list_host(const UINT* Pauli_operator_
 	 ITYPE phase_flip_mask = 0;
 	 UINT global_phase_90rot_count = 0;
 	 UINT pivot_qubit_index = 0;
-	 get_Pauli_masks_whole_list(Pauli_operator_type_list, qubit_count,
+	 get_Pauli_masks_whole_list_gsim(Pauli_operator_type_list, qubit_count,
 		 &bit_flip_mask, &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
 	 if(bit_flip_mask == 0){
 		 multi_qubit_Pauli_gate_Z_mask_host(phase_flip_mask, state, dim);
@@ -629,7 +630,7 @@ __host__ void multi_qubit_Pauli_rotation_gate_partial_list_host(const UINT* targ
 	ITYPE phase_flip_mask = 0;
 	UINT global_phase_90rot_count = 0;
 	UINT pivot_qubit_index = 0;
-	get_Pauli_masks_partial_list(target_qubit_index_list, Pauli_operator_type_list, target_qubit_index_count,
+	get_Pauli_masks_partial_list_gsim(target_qubit_index_list, Pauli_operator_type_list, target_qubit_index_count,
 		&bit_flip_mask, &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
 	if(bit_flip_mask == 0){
 		multi_qubit_Pauli_rotation_gate_Z_mask_host(phase_flip_mask, angle, state, dim);
@@ -644,7 +645,7 @@ __host__ void multi_qubit_Pauli_rotation_gate_whole_list_host(const UINT* Pauli_
 	ITYPE phase_flip_mask = 0;
 	UINT global_phase_90rot_count = 0;
 	UINT pivot_qubit_index = 0;
-	get_Pauli_masks_whole_list(Pauli_operator_type_list, qubit_count,
+	get_Pauli_masks_whole_list_gsim(Pauli_operator_type_list, qubit_count,
 		&bit_flip_mask, &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
 	if(bit_flip_mask == 0){
 		multi_qubit_Pauli_rotation_gate_Z_mask_host(phase_flip_mask, angle, state, dim);
@@ -754,16 +755,16 @@ __global__ void multi_qubit_dense_matrix_gate_const_gpu(UINT target_qubit_index_
     }
 }
 
-__host__ void multi_qubit_dense_matrix_gate(UINT* target_qubit_index_list, UINT target_qubit_index_count, CTYPE* matrix, void* state, ITYPE dim){
+__host__ void multi_qubit_dense_matrix_gate_host(UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim){
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
 
 	// matrix dim, mask, buffer
     ITYPE matrix_dim = 1ULL << target_qubit_index_count;
-	ITYPE* h_matrix_mask_list = create_matrix_mask_list(target_qubit_index_list, target_qubit_index_count);
+	ITYPE* h_matrix_mask_list = create_matrix_mask_list_gsim(target_qubit_index_list, target_qubit_index_count);
 
     // insert index
-    UINT* h_sorted_insert_index_list = create_sorted_ui_list(target_qubit_index_list, target_qubit_index_count);
+    UINT* h_sorted_insert_index_list = create_sorted_ui_list_gsim(target_qubit_index_list, target_qubit_index_count);
 
     // loop variables
 	ITYPE loop_dim = dim >> target_qubit_index_count;
@@ -948,16 +949,16 @@ __global__ void single_qubit_control_multi_qubit_dense_matrix_gate_gpu(UINT cont
     }
 }
 
-__host__ void single_qubit_control_multi_qubit_dense_matrix_gate_host(UINT control_qubit_index, UINT control_value, const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, void* state, ITYPE dim) {
+__host__ void single_qubit_control_multi_qubit_dense_matrix_gate_host(UINT control_qubit_index, UINT control_value, const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim) {
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
     // matrix dim, mask, buffer
     const ITYPE matrix_dim = 1ULL << target_qubit_index_count;
-    ITYPE* matrix_mask_list = create_matrix_mask_list(target_qubit_index_list, target_qubit_index_count);
+    ITYPE* matrix_mask_list = create_matrix_mask_list_gsim(target_qubit_index_list, target_qubit_index_count);
 
     // insert list
     const UINT insert_index_count = target_qubit_index_count + 1;
-    UINT* sorted_insert_index_list = create_sorted_ui_list_value(target_qubit_index_list, target_qubit_index_count ,control_qubit_index);
+    UINT* sorted_insert_index_list = create_sorted_ui_list_value_gsim(target_qubit_index_list, target_qubit_index_count ,control_qubit_index);
 
     GTYPE *d_matrix, *d_matrix_mask_list, *d_sorted_insert_index_list;
 
@@ -1090,19 +1091,19 @@ __global__ void multi_qubit_control_multi_qubit_dense_matrix_gate_const_gpu(ITYP
     }
 }
 
-__host__ void multi_qubit_control_multi_qubit_dense_matrix_gate_host(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, void* state, ITYPE dim) {
+__host__ void multi_qubit_control_multi_qubit_dense_matrix_gate_host(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim) {
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
 
     // matrix dim, mask, buffer
     const ITYPE matrix_dim = 1ULL << target_qubit_index_count;
-    ITYPE* matrix_mask_list = create_matrix_mask_list(target_qubit_index_list, target_qubit_index_count);
+    ITYPE* matrix_mask_list = create_matrix_mask_list_gsim(target_qubit_index_list, target_qubit_index_count);
 
     // insert index
-    UINT* sorted_insert_index_list = create_sorted_ui_list_list(target_qubit_index_list, target_qubit_index_count, control_qubit_index_list, control_qubit_index_count);
+    UINT* sorted_insert_index_list = create_sorted_ui_list_list_gsim(target_qubit_index_list, target_qubit_index_count, control_qubit_index_list, control_qubit_index_count);
     
     // control mask
-	ITYPE control_mask = create_control_mask(control_qubit_index_list, control_value_list, control_qubit_index_count);
+	ITYPE control_mask = create_control_mask_gsim(control_qubit_index_list, control_value_list, control_qubit_index_count);
     
     // loop varaibles
     const ITYPE loop_dim = dim >> (target_qubit_index_count+control_qubit_index_count);

@@ -8,6 +8,7 @@
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/utility.hpp>
 #include <fstream>
+#include <cppsim/state_gpu.hpp>
 
 
 
@@ -23,7 +24,7 @@ TEST(ObservableTest, CheckExpectationValue) {
     Eigen::MatrixXcd X(2, 2);
     X << 0, 1, 1, 0;
 
-    QuantumState state(n);
+    QuantumStateGpu state(n);
     state.set_computational_basis(0);
     Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
     test_state(0) = 1.;
@@ -139,7 +140,7 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile){
 	ASSERT_NE(observable, (Observable*)NULL);
     UINT qubit_count = observable->get_qubit_count();
 
-    QuantumState state(qubit_count);
+    QuantumStateGpu state(qubit_count);
     state.set_computational_basis(0);
 
     res = observable->get_expectation_value(&state);
@@ -209,7 +210,7 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText){
 	ASSERT_NE(observable, (Observable*)NULL);
 	UINT qubit_count = observable->get_qubit_count();
 
-    QuantumState state(qubit_count);
+    QuantumStateGpu state(qubit_count);
     state.set_computational_basis(0);
 
     res = observable->get_expectation_value(&state);
@@ -277,7 +278,7 @@ TEST(ObservableTest, CheckSplitObservable){
 	ASSERT_NE(observables.second, (Observable*)NULL);
 
     UINT qubit_count = observables.first->get_qubit_count();
-    QuantumState state(qubit_count);
+    QuantumStateGpu state(qubit_count);
     state.set_computational_basis(0);
 
 

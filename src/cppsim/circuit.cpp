@@ -14,15 +14,32 @@
 #include "pauli_operator.hpp"
 #include "observable.hpp"
 
+bool check_gate_index(const QuantumCircuit* circuit, const QuantumGateBase* gate);
+
 void QuantumCircuit::update_quantum_state(QuantumStateBase* state){
+	if (state->qubit_count != this->qubit_count) {
+		std::cerr << "Error: QuantumCircuit::update_quantum_state(QuantumStateBase) : invalid qubit count" << std::endl;
+		return;
+	}
+
     for(const auto& gate : this->_gate_list){
         gate->update_quantum_state(state);
     }
 }
 
 void QuantumCircuit::update_quantum_state(QuantumStateBase* state, UINT start, UINT end){
-    assert(start <= end);
-    assert(end <= this->_gate_list.size());
+	if (state->qubit_count != this->qubit_count) {
+		std::cerr << "Error: QuantumCircuit::update_quantum_state(QuantumStateBase,UINT,UINT) : invalid qubit count" << std::endl;
+		return;
+	}
+	if (start > end) {
+		std::cerr << "Error: QuantumCircuit::update_quantum_state(QuantumStateBase,UINT,UINT) : start must be smaller than or equal to end" << std::endl;
+		return;
+	}
+	if (end > this->_gate_list.size()) {
+		std::cerr << "Error: QuantumCircuit::update_quantum_state(QuantumStateBase,UINT,UINT) : end must be smaller than or equal to gate_count" << std::endl;
+		return;
+	}
     for(UINT cursor = start ; cursor < end ; ++cursor){
         this->_gate_list[cursor]->update_quantum_state(state);
     }
@@ -34,10 +51,10 @@ QuantumCircuit::QuantumCircuit(UINT qubit_count_){
 }
 
 
-// generate quantum circuit from qasm
-// now we delegate compile of qasm string to quantumopencompiler in qiskit-sdk.
 QuantumCircuit::QuantumCircuit(std::string qasm_path, std::string qasm_loader_script_path){
-    std::string exec_string = std::string("python ")+qasm_loader_script_path+" "+qasm_path;
+	// generate quantum circuit from qasm
+	// now we delegate compile of qasm string to quantumopencompiler in qiskit-sdk.
+	std::string exec_string = std::string("python ")+qasm_loader_script_path+" "+qasm_path;
     const unsigned int MAX_BUF = 1024;
     char line[MAX_BUF];
     char* endPoint;
@@ -46,7 +63,7 @@ QuantumCircuit::QuantumCircuit(std::string qasm_path, std::string qasm_loader_sc
     
     fp = popen(exec_string.c_str(),"r");
     if(fp==NULL){
-        fprintf(stderr,"cannot launch python loader or cannot load QASM: %s\n", qasm_path.c_str());
+        fprintf(stderr,"Error : cannot launch python loader or cannot load QASM: %s\n", qasm_path.c_str());
         exit(0);
     }
     fgets(line,MAX_BUF,fp);
@@ -70,24 +87,65 @@ QuantumCircuit* QuantumCircuit::copy() const{
     return new_circuit;
 }
 
+bool check_gate_index(const QuantumCircuit* circuit, const QuantumGateBase* gate) {
+	auto vec1 = gate->get_target_index_list();
+	auto vec2 = gate->get_control_index_list();
+	UINT val = 0;
+	if (vec1.size() > 0) {
+		val = std::max(val, *std::max_element(vec1.begin(), vec1.end()));
+	}
+	if (vec2.size() > 0) {
+		val = std::max(val, *std::max_element(vec2.begin(), vec2.end()));
+	}
+	return val < circuit->qubit_count;
+}
+
 void QuantumCircuit::add_gate(QuantumGateBase* gate){
+	if (!check_gate_index(this, gate)) {
+		std::cerr << "Error: QuatnumCircuit::add_gate(QuantumGateBase*): gate must be applied to qubits of which the indices are smaller than qubit_count" << std::endl;
+		return;
+	}
     this->_gate_list.push_back(gate);
 }
 
 void QuantumCircuit::add_gate(QuantumGateBase* gate, UINT index){
+	if (!check_gate_index(this, gate)) {
+		std::cerr << "Error: QuatnumCircuit::add_gate(QuantumGateBase*, UINT): gate must be applied to qubits of which the indices are smaller than qubit_count" << std::endl;
+		return;
+	}
+	if (index > this->_gate_list.size()) {
+		std::cerr << "Error: QuantumCircuit::add_gate(QuantumGateBase*, UINT) : insert index must be smaller than or equal to gate_count" << std::endl;
+		return;
+	}
     this->_gate_list.insert(this->_gate_list.begin() + index, gate);
 }
 
 void QuantumCircuit::add_gate_copy(const QuantumGateBase& gate){
-    this->_gate_list.push_back(gate.copy());
+	if (!check_gate_index(this, &gate)) {
+		std::cerr << "Error: QuatnumCircuit::add_gate_copy(const QuantumGateBase&): gate must be applied to qubits of which the indices are smaller than qubit_count" << std::endl;
+		return;
+	}
+	this->_gate_list.push_back(gate.copy());
 }
 
 void QuantumCircuit::add_gate_copy(const QuantumGateBase& gate, UINT index){
-    this->_gate_list.insert(this->_gate_list.begin() + index, gate.copy());
+	if (!check_gate_index(this, &gate)) {
+		std::cerr << "Error: QuatnumCircuit::add_gate_copy(const QuantumGateBase&, UINT): gate must be applied to qubits of which the indices are smaller than qubit_count" << std::endl;
+		return;
+	}
+	if (index > this->_gate_list.size()) {
+		std::cerr << "Error: QuantumCircuit::add_gate_copy(const QuantumGateBase*, UINT) : insert index must be smaller than or equal to gate_count" << std::endl;
+		return;
+	}
+	this->_gate_list.insert(this->_gate_list.begin() + index, gate.copy());
 }
 
 void QuantumCircuit::remove_gate(UINT index){
-    delete this->_gate_list[index];
+	if (index >= this->_gate_list.size()) {
+		std::cerr << "Error: QuantumCircuit::remove_gate(UINT) : index must be smaller than gate_count" << std::endl;
+		return;
+	}
+	delete this->_gate_list[index];
     this->_gate_list.erase(this->_gate_list.begin()+index);
 }
 
@@ -273,9 +331,19 @@ void QuantumCircuit::add_observable_rotation_gate(const Observable& observable, 
     }
 }
 void QuantumCircuit::add_dense_matrix_gate(UINT target_index, const ComplexMatrix& matrix) {
+	if (matrix.cols() != 2 || matrix.rows() != 2) {
+		std::cerr << "Error: add_dense_matrix_gate(UINT, const ComplexMatrix&) : matrix must be matrix.cols()==2 and matrix.rows()==2 for single qubit gate" << std::endl;
+		return;
+	}
+
     this->add_gate(gate::DenseMatrix(target_index, matrix));
 }
 void QuantumCircuit::add_dense_matrix_gate(std::vector<UINT> target_index_list, const ComplexMatrix& matrix) {
-    this->add_gate(gate::DenseMatrix(target_index_list, matrix));
+	if (matrix.cols() != (1LL<<target_index_list.size()) || matrix.rows() != (1LL << target_index_list.size())) {
+		std::cerr << "Error: add_dense_matrix_gate(vector<UINT>, const ComplexMatrix&) : matrix must be matrix.cols()==(1<<target_count) and matrix.rows()==(1<<target_count)" << std::endl;
+		return;
+	}
+	
+	this->add_gate(gate::DenseMatrix(target_index_list, matrix));
 }
 

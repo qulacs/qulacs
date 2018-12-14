@@ -12,9 +12,9 @@
 #include <assert.h>
 #include <algorithm>
 #include <cuComplex.h>
-#include "util.h"
+#include "util_type.h"
 #include "util.cuh"
-#include "util_common.h"
+#include "util_func.h"
 #include "memory_ops.h"
 
 
@@ -95,27 +95,27 @@ __host__ void set_computational_basis_host(ITYPE comp_basis, void* state, ITYPE 
 }
 
 // copy state_gpu to state_gpu_copy
-void copy_quantum_state_host(void* state_gpu_copy, void* state_gpu, ITYPE dim){
-    GTYPE* psi_gpu = reinterpret_cast<GTYPE*>(state_gpu);
+void copy_quantum_state_host(void* state_gpu_copy, const void* state_gpu, ITYPE dim){
+    const GTYPE* psi_gpu = reinterpret_cast<const GTYPE*>(state_gpu);
     GTYPE* psi_gpu_copy = reinterpret_cast<GTYPE*>(state_gpu_copy);
 	checkCudaErrors(cudaMemcpy(psi_gpu_copy, psi_gpu, dim * sizeof(GTYPE), cudaMemcpyDeviceToDevice));
-    state_gpu = reinterpret_cast<void*>(psi_gpu);
+    state_gpu = reinterpret_cast<const void*>(psi_gpu);
     state_gpu_copy = reinterpret_cast<void*>(psi_gpu_copy);
 }
 
 // copy state_gpu to psi_cpu_copy
 void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim){
     GTYPE* psi_gpu = reinterpret_cast<GTYPE*>(state_gpu);
-    psi_cpu_copy = reinterpret_cast<CTYPE*>(psi_cpu_copy);
-	checkCudaErrors(cudaMemcpy(psi_cpu_copy, psi_gpu, dim * sizeof(CTYPE), cudaMemcpyDeviceToHost));
+    psi_cpu_copy = reinterpret_cast<CPPCTYPE*>(psi_cpu_copy);
+	checkCudaErrors(cudaMemcpy(psi_cpu_copy, psi_gpu, dim * sizeof(CPPCTYPE), cudaMemcpyDeviceToHost));
     state_gpu = reinterpret_cast<void*>(psi_gpu);
 }
 
 void print_quantum_state_host(void* state, ITYPE dim){
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-	CTYPE* state_cpu=(CTYPE*)malloc(sizeof(CTYPE)*dim);
+	CPPCTYPE* state_cpu=(CPPCTYPE*)malloc(sizeof(CPPCTYPE)*dim);
 	checkCudaErrors(cudaDeviceSynchronize());
-	checkCudaErrors(cudaMemcpy(state_cpu, state_gpu, dim * sizeof(CTYPE), cudaMemcpyDeviceToHost));
+	checkCudaErrors(cudaMemcpy(state_cpu, state_gpu, dim * sizeof(CPPCTYPE), cudaMemcpyDeviceToHost));
 	for(int i=0;i<dim;++i){
 		std::cout << i << " : " << state_cpu[i].real() << "+i" << state_cpu[i].imag() << '\n'; 
 	}
@@ -124,12 +124,12 @@ void print_quantum_state_host(void* state, ITYPE dim){
 	state = reinterpret_cast<void*>(state);
 }
 
-ITYPE insert_zero_to_basis_index(ITYPE basis_index, unsigned int qubit_index){
+ITYPE insert_zero_to_basis_index_gsim(ITYPE basis_index, unsigned int qubit_index){
     ITYPE temp_basis = (basis_index >> qubit_index) << (qubit_index+1);
     return temp_basis + (basis_index & ( (1ULL<<qubit_index) -1));
 }
 
-void get_Pauli_masks_partial_list(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, 
+void get_Pauli_masks_partial_list_gsim(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count,
     ITYPE* bit_flip_mask, ITYPE* phase_flip_mask, UINT* global_phase_90rot_count, UINT* pivot_qubit_index){
     (*bit_flip_mask)=0;
     (*phase_flip_mask)=0;
@@ -160,7 +160,7 @@ void get_Pauli_masks_partial_list(const UINT* target_qubit_index_list, const UIN
     }
 }
 
-void get_Pauli_masks_whole_list(const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, 
+void get_Pauli_masks_whole_list_gsim(const UINT* Pauli_operator_type_list, UINT target_qubit_index_count,
     ITYPE* bit_flip_mask, ITYPE* phase_flip_mask, UINT* global_phase_90rot_count, UINT* pivot_qubit_index){
 
     (*bit_flip_mask)=0;
@@ -191,7 +191,7 @@ void get_Pauli_masks_whole_list(const UINT* Pauli_operator_type_list, UINT targe
     }
 }
 
-ITYPE* create_matrix_mask_list(const UINT* qubit_index_list, UINT qubit_index_count){
+ITYPE* create_matrix_mask_list_gsim(const UINT* qubit_index_list, UINT qubit_index_count){
     const ITYPE matrix_dim = 1ULL << qubit_index_count;
     ITYPE* mask_list = (ITYPE*) calloc((size_t)matrix_dim, sizeof(ITYPE));
     ITYPE cursor = 0;
@@ -207,7 +207,7 @@ ITYPE* create_matrix_mask_list(const UINT* qubit_index_list, UINT qubit_index_co
     return mask_list;
 }
 
-ITYPE create_control_mask(const UINT* qubit_index_list, const UINT* value_list, UINT size) {
+ITYPE create_control_mask_gsim(const UINT* qubit_index_list, const UINT* value_list, UINT size) {
 	ITYPE mask = 0;
 	for (UINT cursor = 0; cursor < size; ++cursor) {
 		mask ^= (1ULL << qubit_index_list[cursor]) * value_list[cursor];
@@ -215,14 +215,14 @@ ITYPE create_control_mask(const UINT* qubit_index_list, const UINT* value_list, 
 	return mask;
 }
 
-UINT* create_sorted_ui_list(const UINT* array, size_t size){
+UINT* create_sorted_ui_list_gsim(const UINT* array, size_t size){
     UINT* new_array = (UINT*)calloc(size,sizeof(UINT));
     memcpy(new_array, array, size*sizeof(UINT));
     std::sort(new_array, new_array+size);
     return new_array;
 }
 
-UINT* create_sorted_ui_list_value(const UINT* array, size_t size, UINT value){
+UINT* create_sorted_ui_list_value_gsim(const UINT* array, size_t size, UINT value){
     UINT* new_array = (UINT*)calloc(size+1, sizeof(UINT));
     memcpy(new_array,array,size*sizeof(UINT));
     new_array[size]=value;
@@ -230,7 +230,7 @@ UINT* create_sorted_ui_list_value(const UINT* array, size_t size, UINT value){
     return new_array;
 }
 
-UINT* create_sorted_ui_list_list(const UINT* array1, size_t size1, const UINT* array2, size_t size2){
+UINT* create_sorted_ui_list_list_gsim(const UINT* array1, size_t size1, const UINT* array2, size_t size2){
     UINT* new_array = (UINT*)calloc(size1+size2, sizeof(UINT));
     memcpy(new_array,array1,size1*sizeof(UINT));
     memcpy(new_array+size1,array2,size2*sizeof(UINT));
@@ -240,7 +240,7 @@ UINT* create_sorted_ui_list_list(const UINT* array1, size_t size1, const UINT* a
 
 // C=alpha*A*B+beta*C
 // in this wrapper, we assume beta is always zero!
-int cublas_zgemm_wrapper(ITYPE n, CTYPE alpha, const CTYPE *h_A, const CTYPE *h_B, CTYPE beta, CTYPE *h_C){
+int cublas_zgemm_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE *h_A, const CPPCTYPE *h_B, CPPCTYPE beta, CPPCTYPE *h_C){
     ITYPE n2 = n*n;
     cublasStatus_t status;
     cublasHandle_t handle;
@@ -309,7 +309,7 @@ int cublas_zgemm_wrapper(ITYPE n, CTYPE alpha, const CTYPE *h_A, const CTYPE *h_
     }
 
     /* Allocate host memory for reading back the result from device memory */
-    CTYPE* tmp_h_C = reinterpret_cast<CTYPE *>(malloc(n2 * sizeof(h_C[0])));
+    CPPCTYPE* tmp_h_C = reinterpret_cast<CPPCTYPE *>(malloc(n2 * sizeof(h_C[0])));
 
     if (tmp_h_C == 0) {
         fprintf(stderr, "!!!! host memory allocation error (C)\n");
@@ -351,7 +351,7 @@ int cublas_zgemm_wrapper(ITYPE n, CTYPE alpha, const CTYPE *h_A, const CTYPE *h_
 
 // C=alpha*A*x+beta*y
 // in this wrapper, we assume beta is always zero!
-int cublas_zgemv_wrapper(ITYPE n, CTYPE alpha, const CTYPE *h_A, const CTYPE *h_x, CTYPE beta, CTYPE *h_y){
+int cublas_zgemv_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE *h_A, const CPPCTYPE *h_x, CPPCTYPE beta, CPPCTYPE *h_y){
     ITYPE n2 = n*n;
     cublasStatus_t status;
     cublasHandle_t handle;
@@ -429,7 +429,7 @@ cublasStatus_t cublasZgemv(cublasHandle_t handle, cublasOperation_t trans,
     }
 
     /* Allocate host memory for reading back the result from device memory */
-    CTYPE* tmp_h_y = reinterpret_cast<CTYPE *>(malloc(n * sizeof(h_y[0])));
+    CPPCTYPE* tmp_h_y = reinterpret_cast<CPPCTYPE *>(malloc(n * sizeof(h_y[0])));
 
     if (tmp_h_y == 0) {
         fprintf(stderr, "!!!! host memory allocation error (y)\n");
@@ -473,7 +473,7 @@ cublasStatus_t cublasZgemv(cublasHandle_t handle, cublasOperation_t trans,
 }
 
 // we assume state has already allocated at device
-int cublas_zgemv_wrapper(ITYPE n, const CTYPE *h_matrix, GTYPE *d_state){
+int cublas_zgemv_wrapper(ITYPE n, const CPPCTYPE *h_matrix, GTYPE *d_state){
     ITYPE n2 = n*n;
     cublasStatus_t status;
     cublasHandle_t handle;

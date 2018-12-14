@@ -14,6 +14,9 @@ extern "C" {
 #include "type.hpp"
 #include <numeric>
 #include <algorithm>
+#ifdef _USE_GPU
+#include <gpusim/update_ops_cuda.h>
+#endif
 
 // In construction, "copy" a given matrix. If a given matrix is large, use "move" constructor.
 QuantumGateMatrix::QuantumGateMatrix(const std::vector<UINT>& target_qubit_index_list_, const ComplexMatrix& matrix_element, const std::vector<UINT>& control_qubit_index_list_){
@@ -59,15 +62,18 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
     //Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> row_matrix(this->_matrix_element);
     //const CTYPE* matrix_ptr = reinterpret_cast<const CTYPE*>(row_matrix.data());
     //const CTYPE* matrix_ptr = reinterpret_cast<const CTYPE*>(this->_matrix_element.data());
+	/*
 #ifdef _USE_GPU
-	if (state->get_device() == "gpu") {
-        const void* matrix_ptr = reinterpret_cast<const void*>(this->_matrix_element.data());
+	const void* matrix_ptr = NULL;
+	if (state->get_device_name() == "gpu") {
+        matrix_ptr = reinterpret_cast<const void*>(this->_matrix_element.data());
     }else{
-        const CTYPE* matrix_ptr = reinterpret_cast<const CTYPE*>(this->_matrix_element.data());
+        matrix_ptr = reinterpret_cast<const CTYPE*>(this->_matrix_element.data());
     }
 #else
+*/
     const CTYPE* matrix_ptr = reinterpret_cast<const CTYPE*>(this->_matrix_element.data());
-#endif
+//#endif
 
     // convert list of QubitInfo to list of UINT
     std::vector<UINT> target_index;
@@ -87,7 +93,7 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
         // no control qubit
         if(this->_control_qubit_list.size() == 0){
 #ifdef _USE_GPU
-	        if (state->get_device() == "gpu") {
+	        if (state->get_device_name() == "gpu") {
                 single_qubit_dense_matrix_gate_host(
                     target_index[0],
                     matrix_ptr , state->data(), dim );
@@ -106,7 +112,7 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
         // single control qubit
         else if(this->_control_qubit_list.size() == 1){
 #ifdef _USE_GPU
-	        if (state->get_device() == "gpu") {
+	        if (state->get_device_name() == "gpu") {
                 single_qubit_control_single_qubit_dense_matrix_gate_host(
                     control_index[0], control_value[0],
                     target_index[0],
@@ -127,11 +133,16 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
         // multiple control qubits
         else{
 #ifdef _USE_GPU
-	        if (state->get_device() == "gpu") {
+	        if (state->get_device_name() == "gpu") {
+				//
+				std::cerr << "This function is not implemented in GPU" << std::endl;
+				exit(0);
+				/*
                 multi_qubit_control_single_qubit_dense_matrix_gate_host(
                     control_index.data(), control_value.data(), (UINT)(control_index.size()),
                     target_index[0],
                     matrix_ptr, state->data(), dim );
+					*/
             }else{
                 multi_qubit_control_single_qubit_dense_matrix_gate(
                     control_index.data(), control_value.data(), (UINT)(control_index.size()),
@@ -152,7 +163,7 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
         // no control qubit
         if(this->_control_qubit_list.size() == 0){
 #ifdef _USE_GPU
-	        if (state->get_device() == "gpu") {
+	        if (state->get_device_name() == "gpu") {
                 multi_qubit_dense_matrix_gate_host(
                     target_index.data(), (UINT)(target_index.size()),
                     matrix_ptr, state->data(), dim );
@@ -170,7 +181,7 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
         // single control qubit
         else if(this->_control_qubit_list.size() == 1){
 #ifdef _USE_GPU
-	        if (state->get_device() == "gpu") {
+	        if (state->get_device_name() == "gpu") {
                 single_qubit_control_multi_qubit_dense_matrix_gate_host(
                     control_index[0], control_value[0],
                     target_index.data(), (UINT)(target_index.size()),
@@ -191,7 +202,7 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
         // multiple control qubit
         else{
 #ifdef _USE_GPU
-	        if (state->get_device() == "gpu") {
+	        if (state->get_device_name() == "gpu") {
                 multi_qubit_control_multi_qubit_dense_matrix_gate_host(
                     control_index.data(), control_value.data(), (UINT)(control_index.size()),
                     target_index.data(), (UINT)(target_index.size()),

@@ -9,9 +9,26 @@ ParametricQuantumCircuit::ParametricQuantumCircuit(std::string qasm_path, std::s
     // TODO: enables load of parametric gate
 };
 
+
+ParametricQuantumCircuit* ParametricQuantumCircuit::copy() const {
+	ParametricQuantumCircuit* new_circuit = new ParametricQuantumCircuit(this->qubit_count);
+	for (UINT gate_pos = 0; gate_pos < this->gate_list.size() ; gate_pos++){
+		auto pos = std::find(this->_parametric_gate_position.begin(), this->_parametric_gate_position.end(), gate_pos);
+		bool is_parametric = (pos != this->_parametric_gate_position.end());
+
+		if (is_parametric) {
+			new_circuit->add_parametric_gate((QuantumGate_SingleParameter*)this->gate_list[gate_pos]->copy());
+		}
+		else {
+			new_circuit->add_gate(this->gate_list[gate_pos]->copy());
+		}
+	}
+	return new_circuit;
+}
+
 void ParametricQuantumCircuit::add_parametric_gate(QuantumGate_SingleParameter* gate) {
     _parametric_gate_position.push_back((UINT)gate_list.size());
-    QuantumCircuit::add_gate(gate);
+    this->add_gate(gate);
     _parametric_gate_list.push_back(gate);
 };
 void ParametricQuantumCircuit::add_parametric_gate(QuantumGate_SingleParameter* gate, UINT index) {
@@ -23,16 +40,27 @@ UINT ParametricQuantumCircuit::get_parameter_count() const {
     return (UINT)_parametric_gate_list.size(); 
 }
 double ParametricQuantumCircuit::get_parameter(UINT index) const { 
+	if (index >= this->_parametric_gate_list.size()) {
+		std::cerr << "Error: ParametricQuantumCircuit::get_parameter(UINT): parameter index is out of range" << std::endl;
+		return 0.;
+	}
+
     return _parametric_gate_list[index]->get_parameter_value();
 }
 void ParametricQuantumCircuit::set_parameter(UINT index, double value) { 
-    _parametric_gate_list[index]->set_parameter_value(value);
+	if (index >= this->_parametric_gate_list.size()) {
+		std::cerr << "Error: ParametricQuantumCircuit::set_parameter(UINT,double): parameter index is out of range" << std::endl;
+		return;
+	}
+	
+	_parametric_gate_list[index]->set_parameter_value(value);
 }
 
 
 std::string ParametricQuantumCircuit::to_string() const {
     std::stringstream os;
-    os << "*** Parameter Info ***" << std::endl;
+	os << QuantumCircuit::to_string();
+	os << "*** Parameter Info ***" << std::endl;
     os << "# of parameter: " << this->get_parameter_count() << std::endl;
     return os.str();
 }
@@ -50,7 +78,12 @@ std::ostream& operator<<(std::ostream& stream, const ParametricQuantumCircuit* g
 
 
 UINT ParametricQuantumCircuit::get_parametric_gate_position(UINT index) const { 
-    return _parametric_gate_position[index]; 
+	if (index >= this->_parametric_gate_list.size()) {
+		std::cerr << "Error: ParametricQuantumCircuit::get_parametric_gate_position(UINT): parameter index is out of range" << std::endl;
+		return 0;
+	}
+	
+	return _parametric_gate_position[index];
 }
 void ParametricQuantumCircuit::add_gate(QuantumGateBase* gate) {
     QuantumCircuit::add_gate(gate);

@@ -9,6 +9,7 @@
 #include "type.hpp"
 #include <vector>
 #include <cassert>
+#include <iostream>
 
 class QuantumStateBase;
 
@@ -34,7 +35,9 @@ public:
      * @return 新しいインスタンス
      */
     SinglePauliOperator(UINT index_, UINT pauli_id_) : _index(index_), _pauli_id(pauli_id_) {
-        assert(pauli_id_ <= 3);
+		if (pauli_id_ > 3) {
+			std::cerr << "Error: SinglePauliOperator(UINT, UINT): index must be either of 0,1,2,3" << std::endl;
+		}
     };
 
     /**

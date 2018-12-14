@@ -3,10 +3,7 @@
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-//#include <cuda_runtime.h>
-//#include <cuda.h>
 
-#ifdef __cplusplus
 #include <iostream>
 #include <cstdio>
 #include <cmath>
@@ -15,18 +12,11 @@
 #include <string>
 #include <complex>
 //#include <sys/time.h>
-#else
-#include <stdio.h>
-#include <math.h>
-#include <stdlib.h>
-#include <string.h>
-#include <complex.h>
-#endif
-
 #include <cuComplex.h>
+#include "util_type.h"
+#include "util_type_internal.h"
 
-#include "util.h"
-#include "util_common.h"
+//#include "util_type.h"
 
 inline void checkCudaErrors(const cudaError error, std::string filename, int line)
 {
@@ -46,10 +36,11 @@ inline void checkCudaErrors(const cudaError error)
 	}
 }
 
-inline void memcpy_quantum_state_HostToDevice(CTYPE* state_cpu, GTYPE* state_gpu, ITYPE dim){
+//inline void memcpy_quantum_state_HostToDevice(CPPCTYPE* state_cpu, GTYPE* state_gpu, ITYPE dim){
+inline void memcpy_quantum_state_HostToDevice(CPPCTYPE* state_cpu, GTYPE* state_gpu, ITYPE dim){
 	checkCudaErrors(cudaSetDevice(0));
-	checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(CTYPE)));
-	checkCudaErrors(cudaMemcpy(state_gpu, state_cpu, dim * sizeof(CTYPE), cudaMemcpyHostToDevice));
+	checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(CPPCTYPE)));
+	checkCudaErrors(cudaMemcpy(state_gpu, state_cpu, dim * sizeof(CPPCTYPE), cudaMemcpyHostToDevice));
 }
 
 /*

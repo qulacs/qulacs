@@ -8,6 +8,7 @@
 #include <cppsim/gate_matrix.hpp>
 #include <cppsim/gate_merge.hpp>
 #include <cppsim/pauli_operator.hpp>
+#include <cppsim/state_gpu.hpp>
 
 #include <cppsim/utility.hpp>
 #include <csim/update_ops.h>
@@ -37,7 +38,7 @@ TEST(GateTest, ApplySingleQubitGate) {
     double eps = 1e-15;
 
     Random random;
-    QuantumState state(n);
+    QuantumStateGpu state(n);
     std::vector< std::pair< std::function<QuantumGateBase*(UINT)>, Eigen::MatrixXcd >> funclist;
     funclist.push_back(std::make_pair(gate::Identity, Identity));
     funclist.push_back(std::make_pair(gate::X, X));
@@ -96,7 +97,7 @@ TEST(GateTest, ApplySingleQubitRotationGate) {
     double eps = 1e-15;
 
     Random random;
-    QuantumState state(n);
+    QuantumStateGpu state(n);
     std::vector< std::pair< std::function<QuantumGateBase*(UINT,double)>, Eigen::MatrixXcd >> funclist;
     funclist.push_back(std::make_pair(gate::RX, X));
     funclist.push_back(std::make_pair(gate::RY, Y));
@@ -137,7 +138,7 @@ TEST(GateTest, ApplyTwoQubitGate) {
     double eps = 1e-15;
 
     Random random;
-    QuantumState state(n),test_state(n);
+    QuantumStateGpu state(n),test_state(n);
     std::vector< std::pair< std::function<QuantumGateBase*(UINT, UINT)>, std::function<Eigen::MatrixXcd(UINT,UINT,UINT)>>> funclist;
     funclist.push_back(std::make_pair(gate::CNOT, get_eigen_matrix_full_qubit_CNOT));
     funclist.push_back(std::make_pair(gate::CZ, get_eigen_matrix_full_qubit_CZ));
@@ -219,7 +220,7 @@ TEST(GateTest, ApplyMultiQubitGate) {
     double eps = 1e-15;
 
     Random random;
-    QuantumState state(n);
+    QuantumStateGpu state(n);
     std::vector< std::pair< std::function<QuantumGateBase*(UINT, UINT)>, std::function<Eigen::MatrixXcd(UINT, UINT, UINT)>>> funclist;
 
     //gate::DenseMatrix
@@ -292,7 +293,7 @@ TEST(GateTest, MergeTensorProduct) {
     auto y1 = gate::Y(1);
     auto xy01 = gate::merge(x0, y1);
     
-    QuantumState state(n),test_state(n);
+    QuantumStateGpu state(n),test_state(n);
     Eigen::VectorXcd test_state_eigen(dim);
     state.set_Haar_random_state();
 
@@ -325,7 +326,7 @@ TEST(GateTest, MergeMultiply) {
     //  U_{z0} = YX = -iZ
     auto xy00 = gate::merge(x0, y0);
 
-    QuantumState state(n), test_state(n);
+    QuantumStateGpu state(n), test_state(n);
     Eigen::VectorXcd test_state_eigen(dim);
     state.set_Haar_random_state();
 
@@ -360,7 +361,7 @@ TEST(GateTest, MergeTensorProductAndMultiply) {
 
     // Expected : x_0 y_1 x_0 = y_1
 
-    QuantumState state(n), test_state(n);
+    QuantumStateGpu state(n), test_state(n);
     Eigen::VectorXcd test_state_eigen(dim);
     state.set_Haar_random_state();
 
@@ -398,7 +399,7 @@ TEST(GateTest, RandomPauliMerge) {
     std::vector<UINT> targets = { 0,1,2,2 };
 
     // define states
-    QuantumState state(n), test_state(n);
+    QuantumStateGpu state(n), test_state(n);
     Eigen::VectorXcd test_state_eigen(dim);
 
     for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
@@ -487,7 +488,7 @@ TEST(GateTest, RandomPauliRotationMerge) {
     std::vector<UINT> targets = { 0,1,2,2 };
 
     // define states
-    QuantumState state(n), test_state(n);
+    QuantumStateGpu state(n), test_state(n);
     Eigen::VectorXcd test_state_eigen(dim);
 
     for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
@@ -572,7 +573,7 @@ TEST(GateTest, RandomUnitaryMerge) {
     std::vector<UINT> targets = { 0,1,2,2 };
 
     // define states
-    QuantumState state(n), test_state(n);
+    QuantumStateGpu state(n), test_state(n);
     Eigen::VectorXcd test_state_eigen(dim);
 
     for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
@@ -657,7 +658,7 @@ TEST(GateTest, RandomUnitaryMergeLarge) {
     std::vector<UINT> targets = { 0,1,2,2 };
 
     // define states
-    QuantumState state(n), test_state(n);
+    QuantumStateGpu state(n), test_state(n);
     Eigen::VectorXcd test_state_eigen(dim);
 
     for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
@@ -890,7 +891,7 @@ TEST(GateTest, RandomControlMergeSmall) {
 
     for (gate_count = 1; gate_count < n * 2; ++gate_count) {
         ComplexMatrix mat = ComplexMatrix::Identity(dim, dim);
-        QuantumState state(n), test_state(n);
+        QuantumStateGpu state(n), test_state(n);
         ComplexVector test_state_eigen(dim);
         state.set_Haar_random_state();
         test_state.load(&state);
@@ -932,7 +933,7 @@ TEST(GateTest, RandomControlMergeLarge) {
 
     for (gate_count = 1; gate_count < n * 2; ++gate_count) {
         ComplexMatrix mat = ComplexMatrix::Identity(dim, dim);
-        QuantumState state(n), test_state(n);
+        QuantumStateGpu state(n), test_state(n);
         ComplexVector test_state_eigen(dim);
         state.set_Haar_random_state();
         test_state.load(&state);
@@ -978,7 +979,7 @@ TEST(GateTest, ProbabilisticGate) {
     auto gate2 = gate::X(1);
     auto gate3 = gate::X(2);
     auto prob_gate = gate::Probabilistic({ 0.25,0.25,0.25 }, { gate1, gate2, gate2 });
-    QuantumState s(3);
+    QuantumStateGpu s(3);
     s.set_computational_basis(0);
     prob_gate->update_quantum_state(&s);
     delete gate1;
@@ -994,7 +995,7 @@ TEST(GateTest, CPTPGate) {
     auto gate4 = gate::merge(gate::P1(0), gate::P1(1));
 
     auto CPTP = gate::CPTP({ gate3, gate2, gate1, gate4 });
-    QuantumState s(3);
+    QuantumStateGpu s(3);
     s.set_computational_basis(0);
     CPTP->update_quantum_state(&s);
     s.set_Haar_random_state();
@@ -1009,7 +1010,7 @@ TEST(GateTest, InstrumentGate) {
     auto gate4 = gate::merge(gate::P1(0), gate::P1(1));
 
     auto Inst = gate::Instrument({ gate3, gate2, gate1, gate4 }, 1);
-    QuantumState s(3);
+    QuantumStateGpu s(3);
     s.set_computational_basis(0);
     Inst->update_quantum_state(&s);
     UINT res1 = s.get_classical_value(1);
@@ -1023,7 +1024,7 @@ TEST(GateTest, InstrumentGate) {
 TEST(GateTest, AdaptiveGate) {
     auto x = gate::X(0);
     auto adaptive = gate::Adaptive(x, [](const std::vector<UINT>& vec) { return vec[2] == 1; });
-    QuantumState s(1);
+    QuantumStateGpu s(1);
     s.set_computational_basis(0);
     s.set_classical_value(2, 1);
     adaptive->update_quantum_state(&s);

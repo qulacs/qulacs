@@ -3,7 +3,9 @@
 #include <cuComplex.h>
 //#include "util.h"
 #include "util.cuh"
-#include "util_common.h"
+#include "util_type.h"
+#include "util_type_internal.h"
+#include "util_func.h"
 #include "update_ops_cuda.h"
 
 __global__ void H_gate_gpu(unsigned int target_qubit_index, GTYPE *state_gpu, ITYPE dim) {
@@ -446,46 +448,46 @@ __host__ void RZ_gate_host(UINT target_qubit_index, double angle, void* state, I
 
 // [[1,0],[0,i]]
 __host__ void S_gate_host(UINT target_qubit_index, void* state, ITYPE dim){
-	CTYPE diagonal_matrix[2];
-	diagonal_matrix[0]=CTYPE(1.0,0.0);
-	diagonal_matrix[1]=CTYPE(0.0,1.0);
+	CPPCTYPE diagonal_matrix[2];
+	diagonal_matrix[0]=CPPCTYPE(1.0,0.0);
+	diagonal_matrix[1]=CPPCTYPE(0.0,1.0);
 	single_qubit_diagonal_matrix_gate_host(target_qubit_index, diagonal_matrix, state, dim);
-	//CTYPE phase=std::complex<double>(0.0,1.0);
+	//CPPCTYPE phase=std::complex<double>(0.0,1.0);
 	//return single_qubit_phase_gate_host(target_qubit_index, phase, state_gpu, dim);
 }
 
 // [[1,0],[0,-i]]
 __host__ void Sdag_gate_host(UINT target_qubit_index, void* state, ITYPE dim){
-	CTYPE diagonal_matrix[2];
-	diagonal_matrix[0]=CTYPE(1.0,0.0);
-	diagonal_matrix[1]=CTYPE(0.0,-1.0);
+	CPPCTYPE diagonal_matrix[2];
+	diagonal_matrix[0]=CPPCTYPE(1.0,0.0);
+	diagonal_matrix[1]=CPPCTYPE(0.0,-1.0);
 	single_qubit_diagonal_matrix_gate_host(target_qubit_index, diagonal_matrix, state, dim);
-	//CTYPE phase=std::complex<double>(0.0, -1.0);
+	//CPPCTYPE phase=std::complex<double>(0.0, -1.0);
 	//return single_qubit_phase_gate_host(target_qubit_index, phase, state_gpu, dim);
 }
 
 // [[1,0],[0,exp(i*pi/4)]] , (1+i)/sprt(2)
 __host__ void T_gate_host(UINT target_qubit_index, void* state, ITYPE dim){
-	CTYPE diagonal_matrix[2];
-	diagonal_matrix[0]=CTYPE(1.0,0.0);
-	diagonal_matrix[1]=CTYPE(1.0/sqrt(2),1.0/sqrt(2));
+	CPPCTYPE diagonal_matrix[2];
+	diagonal_matrix[0]=CPPCTYPE(1.0,0.0);
+	diagonal_matrix[1]=CPPCTYPE(1.0/sqrt(2),1.0/sqrt(2));
 	single_qubit_diagonal_matrix_gate_host(target_qubit_index, diagonal_matrix, state, dim);
-	//CTYPE phase=std::complex<double>(1.0/sqrt(2), 1.0/sqrt(2));
+	//CPPCTYPE phase=std::complex<double>(1.0/sqrt(2), 1.0/sqrt(2));
 	//return single_qubit_phase_gate_host(target_qubit_index, phase, state_gpu, dim);
 }
 
 // [[1,0],[0,-exp(i*pi/4)]], (1-i)/sqrt(2)
 __host__ void Tdag_gate_host(UINT target_qubit_index, void* state, ITYPE dim){
-	CTYPE diagonal_matrix[2];
-	diagonal_matrix[0]=CTYPE(1.0, 0.0);
-	diagonal_matrix[1]=CTYPE(1.0/sqrt(2), -1.0/sqrt(2));
+	CPPCTYPE diagonal_matrix[2];
+	diagonal_matrix[0]=CPPCTYPE(1.0, 0.0);
+	diagonal_matrix[1]=CPPCTYPE(1.0/sqrt(2), -1.0/sqrt(2));
 	single_qubit_diagonal_matrix_gate_host(target_qubit_index, diagonal_matrix, state, dim);
-	//CTYPE phase=std::complex<double>(1.0/sqrt(2), -1.0/sqrt(2));
+	//CPPCTYPE phase=std::complex<double>(1.0/sqrt(2), -1.0/sqrt(2));
     //return single_qubit_phase_gate_host(target_qubit_index, phase, state_gpu, dim);
 }
 
 __host__ void sqrtX_gate_host(UINT target_qubit_index, void* state, ITYPE dim){
-	CTYPE SQRT_X_GATE_MATRIX[4] = {
+	CPPCTYPE SQRT_X_GATE_MATRIX[4] = {
 		std::complex<double>(0.5, 0.5), std::complex<double>(0.5, -0.5),
 		std::complex<double>(0.5, -0.5), std::complex<double>(0.5, 0.5)
 	};
@@ -493,7 +495,7 @@ __host__ void sqrtX_gate_host(UINT target_qubit_index, void* state, ITYPE dim){
 }
 
 __host__ void sqrtXdag_gate_host(UINT target_qubit_index, void* state, ITYPE dim){
-	CTYPE SQRT_X_DAG_GATE_MATRIX[4] = 
+	CPPCTYPE SQRT_X_DAG_GATE_MATRIX[4] = 
 	{
 		std::complex<double>(0.5, -0.5), std::complex<double>(0.5, 0.5),
 		std::complex<double>(0.5, 0.5), std::complex<double>(0.5, -0.5)
@@ -502,7 +504,7 @@ __host__ void sqrtXdag_gate_host(UINT target_qubit_index, void* state, ITYPE dim
 }
 
 __host__ void sqrtY_gate_host(UINT target_qubit_index, void* state, ITYPE dim){
-	CTYPE SQRT_Y_GATE_MATRIX[4] =
+	CPPCTYPE SQRT_Y_GATE_MATRIX[4] =
 	{
 		std::complex<double>(0.5, 0.5), std::complex<double>(-0.5, -0.5),
 		std::complex<double>(0.5, 0.5), std::complex<double>(0.5, 0.5)
@@ -511,7 +513,7 @@ __host__ void sqrtY_gate_host(UINT target_qubit_index, void* state, ITYPE dim){
 }
 
 __host__ void sqrtYdag_gate_host(UINT target_qubit_index, void* state, ITYPE dim){
-	CTYPE SQRT_Y_DAG_GATE_MATRIX[4] =
+	CPPCTYPE SQRT_Y_DAG_GATE_MATRIX[4] =
 	{
 		std::complex<double>(0.5, -0.5), std::complex<double>(0.5, -0.5),
 		std::complex<double>(-0.5, 0.5), std::complex<double>(0.5, -0.5)

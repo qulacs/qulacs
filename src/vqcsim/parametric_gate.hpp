@@ -36,7 +36,6 @@ class QuantumGate_SingleParameterOneQubitRotation : public QuantumGate_SinglePar
 protected:
     typedef void (T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
     T_UPDATE_FUNC* _update_func;
-    ComplexMatrix _matrix_element;
 
     QuantumGate_SingleParameterOneQubitRotation(double angle) : QuantumGate_SingleParameter(angle) {
         _angle = angle;
@@ -45,44 +44,57 @@ public:
     virtual void update_quantum_state(QuantumStateBase* state) override {
         _update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
     };
-    virtual QuantumGateBase* copy() const override {
-        return new QuantumGate_SingleParameterOneQubitRotation(*this);
-    };
-    virtual void set_matrix(ComplexMatrix& matrix) const override {
-        matrix = this->_matrix_element;
-    }
 };
 
 
 class ClsParametricRXGate : public QuantumGate_SingleParameterOneQubitRotation {
 public:
-    ClsParametricRXGate(UINT target_qubit_index, double angle) : QuantumGate_SingleParameterOneQubitRotation(angle) {
-        this->_update_func = RX_gate;
-        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
-        this->_matrix_element = ComplexMatrix::Zero(2, 2);
-        this->_matrix_element << cos(_angle), sin(_angle) * 1.i, sin(_angle) * 1.i, cos(_angle);
-    }
+	ClsParametricRXGate(UINT target_qubit_index, double angle) : QuantumGate_SingleParameterOneQubitRotation(angle) {
+		this->_name = "ParametricRX";
+		this->_update_func = RX_gate;
+		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
+	}
+	virtual void set_matrix(ComplexMatrix& matrix) const override {
+		matrix = ComplexMatrix::Zero(2, 2);
+		matrix << cos(_angle/2), sin(_angle/2) * 1.i, sin(_angle/2) * 1.i, cos(_angle/2);
+	}
+	virtual QuantumGateBase* copy() const override {
+		return new ClsParametricRXGate(*this);
+	};
 };
 
 class ClsParametricRYGate : public QuantumGate_SingleParameterOneQubitRotation {
 public:
-    ClsParametricRYGate(UINT target_qubit_index, double angle) : QuantumGate_SingleParameterOneQubitRotation(angle) {
-        this->_update_func = RY_gate;
-        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
-        this->_matrix_element = ComplexMatrix::Zero(2, 2);
-        this->_matrix_element << cos(_angle), sin(_angle), -sin(_angle), cos(_angle);
-    }
+	ClsParametricRYGate(UINT target_qubit_index, double angle) : QuantumGate_SingleParameterOneQubitRotation(angle) {
+		this->_name = "ParametricRY";
+		this->_update_func = RY_gate;
+		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
+	}
+	virtual void set_matrix(ComplexMatrix& matrix) const override {
+		matrix = ComplexMatrix::Zero(2, 2);
+		matrix << cos(_angle/2), sin(_angle/2), -sin(_angle/2), cos(_angle/2);
+	}
+	virtual QuantumGateBase* copy() const override {
+		return new ClsParametricRYGate(*this);
+	};
 };
 
 class ClsParametricRZGate : public QuantumGate_SingleParameterOneQubitRotation {
 public:
-    ClsParametricRZGate(UINT target_qubit_index, double angle) : QuantumGate_SingleParameterOneQubitRotation(angle) {
-        this->_update_func = RZ_gate;
-        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
-        this->_matrix_element = ComplexMatrix::Zero(2, 2);
-        this->_matrix_element << cos(_angle) + 1.i*sin(_angle), 0, 0, cos(_angle) - 1.i * sin(_angle);
-    }
+	ClsParametricRZGate(UINT target_qubit_index, double angle) : QuantumGate_SingleParameterOneQubitRotation(angle) {
+		this->_name = "ParametricRZ";
+		this->_update_func = RZ_gate;
+		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
+	}
+	virtual void set_matrix(ComplexMatrix& matrix) const override {
+		matrix = ComplexMatrix::Zero(2, 2);
+		matrix << cos(_angle/2) + 1.i*sin(_angle/2), 0, 0, cos(_angle/2) - 1.i * sin(_angle/2);
+	}
+	virtual QuantumGateBase* copy() const override {
+		return new ClsParametricRZGate(*this);
+	};
 };
+
 
 
 class ClsParametricPauliRotationGate : public QuantumGate_SingleParameter {
@@ -92,7 +104,8 @@ public:
     ClsParametricPauliRotationGate(double angle, PauliOperator* pauli)
         : QuantumGate_SingleParameter(angle) {
         _pauli = pauli;
-        auto target_index_list = _pauli->get_index_list();
+		this->_name = "ParametricPauliRotation";
+		auto target_index_list = _pauli->get_index_list();
         auto pauli_id_list = _pauli->get_pauli_id_list();
         for (UINT index = 0; index < target_index_list.size(); ++index) {
             UINT commutation_relation = 0;
@@ -117,7 +130,7 @@ public:
     };
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         get_Pauli_matrix(matrix, _pauli->get_pauli_id_list());
-        matrix = cos(_angle)*ComplexMatrix::Identity(matrix.rows(), matrix.cols()) + 1.i * sin(_angle) * matrix;
+        matrix = cos(_angle/2)*ComplexMatrix::Identity(matrix.rows(), matrix.cols()) + 1.i * sin(_angle/2) * matrix;
     }
 };
 

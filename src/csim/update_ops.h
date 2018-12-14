@@ -411,9 +411,9 @@ DllExport void normalize(double norm, CTYPE* state, ITYPE dim);
  *
  * X軸の回転演算
  * 
- * cos (angle) I + i sin (angle) X
+ * cos (angle/2) I + i sin (angle/2) X
  *
- * を作用させて状態を更新。angleは回転角（1/2のファクターはついていない）。
+ * を作用させて状態を更新。angleは回転角。
  * @param[in] target_qubit_index 量子ビットのインデックス
  * @param[in] angle 回転角
  * @param[in,out] state 量子状態
@@ -438,9 +438,9 @@ DllExport void RX_gate(UINT target_qubit_index, double angle, CTYPE* state, ITYP
  *
  * Y軸の回転演算
  * 
- * cos (angle) I + i sin (angle) Y
+ * cos (angle/2) I + i sin (angle/2) Y
  *
- * を作用させて状態を更新。angleは回転角（1/2のファクターはついていない）。
+ * を作用させて状態を更新。angleは回転角。
  * @param[in] target_qubit_index 量子ビットのインデックス
  * @param[in] angle 回転角
  * @param[in,out] state 量子状態
@@ -465,9 +465,9 @@ DllExport void RY_gate(UINT target_qubit_index, double angle, CTYPE* state, ITYP
  *
  * Z軸の回転演算
  * 
- * cos (angle) I + i sin (angle) Z
+ * cos (angle/2) I + i sin (angle/2) Z
  *
- * を作用させて状態を更新。angleは回転角（1/2のファクターはついていない）。
+ * を作用させて状態を更新。angleは回転角。
  * @param[in] target_qubit_index 量子ビットのインデックス
  * @param[in] angle 回転角
  * @param[in,out] state 量子状態
@@ -511,6 +511,7 @@ DllExport void single_qubit_Pauli_gate(UINT target_qubit_index, UINT Pauli_opera
  *
  * @param[in] target_qubit_index index of the qubit
  * @param[in] Pauli_operator_type type of the Pauli operator 0,1,2,3
+ * @param[in] angle rotation angle
  * @param[in,out] state quantum state
  * @param[in] dim dimension
  * 
@@ -520,11 +521,12 @@ DllExport void single_qubit_Pauli_gate(UINT target_qubit_index, UINT Pauli_opera
  *
  * パウリ演算子 A = I, X, Y, Zに対する回転角 angle の回転演算
  *
- * cos (angle) I + i sin (angle) A
+ * cos (angle/2) I + i sin (angle/2) A
  *
  * を作用させて状態を更新。Pauli_operator_type はパウリ演算子 I, X, Y, Z に対応して 0,1,2,3 を指定。
  * @param[in] target_qubit_index 量子ビットのインデックス
  * @param[in] Pauli_operator_type 作用するパウリ演算子のタイプ、0,1,2,3。それぞれI, X, Y, Zに対応。
+ * @param[in] angle 回転角
  * @param[in,out] state 量子状態
  * @param[in] dim 次元
  * 
@@ -732,7 +734,7 @@ DllExport void multi_qubit_Pauli_gate_whole_list(const UINT* Pauli_operator_type
  *
  * Apply multi-qubit Pauli rotation operator to state with a whole list of the Pauli operators. Pauli_operator_type_list must be a list of n single Pauli operators.
  * Update a quantum state with a mutliple qubits Pauli rotation,
- * cos (angle ) I + i sin ( angle ) A,
+ * cos (angle/2 ) I + i sin ( angle/2 ) A,
  * where A is the Pauli operator specified by Pauli_operator.
  *
  * @param[in] Pauli_operator_type_list array of {0,1,2,3} of the length n_qubits. 0,1,2,3 corresponds to i,x,y,z
@@ -747,9 +749,9 @@ DllExport void multi_qubit_Pauli_gate_whole_list(const UINT* Pauli_operator_type
  *
  * 複数量子ビット（全て指定）のパウリ演算子 A による回転演算
  *
- * cos ( angle ) I + i sin ( angle ) A 
+ * cos ( angle/2 ) I + i sin ( angle/2 ) A 
  *
- * を用いて状態を更新。Pauli_operator_type_list は全ての量子ビットに対するパウリ演算子のリスト。回転角には(1/2)の因子はついていない。パウリ演算子はI, X, Y, Zがそれぞれ 0,1,2,3 に対応。
+ * を用いて状態を更新。Pauli_operator_type_list は全ての量子ビットに対するパウリ演算子のリスト。パウリ演算子はI, X, Y, Zがそれぞれ 0,1,2,3 に対応。
  *
  * 例) ５量子ビットに対する YIZXI の場合は、{0,1,3,0,2}（量子ビットの順番は右から数えている）。
  * 
@@ -781,7 +783,7 @@ DllExport void multi_qubit_Pauli_rotation_gate_whole_list(const UINT* Pauli_oper
  *
  * 複数量子ビット（部分的に指定）のパウリ演算子 A による回転演算
  *
- * cos ( angle ) I + i sin ( angle ) A 
+ * cos ( angle/2 ) I + i sin ( angle/2 ) A 
  *
  * を用いて状態を更新。パウリ演算子Aは、target_qubit_index_list で指定される一部の量子ビットに対するパウリ演算子のリスト Pauli_operator_type_list によって定義。回転角には(1/2)の因子はついていない。パウリ演算子はI, X, Y, Zがそれぞれ 0,1,2,3 に対応。
  *

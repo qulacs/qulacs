@@ -730,7 +730,7 @@ int main() {
 #include <cppsim/state.hpp>
 #include <cppsim/observable.hpp>
 
-int maint() {
+int main() {
 	UINT n;
 	UINT num_repeats;
 	double theta;
@@ -751,5 +751,60 @@ int maint() {
     res = observable.get_expectation_value(&state);
     
     return 0;
+}
+```
+
+
+## 変分量子回路
+量子回路をParametricQuantumCircuitクラスとして定義すると、通所のQuantumCircuitクラスの関数に加え、変分法を用いて量子回路を最適化するのに便利ないくつかの関数を利用することができます。
+
+### 変分量子回路の利用例
+
+一つの回転角を持つ量子ゲート(X-rot, Y-rot, Z-rot, multi_qubit_pauli_rotation)はパラメトリックな量子ゲートとして量子回路に追加することができます。パラメトリックなゲートとして追加された量子ゲートについては、量子回路の構成後にパラメトリックなゲート数を取り出したり、後から回転角を変更することができます。
+
+```cpp
+#include <cppsim/state.hpp>
+#include <vqcsim/parametric_circuit.hpp>
+#include <cppsim/utility.hpp>
+
+int main(){
+	const UINT n = 3;
+	const UINT depth = 10;
+
+	// create n-qubit parametric circuit
+	ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(n);
+	Random random;
+	for (UINT d = 0; d < depth; ++d) {
+		// add parametric X,Y,Z gate with random initial rotation angle
+		for (UINT i = 0; i < n; ++i) {
+			circuit->add_parametric_RX_gate(i, random.uniform());
+			circuit->add_parametric_RY_gate(i, random.uniform());
+			circuit->add_parametric_RZ_gate(i, random.uniform());
+		}
+		// add neighboring two-qubit ZZ rotation
+		for (UINT i = d % 2; i + 1 < n; i+=2) {
+			circuit->add_parametric_multi_Pauli_rotation_gate({ i,i + 1 }, { 3,3 }, random.uniform());
+		}
+	}
+
+	// get parameter count
+	UINT param_count = circuit->get_parameter_count();
+
+	// get current parameter, and set shifted parameter
+	for (UINT p = 0; p < param_count; ++p) {
+		double current_angle = circuit->get_parameter(p);
+		circuit->set_parameter(p, current_angle + random.uniform());
+	}
+
+	// create quantum state and update
+	QuantumState state(n);
+	circuit->update_quantum_state(&state);
+
+	// output state and circuit info
+	std::cout << state << std::endl;
+	std::cout << circuit << std::endl;
+
+	// release quantum circuit
+	delete circuit;
 }
 ```

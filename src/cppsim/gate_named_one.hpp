@@ -11,11 +11,16 @@ extern "C"{
 #include "gate_named.hpp"
 #include <cmath>
 
+#ifdef _USE_GPU
+#include <gpusim/update_ops_cuda.h>
+#endif
+
 /**
  * \~japanese-en Identityゲート
  */
 class ClsIGate : public QuantumGate_OneQubit{
     static void idling(UINT,CTYPE*,ITYPE){};
+	static void idling_gpu(UINT, void*, ITYPE) {};
 public:
     /**
      * \~japanese-en コンストラクタ
@@ -24,7 +29,8 @@ public:
      */
     ClsIGate(UINT target_qubit_index) {
         this->_update_func = ClsIGate::idling;
-        this->_name = "I";
+		this->_update_func_gpu = ClsIGate::idling_gpu;
+		this->_name = "I";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE | FLAG_Y_COMMUTE | FLAG_Z_COMMUTE ));
         this->_gate_property = FLAG_PAULI | FLAG_CLIFFORD | FLAG_GAUSSIAN;
         this->_matrix_element = ComplexMatrix::Zero(2,2);
@@ -374,7 +380,7 @@ public:
         this->_name = "X-rotation";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE ));
         this->_matrix_element = ComplexMatrix::Zero(2,2);
-        this->_matrix_element << cos(_angle), sin(_angle) * 1.i, sin(_angle) * 1.i, cos(_angle);
+        this->_matrix_element << cos(_angle/2), sin(_angle/2) * 1.i, sin(_angle/2) * 1.i, cos(_angle/2);
     }
 };
 
@@ -397,7 +403,7 @@ public:
         this->_name = "Y-rotation";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
         this->_matrix_element = ComplexMatrix::Zero(2, 2);
-        this->_matrix_element << cos(_angle), sin(_angle), -sin(_angle), cos(_angle);
+        this->_matrix_element << cos(_angle/2), sin(_angle/2), -sin(_angle/2), cos(_angle/2);
     }
 };
 
@@ -420,6 +426,6 @@ public:
         this->_name = "Z-rotation";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
         this->_matrix_element = ComplexMatrix::Zero(2, 2);
-        this->_matrix_element << cos(_angle)+1.i*sin(_angle), 0, 0, cos(_angle) - 1.i * sin(_angle);
+        this->_matrix_element << cos(_angle/2)+1.i*sin(_angle/2), 0, 0, cos(_angle/2) - 1.i * sin(_angle/2);
     }
 };
