@@ -5,7 +5,8 @@
 #include "type.hpp"
 #include "circuit.hpp"
 class QuantumStateBase;
-class Observable;
+class RealValuedQuantumOperator;
+typedef RealValuedQuantumOperator Observable;
 
 
 /**

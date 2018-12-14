@@ -315,30 +315,32 @@ void QuantumCircuit::add_multi_Pauli_rotation_gate(const PauliOperator& pauli_op
     this->add_gate(gate::PauliRotation(pauli_operator.get_index_list(), pauli_operator.get_pauli_id_list(), pauli_operator.get_coef().real()));
 }
 void QuantumCircuit::add_diagonal_observable_rotation_gate(const Observable& observable, double angle) {
+    if (!observable.is_hermitian()){
+        std::cerr << "Error: QuantumCircuit::add_observable_rotation_gate(const Observable& observable, double angle, UINT num_repeats): not impremented for non hermitian" << std::endl;
+        return;
+    }
     std::vector<PauliOperator*> operator_list = observable.get_terms();
-    const double eps = 1e-14;
     for (auto pauli: operator_list){
-        if (std::abs(pauli->get_coef().imag()) > eps){
-            std::cerr << "Error: QuantumCircuit::add_diagonal_observable_rotation_gate(const Observable& observable, double angle): not impremented for non hermitian" << std::endl;
-        }
         auto pauli_rotation = gate::PauliRotation(pauli->get_index_list(), pauli->get_pauli_id_list(), pauli->get_coef().real() * angle);
-        if (!pauli_rotation->is_diagonal())
+        if (!pauli_rotation->is_diagonal()){
             std::cerr << "ERROR: Observable is not diagonal" << std::endl;
+            return;
+        }
         this->add_gate(pauli_rotation);
     }
 }
 void QuantumCircuit::add_observable_rotation_gate(const Observable& observable, double angle, UINT num_repeats) {
+    if (!observable.is_hermitian()){
+        std::cerr << "Error: QuantumCircuit::add_observable_rotation_gate(const Observable& observable, double angle, UINT num_repeats): not impremented for non hermitian" << std::endl;
+        return;
+    }
     UINT qubit_count_ = observable.get_qubit_count();
-    const double eps = 1e-14;
     std::vector<PauliOperator*> operator_list = observable.get_terms();
     if (num_repeats == 0)
         num_repeats = (UINT) std::ceil(angle * (double)qubit_count_ * 100.);
     // std::cout << num_repeats << std::endl;
     for (UINT repeat = 0; repeat < (UINT)num_repeats; ++repeat){
         for (auto pauli: operator_list){
-            if (std::abs(pauli->get_coef().imag()) > eps){
-                std::cerr << "Error: QuantumCircuit::add_observable_rotation_gate(const Observable& observable, double angle, UINT num_repeats): not impremented for non hermitian" << std::endl;
-            }
             this->add_gate(gate::PauliRotation(pauli->get_index_list(), pauli->get_pauli_id_list(), pauli->get_coef().real() * angle/ num_repeats));
         }
     }
