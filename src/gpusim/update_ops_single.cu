@@ -125,13 +125,14 @@ __host__ void single_qubit_dense_matrix_gate_host(unsigned int target_qubit_inde
     cudaError cudaStatus;
 
     ITYPE loop_dim = dim >> 1;
-    if(dim < (1ULL<<20)){
-        unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
-        unsigned int grid = loop_dim / block;
-        GTYPE mat[4];
-        for(int i=0;i<4;++i) mat[i]=make_cuDoubleComplex(matrix[i].real(), matrix[i].imag());
-        single_qubit_dense_matrix_gate_gpu << <grid, block >> >(mat[0], mat[1], mat[2], mat[3], target_qubit_index, state_gpu, dim);
-	}else{
+    // if(dim < (1ULL<<20)){
+    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
+    unsigned int grid = loop_dim / block;
+    GTYPE mat[4];
+    for(int i=0;i<4;++i) mat[i]=make_cuDoubleComplex(matrix[i].real(), matrix[i].imag());
+    single_qubit_dense_matrix_gate_gpu << <grid, block >> >(mat[0], mat[1], mat[2], mat[3], target_qubit_index, state_gpu, dim);
+	/*
+    }else{
         dim3 block;
         block.y = 2;
         block.x = loop_dim <= 512 ? loop_dim : 512;
@@ -139,6 +140,7 @@ __host__ void single_qubit_dense_matrix_gate_host(unsigned int target_qubit_inde
         checkCudaErrors(cudaMemcpyToSymbol(matrix_const_gpu, matrix, sizeof(GTYPE)*4), __FILE__, __LINE__);
 	    single_qubit_dense_matrix_gate_shared_gpu << <grid, block >> >(target_qubit_index, state_gpu, dim);
     }
+    */
 	
     checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
