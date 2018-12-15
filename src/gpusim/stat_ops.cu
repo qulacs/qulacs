@@ -49,11 +49,9 @@ inline __device__ double __shfl_xor_double(double var, unsigned int srcLane, int
 }
 
 inline __device__ double warpReduceSum_double(double val) {
-    val += __shfl_down_sync(0xffffffff, val, 16);
-    val += __shfl_down_sync(0xffffffff, val, 8);
-    val += __shfl_down_sync(0xffffffff, val, 4);
-    val += __shfl_down_sync(0xffffffff, val, 2);
-    val += __shfl_down_sync(0xffffffff, val, 1);
+#pragma unroll
+    for (int offset = (warpSize >> 1); offset > 0; offset >>= 1)
+        val += __shfl_down_sync(0xffffffff, val, offset);
 	return val;
 }
 
@@ -67,13 +65,13 @@ inline __device__ double warpAllReduceSum_double(double val){
 }
 
 __global__ void state_norm_gpu(double* ret, GTYPE *state, ITYPE dim){
-	double sum = double(0.0);
-	double real, imag;
-    for (ITYPE index = blockIdx.x * blockDim.x + threadIdx.x; index < dim; index += blockDim.x * gridDim.x) {
-		real = cuCreal(state[index]);
-        imag = cuCimag(state[index]);
-        sum += real*real+imag*imag;
-	}
+    double sum = double(0.0);
+	GTYPE tmp;
+    ITYPE idx = blockIdx.x * blockDim.x + threadIdx.x;
+    for (ITYPE i = idx; i < dim; i += blockDim.x * gridDim.x) {
+		tmp = state[i];
+        sum += tmp.x * tmp.x + tmp.y * tmp.y;
+    }
 	sum = warpReduceSum_double(sum);
 	
 	if ((threadIdx.x & (warpSize - 1)) == 0){
@@ -113,21 +111,21 @@ __host__ double state_norm_cublas_host(void *state, ITYPE dim) {
 }
 
 __host__ double state_norm_host(void *state, ITYPE dim) {
-    if(dim<=INT_MAX){
-        return state_norm_cublas_host(state, dim);
-    }
-
     cudaError_t cudaStatus;
-    double norm;
-    norm = state_norm_cublas_host(state, dim);
+    double norm=0.0;
     double* norm_gpu;
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 
 	checkCudaErrors(cudaMalloc((void**)&norm_gpu, sizeof(double)), __FILE__, __LINE__);
 	checkCudaErrors(cudaMemsetAsync(norm_gpu, 0, sizeof(double)), __FILE__, __LINE__);
 
-	unsigned int block = dim <= 1024 ? dim : 1024;
-	unsigned int grid = dim / block;
+    ITYPE loop_dim;
+    if(dim<=32) loop_dim=dim;
+    else if(dim <= 12) loop_dim = dim >> 2;
+    else loop_dim = dim >> 5;
+
+	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+	unsigned int grid = loop_dim / block;
     
     state_norm_gpu <<< grid, block >>>(norm_gpu, state_gpu, dim);
 
@@ -266,18 +264,33 @@ __host__ CPPCTYPE inner_product_host(const void *bra_state, const void *ket_stat
 	return ret;
 }
 
+__global__ void expectation_value_PauliI_gpu(double *ret, GTYPE *state, unsigned int target_qubit_index, ITYPE dim){
+    double sum=0.0;
+    ITYPE loop_dim = dim;
+    GTYPE tmp_state;
+	for (ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x; state_index < loop_dim; state_index += blockDim.x * gridDim.x) {
+        tmp_state=state[state_index];
+        sum += cuCreal( cuCmul( cuConj(tmp_state), tmp_state ) );
+	}
+	sum = warpReduceSum_double(sum);
+	if ((threadIdx.x & (warpSize - 1)) == 0){
+		atomicAdd_double(&(ret[0]), sum);
+	}
+}
+
 __global__ void expectation_value_PauliX_gpu(double *ret, GTYPE *state, unsigned int target_qubit_index, ITYPE dim){
     double sum = 0.0;
     ITYPE basis0, basis1;
-    ITYPE half_dim = dim>>1;
-	for (ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x; state_index < half_dim; state_index += blockDim.x * gridDim.x) {
+    ITYPE loop_dim = dim>>1;
+	for (ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x; state_index < loop_dim; state_index += blockDim.x * gridDim.x) {
         basis0 = (state_index >> target_qubit_index);
         basis0 = basis0 << (target_qubit_index + 1);
         basis0 += state_index & ((1ULL << target_qubit_index) - 1);
         basis1 = basis0 ^ (1ULL << target_qubit_index);
 
-        sum += cuCreal( cuCmul(cuConj(state[basis0]), state[basis1]) ) * 2;
+        sum += cuCreal( cuCmul(cuConj(state[basis0]), state[basis1]) );
 	}
+    sum*=2;
 	sum = warpReduceSum_double(sum);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
 		atomicAdd_double(&(ret[0]), sum);
@@ -287,14 +300,15 @@ __global__ void expectation_value_PauliX_gpu(double *ret, GTYPE *state, unsigned
 __global__ void expectation_value_PauliY_gpu(double *ret, GTYPE *state, unsigned int target_qubit_index, ITYPE dim){
 	double sum = 0.0;
     ITYPE basis0, basis1;
-    ITYPE half_dim = dim>>1;
-	for (ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x; state_index < half_dim; state_index += blockDim.x * gridDim.x) {
+    ITYPE loop_dim = dim>>1;
+	for (ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x; state_index < loop_dim; state_index += blockDim.x * gridDim.x) {
         basis0 = (state_index >> target_qubit_index);
         basis0 = basis0 << (target_qubit_index + 1);
         basis0 += state_index & ((1ULL << target_qubit_index) - 1);
         basis1 = basis0 ^ (1ULL << target_qubit_index);
-        sum += cuCimag( cuCmul(cuConj(state[basis0]), state[basis1]) ) * 2;
+        sum += cuCimag( cuCmul(cuConj(state[basis0]), state[basis1]) );
 	}
+    sum*=2;
 	sum = warpReduceSum_double(sum);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
 		atomicAdd_double(&(ret[0]), sum);
@@ -303,10 +317,15 @@ __global__ void expectation_value_PauliY_gpu(double *ret, GTYPE *state, unsigned
 
 __global__ void expectation_value_PauliZ_gpu(double *ret, GTYPE *state, unsigned int target_qubit_index, ITYPE dim){
     double sum=0.0;
-    ITYPE loop_dim = dim;
+    ITYPE basis0, basis1;
+    ITYPE loop_dim = dim>>1;
 	for (ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x; state_index < loop_dim; state_index += blockDim.x * gridDim.x) {
-        int sign = 1 - 2 * ((state_index >> target_qubit_index) & 1);
-        sum += cuCreal( cuCmul( cuConj(state[state_index]), state[state_index]) ) * sign;
+        basis0 = (state_index >> target_qubit_index);
+        basis0 = basis0 << (target_qubit_index + 1);
+        basis0 += state_index & ((1ULL << target_qubit_index) - 1);
+        basis1 = basis0 ^ (1ULL << target_qubit_index);
+        sum += cuCreal( cuCmul( cuConj(state[basis0]), state[basis0]) )
+            -  cuCreal( cuCmul( cuConj(state[basis1]), state[basis1]) );
 	}
 	sum = warpReduceSum_double(sum);
 	if ((threadIdx.x & (warpSize - 1)) == 0){
@@ -314,82 +333,41 @@ __global__ void expectation_value_PauliZ_gpu(double *ret, GTYPE *state, unsigned
 	}
 }
 
-__global__ void expectation_value_single_qubit_Pauli_operator_gpu(
-	GTYPE *ret, GTYPE *state, unsigned int target_qubit_index, ITYPE DIM
-	){
-	GTYPE sum = make_cuDoubleComplex(0.0, 0.0);
-	GTYPE tmp;
-	unsigned int j=0;
-	for (ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x; state_index < DIM; state_index += blockDim.x * gridDim.x) {
-		tmp = state[state_index];
-		j = (state_index >> target_qubit_index) & 1;
-		if (j){
-			tmp = cuCadd(cuCmul(matrix_const_gpu[2], state[state_index^(1<<target_qubit_index)]), cuCmul(matrix_const_gpu[3], state[state_index]));
-		}
-		else{
-			tmp = cuCadd(cuCmul(matrix_const_gpu[0], state[state_index]), cuCmul(matrix_const_gpu[1], state[state_index^(1<<target_qubit_index)]));
-		}
-		sum = cuCadd(sum, cuCmul(cuConj(state[state_index]), tmp));
-	}
-	sum.x = warpReduceSum_double(sum.x);
-	sum.y = warpReduceSum_double(sum.y);
-	if ((threadIdx.x & (warpSize - 1)) == 0){
-		atomicAdd_double(&(ret[0].x), sum.x);
-		atomicAdd_double(&(ret[0].y), sum.y);
-	}
-}
-
-__host__ double expectation_value_single_qubit_Pauli_operator_host(unsigned int operator_index, unsigned int targetQubitIndex, GTYPE *psi_gpu, ITYPE dim) {
+__host__ double expectation_value_single_qubit_Pauli_operator_host(unsigned int operator_index, unsigned int target_qubit_index, void *state, ITYPE dim) {
+	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     double h_ret;
     double* d_ret;
-	cuDoubleComplex PAULI_MATRIX[4][4] = {
-		{ make_cuDoubleComplex(1, 0), make_cuDoubleComplex(0, 0), make_cuDoubleComplex(0, 0), make_cuDoubleComplex(1, 0) },
-		{ make_cuDoubleComplex(0, 0), make_cuDoubleComplex(1, 0), make_cuDoubleComplex(1, 0), make_cuDoubleComplex(0, 0) },
-		{ make_cuDoubleComplex(0, 0), make_cuDoubleComplex(0, -1), make_cuDoubleComplex(0, 1), make_cuDoubleComplex(0, 0) },
-		{ make_cuDoubleComplex(1, 0), make_cuDoubleComplex(0, 0), make_cuDoubleComplex(0, 0), make_cuDoubleComplex(-1, 0) }
-	};
-	
 
-    ITYPE half_dim = dim>>1;
-	
-    unsigned int block = dim <= 1024 ? dim : 1024;
-	unsigned int grid = dim / block;
+    // this loop_dim is not the same as that of the gpu function
+    // and the function uses grid stride loops
+    ITYPE loop_dim;
+	if(dim <= 64) loop_dim = dim>>1;
+    else if(dim <= (1ULL<<11)) loop_dim = dim >> 2;
+    else loop_dim = dim >> 5;
+
+
+    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+	unsigned int grid = loop_dim / block;
 
 	checkCudaErrors(cudaMalloc((void**)&d_ret, sizeof(double)), __FILE__, __LINE__);
 	checkCudaErrors(cudaMemcpy(d_ret, &h_ret, sizeof(double), cudaMemcpyHostToDevice), __FILE__, __LINE__);
     
     if(operator_index==1){
-	    block = half_dim <= 1024 ? half_dim : 1024;
-	    grid = half_dim / block;
-        expectation_value_PauliX_gpu<< <grid, block>> >(d_ret, psi_gpu, targetQubitIndex, dim);
+        expectation_value_PauliX_gpu<< <grid, block>> >(d_ret, state_gpu, target_qubit_index, dim);
     }else if(operator_index==2){
-	    block = half_dim <= 1024 ? half_dim : 1024;
-	    grid = half_dim / block;
-        expectation_value_PauliY_gpu<< <grid, block>> >(d_ret, psi_gpu, targetQubitIndex, dim);
+        expectation_value_PauliY_gpu<< <grid, block>> >(d_ret, state_gpu, target_qubit_index, dim);
     }else if(operator_index==3){
-	    block = dim <= 1024 ? dim : 1024;
-	    grid = dim / block;
-        expectation_value_PauliZ_gpu<< <grid, block>> >(d_ret, psi_gpu, targetQubitIndex, dim);
+        expectation_value_PauliZ_gpu<< <grid, block>> >(d_ret, state_gpu, target_qubit_index, dim);
+    }else if(operator_index==0){
+        expectation_value_PauliI_gpu<< <grid, block>> >(d_ret, state_gpu, target_qubit_index, dim);
     }else{
-        // operator index=0
-	    CPPCTYPE ret = CPPCTYPE(0.0, 0.0);
-	    GTYPE *ret_gpu;
-	    block = dim <= 1024 ? dim : 1024;
-	    grid = dim / block;
-	    checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(CPPCTYPE)), __FILE__, __LINE__);
-	    checkCudaErrors(cudaMemcpy(ret_gpu, &ret, sizeof(CPPCTYPE), cudaMemcpyHostToDevice), __FILE__, __LINE__);
-        checkCudaErrors(cudaMemcpyToSymbol(matrix_const_gpu, PAULI_MATRIX[operator_index], sizeof(GTYPE)*4), __FILE__, __LINE__);
-	    expectation_value_single_qubit_Pauli_operator_gpu << <grid, block >> >(ret_gpu, psi_gpu, targetQubitIndex, dim);
-	    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
-	    checkCudaErrors(cudaMemcpy(&ret, ret_gpu, sizeof(CPPCTYPE), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
-        checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
-        checkCudaErrors(cudaFree(d_ret), __FILE__, __LINE__);
-	    return ret.real();
+        printf("operator_index must be an integer of 0, 1, 2, or 3!!");
     }
-	
+
     checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	checkCudaErrors(cudaMemcpy(&h_ret, d_ret, sizeof(double), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
     checkCudaErrors(cudaFree(d_ret), __FILE__, __LINE__);
+	state = reinterpret_cast<void*>(state_gpu);
     return h_ret;
 }
 
@@ -408,7 +386,8 @@ __global__ void multi_Z_gate_gpu(ITYPE bit_mask, ITYPE DIM, GTYPE *psi_gpu)
 	multi_Z_gate_device(bit_mask, DIM, psi_gpu);
 }
 
-__host__ void multi_Z_gate_host(int* gates, GTYPE *psi_gpu, ITYPE dim, int n_qubits){
+__host__ void multi_Z_gate_host(int* gates, void *state, ITYPE dim, int n_qubits){
+	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	ITYPE bit_mask=0;
 	for (int i = 0; i < n_qubits; ++i){
 		if (gates[i]==3) bit_mask ^= (1 << i);
@@ -416,18 +395,19 @@ __host__ void multi_Z_gate_host(int* gates, GTYPE *psi_gpu, ITYPE dim, int n_qub
 	cudaError_t cudaStatus;
 	unsigned int block = dim <= 1024 ? dim : 1024;
 	unsigned int grid = dim / block;
-	multi_Z_gate_gpu << <grid, block >> >(bit_mask, dim, psi_gpu);
+	multi_Z_gate_gpu << <grid, block >> >(bit_mask, dim, state_gpu);
 	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
+	state = reinterpret_cast<void*>(state_gpu);
 }
 
-__device__ GTYPE multi_Z_get_expectation_value_device(ITYPE idx, ITYPE bit_mask, ITYPE DIM, GTYPE *psi_gpu)
+__device__ GTYPE multi_Z_get_expectation_value_device(ITYPE idx, ITYPE bit_mask, ITYPE dim, GTYPE *psi_gpu)
 {
 	GTYPE ret=make_cuDoubleComplex(0.0,0.0);
 	// ITYPE idx = blockIdx.x * blockDim.x + threadIdx.x;
 	unsigned int minus_cnt = 0;
-	if (idx < DIM){
+	if (idx < dim){
 		GTYPE tmp_psi_gpu = psi_gpu[idx];
 		minus_cnt = __popcll(idx&bit_mask);
 		if (minus_cnt & 1) tmp_psi_gpu = make_cuDoubleComplex(-tmp_psi_gpu.x, -tmp_psi_gpu.y);
@@ -498,7 +478,8 @@ __global__ void multipauli_get_expectation_value_gpu(GTYPE* ret, ITYPE DIM, GTYP
 	}
 }
 
-__host__ double multipauli_get_expectation_value_host(unsigned int* gates, GTYPE *psi_gpu, ITYPE DIM, int n_qubits){
+__host__ double multipauli_get_expectation_value_host(unsigned int* gates, void *state, ITYPE dim, int n_qubits){
+	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	CPPCTYPE ret[1];
 	ret[0]=CPPCTYPE(0,0);
 	GTYPE *ret_gpu;
@@ -506,35 +487,40 @@ __host__ double multipauli_get_expectation_value_host(unsigned int* gates, GTYPE
 	checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(GTYPE)), __FILE__, __LINE__);
 	checkCudaErrors(cudaMemcpy(ret_gpu, ret, sizeof(GTYPE), cudaMemcpyHostToDevice), __FILE__, __LINE__);
 
-	unsigned int num_pauli_op[4] = { 0, 0, 0, 0 };
+    ITYPE loop_dim;
+	if(dim <= 32) loop_dim = dim>>1;
+    else if(dim <= (1ULL<<11)) loop_dim = dim >> 2;
+    else loop_dim = dim >> 5;
+	
+    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+	unsigned int grid = loop_dim / block;
+    
+    unsigned int num_pauli_op[4] = { 0, 0, 0, 0 };
 	for (int i = 0; i < n_qubits; ++i) ++num_pauli_op[gates[i]];
 	ITYPE bit_mask[4] = { 0, 0, 0, 0 };
 	for (int i = 0; i < n_qubits; ++i){
 		bit_mask[gates[i]] ^= (1 << i);
 	}
 	if (num_pauli_op[1] == 0 && num_pauli_op[2] == 0){
-		unsigned int block = DIM <= 1024 ? DIM : 1024;
-		unsigned int grid = DIM / block;
-		multi_Z_get_expectation_value_gpu << <grid, block >> >(ret_gpu, bit_mask[3], DIM, psi_gpu);
+		multi_Z_get_expectation_value_gpu << <grid, block >> >(ret_gpu, bit_mask[3], dim, state_gpu);
 		checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 		checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
 		checkCudaErrors(cudaMemcpy(ret, ret_gpu, sizeof(CPPCTYPE), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
 		checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
+        state = reinterpret_cast<void*>(state_gpu);
 		return ret[0].real();
 	}
 	
         checkCudaErrors(cudaMemcpyToSymbol(num_pauli_op_gpu, num_pauli_op, sizeof(unsigned int)*4), __FILE__, __LINE__);
         checkCudaErrors(cudaMemcpyToSymbol(bit_mask_gpu, bit_mask, sizeof(ITYPE)*4), __FILE__, __LINE__);
 
-	
-	unsigned int block = DIM <= 1024 ? DIM : 1024;
-	unsigned int grid = DIM / block;
-	multipauli_get_expectation_value_gpu << <grid, block >> >(ret_gpu, DIM, psi_gpu, n_qubits);
+	multipauli_get_expectation_value_gpu << <grid, block >> >(ret_gpu, dim, state_gpu, n_qubits);
 	
 	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
 	checkCudaErrors(cudaMemcpy(ret, ret_gpu, sizeof(CPPCTYPE), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
 	checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
+	state = reinterpret_cast<void*>(state_gpu);
 	return ret[0].real();
 }
 
