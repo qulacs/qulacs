@@ -40,6 +40,8 @@ DllExport void single_qubit_dense_matrix_gate_host(unsigned int target_qubit_ind
 DllExport void single_qubit_diagonal_matrix_gate_host(unsigned int target_qubit_index, const CPPCTYPE diagonal_matrix[2], void* state, ITYPE dim);
 DllExport void single_qubit_control_single_qubit_dense_matrix_gate_host(unsigned int control_qubit_index, unsigned int control_value, unsigned int target_qubit_index, const CPPCTYPE matrix[4], void* state, ITYPE dim);
 DllExport void single_qubit_phase_gate_host(unsigned int target_qubit_index, CPPCTYPE phase, void* state, ITYPE dim);
+DllExport void multi_qubit_control_single_qubit_dense_matrix_gate_host(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, UINT target_qubit_index, const CPPCTYPE matrix[4], void *state, ITYPE dim);
+
 /*
 __device__ void CZ_gate_device(unsigned int control_qubit_index, unsigned int target_qubit_index, GTYPE *state_gpu, ITYPE DIM);
 __device__ void SWAP_gate_device(unsigned int target_qubit_index_0, unsigned int target_qubit_index1, GTYPE *psi_gpu, ITYPE dim);
@@ -56,7 +58,7 @@ __device__ void single_qubit_phase_gate_device(unsigned int target_qubit_index, 
 DllExport void penta_qubit_dense_matrix_gate_host(unsigned int target_qubit_index[5], const CPPCTYPE matrix[1024], void* state, ITYPE dim);
 DllExport void quad_qubit_dense_matrix_gate_host(unsigned int target_qubit_index[4], const CPPCTYPE matrix[256], void* state, ITYPE dim);
 DllExport void triple_qubit_dense_matrix_gate_host(unsigned int target1_qubit_index, unsigned int target2_qubit_index, unsigned int target3_qubit_index, const CPPCTYPE matrix[64], void* state, ITYPE dim);
-DllExport void double_qubit_dense_matrix_gate_host(unsigned int target1_qubit_index, unsigned int target0_qubit_index, CPPCTYPE matrix[16], void* state, ITYPE dim);
+DllExport void double_qubit_dense_matrix_gate_host(unsigned int target0_qubit_index, unsigned int target1_qubit_index, const CPPCTYPE matrix[16], void* state, ITYPE dim);
 DllExport void multi_qubit_Pauli_gate_Z_mask_host(ITYPE phase_flip_mask, void* state, ITYPE dim);
 DllExport void multi_qubit_Pauli_gate_XZ_mask_host(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count, UINT pivot_qubit_index, void* state, ITYPE dim);
 DllExport void multi_qubit_Pauli_rotation_gate_XZ_mask_host(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count, UINT pivot_qubit_index, double angle, void* state, ITYPE dim);

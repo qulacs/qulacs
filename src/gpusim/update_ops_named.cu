@@ -121,17 +121,6 @@ __global__ void Z_gate_gpu(unsigned int target_qubit_index, GTYPE *state_gpu, IT
 	}
 }
 
-__global__ void Z_gate_stride_gpu(unsigned int target_qubit_index, GTYPE *state_gpu, ITYPE DIM) {
-	// ITYPE j = blockIdx.x * blockDim.x + threadIdx.x;
-	ITYPE basis0, basis1;
-    ITYPE half_dim = DIM>>1;
-    for (ITYPE i = blockIdx.x * blockDim.x + threadIdx.x; i < half_dim; i += blockDim.x * gridDim.x){
-		basis0 = insert_zero_to_basis_index_device(i, target_qubit_index);
-		basis1 = basis0^(1ULL<<target_qubit_index);
-		state_gpu[basis1] = make_cuDoubleComplex(-cuCreal(state_gpu[basis1]), -cuCimag(state_gpu[basis1]));
-	}
-}
-
 __host__ void Z_gate_host(unsigned int target_qubit_index, void *state, ITYPE dim){
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
@@ -180,23 +169,19 @@ __device__ void CZ_gate_device(unsigned int control_qubit_index, unsigned int ta
 
 
 __global__ void CZ_gate_gpu(unsigned int large_index, unsigned int small_index, GTYPE *state_gpu, ITYPE DIM) {
-	ITYPE tmp, tmp1, tmp2;
-	ITYPE quarter_DIM = DIM >> 2;
-	ITYPE j = blockIdx.x * blockDim.x + threadIdx.x;
-	
+    ITYPE head, body, tail;
+    ITYPE basis11;
+    ITYPE quarter_DIM = DIM >> 2;
+    ITYPE j = blockIdx.x * blockDim.x + threadIdx.x;
+    
     if (j < quarter_DIM){
-		tmp = j & ((1ULL << small_index) - 1);
-		tmp1 = j & ((1ULL << (large_index - 1)) - 1);
-		tmp2 = j - tmp1;
-
-		tmp1 = tmp1 - tmp;
-		tmp1 = (tmp1 << 1);
-
-		tmp2 = (tmp2 << 2);
-
-		tmp = tmp + (1ULL << small_index) + tmp1 + (1ULL << large_index) + tmp2;
-
-		state_gpu[tmp] = make_cuDoubleComplex(-cuCreal(state_gpu[tmp]), -cuCimag(state_gpu[tmp]));
+        head = j >> (large_index - 1);
+        body = (j & ((1ULL << (large_index- 1)) - 1)) >> small_index; // (j % 2^(large-1)) >> small
+        tail = j & ((1ULL << small_index) - 1); // j%(2^small)
+        
+        basis11 = (head << (large_index + 1)) + (body << (small_index + 1)) + (1ULL << large_index) + (1ULL << small_index) + tail;
+        
+        state_gpu[basis11] = make_cuDoubleComplex(-cuCreal(state_gpu[basis11]), -cuCimag(state_gpu[basis11]));
 	}
 }
 
