@@ -321,7 +321,7 @@ public:
 
 };
 
-namespace generalQuantumOperator{
+namespace quantum_operator{
     /**
      * \~japanese-en
      *

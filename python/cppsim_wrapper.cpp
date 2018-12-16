@@ -63,9 +63,9 @@ PYBIND11_MODULE(qulacs, m) {
         //.def_static("get_split_GeneralQuantumOperator", &(GeneralQuantumOperator::get_split_observable));
         ;
     auto mquantum_operator = m.def_submodule("quantum_operator");
-    mquantum_operator.def("create_quantum_operator_from_openfermion_file", &generalQuantumOperator::create_general_quantum_operator_from_openfermion_file, pybind11::return_value_policy::automatic_reference);
-    mquantum_operator.def("create_quantum_operator_from_openfermion_text", &generalQuantumOperator::create_general_quantum_operator_from_openfermion_text, pybind11::return_value_policy::automatic_reference);
-    mquantum_operator.def("create_split_quantum_operator", &generalQuantumOperator::create_split_general_quantum_operator, pybind11::return_value_policy::automatic_reference);
+    mquantum_operator.def("create_quantum_operator_from_openfermion_file", &quantum_operator::create_general_quantum_operator_from_openfermion_file, pybind11::return_value_policy::automatic_reference);
+    mquantum_operator.def("create_quantum_operator_from_openfermion_text", &quantum_operator::create_general_quantum_operator_from_openfermion_text, pybind11::return_value_policy::automatic_reference);
+    mquantum_operator.def("create_split_quantum_operator", &quantum_operator::create_split_general_quantum_operator, pybind11::return_value_policy::automatic_reference);
 
     py::class_<Observable, GeneralQuantumOperator>(m, "Observable")
         .def(py::init<unsigned int>())

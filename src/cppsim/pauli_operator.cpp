@@ -187,7 +187,7 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(const QuantumStateBase
     return sum;
 }
 
-namespace generalQuantumOperator{
+namespace quantum_operator{
     GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(std::string file_path){
         UINT qubit_count = 0;
         UINT imag_idx;
