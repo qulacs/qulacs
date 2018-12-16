@@ -1,6 +1,6 @@
 /**
  * @file Observable.hpp
- * @brief Definition and basic functions for RealValuedQuantumOperator
+ * @brief Definition and basic functions for HermitianQuantumOperator
  */
 
 
@@ -19,19 +19,19 @@ class GeneralQuantumOperator;
 
 /**
  * \~japanese-en
- * @struct RealValuedQuantumOperator
+ * @struct HermitianQuantumOperator
  * オブザーバブルの情報を保持するクラス。
  * PauliOperatorをリストとして持ち, 種々の操作を行う。解放時には保持しているPauliOperatorを全て解放する。
  */
-class DllExport RealValuedQuantumOperator : public GeneralQuantumOperator {
+class DllExport HermitianQuantumOperator : public GeneralQuantumOperator {
 public:
     /**
      * \~japanese-en
      * コンストラクタ。
      *
-     * 空のRealValuedQuantumOperatorを作成する。
+     * 空の HermitianQuantumOperator を作成する。
      * @param[in] qubit_count qubit数
-     * @return RealValuedQuantumOperatorのインスタンス
+     * @return HermitianQuantumOperatorのインスタンス
      */
     using GeneralQuantumOperator::GeneralQuantumOperator;
 
@@ -54,10 +54,10 @@ public:
 
     /**
      * \~japanese-en
-     * RealValuedQuantumOperatorのある量子状態に対応するエネルギー(期待値)を計算して返す
+     * HermitianQuantumOperatorのある量子状態に対応するエネルギー(期待値)を計算して返す
      *
      * @param[in] state 期待値をとるときの量子状態
-     * @return 入力で与えた量子状態に対応するRealValuedQuantumOperatorの期待値
+     * @return 入力で与えた量子状態に対応するHermitianQuantumOperatorの期待値
      */
     CPPCTYPE get_expectation_value(const QuantumStateBase* state) const ;
 };
@@ -66,12 +66,12 @@ namespace observable{
     /**
      * \~japanese-en
      *
-     * OpenFermionから出力されたオブザーバブルのテキストファイルを読み込んでRealValuedQuantumOperatorを生成します。オブザーバブルのqubit数はファイル読み込み時に、オブザーバブルの構成に必要なqubit数となります。
+     * OpenFermionから出力されたオブザーバブルのテキストファイルを読み込んでHermitianQuantumOperatorを生成します。オブザーバブルのqubit数はファイル読み込み時に、オブザーバブルの構成に必要なqubit数となります。
      *
      * @param[in] filename OpenFermion形式のオブザーバブルのファイル名
      * @return Observableのインスタンス
      **/
-    DllExport RealValuedQuantumOperator* create_observable_from_openfermion_file(std::string file_path);
+    DllExport HermitianQuantumOperator* create_observable_from_openfermion_file(std::string file_path);
 
     /**
      * \~japanese-en
@@ -81,7 +81,7 @@ namespace observable{
      * @param[in] filename OpenFermion形式のテキスト
      * @return Observableのインスタンス
      **/
-    DllExport RealValuedQuantumOperator* create_observable_from_openfermion_text(std::string text);
+    DllExport HermitianQuantumOperator* create_observable_from_openfermion_text(std::string text);
 
     /**
      * \~japanese-en
@@ -89,8 +89,8 @@ namespace observable{
      *
      * @param[in] filename OpenFermion形式のオブザーバブルのファイル名
      */
-    DllExport std::pair<RealValuedQuantumOperator*, RealValuedQuantumOperator*> create_split_observable(std::string file_path);
+    DllExport std::pair<HermitianQuantumOperator*, HermitianQuantumOperator*> create_split_observable(std::string file_path);
 
 }
 
-typedef RealValuedQuantumOperator Observable;
+typedef HermitianQuantumOperator Observable;

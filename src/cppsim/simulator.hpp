@@ -5,8 +5,8 @@
 #include "type.hpp"
 #include "circuit.hpp"
 class QuantumStateBase;
-class RealValuedQuantumOperator;
-typedef RealValuedQuantumOperator Observable;
+class HermitianQuantumOperator;
+typedef HermitianQuantumOperator Observable;
 
 
 /**

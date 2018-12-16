@@ -13,28 +13,28 @@
 #include <iostream>
 #include <utility>
 
-void RealValuedQuantumOperator::add_operator(const PauliOperator* mpt){
+void HermitianQuantumOperator::add_operator(const PauliOperator* mpt){
     if (std::abs(mpt->get_coef().imag()) > 0){
-        std::cerr << "Error: RealValuedQuantumOperator::add_operator(const PauliOperator* mpt): PauliOperator must be Hermitian." << std::endl;
+        std::cerr << "Error: HermitianQuantumOperator::add_operator(const PauliOperator* mpt): PauliOperator must be Hermitian." << std::endl;
         return;
     }
     GeneralQuantumOperator::add_operator(mpt);
 }
 
-void RealValuedQuantumOperator::add_operator(CPPCTYPE coef, std::string pauli_string) {
+void HermitianQuantumOperator::add_operator(CPPCTYPE coef, std::string pauli_string) {
     if (std::abs(coef.imag()) > 0){
-        std::cerr << "Error: RealValuedQuantumOperator::add_operator(const PauliOperator* mpt): PauliOperator must be Hermitian." << std::endl;
+        std::cerr << "Error: HermitianQuantumOperator::add_operator(const PauliOperator* mpt): PauliOperator must be Hermitian." << std::endl;
         return;
     }
 	GeneralQuantumOperator::add_operator(coef, pauli_string);
 }
 
-CPPCTYPE RealValuedQuantumOperator::get_expectation_value(const QuantumStateBase* state) const {
+CPPCTYPE HermitianQuantumOperator::get_expectation_value(const QuantumStateBase* state) const {
     return GeneralQuantumOperator::get_expectation_value(state).real();
 }
 
 namespace observable{
-    RealValuedQuantumOperator* create_observable_from_openfermion_file(std::string file_path){
+    HermitianQuantumOperator* create_observable_from_openfermion_file(std::string file_path){
         UINT qubit_count = 0;
         UINT imag_idx;
         UINT str_idx;
@@ -92,7 +92,7 @@ namespace observable{
 		}
         ifs.close();
 
-        RealValuedQuantumOperator* observable = new RealValuedQuantumOperator(qubit_count);
+        HermitianQuantumOperator* observable = new HermitianQuantumOperator(qubit_count);
 
         for (UINT i = 0; i < ops.size(); ++i){
             observable->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
@@ -101,7 +101,7 @@ namespace observable{
         return observable;
     }
 
-    RealValuedQuantumOperator* create_observable_from_openfermion_text(std::string text){
+    HermitianQuantumOperator* create_observable_from_openfermion_text(std::string text){
         UINT qubit_count = 0;
         UINT imag_idx;
         UINT str_idx;
@@ -149,7 +149,7 @@ namespace observable{
             }
         }
 
-        RealValuedQuantumOperator* observable = new RealValuedQuantumOperator(qubit_count);
+        HermitianQuantumOperator* observable = new HermitianQuantumOperator(qubit_count);
 
         for (UINT i = 0; i < ops.size(); ++i){
             observable->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
@@ -158,7 +158,7 @@ namespace observable{
         return observable;
     }
 
-    std::pair<RealValuedQuantumOperator*, RealValuedQuantumOperator*> create_split_observable(std::string file_path){
+    std::pair<HermitianQuantumOperator*, HermitianQuantumOperator*> create_split_observable(std::string file_path){
         UINT qubit_count = 0;
         UINT imag_idx;
         UINT str_idx;
@@ -167,7 +167,7 @@ namespace observable{
 
         if (!ifs){
             std::cerr << "ERROR: Cannot open file" << std::endl;
-			return std::make_pair((RealValuedQuantumOperator*)NULL, (RealValuedQuantumOperator*)NULL);
+			return std::make_pair((HermitianQuantumOperator*)NULL, (HermitianQuantumOperator*)NULL);
         }
 
         // loading lines and check qubit_count
@@ -212,12 +212,12 @@ namespace observable{
         }
         if (!ifs.eof()){
             std::cerr << "ERROR: Invalid format" << std::endl;
-			return std::make_pair((RealValuedQuantumOperator*)NULL, (RealValuedQuantumOperator*)NULL);
+			return std::make_pair((HermitianQuantumOperator*)NULL, (HermitianQuantumOperator*)NULL);
 		}
         ifs.close();
 
-        RealValuedQuantumOperator* observable_diag =  new RealValuedQuantumOperator(qubit_count);
-        RealValuedQuantumOperator* observable_non_diag =  new RealValuedQuantumOperator(qubit_count);
+        HermitianQuantumOperator* observable_diag =  new HermitianQuantumOperator(qubit_count);
+        HermitianQuantumOperator* observable_non_diag =  new HermitianQuantumOperator(qubit_count);
 
         for (UINT i = 0; i < ops.size(); ++i){
             if (ops[i].find("X") != std::string::npos || ops[i].find("Y") != std::string::npos){
