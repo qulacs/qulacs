@@ -80,17 +80,26 @@ protected:
     std::string _name="Generic gate";
 
     // prohibit constructor, destructor, copy constructor, and insertion
-    QuantumGateBase() {};
-    QuantumGateBase(const QuantumGateBase& obj) = default;
-    QuantumGateBase& operator=(const QuantumGateBase& rhs) = default;
+    QuantumGateBase():
+		target_qubit_list(_target_qubit_list), control_qubit_list(_control_qubit_list) 
+	{};
+	QuantumGateBase(const QuantumGateBase& obj):
+		target_qubit_list(_target_qubit_list), control_qubit_list(_control_qubit_list)
+	{
+		_gate_property = obj._gate_property;
+		_name = obj._name;
+		_target_qubit_list = obj.target_qubit_list;
+		_control_qubit_list = obj.control_qubit_list;
+	};
+    QuantumGateBase& operator=(const QuantumGateBase& rhs) = delete;
 public:
     /**
      * \~japanese-en デストラクタ
      */
     virtual ~QuantumGateBase() {};
 
-    const std::vector<TargetQubitInfo>& target_qubit_list = _target_qubit_list; /**< ターゲット量子ビットのリスト */
-    const std::vector<ControlQubitInfo>& control_qubit_list = _control_qubit_list; /**< コントロール量子ビットのリスト */
+	const std::vector<TargetQubitInfo>& target_qubit_list; /**< ターゲット量子ビットのリスト */
+	const std::vector<ControlQubitInfo>& control_qubit_list; /**< コントロール量子ビットのリスト */
 
     /**
      * \~japanese-en ターゲット量子ビットの添え字のリストを取得する

@@ -24,17 +24,17 @@ typedef HermitianQuantumOperator Observable;
  * 管理する量子ゲートは量子回路の解放時にすべて解放される。
  */
 class DllExport QuantumCircuit{
-private:
+protected:
     std::vector<QuantumGateBase*> _gate_list; 
     UINT _qubit_count;                 
 
     // prohibit shallow copy
-    QuantumCircuit(const QuantumCircuit&) = default;
-    QuantumCircuit& operator= (const QuantumCircuit&) = default;
+	QuantumCircuit(const QuantumCircuit& obj);
+    QuantumCircuit& operator= (const QuantumCircuit&) = delete;
 
 public:
-    const UINT& qubit_count = _qubit_count; /**< \~japanese-en 量子ビットの数*/
-    const std::vector<QuantumGateBase*>& gate_list = _gate_list; /**< \~japanese-en 量子ゲートのリスト*/
+	const UINT& qubit_count; /**< \~japanese-en 量子ビットの数*/
+	const std::vector<QuantumGateBase*>& gate_list; /**< \~japanese-en 量子ゲートのリスト*/
 
     /**
      * \~japanese-en 空の量子回路を作成する
