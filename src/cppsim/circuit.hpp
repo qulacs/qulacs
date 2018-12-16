@@ -14,7 +14,8 @@
 class QuantumStateBase;
 class QuantumGateBase;
 class PauliOperator;
-class Observable;
+class HermitianQuantumOperator;
+typedef HermitianQuantumOperator Observable;
 
 /**
  * \~japanese-en 量子回路のクラス

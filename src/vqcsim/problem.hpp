@@ -79,7 +79,7 @@ public:
     virtual ITYPE get_state_dim() const { return _observable->get_state_dim(); }
     virtual UINT get_qubit_count() const { return _observable->get_qubit_count(); }
     virtual double compute_loss(const QuantumStateBase* state) const {
-        return _observable->get_expectation_value(state);
+        return _observable->get_expectation_value(state).real();
     };
 };
 
