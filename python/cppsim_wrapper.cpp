@@ -103,7 +103,8 @@ PYBIND11_MODULE(qulacs, m) {
         .def("__repr__", [](const QuantumState &p) {return p.to_string();});
         ;
 
-	py::class_<QuantumStateGpu, QuantumStateBase>(m, "QuantumStateGpu")
+#ifdef _USE_GPU
+    py::class_<QuantumStateGpu, QuantumStateBase>(m, "QuantumStateGpu")
 		.def(py::init<unsigned int>())
 		.def("set_zero_state", &QuantumStateGpu::set_zero_state)
 		.def("set_computational_basis", &QuantumStateGpu::set_computational_basis)
@@ -132,7 +133,7 @@ PYBIND11_MODULE(qulacs, m) {
 	})
 		.def("__repr__", [](const QuantumStateGpu &p) {return p.to_string(); });
 	;
-
+#endif
 
 	auto mstate = m.def_submodule("state");
 	using namespace state;
