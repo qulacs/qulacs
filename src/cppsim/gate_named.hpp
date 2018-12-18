@@ -12,7 +12,9 @@
 class QuantumGate_OneQubit : public QuantumGateBase{
 protected:
     typedef void (T_UPDATE_FUNC)(UINT, CTYPE*, ITYPE);
-    T_UPDATE_FUNC* _update_func;
+	typedef void (T_GPU_UPDATE_FUNC)(UINT, void*, ITYPE);
+	T_UPDATE_FUNC* _update_func;
+	T_GPU_UPDATE_FUNC* _update_func_gpu;
     ComplexMatrix _matrix_element;
 
     QuantumGate_OneQubit() {};
@@ -23,7 +25,15 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override{
+#ifdef _USE_GPU
+		if (state->get_device_name() == "gpu") {
+			_update_func_gpu(this->target_qubit_list[0].index(), state->data(), state->dim);
+		} else {
+			_update_func(this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+		}
+#else
         _update_func(this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+#endif
     };
     /**
      * \~japanese-en 自身のディープコピーを生成する
@@ -49,7 +59,9 @@ public:
 class QuantumGate_TwoQubit : public QuantumGateBase{
 protected:
     typedef void (T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
-    T_UPDATE_FUNC* _update_func;
+	typedef void (T_GPU_UPDATE_FUNC)(UINT, UINT, void*, ITYPE);
+	T_UPDATE_FUNC* _update_func;
+	T_GPU_UPDATE_FUNC* _update_func_gpu;
     ComplexMatrix _matrix_element;
 
     QuantumGate_TwoQubit() {};
@@ -60,7 +72,15 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override{
+#ifdef _USE_GPU
+		if (state->get_device_name() == "gpu") {
+            _update_func_gpu(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data(), state->dim);
+		} else {
         _update_func(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data_c(), state->dim);
+		}
+#else
+        _update_func(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data_c(), state->dim);
+#endif
     };
     /**
      * \~japanese-en 自身のディープコピーを生成する
@@ -86,7 +106,9 @@ public:
 class QuantumGate_OneControlOneTarget : public QuantumGateBase {
 protected:
     typedef void (T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
-    T_UPDATE_FUNC* _update_func;
+	typedef void (T_GPU_UPDATE_FUNC)(UINT, UINT, void*, ITYPE);
+	T_UPDATE_FUNC* _update_func;
+	T_GPU_UPDATE_FUNC* _update_func_gpu;
     ComplexMatrix _matrix_element;
 
     QuantumGate_OneControlOneTarget() {};
@@ -97,7 +119,15 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
+#ifdef _USE_GPU
+		if (state->get_device_name() == "gpu") {
+            _update_func_gpu(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data(), state->dim);
+		} else {
+            _update_func(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+		}
+#else
         _update_func(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+#endif
     };
     /**
      * \~japanese-en 自身のディープコピーを生成する
@@ -122,8 +152,10 @@ public:
  */
 class QuantumGate_OneQubitRotation : public QuantumGateBase{
 protected:
-    typedef void (T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
-    T_UPDATE_FUNC* _update_func;
+	typedef void (T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
+	typedef void (T_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE);
+	T_UPDATE_FUNC* _update_func;
+	T_GPU_UPDATE_FUNC* _update_func_gpu;
     ComplexMatrix _matrix_element;
     double _angle;
 
@@ -135,7 +167,15 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override{
+#ifdef _USE_GPU
+		if (state->get_device_name() == "gpu") {
+            _update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim);
+		} else {
+            _update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
+		}
+#else
         _update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
+#endif
     };
     /**
      * \~japanese-en 自身のディープコピーを生成する

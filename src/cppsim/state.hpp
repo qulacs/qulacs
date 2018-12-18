@@ -138,7 +138,9 @@ public:
     /**
      * \~japanese-en 量子状態が配置されているメモリを保持するデバイス名を取得する。
      */
-    virtual const char* get_device_name() const = 0;
+    virtual const std::string get_device_name() const = 0;
+
+	virtual void* data() const = 0;
 
     /**
      * \~japanese-en 量子状態をC++の<code>std::complex\<double\></code>の配列として取得する
@@ -407,7 +409,14 @@ public:
 	/**
      * \~japanese-en 量子状態が配置されているメモリを保持するデバイス名を取得する。
      */
-    virtual const char* get_device_name() const override {return "cpu";}
+    virtual const std::string get_device_name() const override {return "cpu";}
+
+	/**
+	 * \~japanese-en 量子状態のポインタをvoid*型として返す
+	 */
+	virtual void* data() const override {
+		return reinterpret_cast<void*>(this->_state_vector);
+	}
     /**
      * \~japanese-en 量子状態をC++の<code>std::complex\<double\></code>の配列として取得する
      * 
