@@ -8,13 +8,16 @@ Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob
 
 ## Quick Install
 
-```pip install qulacs```
+```
+pip install qulacs
+```
 
 ## Feature
-- Fast quantum circuit simulation with C/C++ backend
-- An arbitrary noisy quantum gate (i.e. CPTP-map and instrument are supported)
+- Fast quantum circuit simulation with parallelized C/C++ backend
+- Noisy quantum gate for simulation of NISQ devices
 - Parametric quantum gates for variational methods
-- Quantum circuit compression for fast numerical simulation.
+- Circuit compression for fast simulation
+- GPU support for fast simulation
 - Many utility functions for research
 
 ## Performance
@@ -49,7 +52,7 @@ The following languages are supported.
 
 - C++
   - gcc/g++ >= 7.0.0
-  - Microsoft VisualStudio C++ 2017
+  - Microsoft VisualStudio C++ 2015 and 2017
 - python
   - python 2.7
   - python 3.x
@@ -57,6 +60,7 @@ The following languages are supported.
 
 ## Install from Source
 If you encounter some troubles, see [troubleshooting (Japanese)](http://qulacs.org/md_4__trouble_shooting.html).
+Currently, if you want to use GPU, qulacs must be installed from source.
 
 ### Requirements
 
@@ -64,7 +68,7 @@ If you encounter some troubles, see [troubleshooting (Japanese)](http://qulacs.o
 - python 2.7 or 3.x
 - cmake >= 3.0
 
-### Build python library and install
+### Install qulacs from source
 
 Install
 ```
@@ -91,9 +95,7 @@ cd qulacs
 ```
 git clone https://github.com/qulacs/qulacs.git
 cd qulacs
-generate_msvc_project.bat
-cmake --build ./visualstudio --target ALL_BUILD --config Release
-cmake --build ./visualstudio --target python --config Release
+script/build_msvc.bat
 ```
 
 ## Tutorial and API document
@@ -128,6 +130,7 @@ value = observable.get_expectation_value(state)
 print(value)
 ```
 
+If you want to run it on GPU, install qulacs from source and replace <code>QuantumState</code> with <code>QuantumStateGPU</code>.
 
 ### C++
 
@@ -161,4 +164,7 @@ Build command for g++:
 ```sh
 g++ -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lcppsim.so
 ```
+
+If you want to run it on GPU, include <code>cppsim/state_gpu.hpp</code> and replace <code>QuantumState</code> with <code>QuantumStateGPU</code>.
+
 

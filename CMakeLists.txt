@@ -13,8 +13,8 @@ endif()
 ##### Set default behavior #####
 set(DEFAULT_USE_OMP Yes)
 set(DEFAULT_USE_GPU No)
-set(DEFAULT_USE_PYTHON No)
-set(DEFAULT_USE_TEST No)
+set(DEFAULT_USE_PYTHON Yes)
+set(DEFAULT_USE_TEST Yes)
 
 # Use OpenMP as default behavior
 if(NOT DEFINED USE_OMP)
