@@ -46,13 +46,26 @@ void QuantumCircuit::update_quantum_state(QuantumStateBase* state, UINT start, U
     }
 }
 
+QuantumCircuit::QuantumCircuit(const QuantumCircuit& obj):
+	qubit_count(_qubit_count), gate_list(_gate_list)
+{
+	_gate_list.clear();
+	_qubit_count = (obj.qubit_count);
+	for (UINT i = 0; i < obj.gate_list.size(); ++i) {
+		_gate_list.push_back(obj.gate_list[i]->copy());
+	}
+};
 
-QuantumCircuit::QuantumCircuit(UINT qubit_count_){
+
+QuantumCircuit::QuantumCircuit(UINT qubit_count_):
+	qubit_count(_qubit_count), gate_list(_gate_list)
+{
     this->_qubit_count = qubit_count_;
 }
 
 
-QuantumCircuit::QuantumCircuit(std::string qasm_path, std::string qasm_loader_script_path){
+QuantumCircuit::QuantumCircuit(std::string qasm_path, std::string qasm_loader_script_path):
+qubit_count(_qubit_count), gate_list(_gate_list) {
 	// generate quantum circuit from qasm
 	// now we delegate compile of qasm string to quantumopencompiler in qiskit-sdk.
 	std::string exec_string = std::string("python ")+qasm_loader_script_path+" "+qasm_path;
@@ -200,7 +213,7 @@ std::string QuantumCircuit::to_string() const {
     std::vector<UINT> gate_size_count(this->_qubit_count, 0);
     UINT max_block_size = 0;
 
-    for (const auto& gate : this->_gate_list) {
+    for (const auto gate : this->_gate_list) {
         UINT whole_qubit_index_count = (UINT)(gate->target_qubit_list.size() + gate->control_qubit_list.size());
 		if (whole_qubit_index_count == 0) continue;
         gate_size_count[whole_qubit_index_count - 1]++;

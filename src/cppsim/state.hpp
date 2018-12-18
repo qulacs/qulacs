@@ -27,16 +27,18 @@ protected:
     UINT _qubit_count;
     std::vector<UINT> _classical_register;
 public:
-    const UINT& qubit_count = _qubit_count; /**< \~japanese-en 量子ビット数 */
-    const ITYPE& dim = _dim; /**< \~japanese-en 量子状態の次元 */
-    const std::vector<UINT>& classical_register = _classical_register; /**< \~japanese-en 古典ビットのレジスタ */
+	const UINT& qubit_count; /**< \~japanese-en 量子ビット数 */
+    const ITYPE& dim; /**< \~japanese-en 量子状態の次元 */
+    const std::vector<UINT>& classical_register; /**< \~japanese-en 古典ビットのレジスタ */
 
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param qubit_count_ 量子ビット数
      */
-    QuantumStateBase(UINT qubit_count_){
+    QuantumStateBase(UINT qubit_count_):
+		qubit_count(_qubit_count), dim(_dim), classical_register(_classical_register)
+	{
         this->_qubit_count = qubit_count_;
         this->_dim = 1ULL << qubit_count_;
     }
