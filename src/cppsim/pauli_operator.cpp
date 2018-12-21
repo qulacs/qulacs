@@ -166,7 +166,7 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(const QuantumStateBase* s
 		std::cerr << "Error: GeneralQuantumOperator::get_expectation_value(const QuantumStateBase*): invalid qubit count" << std::endl;
 		return 0.;
 	}
-
+    std::cerr << "GeneralQuantumOperator" << std::endl;
     CPPCTYPE sum = 0;
     for (auto pauli : this->_operator_list) {
         sum += pauli->get_expectation_value(state);

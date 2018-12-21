@@ -80,7 +80,9 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_state_dim", &Observable::get_state_dim)
         .def("get_term_count", &Observable::get_term_count)
         .def("get_term", &Observable::get_term, pybind11::return_value_policy::automatic_reference)
-        .def("get_expectation_value", &Observable::get_expectation_value)
+        // .def("get_expectation_value", [](const Observable& observable, const QuantumStateBase* state) -> double {
+        //                                   std::complex<double> res = observable.get_expectation_value(state);
+        //                                   return res.real();})
         .def("get_transition_amplitude", &Observable::get_transition_amplitude)
         //.def_static("get_split_Observable", &(Observable::get_split_observable));
         ;
