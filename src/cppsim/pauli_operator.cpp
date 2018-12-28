@@ -328,9 +328,9 @@ namespace quantum_operator{
 
     std::pair<GeneralQuantumOperator*, GeneralQuantumOperator*> create_split_general_quantum_operator(std::string file_path){
         UINT qubit_count = 0;
-        UINT imag_idx;
-        UINT str_idx;
         std::ifstream ifs;
+        double coef_real, coef_imag;
+
         ifs.open(file_path);
 
         if (!ifs){
@@ -342,36 +342,46 @@ namespace quantum_operator{
         std::string line;
         std::vector<CPPCTYPE> coefs;
         std::vector<std::string> ops;
-        double coef_real, coef_imag;
-
+        char buf[256];
+        char symbol_j[1];
+        UINT matches;
         while (getline(ifs, line)) {
-            std::vector<std::string> elems;
             std::vector<std::string> index_list;
-            elems = split(line, "()[]+");
-            if (elems.size() < 3){
-                continue;
+
+            if(line[0]=='('){
+                matches = std::sscanf(line.c_str(), "(%lf+%lfj) [%[^]]]", &coef_real, &coef_imag, buf);
+                if (matches < 2){
+                    matches = std::sscanf(line.c_str(), "(%lf-%lfj) [%[^]]]", &coef_real, &coef_imag, buf);
+                    coef_imag = -coef_imag;
+                }
+                if (matches < 3){
+                    std::strcpy(buf, "I0");
+                }
+            }else{
+                matches = std::sscanf(line.c_str(), "%lf%[j] [%[^]]]", &coef_imag, symbol_j, buf);
+                coef_real = 0.;
+                if (matches < 3){
+                    std::strcpy(buf, "I0");
+                }
+                if (symbol_j[0] != 'j'){
+                    matches = std::sscanf(line.c_str(), "%lf [%[^]]]", &coef_real, buf);
+                    coef_imag = 0.;
+                    if (matches < 2){
+                        std::strcpy(buf, "I0");
+                    }
+                }
+                if (matches == 0){
+                    continue;
+                }
             }
 
-            imag_idx = 1;
-            str_idx = 3;
-            if (elems[0].find("j") != std::string::npos){
-                coef_real = 0;
-                imag_idx = 0;
-                str_idx = 1;
-            } else if (elems[1].find("j") == std::string::npos){
-                coef_real = std::stod(elems[imag_idx-1]);
-            } else {
-                continue;
-            }
-
-            coef_imag = std::stod(elems[imag_idx]);
-            chfmt(elems[str_idx]);
-
+            std::string str_buf(buf, std::strlen(buf));
+            chfmt(str_buf);
             CPPCTYPE coef(coef_real, coef_imag);
             coefs.push_back(coef);
-            ops.push_back(elems[str_idx]);
+            ops.push_back(str_buf);
+            index_list = split(str_buf, "IXYZ ");
 
-            index_list = split(elems[str_idx], "XYZ ");
             for (UINT i = 0; i < index_list.size(); ++i){
                 UINT n = std::stoi(index_list[i]) + 1;
                 if (qubit_count < n)
