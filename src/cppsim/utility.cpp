@@ -50,7 +50,7 @@ std::vector<std::string> split(const std::string &s, const std::string &delim){
 
 void chfmt(std::string& ops){
     for (UINT i = 0; i < ops.size(); ++i){
-        if (ops[i] == 'X' || ops[i] == 'Y' || ops[i] == 'Z'){
+        if (ops[i] == 'X' || ops[i] == 'Y' || ops[i] == 'Z' || ops[i] == 'I'){
             ops.insert(++i, " ");
         }
     }

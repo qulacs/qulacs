@@ -166,7 +166,6 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(const QuantumStateBase* s
 		std::cerr << "Error: GeneralQuantumOperator::get_expectation_value(const QuantumStateBase*): invalid qubit count" << std::endl;
 		return 0.;
 	}
-    std::cerr << "GeneralQuantumOperator" << std::endl;
     CPPCTYPE sum = 0;
     for (auto pauli : this->_operator_list) {
         sum += pauli->get_expectation_value(state);
@@ -190,8 +189,6 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(const QuantumStateBase
 namespace quantum_operator{
     GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(std::string file_path){
         UINT qubit_count = 0;
-        UINT imag_idx;
-        UINT str_idx;
 
         std::ifstream ifs;
         ifs.open(file_path);
@@ -201,39 +198,49 @@ namespace quantum_operator{
 			return NULL;
 		}
 
-        std::string str;
+        std::string line;
         std::vector<CPPCTYPE> coefs;
         std::vector<std::string> ops;
-        while (getline(ifs, str)) {
-            std::vector<std::string> elems;
+        char buf[256];
+        char symbol_j[1];
+        UINT matches;
+        while (getline(ifs, line)) {
             std::vector<std::string> index_list;
-            elems = split(str, "()[]+");
-            if (elems.size() < 3){
-                continue;
+
+            if(line[0]=='('){
+                matches = std::sscanf(line.c_str(), "(%lf+%lfj) [%[^]]]", &coef_real, &coef_imag, buf);
+                if (matches < 2){
+                    matches = std::sscanf(line.c_str(), "(%lf-%lfj) [%[^]]]", &coef_real, &coef_imag, buf);
+                    coef_imag = -coef_imag;
+                }
+                if (matches < 3){
+                    std::strcpy(buf, "I0");
+                }
+            }else{
+                matches = std::sscanf(line.c_str(), "%lf%[j] [%[^]]]", &coef_imag, symbol_j, buf);
+                coef_real = 0.;
+                if (matches < 3){
+                    std::strcpy(buf, "I0");
+                }
+                if (symbol_j[0] != 'j'){
+                    matches = std::sscanf(line.c_str(), "%lf [%[^]]]", &coef_real, buf);
+                    coef_imag = 0.;
+                    if (matches < 2){
+                        std::strcpy(buf, "I0");
+                    }
+                }
+                if (matches == 0){
+                    continue;
+                }
             }
 
-
-            imag_idx = 1;
-            str_idx = 3;
-
-            if (elems[0].find("j") != std::string::npos){
-                coef_real = 0;
-                imag_idx = 0;
-                str_idx = 1;
-            } else if (elems[1].find("j") != std::string::npos){
-                coef_real = std::stod(elems[imag_idx-1]);
-            } else {
-                continue;
-            }
-
-            coef_imag = std::stod(elems[imag_idx]);
-            chfmt(elems[str_idx]);
-
+            std::string str_buf(buf, std::strlen(buf));
+            chfmt(str_buf);
             CPPCTYPE coef(coef_real, coef_imag);
             coefs.push_back(coef);
-            ops.push_back(elems[str_idx]);
+            ops.push_back(str_buf);
+            index_list = split(str_buf, "IXYZ ");
 
-            index_list = split(elems[str_idx], "XYZ ");
             for (UINT i = 0; i < index_list.size(); ++i){
                 UINT n = std::stoi(index_list[i]) + 1;
                 if (qubit_count < n)
@@ -257,8 +264,6 @@ namespace quantum_operator{
 
     GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_text(std::string text){
         UINT qubit_count = 0;
-        UINT imag_idx;
-        UINT str_idx;
 
         std::vector<std::string> lines;
         std::vector<CPPCTYPE> coefs;
@@ -266,43 +271,52 @@ namespace quantum_operator{
         double coef_real, coef_imag;
 
         lines = split(text, "\n");
-
+        char buf[256];
+        char symbol_j[1];
+        UINT matches;
         for (std::string line: lines){
-            std::vector<std::string> elems;
             std::vector<std::string> index_list;
-            elems = split(line, "()[]+");
-            if (elems.size() < 3){
-                continue;
+
+            if(line[0]=='('){
+                matches = std::sscanf(line.c_str(), "(%lf+%lfj) [%[^]]]", &coef_real, &coef_imag, buf);
+                if (matches < 2){
+                    matches = std::sscanf(line.c_str(), "(%lf-%lfj) [%[^]]]", &coef_real, &coef_imag, buf);
+                    coef_imag = -coef_imag;
+                }
+                if (matches < 3){
+                    std::strcpy(buf, "I0");
+                }
+            }else{
+                matches = std::sscanf(line.c_str(), "%lf%[j] [%[^]]]", &coef_imag, symbol_j, buf);
+                coef_real = 0.;
+                if (matches < 3){
+                    std::strcpy(buf, "I0");
+                }
+                if (symbol_j[0] != 'j'){
+                    matches = std::sscanf(line.c_str(), "%lf [%[^]]]", &coef_real, buf);
+                    coef_imag = 0.;
+                    if (matches < 2){
+                        std::strcpy(buf, "I0");
+                    }
+                }
+                if (matches == 0){
+                    continue;
+                }
             }
 
-            imag_idx = 1;
-            str_idx = 3;
-            if (elems[0].find("j") != std::string::npos){
-                coef_real = 0;
-                imag_idx = 0;
-                str_idx = 1;
-            } else if (elems[1].find("j") != std::string::npos){
-                coef_real = std::stod(elems[imag_idx-1]);
-            } else {
-                continue;
-            }
-
-            coef_imag = std::stod(elems[imag_idx]);
-            chfmt(elems[str_idx]);
-
+            std::string str_buf(buf, std::strlen(buf));
+            chfmt(str_buf);
             CPPCTYPE coef(coef_real, coef_imag);
-
             coefs.push_back(coef);
-            ops.push_back(elems[str_idx]);
+            ops.push_back(str_buf);
+            index_list = split(str_buf, "IXYZ ");
 
-            index_list = split(elems[str_idx], "XYZ ");
             for (UINT i = 0; i < index_list.size(); ++i){
                 UINT n = std::stoi(index_list[i]) + 1;
                 if (qubit_count < n)
                     qubit_count = n;
             }
         }
-
         GeneralQuantumOperator* general_quantum_operator = new GeneralQuantumOperator(qubit_count);
 
         for (UINT i = 0; i < ops.size(); ++i){
@@ -325,15 +339,15 @@ namespace quantum_operator{
         }
 
         // loading lines and check qubit_count
-        std::string str;
+        std::string line;
         std::vector<CPPCTYPE> coefs;
         std::vector<std::string> ops;
         double coef_real, coef_imag;
 
-        while (getline(ifs, str)) {
+        while (getline(ifs, line)) {
             std::vector<std::string> elems;
             std::vector<std::string> index_list;
-            elems = split(str, "()[]+");
+            elems = split(line, "()[]+");
             if (elems.size() < 3){
                 continue;
             }
