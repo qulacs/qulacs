@@ -20,6 +20,7 @@ extern "C" {
 
 #include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
+#include <cppsim/general_quantum_operator.hpp>
 #include <cppsim/state.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_matrix.hpp>
