@@ -12,6 +12,7 @@
 #include <utility>
 #include <string>
 #include "pauli_operator.hpp"
+#include "general_quantum_operator.hpp"
 
 class QuantumStateBase;
 class PauliOperator;
