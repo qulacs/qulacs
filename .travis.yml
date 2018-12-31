@@ -138,6 +138,8 @@ install:
       chmod +x ./script/build_gcc.sh
       ./script/build_gcc.sh
     fi
+  # Check if `pip install` will be done successfully or not
+  - python setup.py install
 
 script:
   - |
