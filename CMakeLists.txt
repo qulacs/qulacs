@@ -122,18 +122,21 @@ else()
 endif()
 
 ##### set warnings #####
-set(WARNING_C "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
- -Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
- -Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=missing-declarations -Werror=return-type \
- -Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
- -Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
- -Wnested-externs -fdiagnostics-color=auto")
-set(WARNING_CPP "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
- -Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
- -Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=missing-declarations -Werror=return-type \
- -Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
- -Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
- -fdiagnostics-color=auto")
+if(USE_GPU)
+else()
+	set(WARNING_C "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
+	 -Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
+	 -Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=missing-declarations -Werror=return-type \
+	 -Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
+	 -Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
+	 -Wnested-externs -fdiagnostics-color=auto")
+	set(WARNING_CPP "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
+	 -Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
+	 -Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=missing-declarations -Werror=return-type \
+	 -Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
+	 -Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
+	 -fdiagnostics-color=auto")
+endif()
 
 
 ##### set output directory #####
@@ -176,6 +179,12 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
 	endif()
 
+	if(USE_GPU)
+		add_compile_options("-D _USE_GPU")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+		add_compile_options("-fPIC")
+	endif()
+
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
 
@@ -192,9 +201,6 @@ elseif(MSVC)
 	if(USE_GPU)
 		add_compile_options("/D_USE_GPU")
 	endif()
-
-	add_compile_options("/wd4819") # ignore Unicode warnings
-	add_compile_options("/wd4251") # ignore template export warnings
 
 	set(variables 
 		CMAKE_CXX_FLAGS_DEBUG

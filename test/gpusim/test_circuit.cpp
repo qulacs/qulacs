@@ -535,6 +535,7 @@ TEST(CircuitTest, RandomCircuitOptimize) {
 
 }
 
+/*
 TEST(CircuitTest, SuzukiTrotterExpansion) {
     CPPCTYPE J(0.0, 1.0);
     Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
@@ -694,7 +695,7 @@ TEST(CircuitTest, RotateDiagonalObservable){
     ASSERT_NEAR(test_res.imag(), 0, eps);
 
 }
-
+*/
 
 TEST(CircuitTest, SpecialGatesToString) {
 	QuantumStateGpu state(1);
