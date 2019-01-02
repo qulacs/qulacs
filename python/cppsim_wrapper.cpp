@@ -20,6 +20,7 @@ extern "C" {
 
 #include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
+#include <cppsim/general_quantum_operator.hpp>
 #include <cppsim/state.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_matrix.hpp>
@@ -71,18 +72,21 @@ PYBIND11_MODULE(qulacs, m) {
     mquantum_operator.def("create_quantum_operator_from_openfermion_text", &quantum_operator::create_general_quantum_operator_from_openfermion_text, pybind11::return_value_policy::automatic_reference);
     mquantum_operator.def("create_split_quantum_operator", &quantum_operator::create_split_general_quantum_operator, pybind11::return_value_policy::automatic_reference);
 
-    py::class_<Observable, GeneralQuantumOperator>(m, "Observable")
+    py::class_<HermitianQuantumOperator, GeneralQuantumOperator>(m, "Observable")
         .def(py::init<unsigned int>())
         // .def(py::init<std::string>())
-        .def("add_operator", (void (Observable::*)(const PauliOperator*)) &Observable::add_operator)
-        .def("add_operator", (void (Observable::*)(std::complex<double> coef, std::string))&Observable::add_operator)
-        .def("get_qubit_count", &Observable::get_qubit_count)
-        .def("get_state_dim", &Observable::get_state_dim)
-        .def("get_term_count", &Observable::get_term_count)
-        .def("get_term", &Observable::get_term, pybind11::return_value_policy::automatic_reference)
-        .def("get_expectation_value", &Observable::get_expectation_value)
-        .def("get_transition_amplitude", &Observable::get_transition_amplitude)
-        //.def_static("get_split_Observable", &(Observable::get_split_observable));
+        .def("add_operator", (void (HermitianQuantumOperator::*)(const PauliOperator*)) &HermitianQuantumOperator::add_operator)
+        .def("add_operator", (void (HermitianQuantumOperator::*)(std::complex<double> coef, std::string))&HermitianQuantumOperator::add_operator)
+        .def("get_qubit_count", &HermitianQuantumOperator::get_qubit_count)
+        .def("get_state_dim", &HermitianQuantumOperator::get_state_dim)
+        .def("get_term_count", &HermitianQuantumOperator::get_term_count)
+        .def("get_term", &HermitianQuantumOperator::get_term, pybind11::return_value_policy::automatic_reference)
+        // .def("get_expectation_value", &HermitianQuantumOperator::get_expectation_value)
+        .def("get_expectation_value", [](const HermitianQuantumOperator& observable, const QuantumStateBase* state) {
+                                          double res = observable.get_expectation_value(state).real();
+                                          return res;})
+        .def("get_transition_amplitude", &HermitianQuantumOperator::get_transition_amplitude)
+        //.def_static("get_split_Observable", &(HermitianQuantumOperator::get_split_observable));
         ;
     auto mobservable = m.def_submodule("observable");
     mobservable.def("create_observable_from_openfermion_file", &observable::create_observable_from_openfermion_file, pybind11::return_value_policy::automatic_reference);

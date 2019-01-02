@@ -3,15 +3,10 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "observable.hpp"
-#include "pauli_operator.hpp"
-#include "type.hpp"
 #include "utility.hpp"
 #include "state.hpp"
-#include <vector>
-#include <string>
 #include <fstream>
 #include <iostream>
-#include <utility>
 
 void HermitianQuantumOperator::add_operator(const PauliOperator* mpt){
     if (std::abs(mpt->get_coef().imag()) > 0){
@@ -36,50 +31,35 @@ CPPCTYPE HermitianQuantumOperator::get_expectation_value(const QuantumStateBase*
 namespace observable{
     HermitianQuantumOperator* create_observable_from_openfermion_file(std::string file_path){
         UINT qubit_count = 0;
-        UINT imag_idx;
-        UINT str_idx;
+        std::vector<CPPCTYPE> coefs;
+        std::vector<std::string> ops;
 
         std::ifstream ifs;
         ifs.open(file_path);
-        double coef_real, coef_imag;
+
         if (!ifs){
             std::cerr << "ERROR: Cannot open file" << std::endl;
 			return NULL;
 		}
 
-        std::string str;
-        std::vector<CPPCTYPE> coefs;
-        std::vector<std::string> ops;
-        while (getline(ifs, str)) {
-            std::vector<std::string> elems;
-            std::vector<std::string> index_list;
-            elems = split(str, "()[]+");
-            if (elems.size() < 3){
-                continue;
-            }
+        // loading lines and check qubit_count
+        double coef_real, coef_imag;
+        std::string str_buf;
+        std::vector<std::string> index_list;
 
+        std::string line;
+        while (getline(ifs, line)) {
 
-            imag_idx = 1;
-            str_idx = 3;
-
-            if (elems[0].find("j") != std::string::npos){
-                coef_real = 0;
-                imag_idx = 0;
-                str_idx = 1;
-            } else if (elems[1].find("j") != std::string::npos){
-                coef_real = std::stod(elems[imag_idx-1]);
-            } else {
-                continue;
-            }
-
-            coef_imag = std::stod(elems[imag_idx]);
-            chfmt(elems[str_idx]);
+            std::tuple<double, double, std::string> parsed_items = parse_openfermion_line(line);
+            coef_real = std::get<0>(parsed_items);
+            coef_imag = std::get<1>(parsed_items);
+            str_buf = std::get<2>(parsed_items);
 
             CPPCTYPE coef(coef_real, coef_imag);
             coefs.push_back(coef);
-            ops.push_back(elems[str_idx]);
+            ops.push_back(str_buf);
+            index_list = split(str_buf, "IXYZ ");
 
-            index_list = split(elems[str_idx], "XYZ ");
             for (UINT i = 0; i < index_list.size(); ++i){
                 UINT n = std::stoi(index_list[i]) + 1;
                 if (qubit_count < n)
@@ -103,45 +83,27 @@ namespace observable{
 
     HermitianQuantumOperator* create_observable_from_openfermion_text(std::string text){
         UINT qubit_count = 0;
-        UINT imag_idx;
-        UINT str_idx;
-
-        std::vector<std::string> lines;
         std::vector<CPPCTYPE> coefs;
         std::vector<std::string> ops;
+
+        std::vector<std::string> lines;
         double coef_real, coef_imag;
+        std::string str_buf;
+        std::vector<std::string> index_list;
 
         lines = split(text, "\n");
-
         for (std::string line: lines){
-            std::vector<std::string> elems;
-            std::vector<std::string> index_list;
-            elems = split(line, "()[]+");
-            if (elems.size() < 3){
-                continue;
-            }
 
-            imag_idx = 1;
-            str_idx = 3;
-            if (elems[0].find("j") != std::string::npos){
-                coef_real = 0;
-                imag_idx = 0;
-                str_idx = 1;
-            } else if (elems[1].find("j") != std::string::npos){
-                coef_real = std::stod(elems[imag_idx-1]);
-            } else {
-                continue;
-            }
-
-            coef_imag = std::stod(elems[imag_idx]);
-            chfmt(elems[str_idx]);
+            std::tuple<double, double, std::string> parsed_items = parse_openfermion_line(line);
+            coef_real = std::get<0>(parsed_items);
+            coef_imag = std::get<1>(parsed_items);
+            str_buf = std::get<2>(parsed_items);
 
             CPPCTYPE coef(coef_real, coef_imag);
-
             coefs.push_back(coef);
-            ops.push_back(elems[str_idx]);
+            ops.push_back(str_buf);
+            index_list = split(str_buf, "IXYZ ");
 
-            index_list = split(elems[str_idx], "XYZ ");
             for (UINT i = 0; i < index_list.size(); ++i){
                 UINT n = std::stoi(index_list[i]) + 1;
                 if (qubit_count < n)
@@ -149,19 +111,21 @@ namespace observable{
             }
         }
 
-        HermitianQuantumOperator* observable = new HermitianQuantumOperator(qubit_count);
+        HermitianQuantumOperator* hermitian_quantum_operator = new HermitianQuantumOperator(qubit_count);
 
         for (UINT i = 0; i < ops.size(); ++i){
-            observable->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
+            hermitian_quantum_operator->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
         }
 
-        return observable;
+        return hermitian_quantum_operator;
+
     }
 
     std::pair<HermitianQuantumOperator*, HermitianQuantumOperator*> create_split_observable(std::string file_path){
         UINT qubit_count = 0;
-        UINT imag_idx;
-        UINT str_idx;
+        std::vector<CPPCTYPE> coefs;
+        std::vector<std::string> ops;
+
         std::ifstream ifs;
         ifs.open(file_path);
 
@@ -171,39 +135,23 @@ namespace observable{
         }
 
         // loading lines and check qubit_count
-        std::string str;
-        std::vector<CPPCTYPE> coefs;
-        std::vector<std::string> ops;
         double coef_real, coef_imag;
+        std::string str_buf;
+        std::vector<std::string> index_list;
 
-        while (getline(ifs, str)) {
-            std::vector<std::string> elems;
-            std::vector<std::string> index_list;
-            elems = split(str, "()[]+");
-            if (elems.size() < 3){
-                continue;
-            }
+        std::string line;
+        while (getline(ifs, line)) {
 
-            imag_idx = 1;
-            str_idx = 3;
-            if (elems[0].find("j") != std::string::npos){
-                coef_real = 0;
-                imag_idx = 0;
-                str_idx = 1;
-            } else if (elems[1].find("j") == std::string::npos){
-                coef_real = std::stod(elems[imag_idx-1]);
-            } else {
-                continue;
-            }
-
-            coef_imag = std::stod(elems[imag_idx]);
-            chfmt(elems[str_idx]);
+            std::tuple<double, double, std::string> parsed_items = parse_openfermion_line(line);
+            coef_real = std::get<0>(parsed_items);
+            coef_imag = std::get<1>(parsed_items);
+            str_buf = std::get<2>(parsed_items);
 
             CPPCTYPE coef(coef_real, coef_imag);
             coefs.push_back(coef);
-            ops.push_back(elems[str_idx]);
+            ops.push_back(str_buf);
+            index_list = split(str_buf, "IXYZ ");
 
-            index_list = split(elems[str_idx], "XYZ ");
             for (UINT i = 0; i < index_list.size(); ++i){
                 UINT n = std::stoi(index_list[i]) + 1;
                 if (qubit_count < n)
