@@ -39,8 +39,10 @@ CUDA_ADD_CUBLAS_TO_TARGET(gpusim_shared)
 
 message("Flag: " ${CUDA_NVCC_FLAGS})
 
-#target_link_libraries(gpusim_static -lcurand)
-#target_link_libraries(gpusim_shared -lcurand)
+if(MSVC)
+	target_link_libraries(gpusim_static -lcurand)
+	target_link_libraries(gpusim_shared -lcurand)
+endif()
 #target_link_libraries(gpusim_exe -lcublas -lcurand)
 
 set_target_properties(gpusim_shared PROPERTIES EXCLUDE_FROM_ALL TRUE)
