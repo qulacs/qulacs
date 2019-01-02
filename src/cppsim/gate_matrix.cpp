@@ -96,7 +96,7 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
 	        if (state->get_device_name() == "gpu") {
                 single_qubit_dense_matrix_gate_host(
                     target_index[0],
-                    matrix_ptr , state->data(), dim );
+                    (const CPPCTYPE*)matrix_ptr , state->data(), dim );
                 
             }else{
                 single_qubit_dense_matrix_gate(
@@ -116,7 +116,7 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
                 single_qubit_control_single_qubit_dense_matrix_gate_host(
                     control_index[0], control_value[0],
                     target_index[0],
-                    matrix_ptr, state->data(), dim );
+                    (const CPPCTYPE*)matrix_ptr, state->data(), dim );
             }else{
                 single_qubit_control_single_qubit_dense_matrix_gate(
                     control_index[0], control_value[0],
@@ -166,7 +166,7 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
 	        if (state->get_device_name() == "gpu") {
                 multi_qubit_dense_matrix_gate_host(
                     target_index.data(), (UINT)(target_index.size()),
-                    matrix_ptr, state->data(), dim );
+                    (const CPPCTYPE*)matrix_ptr, state->data(), dim );
             }else{
                 multi_qubit_dense_matrix_gate(
                     target_index.data(), (UINT)(target_index.size()),
@@ -185,7 +185,7 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
                 single_qubit_control_multi_qubit_dense_matrix_gate_host(
                     control_index[0], control_value[0],
                     target_index.data(), (UINT)(target_index.size()),
-                    matrix_ptr, state->data(), dim );
+                    (const CPPCTYPE*)matrix_ptr, state->data(), dim );
             }else{
                 single_qubit_control_multi_qubit_dense_matrix_gate(
                     control_index[0], control_value[0],
@@ -206,7 +206,7 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
                 multi_qubit_control_multi_qubit_dense_matrix_gate_host(
                     control_index.data(), control_value.data(), (UINT)(control_index.size()),
                     target_index.data(), (UINT)(target_index.size()),
-                    matrix_ptr, state->data(), dim);
+                    (const CPPCTYPE*)matrix_ptr, state->data(), dim);
             }else{
                 multi_qubit_control_multi_qubit_dense_matrix_gate(
                     control_index.data(), control_value.data(), (UINT)(control_index.size()),

@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 2.8)
 
 find_package(CUDA REQUIRED)
-list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/wd 4819\"")
-list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/wd 4244\"")
+if(MSVC)
+	list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/wd 4819\"")
+	list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/wd 4244\"")
+endif()
 
 file(GLOB GPUSIM_SRC
     "*.cu"
@@ -37,8 +39,8 @@ CUDA_ADD_CUBLAS_TO_TARGET(gpusim_shared)
 
 message("Flag: " ${CUDA_NVCC_FLAGS})
 
-target_link_libraries(gpusim_static -lcurand)
-target_link_libraries(gpusim_shared -lcurand)
+#target_link_libraries(gpusim_static -lcurand)
+#target_link_libraries(gpusim_shared -lcurand)
 #target_link_libraries(gpusim_exe -lcublas -lcurand)
 
 set_target_properties(gpusim_shared PROPERTIES EXCLUDE_FROM_ALL TRUE)

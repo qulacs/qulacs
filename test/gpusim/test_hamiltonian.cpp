@@ -11,7 +11,7 @@
 #include <cppsim/state_gpu.hpp>
 
 
-
+/*
 TEST(ObservableTest, CheckExpectationValue) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;
@@ -299,3 +299,4 @@ TEST(ObservableTest, CheckSplitObservable){
 
 }
 
+*/
