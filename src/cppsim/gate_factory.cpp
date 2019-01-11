@@ -140,7 +140,7 @@ namespace gate{
 		ComplexMatrix matrix(dim, dim);
 		for (ITYPE i = 0; i < dim; ++i) {
 			for (ITYPE j = 0; j < dim; ++j) {
-				matrix(i, j) = random.normal() + 1.i * random.normal();
+				matrix(i, j) = (random.normal() + 1.i * random.normal())/sqrt(2.);
 			}
 		}
 		Eigen::HouseholderQR<ComplexMatrix> qr_solver(matrix);
