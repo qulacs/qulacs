@@ -534,6 +534,64 @@ TEST(CircuitTest, RandomCircuitOptimize) {
 
 }
 
+TEST(CircuitTest, RandomCircuitOptimize2) {
+	const UINT n = 5;
+	const UINT dim = 1ULL << n;
+	const UINT depth = 10;
+	Random random;
+	double eps = 1e-14;
+	UINT max_repeat = 3;
+	UINT max_block_size = n;
+
+	for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
+		QuantumState state(n), org_state(n), test_state(n);
+		state.set_Haar_random_state();
+		org_state.load(&state);
+		QuantumCircuit circuit(n);
+
+		for (UINT d = 0; d < depth; ++d) {
+			for (UINT i = 0; i < n; ++i) {
+				UINT r = random.int32() % 6;
+				if (r == 0)    circuit.add_sqrtX_gate(i);
+				else if (r == 1) circuit.add_sqrtY_gate(i);
+				else if (r == 2) circuit.add_T_gate(i);
+				else if (r == 3) {
+					UINT r2 = random.int32() % n;
+					if (r2 == i) r2 = (r2 + 1) % n;
+					if (i + 1 < n) circuit.add_CNOT_gate(i, r2);
+				}
+				else if (r == 4) {
+					UINT r2 = random.int32() % n;
+					if (r2 == i) r2 = (r2 + 1) % n;
+					if (i + 1 < n) circuit.add_CZ_gate(i, r2);
+				}
+				else if (r == 5) {
+					UINT r2 = random.int32() % n;
+					if (r2 == i) r2 = (r2 + 1) % n;
+					if (i + 1 < n) circuit.add_SWAP_gate(i, r2);
+				}
+			}
+		}
+
+		test_state.load(&org_state);
+		circuit.update_quantum_state(&test_state);
+		//std::cout << circuit << std::endl;
+		QuantumCircuitOptimizer qco;
+		for (UINT block_size = 1; block_size <= max_block_size; ++block_size) {
+			QuantumCircuit* copy_circuit = circuit.copy();
+			qco.optimize(copy_circuit, block_size);
+			state.load(&org_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << copy_circuit << std::endl;
+			for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+			delete copy_circuit;
+		}
+	}
+
+}
+
+
+
 TEST(CircuitTest, SuzukiTrotterExpansion) {
     CPPCTYPE J(0.0, 1.0);
     Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
