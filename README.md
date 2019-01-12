@@ -27,7 +27,7 @@ pip install qulacs-gpu
 
 ## Performance
 - Compared processing time with following libraries on October 1st, 2018
-    - Qulacs CPU &GPU (ours)
+    - Qulacs CPU & GPU (ours)
     - [Cirq](https://github.com/quantumlib/Cirq)
     - [ProjectQ](https://github.com/ProjectQ-Framework/ProjectQ)
     - [pyQuil](https://github.com/rigetticomputing/pyquil)
