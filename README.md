@@ -12,6 +12,11 @@ Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob
 pip install qulacs
 ```
 
+If you have NVIDIA GPU with CUDA installed try:
+```
+pip install qulacs-gpu
+```
+
 ## Feature
 - Fast quantum circuit simulation with parallelized C/C++ backend
 - Noisy quantum gate for simulation of NISQ devices
@@ -22,12 +27,13 @@ pip install qulacs
 
 ## Performance
 - Compared processing time with following libraries on October 1st, 2018
-    - Qulacs (ours)
+    - Qulacs CPU &GPU (ours)
     - [Cirq](https://github.com/quantumlib/Cirq)
     - [ProjectQ](https://github.com/ProjectQ-Framework/ProjectQ)
     - [pyQuil](https://github.com/rigetticomputing/pyquil)
     - [Q#](https://github.com/Microsoft/Quantum)
     - [Qiskit Terra QASM Simulator](https://github.com/Qiskit/qiskit-terra/tree/master/src/qasm-simulator-cpp)
+    - [Qiskit Aer](https://github.com/Qiskit/qiskit-aer)
     - [QuPy CPU & GPU](https://github.com/ken-nakanishi/qupy)
 
 - Test environment:
@@ -38,7 +44,10 @@ pip install qulacs
     - MKL enabled (numpy runs in multi thread)
     - Circuit compression disabled
     
-![benchmark](https://storage.googleapis.com/qunasys/_plot.png)
+![benchmark](https://storage.googleapis.com/qunasys/Qulacs_bench.png)
+
+[QuEST](https://github.com/quest-kit/QuEST) and [qHiPSTER](https://github.com/intel/Intel-QS) is also fast circuit
+simulator but we excluded since it doesn't have python interface.
 
 ## Supported environment
 Qulacs is tested on the following systems.
