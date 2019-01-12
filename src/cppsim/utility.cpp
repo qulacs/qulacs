@@ -50,9 +50,49 @@ std::vector<std::string> split(const std::string &s, const std::string &delim){
 
 void chfmt(std::string& ops){
     for (UINT i = 0; i < ops.size(); ++i){
-        if (ops[i] == 'X' || ops[i] == 'Y' || ops[i] == 'Z'){
+        if (ops[i] == 'X' || ops[i] == 'Y' || ops[i] == 'Z' || ops[i] == 'I'){
             ops.insert(++i, " ");
         }
     }
+}
+
+std::tuple<double, double, std::string> parse_openfermion_line(std::string line){
+    double coef_real, coef_imag;
+
+    char buf[256];
+    char symbol_j[1];
+    UINT matches;
+
+    if(line[0]=='('){
+        matches = std::sscanf(line.c_str(), "(%lf+%lfj) [%[^]]]", &coef_real, &coef_imag, buf);
+        if (matches < 2){
+            matches = std::sscanf(line.c_str(), "(%lf-%lfj) [%[^]]]", &coef_real, &coef_imag, buf);
+            coef_imag = -coef_imag;
+        }
+        if (matches < 3){
+            std::strcpy(buf, "I0");
+        }
+    }else{
+        matches = std::sscanf(line.c_str(), "%lf%[j] [%[^]]]", &coef_imag, symbol_j, buf);
+        coef_real = 0.;
+        if (matches < 3){
+            std::strcpy(buf, "I0");
+        }
+        if (symbol_j[0] != 'j'){
+            matches = std::sscanf(line.c_str(), "%lf [%[^]]]", &coef_real, buf);
+            coef_imag = 0.;
+            if (matches < 2){
+                std::strcpy(buf, "I0");
+            }
+        }
+        if (matches == 0){
+            return std::make_tuple((double)NULL, (double)NULL, (std::string)NULL);
+        }
+    }
+
+    std::string str_buf(buf, std::strlen(buf));
+    chfmt(str_buf);
+
+    return std::make_tuple(coef_real, coef_imag, str_buf);
 }
 

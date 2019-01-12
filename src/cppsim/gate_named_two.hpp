@@ -24,6 +24,9 @@ public:
      */
     ClsCNOTGate(UINT control_qubit_index, UINT target_qubit_index) {
         this->_update_func = CNOT_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = CNOT_gate_host;
+#endif
         this->_name = "CNOT";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE ));
         this->_control_qubit_list.push_back(ControlQubitInfo(control_qubit_index, 1 ));
@@ -46,6 +49,9 @@ public:
      */
     ClsCZGate(UINT control_qubit_index, UINT target_qubit_index) {
         this->_update_func = CZ_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = CZ_gate_host;
+#endif
         this->_name = "CZ";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE ));
         this->_control_qubit_list.push_back(ControlQubitInfo(control_qubit_index, 1 ));
@@ -68,6 +74,9 @@ public:
      */
     ClsSWAPGate(UINT target_qubit_index1, UINT target_qubit_index2) {
         this->_update_func = SWAP_gate;
+#ifdef _USE_GPU
+		this->_update_func_gpu = SWAP_gate_host;
+#endif
         this->_name = "SWAP";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index1, 0 ));
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index2, 0 ));

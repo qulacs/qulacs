@@ -13,3 +13,10 @@ target_link_libraries(cppsim_static csim_static)
 target_link_libraries(cppsim_shared csim_static)
 add_dependencies(cppsim_static eigen)
 add_dependencies(cppsim_shared eigen)
+
+if(USE_GPU)
+    target_link_libraries(cppsim_static gpusim_static)
+    target_link_libraries(cppsim_shared gpusim_static)
+endif()
+
+set_target_properties(cppsim_shared PROPERTIES EXCLUDE_FROM_ALL TRUE)

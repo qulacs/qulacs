@@ -53,6 +53,18 @@ public:
     virtual void update_quantum_state(QuantumStateBase* state)  override {
         auto target_index_list = _pauli->get_index_list();
         auto pauli_id_list = _pauli->get_pauli_id_list();
+#ifdef _USE_GPU
+		if (state->get_device_name() == "gpu") {
+            multi_qubit_Pauli_gate_partial_list_host(
+			    target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+                    state->data(), state->dim);
+            //_update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim);
+		} else {
+            multi_qubit_Pauli_gate_partial_list(
+			    target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+			    state->data_c(), state->dim);
+		}
+#endif
         multi_qubit_Pauli_gate_partial_list(
             target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
             state->data_c(), state->dim);
@@ -120,6 +132,13 @@ public:
     virtual void update_quantum_state(QuantumStateBase* state) override {
         auto target_index_list = _pauli->get_index_list();
         auto pauli_id_list = _pauli->get_pauli_id_list();
+#ifdef _USE_GPU
+		if (state->get_device_name() == "gpu") {
+            multi_qubit_Pauli_rotation_gate_partial_list_host(
+			    target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+			    _angle, state->data(), state->dim);
+        }
+#endif
         multi_qubit_Pauli_rotation_gate_partial_list(
             target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
             _angle, state->data_c(), state->dim);
@@ -140,6 +159,6 @@ public:
      */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         get_Pauli_matrix(matrix, _pauli->get_pauli_id_list());
-        matrix = cos(_angle)*ComplexMatrix::Identity(matrix.rows(), matrix.cols()) + 1.i * sin(_angle) * matrix;
+        matrix = cos(_angle/2)*ComplexMatrix::Identity(matrix.rows(), matrix.cols()) + 1.i * sin(_angle/2) * matrix;
     }
 };

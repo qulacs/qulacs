@@ -16,8 +16,8 @@ TEST(ObservableTest, CheckExpectationValue) {
     const UINT dim = 1ULL << n;
     const double eps = 1e-14;
     double coef;
-    double res;
-    std::complex<double> test_res;
+    CPPCTYPE res;
+    CPPCTYPE test_res;
     Random random;
 
     Eigen::MatrixXcd X(2, 2);
@@ -36,14 +36,16 @@ TEST(ObservableTest, CheckExpectationValue) {
 
     res = observable.get_expectation_value(&state);
     test_res = (test_state.adjoint() * test_observable * test_state);
-    ASSERT_NEAR(test_res.real(), res, eps);
+    ASSERT_NEAR(test_res.real(), res.real(), eps);
+    ASSERT_NEAR(res.imag(), 0, eps);
     ASSERT_NEAR(test_res.imag(), 0, eps);
 
     state.set_Haar_random_state();
     for (ITYPE i = 0; i < dim; ++i) test_state[i] = state.data_cpp()[i];
     res = observable.get_expectation_value(&state);
     test_res = (test_state.adjoint() * test_observable * test_state);
-    ASSERT_NEAR(test_res.real(), res, eps);
+    ASSERT_NEAR(test_res.real(), res.real(), eps);
+    ASSERT_NEAR(res.imag(), 0, eps);
     ASSERT_NEAR(test_res.imag(), 0, eps);
 
 
@@ -83,22 +85,23 @@ TEST(ObservableTest, CheckExpectationValue) {
 
         res = rand_observable.get_expectation_value(&state);
         test_res = test_state.adjoint() * test_rand_observable * test_state;
-        ASSERT_NEAR(test_res.real(), res, eps);
+        ASSERT_NEAR(test_res.real(), res.real(), eps);
+        ASSERT_NEAR(res.imag(), 0, eps);
         ASSERT_NEAR(test_res.imag(), 0, eps);
 
     }
 }
 
 TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile){
-    auto func = [](const std::string path, const QuantumStateBase* state) -> double {
+    auto func = [](const std::string path, const QuantumStateBase* state) -> CPPCTYPE {
             std::ifstream ifs;
             ifs.open(path);
             if (!ifs){
                 std::cerr << "ERROR: Cannot open file" << std::endl;
-                std::exit(EXIT_FAILURE);
+				return -1.;
             }
 
-            double energy = 0;
+            CPPCTYPE energy = 0;
 
             std::string str;
             while (getline(ifs, str)) {
@@ -122,6 +125,7 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile){
             }
             if (!ifs.eof()) {
                 std::cerr << "ERROR: Invalid format" << std::endl;
+				return -1.;
             }
             ifs.close();
             return energy;
@@ -130,11 +134,12 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile){
     const double eps = 1e-14;
     const char* filename = "../test/cppsim/H2.txt";
 
-    double res, test_res;
+    CPPCTYPE res, test_res;
 
 
     Observable* observable;
     observable = observable::create_observable_from_openfermion_file(filename);
+	ASSERT_NE(observable, (Observable*)NULL);
     UINT qubit_count = observable->get_qubit_count();
 
     QuantumState state(qubit_count);
@@ -151,12 +156,15 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile){
     res = observable->get_expectation_value(&state);
     test_res = func(filename, &state);
 
-    ASSERT_NEAR(test_res, res, eps);
+    ASSERT_NEAR(test_res.real(), res.real(), eps);
+    ASSERT_NEAR(test_res.imag(), 0, eps);
+    ASSERT_NEAR(res.imag(), 0, eps);
+
 }
 
 TEST(ObservableTest, CheckParsedObservableFromOpenFermionText){
-    auto func = [](const std::string str, const QuantumStateBase* state) -> double {
-            double energy = 0;
+    auto func = [](const std::string str, const QuantumStateBase* state) -> CPPCTYPE {
+            CPPCTYPE energy = 0;
 
             std::vector<std::string> lines = split(str, "\n");
 
@@ -199,12 +207,13 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText){
         "(0.17434925+0j) [Z1 Z3] +\n"
         "(-0.22279649999999998+0j) [Z2]";
 
-    double res, test_res;
+    CPPCTYPE res, test_res;
 
 
     Observable* observable;
     observable = observable::create_observable_from_openfermion_text(text);
-    UINT qubit_count = observable->get_qubit_count();
+	ASSERT_NE(observable, (Observable*)NULL);
+	UINT qubit_count = observable->get_qubit_count();
 
     QuantumState state(qubit_count);
     state.set_computational_basis(0);
@@ -220,20 +229,24 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText){
     res = observable->get_expectation_value(&state);
     test_res = func(text, &state);
 
-    ASSERT_NEAR(test_res, res, eps);
+    ASSERT_NEAR(test_res.real(), res.real(), eps);
+    ASSERT_NEAR(test_res.imag(), 0, eps);
+    ASSERT_NEAR(res.imag(), 0, eps);
+
+
 }
 
 TEST(ObservableTest, CheckSplitObservable){
-    auto func = [](const std::string path, const QuantumStateBase* state) -> double {
+    auto func = [](const std::string path, const QuantumStateBase* state) -> CPPCTYPE {
             std::ifstream ifs;
             CPPCTYPE coef;
             ifs.open(path);
             if (!ifs){
                 std::cerr << "ERROR: Cannot open file" << std::endl;
-                std::exit(EXIT_FAILURE);
+				return -1.;
             }
 
-            double energy = 0;
+            CPPCTYPE energy = 0;
 
             std::string str;
             while (getline(ifs, str)) {
@@ -257,6 +270,7 @@ TEST(ObservableTest, CheckSplitObservable){
             }
             if (!ifs.eof()) {
                 std::cerr << "ERROR: Invalid format" << std::endl;
+				return -1.;
             }
             ifs.close();
             return energy;
@@ -265,10 +279,12 @@ TEST(ObservableTest, CheckSplitObservable){
     const double eps = 1e-14;
     const char* filename  = "../test/cppsim/H2.txt";
 
-    double diag_res, test_res, non_diag_res;
+    CPPCTYPE diag_res, test_res, non_diag_res;
 
     std::pair<Observable*, Observable*> observables;
     observables = observable::create_split_observable(filename);
+	ASSERT_NE(observables.first, (Observable*)NULL);
+	ASSERT_NE(observables.second, (Observable*)NULL);
 
     UINT qubit_count = observables.first->get_qubit_count();
     QuantumState state(qubit_count);
@@ -279,7 +295,10 @@ TEST(ObservableTest, CheckSplitObservable){
     non_diag_res = observables.second->get_expectation_value(&state);
     test_res = func(filename, &state);
 
-    ASSERT_NEAR(test_res, diag_res + non_diag_res, eps);
+    ASSERT_NEAR(test_res.real(), (diag_res + non_diag_res).real(), eps);
+    ASSERT_NEAR(test_res.imag(), 0, eps);
+    ASSERT_NEAR(diag_res.imag(), 0, eps);
+    ASSERT_NEAR(non_diag_res.imag(), 0, eps);
 
 
     state.set_Haar_random_state();
@@ -288,7 +307,10 @@ TEST(ObservableTest, CheckSplitObservable){
     non_diag_res = observables.second->get_expectation_value(&state);
     test_res = func(filename, &state);
 
-    ASSERT_NEAR(test_res, diag_res + non_diag_res, eps);
+    ASSERT_NEAR(test_res.real(), (diag_res + non_diag_res).real(), eps);
+    ASSERT_NEAR(test_res.imag(), 0, eps);
+    ASSERT_NEAR(diag_res.imag(), 0, eps);
+    ASSERT_NEAR(non_diag_res.imag(), 0, eps);
 
 }
 

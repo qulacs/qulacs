@@ -9,6 +9,7 @@
 #include "type.hpp"
 #include <vector>
 #include <cassert>
+#include <iostream>
 
 class QuantumStateBase;
 
@@ -34,7 +35,9 @@ public:
      * @return 新しいインスタンス
      */
     SinglePauliOperator(UINT index_, UINT pauli_id_) : _index(index_), _pauli_id(pauli_id_) {
-        assert(pauli_id_ <= 3);
+		if (pauli_id_ > 3) {
+			std::cerr << "Error: SinglePauliOperator(UINT, UINT): index must be either of 0,1,2,3" << std::endl;
+		}
     };
 
     /**
@@ -63,7 +66,7 @@ public:
 class DllExport PauliOperator{
 private:
     std::vector<SinglePauliOperator> _pauli_list;
-    double _coef;
+    CPPCTYPE _coef;
 public:
     /**
      * \~japanese-en
@@ -102,7 +105,7 @@ public:
      * @param[in] coef 係数。デフォルトは1.0
      * @return 係数がcoefの空のインスタンス
      */
-    PauliOperator(double coef=1.0): _coef(coef){};
+    PauliOperator(CPPCTYPE coef=1.): _coef(coef){};
 
     /**
      * \~japanese-en
@@ -114,7 +117,7 @@ public:
      * @param[in] coef 演算子の係数
      * @return 入力のパウリ演算子と係数をもつPauliOpetatorのインスタンス
      */
-    PauliOperator(std::string strings, double coef=1.0);
+    PauliOperator(std::string strings, CPPCTYPE coef=1.);
 
     /**
      * \~japanese-en
@@ -128,7 +131,7 @@ public:
      * @param[in] coef 係数
      * @return 入力として与えたパウリ演算子のリストと添字のリスト、係数から生成されるPauliOperatorのインスタンス
      */
-    PauliOperator(const std::vector<UINT>& target_qubit_index_list, std::string Pauli_operator_type_list, double coef = 1.);
+    PauliOperator(const std::vector<UINT>& target_qubit_index_list, std::string Pauli_operator_type_list, CPPCTYPE coef = 1.);
 
     /**
      * \~japanese-en
@@ -139,7 +142,7 @@ public:
      * @param[in] coef 係数
      * @return pauli_listの添字に対応するqubitに作用するパウリ演算子と係数をもつインスタンス
      */
-    PauliOperator(const std::vector<UINT>& pauli_list, double coef = 1.);
+    PauliOperator(const std::vector<UINT>& pauli_list, CPPCTYPE coef = 1.);
 
     /**
      * \~japanese-en
@@ -153,7 +156,7 @@ public:
      * @param[in] coef 係数
      * @return 入力として与えたパウリ演算子のリストと添字のリスト、係数から生成されるPauliOperatorのインスタンス
      */
-    PauliOperator(const std::vector<UINT>& target_qubit_index_list, const std::vector<UINT>& target_qubit_pauli_list, double coef=1.);
+    PauliOperator(const std::vector<UINT>& target_qubit_index_list, const std::vector<UINT>& target_qubit_pauli_list, CPPCTYPE coef=1.);
 
 
     /**
@@ -162,7 +165,7 @@ public:
      *
      * @return 自身の係数
      */
-    virtual double get_coef() const { return _coef; }
+    virtual CPPCTYPE get_coef() const { return _coef; }
 
     virtual ~PauliOperator(){};
 
@@ -182,7 +185,7 @@ public:
      * @param[in] state 期待値をとるときの量子状態
      * @return stateに対応する期待値
      */
-    virtual double get_expectation_value(const QuantumStateBase* state) const;
+    virtual CPPCTYPE get_expectation_value(const QuantumStateBase* state) const;
 
     /**
      * \~japanese-en
@@ -203,3 +206,6 @@ public:
     virtual PauliOperator* copy() const;
 
 };
+
+
+

@@ -133,24 +133,21 @@ before_install:
 install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
-      ./generate_msvc_project.bat
-      cd visualstudio
-      cmake --bulid . --target ALL_BUILD --config Release
-      cmake --build . --target python --config Release
+      ./script/build_msvc.bat
     else
-      mkdir build
-      cd build
-      cmake -G "Unix Makefiles" -D CMAKE_BUILD_TYPE=Release -D CMAKE_C_COMPILER=gcc-7 -D CMAKE_CXX_COMPILER=g++-7 ..
-      make
-      make python
+      chmod +x ./script/build_gcc.sh
+      ./script/build_gcc.sh
     fi
+  # Check if `pip install` will be done successfully or not
+  - python setup.py install
 
 script:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
-      cmake --build . --target test --config Release
-      cmake --build . --target pythontest --config Release
+      cmake --build ./visualstudio --target test --config Release
+      cmake --build ./visualstudio --target pythontest --config Release
     else
+      cd ./build
       make test
       make pythontest
     fi

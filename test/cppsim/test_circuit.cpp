@@ -106,17 +106,17 @@ TEST(CircuitTest, CircuitBasic) {
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
     circuit.add_RX_gate(target,angle);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle)*Identity + 1.i*sin(angle)*X, n)*state_eigen;
+    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + 1.i*sin(angle/2)*X, n)*state_eigen;
 
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
     circuit.add_RY_gate(target, angle);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle)*Identity + 1.i*sin(angle)*Y, n)*state_eigen;
+    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + 1.i*sin(angle/2)*Y, n)*state_eigen;
 
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
     circuit.add_RZ_gate(target, angle);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle)*Identity + 1.i*sin(angle)*Z, n)*state_eigen;
+    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + 1.i*sin(angle/2)*Z, n)*state_eigen;
 
     target = random.int32() % n;
     target_sub = random.int32() % (n-1);
@@ -534,6 +534,64 @@ TEST(CircuitTest, RandomCircuitOptimize) {
 
 }
 
+TEST(CircuitTest, RandomCircuitOptimize2) {
+	const UINT n = 5;
+	const UINT dim = 1ULL << n;
+	const UINT depth = 10;
+	Random random;
+	double eps = 1e-14;
+	UINT max_repeat = 3;
+	UINT max_block_size = n;
+
+	for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
+		QuantumState state(n), org_state(n), test_state(n);
+		state.set_Haar_random_state();
+		org_state.load(&state);
+		QuantumCircuit circuit(n);
+
+		for (UINT d = 0; d < depth; ++d) {
+			for (UINT i = 0; i < n; ++i) {
+				UINT r = random.int32() % 6;
+				if (r == 0)    circuit.add_sqrtX_gate(i);
+				else if (r == 1) circuit.add_sqrtY_gate(i);
+				else if (r == 2) circuit.add_T_gate(i);
+				else if (r == 3) {
+					UINT r2 = random.int32() % n;
+					if (r2 == i) r2 = (r2 + 1) % n;
+					if (i + 1 < n) circuit.add_CNOT_gate(i, r2);
+				}
+				else if (r == 4) {
+					UINT r2 = random.int32() % n;
+					if (r2 == i) r2 = (r2 + 1) % n;
+					if (i + 1 < n) circuit.add_CZ_gate(i, r2);
+				}
+				else if (r == 5) {
+					UINT r2 = random.int32() % n;
+					if (r2 == i) r2 = (r2 + 1) % n;
+					if (i + 1 < n) circuit.add_SWAP_gate(i, r2);
+				}
+			}
+		}
+
+		test_state.load(&org_state);
+		circuit.update_quantum_state(&test_state);
+		//std::cout << circuit << std::endl;
+		QuantumCircuitOptimizer qco;
+		for (UINT block_size = 1; block_size <= max_block_size; ++block_size) {
+			QuantumCircuit* copy_circuit = circuit.copy();
+			qco.optimize(copy_circuit, block_size);
+			state.load(&org_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << copy_circuit << std::endl;
+			for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+			delete copy_circuit;
+		}
+	}
+
+}
+
+
+
 TEST(CircuitTest, SuzukiTrotterExpansion) {
     CPPCTYPE J(0.0, 1.0);
     Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
@@ -554,7 +612,7 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
     Random random;
     random.set_seed(seed);
 
-    double res;
+    CPPCTYPE res;
     CPPCTYPE test_res;
 
     Observable diag_observable(n), non_diag_observable(n), observable(n);
@@ -605,7 +663,7 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
 
     res = observable.get_expectation_value(&state);
     test_res = (test_state.adjoint() * test_observable * test_state);
-    ASSERT_NEAR(abs(test_res.real() - res)/ res, 0, 0.01);
+    ASSERT_NEAR(abs(test_res.real() - res.real())/ test_res.real(), 0, 0.01);
 
 
     state.set_Haar_random_state(seed);
@@ -616,7 +674,7 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
 
     res = observable.get_expectation_value(&state);
     test_res = (test_state.adjoint() * test_observable * test_state);
-    ASSERT_NEAR(abs(test_res.real() - res)/ res, 0, 0.01);
+    ASSERT_NEAR(abs(test_res.real() - res.real())/ test_res.real(), 0, 0.01);
 }
 
 
@@ -635,7 +693,7 @@ TEST(CircuitTest, RotateDiagonalObservable){
     double angle, coef1, coef2;
     Random random;
 
-    double res;
+    CPPCTYPE res;
     CPPCTYPE test_res;
 
     Observable observable(n);
@@ -673,8 +731,10 @@ TEST(CircuitTest, RotateDiagonalObservable){
     test_res = (test_state.adjoint() * test_observable * test_state);
 
     // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
-    ASSERT_NEAR(abs(test_res.real() - res)/test_res.real(), 0, 0.01);
+    ASSERT_NEAR(abs(test_res.real() - res.real())/test_res.real(), 0, 0.01);
+    ASSERT_NEAR(res.imag(), 0, eps);
     ASSERT_NEAR(test_res.imag(), 0, eps);
+
 
     state.set_Haar_random_state();
     for (ITYPE i = 0; i < dim; ++i) test_state[i] = state.data_cpp()[i];
@@ -689,7 +749,8 @@ TEST(CircuitTest, RotateDiagonalObservable){
     test_res = (test_state.adjoint() * test_observable * test_state);
 
     // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
-    ASSERT_NEAR(abs(test_res.real() - res)/test_res.real(), 0, 0.01);
+    ASSERT_NEAR(abs(test_res.real() - res.real())/test_res.real(), 0, 0.01);
+    ASSERT_NEAR(res.imag(), 0, eps);
     ASSERT_NEAR(test_res.imag(), 0, eps);
 
 }

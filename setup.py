@@ -1,5 +1,3 @@
-
-
 import os
 import re
 import sys
@@ -10,6 +8,9 @@ from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
+_VERSION = '0.1.0'
+
+project_name = 'Qulacs'
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
@@ -33,7 +34,8 @@ class CMakeBuild(build_ext):
         extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=' + extdir,
-                      '-DPYTHON_EXECUTABLE=' + sys.executable]
+                      '-DPYTHON_EXECUTABLE=' + sys.executable,
+                      '-DPYTHON_SETUP_FLAG:STR=Yes']
 
         cfg = 'Debug' if self.debug else 'Release'
         build_args = ['--config', cfg]
@@ -61,7 +63,6 @@ class CMakeBuild(build_ext):
                 cmake_args += ['-DCMAKE_CXX_COMPILER=g++']
             else:
                 cmake_args += ['-DCMAKE_CXX_COMPILER=g++-7']
-
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j2']
 
@@ -74,8 +75,8 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.', '--target', 'python'] + build_args, cwd=self.build_temp)
 
 setup(
-    name='Qulacs',
-    version='0.0.4',
+    name=project_name,
+    version=_VERSION,
     author='QunaSys',
     author_email='qulacs@qunasys.com',
     url='http://www.qulacs.org',
@@ -98,7 +99,4 @@ setup(
         'Programming Language :: Python',
         'Topic :: Communications :: Email',
     ],
-
-
 )
-

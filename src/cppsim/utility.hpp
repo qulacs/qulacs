@@ -6,9 +6,11 @@
 
 #pragma once
 
+#include <cstdio>
 #include <chrono>
 #include <random>
 #include <string>
+#include <tuple>
 #include <vector>
 #include "type.hpp"
 
@@ -182,3 +184,6 @@ DllExport std::vector<std::string> split(const std::string &s, const std::string
  * @param[in] ops 演算子と添字が隣り合った文字列。(example: "X12 Y13 Z5" に対して, "X 12 Y 13 Z 5"のように変更を加えます。)
  */
 DllExport void chfmt(std::string& ops);
+
+
+DllExport std::tuple<double, double, std::string> parse_openfermion_line(std::string line);

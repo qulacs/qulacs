@@ -151,7 +151,7 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
             auto mat = std::get<1>(tup);
             auto name = std::get<2>(tup);
             func(target, angle, state, dim);
-            test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle)*Identity + 1.i*sin(angle)*mat, n) * test_state;
+            test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + 1.i*sin(angle/2)*mat, n) * test_state;
             state_equal(state, test_state, dim, name);
         }
     }
@@ -232,7 +232,7 @@ TEST(UpdateTest, SingleQubitPauliTest) {
         pauli = rand_int(4);
         angle = rand_real();
         single_qubit_Pauli_rotation_gate(target, pauli, angle, state, dim);
-        test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle)*Identity + 1.i * sin(angle) * get_eigen_matrix_single_Pauli(pauli), n) * test_state;
+        test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + 1.i * sin(angle/2) * get_eigen_matrix_single_Pauli(pauli), n) * test_state;
         state_equal(state, test_state, dim, "single rotation Pauli gate");
     }
     release_quantum_state(state);
@@ -315,7 +315,7 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
         }
         angle = rand_real();
         multi_qubit_Pauli_rotation_gate_whole_list(pauli_whole.data(), n, angle, state, dim);
-        test_state = (cos(angle)*whole_I + 1.i * sin(angle)* get_eigen_matrix_full_qubit_pauli(pauli_whole)) * test_state;
+        test_state = (cos(angle/2)*whole_I + 1.i * sin(angle/2)* get_eigen_matrix_full_qubit_pauli(pauli_whole)) * test_state;
         state_equal(state, test_state, dim, "multi Pauli rotation whole gate");
 
         // multi pauli rotation partial
@@ -336,7 +336,7 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
         }
         angle = rand_real();
         multi_qubit_Pauli_rotation_gate_partial_list(pauli_partial_index.data(), pauli_partial.data(), (UINT)pauli_partial.size(), angle, state, dim);
-        test_state = (cos(angle)*whole_I + 1.i * sin(angle)* get_eigen_matrix_full_qubit_pauli(pauli_whole)) * test_state;
+        test_state = (cos(angle/2)*whole_I + 1.i * sin(angle/2)* get_eigen_matrix_full_qubit_pauli(pauli_whole)) * test_state;
         state_equal(state, test_state, dim, "multi Pauli rotation partial gate");
     }
     release_quantum_state(state);

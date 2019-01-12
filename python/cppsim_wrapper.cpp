@@ -4,6 +4,7 @@
 #include <pybind11/complex.h>
 #include <pybind11/operators.h>
 #include <pybind11/eigen.h>
+#include <pybind11/functional.h>
 
 #ifndef _MSC_VER
 extern "C" {
@@ -19,6 +20,7 @@ extern "C" {
 
 #include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
+#include <cppsim/general_quantum_operator.hpp>
 #include <cppsim/state.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_matrix.hpp>
@@ -26,6 +28,10 @@ extern "C" {
 #include <cppsim/circuit.hpp>
 #include <cppsim/circuit_optimizer.hpp>
 #include <cppsim/simulator.hpp>
+
+#ifdef _USE_GPU
+#include <cppsim/state_gpu.hpp>
+#endif
 
 #include <vqcsim/parametric_gate_factory.hpp>
 #include <vqcsim/parametric_circuit.hpp>
@@ -45,21 +51,42 @@ PYBIND11_MODULE(qulacs, m) {
         .def("add_single_Pauli", &PauliOperator::add_single_Pauli)
         .def("get_expectation_value", &PauliOperator::get_expectation_value)
         .def("get_transition_amplitude", &PauliOperator::get_transition_amplitude)
-        .def("copy", &PauliOperator::copy)
+        .def("copy", &PauliOperator::copy, pybind11::return_value_policy::automatic_reference)
         ;
 
-    py::class_<Observable>(m, "Observable")
+    py::class_<GeneralQuantumOperator>(m, "GeneralQuantumOperator")
         .def(py::init<unsigned int>())
         // .def(py::init<std::string>())
-        .def("add_operator", (void (Observable::*)(const PauliOperator*)) &Observable::add_operator)
-        .def("add_operator", (void (Observable::*)(double coef, std::string))&Observable::add_operator)
-        .def("get_qubit_count", &Observable::get_qubit_count)
-        .def("get_state_dim", &Observable::get_state_dim)
-        .def("get_term_count", &Observable::get_term_count)
-        .def("get_term", &Observable::get_term, pybind11::return_value_policy::automatic_reference)
-        .def("get_expectation_value", &Observable::get_expectation_value)
-        .def("get_transition_amplitude", &Observable::get_transition_amplitude)
-        //.def_static("get_split_Observable", &(Observable::get_split_observable));
+        .def("add_operator", (void (GeneralQuantumOperator::*)(const PauliOperator*)) &GeneralQuantumOperator::add_operator)
+        .def("add_operator", (void (GeneralQuantumOperator::*)(std::complex<double> coef, std::string))&GeneralQuantumOperator::add_operator)
+        .def("get_qubit_count", &GeneralQuantumOperator::get_qubit_count)
+        .def("get_state_dim", &GeneralQuantumOperator::get_state_dim)
+        .def("get_term_count", &GeneralQuantumOperator::get_term_count)
+        .def("get_term", &GeneralQuantumOperator::get_term, pybind11::return_value_policy::automatic_reference)
+        .def("get_expectation_value", &GeneralQuantumOperator::get_expectation_value)
+        .def("get_transition_amplitude", &GeneralQuantumOperator::get_transition_amplitude)
+        //.def_static("get_split_GeneralQuantumOperator", &(GeneralQuantumOperator::get_split_observable));
+        ;
+    auto mquantum_operator = m.def_submodule("quantum_operator");
+    mquantum_operator.def("create_quantum_operator_from_openfermion_file", &quantum_operator::create_general_quantum_operator_from_openfermion_file, pybind11::return_value_policy::automatic_reference);
+    mquantum_operator.def("create_quantum_operator_from_openfermion_text", &quantum_operator::create_general_quantum_operator_from_openfermion_text, pybind11::return_value_policy::automatic_reference);
+    mquantum_operator.def("create_split_quantum_operator", &quantum_operator::create_split_general_quantum_operator, pybind11::return_value_policy::automatic_reference);
+
+    py::class_<HermitianQuantumOperator, GeneralQuantumOperator>(m, "Observable")
+        .def(py::init<unsigned int>())
+        // .def(py::init<std::string>())
+        .def("add_operator", (void (HermitianQuantumOperator::*)(const PauliOperator*)) &HermitianQuantumOperator::add_operator)
+        .def("add_operator", (void (HermitianQuantumOperator::*)(std::complex<double> coef, std::string))&HermitianQuantumOperator::add_operator)
+        .def("get_qubit_count", &HermitianQuantumOperator::get_qubit_count)
+        .def("get_state_dim", &HermitianQuantumOperator::get_state_dim)
+        .def("get_term_count", &HermitianQuantumOperator::get_term_count)
+        .def("get_term", &HermitianQuantumOperator::get_term, pybind11::return_value_policy::automatic_reference)
+        // .def("get_expectation_value", &HermitianQuantumOperator::get_expectation_value)
+        .def("get_expectation_value", [](const HermitianQuantumOperator& observable, const QuantumStateBase* state) {
+                                          double res = observable.get_expectation_value(state).real();
+                                          return res;})
+        .def("get_transition_amplitude", &HermitianQuantumOperator::get_transition_amplitude)
+        //.def_static("get_split_Observable", &(HermitianQuantumOperator::get_split_observable));
         ;
     auto mobservable = m.def_submodule("observable");
     mobservable.def("create_observable_from_openfermion_file", &observable::create_observable_from_openfermion_file, pybind11::return_value_policy::automatic_reference);
@@ -79,9 +106,11 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_entropy", &QuantumState::get_entropy)
         .def("get_norm", &QuantumState::get_norm)
         .def("normalize", &QuantumState::normalize)
-        .def("allocate_buffer", &QuantumState::allocate_buffer)
+        .def("allocate_buffer", &QuantumState::allocate_buffer, pybind11::return_value_policy::automatic_reference)
+        //.def("copy", &QuantumState::copy, pybind11::return_value_policy::automatic_reference)
         .def("copy", &QuantumState::copy)
-        .def("load", &QuantumState::load)
+        .def("load", (void (QuantumState::*)(const QuantumStateBase*))&QuantumState::load)
+        .def("load", (void (QuantumState::*)(const std::vector<CPPCTYPE>&))&QuantumState::load)
         .def("get_device_name", &QuantumState::get_device_name)
         .def("data_cpp", &QuantumState::data_cpp)
         .def("data_c", &QuantumState::data_c)
@@ -96,12 +125,51 @@ PYBIND11_MODULE(qulacs, m) {
         })
         .def("__repr__", [](const QuantumState &p) {return p.to_string();});
         ;
-    auto mstate = m.def_submodule("state");
-    mstate.def("inner_product", &state::inner_product);
+
+#ifdef _USE_GPU
+    py::class_<QuantumStateGpu, QuantumStateBase>(m, "QuantumStateGpu")
+		.def(py::init<unsigned int>())
+		.def("set_zero_state", &QuantumStateGpu::set_zero_state)
+		.def("set_computational_basis", &QuantumStateGpu::set_computational_basis)
+		.def("set_Haar_random_state", (void (QuantumStateGpu::*)(void))&QuantumStateGpu::set_Haar_random_state)
+		.def("set_Haar_random_state", (void (QuantumStateGpu::*)(UINT))&QuantumStateGpu::set_Haar_random_state)
+		.def("get_zero_probability", &QuantumStateGpu::get_zero_probability)
+		.def("get_marginal_probability", &QuantumStateGpu::get_marginal_probability)
+		.def("get_entropy", &QuantumStateGpu::get_entropy)
+		.def("get_norm", &QuantumStateGpu::get_norm)
+		.def("normalize", &QuantumStateGpu::normalize)
+		.def("allocate_buffer", &QuantumStateGpu::allocate_buffer, pybind11::return_value_policy::automatic_reference)
+		//.def("copy", &QuantumStateGpu::copy, pybind11::return_value_policy::automatic_reference)
+		.def("copy", &QuantumStateGpu::copy)
+		.def("load", (void (QuantumStateGpu::*)(const QuantumStateBase*))&QuantumStateGpu::load)
+		.def("load", (void (QuantumStateGpu::*)(const std::vector<CPPCTYPE>&))&QuantumStateGpu::load)
+		.def("get_device_name", &QuantumStateGpu::get_device_name)
+		.def("data_cpp", &QuantumStateGpu::data_cpp)
+		.def("data_c", &QuantumStateGpu::data_c)
+		.def("get_classical_value", &QuantumStateGpu::get_classical_value)
+		.def("set_classical_value", &QuantumStateGpu::set_classical_value)
+		.def("to_string", &QuantumStateGpu::to_string)
+		.def("sampling", &QuantumStateGpu::sampling)
+
+		.def("get_vector", [](const QuantumStateGpu& state) {
+		Eigen::VectorXcd vec = Eigen::Map<Eigen::VectorXcd>(state.data_cpp(), state.dim);
+		return vec;
+	})
+		.def("__repr__", [](const QuantumStateGpu &p) {return p.to_string(); });
+	;
+#endif
+
+	auto mstate = m.def_submodule("state");
+	using namespace state;
+	//mstate.def("inner_product", (std::complex<double> (state::*)(const QuantumStateGpu*, const QuatnumStateGpu*))&state::inner_product);
+	//mstate.def("inner_product", (std::complex<double> (state::*)(const QuantumState*, const QuatnumState*))&state::inner_product);
+	mstate.def("inner_product", &state::inner_product);
+
+
 
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
         .def("update_quantum_state", &QuantumGateBase::update_quantum_state)
-        .def("copy",&QuantumGateBase::copy)
+        .def("copy",&QuantumGateBase::copy, pybind11::return_value_policy::automatic_reference)
         .def("to_string", &QuantumGateBase::to_string)
 
         .def("get_matrix", [](const QuantumGateBase& gate) {
@@ -116,7 +184,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("update_quantum_state", &QuantumGateMatrix::update_quantum_state)
         .def("add_control_qubit", &QuantumGateMatrix::add_control_qubit)
         .def("multiply_scalar", &QuantumGateMatrix::multiply_scalar)
-        .def("copy", &QuantumGateMatrix::copy)
+        .def("copy", &QuantumGateMatrix::copy, pybind11::return_value_policy::automatic_reference)
         .def("to_string", &QuantumGateMatrix::to_string)
 
         .def("get_matrix", [](const QuantumGateMatrix& gate) {
@@ -197,13 +265,23 @@ PYBIND11_MODULE(qulacs, m) {
 
     py::class_<QuantumCircuit>(m, "QuantumCircuit")
         .def(py::init<unsigned int>())
-        .def("copy", &QuantumCircuit::copy)
-		// In order to avoid double release, we force using add_gate_copy in python
+        .def("copy", &QuantumCircuit::copy, pybind11::return_value_policy::automatic_reference)
+        // In order to avoid double release, we force using add_gate_copy in python
         .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate)
         .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate)
-		.def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase&))&QuantumCircuit::add_gate_copy)
-		.def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase&, unsigned int))&QuantumCircuit::add_gate_copy)
-		.def("remove_gate", &QuantumCircuit::remove_gate)
+        .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase&))&QuantumCircuit::add_gate_copy)
+        .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase&, unsigned int))&QuantumCircuit::add_gate_copy)
+        .def("remove_gate", &QuantumCircuit::remove_gate)
+
+        .def("get_gate", [](const QuantumCircuit& circuit, unsigned int index) -> QuantumGateBase* { 
+		if (index >= circuit.gate_list.size()) {
+			std::cerr << "Error: QuantumCircuit::get_gate(const QuantumCircuit&, unsigned int): gate index is out of range" << std::endl;
+			return NULL;
+		}
+		return circuit.gate_list[index]->copy(); 
+	    }, pybind11::return_value_policy::automatic_reference)
+        .def("get_gate_count", [](const QuantumCircuit& circuit) -> unsigned int {return (unsigned int)circuit.gate_list.size(); })
+
         .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*))&QuantumCircuit::update_quantum_state)
         .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*, unsigned int, unsigned int))&QuantumCircuit::update_quantum_state)
         .def("calculate_depth", &QuantumCircuit::calculate_depth)
@@ -248,10 +326,11 @@ PYBIND11_MODULE(qulacs, m) {
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(m, "ParametricQuantumCircuit")
         .def(py::init<unsigned int>())
+        .def("copy", &ParametricQuantumCircuit::copy, pybind11::return_value_policy::automatic_reference)
         .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate))  &ParametricQuantumCircuit::add_parametric_gate)
         .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate, UINT))  &ParametricQuantumCircuit::add_parametric_gate)
         .def("add_gate", (void (ParametricQuantumCircuit::*)(QuantumGateBase* gate))  &ParametricQuantumCircuit::add_gate )
-        .def("add_gate", (void (ParametricQuantumCircuit::*)(QuantumGateBase* gate))  &ParametricQuantumCircuit::add_gate)
+        .def("add_gate", (void (ParametricQuantumCircuit::*)(QuantumGateBase* gate, unsigned int))  &ParametricQuantumCircuit::add_gate)
         .def("get_parameter_count", &ParametricQuantumCircuit::get_parameter_count)
         .def("get_parameter", &ParametricQuantumCircuit::get_parameter)
         .def("set_parameter", &ParametricQuantumCircuit::set_parameter)
