@@ -35,6 +35,11 @@ UINT QuantumCircuitOptimizer::get_merged_gate_size(UINT gate_index1, UINT gate_i
     auto control_index_list1 = fetch_control_index(circuit->gate_list[gate_index1]->control_qubit_list);
     auto control_index_list2 = fetch_control_index(circuit->gate_list[gate_index2]->control_qubit_list);
 
+	std::sort(target_index_list1.begin(), target_index_list1.end());
+	std::sort(target_index_list2.begin(), target_index_list2.end());
+	std::sort(control_index_list1.begin(), control_index_list1.end());
+	std::sort(control_index_list2.begin(), control_index_list2.end());
+
     std::vector<UINT> target_index_merge, control_index_merge, whole_index;
     std::set_union(
         target_index_list1.begin(), target_index_list1.end(),
