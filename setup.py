@@ -8,14 +8,9 @@ from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
-_VERSION = '0.1.0a'
+_VERSION = '0.1.0'
 
 project_name = 'Qulacs'
-if '--project_name' in sys.argv:
-    project_name_idx = sys.argv.index('--project_name')
-    project_name = sys.argv[project_name_idx + 1]
-    sys.argv.remove('--project_name')
-    sys.argv.pop(project_name_idx)
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=''):
@@ -68,11 +63,7 @@ class CMakeBuild(build_ext):
                 cmake_args += ['-DCMAKE_CXX_COMPILER=g++']
             else:
                 cmake_args += ['-DCMAKE_CXX_COMPILER=g++-7']
-
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-            if "--gpu" in sys.args:
-                cmake_args += ['-DUSE_GPU:STR=Yes']
-
             build_args += ['--', '-j2']
 
         env = os.environ.copy()
@@ -109,4 +100,3 @@ setup(
         'Topic :: Communications :: Email',
     ],
 )
-
