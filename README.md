@@ -74,8 +74,8 @@ Currently, if you want to use GPU, qulacs must be installed from source.
 ### Requirements
 
 - C++
-    - gcc/g++ >= 7.0.0 (for python on Unix platforms in Linux, MacOS, or Windows)
-    - Microsoft VisualStudio C++ 2015 or 2017 (for other python on Windows)
+    - gcc/g++ >= 7.0.0  (for python on Unix platforms in Linux, MacOS, or Windows)
+    - Microsoft VisualStudio C++ 2015 or 2017   (for other python on Windows)
 - python 2.7 or 3.x
 - cmake >= 3.0
 
