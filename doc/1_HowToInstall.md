@@ -16,7 +16,7 @@ If you encounter some troubles, see [troubleshooting](http://qulacs.org/md_4__tr
 ```
 git clone https://github.com/qulacs/qulacs.git
 cd qulacs
-./build_gcc.sh
+./script/build_gcc.sh
 ```
 
 #### MSVC
