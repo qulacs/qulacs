@@ -61,11 +61,12 @@ The following languages are supported.
 
 - C++
   - gcc/g++ >= 7.0.0
-  - Microsoft VisualStudio C++ 2015 and 2017
+  - Microsoft VisualStudio C++ 2015, 2017
 - python
   - python 2.7
   - python 3.x
 
+If you want to use GPU, install CUDA >= 8.0.
 
 ## Install from Source
 If you encounter some troubles, see [troubleshooting (Japanese)](http://qulacs.org/md_4__trouble_shooting.html).
@@ -73,9 +74,12 @@ Currently, if you want to use GPU, qulacs must be installed from source.
 
 ### Requirements
 
-- gcc/g++ >= 7.0.0 or Microsoft VisualStudio C++ 2017
+- C++
+    - gcc/g++ >= 7.0.0  (for python on Unix platforms in Linux, MacOS, or Windows)
+    - Microsoft VisualStudio C++ 2015 or 2017   (for other python on Windows)
 - python 2.7 or 3.x
 - cmake >= 3.0
+- (optional) CUDA >= 8.0
 
 ### Install qulacs from source
 
@@ -100,12 +104,16 @@ cd qulacs
 ./script/build_gcc.sh
 ```
 
+When you want to build with GPU, use <code>build_gcc_with_gpu.sh</code>.
+
 #### MSVC
 ```
 git clone https://github.com/qulacs/qulacs.git
 cd qulacs
 script/build_msvc.bat
 ```
+
+When you want to build with GPU, use <code>build_msvc_with_gpu.bat</code>.
 
 ## Tutorial and API document
 
@@ -139,7 +147,7 @@ value = observable.get_expectation_value(state)
 print(value)
 ```
 
-If you want to run it on GPU, install qulacs from source and replace <code>QuantumState</code> with <code>QuantumStateGPU</code>.
+If you want to run it on GPU, install qulacs from source and replace <code>QuantumState</code> with <code>QuantumStateGpu</code>.
 
 ### C++
 
@@ -171,9 +179,8 @@ int main(){
 
 Build command for g++:
 ```sh
-g++ -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lcppsim.so
+g++ -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -fopenmp -lcppsim_static.so
 ```
 
-If you want to run it on GPU, include <code>cppsim/state_gpu.hpp</code> and replace <code>QuantumState</code> with <code>QuantumStateGPU</code>.
-
+If you want to run it on GPU, include <code>cppsim/state_gpu.hpp</code> and replace <code>QuantumState</code> with <code>QuantumStateGpu</code>.
 
