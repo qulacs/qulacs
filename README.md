@@ -97,7 +97,7 @@ pip uninstall qulacs
 ```
 git clone https://github.com/qulacs/qulacs.git
 cd qulacs
-./build_gcc.sh
+./script/build_gcc.sh
 ```
 
 #### MSVC
