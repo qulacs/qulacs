@@ -44,6 +44,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def(py::init<double>())
         .def(py::init<std::string, double>())
         .def(py::init<std::vector<unsigned int>&, std::string, double>())
+        .def(py::init<std::vector<unsigned int>&, std::vector<unsigned int>&, std::complex<double> coef>())
         .def(py::init<std::vector<unsigned int>&, double>())
         .def("get_index_list", &PauliOperator::get_index_list)
         .def("get_pauli_id_list", &PauliOperator::get_pauli_id_list)
