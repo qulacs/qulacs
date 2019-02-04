@@ -51,7 +51,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("add_single_Pauli", &PauliOperator::add_single_Pauli)
         .def("get_expectation_value", &PauliOperator::get_expectation_value)
         .def("get_transition_amplitude", &PauliOperator::get_transition_amplitude)
-        .def("copy", &PauliOperator::copy, pybind11::return_value_policy::automatic_reference)
+        .def("copy", &PauliOperator::copy, pybind11::return_value_policy::take_ownership)
         ;
 
     py::class_<GeneralQuantumOperator>(m, "GeneralQuantumOperator")
@@ -62,15 +62,15 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_qubit_count", &GeneralQuantumOperator::get_qubit_count)
         .def("get_state_dim", &GeneralQuantumOperator::get_state_dim)
         .def("get_term_count", &GeneralQuantumOperator::get_term_count)
-        .def("get_term", &GeneralQuantumOperator::get_term, pybind11::return_value_policy::automatic_reference)
+        .def("get_term", &GeneralQuantumOperator::get_term, pybind11::return_value_policy::take_ownership)
         .def("get_expectation_value", &GeneralQuantumOperator::get_expectation_value)
         .def("get_transition_amplitude", &GeneralQuantumOperator::get_transition_amplitude)
         //.def_static("get_split_GeneralQuantumOperator", &(GeneralQuantumOperator::get_split_observable));
         ;
     auto mquantum_operator = m.def_submodule("quantum_operator");
-    mquantum_operator.def("create_quantum_operator_from_openfermion_file", &quantum_operator::create_general_quantum_operator_from_openfermion_file, pybind11::return_value_policy::automatic_reference);
-    mquantum_operator.def("create_quantum_operator_from_openfermion_text", &quantum_operator::create_general_quantum_operator_from_openfermion_text, pybind11::return_value_policy::automatic_reference);
-    mquantum_operator.def("create_split_quantum_operator", &quantum_operator::create_split_general_quantum_operator, pybind11::return_value_policy::automatic_reference);
+    mquantum_operator.def("create_quantum_operator_from_openfermion_file", &quantum_operator::create_general_quantum_operator_from_openfermion_file, pybind11::return_value_policy::take_ownership);
+    mquantum_operator.def("create_quantum_operator_from_openfermion_text", &quantum_operator::create_general_quantum_operator_from_openfermion_text, pybind11::return_value_policy::take_ownership);
+    mquantum_operator.def("create_split_quantum_operator", &quantum_operator::create_split_general_quantum_operator, pybind11::return_value_policy::take_ownership);
 
     py::class_<HermitianQuantumOperator, GeneralQuantumOperator>(m, "Observable")
         .def(py::init<unsigned int>())
@@ -80,7 +80,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_qubit_count", &HermitianQuantumOperator::get_qubit_count)
         .def("get_state_dim", &HermitianQuantumOperator::get_state_dim)
         .def("get_term_count", &HermitianQuantumOperator::get_term_count)
-        .def("get_term", &HermitianQuantumOperator::get_term, pybind11::return_value_policy::automatic_reference)
+        .def("get_term", &HermitianQuantumOperator::get_term, pybind11::return_value_policy::take_ownership)
         // .def("get_expectation_value", &HermitianQuantumOperator::get_expectation_value)
         .def("get_expectation_value", [](const HermitianQuantumOperator& observable, const QuantumStateBase* state) {
                                           double res = observable.get_expectation_value(state).real();
@@ -89,9 +89,9 @@ PYBIND11_MODULE(qulacs, m) {
         //.def_static("get_split_Observable", &(HermitianQuantumOperator::get_split_observable));
         ;
     auto mobservable = m.def_submodule("observable");
-    mobservable.def("create_observable_from_openfermion_file", &observable::create_observable_from_openfermion_file, pybind11::return_value_policy::automatic_reference);
-    mobservable.def("create_observable_from_openfermion_text", &observable::create_observable_from_openfermion_text, pybind11::return_value_policy::automatic_reference);
-    mobservable.def("create_split_observable", &observable::create_split_observable, pybind11::return_value_policy::automatic_reference);
+    mobservable.def("create_observable_from_openfermion_file", &observable::create_observable_from_openfermion_file, pybind11::return_value_policy::take_ownership);
+    mobservable.def("create_observable_from_openfermion_text", &observable::create_observable_from_openfermion_text, pybind11::return_value_policy::take_ownership);
+    mobservable.def("create_split_observable", &observable::create_split_observable, pybind11::return_value_policy::take_ownership);
 
 
     py::class_<QuantumStateBase>(m, "QuantumStateBase");
@@ -169,7 +169,7 @@ PYBIND11_MODULE(qulacs, m) {
 
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
         .def("update_quantum_state", &QuantumGateBase::update_quantum_state)
-        .def("copy",&QuantumGateBase::copy, pybind11::return_value_policy::automatic_reference)
+        .def("copy",&QuantumGateBase::copy, pybind11::return_value_policy::take_ownership)
         .def("to_string", &QuantumGateBase::to_string)
 
         .def("get_matrix", [](const QuantumGateBase& gate) {
@@ -184,7 +184,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("update_quantum_state", &QuantumGateMatrix::update_quantum_state)
         .def("add_control_qubit", &QuantumGateMatrix::add_control_qubit)
         .def("multiply_scalar", &QuantumGateMatrix::multiply_scalar)
-        .def("copy", &QuantumGateMatrix::copy, pybind11::return_value_policy::automatic_reference)
+        .def("copy", &QuantumGateMatrix::copy, pybind11::return_value_policy::take_ownership)
         .def("to_string", &QuantumGateMatrix::to_string)
 
         .def("get_matrix", [](const QuantumGateMatrix& gate) {
@@ -196,41 +196,41 @@ PYBIND11_MODULE(qulacs, m) {
         ;
 
     auto mgate = m.def_submodule("gate");
-    mgate.def("Identity", &gate::Identity, pybind11::return_value_policy::automatic_reference);
-    mgate.def("X", &gate::X, pybind11::return_value_policy::automatic_reference);
-    mgate.def("Y", &gate::Y, pybind11::return_value_policy::automatic_reference);
-    mgate.def("Z", &gate::Z, pybind11::return_value_policy::automatic_reference);
-    mgate.def("H", &gate::H, pybind11::return_value_policy::automatic_reference);
-    mgate.def("S", &gate::S, pybind11::return_value_policy::automatic_reference);
-    mgate.def("Sdag", &gate::Sdag, pybind11::return_value_policy::automatic_reference);
-    mgate.def("T", &gate::T, pybind11::return_value_policy::automatic_reference);
-    mgate.def("Tdag", &gate::Tdag, pybind11::return_value_policy::automatic_reference);
-    mgate.def("sqrtX", &gate::sqrtX, pybind11::return_value_policy::automatic_reference);
-    mgate.def("sqrtXdag", &gate::sqrtXdag, pybind11::return_value_policy::automatic_reference);
-    mgate.def("sqrtY", &gate::sqrtY, pybind11::return_value_policy::automatic_reference);
-    mgate.def("sqrtYdag", &gate::sqrtYdag, pybind11::return_value_policy::automatic_reference);
-    mgate.def("P0", &gate::P0, pybind11::return_value_policy::automatic_reference);
-    mgate.def("P1", &gate::P1, pybind11::return_value_policy::automatic_reference);
+    mgate.def("Identity", &gate::Identity, pybind11::return_value_policy::take_ownership);
+    mgate.def("X", &gate::X, pybind11::return_value_policy::take_ownership);
+    mgate.def("Y", &gate::Y, pybind11::return_value_policy::take_ownership);
+    mgate.def("Z", &gate::Z, pybind11::return_value_policy::take_ownership);
+    mgate.def("H", &gate::H, pybind11::return_value_policy::take_ownership);
+    mgate.def("S", &gate::S, pybind11::return_value_policy::take_ownership);
+    mgate.def("Sdag", &gate::Sdag, pybind11::return_value_policy::take_ownership);
+    mgate.def("T", &gate::T, pybind11::return_value_policy::take_ownership);
+    mgate.def("Tdag", &gate::Tdag, pybind11::return_value_policy::take_ownership);
+    mgate.def("sqrtX", &gate::sqrtX, pybind11::return_value_policy::take_ownership);
+    mgate.def("sqrtXdag", &gate::sqrtXdag, pybind11::return_value_policy::take_ownership);
+    mgate.def("sqrtY", &gate::sqrtY, pybind11::return_value_policy::take_ownership);
+    mgate.def("sqrtYdag", &gate::sqrtYdag, pybind11::return_value_policy::take_ownership);
+    mgate.def("P0", &gate::P0, pybind11::return_value_policy::take_ownership);
+    mgate.def("P1", &gate::P1, pybind11::return_value_policy::take_ownership);
 
-    mgate.def("U1", &gate::U1, pybind11::return_value_policy::automatic_reference);
-    mgate.def("U2", &gate::U2, pybind11::return_value_policy::automatic_reference);
-    mgate.def("U3", &gate::U3, pybind11::return_value_policy::automatic_reference);
+    mgate.def("U1", &gate::U1, pybind11::return_value_policy::take_ownership);
+    mgate.def("U2", &gate::U2, pybind11::return_value_policy::take_ownership);
+    mgate.def("U3", &gate::U3, pybind11::return_value_policy::take_ownership);
 
-    mgate.def("RX", &gate::RX, pybind11::return_value_policy::automatic_reference);
-    mgate.def("RY", &gate::RY, pybind11::return_value_policy::automatic_reference);
-    mgate.def("RZ", &gate::RZ, pybind11::return_value_policy::automatic_reference);
+    mgate.def("RX", &gate::RX, pybind11::return_value_policy::take_ownership);
+    mgate.def("RY", &gate::RY, pybind11::return_value_policy::take_ownership);
+    mgate.def("RZ", &gate::RZ, pybind11::return_value_policy::take_ownership);
 
-    mgate.def("CNOT", &gate::CNOT, pybind11::return_value_policy::automatic_reference);
-    mgate.def("CZ", &gate::CZ, pybind11::return_value_policy::automatic_reference);
-    mgate.def("SWAP", &gate::SWAP, pybind11::return_value_policy::automatic_reference);
+    mgate.def("CNOT", &gate::CNOT, pybind11::return_value_policy::take_ownership);
+    mgate.def("CZ", &gate::CZ, pybind11::return_value_policy::take_ownership);
+    mgate.def("SWAP", &gate::SWAP, pybind11::return_value_policy::take_ownership);
 
-    mgate.def("Pauli", &gate::Pauli, pybind11::return_value_policy::automatic_reference);
-    mgate.def("PauliRotation", &gate::PauliRotation, pybind11::return_value_policy::automatic_reference);
+    mgate.def("Pauli", &gate::Pauli, pybind11::return_value_policy::take_ownership);
+    mgate.def("PauliRotation", &gate::PauliRotation, pybind11::return_value_policy::take_ownership);
 
     QuantumGateMatrix*(*ptr1)(unsigned int, ComplexMatrix) = &gate::DenseMatrix;
     QuantumGateMatrix*(*ptr2)(std::vector<unsigned int>, ComplexMatrix) = &gate::DenseMatrix;
-    mgate.def("DenseMatrix", ptr1, pybind11::return_value_policy::automatic_reference);
-    mgate.def("DenseMatrix", ptr2, pybind11::return_value_policy::automatic_reference);
+    mgate.def("DenseMatrix", ptr1, pybind11::return_value_policy::take_ownership);
+    mgate.def("DenseMatrix", ptr2, pybind11::return_value_policy::take_ownership);
 
     mgate.def("BitFlipNoise", &gate::BitFlipNoise);
     mgate.def("DephasingNoise", &gate::DephasingNoise);
@@ -239,22 +239,22 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("Measurement", &gate::Measurement);
 
     QuantumGateMatrix*(*ptr3)(const QuantumGateBase*, const QuantumGateBase*) = &gate::merge;
-    mgate.def("merge", ptr3, pybind11::return_value_policy::automatic_reference);
+    mgate.def("merge", ptr3, pybind11::return_value_policy::take_ownership);
 
     QuantumGateMatrix*(*ptr4)(std::vector<const QuantumGateBase*>) = &gate::merge;
-    mgate.def("merge", ptr4, pybind11::return_value_policy::automatic_reference);
+    mgate.def("merge", ptr4, pybind11::return_value_policy::take_ownership);
 
     QuantumGateMatrix*(*ptr5)(const QuantumGateBase*, const QuantumGateBase*) = &gate::add;
-    mgate.def("add", ptr5, pybind11::return_value_policy::automatic_reference);
+    mgate.def("add", ptr5, pybind11::return_value_policy::take_ownership);
 
     QuantumGateMatrix*(*ptr6)(std::vector<const QuantumGateBase*>) = &gate::add;
-    mgate.def("add", ptr6, pybind11::return_value_policy::automatic_reference);
+    mgate.def("add", ptr6, pybind11::return_value_policy::take_ownership);
 
-    mgate.def("to_matrix_gate", &gate::to_matrix_gate, pybind11::return_value_policy::automatic_reference);
-    mgate.def("Probabilistic", &gate::Probabilistic, pybind11::return_value_policy::automatic_reference);
-    mgate.def("CPTP", &gate::CPTP, pybind11::return_value_policy::automatic_reference);
-    mgate.def("Instrument", &gate::Instrument, pybind11::return_value_policy::automatic_reference);
-    mgate.def("Adaptive", &gate::Adaptive, pybind11::return_value_policy::automatic_reference);
+    mgate.def("to_matrix_gate", &gate::to_matrix_gate, pybind11::return_value_policy::take_ownership);
+    mgate.def("Probabilistic", &gate::Probabilistic, pybind11::return_value_policy::take_ownership);
+    mgate.def("CPTP", &gate::CPTP, pybind11::return_value_policy::take_ownership);
+    mgate.def("Instrument", &gate::Instrument, pybind11::return_value_policy::take_ownership);
+    mgate.def("Adaptive", &gate::Adaptive, pybind11::return_value_policy::take_ownership);
 
 
     mgate.def("ParametricRX", &gate::ParametricRX);
@@ -265,7 +265,7 @@ PYBIND11_MODULE(qulacs, m) {
 
     py::class_<QuantumCircuit>(m, "QuantumCircuit")
         .def(py::init<unsigned int>())
-        .def("copy", &QuantumCircuit::copy, pybind11::return_value_policy::automatic_reference)
+        .def("copy", &QuantumCircuit::copy, pybind11::return_value_policy::take_ownership)
         // In order to avoid double release, we force using add_gate_copy in python
         .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate)
         .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate)
@@ -279,7 +279,7 @@ PYBIND11_MODULE(qulacs, m) {
 			return NULL;
 		}
 		return circuit.gate_list[index]->copy(); 
-	    }, pybind11::return_value_policy::automatic_reference)
+	    }, pybind11::return_value_policy::take_ownership)
         .def("get_gate_count", [](const QuantumCircuit& circuit) -> unsigned int {return (unsigned int)circuit.gate_list.size(); })
 
         .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*))&QuantumCircuit::update_quantum_state)
@@ -326,7 +326,7 @@ PYBIND11_MODULE(qulacs, m) {
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(m, "ParametricQuantumCircuit")
         .def(py::init<unsigned int>())
-        .def("copy", &ParametricQuantumCircuit::copy, pybind11::return_value_policy::automatic_reference)
+        .def("copy", &ParametricQuantumCircuit::copy, pybind11::return_value_policy::take_ownership)
         .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate))  &ParametricQuantumCircuit::add_parametric_gate)
         .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate, UINT))  &ParametricQuantumCircuit::add_parametric_gate)
         .def("add_gate", (void (ParametricQuantumCircuit::*)(QuantumGateBase* gate))  &ParametricQuantumCircuit::add_gate )
@@ -351,7 +351,7 @@ PYBIND11_MODULE(qulacs, m) {
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
         .def(py::init<>())
         .def("optimize", &QuantumCircuitOptimizer::optimize)
-        .def("merge_all", &QuantumCircuitOptimizer::merge_all, pybind11::return_value_policy::automatic_reference)
+        .def("merge_all", &QuantumCircuitOptimizer::merge_all, pybind11::return_value_policy::take_ownership)
         ;
 
     py::class_<QuantumCircuitSimulator>(m, "QuantumCircuitSimulator")
