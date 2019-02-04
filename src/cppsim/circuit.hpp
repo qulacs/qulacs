@@ -445,6 +445,14 @@ public:
      * @param[in] matrix 作用する行列
      */
     virtual void add_dense_matrix_gate(std::vector<UINT> target_index_list, const ComplexMatrix& matrix);
+
+	/**
+	 * \~japanese-en multi qubitのランダムユニタリゲートを追加する。
+	 *
+	 * @param[in] target_index_list 作用するtarget qubitの添え字のリスト
+	 * @param[in] matrix 作用する行列
+	 */
+	virtual void add_random_unitary_gate(std::vector<UINT> target_index_list);
 };
 
 

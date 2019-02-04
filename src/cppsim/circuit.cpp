@@ -375,3 +375,6 @@ void QuantumCircuit::add_dense_matrix_gate(std::vector<UINT> target_index_list, 
 	this->add_gate(gate::DenseMatrix(target_index_list, matrix));
 }
 
+void QuantumCircuit::add_random_unitary_gate(std::vector<UINT> target_index_list) {
+	this->add_gate(gate::RandomUnitary(target_index_list));
+}

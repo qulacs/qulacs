@@ -294,6 +294,14 @@ namespace gate{
      */
     DllExport QuantumGateMatrix* DenseMatrix(std::vector<UINT> target_qubit_index_list, ComplexMatrix matrix);
 
+	/**
+	 * \f$n\f$-qubit のランダムユニタリゲートを作成する。
+	 *
+	 * @param[in] target_qubit_index_list ターゲットとなる量子ビットの添え字
+	 * @return 作成されたゲートのインスタンス
+	 */
+	DllExport QuantumGateMatrix* RandomUnitary(std::vector<UINT> target_qubit_index_list);
+
 
     /**
      * bit-flipノイズを発生させるゲート

@@ -1047,3 +1047,28 @@ TEST(GateTest, GateAdd) {
     // TODO assert matrix element
 }
 
+
+TEST(GateTest, RandomUnitaryGate) {
+	double eps = 1e-14;
+	for (UINT qubit_count = 1; qubit_count < 5; ++qubit_count) {
+		ITYPE dim = 1ULL << qubit_count;
+		std::vector<UINT> target_qubit_list;
+		for (int i = 0; i < qubit_count; ++i) {
+			target_qubit_list.push_back(i);
+		}
+		auto gate = gate::RandomUnitary(target_qubit_list);
+		ComplexMatrix cm;
+		gate->set_matrix(cm);
+		auto eye = cm*cm.adjoint();
+		for (int i = 0; i < dim; ++i) {
+			for (int j = 0; j < dim; ++j) {
+				if (i == j) {
+					ASSERT_NEAR(abs(eye(i, j)), 1, eps);
+				}
+				else {
+					ASSERT_NEAR(abs(eye(i,j)), 0, eps);
+				}
+			}
+		}
+	}
+}
