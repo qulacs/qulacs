@@ -232,7 +232,9 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("DenseMatrix", ptr1, pybind11::return_value_policy::automatic_reference);
     mgate.def("DenseMatrix", ptr2, pybind11::return_value_policy::automatic_reference);
 
-    mgate.def("BitFlipNoise", &gate::BitFlipNoise);
+	mgate.def("RandomUnitary", &gate::RandomUnitary, pybind11::return_value_policy::automatic_reference);
+	
+	mgate.def("BitFlipNoise", &gate::BitFlipNoise);
     mgate.def("DephasingNoise", &gate::DephasingNoise);
     mgate.def("IndependentXZNoise", &gate::IndependentXZNoise);
     mgate.def("DepolarizingNoise", &gate::DepolarizingNoise);
@@ -319,7 +321,8 @@ PYBIND11_MODULE(qulacs, m) {
         .def("add_multi_Pauli_rotation_gate", (void (QuantumCircuit::*)(const PauliOperator&))&QuantumCircuit::add_multi_Pauli_rotation_gate)
         .def("add_dense_matrix_gate", (void (QuantumCircuit::*)(unsigned int, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate)
         .def("add_dense_matrix_gate", (void (QuantumCircuit::*)(std::vector<unsigned int>, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate)
-        .def("add_diagonal_observable_rotation_gate", &QuantumCircuit::add_diagonal_observable_rotation_gate)
+		.def("add_random_unitary_gate", &QuantumCircuit::add_random_unitary_gate)
+		.def("add_diagonal_observable_rotation_gate", &QuantumCircuit::add_diagonal_observable_rotation_gate)
         .def("add_observable_rotation_gate", &QuantumCircuit::add_observable_rotation_gate)
         .def("__repr__", [](const QuantumCircuit &p) {return p.to_string(); });
     ;

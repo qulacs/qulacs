@@ -590,6 +590,48 @@ TEST(CircuitTest, RandomCircuitOptimize2) {
 
 }
 
+TEST(CircuitTest, RandomCircuitOptimize3) {
+	const UINT n = 5;
+	const UINT dim = 1ULL << n;
+	const UINT depth = 10*n;
+	Random random;
+	double eps = 1e-14;
+	UINT max_repeat = 3;
+	UINT max_block_size = n;
+
+	std::vector<UINT> qubit_list;
+	for (int i = 0; i < n; ++i) qubit_list.push_back(i);
+
+	for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
+		QuantumState state(n), org_state(n), test_state(n);
+		state.set_Haar_random_state();
+		org_state.load(&state);
+		QuantumCircuit circuit(n);
+
+		for (UINT d = 0; d < depth; ++d) {
+			std::random_shuffle(qubit_list.begin(), qubit_list.end());
+			std::vector<UINT> mylist;
+			mylist.push_back(qubit_list[0]);
+			mylist.push_back(qubit_list[1]);
+			circuit.add_random_unitary_gate(mylist);
+		}
+
+		test_state.load(&org_state);
+		circuit.update_quantum_state(&test_state);
+		//std::cout << circuit << std::endl;
+		QuantumCircuitOptimizer qco;
+		for (UINT block_size = 1; block_size <= max_block_size; ++block_size) {
+			QuantumCircuit* copy_circuit = circuit.copy();
+			qco.optimize(copy_circuit, block_size);
+			state.load(&org_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << copy_circuit << std::endl;
+			for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+			delete copy_circuit;
+		}
+	}
+}
+
 
 
 TEST(CircuitTest, SuzukiTrotterExpansion) {
