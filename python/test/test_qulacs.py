@@ -59,5 +59,71 @@ class TestQuantumCircuit(unittest.TestCase):
         vector_ans[3] = np.sqrt(0.5)
         self.assertTrue(((vector-vector_ans)<1e-10).all(), msg = "check make bell state")
 
+class TestPointerHandling(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+    
+    def test_pointer_del(self):
+        from qulacs import QuantumCircuit
+        from qulacs.gate import X
+        qc = QuantumCircuit(1)
+        gate = X(0)
+        qc.add_gate(gate)
+        del gate
+        del qc
+
+    def test_internal_return_value_of_get_gate_is_valid(self):
+        from qulacs import QuantumCircuit, QuantumState
+        def func():
+            def copy_circuit(c):
+                ret = QuantumCircuit(2)
+                for i in range(c.get_gate_count()):
+                    gate = c.get_gate(i)
+                    ret.add_gate(gate)
+                return ret
+
+            circuit = QuantumCircuit(2)
+            circuit.add_X_gate(0)
+            circuit.add_Y_gate(1)
+            copied = copy_circuit(circuit)
+            return copied
+
+        def func2():
+            qs = QuantumState(2)
+            circuit = func()
+            circuit.update_quantum_state(qs)
+
+        func2()
+
+    def test_add_same_gate_multiple_time(self):
+        from qulacs import QuantumCircuit, QuantumState
+        from qulacs.gate import X, DepolarizingNoise, DephasingNoise, Probabilistic, RX
+        state = QuantumState(1)
+        circuit = QuantumCircuit(1)
+        noise = DepolarizingNoise(0,0)
+        circuit.add_gate(noise)
+        circuit.add_gate(noise.copy())
+        circuit.add_gate(DephasingNoise(0,0))
+        circuit.add_gate(Probabilistic([0.1],[RX(0,0)]))
+        gate = RX(0,0)
+        circuit.add_gate(gate)
+        circuit.add_gate(gate)
+        circuit.add_gate(gate)
+        circuit.add_gate(gate)
+        circuit.add_gate(gate)
+        del gate
+        circuit.update_quantum_state(state)
+        circuit.update_quantum_state(state)
+        circuit.update_quantum_state(state)
+        circuit.update_quantum_state(state)
+        circuit.update_quantum_state(state)
+        circuit.update_quantum_state(state)
+        circuit.update_quantum_state(state)
+        del circuit
+        del state
+
 if __name__ == "__main__":
     unittest.main()
