@@ -232,7 +232,7 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("DenseMatrix", ptr1, pybind11::return_value_policy::take_ownership);
     mgate.def("DenseMatrix", ptr2, pybind11::return_value_policy::take_ownership);
 
-	mgate.def("RandomUnitary", &gate::RandomUnitary, pybind11::return_value_policy::automatic_reference);
+	mgate.def("RandomUnitary", &gate::RandomUnitary, pybind11::return_value_policy::take_ownership);
 	
 	mgate.def("BitFlipNoise", &gate::BitFlipNoise);
     mgate.def("DephasingNoise", &gate::DephasingNoise);
