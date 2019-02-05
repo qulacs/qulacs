@@ -41,11 +41,11 @@ PYBIND11_MODULE(qulacs, m) {
     m.doc() = "cppsim python interface";
 
     py::class_<PauliOperator>(m, "PauliOperator")
-        .def(py::init<double>())
-        .def(py::init<std::string, double>())
-        .def(py::init<std::vector<unsigned int>&, std::string, double>())
+        .def(py::init<std::complex<double>>())
+        .def(py::init<std::string, std::complex<double>>())
+        .def(py::init<std::vector<unsigned int>&, std::string, std::complex<double>>())
         .def(py::init<std::vector<unsigned int>&, std::vector<unsigned int>&, std::complex<double>>())
-        .def(py::init<std::vector<unsigned int>&, double>())
+        .def(py::init<std::vector<unsigned int>&, std::complex<double>>())
         .def("get_index_list", &PauliOperator::get_index_list)
         .def("get_pauli_id_list", &PauliOperator::get_pauli_id_list)
         .def("get_coef", &PauliOperator::get_coef)
