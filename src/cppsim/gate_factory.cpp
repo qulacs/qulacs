@@ -12,6 +12,7 @@
 #include "gate_named_two.hpp"
 #include "gate_named_pauli.hpp"
 #include "gate_matrix.hpp"
+#include "gate_reversible.hpp"
 #include "type.hpp"
 #include <Eigen/QR>
 
@@ -154,6 +155,9 @@ namespace gate{
 			}
 		}
 		return new QuantumGateMatrix(target_list, Q);
+	}
+	QuantumGateBase* ReversibleBoolean(std::vector<UINT> target_qubit_index_list, ITYPE(*function_ptr)(ITYPE, ITYPE)) {
+		return new ClsReversibleBooleanGate(target_qubit_index_list, function_ptr);
 	}
 
 

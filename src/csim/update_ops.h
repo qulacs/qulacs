@@ -950,6 +950,34 @@ DllExport void single_qubit_control_multi_qubit_dense_matrix_gate(UINT control_q
 DllExport void multi_qubit_control_multi_qubit_dense_matrix_gate(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
 
 
+/**
+ * \~english
+ * Apply reversible boolean function as a unitary gate.
+ *
+ * Apply reversible boolean function as a unitary gate. Boolean function is given as a pointer of int -> int function.
+ *
+ * @param[in] target_qubit_index_list ターゲット量子ビットのリスト
+ * @param[in] target_qubit_index_count ターゲット量子ビットの数
+ * @param[in] matrix 添え字および対象ビットの次元を受け取ると添え字を返す関数
+ * @param[in,out] state 量子状態
+ * @param[in] dim 次元
+ *
+ *
+ * \~japanese-en
+ * 可逆回路関数をユニタリゲートとして作用する
+ *
+ *  可逆回路関数をユニタリゲートとして作用する。可逆回路関数は添え字を与えると結果の添え字を返す関数。
+ *
+ * @param[in] target_qubit_index_list ターゲット量子ビットのリスト
+ * @param[in] target_qubit_index_count ターゲット量子ビットの数
+ * @param[in] matrix 添え字および対象ビットの次元を受け取ると添え字を返す関数
+ * @param[in,out] state 量子状態
+ * @param[in] dim 次元
+ *
+ */
+DllExport void reversible_boolean_gate(const UINT* target_qubit_index_list, UINT target_qubit_index_count, ITYPE (*function_ptr)(ITYPE, ITYPE) , CTYPE* state, ITYPE dim);
+
+
 
 
 ////////////////////////////////

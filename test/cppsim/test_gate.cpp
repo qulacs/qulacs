@@ -1072,3 +1072,51 @@ TEST(GateTest, RandomUnitaryGate) {
 		}
 	}
 }
+
+TEST(GateTest, ReversibleBooleanGate) {
+	// this is temporal test. TODO: implement more tests
+	const double eps = 1e-14;
+	std::function<ITYPE(ITYPE,ITYPE)> func = [](ITYPE index, ITYPE dim) -> ITYPE {
+		return (index + 1) % dim;
+	};
+	ITYPE(**func_ptr)(ITYPE,ITYPE) = func.target<ITYPE(*)(ITYPE, ITYPE)>();
+	std::vector<UINT> target_qubit = { 2,0 };
+	std::cout << func.target_type().name() << std::endl;
+	auto gate = gate::ReversibleBoolean(target_qubit, *func_ptr);
+	ComplexMatrix cm;
+	gate->set_matrix(cm);
+	QuantumState state(3);
+	gate->update_quantum_state(&state);
+	ASSERT_NEAR(abs(state.data_cpp()[4]-1.), 0, eps);
+	gate->update_quantum_state(&state);
+	ASSERT_NEAR(abs(state.data_cpp()[1] - 1.), 0, eps);
+	gate->update_quantum_state(&state);
+	ASSERT_NEAR(abs(state.data_cpp()[5] - 1.), 0, eps);
+	gate->update_quantum_state(&state);
+	ASSERT_NEAR(abs( state.data_cpp()[0]-1.),0, eps);
+	/*
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	*/
+}
