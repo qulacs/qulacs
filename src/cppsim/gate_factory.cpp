@@ -156,7 +156,7 @@ namespace gate{
 		}
 		return new QuantumGateMatrix(target_list, Q);
 	}
-	QuantumGateBase* ReversibleBoolean(std::vector<UINT> target_qubit_index_list, ITYPE(*function_ptr)(ITYPE, ITYPE)) {
+	QuantumGateBase* ReversibleBoolean(std::vector<UINT> target_qubit_index_list, std::function<ITYPE(ITYPE,ITYPE)> function_ptr) {
 		return new ClsReversibleBooleanGate(target_qubit_index_list, function_ptr);
 	}
 

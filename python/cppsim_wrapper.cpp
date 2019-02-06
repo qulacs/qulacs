@@ -236,10 +236,7 @@ PYBIND11_MODULE(qulacs, m) {
 
 	//mgate.def("ReversibleBoolean", &gate::ReversibleBoolean, pybind11::return_value_policy::automatic_reference);
 	mgate.def("ReversibleBoolean", [](std::vector<UINT> target_qubit_list, std::function<ITYPE(ITYPE,ITYPE)> function_py) {
-		std::cout << "Start" << std::endl;
-		ITYPE(*const* function_ptr_ptr)(ITYPE,ITYPE) = function_py.target<ITYPE(*)(ITYPE,ITYPE)>();
-		std::cout << "Targeting" << std::endl;
-		return gate::ReversibleBoolean(target_qubit_list, *function_ptr_ptr);
+		return gate::ReversibleBoolean(target_qubit_list, function_py);
 	}, pybind11::return_value_policy::automatic_reference);
 
 	mgate.def("BitFlipNoise", &gate::BitFlipNoise);

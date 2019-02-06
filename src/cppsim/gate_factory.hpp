@@ -309,7 +309,7 @@ namespace gate{
 	 * @param[in] function_ptr 可逆古典回路の動作をする関数
 	 * @return 作成されたゲートのインスタンス
 	 */
-	DllExport QuantumGateBase* ReversibleBoolean(std::vector<UINT> target_qubit_index_list, ITYPE (*function_ptr)(ITYPE, ITYPE));
+	DllExport QuantumGateBase* ReversibleBoolean(std::vector<UINT> target_qubit_index_list, std::function<ITYPE(ITYPE,ITYPE)>);
 
 
     /**

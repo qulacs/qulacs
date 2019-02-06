@@ -9,6 +9,7 @@ extern "C" {
 #else
 #include <csim/update_ops.h>
 #endif
+#include <csim/update_ops_cpp.hpp>
 
 #include <cmath>
 
@@ -22,15 +23,13 @@ extern "C" {
  */
 class ClsReversibleBooleanGate : public QuantumGateBase {
 private:
-	ITYPE(*function_ptr)(ITYPE, ITYPE);
+	std::function<ITYPE(ITYPE, ITYPE)> function_ptr;
 public:
-	ClsReversibleBooleanGate(std::vector<UINT> target_qubit_index_list, ITYPE(*_function_ptr)(ITYPE, ITYPE)) : function_ptr(_function_ptr){
-		std::cout << "This is constructor" << std::endl;
+	ClsReversibleBooleanGate(std::vector<UINT> target_qubit_index_list, std::function<ITYPE(ITYPE, ITYPE)> _function_ptr) : function_ptr(_function_ptr){
 		for (auto val : target_qubit_index_list) {
 			this->_target_qubit_list.push_back(TargetQubitInfo(val, 0));
 		}
 		this->_name = "ReversibleBoolean";
-		std::cout << "This is constructor" << std::endl;
 	};
 
 	/**
