@@ -62,7 +62,10 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_qubit_count", &GeneralQuantumOperator::get_qubit_count)
         .def("get_state_dim", &GeneralQuantumOperator::get_state_dim)
         .def("get_term_count", &GeneralQuantumOperator::get_term_count)
-        .def("get_term", &GeneralQuantumOperator::get_term, pybind11::return_value_policy::take_ownership)
+        //.def("get_term", &GeneralQuantumOperator::get_term, pybind11::return_value_policy::take_ownership)
+        .def("get_term",[](const GeneralQuantumOperator& quantum_operator, const unsigned int index) {
+            return quantum_operator.get_term(index)->copy();
+        }, pybind11::return_value_policy::take_ownership)
         .def("get_expectation_value", &GeneralQuantumOperator::get_expectation_value)
         .def("get_transition_amplitude", &GeneralQuantumOperator::get_transition_amplitude)
         //.def_static("get_split_GeneralQuantumOperator", &(GeneralQuantumOperator::get_split_observable));
@@ -80,7 +83,10 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_qubit_count", &HermitianQuantumOperator::get_qubit_count)
         .def("get_state_dim", &HermitianQuantumOperator::get_state_dim)
         .def("get_term_count", &HermitianQuantumOperator::get_term_count)
-        .def("get_term", &HermitianQuantumOperator::get_term, pybind11::return_value_policy::take_ownership)
+        //.def("get_term", &HermitianQuantumOperator::get_term, pybind11::return_value_policy::take_ownership)
+        .def("get_term",[](const HermitianQuantumOperator& quantum_operator, const unsigned int index) {
+            return quantum_operator.get_term(index)->copy();
+        }, pybind11::return_value_policy::take_ownership)
         // .def("get_expectation_value", &HermitianQuantumOperator::get_expectation_value)
         .def("get_expectation_value", [](const HermitianQuantumOperator& observable, const QuantumStateBase* state) {
                                           double res = observable.get_expectation_value(state).real();

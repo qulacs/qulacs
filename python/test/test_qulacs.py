@@ -124,6 +124,13 @@ class TestPointerHandling(unittest.TestCase):
         circuit.update_quantum_state(state)
         del circuit
         del state
+    
+    def test_observable(self):
+        from qulacs import Observable
+        obs = Observable(1)
+        obs.add_operator(1.0, "X 0")
+        term = obs.get_term(0)
+        
 
 if __name__ == "__main__":
     unittest.main()
