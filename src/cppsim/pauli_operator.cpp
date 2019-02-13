@@ -1,6 +1,18 @@
 #include <cassert>
 #include <cstring>
 
+#include <stdlib.h>
+#include <stdarg.h>
+#include <stdio.h>
+#include "type.hpp"
+#include "utility.hpp"
+#include <vector>
+#include <string>
+#include <fstream>
+#include <iostream>
+#include <utility>
+
+
 #ifndef _MSC_VER
 extern "C"{
 #include <csim/stat_ops.h>
@@ -11,7 +23,8 @@ extern "C"{
 #include "pauli_operator.hpp"
 #include "state.hpp"
 
-PauliOperator::PauliOperator(std::string strings, double coef){
+
+PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef){
     _coef = coef;
     std::stringstream ss(strings);
     std::string pauli_str;
@@ -31,7 +44,7 @@ PauliOperator::PauliOperator(std::string strings, double coef){
     }
 }
 
-PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list, std::string Pauli_operator_type_list, double coef){
+PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list, std::string Pauli_operator_type_list, CPPCTYPE coef){
     _coef = coef;
     UINT term_count = (UINT)(strlen(Pauli_operator_type_list.c_str()));
     UINT pauli_type = 0;
@@ -53,7 +66,7 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list, std::st
     }
 }
 
-PauliOperator::PauliOperator(const std::vector<UINT>& pauli_list, double coef) {
+PauliOperator::PauliOperator(const std::vector<UINT>& pauli_list, CPPCTYPE coef) {
     _coef = coef;
     for (UINT term_index = 0; term_index < pauli_list.size(); ++term_index) {
         if (pauli_list[term_index] != 0)
@@ -61,7 +74,7 @@ PauliOperator::PauliOperator(const std::vector<UINT>& pauli_list, double coef) {
     }
 }
 
-PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_index_list, const std::vector<UINT>& target_qubit_pauli_list, double coef) {
+PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_index_list, const std::vector<UINT>& target_qubit_pauli_list, CPPCTYPE coef) {
     _coef = coef;
     assert(target_qubit_index_list.size() == target_qubit_pauli_list.size());
     for (UINT term_index = 0; term_index < target_qubit_index_list.size(); ++term_index) {
@@ -73,7 +86,7 @@ void PauliOperator::add_single_Pauli(UINT qubit_index, UINT pauli_type){
     this->_pauli_list.push_back(SinglePauliOperator(qubit_index, pauli_type));
 }
 
-double PauliOperator::get_expectation_value(const QuantumStateBase* state) const {
+CPPCTYPE PauliOperator::get_expectation_value(const QuantumStateBase* state) const {
     return _coef * expectation_value_multi_qubit_Pauli_operator_partial_list(
         this->get_index_list().data(),
         this->get_pauli_id_list().data(),
@@ -84,7 +97,7 @@ double PauliOperator::get_expectation_value(const QuantumStateBase* state) const
 }
 
 CPPCTYPE PauliOperator::get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const {
-    return _coef * transition_amplitude_multi_qubit_Pauli_operator_partial_list(
+    return _coef * (CPPCTYPE)transition_amplitude_multi_qubit_Pauli_operator_partial_list(
         this->get_index_list().data(),
         this->get_pauli_id_list().data(),
         (UINT)this->get_index_list().size(),
@@ -102,3 +115,5 @@ PauliOperator* PauliOperator::copy() const {
     }
     return pauli;
 }
+
+

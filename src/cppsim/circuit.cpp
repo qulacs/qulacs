@@ -6,6 +6,7 @@
 #include <algorithm>
 #include <cassert>
 #include <sstream>
+#include <stdexcept>
 #include "gate.hpp"
 #include "gate_matrix.hpp"
 #include "gate_factory.hpp"
@@ -45,13 +46,26 @@ void QuantumCircuit::update_quantum_state(QuantumStateBase* state, UINT start, U
     }
 }
 
+QuantumCircuit::QuantumCircuit(const QuantumCircuit& obj):
+	qubit_count(_qubit_count), gate_list(_gate_list)
+{
+	_gate_list.clear();
+	_qubit_count = (obj.qubit_count);
+	for (UINT i = 0; i < obj.gate_list.size(); ++i) {
+		_gate_list.push_back(obj.gate_list[i]->copy());
+	}
+};
 
-QuantumCircuit::QuantumCircuit(UINT qubit_count_){
+
+QuantumCircuit::QuantumCircuit(UINT qubit_count_):
+	qubit_count(_qubit_count), gate_list(_gate_list)
+{
     this->_qubit_count = qubit_count_;
 }
 
 
-QuantumCircuit::QuantumCircuit(std::string qasm_path, std::string qasm_loader_script_path){
+QuantumCircuit::QuantumCircuit(std::string qasm_path, std::string qasm_loader_script_path):
+qubit_count(_qubit_count), gate_list(_gate_list) {
 	// generate quantum circuit from qasm
 	// now we delegate compile of qasm string to quantumopencompiler in qiskit-sdk.
 	std::string exec_string = std::string("python ")+qasm_loader_script_path+" "+qasm_path;
@@ -199,7 +213,7 @@ std::string QuantumCircuit::to_string() const {
     std::vector<UINT> gate_size_count(this->_qubit_count, 0);
     UINT max_block_size = 0;
 
-    for (const auto& gate : this->_gate_list) {
+    for (const auto gate : this->_gate_list) {
         UINT whole_qubit_index_count = (UINT)(gate->target_qubit_list.size() + gate->control_qubit_list.size());
 		if (whole_qubit_index_count == 0) continue;
         gate_size_count[whole_qubit_index_count - 1]++;
@@ -307,18 +321,32 @@ void QuantumCircuit::add_multi_Pauli_rotation_gate(std::vector<UINT> target_inde
     this->add_gate(gate::PauliRotation(target_index_list, pauli_id_list,angle));
 }
 void QuantumCircuit::add_multi_Pauli_rotation_gate(const PauliOperator& pauli_operator) {
-    this->add_gate(gate::PauliRotation(pauli_operator.get_index_list(), pauli_operator.get_pauli_id_list(), pauli_operator.get_coef() ));
+    const double eps = 1e-14;
+    if (std::abs(pauli_operator.get_coef().imag()) > eps){
+        std::cerr <<  "Error: QuantumCircuit::add_multi_Pauli_rotation_gate(const PauliOperator& pauli_operator): not impremented for non hermitian" << std::endl;
+    }
+    this->add_gate(gate::PauliRotation(pauli_operator.get_index_list(), pauli_operator.get_pauli_id_list(), pauli_operator.get_coef().real()));
 }
 void QuantumCircuit::add_diagonal_observable_rotation_gate(const Observable& observable, double angle) {
+    if (!observable.is_hermitian()){
+        std::cerr << "Error: QuantumCircuit::add_observable_rotation_gate(const Observable& observable, double angle, UINT num_repeats): not impremented for non hermitian" << std::endl;
+        return;
+    }
     std::vector<PauliOperator*> operator_list = observable.get_terms();
     for (auto pauli: operator_list){
-        auto pauli_rotation = gate::PauliRotation(pauli->get_index_list(), pauli->get_pauli_id_list(), pauli->get_coef() * angle);
-        if (!pauli_rotation->is_diagonal())
+        auto pauli_rotation = gate::PauliRotation(pauli->get_index_list(), pauli->get_pauli_id_list(), pauli->get_coef().real() * angle);
+        if (!pauli_rotation->is_diagonal()){
             std::cerr << "ERROR: Observable is not diagonal" << std::endl;
+            return;
+        }
         this->add_gate(pauli_rotation);
     }
 }
 void QuantumCircuit::add_observable_rotation_gate(const Observable& observable, double angle, UINT num_repeats) {
+    if (!observable.is_hermitian()){
+        std::cerr << "Error: QuantumCircuit::add_observable_rotation_gate(const Observable& observable, double angle, UINT num_repeats): not impremented for non hermitian" << std::endl;
+        return;
+    }
     UINT qubit_count_ = observable.get_qubit_count();
     std::vector<PauliOperator*> operator_list = observable.get_terms();
     if (num_repeats == 0)
@@ -326,7 +354,7 @@ void QuantumCircuit::add_observable_rotation_gate(const Observable& observable, 
     // std::cout << num_repeats << std::endl;
     for (UINT repeat = 0; repeat < (UINT)num_repeats; ++repeat){
         for (auto pauli: operator_list){
-            this->add_gate(gate::PauliRotation(pauli->get_index_list(), pauli->get_pauli_id_list(), pauli->get_coef() * angle/ num_repeats));
+            this->add_gate(gate::PauliRotation(pauli->get_index_list(), pauli->get_pauli_id_list(), pauli->get_coef().real() * angle/ num_repeats));
         }
     }
 }
@@ -347,3 +375,6 @@ void QuantumCircuit::add_dense_matrix_gate(std::vector<UINT> target_index_list, 
 	this->add_gate(gate::DenseMatrix(target_index_list, matrix));
 }
 
+void QuantumCircuit::add_random_unitary_gate(std::vector<UINT> target_index_list) {
+	this->add_gate(gate::RandomUnitary(target_index_list));
+}

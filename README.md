@@ -8,23 +8,32 @@ Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob
 
 ## Quick Install
 
-```pip install qulacs```
+```
+pip install qulacs
+```
+
+If you have NVIDIA GPU with CUDA installed try:
+```
+pip install qulacs-gpu
+```
 
 ## Feature
-- Fast quantum circuit simulation with C/C++ backend
-- An arbitrary noisy quantum gate (i.e. CPTP-map and instrument are supported)
+- Fast quantum circuit simulation with parallelized C/C++ backend
+- Noisy quantum gate for simulation of NISQ devices
 - Parametric quantum gates for variational methods
-- Quantum circuit compression for fast numerical simulation.
+- Circuit compression for fast simulation
+- GPU support for fast simulation
 - Many utility functions for research
 
 ## Performance
 - Compared processing time with following libraries on October 1st, 2018
-    - Qulacs (ours)
+    - Qulacs CPU & GPU (ours)
     - [Cirq](https://github.com/quantumlib/Cirq)
     - [ProjectQ](https://github.com/ProjectQ-Framework/ProjectQ)
     - [pyQuil](https://github.com/rigetticomputing/pyquil)
     - [Q#](https://github.com/Microsoft/Quantum)
     - [Qiskit Terra QASM Simulator](https://github.com/Qiskit/qiskit-terra/tree/master/src/qasm-simulator-cpp)
+    - [Qiskit Aer](https://github.com/Qiskit/qiskit-aer)
     - [QuPy CPU & GPU](https://github.com/ken-nakanishi/qupy)
 
 - Test environment:
@@ -35,7 +44,10 @@ Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob
     - MKL enabled (numpy runs in multi thread)
     - Circuit compression disabled
     
-![benchmark](https://storage.googleapis.com/qunasys/_plot.png)
+![benchmark](https://storage.googleapis.com/qunasys/Qulacs_bench.png)
+
+[QuEST](https://github.com/quest-kit/QuEST) and [qHiPSTER](https://github.com/intel/Intel-QS) is also fast circuit
+simulator but we excluded since it doesn't have python interface.
 
 ## Supported environment
 Qulacs is tested on the following systems.
@@ -49,22 +61,27 @@ The following languages are supported.
 
 - C++
   - gcc/g++ >= 7.0.0
-  - Microsoft VisualStudio C++ 2017
+  - Microsoft VisualStudio C++ 2015, 2017
 - python
   - python 2.7
   - python 3.x
 
+If you want to use GPU, install CUDA >= 8.0.
 
 ## Install from Source
 If you encounter some troubles, see [troubleshooting (Japanese)](http://qulacs.org/md_4__trouble_shooting.html).
+Currently, if you want to use GPU, qulacs must be installed from source.
 
 ### Requirements
 
-- gcc/g++ >= 7.0.0 or Microsoft VisualStudio C++ 2017
+- C++
+    - gcc/g++ >= 7.0.0  (for python on Unix platforms in Linux, MacOS, or Windows)
+    - Microsoft VisualStudio C++ 2015 or 2017   (for other python on Windows)
 - python 2.7 or 3.x
 - cmake >= 3.0
+- (optional) CUDA >= 8.0
 
-### Build python library and install
+### Install qulacs from source
 
 Install
 ```
@@ -84,17 +101,19 @@ pip uninstall qulacs
 ```
 git clone https://github.com/qulacs/qulacs.git
 cd qulacs
-./build_gcc.sh
+./script/build_gcc.sh
 ```
+
+When you want to build with GPU, use <code>build_gcc_with_gpu.sh</code>.
 
 #### MSVC
 ```
 git clone https://github.com/qulacs/qulacs.git
 cd qulacs
-generate_msvc_project.bat
-cmake --build ./visualstudio --target ALL_BUILD --config Release
-cmake --build ./visualstudio --target python --config Release
+script/build_msvc.bat
 ```
+
+When you want to build with GPU, use <code>build_msvc_with_gpu.bat</code>.
 
 ## Tutorial and API document
 
@@ -128,6 +147,7 @@ value = observable.get_expectation_value(state)
 print(value)
 ```
 
+If you want to run it on GPU, install qulacs from source and replace <code>QuantumState</code> with <code>QuantumStateGpu</code>.
 
 ### C++
 
@@ -159,6 +179,8 @@ int main(){
 
 Build command for g++:
 ```sh
-g++ -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lcppsim.so
+g++ -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -fopenmp -lcppsim_static.so
 ```
+
+If you want to run it on GPU, include <code>cppsim/state_gpu.hpp</code> and replace <code>QuantumState</code> with <code>QuantumStateGpu</code>.
 

@@ -20,6 +20,7 @@ extern "C" {
 
 #include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
+#include <cppsim/general_quantum_operator.hpp>
 #include <cppsim/state.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_matrix.hpp>
@@ -53,18 +54,39 @@ PYBIND11_MODULE(qulacs, m) {
         .def("copy", &PauliOperator::copy, pybind11::return_value_policy::automatic_reference)
         ;
 
-    py::class_<Observable>(m, "Observable")
+    py::class_<GeneralQuantumOperator>(m, "GeneralQuantumOperator")
         .def(py::init<unsigned int>())
         // .def(py::init<std::string>())
-        .def("add_operator", (void (Observable::*)(const PauliOperator*)) &Observable::add_operator)
-        .def("add_operator", (void (Observable::*)(double coef, std::string))&Observable::add_operator)
-        .def("get_qubit_count", &Observable::get_qubit_count)
-        .def("get_state_dim", &Observable::get_state_dim)
-        .def("get_term_count", &Observable::get_term_count)
-        .def("get_term", &Observable::get_term, pybind11::return_value_policy::automatic_reference)
-        .def("get_expectation_value", &Observable::get_expectation_value)
-        .def("get_transition_amplitude", &Observable::get_transition_amplitude)
-        //.def_static("get_split_Observable", &(Observable::get_split_observable));
+        .def("add_operator", (void (GeneralQuantumOperator::*)(const PauliOperator*)) &GeneralQuantumOperator::add_operator)
+        .def("add_operator", (void (GeneralQuantumOperator::*)(std::complex<double> coef, std::string))&GeneralQuantumOperator::add_operator)
+        .def("get_qubit_count", &GeneralQuantumOperator::get_qubit_count)
+        .def("get_state_dim", &GeneralQuantumOperator::get_state_dim)
+        .def("get_term_count", &GeneralQuantumOperator::get_term_count)
+        .def("get_term", &GeneralQuantumOperator::get_term, pybind11::return_value_policy::automatic_reference)
+        .def("get_expectation_value", &GeneralQuantumOperator::get_expectation_value)
+        .def("get_transition_amplitude", &GeneralQuantumOperator::get_transition_amplitude)
+        //.def_static("get_split_GeneralQuantumOperator", &(GeneralQuantumOperator::get_split_observable));
+        ;
+    auto mquantum_operator = m.def_submodule("quantum_operator");
+    mquantum_operator.def("create_quantum_operator_from_openfermion_file", &quantum_operator::create_general_quantum_operator_from_openfermion_file, pybind11::return_value_policy::automatic_reference);
+    mquantum_operator.def("create_quantum_operator_from_openfermion_text", &quantum_operator::create_general_quantum_operator_from_openfermion_text, pybind11::return_value_policy::automatic_reference);
+    mquantum_operator.def("create_split_quantum_operator", &quantum_operator::create_split_general_quantum_operator, pybind11::return_value_policy::automatic_reference);
+
+    py::class_<HermitianQuantumOperator, GeneralQuantumOperator>(m, "Observable")
+        .def(py::init<unsigned int>())
+        // .def(py::init<std::string>())
+        .def("add_operator", (void (HermitianQuantumOperator::*)(const PauliOperator*)) &HermitianQuantumOperator::add_operator)
+        .def("add_operator", (void (HermitianQuantumOperator::*)(std::complex<double> coef, std::string))&HermitianQuantumOperator::add_operator)
+        .def("get_qubit_count", &HermitianQuantumOperator::get_qubit_count)
+        .def("get_state_dim", &HermitianQuantumOperator::get_state_dim)
+        .def("get_term_count", &HermitianQuantumOperator::get_term_count)
+        .def("get_term", &HermitianQuantumOperator::get_term, pybind11::return_value_policy::automatic_reference)
+        // .def("get_expectation_value", &HermitianQuantumOperator::get_expectation_value)
+        .def("get_expectation_value", [](const HermitianQuantumOperator& observable, const QuantumStateBase* state) {
+                                          double res = observable.get_expectation_value(state).real();
+                                          return res;})
+        .def("get_transition_amplitude", &HermitianQuantumOperator::get_transition_amplitude)
+        //.def_static("get_split_Observable", &(HermitianQuantumOperator::get_split_observable));
         ;
     auto mobservable = m.def_submodule("observable");
     mobservable.def("create_observable_from_openfermion_file", &observable::create_observable_from_openfermion_file, pybind11::return_value_policy::automatic_reference);
@@ -85,7 +107,8 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_norm", &QuantumState::get_norm)
         .def("normalize", &QuantumState::normalize)
         .def("allocate_buffer", &QuantumState::allocate_buffer, pybind11::return_value_policy::automatic_reference)
-        .def("copy", &QuantumState::copy, pybind11::return_value_policy::automatic_reference)
+        //.def("copy", &QuantumState::copy, pybind11::return_value_policy::automatic_reference)
+        .def("copy", &QuantumState::copy)
         .def("load", (void (QuantumState::*)(const QuantumStateBase*))&QuantumState::load)
         .def("load", (void (QuantumState::*)(const std::vector<CPPCTYPE>&))&QuantumState::load)
         .def("get_device_name", &QuantumState::get_device_name)
@@ -103,7 +126,8 @@ PYBIND11_MODULE(qulacs, m) {
         .def("__repr__", [](const QuantumState &p) {return p.to_string();});
         ;
 
-	py::class_<QuantumStateGpu, QuantumStateBase>(m, "QuantumStateGpu")
+#ifdef _USE_GPU
+    py::class_<QuantumStateGpu, QuantumStateBase>(m, "QuantumStateGpu")
 		.def(py::init<unsigned int>())
 		.def("set_zero_state", &QuantumStateGpu::set_zero_state)
 		.def("set_computational_basis", &QuantumStateGpu::set_computational_basis)
@@ -115,7 +139,8 @@ PYBIND11_MODULE(qulacs, m) {
 		.def("get_norm", &QuantumStateGpu::get_norm)
 		.def("normalize", &QuantumStateGpu::normalize)
 		.def("allocate_buffer", &QuantumStateGpu::allocate_buffer, pybind11::return_value_policy::automatic_reference)
-		.def("copy", &QuantumStateGpu::copy, pybind11::return_value_policy::automatic_reference)
+		//.def("copy", &QuantumStateGpu::copy, pybind11::return_value_policy::automatic_reference)
+		.def("copy", &QuantumStateGpu::copy)
 		.def("load", (void (QuantumStateGpu::*)(const QuantumStateBase*))&QuantumStateGpu::load)
 		.def("load", (void (QuantumStateGpu::*)(const std::vector<CPPCTYPE>&))&QuantumStateGpu::load)
 		.def("get_device_name", &QuantumStateGpu::get_device_name)
@@ -132,7 +157,7 @@ PYBIND11_MODULE(qulacs, m) {
 	})
 		.def("__repr__", [](const QuantumStateGpu &p) {return p.to_string(); });
 	;
-
+#endif
 
 	auto mstate = m.def_submodule("state");
 	using namespace state;
@@ -207,7 +232,9 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("DenseMatrix", ptr1, pybind11::return_value_policy::automatic_reference);
     mgate.def("DenseMatrix", ptr2, pybind11::return_value_policy::automatic_reference);
 
-    mgate.def("BitFlipNoise", &gate::BitFlipNoise);
+	mgate.def("RandomUnitary", &gate::RandomUnitary, pybind11::return_value_policy::automatic_reference);
+	
+	mgate.def("BitFlipNoise", &gate::BitFlipNoise);
     mgate.def("DephasingNoise", &gate::DephasingNoise);
     mgate.def("IndependentXZNoise", &gate::IndependentXZNoise);
     mgate.def("DepolarizingNoise", &gate::DepolarizingNoise);
@@ -294,7 +321,8 @@ PYBIND11_MODULE(qulacs, m) {
         .def("add_multi_Pauli_rotation_gate", (void (QuantumCircuit::*)(const PauliOperator&))&QuantumCircuit::add_multi_Pauli_rotation_gate)
         .def("add_dense_matrix_gate", (void (QuantumCircuit::*)(unsigned int, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate)
         .def("add_dense_matrix_gate", (void (QuantumCircuit::*)(std::vector<unsigned int>, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate)
-        .def("add_diagonal_observable_rotation_gate", &QuantumCircuit::add_diagonal_observable_rotation_gate)
+		.def("add_random_unitary_gate", &QuantumCircuit::add_random_unitary_gate)
+		.def("add_diagonal_observable_rotation_gate", &QuantumCircuit::add_diagonal_observable_rotation_gate)
         .def("add_observable_rotation_gate", &QuantumCircuit::add_observable_rotation_gate)
         .def("__repr__", [](const QuantumCircuit &p) {return p.to_string(); });
     ;

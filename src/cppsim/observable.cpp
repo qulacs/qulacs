@@ -3,85 +3,36 @@
 #include <stdarg.h>
 #include <stdio.h>
 #include "observable.hpp"
-#include "pauli_operator.hpp"
-#include "type.hpp"
 #include "utility.hpp"
 #include "state.hpp"
-#include <vector>
-#include <string>
 #include <fstream>
 #include <iostream>
-#include <utility>
 
-bool check_Pauli_operator(const Observable* observable, const PauliOperator* pauli_operator);
-
-bool check_Pauli_operator(const Observable* observable, const PauliOperator* pauli_operator) {
-	auto vec = pauli_operator->get_index_list();
-	UINT val = 0;
-	if (vec.size() > 0) {
-		val = std::max(val, *std::max_element(vec.begin(), vec.end()));
-	}
-	return val < (observable->get_qubit_count());
-}
-
-Observable::Observable(UINT qubit_count){
-    _qubit_count = qubit_count;
-}
-
-Observable::~Observable(){
-    for(auto& term : this->_operator_list){
-        delete term;
+void HermitianQuantumOperator::add_operator(const PauliOperator* mpt){
+    if (std::abs(mpt->get_coef().imag()) > 0){
+        std::cerr << "Error: HermitianQuantumOperator::add_operator(const PauliOperator* mpt): PauliOperator must be Hermitian." << std::endl;
+        return;
     }
+    GeneralQuantumOperator::add_operator(mpt);
 }
 
-void Observable::add_operator(const PauliOperator* mpt){
-    PauliOperator* _mpt = mpt->copy();
-	if (!check_Pauli_operator(this, _mpt)) {
-		std::cerr << "Error: Observable::add_operator(const PauliOperator*): pauli_operator applies target qubit of which the index is larger than qubit_count" << std::endl;
-		return;
-	}
-
-    this->_operator_list.push_back(_mpt);
-}
-
-void Observable::add_operator(double coef, std::string pauli_string) {
-	PauliOperator* _mpt = new PauliOperator(pauli_string, coef);
-	if (!check_Pauli_operator(this, _mpt)) {
-		std::cerr << "Error: Observable::add_operator(double,std::string): pauli_operator applies target qubit of which the index is larger than qubit_count" << std::endl;
-		return;
-	}
-	this->add_operator(_mpt);
-}
-
-double Observable::get_expectation_value(const QuantumStateBase* state) const {
-	if (this->_qubit_count != state->qubit_count) {
-		std::cerr << "Error: Observable::get_expectation_value(const QuantumStateBase*): invalid qubit count" << std::endl;
-		return 0.;
-	}
-
-    double sum = 0;
-    for (auto pauli : this->_operator_list) {
-        sum += pauli->get_expectation_value(state);
+void HermitianQuantumOperator::add_operator(CPPCTYPE coef, std::string pauli_string) {
+    if (std::abs(coef.imag()) > 0){
+        std::cerr << "Error: HermitianQuantumOperator::add_operator(const PauliOperator* mpt): PauliOperator must be Hermitian." << std::endl;
+        return;
     }
-    return sum;
+	GeneralQuantumOperator::add_operator(coef, pauli_string);
 }
 
-CPPCTYPE Observable::get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const {
-	if (this->_qubit_count != state_bra->qubit_count || this->_qubit_count != state_ket->qubit_count) {
-		std::cerr << "Error: Observable::get_transition_amplitude(const QuantumStateBase*, const QuantumStateBase*): invalid qubit count" << std::endl;
-		return 0.;
-	}
-	
-	CPPCTYPE sum = 0;
-    for (auto pauli : this->_operator_list) {
-        sum += pauli->get_transition_amplitude(state_bra, state_ket);
-    }
-    return sum;
+CPPCTYPE HermitianQuantumOperator::get_expectation_value(const QuantumStateBase* state) const {
+    return GeneralQuantumOperator::get_expectation_value(state).real();
 }
 
 namespace observable{
-    Observable* create_observable_from_openfermion_file(std::string file_path){
+    HermitianQuantumOperator* create_observable_from_openfermion_file(std::string file_path){
         UINT qubit_count = 0;
+        std::vector<CPPCTYPE> coefs;
+        std::vector<std::string> ops;
 
         std::ifstream ifs;
         ifs.open(file_path);
@@ -91,21 +42,24 @@ namespace observable{
 			return NULL;
 		}
 
-        std::string str;
-        std::vector<CPPCTYPE> coefs;
-        std::vector<std::string> ops;
-        while (getline(ifs, str)) {
-            std::vector<std::string> elems;
-            std::vector<std::string> index_list;
-            elems = split(str, "()j[]+");
+        // loading lines and check qubit_count
+        double coef_real, coef_imag;
+        std::string str_buf;
+        std::vector<std::string> index_list;
 
-            chfmt(elems[3]);
+        std::string line;
+        while (getline(ifs, line)) {
 
-            CPPCTYPE coef(std::stod(elems[0]), std::stod(elems[1]));
+            std::tuple<double, double, std::string> parsed_items = parse_openfermion_line(line);
+            coef_real = std::get<0>(parsed_items);
+            coef_imag = std::get<1>(parsed_items);
+            str_buf = std::get<2>(parsed_items);
+
+            CPPCTYPE coef(coef_real, coef_imag);
             coefs.push_back(coef);
-            ops.push_back(elems[3]);
+            ops.push_back(str_buf);
+            index_list = split(str_buf, "IXYZ ");
 
-            index_list = split(elems[3], "XYZ ");
             for (UINT i = 0; i < index_list.size(); ++i){
                 UINT n = std::stoi(index_list[i]) + 1;
                 if (qubit_count < n)
@@ -118,35 +72,38 @@ namespace observable{
 		}
         ifs.close();
 
-        Observable* observable = new Observable(qubit_count);
+        HermitianQuantumOperator* observable = new HermitianQuantumOperator(qubit_count);
 
         for (UINT i = 0; i < ops.size(); ++i){
-            observable->add_operator(new PauliOperator(ops[i].c_str(), coefs[i].real()));
+            observable->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
         }
 
         return observable;
     }
 
-    Observable* create_observable_from_openfermion_text(std::string text){
+    HermitianQuantumOperator* create_observable_from_openfermion_text(std::string text){
         UINT qubit_count = 0;
-
-        std::vector<std::string> lines;
         std::vector<CPPCTYPE> coefs;
         std::vector<std::string> ops;
+
+        std::vector<std::string> lines;
+        double coef_real, coef_imag;
+        std::string str_buf;
+        std::vector<std::string> index_list;
+
         lines = split(text, "\n");
-
         for (std::string line: lines){
-            std::vector<std::string> elems;
-            std::vector<std::string> index_list;
-            elems = split(line, "()j[]+");
 
-            chfmt(elems[3]);
+            std::tuple<double, double, std::string> parsed_items = parse_openfermion_line(line);
+            coef_real = std::get<0>(parsed_items);
+            coef_imag = std::get<1>(parsed_items);
+            str_buf = std::get<2>(parsed_items);
 
-            CPPCTYPE coef(std::stod(elems[0]), std::stod(elems[1]));
+            CPPCTYPE coef(coef_real, coef_imag);
             coefs.push_back(coef);
-            ops.push_back(elems[3]);
+            ops.push_back(str_buf);
+            index_list = split(str_buf, "IXYZ ");
 
-            index_list = split(elems[3], "XYZ ");
             for (UINT i = 0; i < index_list.size(); ++i){
                 UINT n = std::stoi(index_list[i]) + 1;
                 if (qubit_count < n)
@@ -154,43 +111,47 @@ namespace observable{
             }
         }
 
-        Observable* observable = new Observable(qubit_count);
+        HermitianQuantumOperator* hermitian_quantum_operator = new HermitianQuantumOperator(qubit_count);
 
         for (UINT i = 0; i < ops.size(); ++i){
-            observable->add_operator(new PauliOperator(ops[i].c_str(), coefs[i].real()));
+            hermitian_quantum_operator->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
         }
 
-        return observable;
+        return hermitian_quantum_operator;
+
     }
 
-    std::pair<Observable*, Observable*> create_split_observable(std::string file_path){
+    std::pair<HermitianQuantumOperator*, HermitianQuantumOperator*> create_split_observable(std::string file_path){
         UINT qubit_count = 0;
+        std::vector<CPPCTYPE> coefs;
+        std::vector<std::string> ops;
 
         std::ifstream ifs;
         ifs.open(file_path);
 
         if (!ifs){
             std::cerr << "ERROR: Cannot open file" << std::endl;
-			return std::make_pair((Observable*)NULL, (Observable*)NULL);
+			return std::make_pair((HermitianQuantumOperator*)NULL, (HermitianQuantumOperator*)NULL);
         }
 
         // loading lines and check qubit_count
-        std::string str;
-        std::vector<CPPCTYPE> coefs;
-        std::vector<std::string> ops;
+        double coef_real, coef_imag;
+        std::string str_buf;
+        std::vector<std::string> index_list;
 
-        while (getline(ifs, str)) {
-            std::vector<std::string> elems;
-            std::vector<std::string> index_list;
-            elems = split(str, "()j[]+");
+        std::string line;
+        while (getline(ifs, line)) {
 
-            chfmt(elems[3]);
+            std::tuple<double, double, std::string> parsed_items = parse_openfermion_line(line);
+            coef_real = std::get<0>(parsed_items);
+            coef_imag = std::get<1>(parsed_items);
+            str_buf = std::get<2>(parsed_items);
 
-            CPPCTYPE coef(std::stod(elems[0]), std::stod(elems[1]));
+            CPPCTYPE coef(coef_real, coef_imag);
             coefs.push_back(coef);
-            ops.push_back(elems[3]);
+            ops.push_back(str_buf);
+            index_list = split(str_buf, "IXYZ ");
 
-            index_list = split(elems[3], "XYZ ");
             for (UINT i = 0; i < index_list.size(); ++i){
                 UINT n = std::stoi(index_list[i]) + 1;
                 if (qubit_count < n)
@@ -199,18 +160,18 @@ namespace observable{
         }
         if (!ifs.eof()){
             std::cerr << "ERROR: Invalid format" << std::endl;
-			return std::make_pair((Observable*)NULL, (Observable*)NULL);
+			return std::make_pair((HermitianQuantumOperator*)NULL, (HermitianQuantumOperator*)NULL);
 		}
         ifs.close();
 
-        Observable* observable_diag =  new Observable(qubit_count);
-        Observable* observable_non_diag =  new Observable(qubit_count);
+        HermitianQuantumOperator* observable_diag =  new HermitianQuantumOperator(qubit_count);
+        HermitianQuantumOperator* observable_non_diag =  new HermitianQuantumOperator(qubit_count);
 
         for (UINT i = 0; i < ops.size(); ++i){
             if (ops[i].find("X") != std::string::npos || ops[i].find("Y") != std::string::npos){
-                observable_non_diag->add_operator(new PauliOperator(ops[i].c_str(), coefs[i].real()));
+                observable_non_diag->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
             }else{
-                observable_diag->add_operator(new PauliOperator(ops[i].c_str(), coefs[i].real()));
+                observable_diag->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
             }
         }
 

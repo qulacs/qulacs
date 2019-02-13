@@ -13,6 +13,7 @@
 #include "gate_named_pauli.hpp"
 #include "gate_matrix.hpp"
 #include "type.hpp"
+#include <Eigen/QR>
 
 namespace gate{
     ComplexMatrix get_IBMQ_matrix(double theta, double phi, double lambda);
@@ -131,6 +132,30 @@ namespace gate{
     QuantumGateMatrix* DenseMatrix(std::vector<UINT> target_list, ComplexMatrix matrix) {
         return new QuantumGateMatrix(target_list, matrix);
     }
+
+	QuantumGateMatrix* RandomUnitary(std::vector<UINT> target_list) {
+		Random random;
+		UINT qubit_count = (UINT)target_list.size();
+		ITYPE dim = 1ULL << qubit_count;
+		ComplexMatrix matrix(dim, dim);
+		for (ITYPE i = 0; i < dim; ++i) {
+			for (ITYPE j = 0; j < dim; ++j) {
+				matrix(i, j) = (random.normal() + 1.i * random.normal())/sqrt(2.);
+			}
+		}
+		Eigen::HouseholderQR<ComplexMatrix> qr_solver(matrix);
+		ComplexMatrix Q = qr_solver.householderQ();
+		// actual R matrix is upper-right triangle of matrixQR
+		auto R = qr_solver.matrixQR();
+		for (ITYPE i = 0; i < dim; ++i) {
+			CPPCTYPE phase = R(i, i) / abs(R(i, i));
+			for (ITYPE j = 0; j < dim; ++j) {
+				Q(j,i) *= phase;
+			}
+		}
+		return new QuantumGateMatrix(target_list, Q);
+	}
+
 
     QuantumGateBase* BitFlipNoise(UINT target_index, double prob) {
         return new QuantumGate_Probabilistic({ prob }, { X(target_index) });
