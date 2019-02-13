@@ -335,7 +335,7 @@ __global__ void expectation_value_PauliZ_gpu(double *ret, GTYPE *state, unsigned
 
 __host__ double expectation_value_single_qubit_Pauli_operator_host(unsigned int operator_index, unsigned int target_qubit_index, void *state, ITYPE dim) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-    double h_ret;
+    double h_ret=0.0;
     double* d_ret;
 
     // this loop_dim is not the same as that of the gpu function
@@ -350,7 +350,7 @@ __host__ double expectation_value_single_qubit_Pauli_operator_host(unsigned int 
 	unsigned int grid = loop_dim / block;
 
 	checkCudaErrors(cudaMalloc((void**)&d_ret, sizeof(double)), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(d_ret, &h_ret, sizeof(double), cudaMemcpyHostToDevice), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemsetAsync(d_ret, 0, sizeof(double)), __FILE__, __LINE__);
     
     if(operator_index==1){
         expectation_value_PauliX_gpu<< <grid, block>> >(d_ret, state_gpu, target_qubit_index, dim);
@@ -365,7 +365,7 @@ __host__ double expectation_value_single_qubit_Pauli_operator_host(unsigned int 
     }
 
     checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(&h_ret, d_ret, sizeof(double), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyAsync(&h_ret, d_ret, sizeof(double), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
     checkCudaErrors(cudaFree(d_ret), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
     return h_ret;
