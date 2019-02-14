@@ -103,8 +103,8 @@ cache:
 before_install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
-      choco install -y cmake
-      choco install -y python --version "${PYTHON}"
+      travis_retry choco install -y cmake
+      travis_retry choco install -y python --version "${PYTHON}"
       if [[ "${PYTHON}" == "3"* ]]; then
         alias python="python3"
       fi
