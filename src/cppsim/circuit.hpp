@@ -96,7 +96,7 @@ public:
      * add_gateに比べコピーが発生する分低速な一方、引数で与えたゲートを再利用できる。
      * @param[in] gate 追加する量子ゲート
      */
-    virtual void add_gate_copy(const QuantumGateBase& gate);
+    virtual void add_gate_copy(const QuantumGateBase* gate);
 
     /**
      * \~japanese-en 量子ゲートを回路の指定位置に追加する。
@@ -105,7 +105,7 @@ public:
      * @param[in] gate 追加する量子ゲート
      * @param[in] index 追加する位置
      */
-    virtual void add_gate_copy(const QuantumGateBase& gate, UINT index);
+    virtual void add_gate_copy(const QuantumGateBase* gate, UINT index);
 
     /**
      * \~japanese-en 量子回路からゲートを削除する。
