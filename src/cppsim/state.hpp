@@ -301,7 +301,7 @@ public:
      * @return double 
      */
     virtual double get_zero_probability(UINT target_qubit_index) const override {
-		if (target_qubit_index < this->qubit_count) {
+		if (target_qubit_index >= this->qubit_count) {
 			std::cerr << "Error: QuantumStateCpu::get_zero_probability(UINT): index of target qubit must be smaller than qubit_count" << std::endl;
 			return 0.;
 		}
