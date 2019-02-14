@@ -41,10 +41,11 @@ PYBIND11_MODULE(qulacs, m) {
     m.doc() = "cppsim python interface";
 
     py::class_<PauliOperator>(m, "PauliOperator")
-        .def(py::init<double>())
-        .def(py::init<std::string, double>())
-        .def(py::init<std::vector<unsigned int>&, std::string, double>())
-        .def(py::init<std::vector<unsigned int>&, double>())
+        .def(py::init<std::complex<double>>())
+        .def(py::init<std::string, std::complex<double>>())
+        .def(py::init<std::vector<unsigned int>&, std::string, std::complex<double>>())
+        .def(py::init<std::vector<unsigned int>&, std::vector<unsigned int>&, std::complex<double>>())
+        .def(py::init<std::vector<unsigned int>&, std::complex<double>>())
         .def("get_index_list", &PauliOperator::get_index_list)
         .def("get_pauli_id_list", &PauliOperator::get_pauli_id_list)
         .def("get_coef", &PauliOperator::get_coef)
@@ -59,6 +60,7 @@ PYBIND11_MODULE(qulacs, m) {
         // .def(py::init<std::string>())
         .def("add_operator", (void (GeneralQuantumOperator::*)(const PauliOperator*)) &GeneralQuantumOperator::add_operator)
         .def("add_operator", (void (GeneralQuantumOperator::*)(std::complex<double> coef, std::string))&GeneralQuantumOperator::add_operator)
+        .def("is_hermitian", &GeneralQuantumOperator::is_hermitian)
         .def("get_qubit_count", &GeneralQuantumOperator::get_qubit_count)
         .def("get_state_dim", &GeneralQuantumOperator::get_state_dim)
         .def("get_term_count", &GeneralQuantumOperator::get_term_count)

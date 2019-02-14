@@ -62,7 +62,7 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list, std::st
             assert(false);
         }
 
-        if(pauli_type!=0) this->add_single_Pauli(target_qubit_list[term_count],pauli_type);
+        if(pauli_type!=0) this->add_single_Pauli(target_qubit_list[term_index],pauli_type);
     }
 }
 
