@@ -277,8 +277,8 @@ PYBIND11_MODULE(qulacs, m) {
         // In order to avoid double release, we force using add_gate_copy in python
         .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate)
         .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate)
-        .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase&))&QuantumCircuit::add_gate_copy)
-        .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase&, unsigned int))&QuantumCircuit::add_gate_copy)
+        .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase*))&QuantumCircuit::add_gate_copy)
+        .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate_copy)
         .def("remove_gate", &QuantumCircuit::remove_gate)
 
         .def("get_gate", [](const QuantumCircuit& circuit, unsigned int index) -> QuantumGateBase* { 
@@ -338,8 +338,8 @@ PYBIND11_MODULE(qulacs, m) {
         .def("copy", &ParametricQuantumCircuit::copy, pybind11::return_value_policy::take_ownership)
         .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate))  &ParametricQuantumCircuit::add_parametric_gate)
         .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate, UINT))  &ParametricQuantumCircuit::add_parametric_gate)
-        .def("add_gate", (void (ParametricQuantumCircuit::*)(QuantumGateBase* gate))  &ParametricQuantumCircuit::add_gate )
-        .def("add_gate", (void (ParametricQuantumCircuit::*)(QuantumGateBase* gate, unsigned int))  &ParametricQuantumCircuit::add_gate)
+        .def("add_gate", (void (ParametricQuantumCircuit::*)(const QuantumGateBase* gate))  &ParametricQuantumCircuit::add_gate_copy )
+        .def("add_gate", (void (ParametricQuantumCircuit::*)(const QuantumGateBase* gate, unsigned int))  &ParametricQuantumCircuit::add_gate_copy)
         .def("get_parameter_count", &ParametricQuantumCircuit::get_parameter_count)
         .def("get_parameter", &ParametricQuantumCircuit::get_parameter)
         .def("set_parameter", &ParametricQuantumCircuit::set_parameter)
