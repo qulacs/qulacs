@@ -122,6 +122,7 @@ class TestPointerHandling(unittest.TestCase):
         circuit.update_quantum_state(state)
         circuit.update_quantum_state(state)
         circuit.update_quantum_state(state)
+        circuit.to_string()
         del circuit
         del state
     
@@ -130,6 +131,26 @@ class TestPointerHandling(unittest.TestCase):
         obs = Observable(1)
         obs.add_operator(1.0, "X 0")
         term = obs.get_term(0)
+
+    def test_add_gate(self):
+        from qulacs import QuantumCircuit
+        from qulacs.gate import X
+        circuit = QuantumCircuit(1)
+        gate = X(0)
+        circuit.add_gate(gate)
+        del gate
+        s = circuit.to_string()
+        del circuit
+
+    def test_add_gate_in_parametric_circuit(self):
+        from qulacs import ParametricQuantumCircuit
+        from qulacs.gate import X
+        circuit = ParametricQuantumCircuit(1)
+        gate = X(0)
+        circuit.add_gate(gate)
+        del gate
+        s = circuit.to_string()
+        del circuit
         
 
 if __name__ == "__main__":
