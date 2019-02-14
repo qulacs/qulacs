@@ -302,6 +302,15 @@ namespace gate{
 	 */
 	DllExport QuantumGateMatrix* RandomUnitary(std::vector<UINT> target_qubit_index_list);
 
+	/**
+	 * \f$n\f$-qubit の可逆古典回路を作用する。
+	 *
+	 * @param[in] target_qubit_index_list ターゲットとなる量子ビットの添え字
+	 * @param[in] function_ptr 可逆古典回路の動作をする関数
+	 * @return 作成されたゲートのインスタンス
+	 */
+	DllExport QuantumGateBase* ReversibleBoolean(std::vector<UINT> target_qubit_index_list, std::function<ITYPE(ITYPE,ITYPE)>);
+
 
     /**
      * bit-flipノイズを発生させるゲート
