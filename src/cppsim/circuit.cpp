@@ -134,24 +134,12 @@ void QuantumCircuit::add_gate(QuantumGateBase* gate, UINT index){
     this->_gate_list.insert(this->_gate_list.begin() + index, gate);
 }
 
-void QuantumCircuit::add_gate_copy(const QuantumGateBase& gate){
-	if (!check_gate_index(this, &gate)) {
-		std::cerr << "Error: QuatnumCircuit::add_gate_copy(const QuantumGateBase&): gate must be applied to qubits of which the indices are smaller than qubit_count" << std::endl;
-		return;
-	}
-	this->_gate_list.push_back(gate.copy());
+void QuantumCircuit::add_gate_copy(const QuantumGateBase* gate){
+	this->add_gate(gate->copy());
 }
 
-void QuantumCircuit::add_gate_copy(const QuantumGateBase& gate, UINT index){
-	if (!check_gate_index(this, &gate)) {
-		std::cerr << "Error: QuatnumCircuit::add_gate_copy(const QuantumGateBase&, UINT): gate must be applied to qubits of which the indices are smaller than qubit_count" << std::endl;
-		return;
-	}
-	if (index > this->_gate_list.size()) {
-		std::cerr << "Error: QuantumCircuit::add_gate_copy(const QuantumGateBase*, UINT) : insert index must be smaller than or equal to gate_count" << std::endl;
-		return;
-	}
-	this->_gate_list.insert(this->_gate_list.begin() + index, gate.copy());
+void QuantumCircuit::add_gate_copy(const QuantumGateBase* gate, UINT index){
+	this->add_gate(gate->copy(), index);
 }
 
 void QuantumCircuit::remove_gate(UINT index){
