@@ -239,11 +239,13 @@ PYBIND11_MODULE(qulacs, m) {
     QuantumGateMatrix*(*ptr2)(std::vector<unsigned int>, ComplexMatrix) = &gate::DenseMatrix;
     mgate.def("DenseMatrix", ptr1, pybind11::return_value_policy::take_ownership);
     mgate.def("DenseMatrix", ptr2, pybind11::return_value_policy::take_ownership);
+	mgate.def("SparseMatrix", &gate::SparseMatrix, pybind11::return_value_policy::take_ownership);
 
   	mgate.def("RandomUnitary", &gate::RandomUnitary, pybind11::return_value_policy::take_ownership);
     mgate.def("ReversibleBoolean", [](std::vector<UINT> target_qubit_list, std::function<ITYPE(ITYPE,ITYPE)> function_py) {
         return gate::ReversibleBoolean(target_qubit_list, function_py);
     }, pybind11::return_value_policy::take_ownership);
+	mgate.def("StateReflection", &gate::StateReflection, pybind11::return_value_policy::take_ownership);
 
     mgate.def("BitFlipNoise", &gate::BitFlipNoise);
     mgate.def("DephasingNoise", &gate::DephasingNoise);

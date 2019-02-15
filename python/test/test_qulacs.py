@@ -152,6 +152,36 @@ class TestPointerHandling(unittest.TestCase):
         s = circuit.to_string()
         del circuit
         
+    def test_state_reflection(self):
+        from qulacs import QuantumState
+        from qulacs.gate import StateReflection
+        n = 5
+        s1 = QuantumState(n)
+        def gen_gate():
+            s2 = QuantumState(n)
+            gate = StateReflection(s2)
+            del s2
+            return gate
+        gate = gen_gate()
+        gate.update_quantum_state(s1)
+        del gate
+        del s1
+
+    def test_sparse_matrix(self):
+        
+        from qulacs import QuantumState
+        from qulacs.gate import SparseMatrix
+        from scipy.sparse import lil_matrix
+        n = 5
+        state = QuantumState(n)
+        matrix = lil_matrix( (4,4) , dtype = np.complex128)
+        matrix[0,0] = 1 + 1.j
+        matrix[1,1] = 1. + 1.j
+        gate = SparseMatrix([0,1], matrix)
+        gate.update_quantum_state(state)
+        del gate
+        del state
+        
 
 if __name__ == "__main__":
     unittest.main()
