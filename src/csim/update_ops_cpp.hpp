@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Eigen/Core>
+#include <Eigen/Sparse>
 #include <functional>
 #ifndef _MSC_VER
 extern "C"{
@@ -13,6 +14,8 @@ extern "C"{
 DllExport void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
 DllExport void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const Eigen::MatrixXcd& eigen_matrix, CTYPE* state, ITYPE dim);
 DllExport void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const Eigen::Matrix<std::complex<double>,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor>& eigen_matrix, CTYPE* state, ITYPE dim);
+
+DllExport void multi_qubit_sparse_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const Eigen::SparseMatrix<std::complex<double>>& eigen_matrix, CTYPE* state, ITYPE dim);
 
 /**
  * \~english
