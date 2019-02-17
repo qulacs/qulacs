@@ -75,7 +75,8 @@ public:
 		std::vector<UINT> target_index;
 		std::vector<UINT> target_value;
 		for (UINT i = 0; i < measured_values.size(); ++i) {
-			if (i == 0 || i == 1) {
+			UINT measured_value = measured_values[i];
+			if (measured_value == 0 || measured_value == 1) {
 				target_index.push_back(i);
 				target_value.push_back(measured_values[i]);
 			}
