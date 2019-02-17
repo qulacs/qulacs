@@ -78,7 +78,7 @@ public:
 			UINT measured_value = measured_values[i];
 			if (measured_value == 0 || measured_value == 1) {
 				target_index.push_back(i);
-				target_value.push_back(measured_values[i]);
+				target_value.push_back(measured_value);
 			}
 		}
 		return marginal_prob_host(target_index.data(), target_value.data(), (UINT)target_index.size(), this->data(), _dim);
