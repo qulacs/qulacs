@@ -56,3 +56,24 @@ TEST(StateTest, SetState) {
 		ASSERT_NEAR(state.data_cpp()[i].imag(), state_vector[i].imag(), eps);
 	}
 }
+
+TEST(StateTest, GetMarginalProbability) {
+	const double eps = 1e-10;
+	const UINT n = 2;
+	const ITYPE dim = 1 << n;
+	QuantumState state(n);
+	state.set_Haar_random_state();
+	std::vector<double> probs;
+	for (ITYPE i = 0; i < dim; ++i) {
+		probs.push_back(pow(abs(state.data_cpp()[i]),2));
+	}
+	ASSERT_NEAR(state.get_marginal_probability({ 0,0 }), probs[0], eps);
+	ASSERT_NEAR(state.get_marginal_probability({ 1,0 }), probs[1], eps);
+	ASSERT_NEAR(state.get_marginal_probability({ 0,1 }), probs[2], eps);
+	ASSERT_NEAR(state.get_marginal_probability({ 1,1 }), probs[3], eps);
+	ASSERT_NEAR(state.get_marginal_probability({ 0,2 }), probs[0] + probs[2], eps);
+	ASSERT_NEAR(state.get_marginal_probability({ 1,2 }), probs[1] + probs[3], eps);
+	ASSERT_NEAR(state.get_marginal_probability({ 2,0 }), probs[0] + probs[1], eps);
+	ASSERT_NEAR(state.get_marginal_probability({ 2,1 }), probs[2] + probs[3], eps);
+	ASSERT_NEAR(state.get_marginal_probability({ 2,2 }), 1., eps);
+}
