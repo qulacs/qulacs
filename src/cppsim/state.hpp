@@ -158,6 +158,15 @@ public:
      */
     virtual CTYPE* data_c() const = 0;
 
+	/**
+	 * \~japanese-en 量子状態を足しこむ
+	 */
+	virtual void add_state(const QuantumStateBase* state) = 0;
+	/**
+	 * \~japanese-en 複素数をかける
+	 */
+	virtual void multiply_coef(CPPCTYPE coef) = 0;
+	
     /**
      * \~japanese-en 指定した添え字の古典レジスタの値を取得する。
      * 
@@ -435,6 +444,22 @@ public:
         return reinterpret_cast<CTYPE*>(this->_state_vector);
     }
 
+
+
+	/**
+	 * \~japanese-en 量子状態を足しこむ
+	 */
+	virtual void add_state(const QuantumStateBase* state) {
+		state_add(state->data_c(), this->data_c(), this->dim);
+	}
+	/**
+	 * \~japanese-en 複素数をかける
+	 */
+	virtual void multiply_coef(CPPCTYPE coef) {
+		state_multiply(coef, this->data_c(), this->dim);
+	}
+
+
     /**
      * \~japanese-en 量子状態を測定した際の計算基底のサンプリングを行う
      *
@@ -474,4 +499,5 @@ namespace state {
      * @return 内積の値
      */
     CPPCTYPE DllExport inner_product(const QuantumState* state_bra, const QuantumState* state_ket);
+
 }

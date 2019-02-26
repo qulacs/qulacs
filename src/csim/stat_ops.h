@@ -5,6 +5,8 @@
 DllExport double state_norm(const CTYPE *state, ITYPE dim) ;
 DllExport double measurement_distribution_entropy(const CTYPE *state, ITYPE dim);
 DllExport CTYPE state_inner_product(const CTYPE *state_bra, const CTYPE *state_ket, ITYPE dim);
+DllExport void state_add(const CTYPE *state_added, CTYPE *state, ITYPE dim);
+DllExport void state_multiply(CTYPE coef, CTYPE *state, ITYPE dim);
 
 DllExport double M0_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim);
 DllExport double M1_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim);
