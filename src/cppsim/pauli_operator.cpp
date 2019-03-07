@@ -12,6 +12,9 @@
 #include <iostream>
 #include <utility>
 
+#ifdef _USE_GPU
+#include <gpusim/stat_ops.h>
+#endif
 
 #ifndef _MSC_VER
 extern "C"{
@@ -87,6 +90,25 @@ void PauliOperator::add_single_Pauli(UINT qubit_index, UINT pauli_type){
 }
 
 CPPCTYPE PauliOperator::get_expectation_value(const QuantumStateBase* state) const {
+#ifdef _USE_GPU
+    if(state->get_device_name() == "gpu"){
+        return _coef * expectation_value_multi_qubit_Pauli_operator_partial_list_host(
+            this->get_index_list().data(),
+            this->get_pauli_id_list().data(),
+            (UINT)this->get_index_list().size(),
+            state->data(),
+            state->dim
+        );
+    }else{
+        return _coef * expectation_value_multi_qubit_Pauli_operator_partial_list(
+            this->get_index_list().data(),
+            this->get_pauli_id_list().data(),
+            (UINT)this->get_index_list().size(),
+            state->data_c(),
+            state->dim
+        );
+    }
+#else
     return _coef * expectation_value_multi_qubit_Pauli_operator_partial_list(
         this->get_index_list().data(),
         this->get_pauli_id_list().data(),
@@ -94,9 +116,31 @@ CPPCTYPE PauliOperator::get_expectation_value(const QuantumStateBase* state) con
         state->data_c(),
         state->dim
     );
+#endif
 }
 
 CPPCTYPE PauliOperator::get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const {
+#ifdef _USE_GPU
+    if(state_ket->get_device_name()=="gpu" && state_bra->get_device_name()=="gpu"){
+        return _coef * (CPPCTYPE)transition_amplitude_multi_qubit_Pauli_operator_partial_list_host(
+            this->get_index_list().data(),
+            this->get_pauli_id_list().data(),
+            (UINT)this->get_index_list().size(),
+            state_bra->data(),
+            state_ket->data(),
+            state_bra->dim
+        );
+    }else{
+        return _coef * (CPPCTYPE)transition_amplitude_multi_qubit_Pauli_operator_partial_list(
+            this->get_index_list().data(),
+            this->get_pauli_id_list().data(),
+            (UINT)this->get_index_list().size(),
+            state_bra->data_c(),
+            state_ket->data_c(),
+            state_bra->dim
+        );
+    }
+#else
     return _coef * (CPPCTYPE)transition_amplitude_multi_qubit_Pauli_operator_partial_list(
         this->get_index_list().data(),
         this->get_pauli_id_list().data(),
@@ -105,6 +149,7 @@ CPPCTYPE PauliOperator::get_transition_amplitude(const QuantumStateBase* state_b
         state_ket->data_c(),
         state_bra->dim
     );
+#endif
 }
 
 

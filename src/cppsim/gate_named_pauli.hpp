@@ -64,10 +64,11 @@ public:
 			    target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
 			    state->data_c(), state->dim);
 		}
-#endif
+#else
         multi_qubit_Pauli_gate_partial_list(
             target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
             state->data_c(), state->dim);
+#endif
     };
     /**
      * \~japanese-en 自身のディープコピーを生成する
@@ -138,10 +139,11 @@ public:
 			    target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
 			    _angle, state->data(), state->dim);
         }
-#endif
+#else
         multi_qubit_Pauli_rotation_gate_partial_list(
             target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
             _angle, state->data_c(), state->dim);
+#endif
     };
     /**
      * \~japanese-en 自身のディープコピーを生成する
