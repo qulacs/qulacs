@@ -74,6 +74,28 @@ CTYPE state_inner_product(const CTYPE *state_bra, const CTYPE *state_ket, ITYPE 
 #endif
 }
 
+
+void state_add(const CTYPE *state_added, CTYPE *state, ITYPE dim) {
+	ITYPE index;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+	for (index = 0; index < dim; ++index) {
+		state[index] += state_added[index];
+	}
+}
+
+void state_multiply(CTYPE coef, CTYPE *state, ITYPE dim) {
+	ITYPE index;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+	for (index = 0; index < dim; ++index) {
+		state[index] *= coef;
+	}
+}
+
+
 // calculate probability with which we obtain 0 at target qubit
 double M0_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim){
     const ITYPE loop_dim = dim/2;

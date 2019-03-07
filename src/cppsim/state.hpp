@@ -27,7 +27,7 @@ protected:
     UINT _qubit_count;
     std::vector<UINT> _classical_register;
 public:
-	const UINT& qubit_count; /**< \~japanese-en 量子ビット数 */
+    const UINT& qubit_count; /**< \~japanese-en 量子ビット数 */
     const ITYPE& dim; /**< \~japanese-en 量子状態の次元 */
     const std::vector<UINT>& classical_register; /**< \~japanese-en 古典ビットのレジスタ */
 
@@ -37,8 +37,8 @@ public:
      * @param qubit_count_ 量子ビット数
      */
     QuantumStateBase(UINT qubit_count_):
-		qubit_count(_qubit_count), dim(_dim), classical_register(_classical_register)
-	{
+        qubit_count(_qubit_count), dim(_dim), classical_register(_classical_register)
+    {
         this->_qubit_count = qubit_count_;
         this->_dim = 1ULL << qubit_count_;
     }
@@ -132,17 +132,17 @@ public:
      */
     virtual void load(const std::vector<CPPCTYPE>& state) = 0;
 
-	/**
+    /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
-	virtual void load(const CPPCTYPE* state) = 0;
+    virtual void load(const CPPCTYPE* state) = 0;
 
     /**
      * \~japanese-en 量子状態が配置されているメモリを保持するデバイス名を取得する。
      */
     virtual const std::string get_device_name() const = 0;
 
-	virtual void* data() const = 0;
+    virtual void* data() const = 0;
 
     /**
      * \~japanese-en 量子状態をC++の<code>std::complex\<double\></code>の配列として取得する
@@ -158,6 +158,15 @@ public:
      */
     virtual CTYPE* data_c() const = 0;
 
+    /**
+     * \~japanese-en 量子状態を足しこむ
+     */
+    virtual void add_state(const QuantumStateBase* state) = 0;
+    /**
+     * \~japanese-en 複素数をかける
+     */
+    virtual void multiply_coef(CPPCTYPE coef) = 0;
+    
     /**
      * \~japanese-en 指定した添え字の古典レジスタの値を取得する。
      * 
@@ -273,10 +282,10 @@ public:
      * @param comp_basis 初期化する基底を表す整数
      */
     virtual void set_computational_basis(ITYPE comp_basis)  override {
-		if (comp_basis >= (ITYPE)(1ULL << this->qubit_count)) {
-			std::cerr << "Error: QuantumStateCpu::set_computational_basis(ITYPE): index of computational basis must be smaller than 2^qubit_count" << std::endl;
-			return;
-		}
+        if (comp_basis >= (ITYPE)(1ULL << this->qubit_count)) {
+            std::cerr << "Error: QuantumStateCpu::set_computational_basis(ITYPE): index of computational basis must be smaller than 2^qubit_count" << std::endl;
+            return;
+        }
         set_zero_state();
         _state_vector[0] = 0.;
         _state_vector[comp_basis] = 1.;
@@ -301,11 +310,11 @@ public:
      * @return double 
      */
     virtual double get_zero_probability(UINT target_qubit_index) const override {
-		if (target_qubit_index >= this->qubit_count) {
-			std::cerr << "Error: QuantumStateCpu::get_zero_probability(UINT): index of target qubit must be smaller than qubit_count" << std::endl;
-			return 0.;
-		}
-		return M0_prob(target_qubit_index, this->data_c(), _dim);
+        if (target_qubit_index >= this->qubit_count) {
+            std::cerr << "Error: QuantumStateCpu::get_zero_probability(UINT): index of target qubit must be smaller than qubit_count" << std::endl;
+            return 0.;
+        }
+        return M0_prob(target_qubit_index, this->data_c(), _dim);
     }
     /**
      * \~japanese-en 複数の量子ビットを測定した時の周辺確率を計算する
@@ -314,15 +323,15 @@ public:
      * @return 計算された周辺確率
      */
     virtual double get_marginal_probability(std::vector<UINT> measured_values) const override {
-		if (measured_values.size() != this->qubit_count) {
-			std::cerr << "Error: QuantumStateCpu::get_marginal_probability(vector<UINT>): the length of measured_values must be equal to qubit_count" << std::endl;
-			return 0.;
-		}
-		
-		std::vector<UINT> target_index;
+        if (measured_values.size() != this->qubit_count) {
+            std::cerr << "Error: QuantumStateCpu::get_marginal_probability(vector<UINT>): the length of measured_values must be equal to qubit_count" << std::endl;
+            return 0.;
+        }
+        
+        std::vector<UINT> target_index;
         std::vector<UINT> target_value;
         for (UINT i = 0; i < measured_values.size(); ++i) {
-			UINT measured_value = measured_values[i];
+            UINT measured_value = measured_values[i];
             if (measured_value== 0 || measured_value == 1) {
                 target_index.push_back(i);
                 target_value.push_back(measured_value);
@@ -383,43 +392,43 @@ public:
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
     virtual void load(const QuantumStateBase* _state) {
-		if (_state->qubit_count != this->qubit_count) {
-			std::cerr << "Error: QuantumStateCpu::load(const QuantumStateBase*): invalid qubit count" << std::endl;
-			return;
-		}
-		
-		this->_classical_register = _state->classical_register;
+        if (_state->qubit_count != this->qubit_count) {
+            std::cerr << "Error: QuantumStateCpu::load(const QuantumStateBase*): invalid qubit count" << std::endl;
+            return;
+        }
+        
+        this->_classical_register = _state->classical_register;
         memcpy(this->data_cpp(), _state->data_cpp(), (size_t)(sizeof(CPPCTYPE)*_dim));
     }
-	/**
-	 * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
-	 */
-	virtual void load(const std::vector<CPPCTYPE>& _state) {
-		if (_state.size() != _dim) {
-			std::cerr << "Error: QuantumStateCpu::load(vector<Complex>&): invalid length of state" << std::endl;
-			return;
-		}
-		memcpy(this->data_cpp(), _state.data(), (size_t)(sizeof(CPPCTYPE)*_dim));
-	}
+    /**
+     * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
+     */
+    virtual void load(const std::vector<CPPCTYPE>& _state) {
+        if (_state.size() != _dim) {
+            std::cerr << "Error: QuantumStateCpu::load(vector<Complex>&): invalid length of state" << std::endl;
+            return;
+        }
+        memcpy(this->data_cpp(), _state.data(), (size_t)(sizeof(CPPCTYPE)*_dim));
+    }
 
-	/**
-	 * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
-	 */
-	virtual void load(const CPPCTYPE* _state) {
-		memcpy(this->data_cpp(), _state, (size_t)(sizeof(CPPCTYPE)*_dim));
-	}
-	
-	/**
+    /**
+     * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
+     */
+    virtual void load(const CPPCTYPE* _state) {
+        memcpy(this->data_cpp(), _state, (size_t)(sizeof(CPPCTYPE)*_dim));
+    }
+    
+    /**
      * \~japanese-en 量子状態が配置されているメモリを保持するデバイス名を取得する。
      */
     virtual const std::string get_device_name() const override {return "cpu";}
 
-	/**
-	 * \~japanese-en 量子状態のポインタをvoid*型として返す
-	 */
-	virtual void* data() const override {
-		return reinterpret_cast<void*>(this->_state_vector);
-	}
+    /**
+     * \~japanese-en 量子状態のポインタをvoid*型として返す
+     */
+    virtual void* data() const override {
+        return reinterpret_cast<void*>(this->_state_vector);
+    }
     /**
      * \~japanese-en 量子状態をC++の<code>std::complex\<double\></code>の配列として取得する
      * 
@@ -434,6 +443,27 @@ public:
     virtual CTYPE* data_c() const override {
         return reinterpret_cast<CTYPE*>(this->_state_vector);
     }
+
+
+
+    /**
+     * \~japanese-en 量子状態を足しこむ
+     */
+    virtual void add_state(const QuantumStateBase* state) {
+        state_add(state->data_c(), this->data_c(), this->dim);
+    }
+    /**
+     * \~japanese-en 複素数をかける
+     */
+    virtual void multiply_coef(CPPCTYPE coef) {
+#ifdef _MSC_VER
+        state_multiply(coef, this->data_c(), this->dim);
+#else
+        CTYPE c_coef = {coef.real(), coef.imag()};
+        state_multiply(c_coef, this->data_c(), this->dim);
+#endif
+    }
+
 
     /**
      * \~japanese-en 量子状態を測定した際の計算基底のサンプリングを行う
@@ -474,4 +504,5 @@ namespace state {
      * @return 内積の値
      */
     CPPCTYPE DllExport inner_product(const QuantumState* state_bra, const QuantumState* state_ket);
+
 }

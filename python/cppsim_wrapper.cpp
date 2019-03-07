@@ -103,7 +103,7 @@ PYBIND11_MODULE(qulacs, m) {
 
 
     py::class_<QuantumStateBase>(m, "QuantumStateBase");
-    py::class_<QuantumState,QuantumStateBase>(m, "QuantumState")
+    py::class_<QuantumState, QuantumStateBase>(m, "QuantumState")
         .def(py::init<unsigned int>())
         .def("set_zero_state", &QuantumState::set_zero_state)
         .def("set_computational_basis", &QuantumState::set_computational_basis)
@@ -122,6 +122,8 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_device_name", &QuantumState::get_device_name)
         .def("data_cpp", &QuantumState::data_cpp)
         .def("data_c", &QuantumState::data_c)
+        .def("add_state", &QuantumState::add_state)
+        .def("multiply_coef", &QuantumState::multiply_coef)
         .def("get_classical_value", &QuantumState::get_classical_value)
         .def("set_classical_value", &QuantumState::set_classical_value)
         .def("to_string",&QuantumState::to_string)
@@ -136,42 +138,42 @@ PYBIND11_MODULE(qulacs, m) {
 
 #ifdef _USE_GPU
     py::class_<QuantumStateGpu, QuantumStateBase>(m, "QuantumStateGpu")
-		.def(py::init<unsigned int>())
-		.def("set_zero_state", &QuantumStateGpu::set_zero_state)
-		.def("set_computational_basis", &QuantumStateGpu::set_computational_basis)
-		.def("set_Haar_random_state", (void (QuantumStateGpu::*)(void))&QuantumStateGpu::set_Haar_random_state)
-		.def("set_Haar_random_state", (void (QuantumStateGpu::*)(UINT))&QuantumStateGpu::set_Haar_random_state)
-		.def("get_zero_probability", &QuantumStateGpu::get_zero_probability)
-		.def("get_marginal_probability", &QuantumStateGpu::get_marginal_probability)
-		.def("get_entropy", &QuantumStateGpu::get_entropy)
-		.def("get_norm", &QuantumStateGpu::get_norm)
-		.def("normalize", &QuantumStateGpu::normalize)
-		.def("allocate_buffer", &QuantumStateGpu::allocate_buffer, pybind11::return_value_policy::automatic_reference)
-		//.def("copy", &QuantumStateGpu::copy, pybind11::return_value_policy::automatic_reference)
-		.def("copy", &QuantumStateGpu::copy)
-		.def("load", (void (QuantumStateGpu::*)(const QuantumStateBase*))&QuantumStateGpu::load)
-		.def("load", (void (QuantumStateGpu::*)(const std::vector<CPPCTYPE>&))&QuantumStateGpu::load)
-		.def("get_device_name", &QuantumStateGpu::get_device_name)
-		.def("data_cpp", &QuantumStateGpu::data_cpp)
-		.def("data_c", &QuantumStateGpu::data_c)
-		.def("get_classical_value", &QuantumStateGpu::get_classical_value)
-		.def("set_classical_value", &QuantumStateGpu::set_classical_value)
-		.def("to_string", &QuantumStateGpu::to_string)
-		.def("sampling", &QuantumStateGpu::sampling)
+        .def(py::init<unsigned int>())
+        .def("set_zero_state", &QuantumStateGpu::set_zero_state)
+        .def("set_computational_basis", &QuantumStateGpu::set_computational_basis)
+        .def("set_Haar_random_state", (void (QuantumStateGpu::*)(void))&QuantumStateGpu::set_Haar_random_state)
+        .def("set_Haar_random_state", (void (QuantumStateGpu::*)(UINT))&QuantumStateGpu::set_Haar_random_state)
+        .def("get_zero_probability", &QuantumStateGpu::get_zero_probability)
+        .def("get_marginal_probability", &QuantumStateGpu::get_marginal_probability)
+        .def("get_entropy", &QuantumStateGpu::get_entropy)
+        .def("get_norm", &QuantumStateGpu::get_norm)
+        .def("normalize", &QuantumStateGpu::normalize)
+        .def("allocate_buffer", &QuantumStateGpu::allocate_buffer, pybind11::return_value_policy::automatic_reference)
+        //.def("copy", &QuantumStateGpu::copy, pybind11::return_value_policy::automatic_reference)
+        .def("copy", &QuantumStateGpu::copy)
+        .def("load", (void (QuantumStateGpu::*)(const QuantumStateBase*))&QuantumStateGpu::load)
+        .def("load", (void (QuantumStateGpu::*)(const std::vector<CPPCTYPE>&))&QuantumStateGpu::load)
+        .def("get_device_name", &QuantumStateGpu::get_device_name)
+        .def("data_cpp", &QuantumStateGpu::data_cpp)
+        .def("data_c", &QuantumStateGpu::data_c)
+        .def("get_classical_value", &QuantumStateGpu::get_classical_value)
+        .def("set_classical_value", &QuantumStateGpu::set_classical_value)
+        .def("to_string", &QuantumStateGpu::to_string)
+        .def("sampling", &QuantumStateGpu::sampling)
 
-		.def("get_vector", [](const QuantumStateGpu& state) {
-		Eigen::VectorXcd vec = Eigen::Map<Eigen::VectorXcd>(state.data_cpp(), state.dim);
-		return vec;
-	})
-		.def("__repr__", [](const QuantumStateGpu &p) {return p.to_string(); });
-	;
+        .def("get_vector", [](const QuantumStateGpu& state) {
+        Eigen::VectorXcd vec = Eigen::Map<Eigen::VectorXcd>(state.data_cpp(), state.dim);
+        return vec;
+    })
+        .def("__repr__", [](const QuantumStateGpu &p) {return p.to_string(); });
+    ;
 #endif
 
-	auto mstate = m.def_submodule("state");
-	using namespace state;
-	//mstate.def("inner_product", (std::complex<double> (state::*)(const QuantumStateGpu*, const QuatnumStateGpu*))&state::inner_product);
-	//mstate.def("inner_product", (std::complex<double> (state::*)(const QuantumState*, const QuatnumState*))&state::inner_product);
-	mstate.def("inner_product", &state::inner_product);
+    auto mstate = m.def_submodule("state");
+    using namespace state;
+    //mstate.def("inner_product", (std::complex<double> (state::*)(const QuantumStateGpu*, const QuatnumStateGpu*))&state::inner_product);
+    //mstate.def("inner_product", (std::complex<double> (state::*)(const QuantumState*, const QuatnumState*))&state::inner_product);
+    mstate.def("inner_product", &state::inner_product);
 
 
 
@@ -241,7 +243,7 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("DenseMatrix", ptr2, pybind11::return_value_policy::take_ownership);
 	mgate.def("SparseMatrix", &gate::SparseMatrix, pybind11::return_value_policy::take_ownership);
 
-  	mgate.def("RandomUnitary", &gate::RandomUnitary, pybind11::return_value_policy::take_ownership);
+      mgate.def("RandomUnitary", &gate::RandomUnitary, pybind11::return_value_policy::take_ownership);
     mgate.def("ReversibleBoolean", [](std::vector<UINT> target_qubit_list, std::function<ITYPE(ITYPE,ITYPE)> function_py) {
         return gate::ReversibleBoolean(target_qubit_list, function_py);
     }, pybind11::return_value_policy::take_ownership);
@@ -289,12 +291,12 @@ PYBIND11_MODULE(qulacs, m) {
         .def("remove_gate", &QuantumCircuit::remove_gate)
 
         .def("get_gate", [](const QuantumCircuit& circuit, unsigned int index) -> QuantumGateBase* { 
-		if (index >= circuit.gate_list.size()) {
-			std::cerr << "Error: QuantumCircuit::get_gate(const QuantumCircuit&, unsigned int): gate index is out of range" << std::endl;
-			return NULL;
-		}
-		return circuit.gate_list[index]->copy(); 
-	    }, pybind11::return_value_policy::take_ownership)
+        if (index >= circuit.gate_list.size()) {
+            std::cerr << "Error: QuantumCircuit::get_gate(const QuantumCircuit&, unsigned int): gate index is out of range" << std::endl;
+            return NULL;
+        }
+        return circuit.gate_list[index]->copy(); 
+        }, pybind11::return_value_policy::take_ownership)
         .def("get_gate_count", [](const QuantumCircuit& circuit) -> unsigned int {return (unsigned int)circuit.gate_list.size(); })
 
         .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*))&QuantumCircuit::update_quantum_state)
@@ -334,8 +336,8 @@ PYBIND11_MODULE(qulacs, m) {
         .def("add_multi_Pauli_rotation_gate", (void (QuantumCircuit::*)(const PauliOperator&))&QuantumCircuit::add_multi_Pauli_rotation_gate)
         .def("add_dense_matrix_gate", (void (QuantumCircuit::*)(unsigned int, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate)
         .def("add_dense_matrix_gate", (void (QuantumCircuit::*)(std::vector<unsigned int>, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate)
-		.def("add_random_unitary_gate", &QuantumCircuit::add_random_unitary_gate)
-		.def("add_diagonal_observable_rotation_gate", &QuantumCircuit::add_diagonal_observable_rotation_gate)
+        .def("add_random_unitary_gate", &QuantumCircuit::add_random_unitary_gate)
+        .def("add_diagonal_observable_rotation_gate", &QuantumCircuit::add_diagonal_observable_rotation_gate)
         .def("add_observable_rotation_gate", &QuantumCircuit::add_observable_rotation_gate)
         .def("__repr__", [](const QuantumCircuit &p) {return p.to_string(); });
     ;
