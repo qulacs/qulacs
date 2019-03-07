@@ -951,6 +951,31 @@ DllExport void multi_qubit_control_multi_qubit_dense_matrix_gate(const UINT* con
 
 
 
+/**
+ * \~english
+ * Reflect state according to another given state.
+ *
+ * Reflect state according to another given state. When reflect quantum state |a> to state |s>, unitary operator give by 2|s><s|-I is applied to |a>.
+ *
+ * @param[in] reflection_state quantum state to characterize reflection unitary operator
+ * @param[in,out] state quantum state to update
+ * @param[in] dim dimension
+ *
+ *
+ * \~japanese-en
+ * reflection gateを作用する。
+ *
+ * 与えられた状態にreflection gateを作用する。量子状態|a>を量子状態|s>に関してreflectするとは、量子状態|a>に対して2|s><s|-Iというユニタリ操作をすることに対応する。
+ *
+ * @param[in] reflection_state reflection gateのユニタリを特徴づける量子状態
+ * @param[in,out] state quantum 更新する量子状態
+ * @param[in] dim 次元
+ *
+ */
+DllExport void reflection_gate(const CTYPE* reflection_state, CTYPE* state, ITYPE dim);
+
+
+
 
 ////////////////////////////////
 

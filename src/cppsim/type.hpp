@@ -10,11 +10,13 @@ extern "C" {
 
 #include <complex>
 #include <Eigen/Core>
+#include <Eigen/Sparse>
 typedef std::complex<double> CPPCTYPE;
 typedef Eigen::VectorXcd ComplexVector;
 
 // In order to use matrix raw-data without reordering, we use RowMajor as default.
 typedef Eigen::Matrix<CPPCTYPE, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> ComplexMatrix;
+typedef Eigen::SparseMatrix<CPPCTYPE> SparseComplexMatrix;
 
 #ifdef _MSC_VER
 inline static FILE* popen(const char* command, const char* mode) { return _popen(command, mode); }

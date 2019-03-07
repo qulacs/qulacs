@@ -12,7 +12,9 @@
 #include "gate_named_two.hpp"
 #include "gate_named_pauli.hpp"
 #include "gate_matrix.hpp"
+#include "gate_matrix_sparse.hpp"
 #include "gate_reversible.hpp"
+#include "gate_reflect.hpp"
 #include "type.hpp"
 #include <Eigen/QR>
 
@@ -134,6 +136,10 @@ namespace gate{
         return new QuantumGateMatrix(target_list, matrix);
     }
 
+	QuantumGateBase* SparseMatrix(std::vector<UINT> target_list, SparseComplexMatrix matrix) {
+		return new QuantumGateSparseMatrix(target_list, matrix);
+	}
+
 	QuantumGateMatrix* RandomUnitary(std::vector<UINT> target_list) {
 		Random random;
 		UINT qubit_count = (UINT)target_list.size();
@@ -158,6 +164,9 @@ namespace gate{
 	}
 	QuantumGateBase* ReversibleBoolean(std::vector<UINT> target_qubit_index_list, std::function<ITYPE(ITYPE,ITYPE)> function_ptr) {
 		return new ClsReversibleBooleanGate(target_qubit_index_list, function_ptr);
+	}
+	QuantumGateBase* StateReflection(const QuantumStateBase* reflection_state) {
+		return new ClsStateReflectionGate(reflection_state);
 	}
 
 
