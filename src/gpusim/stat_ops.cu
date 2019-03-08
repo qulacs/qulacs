@@ -166,10 +166,15 @@ __host__ double measurement_distribution_entropy_host(void* state, ITYPE dim){
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 
 	checkCudaErrors(cudaMalloc((void**)&ent_gpu, sizeof(double)), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemset(ent_gpu, 0, sizeof(double)), __FILE__, __LINE__);
+    checkCudaErrors(cudaMemsetAsync(ent_gpu, 0, sizeof(double)), __FILE__, __LINE__);
 
-	unsigned int block = dim <= 1024 ? dim : 1024;
-	unsigned int grid = dim / block;
+    ITYPE loop_dim;
+    if(dim<=32) loop_dim=dim;
+    else if(dim <= 12) loop_dim = dim >> 2;
+    else loop_dim = dim >> 5;
+
+	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+	unsigned int grid = loop_dim / block;
     
     measurement_distribution_entropy_gpu << <grid, block >> >(ent_gpu, state_gpu, dim);
 	
@@ -247,9 +252,15 @@ __host__ CPPCTYPE inner_product_host(const void *bra_state, const void *ket_stat
 	checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(GTYPE)), __FILE__, __LINE__);
 	checkCudaErrors(cudaMemcpy(ret_gpu, &ret, sizeof(GTYPE), cudaMemcpyHostToDevice), __FILE__, __LINE__);
 
-	unsigned int block = dim <= 1024 ? dim : 1024;
-	unsigned int grid = dim / block;
-	inner_product_gpu << <grid, block >> >(ret_gpu, bra_state_gpu, ket_state_gpu, dim);
+    ITYPE loop_dim;
+    if(dim<=32) loop_dim=dim;
+    else if(dim <= 12) loop_dim = dim >> 2;
+    else loop_dim = dim >> 5;
+
+	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+	unsigned int grid = loop_dim / block;
+    
+    inner_product_gpu << <grid, block >> >(ret_gpu, bra_state_gpu, ket_state_gpu, dim);
 	
 	// Check for any errors launching the kernel
 	cudaStatus = cudaGetLastError();
@@ -485,7 +496,7 @@ __host__ double multipauli_get_expectation_value_host(unsigned int* gates, void 
 	GTYPE *ret_gpu;
 
 	checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(GTYPE)), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(ret_gpu, ret, sizeof(GTYPE), cudaMemcpyHostToDevice), __FILE__, __LINE__);
+    checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(double)), __FILE__, __LINE__);
 
     ITYPE loop_dim;
 	if(dim <= 32) loop_dim = dim>>1;
@@ -547,11 +558,17 @@ __host__ double M0_prob_host(UINT target_qubit_index, void* state, ITYPE dim){
 	double *ret_gpu;
 
 	checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(double)), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(ret_gpu, ret, sizeof(double), cudaMemcpyHostToDevice), __FILE__, __LINE__);
+    checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(double)), __FILE__, __LINE__);
 
-	unsigned int block = dim <= 1024 ? dim : 1024;
-	unsigned int grid = dim / block;
-	
+    ITYPE loop_dim;
+    
+    if(dim <= 64) loop_dim = dim>>1;
+    else if(dim <= (1ULL<<11)) loop_dim = dim >> 2;
+    else loop_dim = dim >> 5;
+
+    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+    unsigned int grid = loop_dim / block;
+
     M0_prob_gpu << <grid, block >> >(ret_gpu, target_qubit_index, state_gpu, dim);
 	
 	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
@@ -585,11 +602,17 @@ __host__ double M1_prob_host(UINT target_qubit_index, void* state, ITYPE dim){
 	double *ret_gpu;
 
 	checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(double)), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(ret_gpu, ret, sizeof(double), cudaMemcpyHostToDevice), __FILE__, __LINE__);
+    checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(double)), __FILE__, __LINE__);
 
-	unsigned int block = dim <= 1024 ? dim : 1024;
-	unsigned int grid = dim / block;
-	
+    ITYPE loop_dim;
+    
+    if(dim <= 64) loop_dim = dim>>1;
+    else if(dim <= (1ULL<<11)) loop_dim = dim >> 2;
+    else loop_dim = dim >> 5;
+
+    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+    unsigned int grid = loop_dim / block;
+
     M1_prob_gpu << <grid, block >> >(ret_gpu, target_qubit_index, state_gpu, dim);
 	
 	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
@@ -683,13 +706,18 @@ __host__ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_host(ITYPE 
         CPPCTYPE(0.0, -1.0)};
 
     checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(double)), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemset(ret_gpu, 0, sizeof(double)), __FILE__, __LINE__);
+    checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(double)), __FILE__, __LINE__);
 	checkCudaErrors(cudaMemcpyToSymbol(PHASE_90ROT_gpu, PHASE_90ROT, sizeof(GTYPE)*4), __FILE__, __LINE__);
 
-    const ITYPE loop_dim = dim>>1;
+    ITYPE loop_dim;
     
-    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
-	unsigned int grid = loop_dim / block;
+    if(dim <= 64) loop_dim = dim>>1;
+    else if(dim <= (1ULL<<11)) loop_dim = dim >> 2;
+    else loop_dim = dim >> 5;
+
+    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+    unsigned int grid = loop_dim / block;
+
 	expectation_value_multi_qubit_Pauli_operator_XZ_mask_gpu<< <grid, block >> >(ret_gpu, bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state_gpu, dim);
 	
     checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
@@ -720,25 +748,35 @@ __global__ void expectation_value_multi_qubit_Pauli_operator_Z_mask_gpu(double* 
 
 __host__ double expectation_value_multi_qubit_Pauli_operator_Z_mask_host(ITYPE phase_flip_mask, void* state, ITYPE dim){
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-	cudaError_t cudaStatus;
+    cudaError_t cudaStatus;
     double ret;
     double* ret_gpu;
 
     checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(double)), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemset(ret_gpu, 0, sizeof(double)), __FILE__, __LINE__);
+    checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(double)), __FILE__, __LINE__);
 
-    const ITYPE loop_dim = dim>>1;
+    // this loop_dim is not the same as that of the gpu function
+    // and the function uses grid stride loops
+    ITYPE loop_dim;
     
-    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
-	unsigned int grid = loop_dim / block;
-	expectation_value_multi_qubit_Pauli_operator_Z_mask_gpu<< <grid, block >> >(ret_gpu, phase_flip_mask, state_gpu, dim);
+    if(dim <= 64) loop_dim = dim>>1;
+    else if(dim <= (1ULL<<11)) loop_dim = dim >> 2;
+    else loop_dim = dim >> 5;
+
+    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+    unsigned int grid = loop_dim / block;
+
+    // unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
+    // unsigned int grid = loop_dim / block;
+	
+    expectation_value_multi_qubit_Pauli_operator_Z_mask_gpu<< <grid, block >> >(ret_gpu, phase_flip_mask, state_gpu, dim);
 	
     checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
-	cudaStatus = cudaGetLastError();
-	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(&ret, ret_gpu, sizeof(double), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
-	checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
-	state = reinterpret_cast<void*>(state_gpu);
+    cudaStatus = cudaGetLastError();
+    checkCudaErrors(cudaStatus, __FILE__, __LINE__);
+    checkCudaErrors(cudaMemcpy(&ret, ret_gpu, sizeof(double), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
+    checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
+    state = reinterpret_cast<void*>(state_gpu);
     
     return ret;
 }
@@ -810,10 +848,22 @@ __host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_host(I
     checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(GTYPE)), __FILE__, __LINE__);
 	checkCudaErrors(cudaMemset(ret_gpu, 0, sizeof(GTYPE)), __FILE__, __LINE__);
 
+
+    ITYPE loop_dim;
+    if(dim<=32) loop_dim=dim>>1;
+    else if(dim <= 12) loop_dim = dim >> 2;
+    else loop_dim = dim >> 5;
+
+	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+	unsigned int grid = loop_dim / block;
+
+    /*
     const ITYPE loop_dim = dim>>1;
     
     unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
 	unsigned int grid = loop_dim / block;
+    */
+
     transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_gpu<< <grid, block >> >(ret_gpu, bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state_bra_gpu, state_ket_gpu, dim);
 
     checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
@@ -856,10 +906,14 @@ __host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_Z_mask_host(IT
     checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(GTYPE)), __FILE__, __LINE__);
 	checkCudaErrors(cudaMemset(ret_gpu, 0, sizeof(GTYPE)), __FILE__, __LINE__);
 
-    const ITYPE loop_dim = dim;
-    
-    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
+    ITYPE loop_dim;
+    if(dim<=32) loop_dim=dim>>1;
+    else if(dim <= 12) loop_dim = dim >> 2;
+    else loop_dim = dim >> 5;
+
+	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
 	unsigned int grid = loop_dim / block;
+    
     transition_amplitude_multi_qubit_Pauli_operator_Z_mask_gpu<< <grid, block >> >(ret_gpu, phase_flip_mask, state_bra_gpu, state_ket_gpu, dim);
 
     checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
