@@ -75,9 +75,10 @@ public:
 		std::vector<UINT> target_index;
 		std::vector<UINT> target_value;
 		for (UINT i = 0; i < measured_values.size(); ++i) {
-			if (i == 0 || i == 1) {
+			UINT measured_value = measured_values[i];
+			if (measured_value == 0 || measured_value == 1) {
 				target_index.push_back(i);
-				target_value.push_back(measured_values[i]);
+				target_value.push_back(measured_value);
 			}
 		}
 		return marginal_prob_host(target_index.data(), target_value.data(), (UINT)target_index.size(), this->data(), _dim);
@@ -185,6 +186,22 @@ public:
 	virtual void* data() const override {
 		return reinterpret_cast<void*>(this->_state_vector);
 	}
+
+
+	/**
+	 * \~japanese-en 量子状態を足しこむ
+	 */
+	void add_state(const QuantumState* state) {
+		std::cerr << "add_state is not implemented in quantum state on GPU" << std::endl;
+	}
+	/**
+	 * \~japanese-en 複素数をかける
+	 */
+	void multiply_coef(CPPCTYPE coef) {
+		std::cerr << "multiply_coef is not implemented in quantum state on GPU" << std::endl;
+	}
+
+
 
 	/**
 	 * \~japanese-en 量子状態を測定した際の計算基底のサンプリングを行う

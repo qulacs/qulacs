@@ -23,7 +23,9 @@ public:
     virtual UINT get_parametric_gate_position(UINT index) const;
     virtual void add_gate(QuantumGateBase* gate) override;
     virtual void add_gate(QuantumGateBase* gate, UINT index) override;
-    virtual void remove_gate(UINT index) override;
+	virtual void add_gate_copy(const QuantumGateBase* gate) override;
+	virtual void add_gate_copy(const QuantumGateBase* gate, UINT index) override;
+	virtual void remove_gate(UINT index) override;
 
     virtual std::string to_string() const;
     friend DllExport std::ostream& operator<<(std::ostream& os, const ParametricQuantumCircuit&);

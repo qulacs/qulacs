@@ -96,7 +96,7 @@ public:
      * add_gateに比べコピーが発生する分低速な一方、引数で与えたゲートを再利用できる。
      * @param[in] gate 追加する量子ゲート
      */
-    virtual void add_gate_copy(const QuantumGateBase& gate);
+    virtual void add_gate_copy(const QuantumGateBase* gate);
 
     /**
      * \~japanese-en 量子ゲートを回路の指定位置に追加する。
@@ -105,7 +105,7 @@ public:
      * @param[in] gate 追加する量子ゲート
      * @param[in] index 追加する位置
      */
-    virtual void add_gate_copy(const QuantumGateBase& gate, UINT index);
+    virtual void add_gate_copy(const QuantumGateBase* gate, UINT index);
 
     /**
      * \~japanese-en 量子回路からゲートを削除する。
@@ -445,6 +445,14 @@ public:
      * @param[in] matrix 作用する行列
      */
     virtual void add_dense_matrix_gate(std::vector<UINT> target_index_list, const ComplexMatrix& matrix);
+
+	/**
+	 * \~japanese-en multi qubitのランダムユニタリゲートを追加する。
+	 *
+	 * @param[in] target_index_list 作用するtarget qubitの添え字のリスト
+	 * @param[in] matrix 作用する行列
+	 */
+	virtual void add_random_unitary_gate(std::vector<UINT> target_index_list);
 };
 
 

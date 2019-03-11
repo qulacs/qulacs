@@ -1047,3 +1047,73 @@ TEST(GateTest, GateAdd) {
     // TODO assert matrix element
 }
 
+
+TEST(GateTest, RandomUnitaryGate) {
+	double eps = 1e-14;
+	for (UINT qubit_count = 1; qubit_count < 5; ++qubit_count) {
+		ITYPE dim = 1ULL << qubit_count;
+		std::vector<UINT> target_qubit_list;
+		for (UINT i = 0; i < qubit_count; ++i) {
+			target_qubit_list.push_back(i);
+		}
+		auto gate = gate::RandomUnitary(target_qubit_list);
+		ComplexMatrix cm;
+		gate->set_matrix(cm);
+		auto eye = cm*cm.adjoint();
+		for (int i = 0; i < dim; ++i) {
+			for (int j = 0; j < dim; ++j) {
+				if (i == j) {
+					ASSERT_NEAR(abs(eye(i, j)), 1, eps);
+				}
+				else {
+					ASSERT_NEAR(abs(eye(i,j)), 0, eps);
+				}
+			}
+		}
+	}
+}
+
+TEST(GateTest, ReversibleBooleanGate) {
+	const double eps = 1e-14;
+	std::function<ITYPE(ITYPE,ITYPE)> func = [](ITYPE index, ITYPE dim) -> ITYPE {
+		return (index + 1) % dim;
+	};
+	std::vector<UINT> target_qubit = { 2,0 };
+	auto gate = gate::ReversibleBoolean(target_qubit, func);
+	ComplexMatrix cm;
+	gate->set_matrix(cm);
+	QuantumState state(3);
+	gate->update_quantum_state(&state);
+	ASSERT_NEAR(abs(state.data_cpp()[4]-1.), 0, eps);
+	gate->update_quantum_state(&state);
+	ASSERT_NEAR(abs(state.data_cpp()[1] - 1.), 0, eps);
+	gate->update_quantum_state(&state);
+	ASSERT_NEAR(abs(state.data_cpp()[5] - 1.), 0, eps);
+	gate->update_quantum_state(&state);
+	ASSERT_NEAR(abs( state.data_cpp()[0]-1.),0, eps);
+	/*
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	gate->update_quantum_state(&state);
+	std::cout << state.to_string() << std::endl;
+	*/
+}

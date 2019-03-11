@@ -294,6 +294,41 @@ namespace gate{
      */
     DllExport QuantumGateMatrix* DenseMatrix(std::vector<UINT> target_qubit_index_list, ComplexMatrix matrix);
 
+	/**
+	 * \f$n\f$-qubit スパースな行列を用いてn-qubitゲートを生成する。
+	 *
+	 * <code>target_qubit_index_list</code>の要素数を\f$m\f$としたとき、<code>matrix</code>は\f$2^m \times 2^m \f$の複素行列でなくてはいけない。
+	 * @param[in] target_qubit_index_list ターゲットとなる量子ビットの添え字
+	 * @param[in] matrix 作用するゲートの複素行列。
+	 * @return 作成されたゲートのインスタンス
+	 */
+	DllExport QuantumGateBase* SparseMatrix(std::vector<UINT> target_qubit_index_list, SparseComplexMatrix matrix);
+
+	/**
+	 * \f$n\f$-qubit のランダムユニタリゲートを作成する。
+	 *
+	 * @param[in] target_qubit_index_list ターゲットとなる量子ビットの添え字
+	 * @return 作成されたゲートのインスタンス
+	 */
+	DllExport QuantumGateMatrix* RandomUnitary(std::vector<UINT> target_qubit_index_list);
+
+	/**
+	 * \f$n\f$-qubit の可逆古典回路を作用する。
+	 *
+	 * @param[in] target_qubit_index_list ターゲットとなる量子ビットの添え字
+	 * @param[in] function_ptr 可逆古典回路の動作をする関数
+	 * @return 作成されたゲートのインスタンス
+	 */
+	DllExport QuantumGateBase* ReversibleBoolean(std::vector<UINT> target_qubit_index_list, std::function<ITYPE(ITYPE,ITYPE)>);
+
+	/**
+	 * 量子状態に対して量子状態を反射する。
+	 *
+	 * @param[in] reflection_state 反射に用いられる量子状態
+	 * @return 作成されたゲートのインスタンス
+	 */
+	DllExport QuantumGateBase* StateReflection(const QuantumStateBase* reflection_state);
+
 
     /**
      * bit-flipノイズを発生させるゲート
