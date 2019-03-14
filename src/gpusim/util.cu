@@ -103,6 +103,13 @@ void copy_quantum_state_host(void* state_gpu_copy, const void* state_gpu, ITYPE 
     state_gpu_copy = reinterpret_cast<void*>(psi_gpu_copy);
 }
 
+// copy cppstate to state_gpu_copy
+void copy_quantum_state_from_cppstate_host(void* state_gpu_copy, const CPPCTYPE* cppstate, ITYPE dim){
+    GTYPE* psi_gpu_copy = reinterpret_cast<GTYPE*>(state_gpu_copy);
+	checkCudaErrors(cudaMemcpy(psi_gpu_copy, cppstate, dim * sizeof(GTYPE), cudaMemcpyHostToDevice));
+    state_gpu_copy = reinterpret_cast<void*>(psi_gpu_copy);
+}
+
 // copy state_gpu to psi_cpu_copy
 void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim){
     GTYPE* psi_gpu = reinterpret_cast<GTYPE*>(state_gpu);

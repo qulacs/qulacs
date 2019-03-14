@@ -142,14 +142,14 @@ public:
 	* \~japanese-en <code>state</code>の量子状態を自身へコピーする。
 	*/
 	virtual void load(const std::vector<CPPCTYPE>& _state) override{
-		copy_quantum_state_host(this->data(), _state.data(), dim);
+		copy_quantum_state_from_cppstate_host(this->data(), _state.data(), dim);
 	}
 
 	/**
 	* \~japanese-en <code>state</code>の量子状態を自身へコピーする。
 	*/
 	virtual void load(const CPPCTYPE* _state) override{
-		copy_quantum_state_host(this->data(), _state, dim);
+		copy_quantum_state_from_cppstate_host(this->data(), _state, dim);
 	}
 	/**
 	 * \~japanese-en 量子状態が配置されているメモリを保持するデバイス名を取得する。

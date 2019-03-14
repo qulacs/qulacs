@@ -11,6 +11,7 @@ DllExport void initialize_quantum_state_host(void* state_gpu, ITYPE dim);
 DllExport void release_quantum_state_host(void* state_gpu);
 DllExport void print_quantum_state_host(void* state, ITYPE dim);
 DllExport void copy_quantum_state_host(void* state_gpu_copy, const void* state_gpu, ITYPE dim);
+DllExport void copy_quantum_state_from_cppstate_host(void* state_gpu_copy, const CPPCTYPE* cppstate, ITYPE dim);
 DllExport void set_computational_basis_host(ITYPE comp_basis, void* state, ITYPE dim);
 
 void get_Pauli_masks_partial_list_gsim(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count,
