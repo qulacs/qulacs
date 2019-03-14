@@ -186,6 +186,58 @@ __host__ double measurement_distribution_entropy_host(void* state, ITYPE dim){
     return ent;
 }
 
+__global__ void state_add_gpu(const GTYPE *state_added, GTYPE *state, ITYPE dim) {
+    ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x;
+	
+    // loop varaibles
+	const ITYPE loop_dim = dim;
+	if(state_index<loop_dim){
+		state[state_index] = cuCadd(state[state_index], state_added[state_index]);
+    }
+}
+
+__host__ void state_add_host(void *state_added, void *state, ITYPE dim) {
+	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+	GTYPE* state_added_gpu = reinterpret_cast<GTYPE*>(state_added);
+
+    ITYPE loop_dim = dim;
+
+	unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
+	unsigned int grid = loop_dim / block;
+    
+    state_add_gpu << <grid, block >> >(state_added_gpu, state_gpu, dim);
+	
+	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
+	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	state = reinterpret_cast<void*>(state_gpu);
+	state_added = reinterpret_cast<void*>(state_added_gpu);
+    
+}
+
+__global__ void state_multiply_gpu(const GTYPE coef, GTYPE *state, ITYPE dim) {
+    ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x;
+	
+	const ITYPE loop_dim = dim;
+	if(state_index<loop_dim){
+		state[state_index] = cuCmul(state[state_index], coef);
+	}
+}
+
+__host__ void state_multiply_host(CPPCTYPE coef, void *state, ITYPE dim) {
+	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+    ITYPE loop_dim = dim;
+
+    GTYPE coef_gpu = make_cuDoubleComplex(coef.real(), coef.imag());
+	unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
+	unsigned int grid = loop_dim / block;
+    
+    state_multiply_gpu << <grid, block >> >(coef_gpu, state_gpu, dim);
+	
+	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
+	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	state = reinterpret_cast<void*>(state_gpu);
+}
+
 __global__ void inner_product_gpu(GTYPE *ret, const GTYPE *psi, const GTYPE *phi, ITYPE dim){
 	GTYPE sum = make_cuDoubleComplex(0.0, 0.0);
 	for (ITYPE i = blockIdx.x * blockDim.x + threadIdx.x; i < dim; i += blockDim.x * gridDim.x) {

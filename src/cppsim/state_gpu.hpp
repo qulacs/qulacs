@@ -142,14 +142,14 @@ public:
 	* \~japanese-en <code>state</code>の量子状態を自身へコピーする。
 	*/
 	virtual void load(const std::vector<CPPCTYPE>& _state) override{
-		copy_quantum_state_host(this->data(), _state.data(), dim);
+		copy_quantum_state_from_cppstate_host(this->data(), _state.data(), dim);
 	}
 
 	/**
 	* \~japanese-en <code>state</code>の量子状態を自身へコピーする。
 	*/
 	virtual void load(const CPPCTYPE* _state) override{
-		copy_quantum_state_host(this->data(), _state, dim);
+		copy_quantum_state_from_cppstate_host(this->data(), _state, dim);
 	}
 	/**
 	 * \~japanese-en 量子状態が配置されているメモリを保持するデバイス名を取得する。
@@ -191,15 +191,15 @@ public:
 	/**
 	 * \~japanese-en 量子状態を足しこむ
 	 */
-	void add_state(const QuantumState* state) {
-		std::cerr << "add_state is not implemented in quantum state on GPU" << std::endl;
-	}
+    virtual void add_state(const QuantumStateBase* state) override{
+        state_add_host(state->data(), this->data(), this->dim);
+    }
 	/**
 	 * \~japanese-en 複素数をかける
 	 */
-	void multiply_coef(CPPCTYPE coef) {
-		std::cerr << "multiply_coef is not implemented in quantum state on GPU" << std::endl;
-	}
+    virtual void multiply_coef(CPPCTYPE coef) override{
+        state_multiply_host(coef, this->data(), this->dim);
+    }
 
 
 

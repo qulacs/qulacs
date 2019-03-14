@@ -44,7 +44,7 @@ TEST(StateTest, Sampling) {
 TEST(StateTest, SetState) {
 	const double eps = 1e-10;
 	const UINT n = 10;
-	QuantumState state(n);
+	QuantumStateGpu state(n);
 	const ITYPE dim = 1ULL << n;
 	std::vector<std::complex<double>> state_vector(dim);
 	for (UINT i = 0; i < dim; ++i) {
@@ -53,6 +53,53 @@ TEST(StateTest, SetState) {
 	}
 	state.load(state_vector);
 	for (UINT i = 0; i < dim; ++i) {
+		ASSERT_NEAR(state.data_cpp()[i].real(), state_vector[i].real(), eps);
+		ASSERT_NEAR(state.data_cpp()[i].imag(), state_vector[i].imag(), eps);
+	}
+}
+
+TEST(StateTest, AddState) {
+	const double eps = 1e-10;
+	const UINT n = 10;
+	QuantumStateGpu state1(n);
+	QuantumStateGpu state2(n);
+	state1.set_Haar_random_state();
+	state2.set_Haar_random_state();
+
+	const ITYPE dim = 1ULL << n;
+	std::vector<std::complex<double>> state_vector1(dim);
+	std::vector<std::complex<double>> state_vector2(dim);
+	for (ITYPE i = 0; i < dim; ++i) {
+		state_vector1[i] = state1.data_cpp()[i];
+		state_vector2[i] = state2.data_cpp()[i];
+	}
+
+	state1.add_state(&state2);
+
+	for (ITYPE i = 0; i < dim; ++i) {
+		ASSERT_NEAR(state1.data_cpp()[i].real(), state_vector1[i].real() + state_vector2[i].real(), eps);
+		ASSERT_NEAR(state1.data_cpp()[i].imag(), state_vector1[i].imag() + state_vector2[i].imag(), eps);
+		ASSERT_NEAR(state2.data_cpp()[i].real(), state_vector2[i].real(), eps);
+		ASSERT_NEAR(state2.data_cpp()[i].imag(), state_vector2[i].imag(), eps);
+	}
+}
+
+TEST(StateTest, MultiplyCoef) {
+	const double eps = 1e-10;
+	const UINT n = 10;
+	const std::complex<double> coef(0.5, 0.2);
+
+	QuantumStateGpu state(n);
+	state.set_Haar_random_state();
+
+	const ITYPE dim = 1ULL << n;
+	std::vector<std::complex<double>> state_vector(dim);
+	for (ITYPE i = 0; i < dim; ++i) {
+		state_vector[i] = state.data_cpp()[i] * coef;
+	}
+	state.multiply_coef(coef);
+
+	for (ITYPE i = 0; i < dim; ++i) {
 		ASSERT_NEAR(state.data_cpp()[i].real(), state_vector[i].real(), eps);
 		ASSERT_NEAR(state.data_cpp()[i].imag(), state_vector[i].imag(), eps);
 	}
