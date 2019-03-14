@@ -535,7 +535,6 @@ TEST(CircuitTest, RandomCircuitOptimize) {
 
 }
 
-/*
 TEST(CircuitTest, SuzukiTrotterExpansion) {
     CPPCTYPE J(0.0, 1.0);
     Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
@@ -599,13 +598,13 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
     state.set_computational_basis(0);
     test_state(0) = 1.;
 
-    res = observable.get_expectation_value(&state);
+    res = observable.get_expectation_value(&state).real();
     test_res = (test_state.adjoint() * test_observable * test_state);
 
     circuit.update_quantum_state(&state);
     test_state = test_circuit * test_state;
 
-    res = observable.get_expectation_value(&state);
+    res = observable.get_expectation_value(&state).real();
     test_res = (test_state.adjoint() * test_observable * test_state);
     ASSERT_NEAR(abs(test_res.real() - res)/ res, 0, 0.01);
 
@@ -616,11 +615,10 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
     test_state = test_circuit * test_state;
     circuit.update_quantum_state(&state);
 
-    res = observable.get_expectation_value(&state);
+    res = observable.get_expectation_value(&state).real();
     test_res = (test_state.adjoint() * test_observable * test_state);
     ASSERT_NEAR(abs(test_res.real() - res)/ res, 0, 0.01);
 }
-
 
 TEST(CircuitTest, RotateDiagonalObservable){
     CPPCTYPE J(0.0, 1.0);
@@ -671,7 +669,7 @@ TEST(CircuitTest, RotateDiagonalObservable){
     circuit.update_quantum_state(&state);
     test_state = test_circuit * test_state;
 
-    res = observable.get_expectation_value(&state);
+    res = observable.get_expectation_value(&state).real();
     test_res = (test_state.adjoint() * test_observable * test_state);
 
     // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
@@ -681,13 +679,13 @@ TEST(CircuitTest, RotateDiagonalObservable){
     state.set_Haar_random_state();
     for (ITYPE i = 0; i < dim; ++i) test_state[i] = state.data_cpp()[i];
 
-    res = observable.get_expectation_value(&state);
+    res = observable.get_expectation_value(&state).real();
     test_res = (test_state.adjoint() * test_observable * test_state);
 
     test_state = test_circuit * test_state;
     circuit.update_quantum_state(&state);
 
-    res = observable.get_expectation_value(&state);
+    res = observable.get_expectation_value(&state).real();
     test_res = (test_state.adjoint() * test_observable * test_state);
 
     // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
@@ -695,7 +693,7 @@ TEST(CircuitTest, RotateDiagonalObservable){
     ASSERT_NEAR(test_res.imag(), 0, eps);
 
 }
-*/
+
 
 TEST(CircuitTest, SpecialGatesToString) {
 	QuantumStateGpu state(1);
