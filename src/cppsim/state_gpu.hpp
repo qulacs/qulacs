@@ -191,15 +191,15 @@ public:
 	/**
 	 * \~japanese-en 量子状態を足しこむ
 	 */
-	void add_state(const QuantumState* state) {
-		std::cerr << "add_state is not implemented in quantum state on GPU" << std::endl;
-	}
+    virtual void add_state(const QuantumStateBase* state) override{
+        state_add_host(state->data(), this->data(), this->dim);
+    }
 	/**
 	 * \~japanese-en 複素数をかける
 	 */
-	void multiply_coef(CPPCTYPE coef) {
-		std::cerr << "multiply_coef is not implemented in quantum state on GPU" << std::endl;
-	}
+    virtual void multiply_coef(CPPCTYPE coef) override{
+        state_multiply_host(coef, this->data(), this->dim);
+    }
 
 
 

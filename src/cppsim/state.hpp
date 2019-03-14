@@ -449,13 +449,13 @@ public:
     /**
      * \~japanese-en 量子状態を足しこむ
      */
-    virtual void add_state(const QuantumStateBase* state) {
+    virtual void add_state(const QuantumStateBase* state) override{
         state_add(state->data_c(), this->data_c(), this->dim);
     }
     /**
      * \~japanese-en 複素数をかける
      */
-    virtual void multiply_coef(CPPCTYPE coef) {
+    virtual void multiply_coef(CPPCTYPE coef) override{
 #ifdef _MSC_VER
         state_multiply(coef, this->data_c(), this->dim);
 #else

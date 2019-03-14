@@ -7,6 +7,8 @@
 DllExport double state_norm_cublas_host(void *state, ITYPE dim);
 DllExport double state_norm_host(void *state, ITYPE dim);
 DllExport double measurement_distribution_entropy_host(void* state, ITYPE dim);
+DllExport void state_add_host(void *state_added, void *state, ITYPE dim);
+DllExport void state_multiply_host(CPPCTYPE coef, void *state, ITYPE dim);
 DllExport CPPCTYPE inner_product_host(const void *bra_state, const void *ket_state, ITYPE dim);
 DllExport double expectation_value_single_qubit_Pauli_operator_host(unsigned int operator_index, unsigned int target_qubit_index, void* state, ITYPE dim);
 DllExport void multi_Z_gate_host(int* gates, void* state, ITYPE dim, int n_qubits);
