@@ -82,6 +82,8 @@ public:
 		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
 	}
 	virtual void set_matrix(ComplexMatrix& matrix) const override {
+	    using namespace std::complex_literals;
+
 		matrix = ComplexMatrix::Zero(2, 2);
 		matrix << cos(_angle/2), sin(_angle/2) * 1.i, sin(_angle/2) * 1.i, cos(_angle/2);
 	}
@@ -122,6 +124,8 @@ public:
 		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
 	}
 	virtual void set_matrix(ComplexMatrix& matrix) const override {
+        using namespace std::complex_literals;
+
 		matrix = ComplexMatrix::Zero(2, 2);
 		matrix << cos(_angle/2) + 1.i*sin(_angle/2), 0, 0, cos(_angle/2) - 1.i * sin(_angle/2);
 	}
@@ -184,6 +188,8 @@ public:
         return new ClsParametricPauliRotationGate(_angle, _pauli->copy());
     };
     virtual void set_matrix(ComplexMatrix& matrix) const override {
+        using namespace std::complex_literals;
+
         get_Pauli_matrix(matrix, _pauli->get_pauli_id_list());
         matrix = cos(_angle/2)*ComplexMatrix::Identity(matrix.rows(), matrix.cols()) + 1.i * sin(_angle/2) * matrix;
     }

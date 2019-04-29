@@ -4,8 +4,8 @@ sudo: false
 
 env:
   global:
-    - CXX_COMPILER='g++-7'
-      C_COMPILER='gcc-7'
+    - CXX_COMPILER='g++-8'
+      C_COMPILER='gcc-8'
       Fortran_COMPILER='gfortran'
       BUILD_TYPE='Release'
       PYTHON3='3.6.7'
@@ -13,28 +13,40 @@ env:
 
 matrix:
   include:
-    # 1/ OSX GCC7 PYTHON3.6 build
+    # 1/ OSX GCC8 PYTHON3.6 build
     - os: osx
-      osx_image: xcode10.1
-      compiler: gcc-7
+      osx_image: xcode11.2
+      compiler: gcc
       env:
         - PYTHON="${PYTHON3}"
         - COVERAGE=OFF
         - PYENV_ROOT="${HOME}/.pyenv"
         - PATH="${PYENV_ROOT}/bin:$PATH"
-    # 2/ OSX GCC7 PYTHON2.7 build
+      addons:
+        homebrew:
+          packages:
+            - gcc@8
+            - swig
+          update: true
+    # 2/ OSX GCC8 PYTHON2.7 build
     - os: osx
-      osx_image: xcode10.1
-      compiler: gcc-7
+      osx_image: xcode11.2
+      compiler: gcc
       env:
         - PYTHON="${PYTHON2}"
         - COVERAGE=OFF
         - PYENV_ROOT="${HOME}/.pyenv"
         - PATH="${PYENV_ROOT}/bin:$PATH"
-    # 3/ Linux GCC7 PYTHON3.6 build
+      addons:
+        homebrew:
+          packages:
+            - gcc@8
+            - swig
+          update: true
+    # 3/ Linux GCC8 PYTHON3.6 build
     - os: linux
       dist: trusty
-      compiler: gcc-7
+      compiler: gcc
       env:
         - PYTHON="${PYTHON3}"
         - COVERAGE=ON
@@ -46,16 +58,15 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - cmake3
-            - g++-7
-            - gcc-7
+            - g++-8
+            - gcc-8
             - gfortran-7
             - lcov
             - swig
-
-    # 4/ Linux GCC7 PYTHON2.7 build
+    # 4/ Linux GCC8 PYTHON2.7 build
     - os: linux
       dist: trusty
-      compiler: gcc-7
+      compiler: gcc
       env:
         - PYTHON="${PYTHON2}"
         - COVERAGE=ON
@@ -67,12 +78,12 @@ matrix:
             - ubuntu-toolchain-r-test
           packages:
             - cmake3
-            - g++-7
-            - gcc-7
+            - g++-8
+            - gcc-8
             - gfortran-7
             - lcov
             - swig
-
+            - libssl-dev
     # 5/ Windows VS17 PYTHON3.6 build
     - os: windows
       env:
@@ -82,7 +93,6 @@ matrix:
         - CMAKE_BIN='C:\Program Files\CMake'
         - PYTHON_BIN='C:\Python36'
         - PATH="$MSBUILD_BIN:$CMAKE_BIN:$PYTHON_BIN:$PYTHON_BIN\Scripts:$PATH"
-
     # 6/ Windows VS17 PYTHON2.7 build
     - os: windows
       env:
@@ -117,7 +127,7 @@ before_install:
       brew update &> /dev/null
       brew cask uninstall --force oclint
       brew upgrade cmake
-      brew install gcc@7 swig
+      brew install gcc@8 swig
     fi
   - |
     if [[ "${TRAVIS_OS_NAME}" != "windows" && -z "$(ls -A ${PYENV_ROOT})" ]]; then

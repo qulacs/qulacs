@@ -2,6 +2,8 @@
 #include "utility.hpp"
 
 void get_Pauli_matrix(ComplexMatrix& matrix, const std::vector<UINT>& pauli_id_list) {
+    using namespace std::complex_literals;
+
     ITYPE matrix_dim = 1ULL << pauli_id_list.size();
     matrix = ComplexMatrix::Zero(matrix_dim, matrix_dim);
 
@@ -49,6 +51,8 @@ std::vector<std::string> split(const std::string &s, const std::string &delim){
 }
 
 void chfmt(std::string& ops){
+    using namespace std::complex_literals;
+  
     for (UINT i = 0; i < ops.size(); ++i){
         if (ops[i] == 'X' || ops[i] == 'Y' || ops[i] == 'Z' || ops[i] == 'I'){
             ops.insert(++i, " ");

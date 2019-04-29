@@ -4,6 +4,7 @@
 #include <Eigen/Core>
 #include <string>
 
+using namespace std::complex_literals;
 
 // random
 static UINT rand_int(UINT max) {

@@ -170,6 +170,8 @@ namespace gate{
 	}
 
 	QuantumGateMatrix* RandomUnitary(std::vector<UINT> target_list) {
+		using namespace std::complex_literals;
+
 		if (!check_is_unique_index_list(target_list)) {
 			std::cerr << "Error: gate::RandomUnitary(std::vector<UINT> target_list): target list contains duplicated values." << std::endl;
 			return NULL;

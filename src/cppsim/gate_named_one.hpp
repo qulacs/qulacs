@@ -30,6 +30,8 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     ClsIGate(UINT target_qubit_index) {
+        using namespace std::literals::complex_literals;
+
         this->_update_func = ClsIGate::idling;
 		this->_update_func_dm = ClsIGate::idling;
 		this->_update_func_gpu = ClsIGate::idling_gpu;
@@ -76,6 +78,8 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     ClsYGate(UINT target_qubit_index) {
+        using namespace std::complex_literals;
+
         this->_update_func = Y_gate;
 		this->_update_func_dm = dm_Y_gate;
 #ifdef _USE_GPU
@@ -149,6 +153,8 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     ClsSGate(UINT target_qubit_index){
+        using namespace std::complex_literals;
+
         this->_update_func = S_gate;
 		this->_update_func_dm = dm_S_gate;
 #ifdef _USE_GPU
@@ -173,6 +179,8 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     ClsSdagGate(UINT target_qubit_index){
+        using namespace std::complex_literals;
+
         this->_update_func = Sdag_gate;
 		this->_update_func_dm = dm_Sdag_gate;
 #ifdef _USE_GPU
@@ -197,6 +205,8 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     ClsTGate(UINT target_qubit_index){
+        using namespace std::complex_literals;
+
         this->_update_func = T_gate;
 		this->_update_func_dm = dm_T_gate;
 #ifdef _USE_GPU
@@ -221,6 +231,8 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     ClsTdagGate(UINT target_qubit_index){
+        using namespace std::complex_literals;
+
         this->_update_func = Tdag_gate;
 		this->_update_func_dm = dm_Tdag_gate;
 #ifdef _USE_GPU
@@ -245,6 +257,8 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     ClsSqrtXGate(UINT target_qubit_index) {
+        using namespace std::literals::complex_literals;
+
         this->_update_func = sqrtX_gate;
 		this->_update_func_dm = dm_sqrtX_gate;
 #ifdef _USE_GPU
@@ -269,6 +283,8 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     ClsSqrtXdagGate(UINT target_qubit_index) {
+        using namespace std::literals::complex_literals;
+
         this->_update_func = sqrtXdag_gate;
 		this->_update_func_dm = dm_sqrtXdag_gate;
 #ifdef _USE_GPU
@@ -293,6 +309,8 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     ClsSqrtYGate(UINT target_qubit_index) {
+        using namespace std::literals::complex_literals;
+
         this->_update_func = sqrtY_gate;
 		this->_update_func_dm = dm_sqrtY_gate;
 #ifdef _USE_GPU
@@ -317,6 +335,8 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     ClsSqrtYdagGate(UINT target_qubit_index) {
+        using namespace std::literals::complex_literals;
+
         this->_update_func = sqrtYdag_gate;
 		this->_update_func_dm = dm_sqrtYdag_gate;
 #ifdef _USE_GPU
@@ -390,6 +410,8 @@ public:
      * @param angle 回転角
      */
     ClsRXGate(UINT target_qubit_index, double angle) : QuantumGate_OneQubitRotation(angle) {
+        using namespace std::literals::complex_literals;
+
         this->_update_func = RX_gate;
 		this->_update_func_dm = dm_RX_gate;
 #ifdef _USE_GPU
@@ -438,6 +460,8 @@ public:
      * @param angle 回転角
      */
     ClsRZGate(UINT target_qubit_index, double angle): QuantumGate_OneQubitRotation(angle){
+        using namespace std::literals::complex_literals;
+
         this->_update_func = RZ_gate;
 		this->_update_func_dm = dm_RZ_gate;
 #ifdef _USE_GPU
