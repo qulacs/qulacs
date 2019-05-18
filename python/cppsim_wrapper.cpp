@@ -175,19 +175,24 @@ PYBIND11_MODULE(qulacs, m) {
     //mstate.def("inner_product", (std::complex<double> (state::*)(const QuantumState*, const QuatnumState*))&state::inner_product);
     mstate.def("inner_product", &state::inner_product);
 
-
-
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
         .def("update_quantum_state", &QuantumGateBase::update_quantum_state)
         .def("copy",&QuantumGateBase::copy, pybind11::return_value_policy::take_ownership)
         .def("to_string", &QuantumGateBase::to_string)
-
         .def("get_matrix", [](const QuantumGateBase& gate) {
-        ComplexMatrix mat;
-        gate.set_matrix(mat);
-        return mat;
+            ComplexMatrix mat;
+            gate.set_matrix(mat);
+            return mat;
         })
-        .def("__repr__", [](const QuantumGateBase &p) {return p.to_string(); });
+        .def("__repr__", [](const QuantumGateBase &p) {return p.to_string(); })
+        .def("get_target_index_list", &QuantumGateBase::get_target_index_list)
+        .def("get_control_index_list", &QuantumGateBase::get_control_index_list)
+        .def("is_commute", &QuantumGateBase::is_commute)
+        .def("is_Pauli", &QuantumGateBase::is_Pauli)
+        .def("is_Clifford", &QuantumGateBase::is_Clifford)
+        .def("is_Gaussian", &QuantumGateBase::is_Gaussian)
+        .def("is_parametric", &QuantumGateBase::is_parametric)
+        .def("is_diagonal", &QuantumGateBase::is_diagonal)
         ;
 
     py::class_<QuantumGateMatrix,QuantumGateBase>(m, "QuantumGateMatrix")
@@ -243,7 +248,7 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("DenseMatrix", ptr2, pybind11::return_value_policy::take_ownership);
 	mgate.def("SparseMatrix", &gate::SparseMatrix, pybind11::return_value_policy::take_ownership);
 
-      mgate.def("RandomUnitary", &gate::RandomUnitary, pybind11::return_value_policy::take_ownership);
+    mgate.def("RandomUnitary", &gate::RandomUnitary, pybind11::return_value_policy::take_ownership);
     mgate.def("ReversibleBoolean", [](std::vector<UINT> target_qubit_list, std::function<ITYPE(ITYPE,ITYPE)> function_py) {
         return gate::ReversibleBoolean(target_qubit_list, function_py);
     }, pybind11::return_value_policy::take_ownership);
@@ -273,7 +278,7 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("Instrument", &gate::Instrument, pybind11::return_value_policy::take_ownership);
     mgate.def("Adaptive", &gate::Adaptive, pybind11::return_value_policy::take_ownership);
 
-
+    py::class_<QuantumGate_SingleParameter, QuantumGateBase>(m, "QuantumGate_SingleParameter");
     mgate.def("ParametricRX", &gate::ParametricRX);
     mgate.def("ParametricRY", &gate::ParametricRY);
     mgate.def("ParametricRZ", &gate::ParametricRZ);
