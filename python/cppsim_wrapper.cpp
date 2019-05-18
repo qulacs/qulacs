@@ -248,7 +248,7 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("DenseMatrix", ptr2, pybind11::return_value_policy::take_ownership);
 	mgate.def("SparseMatrix", &gate::SparseMatrix, pybind11::return_value_policy::take_ownership);
 
-      mgate.def("RandomUnitary", &gate::RandomUnitary, pybind11::return_value_policy::take_ownership);
+    mgate.def("RandomUnitary", &gate::RandomUnitary, pybind11::return_value_policy::take_ownership);
     mgate.def("ReversibleBoolean", [](std::vector<UINT> target_qubit_list, std::function<ITYPE(ITYPE,ITYPE)> function_py) {
         return gate::ReversibleBoolean(target_qubit_list, function_py);
     }, pybind11::return_value_policy::take_ownership);
@@ -278,7 +278,7 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("Instrument", &gate::Instrument, pybind11::return_value_policy::take_ownership);
     mgate.def("Adaptive", &gate::Adaptive, pybind11::return_value_policy::take_ownership);
 
-	py::class_<QuantumGate_SingleParameter, QuantumGateBase>(m, "QuantumGate_SingleParameter");
+    py::class_<QuantumGate_SingleParameter, QuantumGateBase>(m, "QuantumGate_SingleParameter");
     mgate.def("ParametricRX", &gate::ParametricRX);
     mgate.def("ParametricRY", &gate::ParametricRY);
     mgate.def("ParametricRZ", &gate::ParametricRZ);
