@@ -1,0 +1,636 @@
+\subsection*{量子状態}
+
+\subsubsection*{量子状態の生成}
+
+以下のコードで{\ttfamily n}qubitの量子状態を生成します。 生成した量子状態は $|0\rangle^{\otimes n}$ に初期化されています。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 5-qubitの状態を生成}
+\DoxyCodeLine{n = 5}
+\DoxyCodeLine{state = QuantumState(n)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# |00000>に初期化}
+\DoxyCodeLine{state.set\_zero\_state()}
+\end{DoxyCode}
+ メモリが不足している場合は量子状態を生成できません。
+
+\#\#\# 量子状態のデータの取得 量子状態を表す $2^n$ の長さの配列を取得します。特に\+G\+P\+Uで量子状態を作成したり、大きい $n$ では非常に重い操作になるので注意してください。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{}
+\DoxyCodeLine{n = 5}
+\DoxyCodeLine{state = QuantumState(n)}
+\DoxyCodeLine{state.set\_zero\_state()}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 状態ベクトルをnumpy arrayとして取得}
+\DoxyCodeLine{data = state.get\_vector()}
+\DoxyCodeLine{print(data)}
+\end{DoxyCode}
+
+
+\subsubsection*{量子状態の初期化}
+
+生成した量子状態は、計算基底に初期化したり、ランダムな状態に初期化することが出来ます。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{}
+\DoxyCodeLine{n = 5}
+\DoxyCodeLine{state = QuantumState(n)}
+\DoxyCodeLine{state.set\_zero\_state()}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# |00101>に初期化}
+\DoxyCodeLine{state.set\_computational\_basis(0b00101)}
+\DoxyCodeLine{print(state.get\_vector())}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# ランダムな初期状態を生成}
+\DoxyCodeLine{state.set\_Haar\_random\_state()}
+\DoxyCodeLine{print(state.get\_vector())}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# シードを指定してランダムな初期状態を生成}
+\DoxyCodeLine{seed = 0}
+\DoxyCodeLine{state.set\_Haar\_random\_state(seed)}
+\DoxyCodeLine{print(state.get\_vector())}
+\end{DoxyCode}
+
+
+\subsubsection*{量子状態のデータのコピーとロード}
+
+量子状態を複製したり、他の量子状態のデータをロードできます。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{}
+\DoxyCodeLine{n = 5}
+\DoxyCodeLine{state = QuantumState(n)}
+\DoxyCodeLine{state.set\_computational\_basis(0b00101)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# コピーして新たな量子状態を作成}
+\DoxyCodeLine{second\_state = state.copy()}
+\DoxyCodeLine{print(second\_state.get\_vector())}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 量子状態を新たに生成し、既存の状態のベクトルをコピー}
+\DoxyCodeLine{third\_state = QuantumState(n)}
+\DoxyCodeLine{third\_state.load(state)}
+\DoxyCodeLine{print(third\_state.get\_vector())}
+\end{DoxyCode}
+
+
+\subsubsection*{古典レジスタの操作}
+
+量子状態は古典レジスタを持っており、読み書きを行えます。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{}
+\DoxyCodeLine{n = 5}
+\DoxyCodeLine{state = QuantumState(n)}
+\DoxyCodeLine{state.set\_zero\_state()}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 3rd classical registerに値1をセット}
+\DoxyCodeLine{register\_position = 3}
+\DoxyCodeLine{register\_value = 1}
+\DoxyCodeLine{state.set\_classical\_value(register\_position, register\_value)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 3rd classical registerの値を取得}
+\DoxyCodeLine{obtained\_value = state.get\_classical\_value(register\_position)}
+\DoxyCodeLine{print(obtained\_value)}
+\end{DoxyCode}
+
+
+\subsubsection*{量子状態に関する計算}
+
+量子状態には種々の処理が可能です。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{}
+\DoxyCodeLine{n = 5}
+\DoxyCodeLine{state = QuantumState(n)}
+\DoxyCodeLine{state.set\_Haar\_random\_state()}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# normの計算}
+\DoxyCodeLine{norm = state.get\_norm()}
+\DoxyCodeLine{print("norm : ",norm)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# Z基底で測定した時のentropyの計算}
+\DoxyCodeLine{entropy = state.get\_entropy() }
+\DoxyCodeLine{print("entropy : ",entropy)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# index-th qubitをZ基底で測定して0を得る確率の計算}
+\DoxyCodeLine{index = 3}
+\DoxyCodeLine{zero\_probability = state.get\_zero\_probability(index)}
+\DoxyCodeLine{print("prob\_meas\_3rd : ",zero\_probability)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 周辺確率を計算 (以下は0,3-th qubitが0、1,2-th qubitが1と測定される確率の例)}
+\DoxyCodeLine{value\_list = [0,1,1,0,2]}
+\DoxyCodeLine{marginal\_probability = state.get\_marginal\_probability(value\_list)}
+\DoxyCodeLine{print("marginal\_prob : ",marginal\_probability)}
+\end{DoxyCode}
+
+
+\subsubsection*{量子状態の内積}
+
+{\ttfamily inner\+\_\+product}関数で内積を計算できます。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{from qulacs.state import inner\_product}
+\DoxyCodeLine{}
+\DoxyCodeLine{n = 5}
+\DoxyCodeLine{state\_bra = QuantumState(n)}
+\DoxyCodeLine{state\_ket = QuantumState(n)}
+\DoxyCodeLine{state\_bra.set\_Haar\_random\_state()}
+\DoxyCodeLine{state\_ket.set\_computational\_basis(0)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 内積値の計算}
+\DoxyCodeLine{value = inner\_product(state\_bra, state\_ket)}
+\DoxyCodeLine{print(value)}
+\end{DoxyCode}
+
+
+\subsubsection*{量子状態の解放}
+
+delを用いて量子状態を強制的にメモリから解放することができます。 delせずとも利用されなくなったタイミングで解放されますが、メモリがシビアな際に便利です。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{}
+\DoxyCodeLine{n = 5}
+\DoxyCodeLine{state = QuantumState(n)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 量子状態を開放}
+\DoxyCodeLine{del state}
+\end{DoxyCode}
+
+
+\subsubsection*{量子状態の詳細情報の取得}
+
+オブジェクトを直接printすると、量子状態の情報が出力されます。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{}
+\DoxyCodeLine{n = 5}
+\DoxyCodeLine{state = QuantumState(n)}
+\DoxyCodeLine{}
+\DoxyCodeLine{print(state)}
+\end{DoxyCode}
+
+
+\subsection*{量子ゲート}
+
+\subsubsection*{量子ゲートの生成と作用}
+
+デフォルトで実装されている量子ゲートはgateモジュールで定義されます。
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{import numpy as np}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{from qulacs.gate import X, RY, DenseMatrix}
+\DoxyCodeLine{}
+\DoxyCodeLine{n = 3}
+\DoxyCodeLine{state = QuantumState(n)}
+\DoxyCodeLine{state.set\_zero\_state()}
+\DoxyCodeLine{print(state.get\_vector())}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 1st-qubitにX操作}
+\DoxyCodeLine{index = 1}
+\DoxyCodeLine{x\_gate = X(index)}
+\DoxyCodeLine{x\_gate.update\_quantum\_state(state)}
+\DoxyCodeLine{print(state.get\_vector())}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 1st-qubitをYパウリでpi/4.0回転}
+\DoxyCodeLine{angle = np.pi / 4.0}
+\DoxyCodeLine{ry\_gate = RY(index, angle)}
+\DoxyCodeLine{ry\_gate.update\_quantum\_state(state)}
+\DoxyCodeLine{print(state.get\_vector())}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 2nd-qubitにゲート行列で作成したゲートを作用}
+\DoxyCodeLine{dense\_gate = DenseMatrix(2, [[0,1],[1,0]])}
+\DoxyCodeLine{dense\_gate.update\_quantum\_state(state)}
+\DoxyCodeLine{print(state.get\_vector())}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# ゲートの解放}
+\DoxyCodeLine{del x\_gate}
+\DoxyCodeLine{del ry\_gate}
+\DoxyCodeLine{del dense\_gate}
+\end{DoxyCode}
+
+
+事前に定義されているゲートは以下の通りです。
+\begin{DoxyItemize}
+\item single-\/qubit Pauli operation\+: Identity, X,Y,Z
+\item single-\/qubit Clifford operation \+: H,S,Sdag, T,Tdag,sqrtX,sqrt\+Xdag,sqrtY,sqrt\+Ydag
+\item two-\/qubit Clifford operation \+: C\+N\+OT, CZ, S\+W\+AP
+\item single-\/qubit Pauli rotation \+: RX, RY, RZ
+\item General Pauli operation \+: Pauli, Pauli\+Rotation
+\item I\+B\+MQ basis-\/gate \+: U1, U2, U3
+\item General gate \+: Dense\+Matrix
+\item Measurement \+: Measurement
+\item Noise \+: Bit\+Flip\+Noise, Dephasing\+Noise, Indepenedent\+X\+Z\+Noise, Depolarizing\+Noise
+\end{DoxyItemize}
+
+回転ゲートである{\ttfamily RX},{\ttfamily RY},{\ttfamily RZ},{\ttfamily Pauli\+Rotation}は所定のパウリ演算子\$P\$について、引数\$\textbackslash{}theta\$に対して\$\textbackslash{}exp(i\textbackslash{}frac\{\textbackslash{}theta\}\{2\}P)\$という操作を行います。 それぞれのゲートの詳細は\+A\+P\+Iドキュメントを参照してください。
+
+\subsubsection*{量子ゲートの合成}
+
+続けて作用する量子ゲートを合成し、新たな単一の量子ゲートを生成できます。これにより量子状態へのアクセスを減らせます。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{import numpy as np}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{from qulacs.gate import X, RY, merge}
+\DoxyCodeLine{}
+\DoxyCodeLine{n = 3}
+\DoxyCodeLine{state = QuantumState(n)}
+\DoxyCodeLine{state.set\_zero\_state()}
+\DoxyCodeLine{}
+\DoxyCodeLine{index = 1}
+\DoxyCodeLine{x\_gate = X(index)}
+\DoxyCodeLine{angle = np.pi / 4.0}
+\DoxyCodeLine{ry\_gate = RY(index, angle)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# ゲートを合成して新たなゲートを生成}
+\DoxyCodeLine{\# 第一引数が先に作用する}
+\DoxyCodeLine{x\_and\_ry\_gate = merge(x\_gate, ry\_gate)}
+\DoxyCodeLine{x\_and\_ry\_gate.update\_quantum\_state(state)}
+\DoxyCodeLine{print(state.get\_vector())}
+\end{DoxyCode}
+
+
+\subsubsection*{量子ゲートのゲート行列の和}
+
+量子ゲートのゲート要素の和を取ることができます。 (control-\/qubitがある場合の和は現状動作が未定義なので利用しないでください。) 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{import numpy as np}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{from qulacs.gate import P0,P1,add, merge, Identity, X, Z}
+\DoxyCodeLine{}
+\DoxyCodeLine{gate00 = merge(P0(0),P0(1))}
+\DoxyCodeLine{gate11 = merge(P1(0),P1(1))}
+\DoxyCodeLine{\# |00><00| + |11><11|}
+\DoxyCodeLine{proj\_00\_or\_11 = add(gate00, gate11)}
+\DoxyCodeLine{print(proj\_00\_or\_11)}
+\DoxyCodeLine{}
+\DoxyCodeLine{gate\_ii\_zz = add(Identity(0), merge(Z(0),Z(1)))}
+\DoxyCodeLine{gate\_ii\_xx = add(Identity(0), merge(X(0),X(1)))}
+\DoxyCodeLine{proj\_00\_plus\_11 = merge(gate\_ii\_zz, gate\_ii\_xx)}
+\DoxyCodeLine{\# ((|00>+|11>)(<00|+<11|))/2 = (II + ZZ)(II + XX)/4}
+\DoxyCodeLine{proj\_00\_plus\_11.multiply\_scalar(0.25)}
+\DoxyCodeLine{print(proj\_00\_plus\_11)}
+\end{DoxyCode}
+
+
+\subsubsection*{特殊な量子ゲートと一般の量子ゲート}
+
+Qulacsにおける基本量子ゲートは以下の二つに分けられます。
+\begin{DoxyItemize}
+\item 特殊ゲート：そのゲートの作用について、専用の高速化がなされた関数があるもの。
+\item 一般ゲート：ゲート行列を保持し、行列をかけて作用するもの。
+\end{DoxyItemize}
+
+前者は後者に比べ専用の関数が作成されているため高速ですが、コントロール量子ビットを増やすなど、量子ゲートの作用を変更する操作が後から行えません。 こうした変更をしたい場合、特殊ゲートを一般ゲートに変換してやらねばなりません。 これは{\ttfamily gate.\+to\+\_\+matrix\+\_\+gate}で実現できます。以下がその例になります。
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{import numpy as np}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{from qulacs.gate import to\_matrix\_gate, X}
+\DoxyCodeLine{n = 3}
+\DoxyCodeLine{state = QuantumState(n)}
+\DoxyCodeLine{state.set\_zero\_state()}
+\DoxyCodeLine{}
+\DoxyCodeLine{index = 0}
+\DoxyCodeLine{x\_gate = X(index)}
+\DoxyCodeLine{x\_mat\_gate = to\_matrix\_gate(x\_gate)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 1st-qubitが0の場合だけゲートを作用}
+\DoxyCodeLine{control\_index = 1}
+\DoxyCodeLine{control\_with\_value = 0}
+\DoxyCodeLine{x\_mat\_gate.add\_control\_qubit(control\_index, control\_with\_value)}
+\DoxyCodeLine{}
+\DoxyCodeLine{x\_mat\_gate.update\_quantum\_state(state)}
+\DoxyCodeLine{print(state.get\_vector())}
+\end{DoxyCode}
+
+
+\subsubsection*{量子ゲートのゲート行列の取得}
+
+生成した量子ゲートのゲート行列を取得できます。control量子ビットなどはゲート行列に含まれません。特にゲート行列を持たない種類のゲート（例えばn-\/qubitのパウリ回転ゲート）などは取得に非常に大きなメモリと時間を要するので気を付けてください。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{import numpy as np}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{from qulacs.gate import X, RY, merge}
+\DoxyCodeLine{}
+\DoxyCodeLine{n = 3}
+\DoxyCodeLine{state = QuantumState(n)}
+\DoxyCodeLine{state.set\_zero\_state()}
+\DoxyCodeLine{}
+\DoxyCodeLine{index = 1}
+\DoxyCodeLine{x\_gate = X(index)}
+\DoxyCodeLine{angle = np.pi / 4.0}
+\DoxyCodeLine{ry\_gate = RY(index, angle)}
+\DoxyCodeLine{x\_and\_ry\_gate = merge(x\_gate, ry\_gate)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# ゲート行列を取得}
+\DoxyCodeLine{matrix = x\_and\_ry\_gate.get\_matrix()}
+\DoxyCodeLine{print(matrix)}
+\end{DoxyCode}
+
+
+\subsubsection*{量子ゲートの情報の取得}
+
+printに流し込むことで、量子ゲートの情報を取得できます。行列要素をあらわに持つゲート(一般ゲート)の場合のみ、ゲート行列も表示されます。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs.gate import X, to\_matrix\_gate}
+\DoxyCodeLine{gate = X(0)}
+\DoxyCodeLine{print(gate)}
+\DoxyCodeLine{print(to\_matrix\_gate(gate))}
+\end{DoxyCode}
+
+
+\subsubsection*{一般的な量子ゲートの実現}
+
+Qulacsでは量子情報における種々のマップを以下の形で実現します。
+
+\paragraph*{ユニタリ操作}
+
+量子ゲートとして実現します。
+
+\paragraph*{射影演算子やクラウス演算子など}
+
+量子ゲートとして実現します。一般に作用後に量子状態のノルムは保存されません。{\ttfamily Dense\+Matrix}関数により生成できます。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs.gate import DenseMatrix}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 1-qubit gateの場合}
+\DoxyCodeLine{gate = DenseMatrix(0, [[0,1],[1,0]])}
+\DoxyCodeLine{print(gate)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 2-qubit gateの場合}
+\DoxyCodeLine{gate = DenseMatrix([0,1], [[1,0,0,0],[0,1,0,0],[0,0,0,1],[0,0,1,0]])}
+\DoxyCodeLine{print(gate)}
+\end{DoxyCode}
+
+
+\paragraph*{確率的なユニタリ操作}
+
+{\ttfamily Probabilistic}関数を用いて、複数のユニタリ操作と確率分布を与えて作成します。
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs.gate import Probabilistic, X, Y}
+\DoxyCodeLine{}
+\DoxyCodeLine{distribution = [0.1, 0.2, 0.3]}
+\DoxyCodeLine{gate\_list = [X(0), Y(0), X(1)]}
+\DoxyCodeLine{gate = Probabilistic(distribution, gate\_list)}
+\end{DoxyCode}
+ 確率の総和が1に満たない場合、残りの確率は\+Identityの作用になります。
+
+\paragraph*{C\+P\+T\+P-\/map}
+
+{\ttfamily C\+P\+TP}関数に完全性を満たすクラウス演算子のリストとして与えて作成します。
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs.gate import merge,CPTP, P0,P1}
+\DoxyCodeLine{}
+\DoxyCodeLine{gate00 = merge(P0(0),P0(1))}
+\DoxyCodeLine{gate01 = merge(P0(0),P1(1))}
+\DoxyCodeLine{gate10 = merge(P1(0),P0(1))}
+\DoxyCodeLine{gate11 = merge(P1(0),P1(1))}
+\DoxyCodeLine{}
+\DoxyCodeLine{gate\_list = [gate00, gate01, gate10, gate11]}
+\DoxyCodeLine{gate = CPTP(gate\_list)}
+\end{DoxyCode}
+
+
+\paragraph*{P\+O\+VM}
+
+数値計算上には\+Instrumentと同じなので、\+Instrumentとして実現します。
+
+\paragraph*{Instrument}
+
+Instrumentは一般の\+C\+P\+T\+P-\/mapの操作に加え、ランダムに作用したクラウス演算子の添え字を取得する操作です。例えば、\+Z基底での測定は{\ttfamily P0}と{\ttfamily P1}からなる\+C\+P\+T\+P-\/mapを作用し、どちらが作用したかを知ることに相当します。 cppsimでは{\ttfamily Instrument}関数に\+C\+P\+T\+P-\/mapの情報と、作用したクラウス演算子の添え字を書きこむ古典レジスタのアドレスを指定することで実現します。
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{from qulacs.gate import merge,Instrument, P0,P1}
+\DoxyCodeLine{}
+\DoxyCodeLine{gate00 = merge(P0(0),P0(1))}
+\DoxyCodeLine{gate01 = merge(P0(0),P1(1))}
+\DoxyCodeLine{gate10 = merge(P1(0),P0(1))}
+\DoxyCodeLine{gate11 = merge(P1(0),P1(1))}
+\DoxyCodeLine{}
+\DoxyCodeLine{gate\_list = [gate00, gate01, gate10, gate11]}
+\DoxyCodeLine{classical\_pos = 0}
+\DoxyCodeLine{gate = Instrument(gate\_list, classical\_pos)}
+\DoxyCodeLine{}
+\DoxyCodeLine{state = QuantumState(2)}
+\DoxyCodeLine{state.set\_Haar\_random\_state()}
+\DoxyCodeLine{}
+\DoxyCodeLine{print(state)}
+\DoxyCodeLine{gate.update\_quantum\_state(state)}
+\DoxyCodeLine{result = state.get\_classical\_value(classical\_pos)}
+\DoxyCodeLine{print(state)}
+\DoxyCodeLine{print(result)}
+\end{DoxyCode}
+
+
+
+\begin{DoxyItemize}
+\item Adaptive 古典レジスタに書き込まれた値を用いた条件に応じて操作を行うか決定します。 条件はpythonの関数として記述することができます。pythonの関数は{\ttfamily unsigned int}型のリストを引数として受け取り、{\ttfamily bool}型を返す関数でなくてはなりません。
+\end{DoxyItemize}
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs.gate import Adaptive, X}
+\DoxyCodeLine{}
+\DoxyCodeLine{def func(list):}
+\DoxyCodeLine{    return list[0]==1}
+\DoxyCodeLine{gate = Adaptive(X(0), func)}
+\DoxyCodeLine{}
+\DoxyCodeLine{state = QuantumState(2)}
+\DoxyCodeLine{state.set\_Haar\_random\_state()}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# func returns False, and gate is not applied}
+\DoxyCodeLine{gate.set\_classical\_value(0,0)}
+\DoxyCodeLine{gate.update\_quantum\_state(state)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# func returns True, and gate is applied}
+\DoxyCodeLine{gate.set\_classical\_value(0,1)}
+\DoxyCodeLine{gate.update\_quantum\_state(state)}
+\end{DoxyCode}
+
+
+\paragraph*{C\+P-\/map}
+
+Kraus-\/rankが1の場合は、上記の単体のクラウス演算子として扱ってください。それ以外の場合は、\+T\+Pになるようにクラウス演算子を調整した後、{\ttfamily multiply\+\_\+scalar}関数で定数倍にした{\ttfamily Identity}オペレータを作用するなどして調整してください。
+
+\subsection*{量子回路}
+
+\subsubsection*{量子回路の構成}
+
+量子回路は量子ゲートの集合として表されます。 例えば以下のように量子回路を構成できます。
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import QuantumState, QuantumCircuit}
+\DoxyCodeLine{from qulacs.gate import Z}
+\DoxyCodeLine{n = 5}
+\DoxyCodeLine{state = QuantumState(n)}
+\DoxyCodeLine{state.set\_zero\_state()}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 量子回路を定義}
+\DoxyCodeLine{circuit = QuantumCircuit(n)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 量子回路にhadamardゲートを追加}
+\DoxyCodeLine{for i in range(n):}
+\DoxyCodeLine{    circuit.add\_H\_gate(i)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# ゲートを生成し、それを追加することもできる。}
+\DoxyCodeLine{for i in range(n):}
+\DoxyCodeLine{    circuit.add\_gate(Z(i))}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 量子回路を状態に作用}
+\DoxyCodeLine{circuit.update\_quantum\_state(state)}
+\DoxyCodeLine{}
+\DoxyCodeLine{print(state.get\_vector())}
+\end{DoxyCode}
+
+
+なお、{\ttfamily add\+\_\+gate}で追加された量子回路は量子回路の解放時に一緒に解放されます。従って、代入したゲートは再利用できません。引数として与えたゲートを再利用したい場合はgate.\+copyを用いて自身のコピーを作成するか、$<$code$>$add\+\_\+gate\+\_\+copy関数を用いてください。
+
+\subsubsection*{量子回路のdepthの計算と最適化}
+
+量子ゲートをまとめて一つの量子ゲートとすることで、量子ゲートの数を減らすことができ、数値計算の時間を短縮できることがあります。（もちろん、対象となる量子ビットの数が増える場合や、専用関数を持つ量子ゲートを合成して専用関数を持たない量子ゲートにしてしまった場合は、トータルで計算時間が減少するかは状況に依ります。）
+
+下記のコードでは{\ttfamily optimize}関数を用いて、量子回路の量子ゲートをターゲットとなる量子ビットが3つになるまで貪欲法で合成を繰り返します。
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import QuantumCircuit}
+\DoxyCodeLine{from qulacs.circuit import QuantumCircuitOptimizer}
+\DoxyCodeLine{n = 5}
+\DoxyCodeLine{depth = 10}
+\DoxyCodeLine{circuit = QuantumCircuit(n)}
+\DoxyCodeLine{for d in range(depth):}
+\DoxyCodeLine{    for i in range(n):}
+\DoxyCodeLine{        circuit.add\_H\_gate(i)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# depthを計算(depth=10)}
+\DoxyCodeLine{print(circuit.calculate\_depth())}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# 最適化}
+\DoxyCodeLine{opt = QuantumCircuitOptimizer()}
+\DoxyCodeLine{\# 作成を許す最大の量子ゲートのサイズ}
+\DoxyCodeLine{max\_block\_size = 1}
+\DoxyCodeLine{opt.optimize(circuit, max\_block\_size)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# depthを計算(depth=1へ)}
+\DoxyCodeLine{print(circuit.calculate\_depth())}
+\end{DoxyCode}
+
+
+\subsubsection*{量子回路の情報デバッグ}
+
+量子回路をprintすると、量子回路に含まれるゲートの統計情報などが表示されます。
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import QuantumCircuit}
+\DoxyCodeLine{from qulacs.circuit import QuantumCircuitOptimizer}
+\DoxyCodeLine{n = 5}
+\DoxyCodeLine{depth = 10}
+\DoxyCodeLine{circuit = QuantumCircuit(n)}
+\DoxyCodeLine{for d in range(depth):}
+\DoxyCodeLine{    for i in range(n):}
+\DoxyCodeLine{        circuit.add\_H\_gate(i)}
+\DoxyCodeLine{print(circuit)}
+\end{DoxyCode}
+
+
+\subsection*{オブザーバブル}
+
+\subsubsection*{オブザーバブルの生成}
+
+オブザーバブルはパウリ演算子の集合として表現されます。 パウリ演算子は下記のように定義できます。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import Observable}
+\DoxyCodeLine{n = 5}
+\DoxyCodeLine{coef = 2.0}
+\DoxyCodeLine{\# 2.0 X\_0 X\_1 Y\_2 Z\_4というパウリ演算子を設定}
+\DoxyCodeLine{Pauli\_string = "X 0 X 1 Y 2 Z 4"}
+\DoxyCodeLine{observable = Observable(n)}
+\DoxyCodeLine{observable.add\_operator(coef,Pauli\_string)}
+\end{DoxyCode}
+
+
+\subsubsection*{オブザーバブルの評価}
+
+状態に対してオブザーバブルの期待値を評価できます。 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import Observable, QuantumState}
+\DoxyCodeLine{}
+\DoxyCodeLine{n = 5}
+\DoxyCodeLine{coef = 2.0}
+\DoxyCodeLine{Pauli\_string = "X 0 X 1 Y 2 Z 4"}
+\DoxyCodeLine{observable = Observable(n)}
+\DoxyCodeLine{observable.add\_operator(coef,Pauli\_string)}
+\DoxyCodeLine{}
+\DoxyCodeLine{state = QuantumState(n)}
+\DoxyCodeLine{state.set\_Haar\_random\_state()}
+\DoxyCodeLine{\# 期待値の計算}
+\DoxyCodeLine{value = observable.get\_expectation\_value(state)}
+\DoxyCodeLine{print(value)}
+\end{DoxyCode}
+
+
+\subsection*{変分量子回路}
+
+量子回路を\+Parametric\+Quantum\+Circuitクラスとして定義すると、通所の\+Quantum\+Circuitクラスの関数に加え、変分法を用いて量子回路を最適化するのに便利ないくつかの関数を利用することができます。
+
+\subsubsection*{変分量子回路の利用例}
+
+一つの回転角を持つ量子ゲート(X-\/rot, Y-\/rot, Z-\/rot, multi\+\_\+qubit\+\_\+pauli\+\_\+rotation)はパラメトリックな量子ゲートとして量子回路に追加することができます。パラメトリックなゲートとして追加された量子ゲートについては、量子回路の構成後にパラメトリックなゲート数を取り出したり、後から回転角を変更することができます。
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import ParametricQuantumCircuit}
+\DoxyCodeLine{from qulacs import QuantumState}
+\DoxyCodeLine{import numpy as np}
+\DoxyCodeLine{}
+\DoxyCodeLine{n = 5}
+\DoxyCodeLine{depth = 10}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# construct parametric quantum circuit with random rotation}
+\DoxyCodeLine{circuit = ParametricQuantumCircuit(n)}
+\DoxyCodeLine{for d in range(depth):}
+\DoxyCodeLine{    for i in range(n):}
+\DoxyCodeLine{        angle = np.random.rand()}
+\DoxyCodeLine{        circuit.add\_parametric\_RX\_gate(i,angle)}
+\DoxyCodeLine{        angle = np.random.rand()}
+\DoxyCodeLine{        circuit.add\_parametric\_RY\_gate(i,angle)}
+\DoxyCodeLine{        angle = np.random.rand()}
+\DoxyCodeLine{        circuit.add\_parametric\_RZ\_gate(i,angle)}
+\DoxyCodeLine{    for i in range(d\%2, n-1, 2):}
+\DoxyCodeLine{        circuit.add\_CNOT\_gate(i,i+1)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# add multi-qubit Pauli rotation gate as parametric gate (X\_0 Y\_3 Y\_1 X\_4)}
+\DoxyCodeLine{target = [0,3,1,4]}
+\DoxyCodeLine{pauli\_ids = [1,2,2,1]}
+\DoxyCodeLine{angle = np.random.rand()}
+\DoxyCodeLine{circuit.add\_parametric\_multi\_Pauli\_rotation\_gate(target, pauli\_ids, angle)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# get variable parameter count, and get current parameter}
+\DoxyCodeLine{parameter\_count = circuit.get\_parameter\_count()}
+\DoxyCodeLine{param = [circuit.get\_parameter(ind) for ind in range(parameter\_count)]}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# set 3rd parameter to 0}
+\DoxyCodeLine{circuit.set\_parameter(3, 0.)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# update quantum state}
+\DoxyCodeLine{state = QuantumState(n)}
+\DoxyCodeLine{circuit.update\_quantum\_state(state)}
+\DoxyCodeLine{}
+\DoxyCodeLine{\# output state and circuit info}
+\DoxyCodeLine{print(state)}
+\DoxyCodeLine{print(circuit)}
+\end{DoxyCode}
+ 

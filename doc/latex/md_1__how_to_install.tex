@@ -1,0 +1,124 @@
+\subsection*{Install from Source}
+
+If you encounter some troubles, see \href{http://qulacs.org/md_4__trouble_shooting.html}{\texttt{ troubleshooting}}.
+
+\subsubsection*{Requirements}
+
+
+\begin{DoxyItemize}
+\item python 2.\+7 or 3.\+x
+\item gcc/g++ $>$= 7.\+0.\+0 or Visual\+Studio 2017
+\item cmake $>$= 2.\+8
+\item git
+\end{DoxyItemize}
+
+\subsubsection*{C++ Library(cppsim)}
+
+\#\#\#\# G\+CC 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{git clone https://github.com/qulacs/qulacs.git}
+\DoxyCodeLine{cd qulacs}
+\DoxyCodeLine{./script/build\_gcc.sh}
+\end{DoxyCode}
+
+
+\#\#\#\# M\+S\+VC 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{git clone https://github.com/qulacs/qulacs.git}
+\DoxyCodeLine{cd qulacs}
+\DoxyCodeLine{generate\_msvc\_project.bat}
+\end{DoxyCode}
+ Then, open {\ttfamily Project.\+sln} in {\ttfamily ./qulacs/visualstudio/}, and build all.
+
+\subsubsection*{Python Interface(\+Qulacs)}
+
+Install 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{git clone https://github.com/qulacs/qulacs.git}
+\DoxyCodeLine{cd qulacs}
+\DoxyCodeLine{python setup.py install}
+\end{DoxyCode}
+
+
+Uninstall 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{pip uninstall qulacs}
+\end{DoxyCode}
+
+
+\subsection*{Gettig started}
+
+See the following document for more detail.
+
+\href{http://qulacs.org/md_2__tutorial__c_p_p.html}{\texttt{ C++ Tutorial}}
+
+\href{http://qulacs.org/md_3__tutorial_python.html}{\texttt{ Python Tutorial}}
+
+\href{https://github.com/qulacs/quantum-circuits}{\texttt{ Examples}}
+
+\href{http://qulacs.org/annotated.html}{\texttt{ A\+PI document}}
+
+\subsubsection*{C++ Libraries}
+
+Add {\ttfamily ./$<$qulacs\+\_\+path$>$/include/} to include path, and {\ttfamily ./$<$qulacs\+\_\+path$>$/lib/} to library path. If you use dynamic link library, add {\ttfamily ./$<$qulacs\+\_\+path$>$/bin/} to library path instead.
+
+Example of C++ code\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{\textcolor{preprocessor}{\#include <iostream>}}
+\DoxyCodeLine{\textcolor{preprocessor}{\#include <cppsim/state.hpp>}}
+\DoxyCodeLine{\textcolor{preprocessor}{\#include <cppsim/circuit.hpp>}}
+\DoxyCodeLine{\textcolor{preprocessor}{\#include <cppsim/observable.hpp>}}
+\DoxyCodeLine{}
+\DoxyCodeLine{\textcolor{keywordtype}{int} main()\{}
+\DoxyCodeLine{    QuantumState state(3);}
+\DoxyCodeLine{    state.set\_Haar\_random\_state();}
+\DoxyCodeLine{}
+\DoxyCodeLine{    QuantumCircuit circuit(3);}
+\DoxyCodeLine{    circuit.add\_X\_gate(0);}
+\DoxyCodeLine{    \textcolor{keyword}{auto} merged\_gate = gate::merge(gate::CNOT(0,1),gate::Y(1));}
+\DoxyCodeLine{    circuit.add\_gate(merged\_gate);}
+\DoxyCodeLine{    circuit.add\_RX\_gate(1,0.5);}
+\DoxyCodeLine{    circuit.update\_quantum\_state(\&state);}
+\DoxyCodeLine{}
+\DoxyCodeLine{    Observable observable(3);}
+\DoxyCodeLine{    observable.add\_operator(2.0, \textcolor{stringliteral}{"X 2 Y 1 Z 0"});}
+\DoxyCodeLine{    observable.add\_operator(-3.0, \textcolor{stringliteral}{"Z 2"});}
+\DoxyCodeLine{    \textcolor{keyword}{auto} value = observable.get\_expectation\_value(\&state);}
+\DoxyCodeLine{    std::cout << value << std::endl;}
+\DoxyCodeLine{    \textcolor{keywordflow}{return} 0;}
+\DoxyCodeLine{\}}
+\end{DoxyCode}
+
+
+Example of build command\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{g++ -I ./<qulacs\_path>/include -L ./<qulacs\_path>/lib <your\_code>.cpp -lcppsim.so}
+\end{DoxyCode}
+
+
+\subsubsection*{Python Libraries}
+
+You can use features by simply importing {\ttfamily qulacs}.
+
+Example of python code\+: 
+\begin{DoxyCode}{0}
+\DoxyCodeLine{from qulacs import Observable, QuantumCircuit, QuantumState}
+\DoxyCodeLine{from qulacs.gate import Y,CNOT,merge}
+\DoxyCodeLine{}
+\DoxyCodeLine{state = QuantumState(3)}
+\DoxyCodeLine{state.set\_Haar\_random\_state()}
+\DoxyCodeLine{}
+\DoxyCodeLine{circuit = QuantumCircuit(3)}
+\DoxyCodeLine{circuit.add\_X\_gate(0)}
+\DoxyCodeLine{merged\_gate = merge(CNOT(0,1),Y(1))}
+\DoxyCodeLine{circuit.add\_gate(merged\_gate)}
+\DoxyCodeLine{circuit.add\_RX\_gate(1,0.5)}
+\DoxyCodeLine{circuit.update\_quantum\_state(state)}
+\DoxyCodeLine{}
+\DoxyCodeLine{observable = Observable(3)}
+\DoxyCodeLine{observable.add\_operator(2.0, "X 2 Y 1 Z 0")}
+\DoxyCodeLine{observable.add\_operator(-3.0, "Z 2")}
+\DoxyCodeLine{value = observable.get\_expectation\_value(state)}
+\DoxyCodeLine{print(value)}
+\end{DoxyCode}
+ 
