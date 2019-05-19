@@ -11,7 +11,7 @@ RUN apt-get update -y && \
 
 RUN add-apt-repository ppa:ubuntu-toolchain-r/test && \
     apt-get update -y && \
-    apt-get install -y \
+    apt-get install -y --no-install-recommends \
     gcc-7 \
     g++-7
 
