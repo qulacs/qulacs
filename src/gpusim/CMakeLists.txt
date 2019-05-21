@@ -4,6 +4,10 @@ find_package(CUDA REQUIRED)
 if(MSVC)
 	list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/wd 4819\"")
 	list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/wd 4244\"")
+	if(USE_OMP)
+		list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/openmp\"")
+		list(APPEND CUDA_NVCC_FLAGS "--default-stream per-thread")
+	endif()
 endif()
 
 file(GLOB GPUSIM_SRC

@@ -151,10 +151,11 @@ __global__ void quad_qubit_dense_matrix_gate_gpu(unsigned int target0_qubit_inde
 	}
 }
 
-__host__ void quad_qubit_dense_matrix_gate_host(unsigned int target_qubit_index[4], const CPPCTYPE matrix[256], void* state, ITYPE dim) {
+__host__ void quad_qubit_dense_matrix_gate_host(unsigned int target_qubit_index[4], const CPPCTYPE matrix[256], void* state, ITYPE dim, void* stream) {
+    cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
-	checkCudaErrors(cudaMemcpyToSymbol(matrix_const_gpu, matrix, sizeof(GTYPE)*256), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyToSymbolAsync(matrix_const_gpu, matrix, sizeof(GTYPE)*256, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
 	ITYPE loop_dim = dim >> 4;
 
 	std::sort(target_qubit_index, target_qubit_index+4);
@@ -167,7 +168,7 @@ __host__ void quad_qubit_dense_matrix_gate_host(unsigned int target_qubit_index[
         target2_qubit_index=target_qubit_index[2];
         target3_qubit_index=target_qubit_index[3];
 
-	    quad_qubit_dense_matrix_gate_gpu << <grid, block >> >(target0_qubit_index, target1_qubit_index, target2_qubit_index, target3_qubit_index, state_gpu, dim);
+	    quad_qubit_dense_matrix_gate_gpu << <grid, block, 0, *cuda_stream >> >(target0_qubit_index, target1_qubit_index, target2_qubit_index, target3_qubit_index, state_gpu, dim);
 	    
         checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	    cudaStatus = cudaGetLastError();
@@ -190,28 +191,9 @@ __host__ void quad_qubit_dense_matrix_gate_host(unsigned int target_qubit_index[
     */
 }
 
-// target qubit 0 < target qubit 1 < target qubit 2
-__global__ void triple_qubit_dense_matrix_gate_shared_gpu(unsigned int target0_qubit_index, unsigned int target1_qubit_index, unsigned int target2_qubit_index, GTYPE *state_gpu, ITYPE dim){
-	__shared__ GTYPE state_basis[1024];
-    GTYPE tmp=make_cuDoubleComplex(0.0, 0.0);
-	ITYPE loop_dim = dim >> 3;
-	ITYPE basis = blockIdx.x * blockDim.x + threadIdx.x;
-    
-	if (basis < loop_dim){
-        basis = insert_zero_to_basis_index_device(basis, target0_qubit_index );
-        basis = insert_zero_to_basis_index_device(basis, target1_qubit_index );
-        basis = insert_zero_to_basis_index_device(basis, target2_qubit_index );
-        
-        basis += (1ULL << target0_qubit_index)*((threadIdx.y)&1);
-        basis += (1ULL << target1_qubit_index)*((threadIdx.y>>1)&1);
-        basis += (1ULL << target2_qubit_index)*((threadIdx.y>>2)&1);
-        state_basis[(threadIdx.x<<3)+threadIdx.y]=state_gpu[basis];
-        __syncthreads();
-        
-        for(int y=0;y<8;++y) tmp = cuCadd(tmp, cuCmul(matrix_const_gpu[(threadIdx.y<<3) + y], state_basis[(threadIdx.x<<3)+y] ));
-
-        state_gpu[ basis ] = tmp;
-	}
+__host__ void quad_qubit_dense_matrix_gate_host(unsigned int target_qubit_index[4], const CPPCTYPE matrix[256], void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	quad_qubit_dense_matrix_gate_host(target_qubit_index, matrix, state, dim, &cuda_stream);
 }
 
 // target qubit 0 < target qubit 1 < target qubit 2
@@ -253,7 +235,8 @@ __global__ void triple_qubit_dense_matrix_gate_gpu(unsigned int target0_qubit_in
 	}
 }
 
-__host__ void triple_qubit_dense_matrix_gate_host(unsigned int target0_qubit_index, unsigned int target1_qubit_index, unsigned int target2_qubit_index, const CPPCTYPE matrix[64], void* state, ITYPE dim) {
+__host__ void triple_qubit_dense_matrix_gate_host(unsigned int target0_qubit_index, unsigned int target1_qubit_index, unsigned int target2_qubit_index, const CPPCTYPE matrix[64], void* state, ITYPE dim, void* stream) {
+    cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
 
@@ -267,16 +250,8 @@ __host__ void triple_qubit_dense_matrix_gate_host(unsigned int target0_qubit_ind
 	if(mid > large){ tmp=large; large=mid; mid=tmp;}
 	if(small > mid){ tmp=small; small=mid; mid=tmp;}
 	
-	checkCudaErrors(cudaMemcpyToSymbol(matrix_const_gpu, matrix, sizeof(GTYPE)*64), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyToSymbolAsync(matrix_const_gpu, matrix, sizeof(GTYPE)*64, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
 	
-    /*
-    ITYPE loop_dim = dim >> 3;
-    dim3 block;
-    block.y = 8;
-    block.x = loop_dim <= 128 ? loop_dim : 128;
-	unsigned int grid = loop_dim / block.x;
-    */
-
     // (not using shared memory)
     ITYPE loop_dim = dim >> 3;
 	unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
@@ -288,6 +263,11 @@ __host__ void triple_qubit_dense_matrix_gate_host(unsigned int target0_qubit_ind
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
+}
+
+__host__ void triple_qubit_dense_matrix_gate_host(unsigned int target0_qubit_index, unsigned int target1_qubit_index, unsigned int target2_qubit_index, const CPPCTYPE matrix[64], void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	triple_qubit_dense_matrix_gate_host(target0_qubit_index, target1_qubit_index, target2_qubit_index, matrix, state, dim, &cuda_stream);
 }
 
 // target1 qubit index > target0 qubit index
@@ -334,7 +314,8 @@ __global__ void double_qubit_dense_matrix_gate_gpu(unsigned int target0_qubit_in
 	}
 }
 
-__host__ void double_qubit_dense_matrix_gate_host(unsigned int target0_qubit_index, unsigned int target1_qubit_index, const CPPCTYPE matrix[16], void* state, ITYPE dim) {
+__host__ void double_qubit_dense_matrix_gate_host(unsigned int target0_qubit_index, unsigned int target1_qubit_index, const CPPCTYPE matrix[16], void* state, ITYPE dim, void* stream) {
+    cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
 	unsigned int tmp;
@@ -342,17 +323,22 @@ __host__ void double_qubit_dense_matrix_gate_host(unsigned int target0_qubit_ind
 		tmp=target1_qubit_index; target1_qubit_index=target0_qubit_index; target0_qubit_index=tmp;
 	}
 
-	checkCudaErrors(cudaMemcpyToSymbol(matrix_const_gpu, matrix, sizeof(GTYPE)*16), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyToSymbolAsync(matrix_const_gpu, matrix, sizeof(GTYPE)*16, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
 	ITYPE quad_dim = dim >> 2;
 	unsigned int block = quad_dim <= 1024 ? quad_dim : 1024;
 	unsigned int grid = quad_dim / block;
 	
-	double_qubit_dense_matrix_gate_gpu << <grid, block >> >(target0_qubit_index, target1_qubit_index, state_gpu, dim);
+	double_qubit_dense_matrix_gate_gpu << <grid, block, 0, *cuda_stream >> >(target0_qubit_index, target1_qubit_index, state_gpu, dim);
 	
     checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
+}
+
+__host__ void double_qubit_dense_matrix_gate_host(unsigned int target0_qubit_index, unsigned int target1_qubit_index, const CPPCTYPE matrix[16], void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	double_qubit_dense_matrix_gate_host(target0_qubit_index, target1_qubit_index, matrix, state, dim, &cuda_stream);
 }
 
 // multi_qubit_PauliZ_gate
@@ -431,11 +417,6 @@ __host__ void multi_qubit_Pauli_gate_XZ_mask_host(ITYPE bit_flip_mask, ITYPE pha
 	state = reinterpret_cast<void*>(state_gpu);
 }
 
-/*
-const CPPCTYPE PHASE_90ROT[4] = {1., 1.i, -1, -1.i};
-const CPPCTYPE PHASE_M90ROT[4] = { 1., -1.i, -1, 1.i };
-*/
-
 __device__ void multi_qubit_Pauli_rotation_gate_XZ_mask_device(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count, UINT pivot_qubit_index, double angle, GTYPE* state_gpu, ITYPE dim){
 	ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x;
 	// loop varaibles
@@ -474,18 +455,24 @@ __global__ void multi_qubit_Pauli_rotation_gate_XZ_mask_gpu(ITYPE bit_flip_mask,
 	multi_qubit_Pauli_rotation_gate_XZ_mask_device(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, angle, state_gpu, dim);
 }
 
-__host__ void multi_qubit_Pauli_rotation_gate_XZ_mask_host(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count, UINT pivot_qubit_index, double angle, void* state, ITYPE dim){
+__host__ void multi_qubit_Pauli_rotation_gate_XZ_mask_host(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count, UINT pivot_qubit_index, double angle, void* state, ITYPE dim, void* stream){
+    cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
 	unsigned int block = dim <= 1024 ? dim : 1024;
 	unsigned int grid = dim / block;
 	
-	multi_qubit_Pauli_rotation_gate_XZ_mask_gpu<< <grid, block >> >(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, angle, state_gpu, dim);
+	multi_qubit_Pauli_rotation_gate_XZ_mask_gpu<< <grid, block, 0, *cuda_stream >> >(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, angle, state_gpu, dim);
     
     checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
+}
+
+__host__ void multi_qubit_Pauli_rotation_gate_XZ_mask_host(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count, UINT pivot_qubit_index, double angle, void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	multi_qubit_Pauli_rotation_gate_XZ_mask_host(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, angle, state, dim, &cuda_stream);
 }
 
 __device__ void multi_qubit_Pauli_rotation_gate_Z_mask_device(ITYPE phase_flip_mask, double angle, GTYPE* state_gpu, ITYPE dim){
@@ -510,18 +497,24 @@ __global__ void multi_qubit_Pauli_rotation_gate_Z_mask_gpu(ITYPE phase_flip_mask
 	multi_qubit_Pauli_rotation_gate_Z_mask_device(phase_flip_mask, angle, state_gpu, dim);
 }
 
-__host__ void multi_qubit_Pauli_rotation_gate_Z_mask_host(ITYPE phase_flip_mask, double angle, void* state, ITYPE dim){
+__host__ void multi_qubit_Pauli_rotation_gate_Z_mask_host(ITYPE phase_flip_mask, double angle, void* state, ITYPE dim, void* stream){
+    cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
 	unsigned int block = dim <= 1024 ? dim : 1024;
 	unsigned int grid = dim / block;
 	
-	multi_qubit_Pauli_rotation_gate_Z_mask_gpu<< <grid, block >> >(phase_flip_mask, angle, state_gpu, dim);
+	multi_qubit_Pauli_rotation_gate_Z_mask_gpu<< <grid, block, 0, *cuda_stream >> >(phase_flip_mask, angle, state_gpu, dim);
 	
     checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
+}
+
+__host__ void multi_qubit_Pauli_rotation_gate_Z_mask_host(ITYPE phase_flip_mask, double angle, void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	multi_qubit_Pauli_rotation_gate_Z_mask_host(phase_flip_mask, angle, state, dim, &cuda_stream);
 }
 
 __host__ void multi_qubit_Pauli_gate_partial_list_host(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, void* state, ITYPE dim){
@@ -554,7 +547,7 @@ __host__ void multi_qubit_Pauli_gate_whole_list_host(const UINT* Pauli_operator_
 	 }
  } 
 
-__host__ void multi_qubit_Pauli_rotation_gate_partial_list_host(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, double angle, void* state, ITYPE dim){
+__host__ void multi_qubit_Pauli_rotation_gate_partial_list_host(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, double angle, void* state, ITYPE dim, void* stream){
 	 // create pauli mask and call function
 	ITYPE bit_flip_mask = 0;
 	ITYPE phase_flip_mask = 0;
@@ -563,12 +556,44 @@ __host__ void multi_qubit_Pauli_rotation_gate_partial_list_host(const UINT* targ
 	get_Pauli_masks_partial_list_gsim(target_qubit_index_list, Pauli_operator_type_list, target_qubit_index_count,
 		&bit_flip_mask, &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
 	if(bit_flip_mask == 0){
-		multi_qubit_Pauli_rotation_gate_Z_mask_host(phase_flip_mask, angle, state, dim);
+		multi_qubit_Pauli_rotation_gate_Z_mask_host(phase_flip_mask, angle, state, dim, stream);
 	}else{
-		multi_qubit_Pauli_rotation_gate_XZ_mask_host(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index,angle, state, dim);
+		multi_qubit_Pauli_rotation_gate_XZ_mask_host(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index,angle, state, dim, stream);
 	}
 }
- 
+
+__host__ void multi_qubit_Pauli_rotation_gate_partial_list_host(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, double angle, void* state, ITYPE dim) {
+	// create pauli mask and call function
+	ITYPE bit_flip_mask = 0;
+	ITYPE phase_flip_mask = 0;
+	UINT global_phase_90rot_count = 0;
+	UINT pivot_qubit_index = 0;
+	get_Pauli_masks_partial_list_gsim(target_qubit_index_list, Pauli_operator_type_list, target_qubit_index_count,
+		&bit_flip_mask, &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
+	if (bit_flip_mask == 0) {
+		multi_qubit_Pauli_rotation_gate_Z_mask_host(phase_flip_mask, angle, state, dim);
+	}
+	else {
+		multi_qubit_Pauli_rotation_gate_XZ_mask_host(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, angle, state, dim);
+	}
+}
+
+__host__ void multi_qubit_Pauli_rotation_gate_whole_list_host(const UINT* Pauli_operator_type_list, UINT qubit_count, double angle, void* state, ITYPE dim, void* stream) {
+	// create pauli mask and call function
+	ITYPE bit_flip_mask = 0;
+	ITYPE phase_flip_mask = 0;
+	UINT global_phase_90rot_count = 0;
+	UINT pivot_qubit_index = 0;
+	get_Pauli_masks_whole_list_gsim(Pauli_operator_type_list, qubit_count,
+		&bit_flip_mask, &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
+	if (bit_flip_mask == 0) {
+		multi_qubit_Pauli_rotation_gate_Z_mask_host(phase_flip_mask, angle, state, dim, stream);
+	}
+	else {
+		multi_qubit_Pauli_rotation_gate_XZ_mask_host(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, angle, state, dim, stream);
+	}
+}
+
 __host__ void multi_qubit_Pauli_rotation_gate_whole_list_host(const UINT* Pauli_operator_type_list, UINT qubit_count, double angle, void* state, ITYPE dim){
 	// create pauli mask and call function
 	ITYPE bit_flip_mask = 0;
@@ -706,13 +731,65 @@ __global__ void multi_qubit_dense_matrix_gate_gpu(UINT target_qubit_index_count,
     }
 }
 
-__host__ void multi_qubit_dense_matrix_gate_11qubit_host(UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim){
+__host__ void multi_qubit_dense_matrix_gate_small_qubit_host(UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim, void* stream) {
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+	cudaError cudaStatus;
+
+	// matrix dim, mask, buffer
+	ITYPE matrix_dim = 1ULL << target_qubit_index_count;
+
+	// insert index
+	UINT* h_sorted_insert_index_list = create_sorted_ui_list_gsim(target_qubit_index_list, target_qubit_index_count);
+
+	// loop variables
+	ITYPE loop_dim = dim >> target_qubit_index_count;
+
+	GTYPE* matrix_gpu;
+
+	unsigned int max_block_size = 1024 / matrix_dim;
+	dim3 block;
+	block.y = matrix_dim;
+	block.x = loop_dim <= max_block_size ? loop_dim : max_block_size;
+	unsigned int grid = loop_dim / block.x;
+
+	if (target_qubit_index_count <= 5) {
+		checkCudaErrors(cudaMemcpyToSymbolAsync(matrix_const_gpu, matrix, sizeof(GTYPE)*matrix_dim*matrix_dim, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+		checkCudaErrors(cudaMemcpyToSymbolAsync(sorted_insert_index_list_gpu, h_sorted_insert_index_list, sizeof(UINT)*target_qubit_index_count, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+
+		multi_qubit_dense_matrix_gate_shared_gpu << <grid, block, 0, *cuda_stream >> > (target_qubit_index_count, state_gpu, dim);
+	}
+	else if (target_qubit_index_count <= 10) {
+		checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&matrix_gpu), matrix_dim *matrix_dim * sizeof(GTYPE)), __FILE__, __LINE__);
+		checkCudaErrors(cudaMemcpyAsync(matrix_gpu, matrix, matrix_dim *matrix_dim * sizeof(GTYPE), cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+		checkCudaErrors(cudaMemcpyToSymbolAsync(sorted_insert_index_list_gpu, h_sorted_insert_index_list, sizeof(UINT)*target_qubit_index_count, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+
+		multi_qubit_dense_matrix_gate_shared_gpu << <grid, block, 0, *cuda_stream >> > (target_qubit_index_count, matrix_gpu, state_gpu, dim);
+	}
+	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+
+	// Check for any errors launching the kernel
+	cudaStatus = cudaGetLastError();
+	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
+
+	if (target_qubit_index_count > 5) cudaFree(matrix_gpu);
+	free((UINT*)h_sorted_insert_index_list);
+
+	state = reinterpret_cast<void*>(state_gpu);
+}
+
+__host__ void multi_qubit_dense_matrix_gate_small_qubit_host(UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	multi_qubit_dense_matrix_gate_small_qubit_host(target_qubit_index_list, target_qubit_index_count, matrix, state, dim, cuda_stream);
+}
+
+__host__ void multi_qubit_dense_matrix_gate_11qubit_host(UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim, void* stream){
+    cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
 
 	// matrix dim, mask, buffer
     ITYPE matrix_dim = 1ULL << target_qubit_index_count;
-
     UINT* h_sorted_insert_index_list = create_sorted_ui_list_gsim(target_qubit_index_list, target_qubit_index_count);
     
     // loop variables
@@ -727,10 +804,10 @@ __host__ void multi_qubit_dense_matrix_gate_11qubit_host(UINT* target_qubit_inde
     unsigned int grid = dim / block.x / block.y;
 
     checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&matrix_gpu), matrix_dim *matrix_dim * sizeof(GTYPE) ), __FILE__, __LINE__);
-    checkCudaErrors(cudaMemcpy(matrix_gpu, matrix, matrix_dim *matrix_dim * sizeof(GTYPE), cudaMemcpyHostToDevice), __FILE__, __LINE__);
-    checkCudaErrors(cudaMemcpyToSymbol(sorted_insert_index_list_gpu, h_sorted_insert_index_list, sizeof(UINT)*target_qubit_index_count), __FILE__, __LINE__);
+    checkCudaErrors(cudaMemcpyAsync(matrix_gpu, matrix, matrix_dim *matrix_dim * sizeof(GTYPE), cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+    checkCudaErrors(cudaMemcpyToSymbolAsync(sorted_insert_index_list_gpu, h_sorted_insert_index_list, sizeof(UINT)*target_qubit_index_count, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
             
-    multi_qubit_dense_matrix_gate_half_shared_gpu << <grid, block >> >(target_qubit_index_count, matrix_gpu, state_gpu, dim);
+    multi_qubit_dense_matrix_gate_half_shared_gpu << <grid, block, 0, *cuda_stream >> >(target_qubit_index_count, matrix_gpu, state_gpu, dim);
     
     checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
     checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
@@ -740,8 +817,14 @@ __host__ void multi_qubit_dense_matrix_gate_11qubit_host(UINT* target_qubit_inde
     state = reinterpret_cast<void*>(state_gpu);
 }
 
-__host__ void multi_qubit_dense_matrix_gate_more_than_11qubit_host(UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim){
-    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+__host__ void multi_qubit_dense_matrix_gate_11qubit_host(UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	multi_qubit_dense_matrix_gate_11qubit_host(target_qubit_index_list, target_qubit_index_count, matrix, state, dim, &cuda_stream);
+}
+
+__host__ void multi_qubit_dense_matrix_gate_more_than_11qubit_host(UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim, void* stream){
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
 
 	// matrix dim, mask, buffer
@@ -762,11 +845,11 @@ __host__ void multi_qubit_dense_matrix_gate_more_than_11qubit_host(UINT* target_
     
     GTYPE* state_gpu_copy;
     checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&matrix_gpu), matrix_dim *matrix_dim * sizeof(GTYPE) ), __FILE__, __LINE__);
-    checkCudaErrors(cudaMemcpy(matrix_gpu, matrix, matrix_dim *matrix_dim * sizeof(GTYPE), cudaMemcpyHostToDevice), __FILE__, __LINE__);
-    checkCudaErrors(cudaMemcpyToSymbol(sorted_insert_index_list_gpu, h_sorted_insert_index_list, sizeof(UINT)*target_qubit_index_count), __FILE__, __LINE__);
+    checkCudaErrors(cudaMemcpyAsync(matrix_gpu, matrix, matrix_dim *matrix_dim * sizeof(GTYPE), cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+    checkCudaErrors(cudaMemcpyToSymbolAsync(sorted_insert_index_list_gpu, h_sorted_insert_index_list, sizeof(UINT)*target_qubit_index_count, 0,cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
     checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&state_gpu_copy), dim * sizeof(GTYPE) ), __FILE__, __LINE__);
-    checkCudaErrors(cudaMemcpy(state_gpu_copy, state_gpu, dim * sizeof(GTYPE), cudaMemcpyDeviceToDevice), __FILE__, __LINE__);
-    checkCudaErrors(cudaMemsetAsync(state_gpu, 0, dim * sizeof(GTYPE)), __FILE__, __LINE__);
+    checkCudaErrors(cudaMemcpyAsync(state_gpu_copy, state_gpu, dim * sizeof(GTYPE), cudaMemcpyDeviceToDevice, *cuda_stream), __FILE__, __LINE__);
+    checkCudaErrors(cudaMemsetAsync(state_gpu, 0, dim * sizeof(GTYPE), *cuda_stream), __FILE__, __LINE__);
     
     multi_qubit_dense_matrix_gate_gpu<<< grid, block >>>(target_qubit_index_count, matrix_gpu, state_gpu, state_gpu_copy, dim);
     
@@ -779,65 +862,57 @@ __host__ void multi_qubit_dense_matrix_gate_more_than_11qubit_host(UINT* target_
     state = reinterpret_cast<void*>(state_gpu);
 }
 
-__host__ void multi_qubit_dense_matrix_gate_host(UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim){
+__host__ void multi_qubit_dense_matrix_gate_host(UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim, void* stream) {
 	if (target_qubit_index_count == 1) {
-        single_qubit_dense_matrix_gate_host(target_qubit_index_list[0], matrix, state, dim);
-    } else if (target_qubit_index_count == 2) {
-        double_qubit_dense_matrix_gate_host(target_qubit_index_list[0], target_qubit_index_list[1], matrix, state, dim);
-    } else if (target_qubit_index_count == 3) {
-        triple_qubit_dense_matrix_gate_host(target_qubit_index_list[0], target_qubit_index_list[1], target_qubit_index_list[2], matrix, state, dim);
-    } else if (target_qubit_index_count == 4){
-        UINT target_qubit_index_list_copy[4];
-        for(int i=0;i<4;++i) target_qubit_index_list_copy[i] = target_qubit_index_list[i];
-        quad_qubit_dense_matrix_gate_host(target_qubit_index_list_copy, matrix, state, dim);
-    } else if(target_qubit_index_count==11){
-        multi_qubit_dense_matrix_gate_11qubit_host(target_qubit_index_list, target_qubit_index_count, matrix, state, dim);
-    } else if(target_qubit_index_count>=12){
-        multi_qubit_dense_matrix_gate_more_than_11qubit_host(target_qubit_index_list, target_qubit_index_count, matrix, state, dim);
-    } else {
-    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-	cudaError cudaStatus;
+		single_qubit_dense_matrix_gate_host(target_qubit_index_list[0], matrix, state, dim, &stream);
+	}
+	else if (target_qubit_index_count == 2) {
+		double_qubit_dense_matrix_gate_host(target_qubit_index_list[0], target_qubit_index_list[1], matrix, state, dim, &stream);
+	}
+	else if (target_qubit_index_count == 3) {
+		triple_qubit_dense_matrix_gate_host(target_qubit_index_list[0], target_qubit_index_list[1], target_qubit_index_list[2], matrix, state, dim, &stream);
+	}
+	else if (target_qubit_index_count == 4) {
+		UINT target_qubit_index_list_copy[4];
+		for (int i = 0; i < 4; ++i) target_qubit_index_list_copy[i] = target_qubit_index_list[i];
+		quad_qubit_dense_matrix_gate_host(target_qubit_index_list_copy, matrix, state, dim, &stream);
+	}
+	else if (target_qubit_index_count == 11) {
+		multi_qubit_dense_matrix_gate_11qubit_host(target_qubit_index_list, target_qubit_index_count, matrix, state, dim,&stream);
+	}
+	else if (target_qubit_index_count >= 12) {
+		multi_qubit_dense_matrix_gate_more_than_11qubit_host(target_qubit_index_list, target_qubit_index_count, matrix, state, dim, &stream);
+	}
+	else {
+		multi_qubit_dense_matrix_gate_small_qubit_host(target_qubit_index_list, target_qubit_index_count, matrix, state, dim, &stream);
+	}
+}
 
-	// matrix dim, mask, buffer
-    ITYPE matrix_dim = 1ULL << target_qubit_index_count;
-
-    // insert index
-    UINT* h_sorted_insert_index_list = create_sorted_ui_list_gsim(target_qubit_index_list, target_qubit_index_count);
-
-    // loop variables
-	ITYPE loop_dim = dim >> target_qubit_index_count;
-	
-    GTYPE* matrix_gpu;
-    
-    unsigned int max_block_size = 1024 / matrix_dim;
-    dim3 block;
-    block.y = matrix_dim;
-    block.x = loop_dim <= max_block_size ? loop_dim : max_block_size;
-    unsigned int grid = loop_dim / block.x;
-    
-    if(target_qubit_index_count<=5){
-        checkCudaErrors(cudaMemcpyToSymbol(matrix_const_gpu, matrix, sizeof(GTYPE)*matrix_dim*matrix_dim), __FILE__, __LINE__);
-        checkCudaErrors(cudaMemcpyToSymbol(sorted_insert_index_list_gpu, h_sorted_insert_index_list, sizeof(UINT)*target_qubit_index_count), __FILE__, __LINE__);
-        
-        multi_qubit_dense_matrix_gate_shared_gpu << <grid, block >> >(target_qubit_index_count, state_gpu, dim);
-    }else if(target_qubit_index_count<=10){
-        checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&matrix_gpu), matrix_dim *matrix_dim * sizeof(GTYPE) ), __FILE__, __LINE__);
-        checkCudaErrors(cudaMemcpy(matrix_gpu, matrix, matrix_dim *matrix_dim * sizeof(GTYPE), cudaMemcpyHostToDevice), __FILE__, __LINE__);
-        checkCudaErrors(cudaMemcpyToSymbol(sorted_insert_index_list_gpu, h_sorted_insert_index_list, sizeof(UINT)*target_qubit_index_count), __FILE__, __LINE__);
-            
-        multi_qubit_dense_matrix_gate_shared_gpu << <grid, block >> >(target_qubit_index_count, matrix_gpu, state_gpu, dim);
-    }
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
-    
-    // Check for any errors launching the kernel
-    cudaStatus = cudaGetLastError();
-    checkCudaErrors(cudaStatus, __FILE__, __LINE__);
-    
-    if(target_qubit_index_count>5) cudaFree(matrix_gpu);
-    free((UINT*)h_sorted_insert_index_list);
-	
-    state = reinterpret_cast<void*>(state_gpu);
-    }
+__host__ void multi_qubit_dense_matrix_gate_host(UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	if (target_qubit_index_count == 1) {
+		single_qubit_dense_matrix_gate_host(target_qubit_index_list[0], matrix, state, dim, &cuda_stream);
+	}
+	else if (target_qubit_index_count == 2) {
+		double_qubit_dense_matrix_gate_host(target_qubit_index_list[0], target_qubit_index_list[1], matrix, state, dim, &cuda_stream);
+	}
+	else if (target_qubit_index_count == 3) {
+		triple_qubit_dense_matrix_gate_host(target_qubit_index_list[0], target_qubit_index_list[1], target_qubit_index_list[2], matrix, state, dim, &cuda_stream);
+	}
+	else if (target_qubit_index_count == 4) {
+		UINT target_qubit_index_list_copy[4];
+		for (int i = 0; i < 4; ++i) target_qubit_index_list_copy[i] = target_qubit_index_list[i];
+		quad_qubit_dense_matrix_gate_host(target_qubit_index_list_copy, matrix, state, dim, &cuda_stream);
+	}
+	else if (target_qubit_index_count == 11) {
+		multi_qubit_dense_matrix_gate_11qubit_host(target_qubit_index_list, target_qubit_index_count, matrix, state, dim, &cuda_stream);
+	}
+	else if (target_qubit_index_count >= 12) {
+		multi_qubit_dense_matrix_gate_more_than_11qubit_host(target_qubit_index_list, target_qubit_index_count, matrix, state, dim, &cuda_stream);
+	}
+	else {
+		multi_qubit_dense_matrix_gate_small_qubit_host(target_qubit_index_list, target_qubit_index_count, matrix, state, dim, &cuda_stream);
+	}
 }
 
 // target_qubit_index_count <= 5
@@ -920,7 +995,8 @@ __global__ void single_qubit_control_multi_qubit_dense_matrix_gate_const_gpu(UIN
     }
 }
 
-__host__ void single_qubit_control_multi_qubit_dense_matrix_gate_host(UINT control_qubit_index, UINT control_value, const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim) {
+__host__ void single_qubit_control_multi_qubit_dense_matrix_gate_host(UINT control_qubit_index, UINT control_value, const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim, void* stream) {
+    cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
     // matrix dim, mask, buffer
@@ -949,18 +1025,18 @@ __host__ void single_qubit_control_multi_qubit_dense_matrix_gate_host(UINT contr
         grid = loop_dim / block;
         
         if(target_qubit_index_count<=5){
-		    checkCudaErrors(cudaMemcpyToSymbol(matrix_const_gpu, matrix, sizeof(GTYPE)*matrix_dim*matrix_dim), __FILE__, __LINE__);
-		    checkCudaErrors(cudaMemcpyToSymbol(d_matrix_mask_list, matrix_mask_list, sizeof(ITYPE)*matrix_dim), __FILE__, __LINE__);
-		    checkCudaErrors(cudaMemcpyToSymbol(d_sorted_insert_index_list, sorted_insert_index_list, sizeof(UINT)*matrix_dim), __FILE__, __LINE__);
+		    checkCudaErrors(cudaMemcpyToSymbolAsync(matrix_const_gpu, matrix, sizeof(GTYPE)*matrix_dim*matrix_dim, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+		    checkCudaErrors(cudaMemcpyToSymbolAsync(d_matrix_mask_list, matrix_mask_list, sizeof(ITYPE)*matrix_dim, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+		    checkCudaErrors(cudaMemcpyToSymbolAsync(d_sorted_insert_index_list, sorted_insert_index_list, sizeof(UINT)*matrix_dim, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
 
-            single_qubit_control_multi_qubit_dense_matrix_gate_const_gpu<<< grid, block >>> (control_qubit_index, control_value, target_qubit_index_count, state_gpu, dim);
+            single_qubit_control_multi_qubit_dense_matrix_gate_const_gpu<<< grid, block, 0, *cuda_stream >>> (control_qubit_index, control_value, target_qubit_index_count, state_gpu, dim);
         }else{
 		    checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_matrix), matrix_dim *matrix_dim * sizeof(GTYPE) ), __FILE__, __LINE__);
-		    checkCudaErrors(cudaMemcpy(d_matrix, matrix, matrix_dim *matrix_dim * sizeof(GTYPE), cudaMemcpyHostToDevice), __FILE__, __LINE__);
-		    checkCudaErrors(cudaMemcpyToSymbol(d_matrix_mask_list, matrix_mask_list, sizeof(ITYPE)*matrix_dim), __FILE__, __LINE__);
-		    checkCudaErrors(cudaMemcpyToSymbol(d_sorted_insert_index_list, sorted_insert_index_list, sizeof(UINT)*matrix_dim), __FILE__, __LINE__);
+		    checkCudaErrors(cudaMemcpyAsync(d_matrix, matrix, matrix_dim *matrix_dim * sizeof(GTYPE), cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+		    checkCudaErrors(cudaMemcpyToSymbolAsync(d_matrix_mask_list, matrix_mask_list, sizeof(ITYPE)*matrix_dim, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+		    checkCudaErrors(cudaMemcpyToSymbolAsync(d_sorted_insert_index_list, sorted_insert_index_list, sizeof(UINT)*matrix_dim, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
 		    
-            single_qubit_control_multi_qubit_dense_matrix_gate_const_gpu<<< grid, block >>> (control_qubit_index, control_value, target_qubit_index_count, d_matrix, state_gpu, dim);
+            single_qubit_control_multi_qubit_dense_matrix_gate_const_gpu<<< grid, block, 0, *cuda_stream >>> (control_qubit_index, control_value, target_qubit_index_count, d_matrix, state_gpu, dim);
         }
 	}else{
         printf("The max number of targets is limited to 10.");
@@ -980,6 +1056,10 @@ __host__ void single_qubit_control_multi_qubit_dense_matrix_gate_host(UINT contr
     state = reinterpret_cast<void*>(state_gpu);
 }
 
+__host__ void single_qubit_control_multi_qubit_dense_matrix_gate_host(UINT control_qubit_index, UINT control_value, const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	single_qubit_control_multi_qubit_dense_matrix_gate_host(control_qubit_index, control_value, target_qubit_index_list, target_qubit_index_count, matrix, state, dim, &cuda_stream);
+}
 // target_qubit_index_count <= 5
 __global__ void multi_qubit_control_multi_qubit_dense_matrix_gate_const_gpu(ITYPE control_mask, UINT target_qubit_index_count, ITYPE control_qubit_index_count, GTYPE* state, ITYPE dim) {
 
@@ -1058,8 +1138,9 @@ __global__ void multi_qubit_control_multi_qubit_dense_matrix_gate_const_gpu(ITYP
     }
 }
 
-__host__ void multi_qubit_control_multi_qubit_dense_matrix_gate_host(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim) {
-    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+__host__ void multi_qubit_control_multi_qubit_dense_matrix_gate_host(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim, void* stream) {
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*> (stream);
+	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaError cudaStatus;
 
     // matrix dim, mask, buffer
@@ -1090,18 +1171,18 @@ __host__ void multi_qubit_control_multi_qubit_dense_matrix_gate_host(const UINT*
         grid = loop_dim / block;
         
         if(target_qubit_index_count<=5){
-		    checkCudaErrors(cudaMemcpyToSymbol(matrix_const_gpu, matrix, sizeof(GTYPE)*matrix_dim*matrix_dim), __FILE__, __LINE__);
-		    checkCudaErrors(cudaMemcpyToSymbol(d_matrix_mask_list, matrix_mask_list, sizeof(ITYPE)*matrix_dim), __FILE__, __LINE__);
-		    checkCudaErrors(cudaMemcpyToSymbol(d_sorted_insert_index_list, sorted_insert_index_list, sizeof(UINT)*matrix_dim), __FILE__, __LINE__);
+		    checkCudaErrors(cudaMemcpyToSymbolAsync(matrix_const_gpu, matrix, sizeof(GTYPE)*matrix_dim*matrix_dim, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+		    checkCudaErrors(cudaMemcpyToSymbolAsync(d_matrix_mask_list, matrix_mask_list, sizeof(ITYPE)*matrix_dim, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+		    checkCudaErrors(cudaMemcpyToSymbolAsync(d_sorted_insert_index_list, sorted_insert_index_list, sizeof(UINT)*matrix_dim, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
 
-            multi_qubit_control_multi_qubit_dense_matrix_gate_const_gpu<<< grid, block >>> (control_mask, target_qubit_index_count, control_qubit_index_count, state_gpu, dim);
+            multi_qubit_control_multi_qubit_dense_matrix_gate_const_gpu<<< grid, block, 0, *cuda_stream >>> (control_mask, target_qubit_index_count, control_qubit_index_count, state_gpu, dim);
         }else{
 		    checkCudaErrors(cudaMalloc(reinterpret_cast<void **>(&d_matrix), matrix_dim *matrix_dim * sizeof(GTYPE) ), __FILE__, __LINE__);
-		    checkCudaErrors(cudaMemcpy(d_matrix, matrix, matrix_dim *matrix_dim * sizeof(GTYPE), cudaMemcpyHostToDevice), __FILE__, __LINE__);
-		    checkCudaErrors(cudaMemcpyToSymbol(d_matrix_mask_list, matrix_mask_list, sizeof(ITYPE)*matrix_dim), __FILE__, __LINE__);
-		    checkCudaErrors(cudaMemcpyToSymbol(d_sorted_insert_index_list, sorted_insert_index_list, sizeof(UINT)*matrix_dim), __FILE__, __LINE__);
+		    checkCudaErrors(cudaMemcpyAsync(d_matrix, matrix, matrix_dim *matrix_dim * sizeof(GTYPE), cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+		    checkCudaErrors(cudaMemcpyToSymbolAsync(d_matrix_mask_list, matrix_mask_list, sizeof(ITYPE)*matrix_dim, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+		    checkCudaErrors(cudaMemcpyToSymbolAsync(d_sorted_insert_index_list, sorted_insert_index_list, sizeof(UINT)*matrix_dim, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
 		    
-            multi_qubit_control_multi_qubit_dense_matrix_gate_const_gpu<<< grid, block >>> (control_mask, target_qubit_index_count, control_qubit_index_count, d_matrix, state_gpu, dim);
+            multi_qubit_control_multi_qubit_dense_matrix_gate_const_gpu<<< grid, block, 0, *cuda_stream >>> (control_mask, target_qubit_index_count, control_qubit_index_count, d_matrix, state_gpu, dim);
         }
 	}else{
         printf("The max number of targets is limited to 10.");
@@ -1121,3 +1202,7 @@ __host__ void multi_qubit_control_multi_qubit_dense_matrix_gate_host(const UINT*
     state = reinterpret_cast<void*>(state_gpu);
 }
 
+__host__ void multi_qubit_control_multi_qubit_dense_matrix_gate_host(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	multi_qubit_control_multi_qubit_dense_matrix_gate_host(control_qubit_index_list, control_value_list, control_qubit_index_count, target_qubit_index_list, target_qubit_index_count, matrix, state, dim, &cuda_stream);
+}

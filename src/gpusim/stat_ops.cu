@@ -17,6 +17,7 @@
 #include "util.cuh"
 #include "update_ops_cuda.h"
 #include "stat_ops.h"
+#include "stat_ops_device_functions.h"
 
 __constant__ GTYPE matrix_const_gpu[4];
 __constant__ unsigned int num_pauli_op_gpu[4];
@@ -110,24 +111,25 @@ __host__ double state_norm_cublas_host(void *state, ITYPE dim) {
     return norm;
 }
 
-__host__ double state_norm_host(void *state, ITYPE dim) {
-    cudaError_t cudaStatus;
-    double norm=0.0;
-    double* norm_gpu;
+__host__ double state_norm_host(void *state, ITYPE dim, void* stream) {
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+	cudaError_t cudaStatus;
+	double norm = 0.0;
+	double* norm_gpu;
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 
 	checkCudaErrors(cudaMalloc((void**)&norm_gpu, sizeof(double)), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemsetAsync(norm_gpu, 0, sizeof(double)), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemsetAsync(norm_gpu, 0, sizeof(double), *cuda_stream), __FILE__, __LINE__);
 
-    ITYPE loop_dim;
-    if(dim<=32) loop_dim=dim;
-    else if(dim <= 12) loop_dim = dim >> 2;
-    else loop_dim = dim >> 5;
+	ITYPE loop_dim;
+	if (dim <= 32) loop_dim = dim;
+	else if (dim <= 4096) loop_dim = dim >> 2;
+	else loop_dim = dim >> 5;
 
 	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
 	unsigned int grid = loop_dim / block;
-    
-    state_norm_gpu <<< grid, block >>>(norm_gpu, state_gpu, dim);
+
+	state_norm_gpu << < grid, block, 0, *cuda_stream >> > (norm_gpu, state_gpu, dim);
 
 	// Check for any errors launching the kernel
 	cudaStatus = cudaGetLastError();
@@ -138,7 +140,13 @@ __host__ double state_norm_host(void *state, ITYPE dim) {
 
 	checkCudaErrors(cudaFree(norm_gpu), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
-    return sqrt(norm);
+	stream = reinterpret_cast<void*>(cuda_stream);
+	return sqrt(norm);
+}
+
+__host__ double state_norm_host(void *state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	return state_norm_host(state, dim, &cuda_stream);
 }
 
 __global__ void measurement_distribution_entropy_gpu(double* ret, const GTYPE *state, ITYPE dim){
@@ -159,36 +167,43 @@ __global__ void measurement_distribution_entropy_gpu(double* ret, const GTYPE *s
 	}
 }
 
-__host__ double measurement_distribution_entropy_host(void* state, ITYPE dim){
+__host__ double measurement_distribution_entropy_host(void* state, ITYPE dim, void* stream) {
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError_t cudaStatus;
-    double ent;
-    double* ent_gpu;
+	double ent;
+	double* ent_gpu;
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 
 	checkCudaErrors(cudaMalloc((void**)&ent_gpu, sizeof(double)), __FILE__, __LINE__);
-    checkCudaErrors(cudaMemsetAsync(ent_gpu, 0, sizeof(double)), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemsetAsync(ent_gpu, 0, sizeof(double), *cuda_stream), __FILE__, __LINE__);
 
-    ITYPE loop_dim;
-    if(dim<=32) loop_dim=dim;
-    else if(dim <= 12) loop_dim = dim >> 2;
-    else loop_dim = dim >> 5;
+	ITYPE loop_dim;
+	if (dim <= 32) loop_dim = dim;
+	else if (dim <= 4096) loop_dim = dim >> 2;
+	else loop_dim = dim >> 5;
 
 	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
 	unsigned int grid = loop_dim / block;
-    
-    measurement_distribution_entropy_gpu << <grid, block >> >(ent_gpu, state_gpu, dim);
-	
+
+	measurement_distribution_entropy_gpu << <grid, block, 0, *cuda_stream >> > (ent_gpu, state_gpu, dim);
+
 	// Check for any errors launching the kernel
 	cudaStatus = cudaGetLastError();
 
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(&ent, ent_gpu, sizeof(double), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyAsync(&ent, ent_gpu, sizeof(double), cudaMemcpyDeviceToHost, *cuda_stream), __FILE__, __LINE__);
 
 	checkCudaErrors(cudaFree(ent_gpu), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
-    
-    return ent;
+	//stream = reinterpret_cast<void*>(cuda_stream);
+
+	return ent;
+}
+
+__host__ double measurement_distribution_entropy_host(void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	return measurement_distribution_entropy_host(state, dim, &cuda_stream);
 }
 
 __global__ void state_add_gpu(const GTYPE *state_added, GTYPE *state, ITYPE dim) {
@@ -201,22 +216,29 @@ __global__ void state_add_gpu(const GTYPE *state_added, GTYPE *state, ITYPE dim)
     }
 }
 
-__host__ void state_add_host(void *state_added, void *state, ITYPE dim) {
+__host__ void state_add_host(void *state_added, void *state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	GTYPE* state_added_gpu = reinterpret_cast<GTYPE*>(state_added);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 
-    ITYPE loop_dim = dim;
+	ITYPE loop_dim = dim;
 
 	unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
 	unsigned int grid = loop_dim / block;
-    
-    state_add_gpu << <grid, block >> >(state_added_gpu, state_gpu, dim);
-	
+
+	state_add_gpu << <grid, block, 0, *cuda_stream >> > (state_added_gpu, state_gpu, dim);
+
 	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
 	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
 	state_added = reinterpret_cast<void*>(state_added_gpu);
-    
+	stream = reinterpret_cast<void*>(cuda_stream);
+
+}
+
+__host__ void state_add_host(void *state_added, void *state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	state_add_host(state_added, state, dim, &cuda_stream);
 }
 
 __global__ void state_multiply_gpu(const GTYPE coef, GTYPE *state, ITYPE dim) {
@@ -228,19 +250,26 @@ __global__ void state_multiply_gpu(const GTYPE coef, GTYPE *state, ITYPE dim) {
 	}
 }
 
-__host__ void state_multiply_host(CPPCTYPE coef, void *state, ITYPE dim) {
+__host__ void state_multiply_host(CPPCTYPE coef, void *state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-    ITYPE loop_dim = dim;
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+	ITYPE loop_dim = dim;
 
-    GTYPE coef_gpu = make_cuDoubleComplex(coef.real(), coef.imag());
+	GTYPE coef_gpu = make_cuDoubleComplex(coef.real(), coef.imag());
 	unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
 	unsigned int grid = loop_dim / block;
-    
-    state_multiply_gpu << <grid, block >> >(coef_gpu, state_gpu, dim);
-	
+
+	state_multiply_gpu << <grid, block, 0, *cuda_stream >> > (coef_gpu, state_gpu, dim);
+
 	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
 	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
+	stream = reinterpret_cast<void*>(cuda_stream);
+}
+
+__host__ void state_multiply_host(CPPCTYPE coef, void *state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	state_multiply_host(coef, state, dim, &cuda_stream);
 }
 
 __global__ void inner_product_gpu(GTYPE *ret, const GTYPE *psi, const GTYPE *phi, ITYPE dim){
@@ -291,40 +320,49 @@ __host__ CPPCTYPE inner_product_cublas_host(const void *bra_state, const void *k
 	return ret;
 }
 
-__host__ CPPCTYPE inner_product_host(const void *bra_state, const void *ket_state, ITYPE dim) {
-    if(dim<=INT_MAX){
-        return inner_product_cublas_host(bra_state, ket_state, dim);
-    }
-    const GTYPE* bra_state_gpu = reinterpret_cast<const GTYPE*>(bra_state);
+__host__ CPPCTYPE inner_product_host(const void *bra_state, const void *ket_state, ITYPE dim, void* stream) {
+	const GTYPE* bra_state_gpu = reinterpret_cast<const GTYPE*>(bra_state);
 	const GTYPE* ket_state_gpu = reinterpret_cast<const GTYPE*>(ket_state);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError_t cudaStatus;
-	CPPCTYPE ret=CPPCTYPE(0.0,0.0);
+	CPPCTYPE ret = CPPCTYPE(0.0, 0.0);
 	GTYPE *ret_gpu;
 
 	checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(GTYPE)), __FILE__, __LINE__);
 	checkCudaErrors(cudaMemcpy(ret_gpu, &ret, sizeof(GTYPE), cudaMemcpyHostToDevice), __FILE__, __LINE__);
 
-    ITYPE loop_dim;
-    if(dim<=32) loop_dim=dim;
-    else if(dim <= 12) loop_dim = dim >> 2;
-    else loop_dim = dim >> 5;
+	ITYPE loop_dim;
+	if (dim <= 32) loop_dim = dim;
+	else if (dim <= 4096) loop_dim = dim >> 2;
+	else loop_dim = dim >> 5;
 
 	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
 	unsigned int grid = loop_dim / block;
-    
-    inner_product_gpu << <grid, block >> >(ret_gpu, bra_state_gpu, ket_state_gpu, dim);
-	
+
+	inner_product_gpu << <grid, block, 0, *cuda_stream >> > (ret_gpu, bra_state_gpu, ket_state_gpu, dim);
+
 	// Check for any errors launching the kernel
 	cudaStatus = cudaGetLastError();
 
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(&ret, ret_gpu, sizeof(GTYPE), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyAsync(&ret, ret_gpu, sizeof(GTYPE), cudaMemcpyDeviceToHost, *cuda_stream), __FILE__, __LINE__);
 
 	checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
 	bra_state = reinterpret_cast<const void*>(bra_state_gpu);
 	ket_state = reinterpret_cast<const void*>(ket_state_gpu);
+	stream = reinterpret_cast<void*>(cuda_stream);
 	return ret;
+}
+
+__host__ CPPCTYPE inner_product_host(const void *bra_state, const void *ket_state, ITYPE dim) {
+	if (dim <= INT_MAX) {
+		return inner_product_cublas_host(bra_state, ket_state, dim);
+	}
+	else {
+		cudaStream_t cuda_stream = (cudaStream_t)0;
+		return inner_product_host(bra_state, ket_state, dim, &cuda_stream);
+	}
 }
 
 __global__ void expectation_value_PauliI_gpu(double *ret, GTYPE *state, unsigned int target_qubit_index, ITYPE dim){
@@ -396,42 +434,53 @@ __global__ void expectation_value_PauliZ_gpu(double *ret, GTYPE *state, unsigned
 	}
 }
 
-__host__ double expectation_value_single_qubit_Pauli_operator_host(unsigned int operator_index, unsigned int target_qubit_index, void *state, ITYPE dim) {
+__host__ double expectation_value_single_qubit_Pauli_operator_host(unsigned int operator_index, unsigned int target_qubit_index, void *state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-    double h_ret=0.0;
-    double* d_ret;
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+	double h_ret = 0.0;
+	double* d_ret;
 
-    // this loop_dim is not the same as that of the gpu function
-    // and the function uses grid stride loops
-    ITYPE loop_dim;
-	if(dim <= 64) loop_dim = dim>>1;
-    else if(dim <= (1ULL<<11)) loop_dim = dim >> 2;
-    else loop_dim = dim >> 5;
+	// this loop_dim is not the same as that of the gpu function
+	// and the function uses grid stride loops
+	ITYPE loop_dim;
+	if (dim <= 64) loop_dim = dim >> 1;
+	else if (dim <= (1ULL << 11)) loop_dim = dim >> 2;
+	else loop_dim = dim >> 5;
 
 
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
 	unsigned int grid = loop_dim / block;
 
 	checkCudaErrors(cudaMalloc((void**)&d_ret, sizeof(double)), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemsetAsync(d_ret, 0, sizeof(double)), __FILE__, __LINE__);
-    
-    if(operator_index==1){
-        expectation_value_PauliX_gpu<< <grid, block>> >(d_ret, state_gpu, target_qubit_index, dim);
-    }else if(operator_index==2){
-        expectation_value_PauliY_gpu<< <grid, block>> >(d_ret, state_gpu, target_qubit_index, dim);
-    }else if(operator_index==3){
-        expectation_value_PauliZ_gpu<< <grid, block>> >(d_ret, state_gpu, target_qubit_index, dim);
-    }else if(operator_index==0){
-        expectation_value_PauliI_gpu<< <grid, block>> >(d_ret, state_gpu, target_qubit_index, dim);
-    }else{
-        printf("operator_index must be an integer of 0, 1, 2, or 3!!");
-    }
+	checkCudaErrors(cudaMemsetAsync(d_ret, 0, sizeof(double), *cuda_stream), __FILE__, __LINE__);
 
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpyAsync(&h_ret, d_ret, sizeof(double), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
-    checkCudaErrors(cudaFree(d_ret), __FILE__, __LINE__);
+	if (operator_index == 1) {
+		expectation_value_PauliX_gpu << <grid, block, 0, *cuda_stream >> > (d_ret, state_gpu, target_qubit_index, dim);
+	}
+	else if (operator_index == 2) {
+		expectation_value_PauliY_gpu << <grid, block, 0, *cuda_stream >> > (d_ret, state_gpu, target_qubit_index, dim);
+	}
+	else if (operator_index == 3) {
+		expectation_value_PauliZ_gpu << <grid, block, 0, *cuda_stream >> > (d_ret, state_gpu, target_qubit_index, dim);
+	}
+	else if (operator_index == 0) {
+		expectation_value_PauliI_gpu << <grid, block, 0, *cuda_stream >> > (d_ret, state_gpu, target_qubit_index, dim);
+	}
+	else {
+		printf("operator_index must be an integer of 0, 1, 2, or 3!!");
+	}
+
+	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyAsync(&h_ret, d_ret, sizeof(double), cudaMemcpyDeviceToHost, *cuda_stream), __FILE__, __LINE__);
+	checkCudaErrors(cudaFree(d_ret), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
-    return h_ret;
+	stream = reinterpret_cast<void*>(cuda_stream);
+	return h_ret;
+}
+
+__host__ double expectation_value_single_qubit_Pauli_operator_host(unsigned int operator_index, unsigned int target_qubit_index, void *state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	return expectation_value_single_qubit_Pauli_operator_host(operator_index, target_qubit_index, state, dim, &cuda_stream);
 }
 
 __device__ void multi_Z_gate_device(ITYPE bit_mask, ITYPE DIM, GTYPE *psi_gpu)
@@ -449,6 +498,29 @@ __global__ void multi_Z_gate_gpu(ITYPE bit_mask, ITYPE DIM, GTYPE *psi_gpu)
 	multi_Z_gate_device(bit_mask, DIM, psi_gpu);
 }
 
+__host__ void multi_Z_gate_host(int* gates, void *state, ITYPE dim, int n_qubits, void* stream) {
+	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+	ITYPE bit_mask = 0;
+	for (int i = 0; i < n_qubits; ++i) {
+		if (gates[i] == 3) bit_mask ^= (1 << i);
+	}
+	cudaError_t cudaStatus;
+	unsigned int block = dim <= 1024 ? dim : 1024;
+	unsigned int grid = dim / block;
+	multi_Z_gate_gpu << <grid, block, 0, *cuda_stream >> > (bit_mask, dim, state_gpu);
+	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	cudaStatus = cudaGetLastError();
+	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
+	state = reinterpret_cast<void*>(state_gpu);
+	stream = reinterpret_cast<void*>(cuda_stream);
+}
+
+__host__ void multi_Z_gate_host(int* gates, void *state, ITYPE dim, int n_qubits) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	multi_Z_gate_host(gates, state, dim, n_qubits, cuda_stream);
+}
+/*
 __host__ void multi_Z_gate_host(int* gates, void *state, ITYPE dim, int n_qubits){
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	ITYPE bit_mask=0;
@@ -464,7 +536,7 @@ __host__ void multi_Z_gate_host(int* gates, void *state, ITYPE dim, int n_qubits
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
 }
-
+*/
 __device__ GTYPE multi_Z_get_expectation_value_device(ITYPE idx, ITYPE bit_mask, ITYPE dim, GTYPE *psi_gpu)
 {
 	GTYPE ret=make_cuDoubleComplex(0.0,0.0);
@@ -541,7 +613,61 @@ __global__ void multipauli_get_expectation_value_gpu(GTYPE* ret, ITYPE DIM, GTYP
 	}
 }
 
-__host__ double multipauli_get_expectation_value_host(unsigned int* gates, void *state, ITYPE dim, int n_qubits){
+__host__ double multipauli_get_expectation_value_host(unsigned int* gates, void *state, ITYPE dim, int n_qubits, void* stream) {
+	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+	CPPCTYPE ret[1];
+	ret[0] = CPPCTYPE(0, 0);
+	GTYPE *ret_gpu;
+
+	checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(GTYPE)), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(double), *cuda_stream), __FILE__, __LINE__);
+
+	ITYPE loop_dim;
+	if (dim <= 32) loop_dim = dim >> 1;
+	else if (dim <= (1ULL << 11)) loop_dim = dim >> 2;
+	else loop_dim = dim >> 5;
+
+	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+	unsigned int grid = loop_dim / block;
+
+	unsigned int num_pauli_op[4] = { 0, 0, 0, 0 };
+	for (int i = 0; i < n_qubits; ++i) ++num_pauli_op[gates[i]];
+	ITYPE bit_mask[4] = { 0, 0, 0, 0 };
+	for (int i = 0; i < n_qubits; ++i) {
+		bit_mask[gates[i]] ^= (1 << i);
+	}
+	if (num_pauli_op[1] == 0 && num_pauli_op[2] == 0) {
+		multi_Z_get_expectation_value_gpu << <grid, block, 0, *cuda_stream >> > (ret_gpu, bit_mask[3], dim, state_gpu);
+		checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+		checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
+		checkCudaErrors(cudaMemcpyAsync(ret, ret_gpu, sizeof(CPPCTYPE), cudaMemcpyDeviceToHost, *cuda_stream), __FILE__, __LINE__);
+		checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
+		state = reinterpret_cast<void*>(state_gpu);
+		return ret[0].real();
+	}
+
+	checkCudaErrors(cudaMemcpyToSymbolAsync(num_pauli_op_gpu, num_pauli_op, sizeof(unsigned int) * 4, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyToSymbolAsync(bit_mask_gpu, bit_mask, sizeof(ITYPE) * 4, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+
+	multipauli_get_expectation_value_gpu << <grid, block, 0, *cuda_stream >> > (ret_gpu, dim, state_gpu, n_qubits);
+
+	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyAsync(ret, ret_gpu, sizeof(CPPCTYPE), cudaMemcpyDeviceToHost, *cuda_stream), __FILE__, __LINE__);
+	checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
+	state = reinterpret_cast<void*>(state_gpu);
+	stream = reinterpret_cast<void*>(cuda_stream);
+	return ret[0].real();
+}
+
+__host__ double multipauli_get_expectation_value_host(unsigned int* gates, void *state, ITYPE dim, int n_qubits) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	return multipauli_get_expectation_value_host(gates, state, dim, n_qubits, cuda_stream);
+}
+
+/*
+__host__ double multipauli_get_expectation_value_host(unsigned int* gates, void *state, ITYPE dim, int n_qubits) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	CPPCTYPE ret[1];
 	ret[0]=CPPCTYPE(0,0);
@@ -586,7 +712,7 @@ __host__ double multipauli_get_expectation_value_host(unsigned int* gates, void 
 	state = reinterpret_cast<void*>(state_gpu);
 	return ret[0].real();
 }
-
+*/
 // calculate probability with which we obtain 0 at target qubit
 __global__ void M0_prob_gpu(double* ret, UINT target_qubit_index, const GTYPE* state, ITYPE dim){
     const ITYPE loop_dim = dim>>1;
@@ -604,31 +730,38 @@ __global__ void M0_prob_gpu(double* ret, UINT target_qubit_index, const GTYPE* s
 }
 
 // calculate probability with which we obtain 0 at target qubit
-__host__ double M0_prob_host(UINT target_qubit_index, void* state, ITYPE dim){
+__host__ double M0_prob_host(UINT target_qubit_index, void* state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-    double ret[1]={0.0};
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+	double ret[1] = { 0.0 };
 	double *ret_gpu;
 
 	checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(double)), __FILE__, __LINE__);
-    checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(double)), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(double), *cuda_stream), __FILE__, __LINE__);
 
-    ITYPE loop_dim;
-    
-    if(dim <= 64) loop_dim = dim>>1;
-    else if(dim <= (1ULL<<11)) loop_dim = dim >> 2;
-    else loop_dim = dim >> 5;
+	ITYPE loop_dim;
 
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
-    unsigned int grid = loop_dim / block;
+	if (dim <= 64) loop_dim = dim >> 1;
+	else if (dim <= (1ULL << 11)) loop_dim = dim >> 2;
+	else loop_dim = dim >> 5;
 
-    M0_prob_gpu << <grid, block >> >(ret_gpu, target_qubit_index, state_gpu, dim);
-	
+	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+	unsigned int grid = loop_dim / block;
+
+	M0_prob_gpu << <grid, block, 0, *cuda_stream >> > (ret_gpu, target_qubit_index, state_gpu, dim);
+
 	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(ret, ret_gpu, sizeof(double), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyAsync(ret, ret_gpu, sizeof(double), cudaMemcpyDeviceToHost, *cuda_stream), __FILE__, __LINE__);
 	checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
+	stream = reinterpret_cast<void*>(cuda_stream);
 	return ret[0];
+}
+
+__host__ double M0_prob_host(UINT target_qubit_index, void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	return M0_prob_host(target_qubit_index, state, dim, &cuda_stream);
 }
 
 // calculate probability with which we obtain 1 at target qubit
@@ -648,33 +781,39 @@ __global__ void M1_prob_gpu(double* ret, UINT target_qubit_index, const GTYPE* s
 	}
 }
 
-__host__ double M1_prob_host(UINT target_qubit_index, void* state, ITYPE dim){
+__host__ double M1_prob_host(UINT target_qubit_index, void* state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-    double ret[1]={0.0};
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+	double ret[1] = { 0.0 };
 	double *ret_gpu;
 
 	checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(double)), __FILE__, __LINE__);
-    checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(double)), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(double), *cuda_stream), __FILE__, __LINE__);
 
-    ITYPE loop_dim;
-    
-    if(dim <= 64) loop_dim = dim>>1;
-    else if(dim <= (1ULL<<11)) loop_dim = dim >> 2;
-    else loop_dim = dim >> 5;
+	ITYPE loop_dim;
 
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
-    unsigned int grid = loop_dim / block;
+	if (dim <= 64) loop_dim = dim >> 1;
+	else if (dim <= (1ULL << 11)) loop_dim = dim >> 2;
+	else loop_dim = dim >> 5;
 
-    M1_prob_gpu << <grid, block >> >(ret_gpu, target_qubit_index, state_gpu, dim);
-	
+	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+	unsigned int grid = loop_dim / block;
+
+	M1_prob_gpu << <grid, block, 0, *cuda_stream >> > (ret_gpu, target_qubit_index, state_gpu, dim);
+
 	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(ret, ret_gpu, sizeof(double), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyAsync(ret, ret_gpu, sizeof(double), cudaMemcpyDeviceToHost, *cuda_stream), __FILE__, __LINE__);
 	checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
+	stream = reinterpret_cast<void*>(cuda_stream);
 	return ret[0];
 }
 
+__host__ double M1_prob_host(UINT target_qubit_index, void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	return M1_prob_host(target_qubit_index, state, dim, &cuda_stream);
+}
 
 // calculate merginal probability with which we obtain the set of values measured_value_list at sorted_target_qubit_index_list
 // warning: sorted_target_qubit_index_list must be sorted.
@@ -699,33 +838,40 @@ __global__ void marginal_prob_gpu(double* ret_gpu, const UINT* sorted_target_qub
 	}
 }
 
-__host__ double marginal_prob_host(UINT* sorted_target_qubit_index_list, UINT* measured_value_list, UINT target_qubit_index_count, void* state, ITYPE dim){
+__host__ double marginal_prob_host(UINT* sorted_target_qubit_index_list, UINT* measured_value_list, UINT target_qubit_index_count, void* state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-    double ret[1]={0.0};
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+	double ret[1] = { 0.0 };
 	double *ret_gpu;
-    UINT* sorted_target_qubit_index_list_gpu;
-    UINT* measured_value_list_gpu; 
-	
-    checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(double)), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(ret_gpu, ret, sizeof(double), cudaMemcpyHostToDevice), __FILE__, __LINE__);
-    checkCudaErrors(cudaMalloc((void**)&sorted_target_qubit_index_list_gpu, sizeof(UINT)*target_qubit_index_count), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(sorted_target_qubit_index_list_gpu, sorted_target_qubit_index_list, sizeof(UINT)*target_qubit_index_count, cudaMemcpyHostToDevice), __FILE__, __LINE__);
-    checkCudaErrors(cudaMalloc((void**)&measured_value_list_gpu, sizeof(UINT)*target_qubit_index_count), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(measured_value_list_gpu, measured_value_list, sizeof(UINT)*target_qubit_index_count, cudaMemcpyHostToDevice), __FILE__, __LINE__);
+	UINT* sorted_target_qubit_index_list_gpu;
+	UINT* measured_value_list_gpu;
+
+	checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(double)), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyAsync(ret_gpu, ret, sizeof(double), cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+	checkCudaErrors(cudaMalloc((void**)&sorted_target_qubit_index_list_gpu, sizeof(UINT)*target_qubit_index_count), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyAsync(sorted_target_qubit_index_list_gpu, sorted_target_qubit_index_list, sizeof(UINT)*target_qubit_index_count, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+	checkCudaErrors(cudaMalloc((void**)&measured_value_list_gpu, sizeof(UINT)*target_qubit_index_count), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyAsync(measured_value_list_gpu, measured_value_list, sizeof(UINT)*target_qubit_index_count, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
 
 	unsigned int block = dim <= 1024 ? dim : 1024;
 	unsigned int grid = dim / block;
-	
-    marginal_prob_gpu << <grid, block >> >(ret_gpu, sorted_target_qubit_index_list_gpu, measured_value_list_gpu, target_qubit_index_count, state_gpu, dim);
-	
+
+	marginal_prob_gpu << <grid, block, 0, *cuda_stream >> > (ret_gpu, sorted_target_qubit_index_list_gpu, measured_value_list_gpu, target_qubit_index_count, state_gpu, dim);
+
 	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(ret, ret_gpu, sizeof(double), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyAsync(ret, ret_gpu, sizeof(double), cudaMemcpyDeviceToHost, *cuda_stream), __FILE__, __LINE__);
 	checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
 	checkCudaErrors(cudaFree(sorted_target_qubit_index_list_gpu), __FILE__, __LINE__);
 	checkCudaErrors(cudaFree(measured_value_list_gpu), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
+	stream = reinterpret_cast<void*>(cuda_stream);
 	return ret[0];
+}
+
+__host__ double marginal_prob_host(UINT* sorted_target_qubit_index_list, UINT* measured_value_list, UINT target_qubit_index_count, void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	return marginal_prob_host(sorted_target_qubit_index_list, measured_value_list, target_qubit_index_count, state, dim, &cuda_stream);
 }
 
 __global__ void expectation_value_multi_qubit_Pauli_operator_XZ_mask_gpu(double* ret_gpu, ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count,UINT pivot_qubit_index, GTYPE* state, ITYPE dim){
@@ -746,40 +892,47 @@ __global__ void expectation_value_multi_qubit_Pauli_operator_XZ_mask_gpu(double*
 	}
 }
 
-__host__ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_host(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count,UINT pivot_qubit_index, void* state, ITYPE dim){
-    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+__host__ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_host(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count, UINT pivot_qubit_index, void* state, ITYPE dim, void* stream) {
+	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError_t cudaStatus;
-    double ret;
-    double* ret_gpu;
-    CPPCTYPE PHASE_90ROT[4] = {
-        CPPCTYPE(1.0, 0.0), 
-        CPPCTYPE(0.0, 1.0), 
-        CPPCTYPE(-1.0,0.0), 
-        CPPCTYPE(0.0, -1.0)};
+	double ret;
+	double* ret_gpu;
+	CPPCTYPE PHASE_90ROT[4] = {
+		CPPCTYPE(1.0, 0.0),
+		CPPCTYPE(0.0, 1.0),
+		CPPCTYPE(-1.0,0.0),
+		CPPCTYPE(0.0, -1.0) };
 
-    checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(double)), __FILE__, __LINE__);
-    checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(double)), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpyToSymbol(PHASE_90ROT_gpu, PHASE_90ROT, sizeof(GTYPE)*4), __FILE__, __LINE__);
+	checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(double)), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(double), *cuda_stream), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyToSymbolAsync(PHASE_90ROT_gpu, PHASE_90ROT, sizeof(GTYPE) * 4, 0, cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
 
-    ITYPE loop_dim;
-    
-    if(dim <= 64) loop_dim = dim>>1;
-    else if(dim <= (1ULL<<11)) loop_dim = dim >> 2;
-    else loop_dim = dim >> 5;
+	ITYPE loop_dim;
 
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
-    unsigned int grid = loop_dim / block;
+	if (dim <= 64) loop_dim = dim >> 1;
+	else if (dim <= (1ULL << 11)) loop_dim = dim >> 2;
+	else loop_dim = dim >> 5;
 
-	expectation_value_multi_qubit_Pauli_operator_XZ_mask_gpu<< <grid, block >> >(ret_gpu, bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state_gpu, dim);
-	
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+	unsigned int grid = loop_dim / block;
+
+	expectation_value_multi_qubit_Pauli_operator_XZ_mask_gpu << <grid, block, 0, *cuda_stream >> > (ret_gpu, bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state_gpu, dim);
+
+	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(&ret, ret_gpu, sizeof(double), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyAsync(&ret, ret_gpu, sizeof(double), cudaMemcpyDeviceToHost, *cuda_stream), __FILE__, __LINE__);
 	checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
-    
-    return ret;
+	stream = reinterpret_cast<void*>(cuda_stream);
+
+	return ret;
+}
+
+__host__ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_host(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count, UINT pivot_qubit_index, void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	return expectation_value_multi_qubit_Pauli_operator_XZ_mask_host(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state, dim, &cuda_stream);
 }
 
 __global__ void expectation_value_multi_qubit_Pauli_operator_Z_mask_gpu(double* ret_gpu, ITYPE phase_flip_mask, const GTYPE* state, ITYPE dim){
@@ -798,39 +951,63 @@ __global__ void expectation_value_multi_qubit_Pauli_operator_Z_mask_gpu(double* 
 	}
 }
 
-__host__ double expectation_value_multi_qubit_Pauli_operator_Z_mask_host(ITYPE phase_flip_mask, void* state, ITYPE dim){
-    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-    cudaError_t cudaStatus;
-    double ret;
-    double* ret_gpu;
+__host__ double expectation_value_multi_qubit_Pauli_operator_Z_mask_host(ITYPE phase_flip_mask, void* state, ITYPE dim, void* stream) {
+	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+	cudaError_t cudaStatus;
+	double ret;
+	double* ret_gpu;
 
-    checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(double)), __FILE__, __LINE__);
-    checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(double)), __FILE__, __LINE__);
+	checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(double)), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(double), *cuda_stream), __FILE__, __LINE__);
 
-    // this loop_dim is not the same as that of the gpu function
-    // and the function uses grid stride loops
-    ITYPE loop_dim;
-    
-    if(dim <= 64) loop_dim = dim>>1;
-    else if(dim <= (1ULL<<11)) loop_dim = dim >> 2;
-    else loop_dim = dim >> 5;
+	// this loop_dim is not the same as that of the gpu function
+	// and the function uses grid stride loops
+	ITYPE loop_dim;
 
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
-    unsigned int grid = loop_dim / block;
+	if (dim <= 64) loop_dim = dim >> 1;
+	else if (dim <= (1ULL << 11)) loop_dim = dim >> 2;
+	else loop_dim = dim >> 5;
 
-    // unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
-    // unsigned int grid = loop_dim / block;
-	
-    expectation_value_multi_qubit_Pauli_operator_Z_mask_gpu<< <grid, block >> >(ret_gpu, phase_flip_mask, state_gpu, dim);
-	
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
-    cudaStatus = cudaGetLastError();
-    checkCudaErrors(cudaStatus, __FILE__, __LINE__);
-    checkCudaErrors(cudaMemcpy(&ret, ret_gpu, sizeof(double), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
-    checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
-    state = reinterpret_cast<void*>(state_gpu);
-    
-    return ret;
+	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
+	unsigned int grid = loop_dim / block;
+
+	// unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
+	// unsigned int grid = loop_dim / block;
+
+	expectation_value_multi_qubit_Pauli_operator_Z_mask_gpu << <grid, block, 0, *cuda_stream >> > (ret_gpu, phase_flip_mask, state_gpu, dim);
+
+	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	cudaStatus = cudaGetLastError();
+	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyAsync(&ret, ret_gpu, sizeof(double), cudaMemcpyDeviceToHost, *cuda_stream), __FILE__, __LINE__);
+	checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
+	state = reinterpret_cast<void*>(state_gpu);
+	stream = reinterpret_cast<void*>(cuda_stream);
+
+	return ret;
+}
+
+__host__ double expectation_value_multi_qubit_Pauli_operator_Z_mask_host(ITYPE phase_flip_mask, void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	return expectation_value_multi_qubit_Pauli_operator_Z_mask_host(phase_flip_mask, state, dim, &cuda_stream);
+}
+
+__host__ double expectation_value_multi_qubit_Pauli_operator_partial_list_host(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, void* state, ITYPE dim, void* stream) {
+	ITYPE bit_flip_mask = 0;
+	ITYPE phase_flip_mask = 0;
+	UINT global_phase_90rot_count = 0;
+	UINT pivot_qubit_index = 0;
+	get_Pauli_masks_partial_list_gsim(target_qubit_index_list, Pauli_operator_type_list, target_qubit_index_count,
+		&bit_flip_mask, &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
+	double result;
+	if (bit_flip_mask == 0) {
+		result = expectation_value_multi_qubit_Pauli_operator_Z_mask_host(phase_flip_mask, state, dim, stream);
+	}
+	else {
+		result = expectation_value_multi_qubit_Pauli_operator_XZ_mask_host(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state, dim, stream);
+	}
+	return result;
 }
 
 __host__ double expectation_value_multi_qubit_Pauli_operator_partial_list_host(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, void* state, ITYPE dim){
@@ -847,6 +1024,23 @@ __host__ double expectation_value_multi_qubit_Pauli_operator_partial_list_host(c
         result = expectation_value_multi_qubit_Pauli_operator_XZ_mask_host(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state, dim);
     }
     return result;
+}
+
+__host__ double expectation_value_multi_qubit_Pauli_operator_whole_list_host(const UINT* Pauli_operator_type_list, UINT qubit_count, void* state, ITYPE dim, void* stream) {
+	ITYPE bit_flip_mask = 0;
+	ITYPE phase_flip_mask = 0;
+	UINT global_phase_90rot_count = 0;
+	UINT pivot_qubit_index = 0;
+	get_Pauli_masks_whole_list_gsim(Pauli_operator_type_list, qubit_count,
+		&bit_flip_mask, &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
+	double result;
+	if (bit_flip_mask == 0) {
+		result = expectation_value_multi_qubit_Pauli_operator_Z_mask_host(phase_flip_mask, state, dim, stream);
+	}
+	else {
+		result = expectation_value_multi_qubit_Pauli_operator_XZ_mask_host(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state, dim, stream);
+	}
+	return result;
 }
 
 __host__ double expectation_value_multi_qubit_Pauli_operator_whole_list_host(const UINT* Pauli_operator_type_list, UINT qubit_count, void* state, ITYPE dim){
@@ -890,43 +1084,42 @@ __global__ void transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_gpu(GTYP
 	}
 }
 
-__host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_host(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count, UINT pivot_qubit_index, void* state_bra, void* state_ket, ITYPE dim) {
+__host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_host(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count, UINT pivot_qubit_index, void* state_bra, void* state_ket, ITYPE dim, void* stream) {
 	cudaError_t cudaStatus;
-    GTYPE* state_bra_gpu = reinterpret_cast<GTYPE*>(state_bra);
-    GTYPE* state_ket_gpu = reinterpret_cast<GTYPE*>(state_ket);
-    CPPCTYPE ret;
-    GTYPE* ret_gpu;
+	GTYPE* state_bra_gpu = reinterpret_cast<GTYPE*>(state_bra);
+	GTYPE* state_ket_gpu = reinterpret_cast<GTYPE*>(state_ket);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+	CPPCTYPE ret;
+	GTYPE* ret_gpu;
 
-    checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(GTYPE)), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemset(ret_gpu, 0, sizeof(GTYPE)), __FILE__, __LINE__);
+	checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(GTYPE)), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(GTYPE), *cuda_stream), __FILE__, __LINE__);
 
 
-    ITYPE loop_dim;
-    if(dim<=32) loop_dim=dim>>1;
-    else if(dim <= 12) loop_dim = dim >> 2;
-    else loop_dim = dim >> 5;
+	ITYPE loop_dim;
+	if (dim <= 32) loop_dim = dim >> 1;
+	else if (dim <= 4096) loop_dim = dim >> 2;
+	else loop_dim = dim >> 5;
 
 	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
 	unsigned int grid = loop_dim / block;
 
-    /*
-    const ITYPE loop_dim = dim>>1;
-    
-    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
-	unsigned int grid = loop_dim / block;
-    */
+	transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_gpu << <grid, block, 0, *cuda_stream >> > (ret_gpu, bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state_bra_gpu, state_ket_gpu, dim);
 
-    transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_gpu<< <grid, block >> >(ret_gpu, bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state_bra_gpu, state_ket_gpu, dim);
-
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(&ret, ret_gpu, sizeof(GTYPE), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyAsync(&ret, ret_gpu, sizeof(GTYPE), cudaMemcpyDeviceToHost, *cuda_stream), __FILE__, __LINE__);
 	checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
 	state_bra = reinterpret_cast<void*>(state_bra_gpu);
 	state_ket = reinterpret_cast<void*>(state_ket_gpu);
-    
-    return ret;
+	stream = reinterpret_cast<void*>(cuda_stream);
+	return ret;
+}
+
+__host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_host(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count, UINT pivot_qubit_index, void* state_bra, void* state_ket, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	return transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_host(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state_bra, state_ket, dim, &cuda_stream);
 }
 
 __global__ void transition_amplitude_multi_qubit_Pauli_operator_Z_mask_gpu(GTYPE* ret, ITYPE phase_flip_mask, GTYPE* state_bra, GTYPE* state_ket, ITYPE dim) {
@@ -948,35 +1141,58 @@ __global__ void transition_amplitude_multi_qubit_Pauli_operator_Z_mask_gpu(GTYPE
 	}
 }
 
-__host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_Z_mask_host(ITYPE phase_flip_mask, void* state_bra, void* state_ket, ITYPE dim) {
+__host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_Z_mask_host(ITYPE phase_flip_mask, void* state_bra, void* state_ket, ITYPE dim, void* stream) {
 	cudaError_t cudaStatus;
-    GTYPE* state_bra_gpu = reinterpret_cast<GTYPE*>(state_bra);
-    GTYPE* state_ket_gpu = reinterpret_cast<GTYPE*>(state_ket);
-    CPPCTYPE ret;
-    GTYPE* ret_gpu;
+	GTYPE* state_bra_gpu = reinterpret_cast<GTYPE*>(state_bra);
+	GTYPE* state_ket_gpu = reinterpret_cast<GTYPE*>(state_ket);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+	CPPCTYPE ret;
+	GTYPE* ret_gpu;
 
-    checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(GTYPE)), __FILE__, __LINE__);
-	checkCudaErrors(cudaMemset(ret_gpu, 0, sizeof(GTYPE)), __FILE__, __LINE__);
+	checkCudaErrors(cudaMalloc((void**)&ret_gpu, sizeof(GTYPE)), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemsetAsync(ret_gpu, 0, sizeof(GTYPE), *cuda_stream), __FILE__, __LINE__);
 
-    ITYPE loop_dim;
-    if(dim<=32) loop_dim=dim>>1;
-    else if(dim <= 12) loop_dim = dim >> 2;
-    else loop_dim = dim >> 5;
+	ITYPE loop_dim;
+	if (dim <= 32) loop_dim = dim >> 1;
+	else if (dim <= 4096) loop_dim = dim >> 2;
+	else loop_dim = dim >> 5;
 
 	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
 	unsigned int grid = loop_dim / block;
-    
-    transition_amplitude_multi_qubit_Pauli_operator_Z_mask_gpu<< <grid, block >> >(ret_gpu, phase_flip_mask, state_bra_gpu, state_ket_gpu, dim);
 
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	transition_amplitude_multi_qubit_Pauli_operator_Z_mask_gpu << <grid, block, 0, *cuda_stream >> > (ret_gpu, phase_flip_mask, state_bra_gpu, state_ket_gpu, dim);
+
+	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
-	checkCudaErrors(cudaMemcpy(&ret, ret_gpu, sizeof(GTYPE), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
+	checkCudaErrors(cudaMemcpyAsync(&ret, ret_gpu, sizeof(GTYPE), cudaMemcpyDeviceToHost, *cuda_stream), __FILE__, __LINE__);
 	checkCudaErrors(cudaFree(ret_gpu), __FILE__, __LINE__);
 	state_bra = reinterpret_cast<void*>(state_bra_gpu);
 	state_ket = reinterpret_cast<void*>(state_ket_gpu);
- 
+	stream = reinterpret_cast<void*>(cuda_stream);
 	return ret;
+}
+
+__host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_Z_mask_host(ITYPE phase_flip_mask, void* state_bra, void* state_ket, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	return transition_amplitude_multi_qubit_Pauli_operator_Z_mask_host(phase_flip_mask, state_bra, state_ket, dim, &cuda_stream);
+}
+
+__host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_partial_list_host(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, void* state_bra, void* state_ket, ITYPE dim, void* stream) {
+	ITYPE bit_flip_mask = 0;
+	ITYPE phase_flip_mask = 0;
+	UINT global_phase_90rot_count = 0;
+	UINT pivot_qubit_index = 0;
+	get_Pauli_masks_partial_list_gsim(target_qubit_index_list, Pauli_operator_type_list, target_qubit_index_count,
+		&bit_flip_mask, &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
+	CPPCTYPE result;
+	if (bit_flip_mask == 0) {
+		result = transition_amplitude_multi_qubit_Pauli_operator_Z_mask_host(phase_flip_mask, state_bra, state_ket, dim, stream);
+	}
+	else {
+		result = transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_host(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state_bra, state_ket, dim, stream);
+	}
+	return result;
 }
 
 __host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_partial_list_host(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, void* state_bra, void* state_ket, ITYPE dim) {
@@ -992,6 +1208,23 @@ __host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_partial_list_h
 	}
 	else {
 		result = transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_host(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state_bra, state_ket, dim);
+	}
+	return result;
+}
+
+__host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_whole_list_host(const UINT* Pauli_operator_type_list, UINT qubit_count, void* state_bra, void* state_ket, ITYPE dim, void* stream) {
+	ITYPE bit_flip_mask = 0;
+	ITYPE phase_flip_mask = 0;
+	UINT global_phase_90rot_count = 0;
+	UINT pivot_qubit_index = 0;
+	get_Pauli_masks_whole_list_gsim(Pauli_operator_type_list, qubit_count,
+		&bit_flip_mask, &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
+	CPPCTYPE result;
+	if (bit_flip_mask == 0) {
+		result = transition_amplitude_multi_qubit_Pauli_operator_Z_mask_host(phase_flip_mask, state_bra, state_ket, dim, stream);
+	}
+	else {
+		result = transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_host(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state_bra, state_ket, dim, stream);
 	}
 	return result;
 }

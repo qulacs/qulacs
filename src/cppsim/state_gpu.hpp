@@ -128,21 +128,21 @@ public:
 	 */
 	virtual QuantumStateBase* copy() const override {
 		QuantumStateGpu* new_state = new QuantumStateGpu(this->_qubit_count);
-        copy_quantum_state_host(new_state->data(), _state_vector, _dim);
+        copy_quantum_state_from_device_to_device(new_state->data(), _state_vector, _dim);
 		return new_state;
 	}
 	/**
 	 * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
 	 */
 	virtual void load(const QuantumStateBase* _state) override{
-        copy_quantum_state_host(this->data(), _state->data(), dim);
+        copy_quantum_state_from_device_to_device(this->data(), _state->data(), dim);
 	}
 
 	/**
 	* \~japanese-en <code>state</code>の量子状態を自身へコピーする。
 	*/
 	virtual void load(const std::vector<CPPCTYPE>& _state) override{
-		copy_quantum_state_from_cppstate_host(this->data(), _state.data(), dim);
+		copy_quantum_state_from_device_to_device(this->data(), _state.data(), dim);
 	}
 
 	/**
