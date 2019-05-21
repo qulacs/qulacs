@@ -929,19 +929,19 @@ __host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_host(I
     return ret;
 }
 
-
 __global__ void transition_amplitude_multi_qubit_Pauli_operator_Z_mask_gpu(GTYPE* ret, ITYPE phase_flip_mask, GTYPE* state_bra, GTYPE* state_ket, ITYPE dim) {
 	const ITYPE loop_dim = dim;
 	GTYPE sum = make_cuDoubleComplex(0.0, 0.0);
-    GTYPE tmp;
 	for (ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x; state_index < loop_dim; state_index += blockDim.x * gridDim.x) {
-		UINT bit_parity = __popcll(state_index & phase_flip_mask) & 1;
-		double sign = 1 - 2 * bit_parity;
-		tmp = cuCmul( make_cuDoubleComplex(sign,0.0), cuCmul( state_ket[state_index], cuConj(state_bra[state_index])));
+		int bit_parity = __popcll(state_index & phase_flip_mask) & 1;
+		int sign = 1 - 2 * bit_parity;
+		GTYPE tmp = cuCmul( state_ket[state_index], cuConj(state_bra[state_index]));
+		tmp = cuCmul( make_cuDoubleComplex( (double)sign,0.0), tmp);
         sum = cuCadd(sum, tmp);
     }
 	sum.x = warpReduceSum_double(sum.x);
 	sum.y = warpReduceSum_double(sum.y);
+
 	if ((threadIdx.x & (warpSize - 1)) == 0){
 		atomicAdd_double(&(ret[0].x), sum.x);
 		atomicAdd_double(&(ret[0].y), sum.y);
