@@ -33,15 +33,15 @@ __global__ void H_gate_gpu(unsigned int target_qubit_index, GTYPE *state_gpu, IT
 
 __host__ void H_gate_host(unsigned int target_qubit_index, void *state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-	cudaStream_t* stream_cpu = reinterpret_cast<cudaStream_t*>(stream);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError cudaStatus;
 	ITYPE half_dim = dim >> 1;
 	unsigned int block = half_dim <= 1024 ? half_dim : 1024;
 	unsigned int grid = half_dim / block;
 
-	H_gate_gpu << <grid, block, 0, *stream_cpu >> > (target_qubit_index, state_gpu, dim);
+	H_gate_gpu << <grid, block, 0, *cuda_stream >> > (target_qubit_index, state_gpu, dim);
 
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
@@ -73,15 +73,15 @@ __global__ void X_gate_gpu(unsigned int target_qubit_index, GTYPE *state_gpu, IT
 
 __host__ void X_gate_host(unsigned int target_qubit_index, void *state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-	cudaStream_t* stream_cpu = reinterpret_cast<cudaStream_t*>(stream);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError cudaStatus;
 	ITYPE half_dim = dim >> 1;
 	unsigned int block = half_dim <= 1024 ? half_dim : 1024;
 	unsigned int grid = half_dim / block;
 
-	X_gate_gpu << <grid, block, 0, *stream_cpu >> > (target_qubit_index, state_gpu, dim);
+	X_gate_gpu << <grid, block, 0, *cuda_stream >> > (target_qubit_index, state_gpu, dim);
 
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
@@ -111,15 +111,15 @@ __global__ void Y_gate_gpu(unsigned int target_qubit_index, GTYPE *state_gpu, IT
 
 __host__ void Y_gate_host(unsigned int target_qubit_index, void *state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-	cudaStream_t* stream_cpu = reinterpret_cast<cudaStream_t*>(stream);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError cudaStatus;
 	ITYPE half_dim = dim >> 1;
 	unsigned int block = half_dim <= 1024 ? half_dim : 1024;
 	unsigned int grid = half_dim / block;
 
-	Y_gate_gpu << <grid, block, 0, *stream_cpu >> > (target_qubit_index, state_gpu, dim);
+	Y_gate_gpu << <grid, block, 0, *cuda_stream >> > (target_qubit_index, state_gpu, dim);
 
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
@@ -142,15 +142,15 @@ __global__ void Z_gate_gpu(unsigned int target_qubit_index, GTYPE *state_gpu, IT
 
 __host__ void Z_gate_host(unsigned int target_qubit_index, void *state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-	cudaStream_t* stream_cpu = reinterpret_cast<cudaStream_t*>(stream);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError cudaStatus;
 	ITYPE half_dim = dim >> 1;
 	unsigned int block = half_dim <= 1024 ? half_dim : 1024;
 	unsigned int grid = half_dim / block;
 
-	Z_gate_gpu << <grid, block, 0, *stream_cpu >> > (target_qubit_index, state_gpu, dim);
+	Z_gate_gpu << <grid, block, 0, *cuda_stream >> > (target_qubit_index, state_gpu, dim);
 
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
@@ -212,7 +212,7 @@ __global__ void CZ_gate_gpu(unsigned int large_index, unsigned int small_index, 
 
 __host__ void CZ_gate_host(unsigned int control_qubit_index, unsigned int target_qubit_index, void* state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-	cudaStream_t* stream_cpu = reinterpret_cast<cudaStream_t*>(stream);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError cudaStatus;
 	ITYPE quad_dim = dim >> 2;
 	ITYPE large_index, small_index;
@@ -229,9 +229,9 @@ __host__ void CZ_gate_host(unsigned int control_qubit_index, unsigned int target
 	unsigned int block = quad_dim <= 1024 ? quad_dim : 1024;
 	unsigned int grid = quad_dim / block;
 
-	CZ_gate_gpu << <grid, block, 0, *stream_cpu >> > (large_index, small_index, state_gpu, dim);
+	CZ_gate_gpu << <grid, block, 0, *cuda_stream >> > (large_index, small_index, state_gpu, dim);
 
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
@@ -278,15 +278,15 @@ __global__ void CNOT_gate_gpu(unsigned int control_qubit_index, unsigned int tar
 
 __host__ void CNOT_gate_host(unsigned int control_qubit_index, unsigned int target_qubit_index, void* state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-	cudaStream_t* stream_cpu = reinterpret_cast<cudaStream_t*>(stream);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError cudaStatus;
 	ITYPE quad_dim = dim >> 2;
 	unsigned int block = quad_dim <= 1024 ? quad_dim : 1024;
 	unsigned int grid = quad_dim / block;
 
-	CNOT_gate_gpu << <grid, block, 0, *stream_cpu >> > (control_qubit_index, target_qubit_index, state_gpu, dim);
+	CNOT_gate_gpu << <grid, block, 0, *cuda_stream >> > (control_qubit_index, target_qubit_index, state_gpu, dim);
 
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
@@ -351,7 +351,7 @@ __global__ void SWAP_gate_gpu(unsigned int target_qubit_index0, unsigned int tar
 
 __host__ void SWAP_gate_host(unsigned int target_qubit_index0, unsigned int target_qubit_index1, void* state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-	cudaStream_t* stream_cpu = reinterpret_cast<cudaStream_t*>(stream);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError cudaStatus;
 	unsigned int large_index, small_index;
 	ITYPE quad_dim = dim >> 2;
@@ -367,9 +367,9 @@ __host__ void SWAP_gate_host(unsigned int target_qubit_index0, unsigned int targ
 		small_index = target_qubit_index1;
 	}
 
-	SWAP_gate_gpu << <grid, block, 0, *stream_cpu >> > (small_index, large_index, state_gpu, dim);
+	SWAP_gate_gpu << <grid, block, 0, *cuda_stream >> > (small_index, large_index, state_gpu, dim);
 
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
@@ -393,16 +393,16 @@ __global__ void P0_gate_gpu(UINT target_qubit_index, GTYPE *state_gpu, ITYPE dim
 
 __host__ void P0_gate_host(UINT target_qubit_index, void *state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-	cudaStream_t* stream_cpu = reinterpret_cast<cudaStream_t*>(stream);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError cudaStatus;
 	const ITYPE loop_dim = dim >> 1;
 
 	unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
 	unsigned int grid = loop_dim / block;
 
-	P0_gate_gpu << <grid, block, 0, *stream_cpu >> > (target_qubit_index, state_gpu, dim);
+	P0_gate_gpu << <grid, block, 0, *cuda_stream >> > (target_qubit_index, state_gpu, dim);
 
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
@@ -425,16 +425,16 @@ __global__ void P1_gate_gpu(UINT target_qubit_index, GTYPE *state_gpu, ITYPE dim
 
 __host__ void P1_gate_host(UINT target_qubit_index, void *state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-	cudaStream_t* stream_cpu = reinterpret_cast<cudaStream_t*>(stream);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError cudaStatus;
 	const ITYPE loop_dim = dim >> 1;
 
 	unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
 	unsigned int grid = loop_dim / block;
 
-	P1_gate_gpu << <grid, block, 0, *stream_cpu >> > (target_qubit_index, state_gpu, dim);
+	P1_gate_gpu << <grid, block, 0, *cuda_stream >> > (target_qubit_index, state_gpu, dim);
 
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
@@ -459,7 +459,7 @@ __global__ void normalize_gpu(const double normalize_factor, GTYPE *state_gpu, I
 
 __host__ void normalize_host(double norm, void* state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-	cudaStream_t* stream_cpu = reinterpret_cast<cudaStream_t*>(stream);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError cudaStatus;
 	const ITYPE loop_dim = dim;
 	// const double normalize_factor = sqrt(1./norm);
@@ -468,9 +468,9 @@ __host__ void normalize_host(double norm, void* state, ITYPE dim, void* stream) 
 	unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
 	unsigned int grid = loop_dim / block;
 
-	normalize_gpu << <grid, block, 0, *stream_cpu >> > (normalize_factor, state_gpu, dim);
+	normalize_gpu << <grid, block, 0, *cuda_stream >> > (normalize_factor, state_gpu, dim);
 
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);

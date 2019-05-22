@@ -87,7 +87,7 @@ __host__ void set_computational_basis_host(ITYPE comp_basis, void* state, ITYPE 
 
 	set_computational_basis_gpu << <grid, block,0 , *cuda_stream >> > (comp_basis, state_gpu, dim);
 
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
 
 	state = reinterpret_cast<void*>(state_gpu);

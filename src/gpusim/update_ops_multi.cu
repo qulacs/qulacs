@@ -170,7 +170,7 @@ __host__ void quad_qubit_dense_matrix_gate_host(unsigned int target_qubit_index[
 
 	    quad_qubit_dense_matrix_gate_gpu << <grid, block, 0, *cuda_stream >> >(target0_qubit_index, target1_qubit_index, target2_qubit_index, target3_qubit_index, state_gpu, dim);
 	    
-        checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+        checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	    cudaStatus = cudaGetLastError();
 	    checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	    state = reinterpret_cast<void*>(state_gpu);
@@ -259,7 +259,7 @@ __host__ void triple_qubit_dense_matrix_gate_host(unsigned int target0_qubit_ind
 
 	triple_qubit_dense_matrix_gate_gpu << <grid, block >> >(small, mid, large, state_gpu, dim);
 	
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+    checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
@@ -330,7 +330,7 @@ __host__ void double_qubit_dense_matrix_gate_host(unsigned int target0_qubit_ind
 	
 	double_qubit_dense_matrix_gate_gpu << <grid, block, 0, *cuda_stream >> >(target0_qubit_index, target1_qubit_index, state_gpu, dim);
 	
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+    checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
@@ -464,7 +464,7 @@ __host__ void multi_qubit_Pauli_rotation_gate_XZ_mask_host(ITYPE bit_flip_mask, 
 	
 	multi_qubit_Pauli_rotation_gate_XZ_mask_gpu<< <grid, block, 0, *cuda_stream >> >(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, angle, state_gpu, dim);
     
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+    checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
@@ -506,7 +506,7 @@ __host__ void multi_qubit_Pauli_rotation_gate_Z_mask_host(ITYPE phase_flip_mask,
 	
 	multi_qubit_Pauli_rotation_gate_Z_mask_gpu<< <grid, block, 0, *cuda_stream >> >(phase_flip_mask, angle, state_gpu, dim);
 	
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+    checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
@@ -766,7 +766,7 @@ __host__ void multi_qubit_dense_matrix_gate_small_qubit_host(UINT* target_qubit_
 
 		multi_qubit_dense_matrix_gate_shared_gpu << <grid, block, 0, *cuda_stream >> > (target_qubit_index_count, matrix_gpu, state_gpu, dim);
 	}
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 
 	// Check for any errors launching the kernel
 	cudaStatus = cudaGetLastError();
@@ -809,7 +809,7 @@ __host__ void multi_qubit_dense_matrix_gate_11qubit_host(UINT* target_qubit_inde
             
     multi_qubit_dense_matrix_gate_half_shared_gpu << <grid, block, 0, *cuda_stream >> >(target_qubit_index_count, matrix_gpu, state_gpu, dim);
     
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+    checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
     checkCudaErrors(cudaFree(matrix_gpu), __FILE__, __LINE__);
     
@@ -853,7 +853,7 @@ __host__ void multi_qubit_dense_matrix_gate_more_than_11qubit_host(UINT* target_
     
     multi_qubit_dense_matrix_gate_gpu<<< grid, block >>>(target_qubit_index_count, matrix_gpu, state_gpu, state_gpu_copy, dim);
     
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+    checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
     
     cudaFree(state_gpu_copy);
@@ -1043,7 +1043,7 @@ __host__ void single_qubit_control_multi_qubit_dense_matrix_gate_host(UINT contr
         assert(0);
 	}
 
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     
     // Check for any errors launching the kernel
 	cudaStatus = cudaGetLastError();
@@ -1189,7 +1189,7 @@ __host__ void multi_qubit_control_multi_qubit_dense_matrix_gate_host(const UINT*
         assert(0);
 	}
 
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     
     // Check for any errors launching the kernel
 	cudaStatus = cudaGetLastError();

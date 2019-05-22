@@ -59,7 +59,7 @@ __host__ void initialize_quantum_state_host(void* state, ITYPE dim, void* stream
 	unsigned int grid = dim / block;
 	init_qstate << <grid, block, 0, *cuda_stream >> > (state_gpu, dim);
 
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
@@ -139,12 +139,11 @@ __host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim
 
 	init_rnd << < grid, block, 0, *cuda_stream >> > (rnd_state, seed);
 	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
-	// checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
 
 	rand_normal_xorwow << < grid, block, 0, *cuda_stream >> > (rnd_state, state_gpu, dim);
 	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
 
-	checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	checkCudaErrors(cudaFree(rnd_state), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
 
