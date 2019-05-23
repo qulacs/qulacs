@@ -1,6 +1,7 @@
  
 # Qulacs
 [![Build Status](https://travis-ci.org/qulacs/qulacs.svg?branch=master)](https://travis-ci.org/qulacs/qulacs)
+[![Downloads](https://pepy.tech/badge/qulacs)](https://pepy.tech/project/qulacs)
 
 Qulacs is a python/C++ library for fast simulation of large, noisy, or parametric quantum circuits.
 
