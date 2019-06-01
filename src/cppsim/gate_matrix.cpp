@@ -238,15 +238,15 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
 				dm_single_qubit_dense_matrix_gate(target_index[0], matrix_ptr, state->data_c(), dim);
 			}
 			else {
-				dm_multi_qubit_dense_matrix_gate(target_index.data(), target_index.size(), matrix_ptr, state->data_c(), dim);
+				dm_multi_qubit_dense_matrix_gate(target_index.data(), (UINT)target_index.size(), matrix_ptr, state->data_c(), dim);
 			}
 		}
 		else {
 			if (this->_target_qubit_list.size() == 1) {
-				dm_multi_qubit_control_single_qubit_dense_matrix_gate(control_index.data(), control_value.data(), control_index.size(), target_index[0], matrix_ptr, state->data_c(), dim);
+				dm_multi_qubit_control_single_qubit_dense_matrix_gate(control_index.data(), control_value.data(), (UINT)control_index.size(), target_index[0], matrix_ptr, state->data_c(), dim);
 			}
 			else {
-				dm_multi_qubit_control_multi_qubit_dense_matrix_gate(control_index.data(), control_value.data(), control_index.size(), target_index.data(), target_index.size(), matrix_ptr, state->data_c(), dim);
+				dm_multi_qubit_control_multi_qubit_dense_matrix_gate(control_index.data(), control_value.data(), (UINT)control_index.size(), target_index.data(), (UINT)target_index.size(), matrix_ptr, state->data_c(), dim);
 			}
 		}
 	}

@@ -177,13 +177,13 @@ void dm_multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list, UINT 
 
 	// create extended matrix
 	const ITYPE ext_matrix_dim = matrix_dim*matrix_dim;
-	CTYPE* ext_matrix = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*(1ULL << (target_qubit_index_count*4))));
+	CTYPE* ext_matrix = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*(ext_matrix_dim * ext_matrix_dim)));
 	for (ITYPE y = 0; y < ext_matrix_dim; ++y) {
-		int y1 = y / matrix_dim;
-		int y2 = y % matrix_dim;
+		ITYPE y1 = y / matrix_dim;
+		ITYPE y2 = y % matrix_dim;
 		for (ITYPE x = 0; x < ext_matrix_dim; ++x) {
-			int x1 = x / matrix_dim;
-			int x2 = x % matrix_dim;
+			ITYPE x1 = x / matrix_dim;
+			ITYPE x2 = x % matrix_dim;
 			ext_matrix[y*ext_matrix_dim + x] = matrix[y1*matrix_dim + x1] * conj(matrix[y2*matrix_dim + x2]);
 		}
 	}
@@ -235,7 +235,7 @@ void dm_multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list, UINT 
 	free(buffer);
 #else
 	const UINT thread_count = omp_get_max_threads();
-	CTYPE* buffer_list = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*matrix_dim*thread_count));
+	CTYPE* buffer_list = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*ext_matrix_dim*thread_count));
 
 	const ITYPE block_size = loop_dim / thread_count;
 	const ITYPE residual = loop_dim % thread_count;
@@ -245,7 +245,7 @@ void dm_multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list, UINT 
 		UINT thread_id = omp_get_thread_num();
 		ITYPE start_index = block_size * thread_id + (residual > thread_id ? thread_id : residual);
 		ITYPE end_index = block_size * (thread_id + 1) + (residual > (thread_id + 1) ? (thread_id + 1) : residual);
-		CTYPE* buffer = buffer_list + thread_id * matrix_dim;
+		CTYPE* buffer = buffer_list + thread_id * ext_matrix_dim;
 
 		ITYPE state_index_y;
 		for (state_index_y = start_index; state_index_y < end_index; ++state_index_y) {
@@ -313,13 +313,13 @@ void dm_multi_qubit_control_multi_qubit_dense_matrix_gate(const UINT* control_qu
 
 	// create extended matrix
 	const ITYPE ext_matrix_dim = matrix_dim * matrix_dim;
-	CTYPE* ext_matrix = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*(1ULL << (target_qubit_index_count * 4))));
+	CTYPE* ext_matrix = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*(ext_matrix_dim * ext_matrix_dim)));
 	for (ITYPE y = 0; y < ext_matrix_dim; ++y) {
-		int y1 = y / matrix_dim;
-		int y2 = y % matrix_dim;
+		ITYPE y1 = y / matrix_dim;
+		ITYPE y2 = y % matrix_dim;
 		for (ITYPE x = 0; x < ext_matrix_dim; ++x) {
-			int x1 = x / matrix_dim;
-			int x2 = x % matrix_dim;
+			ITYPE x1 = x / matrix_dim;
+			ITYPE x2 = x % matrix_dim;
 			ext_matrix[y*ext_matrix_dim + x] = matrix[y1*matrix_dim + x1] * conj(matrix[y2*matrix_dim + x2]);
 		}
 	}
@@ -373,7 +373,7 @@ void dm_multi_qubit_control_multi_qubit_dense_matrix_gate(const UINT* control_qu
 	free(buffer);
 #else
 	const UINT thread_count = omp_get_max_threads();
-	CTYPE* buffer_list = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*matrix_dim*thread_count));
+	CTYPE* buffer_list = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*ext_matrix_dim*thread_count));
 
 	const ITYPE block_size = loop_dim / thread_count;
 	const ITYPE residual = loop_dim % thread_count;
@@ -383,7 +383,7 @@ void dm_multi_qubit_control_multi_qubit_dense_matrix_gate(const UINT* control_qu
 		UINT thread_id = omp_get_thread_num();
 		ITYPE start_index = block_size * thread_id + (residual > thread_id ? thread_id : residual);
 		ITYPE end_index = block_size * (thread_id + 1) + (residual > (thread_id + 1) ? (thread_id + 1) : residual);
-		CTYPE* buffer = buffer_list + thread_id * matrix_dim;
+		CTYPE* buffer = buffer_list + thread_id * ext_matrix_dim;
 
 		ITYPE state_index_y;
 		for (state_index_y = start_index; state_index_y < end_index; ++state_index_y) {
@@ -538,9 +538,9 @@ void dm_multi_qubit_Pauli_gate_partial_list(const UINT* target_qubit_index_list,
 	for (ITYPE y = 0; y < matrix_dim; ++y) {
 		for (ITYPE x = 0; x < matrix_dim; ++x) {
 			CTYPE coef = 1.0;
-			for (int i = 0; i < target_qubit_index_count; ++i) {
-				int xi = (x >> i) % 2;
-				int yi = (y >> i) % 2;
+			for (UINT i = 0; i < target_qubit_index_count; ++i) {
+				UINT xi = (x >> i) % 2;
+				UINT yi = (y >> i) % 2;
 				coef *= PAULI_MATRIX[Pauli_operator_type_list[i]][yi*2+xi];
 			}
 			matrix[y*matrix_dim + x] = coef;
@@ -556,9 +556,9 @@ void dm_multi_qubit_Pauli_rotation_gate_partial_list(const UINT* target_qubit_in
 	for (ITYPE y = 0; y < matrix_dim; ++y) {
 		for (ITYPE x = 0; x < matrix_dim; ++x) {
 			CTYPE coef = 1.0;
-			for (int i = 0; i < target_qubit_index_count; ++i) {
-				int xi = (x >> i) % 2;
-				int yi = (y >> i) % 2;
+			for (UINT i = 0; i < target_qubit_index_count; ++i) {
+				UINT xi = (x >> i) % 2;
+				UINT yi = (y >> i) % 2;
 				coef *= PAULI_MATRIX[Pauli_operator_type_list[i]][yi*2+xi];
 			}
 			matrix[y*matrix_dim + x] = cos(angle/2) *1.0  + 1.0i * sin(angle/2)*coef;
