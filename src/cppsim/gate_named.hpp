@@ -14,6 +14,7 @@ protected:
     typedef void (T_UPDATE_FUNC)(UINT, CTYPE*, ITYPE);
 	typedef void (T_GPU_UPDATE_FUNC)(UINT, void*, ITYPE);
 	T_UPDATE_FUNC* _update_func;
+	T_UPDATE_FUNC* _update_func_dm;
 	T_GPU_UPDATE_FUNC* _update_func_gpu;
     ComplexMatrix _matrix_element;
 
@@ -61,6 +62,7 @@ protected:
     typedef void (T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
 	typedef void (T_GPU_UPDATE_FUNC)(UINT, UINT, void*, ITYPE);
 	T_UPDATE_FUNC* _update_func;
+	T_UPDATE_FUNC* _update_func_dm;
 	T_GPU_UPDATE_FUNC* _update_func_gpu;
     ComplexMatrix _matrix_element;
 
@@ -108,6 +110,7 @@ protected:
     typedef void (T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
 	typedef void (T_GPU_UPDATE_FUNC)(UINT, UINT, void*, ITYPE);
 	T_UPDATE_FUNC* _update_func;
+	T_UPDATE_FUNC* _update_func_dm;
 	T_GPU_UPDATE_FUNC* _update_func_gpu;
     ComplexMatrix _matrix_element;
 
@@ -155,6 +158,7 @@ protected:
 	typedef void (T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
 	typedef void (T_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE);
 	T_UPDATE_FUNC* _update_func;
+	T_UPDATE_FUNC* _update_func_dm;
 	T_GPU_UPDATE_FUNC* _update_func_gpu;
     ComplexMatrix _matrix_element;
     double _angle;

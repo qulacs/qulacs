@@ -25,6 +25,7 @@ class QuantumStateBase{
 protected:
     ITYPE _dim;
     UINT _qubit_count;
+	bool _is_state_vector;
     std::vector<UINT> _classical_register;
 public:
     const UINT& qubit_count; /**< \~japanese-en 量子ビット数 */
@@ -36,16 +37,24 @@ public:
      * 
      * @param qubit_count_ 量子ビット数
      */
-    QuantumStateBase(UINT qubit_count_):
+    QuantumStateBase(UINT qubit_count_, bool is_state_vector):
         qubit_count(_qubit_count), dim(_dim), classical_register(_classical_register)
     {
         this->_qubit_count = qubit_count_;
         this->_dim = 1ULL << qubit_count_;
+		this->_is_state_vector = is_state_vector;
     }
     /**
      * \~japanese-en デストラクタ
      */
     virtual ~QuantumStateBase(){}
+
+	/**
+	 * \~japanese-en 量子状態が状態ベクトルか密度行列かを判定する
+	 */
+	virtual bool is_state_vector() const {
+		return this->_is_state_vector;
+	}
 
     /**
      * \~japanese-en 量子状態を計算基底の0状態に初期化する
@@ -260,7 +269,7 @@ public:
      * 
      * @param qubit_count_ 量子ビット数
      */
-    QuantumStateCpu(UINT qubit_count_) : QuantumStateBase(qubit_count_){
+    QuantumStateCpu(UINT qubit_count_) : QuantumStateBase(qubit_count_, false){
         this->_state_vector = reinterpret_cast<CPPCTYPE*>(allocate_quantum_state(this->_dim));
         initialize_quantum_state(this->data_c(), _dim);
     }

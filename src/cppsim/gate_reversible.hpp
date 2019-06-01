@@ -42,18 +42,24 @@ public:
 		for (auto val : this->_target_qubit_list) {
 			target_index.push_back(val.index());
 		}
+		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-		if (state->get_device_name() == "gpu") {
-			std::cerr << "Not Implemented" << std::endl;
-			exit(0);
-			//reversible_boolean_gate_gpu(target_index.data(), target_index.size(), function_ptr, state->data_c(), state->dim);
+			if (state->get_device_name() == "gpu") {
+				std::cerr << "Not Implemented" << std::endl;
+				exit(0);
+				//reversible_boolean_gate_gpu(target_index.data(), target_index.size(), function_ptr, state->data_c(), state->dim);
+			}
+			else {
+				reversible_boolean_gate(target_index.data(), target_index.size(), function_ptr, state->data_c(), state->dim);
+			}
+#else
+			reversible_boolean_gate(target_index.data(), target_index.size(), function_ptr, state->data_c(), state->dim);
+#endif
 		}
 		else {
-			reversible_boolean_gate(target_index.data(), target_index.size(), function_ptr, state->data_c(), state->dim);
+			std::cerr << "not implemented" << std::endl;
 		}
-#else
-		reversible_boolean_gate(target_index.data(), target_index.size(), function_ptr, state->data_c(), state->dim);
-#endif
+
 	};
 	/**
 	 * \~japanese-en 自身のディープコピーを生成する

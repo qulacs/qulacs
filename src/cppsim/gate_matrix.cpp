@@ -2,10 +2,12 @@
 #ifndef _MSC_VER
 extern "C" {
 #include <csim/update_ops.h>
+#include <csim/update_ops_dm.h>
 #include <csim/utility.h>
 }
 #else
 #include <csim/update_ops.h>
+#include <csim/update_ops_dm.h>
 #include <csim/utility.h>
 #endif
 
@@ -87,140 +89,167 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
         control_value.push_back(val.control_value());
     }
 
-    // single qubit dense matrix gate
-    if(this->_target_qubit_list.size() == 1){
 
-        // no control qubit
-        if(this->_control_qubit_list.size() == 0){
-#ifdef _USE_GPU
-	        if (state->get_device_name() == "gpu") {
-                single_qubit_dense_matrix_gate_host(
-                    target_index[0],
-                    (const CPPCTYPE*)matrix_ptr , state->data(), dim );
-                
-            }else{
-                single_qubit_dense_matrix_gate(
-                    target_index[0],
-                    matrix_ptr , state->data_c(), dim );
-            }
-#else
-            single_qubit_dense_matrix_gate(
-                target_index[0],
-                matrix_ptr , state->data_c(), dim );
-#endif
-        }
-        // single control qubit
-        else if(this->_control_qubit_list.size() == 1){
-#ifdef _USE_GPU
-	        if (state->get_device_name() == "gpu") {
-                single_qubit_control_single_qubit_dense_matrix_gate_host(
-                    control_index[0], control_value[0],
-                    target_index[0],
-                    (const CPPCTYPE*)matrix_ptr, state->data(), dim );
-            }else{
-                single_qubit_control_single_qubit_dense_matrix_gate(
-                    control_index[0], control_value[0],
-                    target_index[0],
-                    matrix_ptr, state->data_c(), dim );
-            }
-#else
-                single_qubit_control_single_qubit_dense_matrix_gate(
-                    control_index[0], control_value[0],
-                    target_index[0],
-                    matrix_ptr, state->data_c(), dim );
-#endif
-        }
-        // multiple control qubits
-        else{
-#ifdef _USE_GPU
-	        if (state->get_device_name() == "gpu") {
-				//
-				std::cerr << "This function is not implemented in GPU" << std::endl;
-				exit(0);
-				/*
-                multi_qubit_control_single_qubit_dense_matrix_gate_host(
-                    control_index.data(), control_value.data(), (UINT)(control_index.size()),
-                    target_index[0],
-                    matrix_ptr, state->data(), dim );
-					*/
-            }else{
-                multi_qubit_control_single_qubit_dense_matrix_gate(
-                    control_index.data(), control_value.data(), (UINT)(control_index.size()),
-                    target_index[0],
-                    matrix_ptr, state->data_c(), dim );
-            }
-#else
-            multi_qubit_control_single_qubit_dense_matrix_gate(
-                control_index.data(), control_value.data(), (UINT)(control_index.size()),
-                target_index[0],
-                matrix_ptr, state->data_c(), dim );
-#endif
-        }
-    }
+	if (state->is_state_vector()) {
+		// single qubit dense matrix gate
+		if (this->_target_qubit_list.size() == 1) {
 
-    // multi qubit dense matrix gate
-    else{
-        // no control qubit
-        if(this->_control_qubit_list.size() == 0){
+			// no control qubit
+			if (this->_control_qubit_list.size() == 0) {
 #ifdef _USE_GPU
-	        if (state->get_device_name() == "gpu") {
-                multi_qubit_dense_matrix_gate_host(
-                    target_index.data(), (UINT)(target_index.size()),
-                    (const CPPCTYPE*)matrix_ptr, state->data(), dim );
-            }else{
-                multi_qubit_dense_matrix_gate(
-                    target_index.data(), (UINT)(target_index.size()),
-                    matrix_ptr, state->data_c(), dim );
-            }
+				if (state->get_device_name() == "gpu") {
+					single_qubit_dense_matrix_gate_host(
+						target_index[0],
+						(const CPPCTYPE*)matrix_ptr, state->data(), dim);
+
+				}
+				else {
+					single_qubit_dense_matrix_gate(
+						target_index[0],
+						matrix_ptr, state->data_c(), dim);
+				}
 #else
-            multi_qubit_dense_matrix_gate(
-                target_index.data(), (UINT)(target_index.size()),
-                matrix_ptr, state->data_c(), dim );
+				single_qubit_dense_matrix_gate(
+					target_index[0],
+					matrix_ptr, state->data_c(), dim);
 #endif
-        }
-        // single control qubit
-        else if(this->_control_qubit_list.size() == 1){
+			}
+			// single control qubit
+			else if (this->_control_qubit_list.size() == 1) {
 #ifdef _USE_GPU
-	        if (state->get_device_name() == "gpu") {
-                single_qubit_control_multi_qubit_dense_matrix_gate_host(
-                    control_index[0], control_value[0],
-                    target_index.data(), (UINT)(target_index.size()),
-                    (const CPPCTYPE*)matrix_ptr, state->data(), dim );
-            }else{
-                single_qubit_control_multi_qubit_dense_matrix_gate(
-                    control_index[0], control_value[0],
-                    target_index.data(), (UINT)(target_index.size()),
-                    matrix_ptr, state->data_c(), dim );
-            }
+				if (state->get_device_name() == "gpu") {
+					single_qubit_control_single_qubit_dense_matrix_gate_host(
+						control_index[0], control_value[0],
+						target_index[0],
+						(const CPPCTYPE*)matrix_ptr, state->data(), dim);
+				}
+				else {
+					single_qubit_control_single_qubit_dense_matrix_gate(
+						control_index[0], control_value[0],
+						target_index[0],
+						matrix_ptr, state->data_c(), dim);
+				}
 #else
-            single_qubit_control_multi_qubit_dense_matrix_gate(
-                control_index[0], control_value[0],
-                target_index.data(), (UINT)(target_index.size()),
-                matrix_ptr, state->data_c(), dim );
+				single_qubit_control_single_qubit_dense_matrix_gate(
+					control_index[0], control_value[0],
+					target_index[0],
+					matrix_ptr, state->data_c(), dim);
 #endif
-        }
-        // multiple control qubit
-        else{
+			}
+			// multiple control qubits
+			else {
 #ifdef _USE_GPU
-	        if (state->get_device_name() == "gpu") {
-                multi_qubit_control_multi_qubit_dense_matrix_gate_host(
-                    control_index.data(), control_value.data(), (UINT)(control_index.size()),
-                    target_index.data(), (UINT)(target_index.size()),
-                    (const CPPCTYPE*)matrix_ptr, state->data(), dim);
-            }else{
-                multi_qubit_control_multi_qubit_dense_matrix_gate(
-                    control_index.data(), control_value.data(), (UINT)(control_index.size()),
-                    target_index.data(), (UINT)(target_index.size()),
-                    matrix_ptr, state->data_c(), dim);
-            }
+				if (state->get_device_name() == "gpu") {
+					//
+					std::cerr << "This function is not implemented in GPU" << std::endl;
+					exit(0);
+					/*
+					multi_qubit_control_single_qubit_dense_matrix_gate_host(
+						control_index.data(), control_value.data(), (UINT)(control_index.size()),
+						target_index[0],
+						matrix_ptr, state->data(), dim );
+						*/
+				}
+				else {
+					multi_qubit_control_single_qubit_dense_matrix_gate(
+						control_index.data(), control_value.data(), (UINT)(control_index.size()),
+						target_index[0],
+						matrix_ptr, state->data_c(), dim);
+				}
 #else
-            multi_qubit_control_multi_qubit_dense_matrix_gate(
-                control_index.data(), control_value.data(), (UINT)(control_index.size()),
-                target_index.data(), (UINT)(target_index.size()),
-                matrix_ptr, state->data_c(), dim);
+				multi_qubit_control_single_qubit_dense_matrix_gate(
+					control_index.data(), control_value.data(), (UINT)(control_index.size()),
+					target_index[0],
+					matrix_ptr, state->data_c(), dim);
 #endif
-        }
-    }
+			}
+		}
+
+		// multi qubit dense matrix gate
+		else {
+			// no control qubit
+			if (this->_control_qubit_list.size() == 0) {
+#ifdef _USE_GPU
+				if (state->get_device_name() == "gpu") {
+					multi_qubit_dense_matrix_gate_host(
+						target_index.data(), (UINT)(target_index.size()),
+						(const CPPCTYPE*)matrix_ptr, state->data(), dim);
+				}
+				else {
+					multi_qubit_dense_matrix_gate(
+						target_index.data(), (UINT)(target_index.size()),
+						matrix_ptr, state->data_c(), dim);
+				}
+#else
+				multi_qubit_dense_matrix_gate(
+					target_index.data(), (UINT)(target_index.size()),
+					matrix_ptr, state->data_c(), dim);
+#endif
+			}
+			// single control qubit
+			else if (this->_control_qubit_list.size() == 1) {
+#ifdef _USE_GPU
+				if (state->get_device_name() == "gpu") {
+					single_qubit_control_multi_qubit_dense_matrix_gate_host(
+						control_index[0], control_value[0],
+						target_index.data(), (UINT)(target_index.size()),
+						(const CPPCTYPE*)matrix_ptr, state->data(), dim);
+				}
+				else {
+					single_qubit_control_multi_qubit_dense_matrix_gate(
+						control_index[0], control_value[0],
+						target_index.data(), (UINT)(target_index.size()),
+						matrix_ptr, state->data_c(), dim);
+				}
+#else
+				single_qubit_control_multi_qubit_dense_matrix_gate(
+					control_index[0], control_value[0],
+					target_index.data(), (UINT)(target_index.size()),
+					matrix_ptr, state->data_c(), dim);
+#endif
+			}
+			// multiple control qubit
+			else {
+#ifdef _USE_GPU
+				if (state->get_device_name() == "gpu") {
+					multi_qubit_control_multi_qubit_dense_matrix_gate_host(
+						control_index.data(), control_value.data(), (UINT)(control_index.size()),
+						target_index.data(), (UINT)(target_index.size()),
+						(const CPPCTYPE*)matrix_ptr, state->data(), dim);
+				}
+				else {
+					multi_qubit_control_multi_qubit_dense_matrix_gate(
+						control_index.data(), control_value.data(), (UINT)(control_index.size()),
+						target_index.data(), (UINT)(target_index.size()),
+						matrix_ptr, state->data_c(), dim);
+				}
+#else
+				multi_qubit_control_multi_qubit_dense_matrix_gate(
+					control_index.data(), control_value.data(), (UINT)(control_index.size()),
+					target_index.data(), (UINT)(target_index.size()),
+					matrix_ptr, state->data_c(), dim);
+#endif
+			}
+		}
+	}
+	else {
+		if (this->_control_qubit_list.size() == 0) {
+			if (this->_target_qubit_list.size() == 1) {
+				dm_single_qubit_dense_matrix_gate(target_index[0], matrix_ptr, state->data_c(), dim);
+			}
+			else {
+				dm_multi_qubit_dense_matrix_gate(target_index.data(), target_index.size(), matrix_ptr, state->data_c(), dim);
+			}
+		}
+		else {
+			if (this->_target_qubit_list.size() == 1) {
+				dm_multi_qubit_control_single_qubit_dense_matrix_gate(control_index.data(), control_value.data(), control_index.size(), target_index[0], matrix_ptr, state->data_c(), dim);
+			}
+			else {
+				dm_multi_qubit_control_multi_qubit_dense_matrix_gate(control_index.data(), control_value.data(), control_index.size(), target_index.data(), target_index.size(), matrix_ptr, state->data_c(), dim);
+			}
+		}
+	}
 }
 
 
