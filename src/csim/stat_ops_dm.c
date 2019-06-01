@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "stat_ops.h"
+#include "stat_ops_dm.h"
 #include "utility.h"
 #include "constant.h"
 
@@ -117,8 +117,8 @@ double dm_expectation_value_multi_qubit_Pauli_operator_partial_list(const UINT* 
 				basis_0 ^= (1ULL << target_qubit_index);
 			}
 		}
-		for (int i = 0; i < matrix_dim; ++i) {
-			sum += matrix[small_dim_index*matrix_dim + i] * state[state_index*dim + basis_0 ^ matrix_mask_list[i]];
+		for (ITYPE i = 0; i < matrix_dim; ++i) {
+			sum += matrix[small_dim_index*matrix_dim + i] * state[state_index*dim + (basis_0 ^ matrix_mask_list[i])];
 		}
 	}
 

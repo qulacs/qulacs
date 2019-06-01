@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "memory_ops.h"
+#include "memory_ops_dm.h"
 #include "utility.h"
 #include <time.h>
 #include <limits.h>

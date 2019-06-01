@@ -180,7 +180,7 @@ public:
             return;
         }
 		if (_state.size() == _dim) {
-			dm_initialize_with_pure_state(this->data_c(), _state.data(), dim);
+			dm_initialize_with_pure_state(this->data_c(), (const CTYPE*)_state.data(), dim);
 		}
 		else {
 			memcpy(this->data_cpp(), _state.data(), (size_t)(sizeof(CPPCTYPE)*_dim*_dim));
