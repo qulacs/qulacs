@@ -69,20 +69,26 @@ void QuantumGateSparseMatrix::update_quantum_state(QuantumStateBase* state) {
 		target_index.push_back(val.index());
 	}
 
+	if (state->is_state_vector()) {
 #ifdef _USE_GPU
-	if (state->get_device_name() == "gpu") {
-		std::cerr << "Sparse matrix gate is not supported on GPU" << std::endl;
-	}
-	else {
+		if (state->get_device_name() == "gpu") {
+			std::cerr << "Sparse matrix gate is not supported on GPU" << std::endl;
+		}
+		else {
+			multi_qubit_sparse_matrix_gate_eigen(
+				target_index.data(), (UINT)(target_index.size()),
+				this->_matrix_element, state->data_c(), dim);
+		}
+#else
 		multi_qubit_sparse_matrix_gate_eigen(
 			target_index.data(), (UINT)(target_index.size()),
 			this->_matrix_element, state->data_c(), dim);
-	}
-#else
-	multi_qubit_sparse_matrix_gate_eigen(
-		target_index.data(), (UINT)(target_index.size()),
-		this->_matrix_element, state->data_c(), dim);
 #endif
+	}
+	else {
+		std::cerr << "not implemented" << std::endl;
+	}
+
 }
 
 

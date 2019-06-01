@@ -3,9 +3,11 @@
 #ifndef _MSC_VER
 extern "C" {
 #include <csim/update_ops.h>
+#include <csim/update_ops_dm.h>
 }
 #else
 #include <csim/update_ops.h>
+#include <csim/update_ops_dm.h>
 #endif
 
 #include "gate.hpp"
@@ -73,7 +75,9 @@ public:
 #endif
 		}
 		else {
-			std::cerr << "not implemented" << std::endl;
+			dm_multi_qubit_Pauli_gate_partial_list(
+				target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+				state->data_c(), state->dim);
 		}
     };
     /**
@@ -151,10 +155,11 @@ public:
 				target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
 				_angle, state->data_c(), state->dim);
 #endif
-
 		}
 		else {
-			std::cerr << "not implemented" << std::endl;
+			dm_multi_qubit_Pauli_rotation_gate_partial_list(
+				target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+				_angle, state->data_c(), state->dim);
 		}
 	};
     /**

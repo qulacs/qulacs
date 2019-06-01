@@ -43,3 +43,5 @@ DllExport void dm_P1_gate(UINT target_qubit_index, CTYPE *state, ITYPE dim);
 DllExport void dm_RX_gate(UINT target_qubit_index, double angle, CTYPE* state, ITYPE dim);
 DllExport void dm_RY_gate(UINT target_qubit_index, double angle, CTYPE* state, ITYPE dim);
 DllExport void dm_RZ_gate(UINT target_qubit_index, double angle, CTYPE* state, ITYPE dim);
+DllExport void dm_multi_qubit_Pauli_gate_partial_list(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, CTYPE* state, ITYPE dim);
+DllExport void dm_multi_qubit_Pauli_rotation_gate_partial_list(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, double angle, CTYPE* state, ITYPE dim);

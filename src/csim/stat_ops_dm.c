@@ -89,3 +89,40 @@ double dm_marginal_prob(const UINT* sorted_target_qubit_index_list, const UINT* 
     }
     return sum;
 }
+
+double dm_expectation_value_multi_qubit_Pauli_operator_partial_list(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, const CTYPE* state, ITYPE dim) {
+	const ITYPE matrix_dim = 1ULL << target_qubit_index_count;
+	CTYPE* matrix = (CTYPE*)malloc(sizeof(CTYPE)*matrix_dim*matrix_dim);
+	for (ITYPE y = 0; y < matrix_dim; ++y) {
+		for (ITYPE x = 0; x < matrix_dim; ++x) {
+			CTYPE coef = 1.0;
+			for (int i = 0; i < target_qubit_index_count; ++i) {
+				int xi = (x >> i) % 2;
+				int yi = (y >> i) % 2;
+				coef *= PAULI_MATRIX[Pauli_operator_type_list[i]][yi * 2 + xi];
+			}
+			matrix[y*matrix_dim + x] = coef;
+		}
+	}
+	const ITYPE* matrix_mask_list = create_matrix_mask_list(target_qubit_index_list, target_qubit_index_count);
+
+	CTYPE sum = 0;
+	for (ITYPE state_index = 0; state_index< dim; ++state_index) {
+		ITYPE small_dim_index = 0;
+		ITYPE basis_0 = state_index;
+		for (int i = 0; i < target_qubit_index_count; ++i) {
+			UINT target_qubit_index = target_qubit_index_list[i];
+			if (state_index & (1 << target_qubit_index)) {
+				small_dim_index += (1 << i);
+				basis_0 ^= (1 << target_qubit_index);
+			}
+		}
+		for (int i = 0; i < matrix_dim; ++i) {
+			sum += matrix[small_dim_index*matrix_dim + i] * state[state_index*dim + basis_0 ^ matrix_mask_list[i]];
+		}
+	}
+
+	free(matrix);
+	free((ITYPE*)matrix_mask_list);
+	return creal(sum);
+}

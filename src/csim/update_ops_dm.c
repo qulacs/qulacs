@@ -189,22 +189,22 @@ void dm_multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list, UINT 
 	const ITYPE loop_dim = dim >> target_qubit_index_count;
 
 	CTYPE* buffer = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*ext_matrix_dim));
-	ITYPE state_index_x;
-	for (state_index_x = 0; state_index_x < loop_dim; ++state_index_x) {
+	ITYPE state_index_y;
+	for (state_index_y = 0; state_index_y < loop_dim; ++state_index_y) {
 		// create base index
-		ITYPE basis_0_x = state_index_x;
+		ITYPE basis_0_y = state_index_y;
 		for (UINT cursor = 0; cursor < target_qubit_index_count; cursor++) {
 			UINT insert_index = sorted_insert_index_list[cursor];
-			basis_0_x = insert_zero_to_basis_index(basis_0_x, 1ULL << insert_index, insert_index);
+			basis_0_y = insert_zero_to_basis_index(basis_0_y, 1ULL << insert_index, insert_index);
 		}
 
-		ITYPE state_index_y;
-		for (state_index_y = 0; state_index_y < loop_dim; ++state_index_y) {
+		ITYPE state_index_x;
+		for (state_index_x = 0; state_index_x < loop_dim; ++state_index_x) {
 			// create base index
-			ITYPE basis_0_y = state_index_y;
+			ITYPE basis_0_x = state_index_x;
 			for (UINT cursor = 0; cursor < target_qubit_index_count; cursor++) {
 				UINT insert_index = sorted_insert_index_list[cursor];
-				basis_0_y = insert_zero_to_basis_index(basis_0_y, 1ULL << insert_index, insert_index);
+				basis_0_x = insert_zero_to_basis_index(basis_0_x, 1ULL << insert_index, insert_index);
 			}
 
 			// compute matrix-vector multiply
@@ -238,7 +238,6 @@ void dm_multi_qubit_control_multi_qubit_dense_matrix_gate(const UINT* control_qu
 	// matrix dim, mask, buffer
 	const ITYPE matrix_dim = 1ULL << target_qubit_index_count;
 	ITYPE* matrix_mask_list = create_matrix_mask_list(target_qubit_index_list, target_qubit_index_count);
-	CTYPE* buffer = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*matrix_dim));
 
 	// insert index
 	const UINT insert_index_count = target_qubit_index_count + control_qubit_index_count;
@@ -249,31 +248,64 @@ void dm_multi_qubit_control_multi_qubit_dense_matrix_gate(const UINT* control_qu
 
 	// loop varaibles
 	const ITYPE loop_dim = dim >> (target_qubit_index_count + control_qubit_index_count);
-	ITYPE state_index;
 
-	for (state_index = 0; state_index < loop_dim; ++state_index) {
+
+	// create extended matrix
+	const ITYPE ext_matrix_dim = matrix_dim * matrix_dim;
+	CTYPE* ext_matrix = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*(1ULL << (target_qubit_index_count * 4))));
+	for (ITYPE y = 0; y < ext_matrix_dim; ++y) {
+		int y1 = y / matrix_dim;
+		int y2 = y % matrix_dim;
+		for (ITYPE x = 0; x < ext_matrix_dim; ++x) {
+			int x1 = x / matrix_dim;
+			int x2 = x % matrix_dim;
+			ext_matrix[y*ext_matrix_dim + x] = matrix[y1*matrix_dim + x1] * conj(matrix[y2*matrix_dim + x2]);
+		}
+	}
+	CTYPE* buffer = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*ext_matrix_dim));
+
+	ITYPE state_index_y;
+	for (state_index_y = 0; state_index_y < loop_dim; ++state_index_y) {
 
 		// create base index
-		ITYPE basis_0 = state_index;
+		ITYPE basis_0_y = state_index_y;
 		for (UINT cursor = 0; cursor < insert_index_count; cursor++) {
 			UINT insert_index = sorted_insert_index_list[cursor];
-			basis_0 = insert_zero_to_basis_index(basis_0, 1ULL << insert_index, insert_index);
+			basis_0_y = insert_zero_to_basis_index(basis_0_y, 1ULL << insert_index, insert_index);
 		}
 
 		// flip control masks
-		basis_0 ^= control_mask;
+		basis_0_y ^= control_mask;
 
-		// compute matrix mul
-		for (ITYPE y = 0; y < matrix_dim; ++y) {
-			buffer[y] = 0;
-			for (ITYPE x = 0; x < matrix_dim; ++x) {
-				buffer[y] += matrix[y*matrix_dim + x] * state[basis_0 ^ matrix_mask_list[x]];
+		ITYPE state_index_x;
+		for (state_index_x = 0; state_index_x < loop_dim; ++state_index_x) {
+
+			// create base index
+			ITYPE basis_0_x = state_index_x;
+			for (UINT cursor = 0; cursor < insert_index_count; cursor++) {
+				UINT insert_index = sorted_insert_index_list[cursor];
+				basis_0_x = insert_zero_to_basis_index(basis_0_x, 1ULL << insert_index, insert_index);
 			}
-		}
 
-		// set result
-		for (ITYPE y = 0; y < matrix_dim; ++y) {
-			state[basis_0 ^ matrix_mask_list[y]] = buffer[y];
+			// flip control masks
+			basis_0_x ^= control_mask;
+
+			// compute matrix-vector multiply
+			for (ITYPE y = 0; y < ext_matrix_dim; ++y) {
+				buffer[y] = 0;
+				for (ITYPE x = 0; x < ext_matrix_dim; ++x) {
+					ITYPE dm_index_x = basis_0_x ^ matrix_mask_list[x%matrix_dim];
+					ITYPE dm_index_y = basis_0_y ^ matrix_mask_list[x / matrix_dim];
+					buffer[y] += ext_matrix[y*ext_matrix_dim + x] * state[dm_index_y * dim + dm_index_x];
+				}
+			}
+
+			// set result
+			for (ITYPE y = 0; y < ext_matrix_dim; ++y) {
+				ITYPE dm_index_x = basis_0_x ^ matrix_mask_list[y % matrix_dim];
+				ITYPE dm_index_y = basis_0_y ^ matrix_mask_list[y / matrix_dim];
+				state[dm_index_y * dim + dm_index_x] = buffer[y];
+			}
 		}
 	}
 	free(sorted_insert_index_list);
@@ -374,3 +406,42 @@ void dm_RZ_gate(UINT target_qubit_index, double angle, CTYPE* state, ITYPE dim) 
 			rotation_gate[i * 2 + j] = cos(angle / 2) * PAULI_MATRIX[0][i * 2 + j] + sin(angle / 2) * 1.0i * PAULI_MATRIX[3][i * 2 + j];
 	dm_single_qubit_dense_matrix_gate(target_qubit_index, rotation_gate, state, dim);
 }
+
+
+void dm_multi_qubit_Pauli_gate_partial_list(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, CTYPE* state, ITYPE dim) {
+	// TODO faster impl
+	const ITYPE matrix_dim = 1ULL << target_qubit_index_count;
+	CTYPE* matrix = (CTYPE*)malloc(sizeof(CTYPE)*matrix_dim*matrix_dim);
+	for (ITYPE y = 0; y < matrix_dim; ++y) {
+		for (ITYPE x = 0; x < matrix_dim; ++x) {
+			CTYPE coef = 1.0;
+			for (int i = 0; i < target_qubit_index_count; ++i) {
+				int xi = (x >> i) % 2;
+				int yi = (y >> i) % 2;
+				coef *= PAULI_MATRIX[Pauli_operator_type_list[i]][yi*2+xi];
+			}
+			matrix[y*matrix_dim + x] = coef;
+		}
+	}
+	dm_multi_qubit_dense_matrix_gate(target_qubit_index_list, target_qubit_index_count, matrix, state, dim);
+	free(matrix);
+}
+void dm_multi_qubit_Pauli_rotation_gate_partial_list(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, double angle, CTYPE* state, ITYPE dim) {
+	// TODO faster impl
+	const ITYPE matrix_dim = 1ULL << target_qubit_index_count;
+	CTYPE* matrix = (CTYPE*)malloc(sizeof(CTYPE)*matrix_dim*matrix_dim);
+	for (ITYPE y = 0; y < matrix_dim; ++y) {
+		for (ITYPE x = 0; x < matrix_dim; ++x) {
+			CTYPE coef = 1.0;
+			for (int i = 0; i < target_qubit_index_count; ++i) {
+				int xi = (x >> i) % 2;
+				int yi = (y >> i) % 2;
+				coef *= PAULI_MATRIX[Pauli_operator_type_list[i]][yi*2+xi];
+			}
+			matrix[y*matrix_dim + x] = cos(angle/2) *1.0  + 1.0i * sin(angle/2)*coef;
+		}
+	}
+	dm_multi_qubit_dense_matrix_gate(target_qubit_index_list, target_qubit_index_count, matrix, state, dim);
+	free(matrix);
+}
+

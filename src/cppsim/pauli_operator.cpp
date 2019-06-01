@@ -19,9 +19,11 @@
 #ifndef _MSC_VER
 extern "C"{
 #include <csim/stat_ops.h>
+#include <csim/stat_ops_dm.h>
 }
 #else
 #include <csim/stat_ops.h>
+#include <csim/stat_ops_dm.h>
 #endif
 #include "pauli_operator.hpp"
 #include "state.hpp"
@@ -121,7 +123,13 @@ CPPCTYPE PauliOperator::get_expectation_value(const QuantumStateBase* state) con
 #endif
 	}
 	else {
-		std::cerr << "not implemented" << std::endl;
+		return _coef * dm_expectation_value_multi_qubit_Pauli_operator_partial_list(
+			this->get_index_list().data(),
+			this->get_pauli_id_list().data(),
+			(UINT)this->get_index_list().size(),
+			state->data_c(),
+			state->dim
+		);
 	}
 }
 
