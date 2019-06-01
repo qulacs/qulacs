@@ -46,6 +46,9 @@ void dm_single_qubit_dense_matrix_gate(UINT target_qubit_index, const CTYPE matr
 	}
 
 	ITYPE state_index_y;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
 	for (state_index_y = 0; state_index_y < loop_dim; ++state_index_y) {
 
 		// create vertical index
@@ -110,6 +113,9 @@ void dm_multi_qubit_control_single_qubit_dense_matrix_gate(const UINT* control_q
 	}
 
 	ITYPE state_index_y;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
 	for (state_index_y = 0; state_index_y < loop_dim; ++state_index_y) {
 
 		// create base index
@@ -188,6 +194,7 @@ void dm_multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list, UINT 
 	// loop variables
 	const ITYPE loop_dim = dim >> target_qubit_index_count;
 
+#ifndef _OPENMP
 	CTYPE* buffer = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*ext_matrix_dim));
 	ITYPE state_index_y;
 	for (state_index_y = 0; state_index_y < loop_dim; ++state_index_y) {
@@ -226,6 +233,60 @@ void dm_multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list, UINT 
 		}
 	}
 	free(buffer);
+#else
+	const UINT thread_count = omp_get_max_threads();
+	CTYPE* buffer_list = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*matrix_dim*thread_count));
+
+	const ITYPE block_size = loop_dim / thread_count;
+	const ITYPE residual = loop_dim % thread_count;
+
+#pragma omp parallel
+	{
+		UINT thread_id = omp_get_thread_num();
+		ITYPE start_index = block_size * thread_id + (residual > thread_id ? thread_id : residual);
+		ITYPE end_index = block_size * (thread_id + 1) + (residual > (thread_id + 1) ? (thread_id + 1) : residual);
+		CTYPE* buffer = buffer_list + thread_id * matrix_dim;
+
+		ITYPE state_index_y;
+		for (state_index_y = start_index; state_index_y < end_index; ++state_index_y) {
+
+			// create base index
+			ITYPE basis_0_y = state_index_y;
+			for (UINT cursor = 0; cursor < target_qubit_index_count; cursor++) {
+				UINT insert_index = sorted_insert_index_list[cursor];
+				basis_0_y = insert_zero_to_basis_index(basis_0_y, 1ULL << insert_index, insert_index);
+			}
+
+			ITYPE state_index_x;
+			for (state_index_x = 0; state_index_x < loop_dim; ++state_index_x) {
+				// create base index
+				ITYPE basis_0_x = state_index_x;
+				for (UINT cursor = 0; cursor < target_qubit_index_count; cursor++) {
+					UINT insert_index = sorted_insert_index_list[cursor];
+					basis_0_x = insert_zero_to_basis_index(basis_0_x, 1ULL << insert_index, insert_index);
+				}
+
+				// compute matrix-vector multiply
+				for (ITYPE y = 0; y < ext_matrix_dim; ++y) {
+					buffer[y] = 0;
+					for (ITYPE x = 0; x < ext_matrix_dim; ++x) {
+						ITYPE dm_index_x = basis_0_x ^ matrix_mask_list[x%matrix_dim];
+						ITYPE dm_index_y = basis_0_y ^ matrix_mask_list[x / matrix_dim];
+						buffer[y] += ext_matrix[y*ext_matrix_dim + x] * state[dm_index_y * dim + dm_index_x];
+					}
+				}
+
+				// set result
+				for (ITYPE y = 0; y < ext_matrix_dim; ++y) {
+					ITYPE dm_index_x = basis_0_x ^ matrix_mask_list[y % matrix_dim];
+					ITYPE dm_index_y = basis_0_y ^ matrix_mask_list[y / matrix_dim];
+					state[dm_index_y * dim + dm_index_x] = buffer[y];
+				}
+			}
+		}
+	}
+	free(buffer_list);
+#endif
 	free(ext_matrix);
 	free((UINT*)sorted_insert_index_list);
 	free((ITYPE*)matrix_mask_list);
@@ -262,8 +323,9 @@ void dm_multi_qubit_control_multi_qubit_dense_matrix_gate(const UINT* control_qu
 			ext_matrix[y*ext_matrix_dim + x] = matrix[y1*matrix_dim + x1] * conj(matrix[y2*matrix_dim + x2]);
 		}
 	}
-	CTYPE* buffer = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*ext_matrix_dim));
 
+#ifndef _OPENMP
+	CTYPE* buffer = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*ext_matrix_dim));
 	ITYPE state_index_y;
 	for (state_index_y = 0; state_index_y < loop_dim; ++state_index_y) {
 
@@ -308,8 +370,69 @@ void dm_multi_qubit_control_multi_qubit_dense_matrix_gate(const UINT* control_qu
 			}
 		}
 	}
-	free(sorted_insert_index_list);
 	free(buffer);
+#else
+	const UINT thread_count = omp_get_max_threads();
+	CTYPE* buffer_list = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*matrix_dim*thread_count));
+
+	const ITYPE block_size = loop_dim / thread_count;
+	const ITYPE residual = loop_dim % thread_count;
+
+#pragma omp parallel
+	{
+		UINT thread_id = omp_get_thread_num();
+		ITYPE start_index = block_size * thread_id + (residual > thread_id ? thread_id : residual);
+		ITYPE end_index = block_size * (thread_id + 1) + (residual > (thread_id + 1) ? (thread_id + 1) : residual);
+		CTYPE* buffer = buffer_list + thread_id * matrix_dim;
+
+		ITYPE state_index_y;
+		for (state_index_y = start_index; state_index_y < end_index; ++state_index_y) {
+
+			// create base index
+			ITYPE basis_0_y = state_index_y;
+			for (UINT cursor = 0; cursor < insert_index_count; cursor++) {
+				UINT insert_index = sorted_insert_index_list[cursor];
+				basis_0_y = insert_zero_to_basis_index(basis_0_y, 1ULL << insert_index, insert_index);
+			}
+
+			// flip control masks
+			basis_0_y ^= control_mask;
+
+			ITYPE state_index_x;
+			for (state_index_x = 0; state_index_x < loop_dim; ++state_index_x) {
+
+				// create base index
+				ITYPE basis_0_x = state_index_x;
+				for (UINT cursor = 0; cursor < insert_index_count; cursor++) {
+					UINT insert_index = sorted_insert_index_list[cursor];
+					basis_0_x = insert_zero_to_basis_index(basis_0_x, 1ULL << insert_index, insert_index);
+				}
+
+				// flip control masks
+				basis_0_x ^= control_mask;
+
+				// compute matrix-vector multiply
+				for (ITYPE y = 0; y < ext_matrix_dim; ++y) {
+					buffer[y] = 0;
+					for (ITYPE x = 0; x < ext_matrix_dim; ++x) {
+						ITYPE dm_index_x = basis_0_x ^ matrix_mask_list[x%matrix_dim];
+						ITYPE dm_index_y = basis_0_y ^ matrix_mask_list[x / matrix_dim];
+						buffer[y] += ext_matrix[y*ext_matrix_dim + x] * state[dm_index_y * dim + dm_index_x];
+					}
+				}
+
+				// set result
+				for (ITYPE y = 0; y < ext_matrix_dim; ++y) {
+					ITYPE dm_index_x = basis_0_x ^ matrix_mask_list[y % matrix_dim];
+					ITYPE dm_index_y = basis_0_y ^ matrix_mask_list[y / matrix_dim];
+					state[dm_index_y * dim + dm_index_x] = buffer[y];
+				}
+			}
+		}
+	}
+	free(buffer_list);
+#endif
+	free(sorted_insert_index_list);
 	free(matrix_mask_list);
 }
 
