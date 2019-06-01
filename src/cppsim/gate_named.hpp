@@ -26,15 +26,21 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override{
+		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-		if (state->get_device_name() == "gpu") {
-			_update_func_gpu(this->target_qubit_list[0].index(), state->data(), state->dim);
-		} else {
-			_update_func(this->_target_qubit_list[0].index(), state->data_c(), state->dim);
-		}
+			if (state->get_device_name() == "gpu") {
+				_update_func_gpu(this->target_qubit_list[0].index(), state->data(), state->dim);
+			}
+			else {
+				_update_func(this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+			}
 #else
-        _update_func(this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+			_update_func(this->_target_qubit_list[0].index(), state->data_c(), state->dim);
 #endif
+		}
+		else {
+			_update_func_dm(this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+		}
     };
     /**
      * \~japanese-en 自身のディープコピーを生成する
@@ -74,16 +80,22 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override{
+		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-		if (state->get_device_name() == "gpu") {
-            _update_func_gpu(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data(), state->dim);
-		} else {
-        _update_func(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data_c(), state->dim);
-		}
+			if (state->get_device_name() == "gpu") {
+				_update_func_gpu(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data(), state->dim);
+			}
+			else {
+				_update_func(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data_c(), state->dim);
+			}
 #else
-        _update_func(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data_c(), state->dim);
+			_update_func(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data_c(), state->dim);
 #endif
-    };
+		}
+		else {
+			_update_func_dm(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data_c(), state->dim);
+		}
+	};
     /**
      * \~japanese-en 自身のディープコピーを生成する
      * 
@@ -122,15 +134,21 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
+		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-		if (state->get_device_name() == "gpu") {
-            _update_func_gpu(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data(), state->dim);
-		} else {
-            _update_func(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data_c(), state->dim);
-		}
+			if (state->get_device_name() == "gpu") {
+				_update_func_gpu(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data(), state->dim);
+			}
+			else {
+				_update_func(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+			}
 #else
-        _update_func(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+			_update_func(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data_c(), state->dim);
 #endif
+		}
+		else {
+			_update_func_dm(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+		}
     };
     /**
      * \~japanese-en 自身のディープコピーを生成する
@@ -171,15 +189,21 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override{
+		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-		if (state->get_device_name() == "gpu") {
-            _update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim);
-		} else {
-            _update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
-		}
+			if (state->get_device_name() == "gpu") {
+				_update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim);
+}
+			else {
+				_update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
+			}
 #else
-        _update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
+			_update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
 #endif
+		}
+		else {
+			_update_func_dm(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
+		}
     };
     /**
      * \~japanese-en 自身のディープコピーを生成する
