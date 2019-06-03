@@ -24,7 +24,7 @@ public:
      */
     ClsCNOTGate(UINT control_qubit_index, UINT target_qubit_index) {
         this->_update_func = CNOT_gate;
-		this->_update_func = dm_CNOT_gate;
+		this->_update_func_dm = dm_CNOT_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = CNOT_gate_host;
 #endif
@@ -50,7 +50,7 @@ public:
      */
     ClsCZGate(UINT control_qubit_index, UINT target_qubit_index) {
         this->_update_func = CZ_gate;
-		this->_update_func = dm_CZ_gate;
+		this->_update_func_dm = dm_CZ_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = CZ_gate_host;
 #endif
@@ -76,7 +76,7 @@ public:
      */
     ClsSWAPGate(UINT target_qubit_index1, UINT target_qubit_index2) {
         this->_update_func = SWAP_gate;
-		this->_update_func = dm_SWAP_gate;
+		this->_update_func_dm = dm_SWAP_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = SWAP_gate_host;
 #endif
