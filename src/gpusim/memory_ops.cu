@@ -17,8 +17,22 @@
 #include "util_type_internal.h"
 #include "util.cuh"
 #include "memory_ops.h"
+#include "memory_ops_device_functions.h"
 #include "stat_ops.h"
 #include "update_ops_cuda.h"
+
+__host__ void* allocate_cuda_stream_host(unsigned int max_cuda_stream) {
+	cudaStream_t* stream = (cudaStream_t*)malloc(max_cuda_stream * sizeof(cudaStream_t));
+	for (int i = 0; i < max_cuda_stream; ++i) cudaStreamCreate(&stream[i]);
+	void* cuda_stream = reinterpret_cast<void*>(stream);
+	return cuda_stream;
+}
+
+__host__ void release_cuda_stream_host(void* cuda_stream, unsigned int max_cuda_stream) {
+	cudaStream_t* stream = reinterpret_cast<cudaStream_t*>(cuda_stream);
+	for (int i = 0; i < max_cuda_stream; ++i) cudaStreamDestroy(stream[i]);
+	free(stream);
+}
 
 __global__ void init_qstate(GTYPE* state_gpu, ITYPE dim){
 	ITYPE idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -37,22 +51,33 @@ __host__ void* allocate_quantum_state_host(ITYPE dim){
     return psi_gpu;
 }
 
-__host__ void initialize_quantum_state_host(void* state, ITYPE dim){
+__host__ void initialize_quantum_state_host(void* state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError cudaStatus;
 	unsigned int block = dim <= 1024 ? dim : 1024;
 	unsigned int grid = dim / block;
-	init_qstate << <grid, block >> >(state_gpu, dim);
+	init_qstate << <grid, block, 0, *cuda_stream >> > (state_gpu, dim);
 
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	cudaStatus = cudaGetLastError();
 	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
+	stream = reinterpret_cast<void*>(cuda_stream);
+}
+
+__host__ void initialize_quantum_state_host(void* state, ITYPE dim) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	initialize_quantum_state_host(state, dim, &cuda_stream);
 }
 
 __host__ void release_quantum_state_host(void* state){
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	checkCudaErrors(cudaFree(state_gpu), __FILE__, __LINE__);
+}
+
+__host__ void initialize_Haar_random_state_host(void *state, ITYPE dim, void* stream) {
+	initialize_Haar_random_state_with_seed_host(state, dim, (unsigned)time(NULL), stream);
 }
 
 __host__ void initialize_Haar_random_state_host(void *state, ITYPE dim) {
@@ -97,32 +122,36 @@ __global__ void rand_normal_xorwow(curandState* rnd_state, GTYPE* state, ITYPE d
     }
 }
 
-__host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim, UINT seed) {
-    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+__host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim, UINT seed, void* stream) {
+	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	const ITYPE ignore_first = 40;
 	double norm = 0.;
 
-    curandState* rnd_state;
-    checkCudaErrors(cudaMalloc((void**)&rnd_state, dim*sizeof(curandState)), __FILE__, __LINE__);
-    
-    // CURAND_RNG_PSEUDO_XORWOW
-    // CURAND_RNG_PSEUDO_MT19937 offset cannot be used and need sm_35 or higher.
-	
+	curandState* rnd_state;
+	checkCudaErrors(cudaMalloc((void**)&rnd_state, dim * sizeof(curandState)), __FILE__, __LINE__);
+
+	// CURAND_RNG_PSEUDO_XORWOW
+	// CURAND_RNG_PSEUDO_MT19937 offset cannot be used and need sm_35 or higher.
+
 	unsigned int block = dim <= 512 ? dim : 512;
-	unsigned int grid = min( (int)(dim / block), 512);
-	
-    init_rnd <<< grid, block >>>(rnd_state, seed);
-	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
-    // checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
-    
-    rand_normal_xorwow <<< grid, block >>>(rnd_state, state_gpu, dim);
+	unsigned int grid = min((int)(dim / block), 512);
+
+	init_rnd << < grid, block, 0, *cuda_stream >> > (rnd_state, seed);
 	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
 
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
-    checkCudaErrors(cudaFree(rnd_state), __FILE__, __LINE__);
-    state = reinterpret_cast<void*>(state_gpu);
+	rand_normal_xorwow << < grid, block, 0, *cuda_stream >> > (rnd_state, state_gpu, dim);
+	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
 
-    norm = state_norm_host(state, dim);
-    normalize_host(norm, state, dim);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
+	checkCudaErrors(cudaFree(rnd_state), __FILE__, __LINE__);
+	state = reinterpret_cast<void*>(state_gpu);
+
+	norm = state_norm_host(state, dim, cuda_stream);
+	normalize_host(norm, state, dim, cuda_stream);
 }
 
+__host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim, UINT seed) {
+	cudaStream_t cuda_stream = (cudaStream_t)0;
+	initialize_Haar_random_state_with_seed_host(state, dim, seed, &cuda_stream);
+}
