@@ -187,6 +187,19 @@ public:
 		}
     }
 
+	virtual void load(const Eigen::VectorXcd& _state) {
+		if (_state.size() != _dim && _state.size() != _dim * _dim) {
+			std::cerr << "Error: DensityMatrixCpu::load(vector<Complex>&): invalid length of state" << std::endl;
+			return;
+		}
+		if (_state.size() == _dim) {
+			dm_initialize_with_pure_state(this->data_c(), (const CTYPE*)_state.data(), dim);
+		}
+		else {
+			memcpy(this->data_cpp(), _state.data(), (size_t)(sizeof(CPPCTYPE)*_dim*_dim));
+		}
+	}
+
 	virtual void load(const ComplexMatrix& _state) {
 		if (_state.cols() != _dim && _state.rows() != _dim * _dim) {
 			std::cerr << "Error: DensityMatrixCpu::load(ComplexMatrix&): invalid length of state" << std::endl;

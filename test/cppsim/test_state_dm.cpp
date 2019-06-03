@@ -38,9 +38,9 @@ TEST(DensityMatrixTest, Sampling) {
 	UINT n = 5;
 	DensityMatrix state(n);
 	state.set_Haar_random_state();
-	state.set_computational_basis(100);
+	state.set_computational_basis(10);
 	auto res1 = state.sampling(1024);
-	state.set_computational_basis(100);
+	state.set_computational_basis(10);
 	auto res2 = state.sampling(1024);
 }
 
