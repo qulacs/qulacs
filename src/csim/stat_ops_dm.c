@@ -90,6 +90,28 @@ double dm_marginal_prob(const UINT* sorted_target_qubit_index_list, const UINT* 
     return sum;
 }
 
+
+void dm_state_add(const CTYPE *state_added, CTYPE *state, ITYPE dim) {
+	ITYPE index;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+	for (index = 0; index < dim*dim; ++index) {
+		state[index] += state_added[index];
+	}
+}
+
+void dm_state_multiply(CTYPE coef, CTYPE *state, ITYPE dim) {
+	ITYPE index;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+	for (index = 0; index < dim*dim; ++index) {
+		state[index] *= coef;
+	}
+}
+
+
 double dm_expectation_value_multi_qubit_Pauli_operator_partial_list(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, const CTYPE* state, ITYPE dim) {
 	const ITYPE matrix_dim = 1ULL << target_qubit_index_count;
 	CTYPE* matrix = (CTYPE*)malloc(sizeof(CTYPE)*matrix_dim*matrix_dim);

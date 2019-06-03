@@ -233,17 +233,20 @@ public:
     /**
      * \~japanese-en 量子状態を足しこむ
      */
-    virtual void add_state(const QuantumStateBase* state) override{
-		std::cerr << "Not implemented" << std::endl;
-		exit(0);
+	virtual void add_state(const QuantumStateBase* state) override {
+		dm_state_add(state->data_c(), this->data_c(), this->dim);
 	}
-    /**
-     * \~japanese-en 複素数をかける
-     */
-    virtual void multiply_coef(CPPCTYPE coef) override{
-		std::cerr << "Not implemented" << std::endl;
-		exit(0);
-    }
+	/**
+	 * \~japanese-en 複素数をかける
+	 */
+	virtual void multiply_coef(CPPCTYPE coef) override {
+#ifdef _MSC_VER
+		dm_state_multiply(coef, this->data_c(), this->dim);
+#else
+		CTYPE c_coef = { coef.real(), coef.imag() };
+		dm_state_multiply(c_coef, this->data_c(), this->dim);
+#endif
+	}
 
 
     /**

@@ -47,15 +47,39 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
+		if (state->is_state_vector()) {
+			double r = random.uniform();
+			auto ite = std::lower_bound(_cumulative_distribution.begin(), _cumulative_distribution.end(), r);
+			assert(ite != _cumulative_distribution.begin());
+			size_t gate_index = std::distance(_cumulative_distribution.begin(), ite) - 1;
 
-        double r = random.uniform();
-        auto ite = std::lower_bound(_cumulative_distribution.begin(), _cumulative_distribution.end(), r);
-        assert(ite != _cumulative_distribution.begin());
-        size_t gate_index = std::distance(_cumulative_distribution.begin(), ite) - 1;
-
-        if (gate_index < _gate_list.size()) {
-            _gate_list[gate_index]->update_quantum_state(state);
-        }
+			if (gate_index < _gate_list.size()) {
+				_gate_list[gate_index]->update_quantum_state(state);
+			}
+		}
+		else {
+			auto org_state = state->copy();
+			auto temp_state = state->copy();
+			for (UINT gate_index = 0; gate_index < _gate_list.size(); ++gate_index) {
+				if (gate_index == 0) {
+					_gate_list[gate_index]->update_quantum_state(state);
+					state->multiply_coef(_distribution[gate_index]);
+				}
+				else if(gate_index+1 < _gate_list.size()){
+					temp_state->load(org_state);
+					_gate_list[gate_index]->update_quantum_state(temp_state);
+					temp_state->multiply_coef(_distribution[gate_index]);
+					state->add_state(temp_state);
+				}
+				else {
+					_gate_list[gate_index]->update_quantum_state(org_state);
+					org_state->multiply_coef(_distribution[gate_index]);
+					state->add_state(org_state);
+				}
+			}
+			delete org_state;
+			delete temp_state;
+		}
     };
     /**
      * \~japanese-en 自身のディープコピーを生成する
@@ -107,30 +131,52 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
-        double r = random.uniform();
+		if (state->is_state_vector()) {
+			double r = random.uniform();
 
-        double sum = 0.;
-        double org_norm = state->get_norm();
+			double sum = 0.;
+			double org_norm = state->get_norm();
 
-        auto buffer = state->copy();
-        double norm;
-        for (auto gate : _gate_list) {
-            gate->update_quantum_state(buffer);
-            norm = buffer->get_norm()/org_norm;
-            sum += norm;
-            if (r < sum) {
-                state->load(buffer);
-                state->normalize(norm);
-                break;
-            }
-            else {
-                buffer->load(state);
-            }
-        }
-        if (!(r < sum)) {
-            std::cerr << "* Warning : CPTP-map was not trace preserving. Identity-map is applied." << std::endl;
-        }
-        delete buffer;
+			auto buffer = state->copy();
+			double norm;
+			for (auto gate : _gate_list) {
+				gate->update_quantum_state(buffer);
+				norm = buffer->get_norm() / org_norm;
+				sum += norm;
+				if (r < sum) {
+					state->load(buffer);
+					state->normalize(norm);
+					break;
+				}
+				else {
+					buffer->load(state);
+				}
+			}
+			if (!(r < sum)) {
+				std::cerr << "* Warning : CPTP-map was not trace preserving. Identity-map is applied." << std::endl;
+			}
+			delete buffer;
+		}
+		else {
+			auto org_state = state->copy();
+			auto temp_state = state->copy();
+			for (UINT gate_index = 0; gate_index < _gate_list.size(); ++gate_index) {
+				if (gate_index == 0) {
+					_gate_list[gate_index]->update_quantum_state(state);
+				}
+				else if (gate_index + 1 < _gate_list.size()) {
+					temp_state->load(org_state);
+					_gate_list[gate_index]->update_quantum_state(temp_state);
+					state->add_state(temp_state);
+				}
+				else {
+					_gate_list[gate_index]->update_quantum_state(org_state);
+					state->add_state(org_state);
+				}
+			}
+			delete org_state;
+			delete temp_state;
+		}
     };
 
     /**
