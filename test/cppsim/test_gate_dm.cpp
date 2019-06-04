@@ -12,6 +12,7 @@
 #include <cppsim/utility.hpp>
 #include <csim/update_ops.h>
 #include <functional>
+#include <numeric>
 
 
 
@@ -889,6 +890,173 @@ TEST(DensityMatrixGateTest, MultiControlMultiTarget) {
 		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm_test.data_cpp()[i*dim + j]), 0, eps);
 	}
 }
+
+
+
+TEST(DensityMatrixGateTest, CheckProbabilisticGate) {
+	const UINT n = 5;
+	const ITYPE dim = 1ULL << n;
+	double eps = 1e-15;
+	const UINT gate_count = 5;
+
+	Random random;
+	DensityMatrix state(n);
+
+	std::vector<UINT> arr(n);
+	std::iota(arr.begin(),arr.end(), 0);
+
+	for (UINT repeat = 0; repeat < 10; ++repeat) {
+		// create dist
+		std::vector<double> probs;
+		for (UINT i = 0; i < gate_count; ++i) probs.push_back(random.uniform());
+		double sum = std::accumulate(probs.begin(), probs.end(), 0.);
+		for (UINT i = 0; i < gate_count; ++i) probs[i] /= sum;
+
+		// create gate list
+		std::vector<QuantumGateBase*> gate_list;
+		for (UINT i = 0; i < gate_count; ++i) {
+			auto gate = gate::RandomUnitary(arr);
+			gate_list.push_back(gate);
+		}
+		auto prob_gate = gate::Probabilistic(probs, gate_list);
+
+		// update density matrix
+		DensityMatrix dm(n);
+		dm.set_Haar_random_state();
+
+		// update by matrix reps
+		ComplexMatrix mat = ComplexMatrix::Zero(dim,dim);
+		for (UINT i = 0; i < gate_count; ++i) {
+			ComplexMatrix gate_mat;
+			gate_list[i]->set_matrix(gate_mat);
+			ComplexMatrix dense_mat(dim,dim);
+			for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) dense_mat(i, j) = dm.data_cpp()[i*dim + j];
+			mat += probs[i] * gate_mat * dense_mat * gate_mat.adjoint();
+		}
+		prob_gate->update_quantum_state(&dm);
+
+		// check equivalence
+		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR( abs(dm.data_cpp()[i*dim + j] - mat(i, j)), 0., eps);
+		// check TP
+		ASSERT_NEAR(dm.get_norm(), 1., eps);
+
+		// release
+		delete prob_gate;
+		for (UINT i = 0; i < gate_count; ++i) {
+			delete gate_list[i];
+		}
+	}
+}
+
+
+
+TEST(DensityMatrixGateTest, CheckCPTPMap) {
+	const UINT n = 2;
+	const ITYPE dim = 1ULL << n;
+	double eps = 1e-15;
+	const UINT gate_count = 5;
+
+	Random random;
+	DensityMatrix state(n);
+
+	std::vector<UINT> arr(n);
+	std::iota(arr.begin(), arr.end(), 0);
+
+	for (UINT repeat = 0; repeat < 10; ++repeat) {
+		// create dist
+		std::vector<double> probs;
+		for (UINT i = 0; i < gate_count; ++i) probs.push_back(random.uniform());
+		double sum = std::accumulate(probs.begin(), probs.end(), 0.);
+		for (UINT i = 0; i < gate_count; ++i) probs[i] /= sum;
+
+		// create not TP gate list
+		std::vector<QuantumGateBase*> gate_list;
+		for (UINT i = 0; i < gate_count; ++i) {
+			auto gate = gate::RandomUnitary(arr);
+			gate->multiply_scalar(sqrt(probs[i]));
+			gate_list.push_back(gate);
+		}
+		auto cptp_gate = gate::CPTP(gate_list);
+
+		// update density matrix
+		DensityMatrix dm(n);
+		dm.set_Haar_random_state();
+
+		// update by matrix reps
+		ComplexMatrix mat = ComplexMatrix::Zero(dim, dim);
+		for (UINT i = 0; i < gate_count; ++i) {
+			ComplexMatrix gate_mat;
+			gate_list[i]->set_matrix(gate_mat);
+			ComplexMatrix dense_mat(dim, dim);
+			for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) dense_mat(i, j) = dm.data_cpp()[i*dim + j];
+			mat += gate_mat * dense_mat * gate_mat.adjoint();
+		}
+		cptp_gate->update_quantum_state(&dm);
+
+		// check equivalence
+		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(dm.data_cpp()[i*dim + j] - mat(i, j)), 0., eps);
+		// check TP
+		ASSERT_NEAR(dm.get_norm(), 1., eps);
+
+		// release
+		delete cptp_gate;
+		for (UINT i = 0; i < gate_count; ++i) {
+			delete gate_list[i];
+		}
+	}
+}
+
+TEST(DensityMatrixGateTest, AmplitudeDampingTest) {
+	const UINT n = 1;
+	const ITYPE dim = 1ULL << n;
+	double eps = 1e-15;
+
+	Random random;
+	DensityMatrix state(n);
+
+	std::vector<UINT> arr(n);
+	std::iota(arr.begin(), arr.end(), 0);
+
+	for (UINT repeat = 0; repeat < 10; ++repeat) {
+		double prob = random.uniform();
+
+		ComplexMatrix K0(2, 2), K1(2,2);
+		K0 << 1, 0, 0, sqrt(1 - prob);
+		K1 << 0, sqrt(prob), 0, 0;
+
+		auto gate0 = gate::DenseMatrix(arr, K0);
+		auto gate1 = gate::DenseMatrix(arr, K1);
+		std::vector<QuantumGateBase*> gate_list = { gate0, gate1 };
+		auto cptp_gate = gate::CPTP(gate_list);
+
+		// update density matrix
+		DensityMatrix dm(n);
+		dm.set_Haar_random_state();
+
+		// update by matrix reps
+		ComplexMatrix mat = ComplexMatrix::Zero(dim, dim);
+		for (UINT i = 0; i < gate_list.size(); ++i) {
+			ComplexMatrix gate_mat;
+			gate_list[i]->set_matrix(gate_mat);
+			ComplexMatrix dense_mat(dim, dim);
+			for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) dense_mat(i, j) = dm.data_cpp()[i*dim + j];
+			mat += gate_mat * dense_mat * gate_mat.adjoint();
+		}
+		cptp_gate->update_quantum_state(&dm);
+
+		// check equivalence
+		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(dm.data_cpp()[i*dim + j] - mat(i, j)), 0., eps);
+		// check TP
+		ASSERT_NEAR(dm.get_norm(), 1., eps);
+
+		// release
+		delete cptp_gate;
+		for (UINT i = 0; i < gate_list.size(); ++i) {
+			delete gate_list[i];
+		}
+	}
+}
+
 
 /*
 // not implemented yet
