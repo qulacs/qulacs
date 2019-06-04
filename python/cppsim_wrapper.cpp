@@ -298,6 +298,7 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("DephasingNoise", &gate::DephasingNoise);
     mgate.def("IndependentXZNoise", &gate::IndependentXZNoise);
     mgate.def("DepolarizingNoise", &gate::DepolarizingNoise);
+	mgate.def("AmplitudeDampingNoise", &gate::AmplitudeDampingNoise);
     mgate.def("Measurement", &gate::Measurement);
 
     QuantumGateMatrix*(*ptr3)(const QuantumGateBase*, const QuantumGateBase*) = &gate::merge;
