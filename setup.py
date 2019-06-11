@@ -47,22 +47,25 @@ class CMakeBuild(build_ext):
                 cmake_args += ['-A', 'x64']
             build_args += ['--', '/m']
         else:
+            env = os.environ.copy()
+            CC = env.get('CC', 'gcc')
+            CXX = env.get('CXX', 'g++')
             try:
-                gcc_out = subprocess.check_output(['gcc', '-dumpfullversion', '-dumpversion']).decode()
+                gcc_out = subprocess.check_output([CC, '-dumpfullversion', '-dumpversion']).decode()
                 gcc_version = LooseVersion(gcc_out)
-                gxx_out = subprocess.check_output(['g++', '-dumpfullversion', '-dumpversion']).decode()
+                gxx_out = subprocess.check_output([CXX, '-dumpfullversion', '-dumpversion']).decode()
                 gxx_version = LooseVersion(gxx_out)
             except OSError:
                 raise RuntimeError("gcc/g++ must be installed to build the following extensions: " +
                                ", ".join(e.name for e in self.extensions))
             if(gcc_version >= LooseVersion('7.0.0')):
-                cmake_args += ['-DCMAKE_C_COMPILER=gcc']
+                cmake_args += ['-DCMAKE_C_COMPILER={}'.format(CC)]
             else:
-                cmake_args += ['-DCMAKE_C_COMPILER=gcc-7']
+                raise RuntimeError("gcc must be >= 7.0.0")
             if(gxx_version >= LooseVersion('7.0.0')):
-                cmake_args += ['-DCMAKE_CXX_COMPILER=g++']
+                cmake_args += ['-DCMAKE_CXX_COMPILER={}'.format(CXX)]
             else:
-                cmake_args += ['-DCMAKE_CXX_COMPILER=g++-7']
+                raise RuntimeError("g++ must be >= 7.0.0")
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j2']
 
