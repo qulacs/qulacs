@@ -22,6 +22,7 @@ extern "C" {
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/general_quantum_operator.hpp>
 #include <cppsim/state.hpp>
+#include <cppsim/state_dm.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_matrix.hpp>
 #include <cppsim/gate_merge.hpp>
@@ -136,6 +137,45 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_qubit_count", [](const QuantumState& state) -> unsigned int {return (unsigned int) state.qubit_count; })
         .def("__repr__", [](const QuantumState &p) {return p.to_string();});
         ;
+
+	py::class_<DensityMatrix, QuantumStateBase>(m, "DensityMatrix")
+		.def(py::init<unsigned int>())
+		.def("set_zero_state", &DensityMatrix::set_zero_state)
+		.def("set_computational_basis", &DensityMatrix::set_computational_basis)
+		.def("set_Haar_random_state", (void (DensityMatrix::*)(void))&DensityMatrix::set_Haar_random_state)
+		.def("set_Haar_random_state", (void (DensityMatrix::*)(UINT))&DensityMatrix::set_Haar_random_state)
+		.def("get_zero_probability", &DensityMatrix::get_zero_probability)
+		.def("get_marginal_probability", &DensityMatrix::get_marginal_probability)
+		.def("get_entropy", &DensityMatrix::get_entropy)
+		.def("get_norm", &DensityMatrix::get_norm)
+		.def("normalize", &DensityMatrix::normalize)
+		.def("allocate_buffer", &DensityMatrix::allocate_buffer, pybind11::return_value_policy::automatic_reference)
+		.def("copy", &DensityMatrix::copy)
+		.def("load", (void (DensityMatrix::*)(const QuantumStateBase*))&DensityMatrix::load)
+		.def("load", (void (DensityMatrix::*)(const std::vector<CPPCTYPE>&))&DensityMatrix::load)
+		.def("load", (void (DensityMatrix::*)(const ComplexMatrix&))&DensityMatrix::load)
+		.def("get_device_name", &DensityMatrix::get_device_name)
+		.def("data_cpp", &DensityMatrix::data_cpp)
+		.def("data_c", &DensityMatrix::data_c)
+		.def("add_state", &DensityMatrix::add_state)
+		.def("multiply_coef", &DensityMatrix::multiply_coef)
+		.def("get_classical_value", &DensityMatrix::get_classical_value)
+		.def("set_classical_value", &DensityMatrix::set_classical_value)
+		.def("to_string", &DensityMatrix::to_string)
+		.def("sampling", &DensityMatrix::sampling)
+
+		.def("get_matrix", [](const DensityMatrix& state) {
+			Eigen::MatrixXcd mat(state.dim, state.dim);
+			CTYPE* ptr = state.data_c();
+			for (ITYPE y = 0; y < state.dim; ++y) {
+				for (ITYPE x = 0; x < state.dim; ++x) {
+					mat(y, x) = ptr[y*state.dim + x];
+				}
+			}
+			return mat;
+		})
+		.def("__repr__", [](const DensityMatrix &p) {return p.to_string(); });
+		;
 
 #ifdef _USE_GPU
     py::class_<QuantumStateGpu, QuantumStateBase>(m, "QuantumStateGpu")
@@ -260,6 +300,7 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("DephasingNoise", &gate::DephasingNoise);
     mgate.def("IndependentXZNoise", &gate::IndependentXZNoise);
     mgate.def("DepolarizingNoise", &gate::DepolarizingNoise);
+	mgate.def("AmplitudeDampingNoise", &gate::AmplitudeDampingNoise);
     mgate.def("Measurement", &gate::Measurement);
 
     QuantumGateMatrix*(*ptr3)(const QuantumGateBase*, const QuantumGateBase*) = &gate::merge;

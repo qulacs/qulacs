@@ -3,9 +3,11 @@
 #ifndef _MSC_VER
 extern "C" {
 #include <csim/update_ops.h>
+#include <csim/update_ops_dm.h>
 }
 #else
 #include <csim/update_ops.h>
+#include <csim/update_ops_dm.h>
 #endif
 
 #include "gate.hpp"
@@ -53,22 +55,30 @@ public:
     virtual void update_quantum_state(QuantumStateBase* state)  override {
         auto target_index_list = _pauli->get_index_list();
         auto pauli_id_list = _pauli->get_pauli_id_list();
+		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-		if (state->get_device_name() == "gpu") {
-            multi_qubit_Pauli_gate_partial_list_host(
-			    target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
-                    state->data(), state->dim);
-            //_update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim);
-		} else {
-            multi_qubit_Pauli_gate_partial_list(
-			    target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
-			    state->data_c(), state->dim);
-		}
+			if (state->get_device_name() == "gpu") {
+				multi_qubit_Pauli_gate_partial_list_host(
+					target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+					state->data(), state->dim);
+				//_update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim);
+			}
+			else {
+				multi_qubit_Pauli_gate_partial_list(
+					target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+					state->data_c(), state->dim);
+			}
 #else
-        multi_qubit_Pauli_gate_partial_list(
-            target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
-            state->data_c(), state->dim);
+			multi_qubit_Pauli_gate_partial_list(
+				target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+				state->data_c(), state->dim);
 #endif
+		}
+		else {
+			dm_multi_qubit_Pauli_gate_partial_list(
+				target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+				state->data_c(), state->dim);
+		}
     };
     /**
      * \~japanese-en 自身のディープコピーを生成する
@@ -133,18 +143,25 @@ public:
     virtual void update_quantum_state(QuantumStateBase* state) override {
         auto target_index_list = _pauli->get_index_list();
         auto pauli_id_list = _pauli->get_pauli_id_list();
+		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-		if (state->get_device_name() == "gpu") {
-            multi_qubit_Pauli_rotation_gate_partial_list_host(
-			    target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
-			    _angle, state->data(), state->dim);
-        }
+			if (state->get_device_name() == "gpu") {
+				multi_qubit_Pauli_rotation_gate_partial_list_host(
+					target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+					_angle, state->data(), state->dim);
+			}
 #else
-        multi_qubit_Pauli_rotation_gate_partial_list(
-            target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
-            _angle, state->data_c(), state->dim);
+			multi_qubit_Pauli_rotation_gate_partial_list(
+				target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+				_angle, state->data_c(), state->dim);
 #endif
-    };
+		}
+		else {
+			dm_multi_qubit_Pauli_rotation_gate_partial_list(
+				target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+				_angle, state->data_c(), state->dim);
+		}
+	};
     /**
      * \~japanese-en 自身のディープコピーを生成する
      * 
