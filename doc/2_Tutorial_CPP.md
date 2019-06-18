@@ -10,11 +10,11 @@
 
 int main(){
 	// 5-qubitの状態を生成
-    unsigned int n = 5;
-    QuantumState state(n);
+	unsigned int n = 5;
+	QuantumState state(n);
 	// |00000>に初期化
-    state.set_zero_state();
-    return 0;
+	state.set_zero_state();
+	return 0;
 }
 ```
 メモリが不足している場合はプログラムが終了します。
@@ -35,7 +35,7 @@ int main() {
 	state.set_Haar_random_state();
 	// シードを指定してランダムな初期状態を生成
 	state.set_Haar_random_state(0);
-    return 0;
+	return 0;
 }
 ```
 
@@ -124,7 +124,7 @@ int main(){
 	state_bra.set_Haar_random_state();
 
 	std::complex<double> value = state::inner_product(&state_ket, &state_bra);
-    return 0;
+	return 0;
 }
 ```
 
@@ -136,16 +136,16 @@ int main(){
 #include <cppsim/state.hpp>
 
 int main(){
-    unsigned int n = 5;
-    QuantumState state(n);
-    state.set_zero_state();
+	unsigned int n = 5;
+	QuantumState state(n);
+	state.set_zero_state();
 
-    // GNU C++の場合、double _Complex配列を取得
-    // MSVCの場合はstd::complex<double>の配列を取得
-    const CTYPE* raw_data_c = state.data_c();
+	// GNU C++の場合、double _Complex配列を取得
+	// MSVCの場合はstd::complex<double>の配列を取得
+	const CTYPE* raw_data_c = state.data_c();
 
-    // std::complex<double>の配列を取得
-    const CPPCTYPE* raw_data_cpp = state.data_cpp();
+	// std::complex<double>の配列を取得
+	const CPPCTYPE* raw_data_cpp = state.data_cpp();
 }
 ```
 
@@ -317,7 +317,7 @@ int main(){
 	ComplexMatrix matrix;
 	x_gate->set_matrix(matrix);
 	std::cout << matrix << std::endl;
-    return 0;
+	return 0;
 }
 ```
 
@@ -334,13 +334,13 @@ int main(){
 
 int main(){
 
-    unsigned int index = 3;
-    auto x_gate = gate::X(index);
+	unsigned int index = 3;
+	auto x_gate = gate::X(index);
 
-    std::cout << x_gate << std::endl;
+	std::cout << x_gate << std::endl;
 
-    delete x_gate;
-    return 0;
+	delete x_gate;
+	return 0;
 }
 ```
 
@@ -531,12 +531,12 @@ Kraus-rankが1の場合は、上記の単体のクラウス演算子として扱
 #include <cppsim/circuit.hpp>
 
 int main(){
-    unsigned int n = 5;
-    QuantumState state(n);
-    state.set_zero_state();
+	unsigned int n = 5;
+	QuantumState state(n);
+	state.set_zero_state();
 
 	// 量子回路を定義
-    QuantumCircuit circuit(n);
+	QuantumCircuit circuit(n);
 
 	// 量子回路にゲートを追加
 	for(int i=0;i<n;++i){
@@ -549,8 +549,8 @@ int main(){
 	}
 
 	// 量子回路を状態に作用
-    circuit.update_quantum_state(&state);
-    return 0;
+	circuit.update_quantum_state(&state);
+	return 0;
 }
 ```
 
