@@ -207,6 +207,13 @@ public:
     bool commute_Pauli_at(UINT qubit_index, UINT pauli_type) const;
 
     /**
+     * \~japanese-en 量子ゲートの名前を出力する。
+     * 
+     * @return ゲート名
+     */
+    std::string get_name () const;
+
+    /**
      * \~japanese-en 量子ゲートのデバッグ情報の文字列を生成する
      *
      * @return 生成した文字列
