@@ -211,7 +211,7 @@ public:
      * 
      * @return ゲート名
      */
-    std::string get_name () const;
+    virtual std::string get_name () const;
 
     /**
      * \~japanese-en 量子ゲートのデバッグ情報の文字列を生成する

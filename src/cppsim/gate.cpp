@@ -106,7 +106,7 @@ std::string QuantumGateBase::to_string() const {
     return stream.str();
 }
 
-std::string get_name () const {
+std::string QuantumGateBase::get_name () const {
     return this->_name;
 }
 
