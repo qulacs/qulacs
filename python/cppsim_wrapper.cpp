@@ -229,6 +229,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("__repr__", [](const QuantumGateBase &p) {return p.to_string(); })
         .def("get_target_index_list", &QuantumGateBase::get_target_index_list)
         .def("get_control_index_list", &QuantumGateBase::get_control_index_list)
+        .def("get_name", &QuantumGateBase::get_name)
         .def("is_commute", &QuantumGateBase::is_commute)
         .def("is_Pauli", &QuantumGateBase::is_Pauli)
         .def("is_Clifford", &QuantumGateBase::is_Clifford)
