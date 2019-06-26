@@ -34,6 +34,7 @@ extern "C" {
 #include <cppsim/state_gpu.hpp>
 #endif
 
+#include <vqcsim/parametric_gate.hpp>
 #include <vqcsim/parametric_gate_factory.hpp>
 #include <vqcsim/parametric_circuit.hpp>
 
@@ -322,8 +323,11 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("Instrument", &gate::Instrument, pybind11::return_value_policy::take_ownership);
     mgate.def("Adaptive", &gate::Adaptive, pybind11::return_value_policy::take_ownership);
 
-    py::class_<QuantumGate_SingleParameter, QuantumGateBase>(m, "QuantumGate_SingleParameter");
-    mgate.def("ParametricRX", &gate::ParametricRX);
+	py::class_<QuantumGate_SingleParameter, QuantumGateBase>(m, "QuantumGate_SingleParameter")
+		.def("get_parameter_value", &QuantumGate_SingleParameter::get_parameter_value)
+		.def("set_parameter_value", &QuantumGate_SingleParameter::set_parameter_value)
+		;
+	mgate.def("ParametricRX", &gate::ParametricRX);
     mgate.def("ParametricRY", &gate::ParametricRY);
     mgate.def("ParametricRZ", &gate::ParametricRZ);
     mgate.def("ParametricPauliRotation", &gate::ParametricPauliRotation);
