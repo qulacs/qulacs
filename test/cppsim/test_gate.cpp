@@ -1117,3 +1117,27 @@ TEST(GateTest, ReversibleBooleanGate) {
 	std::cout << state.to_string() << std::endl;
 	*/
 }
+
+TEST(GateTest, TestNoise) {
+	const UINT n = 10;
+	QuantumState state(n);
+	Random random;
+	auto bitflip = gate::BitFlipNoise(0, random.uniform());
+	auto dephase = gate::DephasingNoise(0, random.uniform());
+	auto independetxz = gate::IndependentXZNoise(0, random.uniform());
+	auto depolarizing = gate::DepolarizingNoise(0, random.uniform());
+	auto amp_damp = gate::AmplitudeDampingNoise(0, random.uniform());
+	auto measurement = gate::Measurement(0, 0);
+	bitflip->update_quantum_state(&state);
+	dephase->update_quantum_state(&state);
+	independetxz->update_quantum_state(&state);
+	depolarizing->update_quantum_state(&state);
+	amp_damp->update_quantum_state(&state);
+	measurement->update_quantum_state(&state);
+	delete bitflip;
+	delete dephase;
+	delete independetxz;
+	delete depolarizing;
+	delete amp_damp;
+	delete measurement;
+}

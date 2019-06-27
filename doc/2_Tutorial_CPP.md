@@ -10,11 +10,11 @@
 
 int main(){
 	// 5-qubitの状態を生成
-    unsigned int n = 5;
-    QuantumState state(n);
+	unsigned int n = 5;
+	QuantumState state(n);
 	// |00000>に初期化
-    state.set_zero_state();
-    return 0;
+	state.set_zero_state();
+	return 0;
 }
 ```
 メモリが不足している場合はプログラムが終了します。
@@ -25,7 +25,7 @@ int main(){
 ```cpp
 #include <cppsim/state.hpp>
 
-int test() {
+int main() {
 	unsigned int n = 5;
 	QuantumState state(n);
 	state.set_zero_state();
@@ -35,7 +35,7 @@ int test() {
 	state.set_Haar_random_state();
 	// シードを指定してランダムな初期状態を生成
 	state.set_Haar_random_state(0);
-    return 0;
+	return 0;
 }
 ```
 
@@ -43,7 +43,6 @@ int test() {
 ### 量子状態のデータのコピーとロード
 量子状態を複製したり、他の量子状態のデータをロードできます。
 ```cpp
-
 #include <cppsim/state.hpp>
 
 int main(){
@@ -90,24 +89,24 @@ int main() {
 ```cpp
 #include <cppsim/state.hpp>
 
-int main(){
-    unsigned int n = 5;
-    QuantumState state(n);
-    state.set_zero_state();
-	
+int main() {
+	unsigned int n = 5;
+	QuantumState state(n);
+	state.set_zero_state();
+
 	// normの計算
-    double norm = state.get_norm(); 
+	double norm = state.get_norm();
 	// Z基底で測定した時のentropyの計算
-    double entropy = state.get_entropy(); 
+	double entropy = state.get_entropy();
 
-    // index-th qubitをZ基底で測定して0を得る確率の計算
-    unsigned int index = 3;
-    double zero_prob = state.get_zero_prob(index);
+	// index-th qubitをZ基底で測定して0を得る確率の計算
+	unsigned int index = 3;
+	double zero_prob = state.get_zero_probability(index);
 
-    // 周辺確率を計算 (以下は0,3-th qubitが0、1,2-th qubitが1と測定される確率の例)
-    std::vector<unsigned int> value_list = {0,1,1,0,2};
-    double marginal_prob = state.get_marginal_prob(value_list);
-    return 0;
+	// 周辺確率を計算 (以下は0,3-th qubitが0、1,2-th qubitが1と測定される確率の例)
+	std::vector<unsigned int> value_list = { 0,1,1,0,2 };
+	double marginal_prob = state.get_marginal_probability(value_list);
+	return 0;
 }
 ```
 
@@ -125,7 +124,7 @@ int main(){
 	state_bra.set_Haar_random_state();
 
 	std::complex<double> value = state::inner_product(&state_ket, &state_bra);
-    return 0;
+	return 0;
 }
 ```
 
@@ -137,16 +136,16 @@ int main(){
 #include <cppsim/state.hpp>
 
 int main(){
-    unsigned int n = 5;
-    QuantumState state(n);
-    state.set_zero_state();
+	unsigned int n = 5;
+	QuantumState state(n);
+	state.set_zero_state();
 
-    // GNU C++の場合、double _Complex配列を取得
-    // MSVCの場合はstd::complex<double>の配列を取得
-    const CTYPE* raw_data_c = state.data_c();
+	// GNU C++の場合、double _Complex配列を取得
+	// MSVCの場合はstd::complex<double>の配列を取得
+	const CTYPE* raw_data_c = state.data_c();
 
-    // std::complex<double>の配列を取得
-    const CPPCTYPE* raw_data_cpp = state.data_cpp();
+	// std::complex<double>の配列を取得
+	const CPPCTYPE* raw_data_cpp = state.data_cpp();
 }
 ```
 
@@ -318,7 +317,7 @@ int main(){
 	ComplexMatrix matrix;
 	x_gate->set_matrix(matrix);
 	std::cout << matrix << std::endl;
-    return 0;
+	return 0;
 }
 ```
 
@@ -335,13 +334,13 @@ int main(){
 
 int main(){
 
-    unsigned int index = 3;
-    auto x_gate = gate::X(index);
+	unsigned int index = 3;
+	auto x_gate = gate::X(index);
 
-    std::cout << x_gate << std::endl;
+	std::cout << x_gate << std::endl;
 
-    delete x_gate;
-    return 0;
+	delete x_gate;
+	return 0;
 }
 ```
 
@@ -403,8 +402,8 @@ int main() {
 	auto x_gate = gate::X(index);
 	auto z_gate = gate::Z(index);
 
-	auto probabilistic_xz_gate = gate::Probabilistic({ x_gate,z_gate }, { 0.1,0.2 });
-	auto depolarizing_gate = gate::DepolarizingNoise(0.3);
+	auto probabilistic_xz_gate = gate::Probabilistic({ 0.1,0.2 } , { x_gate,z_gate });
+	auto depolarizing_gate = gate::DepolarizingNoise(index, 0.3);
 
 	depolarizing_gate->update_quantum_state(&state);
 	probabilistic_xz_gate->update_quantum_state(&state);
@@ -532,12 +531,12 @@ Kraus-rankが1の場合は、上記の単体のクラウス演算子として扱
 #include <cppsim/circuit.hpp>
 
 int main(){
-    unsigned int n = 5;
-    QuantumState state(n);
-    state.set_zero_state();
+	unsigned int n = 5;
+	QuantumState state(n);
+	state.set_zero_state();
 
 	// 量子回路を定義
-    QuantumCircuit circuit(n);
+	QuantumCircuit circuit(n);
 
 	// 量子回路にゲートを追加
 	for(int i=0;i<n;++i){
@@ -550,8 +549,8 @@ int main(){
 	}
 
 	// 量子回路を状態に作用
-    circuit.update_quantum_state(&state);
-    return 0;
+	circuit.update_quantum_state(&state);
+	return 0;
 }
 ```
 
@@ -585,7 +584,8 @@ int main() {
 	unsigned int max_block_size = 3;
 	opt.optimize(&circuit, max_block_size);
 	return 0;
-}```
+}
+```
 
 ### 量子回路の情報デバッグ
 量子ゲートと同様、量子回路も<code>ostream</code>に流し込むことでデバッグ情報を表示することができます。
@@ -688,7 +688,7 @@ fp.close()
 (0.17434925+0j) [Z1 Z3] +
 (-0.22279649999999998+0j) [Z2]
 ```
-このような形式のファイルからオブザーバブルを生成するには、以下のようにコンストラクタの引数にファイルのパスを渡してやります。
+このような形式のファイルからオブザーバブルを生成するには、以下のように関数を通してオブザーバブルを生成することができます。
 
 ```cpp
 #include <cppsim/observable.hpp>
@@ -697,7 +697,8 @@ fp.close()
 int main() {
 	unsigned int n = 5;
 	std::string filename = "H2.txt";
-	Observable observable(filename);
+	Observable* observable = observable::create_observable_from_openfermion_file(filename);
+	delete observable;
 	return 0;
 }
 ```
@@ -733,24 +734,22 @@ int main() {
 int main() {
 	UINT n;
 	UINT num_repeats;
-	double theta;
+	double theta = 0.1;
+	Observable* observable = observable::create_observable_from_openfermion_file("../test/cppsim/H2.txt");
 
-    double res;
+	n = observable->get_qubit_count();
+	QuantumState state(n);
+	state.set_computational_basis(0);
 
-	Observable observable("../test/cppsim/H2.txt");	
-    
-    n = observable.get_qubit_count();
-	QuantumState state(n);	
-    state.set_computational_basis(0);
-    
-    QuantumCircuit circuit(n);
-	num_repeats = (UINT) std::ceil(theta * (double)n* 100.);
-	circuit.add_hamiltonian_rotation_gate(observable, angle, num_repeats);
+	QuantumCircuit circuit(n);
+	num_repeats = (UINT)std::ceil(theta * (double)n* 100.);
+	circuit.add_observable_rotation_gate(*observable, theta, num_repeats);
 	circuit.update_quantum_state(&state);
 
-    res = observable.get_expectation_value(&state);
-    
-    return 0;
+	auto result = observable->get_expectation_value(&state);
+	std::cout << result << std::endl;
+	delete observable;
+	return 0;
 }
 ```
 

@@ -171,19 +171,55 @@ namespace gate{
 
 
     QuantumGateBase* BitFlipNoise(UINT target_index, double prob) {
-        return new QuantumGate_Probabilistic({ prob }, { X(target_index) });
+		auto gate = X(target_index);
+        auto new_gate = new QuantumGate_Probabilistic({ prob }, { gate });
+		delete gate;
+		return new_gate;
     }
     QuantumGateBase* DephasingNoise(UINT target_index, double prob) {
-        return new QuantumGate_Probabilistic({ prob }, { Z(target_index) });
+		auto gate = Z(target_index);
+		auto new_gate = new QuantumGate_Probabilistic({ prob }, { gate });
+		delete gate;
+		return new_gate;
     }
     QuantumGateBase* IndependentXZNoise(UINT target_index, double prob) {
-        return new QuantumGate_Probabilistic({ prob*(1-prob), prob*(1-prob), prob*prob }, { X(target_index), Z(target_index) });
-    }
+		auto gate0 = X(target_index);
+		auto gate1 = Z(target_index);
+		auto gate2 = Y(target_index);
+        auto new_gate = new QuantumGate_Probabilistic({ prob*(1-prob), prob*(1-prob), prob*prob }, { gate0, gate1, gate2});
+		delete gate0;
+		delete gate1;
+		delete gate2;
+		return new_gate;
+	}
     QuantumGateBase* DepolarizingNoise(UINT target_index, double prob) {
-        return new QuantumGate_Probabilistic({ prob / 3,prob / 3,prob / 3 }, {X(target_index),Y(target_index),Z(target_index) });
-    }
-    QuantumGateBase* Measurement(UINT target_index, UINT classical_register_address) {
-        return new QuantumGate_Instrument({P0(target_index),P1(target_index)},classical_register_address);
+		auto gate0 = X(target_index);
+		auto gate1 = Z(target_index);
+		auto gate2 = Y(target_index);
+		auto new_gate = new QuantumGate_Probabilistic({ prob / 3,prob / 3,prob / 3 }, { gate0, gate1, gate2 });
+		delete gate0;
+		delete gate1;
+		delete gate2;
+		return new_gate;
+	}
+	QuantumGateBase* AmplitudeDampingNoise(UINT target_index, double prob) {
+		ComplexMatrix damping_matrix_0(2, 2), damping_matrix_1(2,2);
+		damping_matrix_0 << 1, 0, 0, sqrt(1 - prob);
+		damping_matrix_1 << 0, sqrt(prob), 0, 0;
+		auto gate0 = DenseMatrix({ target_index }, damping_matrix_0);
+		auto gate1 = DenseMatrix({ target_index }, damping_matrix_1);
+		auto new_gate = new QuantumGate_CPTP({ gate0, gate1 });
+		delete gate0;
+		delete gate1;
+		return new_gate;
+	}
+	QuantumGateBase* Measurement(UINT target_index, UINT classical_register_address) {
+		auto gate0 = P0(target_index);
+		auto gate1 = P1(target_index);
+        auto new_gate = new QuantumGate_Instrument({ gate0, gate1},classical_register_address);
+		delete gate0;
+		delete gate1;
+		return new_gate;
     }
 
     QuantumGateBase* create_quantum_gate_from_string(std::string gate_string){

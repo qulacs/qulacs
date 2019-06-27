@@ -14,6 +14,7 @@ protected:
     typedef void (T_UPDATE_FUNC)(UINT, CTYPE*, ITYPE);
 	typedef void (T_GPU_UPDATE_FUNC)(UINT, void*, ITYPE);
 	T_UPDATE_FUNC* _update_func;
+	T_UPDATE_FUNC* _update_func_dm;
 	T_GPU_UPDATE_FUNC* _update_func_gpu;
     ComplexMatrix _matrix_element;
 
@@ -25,15 +26,21 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override{
+		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-		if (state->get_device_name() == "gpu") {
-			_update_func_gpu(this->target_qubit_list[0].index(), state->data(), state->dim);
-		} else {
-			_update_func(this->_target_qubit_list[0].index(), state->data_c(), state->dim);
-		}
+			if (state->get_device_name() == "gpu") {
+				_update_func_gpu(this->target_qubit_list[0].index(), state->data(), state->dim);
+			}
+			else {
+				_update_func(this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+			}
 #else
-        _update_func(this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+			_update_func(this->_target_qubit_list[0].index(), state->data_c(), state->dim);
 #endif
+		}
+		else {
+			_update_func_dm(this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+		}
     };
     /**
      * \~japanese-en 自身のディープコピーを生成する
@@ -61,6 +68,7 @@ protected:
     typedef void (T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
 	typedef void (T_GPU_UPDATE_FUNC)(UINT, UINT, void*, ITYPE);
 	T_UPDATE_FUNC* _update_func;
+	T_UPDATE_FUNC* _update_func_dm;
 	T_GPU_UPDATE_FUNC* _update_func_gpu;
     ComplexMatrix _matrix_element;
 
@@ -72,16 +80,22 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override{
+		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-		if (state->get_device_name() == "gpu") {
-            _update_func_gpu(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data(), state->dim);
-		} else {
-        _update_func(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data_c(), state->dim);
-		}
+			if (state->get_device_name() == "gpu") {
+				_update_func_gpu(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data(), state->dim);
+			}
+			else {
+				_update_func(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data_c(), state->dim);
+			}
 #else
-        _update_func(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data_c(), state->dim);
+			_update_func(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data_c(), state->dim);
 #endif
-    };
+		}
+		else {
+			_update_func_dm(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data_c(), state->dim);
+		}
+	};
     /**
      * \~japanese-en 自身のディープコピーを生成する
      * 
@@ -108,6 +122,7 @@ protected:
     typedef void (T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
 	typedef void (T_GPU_UPDATE_FUNC)(UINT, UINT, void*, ITYPE);
 	T_UPDATE_FUNC* _update_func;
+	T_UPDATE_FUNC* _update_func_dm;
 	T_GPU_UPDATE_FUNC* _update_func_gpu;
     ComplexMatrix _matrix_element;
 
@@ -119,15 +134,21 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
+		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-		if (state->get_device_name() == "gpu") {
-            _update_func_gpu(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data(), state->dim);
-		} else {
-            _update_func(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data_c(), state->dim);
-		}
+			if (state->get_device_name() == "gpu") {
+				_update_func_gpu(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data(), state->dim);
+			}
+			else {
+				_update_func(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+			}
 #else
-        _update_func(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+			_update_func(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data_c(), state->dim);
 #endif
+		}
+		else {
+			_update_func_dm(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data_c(), state->dim);
+		}
     };
     /**
      * \~japanese-en 自身のディープコピーを生成する
@@ -155,6 +176,7 @@ protected:
 	typedef void (T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
 	typedef void (T_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE);
 	T_UPDATE_FUNC* _update_func;
+	T_UPDATE_FUNC* _update_func_dm;
 	T_GPU_UPDATE_FUNC* _update_func_gpu;
     ComplexMatrix _matrix_element;
     double _angle;
@@ -167,15 +189,21 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override{
+		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-		if (state->get_device_name() == "gpu") {
-            _update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim);
-		} else {
-            _update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
-		}
+			if (state->get_device_name() == "gpu") {
+				_update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim);
+}
+			else {
+				_update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
+			}
 #else
-        _update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
+			_update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
 #endif
+		}
+		else {
+			_update_func_dm(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
+		}
     };
     /**
      * \~japanese-en 自身のディープコピーを生成する

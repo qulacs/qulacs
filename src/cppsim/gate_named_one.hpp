@@ -3,9 +3,11 @@
 #ifndef _MSC_VER
 extern "C"{
 #include <csim/update_ops.h>
+#include <csim/update_ops_dm.h>
 }
 #else
 #include <csim/update_ops.h>
+#include <csim/update_ops_dm.h>
 #endif
 
 #include "gate_named.hpp"
@@ -29,6 +31,7 @@ public:
      */
     ClsIGate(UINT target_qubit_index) {
         this->_update_func = ClsIGate::idling;
+		this->_update_func_dm = ClsIGate::idling;
 		this->_update_func_gpu = ClsIGate::idling_gpu;
 		this->_name = "I";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE | FLAG_Y_COMMUTE | FLAG_Z_COMMUTE ));
@@ -50,6 +53,7 @@ public:
      */
     ClsXGate(UINT target_qubit_index) {
         this->_update_func = X_gate;
+		this->_update_func_dm = dm_X_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = X_gate_host;
 #endif
@@ -73,6 +77,7 @@ public:
      */
     ClsYGate(UINT target_qubit_index) {
         this->_update_func = Y_gate;
+		this->_update_func_dm = dm_Y_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = Y_gate_host;
 #endif
@@ -96,6 +101,7 @@ public:
      */
     ClsZGate(UINT target_qubit_index){
         this->_update_func = Z_gate;
+		this->_update_func_dm = dm_Z_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = Z_gate_host;
 #endif
@@ -119,6 +125,7 @@ public:
      */
     ClsHGate(UINT target_qubit_index) {
         this->_update_func = H_gate;
+		this->_update_func_dm = dm_H_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = H_gate_host;
 #endif
@@ -143,6 +150,7 @@ public:
      */
     ClsSGate(UINT target_qubit_index){
         this->_update_func = S_gate;
+		this->_update_func_dm = dm_S_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = S_gate_host;
 #endif
@@ -166,6 +174,7 @@ public:
      */
     ClsSdagGate(UINT target_qubit_index){
         this->_update_func = Sdag_gate;
+		this->_update_func_dm = dm_Sdag_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = Sdag_gate_host;
 #endif
@@ -189,6 +198,7 @@ public:
      */
     ClsTGate(UINT target_qubit_index){
         this->_update_func = T_gate;
+		this->_update_func_dm = dm_T_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = T_gate_host;
 #endif
@@ -212,6 +222,7 @@ public:
      */
     ClsTdagGate(UINT target_qubit_index){
         this->_update_func = Tdag_gate;
+		this->_update_func_dm = dm_Tdag_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = Tdag_gate_host;
 #endif
@@ -235,6 +246,7 @@ public:
      */
     ClsSqrtXGate(UINT target_qubit_index) {
         this->_update_func = sqrtX_gate;
+		this->_update_func_dm = dm_sqrtX_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = sqrtX_gate_host;
 #endif
@@ -258,6 +270,7 @@ public:
      */
     ClsSqrtXdagGate(UINT target_qubit_index) {
         this->_update_func = sqrtXdag_gate;
+		this->_update_func_dm = dm_sqrtXdag_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = sqrtXdag_gate_host;
 #endif
@@ -281,6 +294,7 @@ public:
      */
     ClsSqrtYGate(UINT target_qubit_index) {
         this->_update_func = sqrtY_gate;
+		this->_update_func_dm = dm_sqrtY_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = sqrtY_gate_host;
 #endif
@@ -304,6 +318,7 @@ public:
      */
     ClsSqrtYdagGate(UINT target_qubit_index) {
         this->_update_func = sqrtYdag_gate;
+		this->_update_func_dm = dm_sqrtYdag_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = sqrtYdag_gate_host;
 #endif
@@ -327,6 +342,7 @@ public:
      */
     ClsP0Gate(UINT target_qubit_index){
         this->_update_func = P0_gate;
+		this->_update_func_dm = dm_P0_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = P0_gate_host;
 #endif
@@ -350,6 +366,7 @@ public:
      */
     ClsP1Gate(UINT target_qubit_index){
         this->_update_func = P1_gate;
+		this->_update_func_dm = dm_P1_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = P1_gate_host;
 #endif
@@ -374,6 +391,7 @@ public:
      */
     ClsRXGate(UINT target_qubit_index, double angle) : QuantumGate_OneQubitRotation(angle) {
         this->_update_func = RX_gate;
+		this->_update_func_dm = dm_RX_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = RX_gate_host;
 #endif
@@ -397,6 +415,7 @@ public:
      */
     ClsRYGate(UINT target_qubit_index, double angle): QuantumGate_OneQubitRotation(angle){
         this->_update_func = RY_gate;
+		this->_update_func_dm = dm_RY_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = RY_gate_host;
 #endif
@@ -420,6 +439,7 @@ public:
      */
     ClsRZGate(UINT target_qubit_index, double angle): QuantumGate_OneQubitRotation(angle){
         this->_update_func = RZ_gate;
+		this->_update_func_dm = dm_RZ_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = RZ_gate_host;
 #endif

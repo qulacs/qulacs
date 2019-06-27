@@ -367,6 +367,15 @@ namespace gate{
      */
     DllExport QuantumGateBase* DepolarizingNoise(UINT target_index, double prob);
 
+	/**
+	 * Amplitude damping noiseを発生させるゲート
+	 *
+	 * @param[in] target_index ターゲットとなる量子ビットの添え字
+	 * @param[in] prob エラーが生じる確率
+	 * @return 作成されたゲートのインスタンス
+	 */
+	DllExport QuantumGateBase* AmplitudeDampingNoise(UINT target_index, double prob);
+
     /**
      * 測定を行う
      *

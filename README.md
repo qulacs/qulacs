@@ -157,6 +157,8 @@ If you want to run it on GPU, install qulacs from source and replace <code>Quant
 #include <cppsim/state.hpp>
 #include <cppsim/circuit.hpp>
 #include <cppsim/observable.hpp>
+#include <cppsim/gate_factory.hpp>
+#include <cppsim/gate_merge.hpp>
 
 int main(){
     QuantumState state(3);

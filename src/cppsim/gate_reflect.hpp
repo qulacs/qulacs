@@ -43,22 +43,27 @@ public:
 	 * @param state 更新する量子状態
 	 */
 	virtual void update_quantum_state(QuantumStateBase* state) override {
+		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-		if (state->get_device_name() != reflection_state->get_device_name()) {
-			std::cerr << "Quantum state on CPU (GPU) cannot be reflected using quantum state on GPU (CPU)" << std::endl;
-			return;
-		}
-		if (state->get_device_name() == "gpu") {
-			std::cerr << "Not Implemented" << std::endl;
-			exit(0);
-			//reversible_boolean_gate_gpu(target_index.data(), target_index.size(), function_ptr, state->data_c(), state->dim);
+			if (state->get_device_name() != reflection_state->get_device_name()) {
+				std::cerr << "Quantum state on CPU (GPU) cannot be reflected using quantum state on GPU (CPU)" << std::endl;
+				return;
+			}
+			if (state->get_device_name() == "gpu") {
+				std::cerr << "Not Implemented" << std::endl;
+				exit(0);
+				//reversible_boolean_gate_gpu(target_index.data(), target_index.size(), function_ptr, state->data_c(), state->dim);
+			}
+			else {
+				reflection_gate(reflection_state->data_c(), state->data_c(), state->dim);
+			}
+#else
+			reflection_gate(reflection_state->data_c(), state->data_c(), state->dim);
+#endif
 		}
 		else {
-			reflection_gate(reflection_state->data_c(), state->data_c(), state->dim);
+			std::cerr << "not implemented" << std::endl;
 		}
-#else
-		reflection_gate(reflection_state->data_c(), state->data_c(), state->dim);
-#endif
 	};
 	/**
 	 * \~japanese-en 自身のディープコピーを生成する

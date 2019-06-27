@@ -106,6 +106,10 @@ std::string QuantumGateBase::to_string() const {
     return stream.str();
 }
 
+std::string QuantumGateBase::get_name () const {
+    return this->_name;
+}
+
 std::ostream& operator<<(std::ostream& stream, const QuantumGateBase& gate) {
     stream << gate.to_string();
     return stream;

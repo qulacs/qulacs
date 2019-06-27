@@ -43,19 +43,6 @@ inline void memcpy_quantum_state_HostToDevice(CPPCTYPE* state_cpu, GTYPE* state_
 	checkCudaErrors(cudaMemcpy(state_gpu, state_cpu, dim * sizeof(CPPCTYPE), cudaMemcpyHostToDevice));
 }
 
-/*
-inline void print_quantum_state(GTYPE* state_gpu, ITYPE dim){
-	CTYPE* state_cpu=(CTYPE*)malloc(sizeof(CTYPE)*dim);
-	checkCudaErrors(cudaDeviceSynchronize());
-	checkCudaErrors(cudaMemcpy(state_cpu, state_gpu, dim * sizeof(CTYPE), cudaMemcpyDeviceToHost));
-	for(int i=0;i<dim;++i){
-		std::cout << i << " : " << state_cpu[i].real() << "+i" << state_cpu[i].imag() << '\n'; 
-	}
-	std::cout << '\n';
-	free(state_cpu);
-}
-*/
-
 inline void __cudaSafeCall(cudaError err, const char *file, const int line)
 {
 #ifdef CUDA_ERROR_CHECK
