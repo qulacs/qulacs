@@ -56,7 +56,7 @@ public:
 			_update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
 		}
 #else
-
+		_update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
 #endif
     };
 };
