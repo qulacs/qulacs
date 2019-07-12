@@ -368,6 +368,17 @@ namespace gate{
     DllExport QuantumGateBase* DepolarizingNoise(UINT target_index, double prob);
 
 	/**
+	* Two-qubit depolarizin noiseを発生させるゲート
+	*
+	* IIを除くtwo qubit Pauli operationがそれぞれ<code>prob/15</code>の確率で生じる。
+	* @param[in] target_index1 ターゲットとなる量子ビットの添え字
+	* @param[in] target_index2 ターゲットとなる量子ビットの添え字
+	* @param[in] prob エラーが生じる確率
+	* @return 作成されたゲートのインスタンス
+	*/
+	DllExport QuantumGateBase* TwoQubitDepolarizingNoise(UINT target_index1, UINT target_index2, double prob);
+
+	/**
 	 * Amplitude damping noiseを発生させるゲート
 	 *
 	 * @param[in] target_index ターゲットとなる量子ビットの添え字

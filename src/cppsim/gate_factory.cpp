@@ -202,6 +202,27 @@ namespace gate{
 		delete gate2;
 		return new_gate;
 	}
+	QuantumGateBase* TwoQubitDepolarizingNoise(UINT target_index1, UINT target_index2, double prob) {
+		std::vector<QuantumGateBase*> gate_list;
+		for (int i = 0; i < 16; ++i) {
+			if (i != 0) {
+				UINT pauli_qubit1 = i % 4;
+				UINT pauli_qubit2 = i / 4;
+				auto gate = Pauli({ target_index1, target_index2 }, { pauli_qubit1, pauli_qubit2 });
+				gate_list.push_back(gate);
+			}
+			else {
+				gate_list.push_back(Identity(target_index1));
+			}
+		}
+		std::vector<double> probabilities(16, prob/15);
+		probabilities[0] = 1 - prob;
+		auto new_gate = new QuantumGate_Probabilistic(probabilities, gate_list);
+		for (UINT gate_index = 0; gate_index < 15; ++gate_index) {
+			delete gate_list[gate_index];
+		}
+		return new_gate;
+	}
 	QuantumGateBase* AmplitudeDampingNoise(UINT target_index, double prob) {
 		ComplexMatrix damping_matrix_0(2, 2), damping_matrix_1(2,2);
 		damping_matrix_0 << 1, 0, 0, sqrt(1 - prob);
