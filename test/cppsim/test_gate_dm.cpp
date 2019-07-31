@@ -1058,6 +1058,41 @@ TEST(DensityMatrixGateTest, AmplitudeDampingTest) {
 }
 
 
+
+TEST(DensityMatrixGateTest, TwoQubitDepolarizingTest) {
+	const UINT n = 2;
+	const ITYPE dim = 1ULL << n;
+	double eps = 1e-15;
+	double prob = 0.2;
+
+	Random random;
+	DensityMatrix state(n);
+
+	// update density matrix
+	DensityMatrix dm(n);
+	dm.set_Haar_random_state();
+	ComplexMatrix dense_mat(dim, dim);
+	for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) dense_mat(i, j) = dm.data_cpp()[i*dim + j];
+	ASSERT_NEAR(dense_mat.norm(), 1., eps);
+	ASSERT_NEAR(dm.get_norm(), 1., eps);
+
+	//std::cout << dense_mat << std::endl;
+	//std::cout << dm << std::endl;
+	auto conv_mat = dense_mat * (1 - prob) + prob/dim * ComplexMatrix::Identity(dim, dim);
+	auto two_qubit_depolarizing = gate::TwoQubitDepolarizingNoise(0,1,prob*15/16);
+	two_qubit_depolarizing->update_quantum_state(&dm);
+	//std::cout << conv_mat << std::endl;
+	//std::cout << dm << std::endl;
+	ASSERT_NEAR(dense_mat.norm(), 1., eps);
+	ASSERT_NEAR(dm.get_norm(), 1., eps);
+
+	// check equivalence
+	for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(dm.data_cpp()[i*dim + j] - conv_mat(i, j)), 0., eps);
+	// check TP
+	delete two_qubit_depolarizing;
+}
+
+
 /*
 // not implemented yet
 TEST(DensityMatrixGateTest, ReversibleBooleanGate) {
