@@ -7,6 +7,7 @@ extern "C" {
 }
 #else
 #include <csim/update_ops.h>
+#include <csim/update_ops_dm.h>
 #endif
 
 #include <cppsim/gate.hpp>
@@ -41,6 +42,7 @@ protected:
     typedef void (T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
 	typedef void (T_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE);
 	T_UPDATE_FUNC* _update_func;
+	T_UPDATE_FUNC* _update_func_dm;
 	T_GPU_UPDATE_FUNC* _update_func_gpu;
 
     QuantumGate_SingleParameterOneQubitRotation(double angle) : QuantumGate_SingleParameter(angle) {
@@ -48,16 +50,21 @@ protected:
     };
 public:
     virtual void update_quantum_state(QuantumStateBase* state) override {
+		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-		if (state->get_device_name() == "gpu") {
-			_update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim);
+			if (state->get_device_name() == "gpu") {
+				_update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim);
+			}
+			else {
+				_update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
+			}
+#else
+			_update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
+#endif
 		}
 		else {
-			_update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
+			_update_func_dm(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
 		}
-#else
-		_update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
-#endif
     };
 };
 
@@ -67,6 +74,7 @@ public:
 	ClsParametricRXGate(UINT target_qubit_index, double angle) : QuantumGate_SingleParameterOneQubitRotation(angle) {
 		this->_name = "ParametricRX";
 		this->_update_func = RX_gate;
+		this->_update_func_dm = dm_RX_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = RX_gate_host;
 #endif
@@ -86,6 +94,7 @@ public:
 	ClsParametricRYGate(UINT target_qubit_index, double angle) : QuantumGate_SingleParameterOneQubitRotation(angle) {
 		this->_name = "ParametricRY";
 		this->_update_func = RY_gate;
+		this->_update_func_dm = dm_RY_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = RY_gate_host;
 #endif
@@ -105,6 +114,7 @@ public:
 	ClsParametricRZGate(UINT target_qubit_index, double angle) : QuantumGate_SingleParameterOneQubitRotation(angle) {
 		this->_name = "ParametricRZ";
 		this->_update_func = RZ_gate;
+		this->_update_func_dm = dm_RZ_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = RZ_gate_host;
 #endif
@@ -145,22 +155,29 @@ public:
     virtual void update_quantum_state(QuantumStateBase* state) override {
         auto target_index_list = _pauli->get_index_list();
         auto pauli_id_list = _pauli->get_pauli_id_list();
+		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-		if (state->get_device_name() == "gpu") {
-			multi_qubit_Pauli_rotation_gate_partial_list_host(
-				target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
-				_angle, state->data(), state->dim);
-		}
-		else {
+			if (state->get_device_name() == "gpu") {
+				multi_qubit_Pauli_rotation_gate_partial_list_host(
+					target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+					_angle, state->data(), state->dim);
+			}
+			else {
+				multi_qubit_Pauli_rotation_gate_partial_list(
+					target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+					_angle, state->data_c(), state->dim);
+			}
+#else
 			multi_qubit_Pauli_rotation_gate_partial_list(
 				target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
 				_angle, state->data_c(), state->dim);
-		}
-#else
-        multi_qubit_Pauli_rotation_gate_partial_list(
-            target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
-            _angle, state->data_c(), state->dim);
 #endif
+		}
+		else {
+			dm_multi_qubit_Pauli_rotation_gate_partial_list(
+				target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+				_angle, state->data_c(), state->dim);
+		}
     };
     virtual QuantumGateBase* copy() const override {
         return new ClsParametricPauliRotationGate(_angle, _pauli->copy());
