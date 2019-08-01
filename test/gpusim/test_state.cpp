@@ -792,3 +792,38 @@ TEST(StateTest, MultiplyCoef) {
 		ASSERT_NEAR(state.data_cpp()[i].imag(), state_vector[i].imag(), eps);
 	}
 }
+
+
+TEST(StateTest, StateCPUtoGPU) {
+	const double eps = 1e-10;
+	const UINT n = 10;
+	const ITYPE dim = 1ULL << n;
+	const std::complex<double> coef(0.5, 0.2);
+
+	QuantumStateGpu state_gpu(n);
+	QuantumState state_cpu(n);
+	state_cpu.set_Haar_random_state();
+	state_gpu.load(&state_cpu);
+	auto gpu_state_vector = state_gpu.data_cpp();
+	for (ITYPE i = 0; i < dim; ++i) {
+		ASSERT_NEAR(state_cpu.data_cpp()[i].real(), gpu_state_vector[i].real(), eps);
+		ASSERT_NEAR(state_cpu.data_cpp()[i].imag(), gpu_state_vector[i].imag(), eps);
+	}
+}
+
+TEST(StateTest, StateGPUtoCPU) {
+	const double eps = 1e-10;
+	const UINT n = 10;
+	const ITYPE dim = 1ULL << n;
+	const std::complex<double> coef(0.5, 0.2);
+
+	QuantumStateGpu state_gpu(n);
+	QuantumState state_cpu(n);
+	state_gpu.set_Haar_random_state();
+	state_cpu.load(&state_gpu);
+	auto gpu_state_vector = state_gpu.data_cpp();
+	for (ITYPE i = 0; i < dim; ++i) {
+		ASSERT_NEAR(state_cpu.data_cpp()[i].real(), gpu_state_vector[i].real(), eps);
+		ASSERT_NEAR(state_cpu.data_cpp()[i].imag(), gpu_state_vector[i].imag(), eps);
+	}
+}
