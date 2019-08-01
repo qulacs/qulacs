@@ -4,6 +4,7 @@
 #ifndef _MSC_VER
 extern "C" {
 #include <csim/update_ops.h>
+#include <csim/update_ops_dm.h>
 }
 #else
 #include <csim/update_ops.h>
