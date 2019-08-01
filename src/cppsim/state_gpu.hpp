@@ -134,8 +134,14 @@ public:
 	/**
 	 * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
 	 */
-	virtual void load(const QuantumStateBase* _state) override{
-        copy_quantum_state_from_device_to_device(this->data(), _state->data(), dim);
+	virtual void load(const QuantumStateBase* _state) override {
+		if (_state->get_device_name() == "gpu") {
+			copy_quantum_state_from_device_to_device(this->data(), _state->data(), dim);
+		}
+		else {
+			this->load(_state->data_cpp());
+		}
+		this->_classical_register = _state->classical_register;
 	}
 
 	/**
