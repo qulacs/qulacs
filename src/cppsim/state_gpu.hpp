@@ -232,6 +232,7 @@ public:
 			auto index = std::distance(stacked_prob.begin(), ite) - 1;
 			result.push_back(index);
 		}
+		free(ptr);
 		return result;
 	}
 };
