@@ -96,3 +96,12 @@ std::tuple<double, double, std::string> parse_openfermion_line(std::string line)
     return std::make_tuple(coef_real, coef_imag, str_buf);
 }
 
+bool check_is_unique_index_list(std::vector<UINT> index_list) {
+	sort(index_list.begin(), index_list.end());
+	bool flag = true;
+	for (UINT i = 0; i + 1 < index_list.size(); ++i) {
+		flag = flag & (index_list[i] != index_list[i + 1]);
+		if (!flag) break;
+	}
+	return flag;
+}
