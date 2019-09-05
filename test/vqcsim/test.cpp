@@ -192,3 +192,16 @@ TEST(EnergyMinimization, MultiQubit) {
 	ASSERT_GT(qc_loss, diag_loss);
     EXPECT_NEAR(qc_loss, diag_loss, 1e-1);
 }
+
+TEST(ParametricGate, DuplicateIndex) {
+	auto gate1 = gate::ParametricPauliRotation({ 0,1,2,3,4,5,6 }, { 0,0,0,0,0,0,0 }, 0.0);
+	EXPECT_TRUE(gate1 != NULL);
+	delete gate1;
+	auto gate2 = gate::ParametricPauliRotation({ 2,1,0,3,7,9,4 }, { 0,0,0,0,0,0,0 }, 0.0);
+	EXPECT_TRUE(gate2 != NULL);
+	delete gate2;
+	auto gate3 = gate::ParametricPauliRotation({ 0,1,3,1,5,6,2 }, { 0,0,0,0,0,0,0 }, 0.0);
+	ASSERT_EQ(NULL, gate3);
+	auto gate4 = gate::ParametricPauliRotation({ 0,3,5,2,5,6,2 }, { 0,0,0,0,0,0,0 }, 0.0);
+	ASSERT_EQ(NULL, gate4);
+}

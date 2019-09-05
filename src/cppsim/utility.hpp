@@ -187,3 +187,11 @@ DllExport void chfmt(std::string& ops);
 
 
 DllExport std::tuple<double, double, std::string> parse_openfermion_line(std::string line);
+
+/**
+ * \~japanese-en 配列の中に重複する添え字があるかをチェックする。
+ *
+ * @param[in] index_list チェックする配列
+ * @return 重複がある場合にtrue、ない場合にfalse
+ */
+bool check_is_unique_index_list(std::vector<UINT> index_list);

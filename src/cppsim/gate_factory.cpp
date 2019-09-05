@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cstring>
 #include <cstdlib>
+#include <iostream>
 #include "gate_factory.hpp"
 #include "gate.hpp"
 #include "gate_named_one.hpp"
@@ -20,8 +21,8 @@
 
 namespace gate{
     ComplexMatrix get_IBMQ_matrix(double theta, double phi, double lambda);
-    
-    QuantumGateBase* Identity(UINT qubit_index){
+
+	QuantumGateBase* Identity(UINT qubit_index){
         return new ClsIGate(qubit_index);
     }
     QuantumGateBase* X(UINT qubit_index){
@@ -110,21 +111,41 @@ namespace gate{
     }
 
     QuantumGateBase* CNOT(UINT control_qubit_index, UINT target_qubit_index) {
-        return new ClsCNOTGate(control_qubit_index, target_qubit_index);
+		if (control_qubit_index == target_qubit_index) {
+			std::cerr << "Error: gate::CNOT(UINT, UINT): control_qubit_index and target_qubit_index has the same value." << std::endl;
+			return NULL;
+		}
+		return new ClsCNOTGate(control_qubit_index, target_qubit_index);
     }
     QuantumGateBase* CZ(UINT control_qubit_index, UINT target_qubit_index) {
-        return new ClsCZGate(control_qubit_index, target_qubit_index);
+		if (control_qubit_index == target_qubit_index) {
+			std::cerr << "Error: gate::CZ(UINT, UINT): control_qubit_index and target_qubit_index has the same value." << std::endl;
+			return NULL;
+		}
+		return new ClsCZGate(control_qubit_index, target_qubit_index);
     }
     QuantumGateBase* SWAP(UINT qubit_index1, UINT qubit_index2) {
-        return new ClsSWAPGate(qubit_index1, qubit_index2);
+		if (qubit_index1 == qubit_index2) {
+			std::cerr << "Error: gate::SWAP(UINT, UINT): two indices have the same value." << std::endl;
+			return NULL;
+		}
+		return new ClsSWAPGate(qubit_index1, qubit_index2);
     }
 
     QuantumGateBase* Pauli(std::vector<UINT> target, std::vector<UINT> pauli_id) {
-        auto pauli = new PauliOperator(target, pauli_id);
+		if (!check_is_unique_index_list(target)) {
+			std::cerr << "Error: gate::Pauli(std::vector<UINT> target, std::vector<UINT>pauli_id): target list contains duplicated values." << std::endl;
+			return NULL;
+		}
+		auto pauli = new PauliOperator(target, pauli_id);
         return new ClsPauliGate(pauli);
     }
     QuantumGateBase* PauliRotation(std::vector<UINT> target, std::vector<UINT> pauli_id, double angle) {
-        auto pauli = new PauliOperator(target, pauli_id,angle);
+		if (!check_is_unique_index_list(target)) {
+			std::cerr << "Error: gate::PauliRotation(std::vector<UINT> target, std::vector<UINT>pauli_id, double angle): target list contains duplicated values." << std::endl;
+			return NULL;
+		}
+		auto pauli = new PauliOperator(target, pauli_id,angle);
         return new ClsPauliRotationGate(angle,pauli);
     }
 
@@ -133,14 +154,26 @@ namespace gate{
         return new QuantumGateMatrix(target_list, matrix);
     }
     QuantumGateMatrix* DenseMatrix(std::vector<UINT> target_list, ComplexMatrix matrix) {
-        return new QuantumGateMatrix(target_list, matrix);
+		if (!check_is_unique_index_list(target_list)) {
+			std::cerr << "Error: gate::DenseMatrix(std::vector<UINT> target_list, ComplexMatrix matrix): target list contains duplicated values." << std::endl;
+			return NULL;
+		}
+		return new QuantumGateMatrix(target_list, matrix);
     }
 
 	QuantumGateBase* SparseMatrix(std::vector<UINT> target_list, SparseComplexMatrix matrix) {
+		if (!check_is_unique_index_list(target_list)) {
+			std::cerr << "Error: gate::SparseMatrix(std::vector<UINT> target_list, SparseComplexMatrix matrix): target list contains duplicated values." << std::endl;
+			return NULL;
+		}
 		return new QuantumGateSparseMatrix(target_list, matrix);
 	}
 
 	QuantumGateMatrix* RandomUnitary(std::vector<UINT> target_list) {
+		if (!check_is_unique_index_list(target_list)) {
+			std::cerr << "Error: gate::RandomUnitary(std::vector<UINT> target_list): target list contains duplicated values." << std::endl;
+			return NULL;
+		}
 		Random random;
 		UINT qubit_count = (UINT)target_list.size();
 		ITYPE dim = 1ULL << qubit_count;
@@ -163,6 +196,10 @@ namespace gate{
 		return new QuantumGateMatrix(target_list, Q);
 	}
 	QuantumGateBase* ReversibleBoolean(std::vector<UINT> target_qubit_index_list, std::function<ITYPE(ITYPE,ITYPE)> function_ptr) {
+		if (!check_is_unique_index_list(target_qubit_index_list)) {
+			std::cerr << "Error: gate::ReversibleBoolean(std::vector<UINT> target_qubit_index_list, std::function<ITYPE(ITYPE,ITYPE)> function_ptr): target list contains duplicated values." << std::endl;
+			return NULL;
+		}
 		return new ClsReversibleBooleanGate(target_qubit_index_list, function_ptr);
 	}
 	QuantumGateBase* StateReflection(const QuantumStateBase* reflection_state) {
@@ -203,6 +240,10 @@ namespace gate{
 		return new_gate;
 	}
 	QuantumGateBase* TwoQubitDepolarizingNoise(UINT target_index1, UINT target_index2, double prob) {
+		if (target_index1 == target_index2) {
+			std::cerr << "Error: gate::TwoQubitDepolarizingNoise(UINT, UINT, double): target list contains duplicated values." << std::endl;
+			return NULL;
+		}
 		std::vector<QuantumGateBase*> gate_list;
 		for (int i = 0; i < 16; ++i) {
 			if (i != 0) {
