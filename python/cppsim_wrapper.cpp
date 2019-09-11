@@ -404,13 +404,14 @@ PYBIND11_MODULE(qulacs, m) {
         .def("remove_gate", &QuantumCircuit::remove_gate)
 
         .def("get_gate", [](const QuantumCircuit& circuit, unsigned int index) -> QuantumGateBase* { 
-        if (index >= circuit.gate_list.size()) {
-            std::cerr << "Error: QuantumCircuit::get_gate(const QuantumCircuit&, unsigned int): gate index is out of range" << std::endl;
-            return NULL;
-        }
-        return circuit.gate_list[index]->copy(); 
+            if (index >= circuit.gate_list.size()) {
+                std::cerr << "Error: QuantumCircuit::get_gate(const QuantumCircuit&, unsigned int): gate index is out of range" << std::endl;
+                return NULL;
+            }
+            return circuit.gate_list[index]->copy(); 
         }, pybind11::return_value_policy::take_ownership)
         .def("get_gate_count", [](const QuantumCircuit& circuit) -> unsigned int {return (unsigned int)circuit.gate_list.size(); })
+		.def("get_qubit_count", [](const QuantumCircuit& circuit) -> unsigned int {return circuit.qubit_count;})
 
         .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*))&QuantumCircuit::update_quantum_state)
         .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*, unsigned int, unsigned int))&QuantumCircuit::update_quantum_state)
