@@ -39,7 +39,7 @@ message(STATUS "USE_PYTHON = ${USE_PYTHON}")
 ##### configure include files #####
 file(GLOB_RECURSE header_files ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp  ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
 foreach(path IN LISTS header_files)
-	string(REPLACE /src/ /include/ path_dst ${path})
+	string(REPLACE ${CMAKE_CURRENT_SOURCE_DIR}/src/ ${CMAKE_CURRENT_SOURCE_DIR}/include/ path_dst ${path})
 	configure_file(${path} ${path_dst} COPYONLY)
 endforeach()
 

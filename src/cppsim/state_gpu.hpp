@@ -134,8 +134,14 @@ public:
 	/**
 	 * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
 	 */
-	virtual void load(const QuantumStateBase* _state) override{
-        copy_quantum_state_from_device_to_device(this->data(), _state->data(), dim);
+	virtual void load(const QuantumStateBase* _state) override {
+		if (_state->get_device_name() == "gpu") {
+			copy_quantum_state_from_device_to_device(this->data(), _state->data(), dim);
+		}
+		else {
+			this->load(_state->data_cpp());
+		}
+		this->_classical_register = _state->classical_register;
 	}
 
 	/**
@@ -226,6 +232,7 @@ public:
 			auto index = std::distance(stacked_prob.begin(), ite) - 1;
 			result.push_back(index);
 		}
+		free(ptr);
 		return result;
 	}
 };
@@ -238,9 +245,9 @@ namespace state {
 	* @param[in] state_ket 内積のケット側の量子状態
 	* @return 内積の値
 	*/
-	//CPPCTYPE DllExport inner_product(const QuantumStateGpu* state_bra, const QuantumStateGpu* state_ket) {
-	//	return inner_product_host(state_bra, state_ket, state_ket->dim);
-	//}
+	CPPCTYPE DllExport inner_product(const QuantumStateGpu* state_bra, const QuantumStateGpu* state_ket) {
+		return inner_product_host(state_bra->data(), state_ket->data(), state_ket->dim);
+	}
 }
 
 #endif // _USE_GPU

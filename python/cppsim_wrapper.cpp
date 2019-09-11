@@ -213,10 +213,12 @@ PYBIND11_MODULE(qulacs, m) {
 #endif
 
     auto mstate = m.def_submodule("state");
-    using namespace state;
-    //mstate.def("inner_product", (std::complex<double> (state::*)(const QuantumStateGpu*, const QuatnumStateGpu*))&state::inner_product);
-    //mstate.def("inner_product", (std::complex<double> (state::*)(const QuantumState*, const QuatnumState*))&state::inner_product);
-    mstate.def("inner_product", &state::inner_product);
+    //using namespace state;
+#ifdef _USE_GPU
+    mstate.def("inner_product", py::overload_cast<const QuantumStateGpu*, const QuantumStateGpu*>(&state::inner_product));
+#endif
+    mstate.def("inner_product", py::overload_cast<const QuantumState*, const QuantumState*>(&state::inner_product));
+    //mstate.def("inner_product", &state::inner_product);
 
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
         .def("update_quantum_state", &QuantumGateBase::update_quantum_state)
@@ -279,29 +281,83 @@ PYBIND11_MODULE(qulacs, m) {
     mgate.def("RY", &gate::RY, pybind11::return_value_policy::take_ownership);
     mgate.def("RZ", &gate::RZ, pybind11::return_value_policy::take_ownership);
 
-    mgate.def("CNOT", &gate::CNOT, pybind11::return_value_policy::take_ownership);
-    mgate.def("CZ", &gate::CZ, pybind11::return_value_policy::take_ownership);
-    mgate.def("SWAP", &gate::SWAP, pybind11::return_value_policy::take_ownership);
+	mgate.def("CNOT", [](UINT control_qubit_index, UINT target_qubit_index) {
+		auto ptr = gate::CNOT(control_qubit_index, target_qubit_index);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to CNOT.");
+		return ptr;
+	}, pybind11::return_value_policy::take_ownership);
+    mgate.def("CZ", [](UINT control_qubit_index, UINT target_qubit_index) {
+		auto ptr = gate::CZ(control_qubit_index, target_qubit_index);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to CZ.");
+		return ptr;
+	}, pybind11::return_value_policy::take_ownership);
+    mgate.def("SWAP", [](UINT target_index1, UINT target_index2) {
+		auto ptr = gate::SWAP(target_index1, target_index2);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to SWAP.");
+		return ptr;
+	}, pybind11::return_value_policy::take_ownership); 
 
-    mgate.def("Pauli", &gate::Pauli, pybind11::return_value_policy::take_ownership);
-    mgate.def("PauliRotation", &gate::PauliRotation, pybind11::return_value_policy::take_ownership);
+    mgate.def("Pauli", [](std::vector<unsigned int> target_qubit_index_list, std::vector<unsigned int> pauli_ids) {
+		if (target_qubit_index_list.size() != pauli_ids.size()) throw std::invalid_argument("Size of qubit list and pauli list must be equal.");
+		auto ptr = gate::Pauli(target_qubit_index_list, pauli_ids);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to Pauli.");
+		return ptr;
+	}, pybind11::return_value_policy::take_ownership);
+    mgate.def("PauliRotation", [](std::vector<unsigned int> target_qubit_index_list, std::vector<unsigned int> pauli_ids, double angle) {
+		if (target_qubit_index_list.size() != pauli_ids.size()) throw std::invalid_argument("Size of qubit list and pauli list must be equal.");
+		auto ptr = gate::PauliRotation(target_qubit_index_list, pauli_ids, angle);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to PauliRotation.");
+		return ptr;
+	}, pybind11::return_value_policy::take_ownership);
 
-    QuantumGateMatrix*(*ptr1)(unsigned int, ComplexMatrix) = &gate::DenseMatrix;
-    QuantumGateMatrix*(*ptr2)(std::vector<unsigned int>, ComplexMatrix) = &gate::DenseMatrix;
-    mgate.def("DenseMatrix", ptr1, pybind11::return_value_policy::take_ownership);
-    mgate.def("DenseMatrix", ptr2, pybind11::return_value_policy::take_ownership);
-	mgate.def("SparseMatrix", &gate::SparseMatrix, pybind11::return_value_policy::take_ownership);
+    //QuantumGateMatrix*(*ptr1)(unsigned int, ComplexMatrix) = &gate::DenseMatrix;
+    //QuantumGateMatrix*(*ptr2)(std::vector<unsigned int>, ComplexMatrix) = &gate::DenseMatrix;
+    mgate.def("DenseMatrix", [](unsigned int target_qubit_index, ComplexMatrix matrix) {
+		if (matrix.rows() != 2 || matrix.cols() != 2) throw std::invalid_argument("matrix dims is not 2x2.");
+		auto ptr = gate::DenseMatrix(target_qubit_index, matrix);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to DenseMatrix.");
+		return ptr;
+	}, pybind11::return_value_policy::take_ownership); 
+    mgate.def("DenseMatrix", [](std::vector<unsigned int> target_qubit_index_list, ComplexMatrix matrix) {
+		const ITYPE dim = 1ULL << target_qubit_index_list.size();
+		if (matrix.rows() != dim || matrix.cols() != dim) throw std::invalid_argument("matrix dims is not consistent.");
+		auto ptr = gate::DenseMatrix(target_qubit_index_list, matrix);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to DenseMatrix.");
+		return ptr;
+	}, pybind11::return_value_policy::take_ownership); 
+	mgate.def("SparseMatrix", [](std::vector<unsigned int> target_qubit_index_list, SparseComplexMatrix matrix) {
+		const ITYPE dim = 1ULL << target_qubit_index_list.size();
+		if (matrix.rows() != dim || matrix.cols() != dim) throw std::invalid_argument("matrix dims is not consistent.");
+		auto ptr = gate::SparseMatrix(target_qubit_index_list, matrix);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to SparseMatrix.");
+		return ptr;
+	}, pybind11::return_value_policy::take_ownership); 
 
-    mgate.def("RandomUnitary", &gate::RandomUnitary, pybind11::return_value_policy::take_ownership);
+    mgate.def("RandomUnitary", [](std::vector<unsigned int> target_qubit_index_list) {
+		auto ptr = gate::RandomUnitary(target_qubit_index_list);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to RandomUnitary.");
+		return ptr;
+	}, pybind11::return_value_policy::take_ownership); 
     mgate.def("ReversibleBoolean", [](std::vector<UINT> target_qubit_list, std::function<ITYPE(ITYPE,ITYPE)> function_py) {
-        return gate::ReversibleBoolean(target_qubit_list, function_py);
+		auto ptr = gate::ReversibleBoolean(target_qubit_list, function_py);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to ReversibleBoolean.");
+		return ptr;
     }, pybind11::return_value_policy::take_ownership);
-	mgate.def("StateReflection", &gate::StateReflection, pybind11::return_value_policy::take_ownership);
+	mgate.def("StateReflection", [](const QuantumStateBase* reflection_state) {
+		auto ptr = gate::StateReflection(reflection_state);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to StateReflection.");
+		return ptr;
+	}, pybind11::return_value_policy::take_ownership);
 
     mgate.def("BitFlipNoise", &gate::BitFlipNoise);
     mgate.def("DephasingNoise", &gate::DephasingNoise);
     mgate.def("IndependentXZNoise", &gate::IndependentXZNoise);
     mgate.def("DepolarizingNoise", &gate::DepolarizingNoise);
+	mgate.def("TwoQubitDepolarizingNoise", [](UINT target_index1, UINT target_index2, double probability) {
+		auto ptr = gate::TwoQubitDepolarizingNoise(target_index1, target_index2, probability);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to TwoQubitDepolarizingNoise.");
+		return ptr;
+	}, pybind11::return_value_policy::take_ownership);
 	mgate.def("AmplitudeDampingNoise", &gate::AmplitudeDampingNoise);
     mgate.def("Measurement", &gate::Measurement);
 
@@ -330,7 +386,11 @@ PYBIND11_MODULE(qulacs, m) {
 	mgate.def("ParametricRX", &gate::ParametricRX);
     mgate.def("ParametricRY", &gate::ParametricRY);
     mgate.def("ParametricRZ", &gate::ParametricRZ);
-    mgate.def("ParametricPauliRotation", &gate::ParametricPauliRotation);
+    mgate.def("ParametricPauliRotation", [](std::vector<unsigned int> target_qubit_index_list, std::vector<unsigned int> pauli_ids, double angle) {
+		auto ptr = gate::ParametricPauliRotation(target_qubit_index_list, pauli_ids, angle);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to ParametricPauliRotation.");
+		return ptr;
+	}, pybind11::return_value_policy::take_ownership);
 
 
     py::class_<QuantumCircuit>(m, "QuantumCircuit")
@@ -344,13 +404,14 @@ PYBIND11_MODULE(qulacs, m) {
         .def("remove_gate", &QuantumCircuit::remove_gate)
 
         .def("get_gate", [](const QuantumCircuit& circuit, unsigned int index) -> QuantumGateBase* { 
-        if (index >= circuit.gate_list.size()) {
-            std::cerr << "Error: QuantumCircuit::get_gate(const QuantumCircuit&, unsigned int): gate index is out of range" << std::endl;
-            return NULL;
-        }
-        return circuit.gate_list[index]->copy(); 
+            if (index >= circuit.gate_list.size()) {
+                std::cerr << "Error: QuantumCircuit::get_gate(const QuantumCircuit&, unsigned int): gate index is out of range" << std::endl;
+                return NULL;
+            }
+            return circuit.gate_list[index]->copy(); 
         }, pybind11::return_value_policy::take_ownership)
         .def("get_gate_count", [](const QuantumCircuit& circuit) -> unsigned int {return (unsigned int)circuit.gate_list.size(); })
+		.def("get_qubit_count", [](const QuantumCircuit& circuit) -> unsigned int {return circuit.qubit_count;})
 
         .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*))&QuantumCircuit::update_quantum_state)
         .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*, unsigned int, unsigned int))&QuantumCircuit::update_quantum_state)
