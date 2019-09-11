@@ -213,10 +213,12 @@ PYBIND11_MODULE(qulacs, m) {
 #endif
 
     auto mstate = m.def_submodule("state");
-    using namespace state;
-    //mstate.def("inner_product", (std::complex<double> (state::*)(const QuantumStateGpu*, const QuatnumStateGpu*))&state::inner_product);
-    //mstate.def("inner_product", (std::complex<double> (state::*)(const QuantumState*, const QuatnumState*))&state::inner_product);
-    mstate.def("inner_product", &state::inner_product);
+    //using namespace state;
+#ifdef _USE_GPU
+    mstate.def("inner_product", py::overload_cast<const QuantumStateGpu*, const QuantumStateGpu*>(&state::inner_product));
+#endif
+    mstate.def("inner_product", py::overload_cast<const QuantumState*, const QuantumState*>(&state::inner_product));
+    //mstate.def("inner_product", &state::inner_product);
 
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
         .def("update_quantum_state", &QuantumGateBase::update_quantum_state)
