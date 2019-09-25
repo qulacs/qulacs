@@ -181,6 +181,7 @@ PYBIND11_MODULE(qulacs, m) {
 #ifdef _USE_GPU
     py::class_<QuantumStateGpu, QuantumStateBase>(m, "QuantumStateGpu")
         .def(py::init<unsigned int>())
+        .def(py::init<unsigned int, unsigned int>())
         .def("set_zero_state", &QuantumStateGpu::set_zero_state)
         .def("set_computational_basis", &QuantumStateGpu::set_computational_basis)
         .def("set_Haar_random_state", (void (QuantumStateGpu::*)(void))&QuantumStateGpu::set_Haar_random_state)
