@@ -19,10 +19,18 @@ public:
 	 *
 	 * @param qubit_count_ 量子ビット数
 	 */
-	QuantumStateGpu(UINT qubit_count_) : QuantumStateBase(qubit_count_, true) {
-		this->_state_vector = reinterpret_cast<void*>(allocate_quantum_state_host(this->_dim));
-		initialize_quantum_state_host(this->data(), _dim);
-	}
+    QuantumStateGpu(UINT qubit_count_) : QuantumStateBase(qubit_count_, true) {
+        set_device(0);
+        this->_state_vector = reinterpret_cast<void*>(allocate_quantum_state_host(this->_dim));
+        initialize_quantum_state_host(this->data(), _dim);
+    }
+	QuantumStateGpu(UINT qubit_count_, UINT device_number) : QuantumStateBase(qubit_count_, true) {
+        int num_device = get_num_device();
+        assert(device_number<num_device);
+        set_device(device_number);
+        this->_state_vector = reinterpret_cast<void*>(allocate_quantum_state_host(this->_dim));
+        initialize_quantum_state_host(this->data(), _dim);
+    }
 	/**
 	 * \~japanese-en デストラクタ
 	 */

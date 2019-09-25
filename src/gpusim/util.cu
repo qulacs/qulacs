@@ -17,6 +17,15 @@
 #include "util_func.h"
 #include "memory_ops.h"
 
+void set_device(unsigned int device_num){
+    cudaSetDevice(device_num); 
+}
+
+int get_num_device(){
+    int ngpus;
+    cudaGetDeviceCount(&ngpus);
+	return ngpus;
+}
 
 inline __device__ double __shfl_down_double(double var, unsigned int srcLane, int width = 32) {
 	int2 a = *reinterpret_cast<int2*>(&var);

@@ -5,6 +5,8 @@
 #include "util_export.h"
 #include "util_type.h"
 
+DllExport void set_device(unsigned int device_num);
+DllExport int get_num_device();
 DllExport void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim);
 DllExport void* allocate_quantum_state_host(ITYPE dim);
 DllExport void initialize_quantum_state_host(void* state_gpu, ITYPE dim);

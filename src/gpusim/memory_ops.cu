@@ -45,7 +45,6 @@ __global__ void init_qstate(GTYPE* state_gpu, ITYPE dim){
 // void* (GTYPE*)
 __host__ void* allocate_quantum_state_host(ITYPE dim){
 	GTYPE *state_gpu;
-	checkCudaErrors(cudaSetDevice(0));
 	checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(GTYPE)));
 	void* psi_gpu = reinterpret_cast<void*>(state_gpu);
     return psi_gpu;
