@@ -141,7 +141,7 @@ __host__ double state_norm_host(void *state, ITYPE dim, void* stream) {
 	checkCudaErrors(cudaFree(norm_gpu), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
 	stream = reinterpret_cast<void*>(cuda_stream);
-	return sqrt(norm);
+	return norm;
 }
 
 __host__ double state_norm_host(void *state, ITYPE dim) {

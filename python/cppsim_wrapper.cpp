@@ -198,6 +198,8 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_device_name", &QuantumStateGpu::get_device_name)
         .def("data_cpp", &QuantumStateGpu::data_cpp)
         .def("data_c", &QuantumStateGpu::data_c)
+        .def("add_state", &QuantumStateGpu::add_state)
+        .def("multiply_coef", &QuantumStateGpu::multiply_coef)
         .def("get_classical_value", &QuantumStateGpu::get_classical_value)
         .def("set_classical_value", &QuantumStateGpu::set_classical_value)
         .def("to_string", &QuantumStateGpu::to_string)
