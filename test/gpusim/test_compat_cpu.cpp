@@ -41,8 +41,9 @@ TEST(CompatTest, ApplyRandomOrderUnitary) {
 				if (m <= 7) gate = gate::RandomUnitary(targets);
 				// for large matrix, use pauli rotation
 				else {
-					std::vector<UINT> paulis(m, 1);
-					gate = gate::PauliRotation(targets, paulis, 3.14159/5);
+					std::vector<UINT> paulis(m);
+					for (UINT i = 0; i < m; ++i) paulis[i] = random.int32() % 4;
+					gate = gate::PauliRotation(targets, paulis, 3.14159 * random.uniform());
 					QuantumGateBase* new_gate = gate::to_matrix_gate(gate);
 					delete gate;
 					gate = new_gate;
