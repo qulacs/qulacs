@@ -187,7 +187,7 @@ TEST(DensityMatrixGateTest, ApplyTwoQubitGate) {
 
 TEST(DensityMatrixGateTest, ApplyMultiQubitGate) {
 
-	const UINT n = 1;
+	const UINT n = 4;
 	const ITYPE dim = 1ULL << n;
 	double eps = 1e-15;
 
