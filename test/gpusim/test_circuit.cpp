@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+#include <cppsim/state_gpu.hpp>
+
 #include "../util/util.h"
 #include <cppsim/type.hpp>
 #include <csim/constant.h>
@@ -15,7 +17,6 @@
 #include <unsupported/Eigen/MatrixFunctions>
 #include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
-#include <cppsim/state_gpu.hpp>
 
 
 TEST(CircuitTest, CircuitBasic) {
@@ -536,7 +537,7 @@ TEST(CircuitTest, RandomCircuitOptimize) {
 }
 
 TEST(CircuitTest, RandomCircuitOptimizeLarge) {
-	const UINT n = 8;
+	const UINT n = 5;
 	const UINT dim = 1ULL << n;
 	const UINT depth = 5;
 	Random random;

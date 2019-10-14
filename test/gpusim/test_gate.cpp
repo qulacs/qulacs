@@ -2,13 +2,12 @@
 #include "../util/util.h"
 
 #include <cmath>
-#include <cppsim/state.hpp>
+#include <cppsim/state_gpu.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate.hpp>
 #include <cppsim/gate_matrix.hpp>
 #include <cppsim/gate_merge.hpp>
 #include <cppsim/pauli_operator.hpp>
-#include <cppsim/state_gpu.hpp>
 
 #include <cppsim/utility.hpp>
 #include <csim/update_ops.h>

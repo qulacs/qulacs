@@ -133,7 +133,7 @@ before_install:
 install:
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
-      ./script/build_msvc.bat
+      ./script/build_msvc_2015.bat
     else
       ./script/build_gcc.sh
     fi

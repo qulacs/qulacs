@@ -31,23 +31,9 @@ CUDA_COMPILE(gpusim_shared ${GPUSIM_SRC})
 CUDA_ADD_LIBRARY(gpusim_static ${GPUSIM_SRC} STATIC)
 CUDA_ADD_LIBRARY(gpusim_shared ${GPUSIM_SRC} SHARED)
 
-#cuda_add_executable(gpusim_exe ${GPUSIM_SRC})
-#CUAD_ADD_LIBRARY(gpusim_exe CUDA_curand_LIBRARY)
-#target_link_libraries(gpusim_exe -lcublas -lcurand)
-
-#CUDA_ADD_LIBRARY(gpusim_static CUDA_curand_LIBRARY)
-#CUDA_ADD_LIBRARY(gpusim_shared CUDA_curand_LIBRARY SHARED)
+target_link_libraries(gpusim_static ${CUDA_curand_LIBRARY} ${CUDA_cublas_LIBRARY})
+target_link_libraries(gpusim_shared ${CUDA_curand_LIBRARY} ${CUDA_cublas_LIBRARY})
 
 message("Flag: " ${CUDA_NVCC_FLAGS})
-
-if(MSVC)
-	CUDA_ADD_CUBLAS_TO_TARGET(gpusim_static)
-	CUDA_ADD_CUBLAS_TO_TARGET(gpusim_shared)
-	target_link_libraries(gpusim_static -lcurand)
-	target_link_libraries(gpusim_shared -lcurand)
-else()
-	target_link_libraries(gpusim_static ${CUDA_curand_LIBRARY} ${CUDA_cublas_LIBRARY})
-	target_link_libraries(gpusim_shared ${CUDA_curand_LIBRARY} ${CUDA_cublas_LIBRARY})
-endif()
 
 set_target_properties(gpusim_shared PROPERTIES EXCLUDE_FROM_ALL TRUE)
