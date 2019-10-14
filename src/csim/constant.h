@@ -10,10 +10,12 @@
 #include "type.h"
 
 //! PI value
+#ifndef PI
 #ifdef M_PI
 #define PI M_PI
 #else
 #define PI      3.141592653589793
+#endif
 #endif
 
 //! square root of 2
