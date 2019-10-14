@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+#include <cppsim/state_gpu.hpp>
+
 #include "../util/util.h"
 #include <cppsim/type.hpp>
 #include <csim/constant.h>
@@ -15,7 +17,6 @@
 #include <unsupported/Eigen/MatrixFunctions>
 #include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
-#include <cppsim/state_gpu.hpp>
 
 
 TEST(CircuitTest, CircuitBasic) {

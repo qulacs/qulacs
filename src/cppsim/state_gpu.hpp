@@ -245,9 +245,7 @@ namespace state {
 	* @param[in] state_ket 内積のケット側の量子状態
 	* @return 内積の値
 	*/
-	CPPCTYPE DllExport inner_product(const QuantumStateGpu* state_bra, const QuantumStateGpu* state_ket) {
-		return inner_product_host(state_bra->data(), state_ket->data(), state_ket->dim);
-	}
+	CPPCTYPE DllExport inner_product(const QuantumStateGpu* state_bra, const QuantumStateGpu* state_ket);
 }
 
 #endif // _USE_GPU
