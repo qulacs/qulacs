@@ -462,8 +462,8 @@ __host__ void normalize_host(double norm, void* state, ITYPE dim, void* stream) 
 	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError cudaStatus;
 	const ITYPE loop_dim = dim;
-	// const double normalize_factor = sqrt(1./norm);
-	const double normalize_factor = 1. / norm;
+	const double normalize_factor = sqrt(1./norm);
+	//const double normalize_factor = 1. / norm;
 
 	unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
 	unsigned int grid = loop_dim / block;

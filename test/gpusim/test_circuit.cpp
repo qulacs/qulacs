@@ -537,7 +537,7 @@ TEST(CircuitTest, RandomCircuitOptimize) {
 }
 
 TEST(CircuitTest, RandomCircuitOptimizeLarge) {
-	const UINT n = 8;
+	const UINT n = 5;
 	const UINT dim = 1ULL << n;
 	const UINT depth = 5;
 	Random random;
