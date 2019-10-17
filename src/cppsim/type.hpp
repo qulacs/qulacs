@@ -12,6 +12,7 @@ extern "C" {
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 typedef std::complex<double> CPPCTYPE;
+using namespace std::complex_literals;
 typedef Eigen::VectorXcd ComplexVector;
 
 // In order to use matrix raw-data without reordering, we use RowMajor as default.
