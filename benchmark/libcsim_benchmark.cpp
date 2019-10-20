@@ -1,24 +1,23 @@
-
+﻿
 #ifndef _MSC_VER
 extern "C" {
-#include <csim/memory_ops.h>
-#include <csim/stat_ops.h>
-#include <csim/update_ops.h>
+#include <csim_simd/memory_ops.h>
+#include <csim_simd/stat_ops.h>
+#include <csim_simd/update_ops.h>
 }
 #else
-#include <csim/memory_ops.h>
-#include <csim/stat_ops.h>
-#include <csim/update_ops.h>
+#include <csim_simd/memory_ops.h>
+#include <csim_simd/stat_ops.h>
+#include <csim_simd/update_ops.h>
 #endif
-#include <csim/update_ops_cpp.hpp>
-
-#include <cppsim/type.hpp>
-#include <cppsim/utility.hpp>
+#include <csim_simd/update_ops_cpp.hpp>
 #include <iostream>
+#include <iomanip>
 #include <fstream>
 #include <string>
 #include <functional>
 #include <algorithm>
+#include <chrono>
 
 #ifdef _MSC_VER
 #include <intrin.h>
@@ -65,10 +64,179 @@ std::string get_cpu_name(){
 }
 #endif
 
+class Timer {
+private:
+	std::chrono::system_clock::time_point last;
+	long long stock;
+	bool is_stop;
+public:
+	Timer() {
+		reset();
+		is_stop = false;
+	}
+	void reset() {
+		stock = 0;
+		last = std::chrono::system_clock::now();
+	}
+	double elapsed() {
+		if (is_stop) return stock * 1e-6;
+		else {
+			auto duration = std::chrono::system_clock::now() - last;
+			return (stock + std::chrono::duration_cast<std::chrono::microseconds>(duration).count())*1e-6;
+		}
+	}
+	void temporal_stop() {
+		if (!is_stop) {
+			auto duration = std::chrono::system_clock::now() - last;
+			stock += std::chrono::duration_cast<std::chrono::microseconds>(duration).count();
+			is_stop = true;
+		}
+	}
+	void temporal_resume() {
+		if (is_stop) {
+			last = std::chrono::system_clock::now();
+			is_stop = false;
+		}
+	}
+};
 
+
+double timeout = 0.5;
+UINT max_repeat = 1000000;
+UINT firstrun = 1000;
+
+double benchmark_memory_allocate(UINT n) {
+	UINT repeat = 0;
+	ITYPE dim = (1ULL << n);
+	Timer timer;
+	timer.reset();
+	timer.temporal_stop();
+	CTYPE* state;
+	do {
+		timer.temporal_resume();
+		state = allocate_quantum_state(dim);
+		timer.temporal_stop();
+		release_quantum_state(state);
+		repeat++;
+	} while (timer.elapsed() < timeout && repeat <= max_repeat);
+	return timer.elapsed() / repeat;
+};
+
+double benchmark_memory_release(UINT n) {
+	UINT repeat = 0;
+	ITYPE dim = (1ULL << n);
+	Timer timer;
+	timer.reset();
+	timer.temporal_stop();
+	CTYPE* state;
+	do {
+		state = allocate_quantum_state(dim);
+		timer.temporal_resume();
+		release_quantum_state(state);
+		timer.temporal_stop();
+		repeat++;
+	} while (timer.elapsed() < timeout && repeat <= max_repeat);
+	return timer.elapsed() / repeat;
+};
+
+double benchmark_state_func(UINT n, std::function<void(CTYPE*, ITYPE)>func) {
+	UINT repeat = 0;
+	ITYPE dim = (1ULL << n);
+	Timer timer;
+	timer.reset();
+	timer.temporal_stop();
+	CTYPE* state;
+	state = allocate_quantum_state(dim);
+	do {
+		timer.temporal_resume();
+		func(state, dim);
+		timer.temporal_stop();
+		repeat++;
+	} while (timer.elapsed() < timeout && repeat <= max_repeat);
+	release_quantum_state(state);
+	return timer.elapsed() / repeat;
+};
+
+double benchmark_state_init(UINT n) {
+	return benchmark_state_func(n, initialize_quantum_state);
+}
+double benchmark_state_randomize(UINT n) {
+	return benchmark_state_func(n, initialize_Haar_random_state);
+}
+
+template<typename T>
+double benchmark_state_stat_func(UINT n, std::function<T(CTYPE*, ITYPE)>func) {
+	UINT repeat = 0;
+	ITYPE dim = (1ULL << n);
+	Timer timer;
+	timer.reset();
+	timer.temporal_stop();
+	CTYPE* state;
+	state = allocate_quantum_state(dim);
+	initialize_Haar_random_state(state);
+	do {
+		timer.temporal_resume();
+		func(state, dim);
+		timer.temporal_stop();
+		repeat++;
+	} while (timer.elapsed() < timeout && repeat <= max_repeat);
+	release_quantum_state(state);
+	return timer.elapsed() / repeat;
+};
+
+double benchmark_state_norm(UINT n) {
+	return benchmark_state_func(n, state_norm);
+}
+
+double benchmark_gate_single_func(UINT n, UINT target, std::function<void(UINT, CTYPE*, ITYPE)>func) {
+	UINT repeat = 0;
+	ITYPE dim = (1ULL << n);
+	Timer timer;
+	CTYPE* state;
+	double elapsed;
+	state = allocate_quantum_state(dim);
+	initialize_Haar_random_state(state,dim);
+	timer.reset();
+	do {
+		func(target, state, dim);
+		repeat++;
+	} while (timer.elapsed() < timeout && repeat <= max_repeat);
+	elapsed = timer.elapsed();
+	elapsed /= repeat;
+	release_quantum_state(state);
+	return elapsed;
+};
+
+double benchmark_gate_double_func(UINT n, UINT target1, UINT target2, std::function<void(UINT, UINT, CTYPE*, ITYPE)>func) {
+	UINT repeat = 0;
+	ITYPE dim = (1ULL << n);
+	Timer timer;
+	timer.reset();
+	timer.temporal_stop();
+	CTYPE* state;
+	state = allocate_quantum_state(dim);
+	initialize_Haar_random_state(state,dim);
+	do {
+		timer.temporal_resume();
+		func(target1, target2, state, dim);
+		timer.temporal_stop();
+		repeat++;
+	} while (timer.elapsed() < timeout && repeat <= max_repeat);
+	release_quantum_state(state);
+	return timer.elapsed() / repeat;
+};
+
+
+void show(std::string name, UINT qubit_count, double elapsed_time, std::string filename) {
+	std::cout << std::fixed << std::setw(20) << name << std::setw(5) << qubit_count << " " << std::setw(20) << std::setprecision(2) << elapsed_time*1e9 << " ns" << std::endl;
+	std::ofstream fout(filename, std::ios::app);
+	fout << std::fixed << std::setw(20) << name << std::setw(5) << qubit_count << " " << std::setw(20) << std::setprecision(2) << elapsed_time * 1e9 << " ns" << std::endl;
+	fout.close();
+	//fout << name << " " << qubit_count << " " << elapsed << std::endl;
+}
 
 int main() {
-	const UINT min_qubit_count = 2;
+	const UINT min_qubit_count = 5;
 	const UINT max_qubit_count = 25;
 	const double timeout = 0.1;
 	const UINT max_repeat = 10;
@@ -85,174 +253,29 @@ int main() {
 	#endif
 	
 	std::string fname = "bench_" + compiler_name + "_" + get_cpu_name() + ".txt";
-	std::ofstream fout(fname,std::ios::out);
-
-	std::function<double(UINT, double, UINT, std::function<void(UINT, Timer&)>)> benchmark_func = [](UINT n, double timeout_, UINT max_repeat_, std::function<void(UINT, Timer&)> func) {
-		UINT repeat = 0;
-		Timer timer;
-		timer.reset();
-		timer.temporal_stop();
-
-		do {
-			func(n, timer);
-			repeat++;
-		} while (timer.elapsed() < timeout_ && repeat <= max_repeat_);
-		return timer.elapsed() / repeat;
-	};
-
-	std::function<double(UINT, double, UINT, std::function<void(UINT, CTYPE*,Timer&)>)> benchmark_state_ops_func = [](UINT n, double timeout_, UINT max_repeat_, std::function<void(UINT,CTYPE*, Timer&)> func) {
-		UINT repeat = 0;
-		Timer timer;
-		timer.reset();
-		timer.temporal_stop();
-		ITYPE dim = 1ULL << n;
-		CTYPE* state_ptr = allocate_quantum_state(dim);
-		initialize_Haar_random_state(state_ptr,dim);
-		do {
-			func(n, state_ptr,timer);
-			repeat++;
-		} while (timer.elapsed() < timeout_ && repeat <= max_repeat_);
-		release_quantum_state(state_ptr);
-		return timer.elapsed() / repeat;
-	};
-
-	std::function<void(UINT, Timer&)> func;
-	std::function<void(UINT, CTYPE*, Timer&)> state_ops_func;
-	std::string name;
-	double elapsed;
+	std::ofstream fout(fname, std::ios::out);
+	fout.close();
 	for (UINT qubit_count = min_qubit_count; qubit_count < max_qubit_count; ++qubit_count) {
-		func = [](UINT n, Timer& timer) {
-			CTYPE* state_ptr;
-			ITYPE dim = 1ULL << n;
-			timer.temporal_resume();
-			state_ptr = allocate_quantum_state(dim);
-			timer.temporal_stop();
-			release_quantum_state(state_ptr);
-		};
-		name = "memory_allocate";
-		elapsed = benchmark_func(qubit_count, timeout, max_repeat, func);
-		std::cout << name << " " << qubit_count << " " << elapsed << std::endl;
-		fout << name << " " << qubit_count << " " << elapsed << std::endl;
 
-		func = [](UINT n, Timer& timer) {
-			CTYPE* state_ptr;
-			ITYPE dim = 1ULL << n;
-			state_ptr = allocate_quantum_state(dim);
-			timer.temporal_resume();
-			release_quantum_state(state_ptr);
-			timer.temporal_stop();
-		};
-		name = "memory_release";
-		elapsed = benchmark_func(qubit_count, timeout, max_repeat, func);
-		std::cout << name << " " << qubit_count << " " << elapsed << std::endl;
-		fout << name << " " << qubit_count << " " << elapsed << std::endl;
+		//show("memory allocate", qubit_count, benchmark_memory_allocate(qubit_count), fname);
+		//show("memory release", qubit_count, benchmark_memory_release(qubit_count), fname);
 
-		func = [](UINT n, Timer& timer) {
-			CTYPE* state_ptr;
-			ITYPE dim = 1ULL << n;
-			state_ptr = allocate_quantum_state(dim);
-			timer.temporal_resume();
-			initialize_quantum_state(state_ptr, dim);
-			timer.temporal_stop();
-			release_quantum_state(state_ptr);
-		};
-		name = "initialize_state_zero";
-		elapsed = benchmark_func(qubit_count, timeout, max_repeat, func);
-		std::cout << name << " " << qubit_count << " " << elapsed << std::endl;
-		fout << name << " " << qubit_count << " " << elapsed << std::endl;
+		//show("state initialize", qubit_count, benchmark_state_init(qubit_count), fname);
+		//show("state randomize", qubit_count, benchmark_state_randomize(qubit_count), fname);
 
-		func = [](UINT n, Timer& timer) {
-			CTYPE* state_ptr;
-			ITYPE dim = 1ULL << n;
-			state_ptr = allocate_quantum_state(dim);
-			timer.temporal_resume();
-			initialize_Haar_random_state(state_ptr, dim);
-			timer.temporal_stop();
-			release_quantum_state(state_ptr);
-		};
-		name = "initialize_state_random";
-		elapsed = benchmark_func(qubit_count, timeout, max_repeat, func);
-		std::cout << name << " " << qubit_count << " " << elapsed << std::endl;
-		fout << name << " " << qubit_count << " " << elapsed << std::endl;
+		//show("gate X_0", qubit_count, benchmark_gate_single_func(qubit_count, 0, X_gate), fname);
+		//show("gate X_1", qubit_count, benchmark_gate_single_func(qubit_count, 1, X_gate), fname);
+		//show("gate X_3", qubit_count, benchmark_gate_single_func(qubit_count, 3, X_gate), fname);
+		//show("gate Y_3", qubit_count, benchmark_gate_single_func(qubit_count, 3, Y_gate), fname);
+		//show("gate Z_3", qubit_count, benchmark_gate_single_func(qubit_count, 3, Z_gate), fname);
+		show("gate H_3", qubit_count, benchmark_gate_single_func(qubit_count, 3, H_gate), fname);
+
+		//show("gate CX_2,3", qubit_count, benchmark_gate_double_func(qubit_count, 2, 3, CNOT_gate), fname);
+		//show("gate CZ_2,3", qubit_count, benchmark_gate_double_func(qubit_count, 2, 3, CZ_gate), fname);
+		//show("gate SWAP_2,3", qubit_count, benchmark_gate_double_func(qubit_count, 2, 3, SWAP_gate), fname);
 
 
-		state_ops_func = [](UINT n,CTYPE* state, Timer& timer) {
-			ITYPE dim = 1ULL << n;
-			timer.temporal_resume();
-			X_gate(0, state, dim);
-			timer.temporal_stop();
-		};
-		name = "X_gate";
-		elapsed = benchmark_state_ops_func(qubit_count, timeout, max_repeat, state_ops_func);
-		std::cout << name << " " << qubit_count << " " << elapsed << std::endl;
-		fout << name << " " << qubit_count << " " << elapsed << std::endl;
-
-		state_ops_func = [](UINT n, CTYPE* state, Timer& timer) {
-			ITYPE dim = 1ULL << n;
-			timer.temporal_resume();
-			Y_gate(0, state, dim);
-			timer.temporal_stop();
-		};
-		name = "Y_gate";
-		elapsed = benchmark_state_ops_func(qubit_count, timeout, max_repeat, state_ops_func);
-		std::cout << name << " " << qubit_count << " " << elapsed << std::endl;
-		fout << name << " " << qubit_count << " " << elapsed << std::endl;
-
-		state_ops_func = [](UINT n, CTYPE* state, Timer& timer) {
-			ITYPE dim = 1ULL << n;
-			timer.temporal_resume();
-			Z_gate(0, state, dim);
-			timer.temporal_stop();
-		};
-		name = "Z_gate";
-		elapsed = benchmark_state_ops_func(qubit_count, timeout, max_repeat, state_ops_func);
-		std::cout << name << " " << qubit_count << " " << elapsed << std::endl;
-		fout << name << " " << qubit_count << " " << elapsed << std::endl;
-
-		state_ops_func = [](UINT n, CTYPE* state, Timer& timer) {
-			ITYPE dim = 1ULL << n;
-			timer.temporal_resume();
-			H_gate(0, state, dim);
-			timer.temporal_stop();
-		};
-		name = "H_gate";
-		elapsed = benchmark_state_ops_func(qubit_count, timeout, max_repeat, state_ops_func);
-		std::cout << name << " " << qubit_count << " " << elapsed << std::endl;
-		fout << name << " " << qubit_count << " " << elapsed << std::endl;
-
-		state_ops_func = [](UINT n, CTYPE* state, Timer& timer) {
-			ITYPE dim = 1ULL << n;
-			timer.temporal_resume();
-			CNOT_gate(0,1, state, dim);
-			timer.temporal_stop();
-		};
-		name = "CNOT_gate";
-		elapsed = benchmark_state_ops_func(qubit_count, timeout, max_repeat, state_ops_func);
-		std::cout << name << " " << qubit_count << " " << elapsed << std::endl;
-		fout << name << " " << qubit_count << " " << elapsed << std::endl;
-
-		state_ops_func = [](UINT n, CTYPE* state, Timer& timer) {
-			ITYPE dim = 1ULL << n;
-			timer.temporal_resume();
-			CZ_gate(0, 1, state, dim);
-			timer.temporal_stop();
-		};
-		name = "CZ_gate";
-		elapsed = benchmark_state_ops_func(qubit_count, timeout, max_repeat, state_ops_func);
-		std::cout << name << " " << qubit_count << " " << elapsed << std::endl;
-		fout << name << " " << qubit_count << " " << elapsed << std::endl;
-
-		state_ops_func = [](UINT n, CTYPE* state, Timer& timer) {
-			ITYPE dim = 1ULL << n;
-			timer.temporal_resume();
-			SWAP_gate(0, 1, state, dim);
-			timer.temporal_stop();
-		};
-		name = "SWAP_gate";
-		elapsed = benchmark_state_ops_func(qubit_count, timeout, max_repeat, state_ops_func);
-		std::cout << name << " " << qubit_count << " " << elapsed << std::endl;
-		fout << name << " " << qubit_count << " " << elapsed << std::endl;
-
+		/*
 		
 		for(UINT k=1;k<=max_dense_qubit_count;++k){
 			ITYPE matrix_dim = 1ULL << k;
@@ -295,7 +318,7 @@ int main() {
 			fout << name << " " << qubit_count << " " << elapsed << std::endl;
 			free(targets);
 		}
+		*/
 	}
-	fout.close();
 }
 

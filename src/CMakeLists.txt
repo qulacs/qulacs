@@ -7,6 +7,7 @@ else()
 endif()
 
 add_subdirectory(csim)
+add_subdirectory(csim_simd)
 if(USE_GPU)
 	add_subdirectory(gpusim)
 endif()
