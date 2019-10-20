@@ -196,8 +196,8 @@ PYBIND11_MODULE(qulacs, m) {
         .def("load", (void (QuantumStateGpu::*)(const QuantumStateBase*))&QuantumStateGpu::load)
         .def("load", (void (QuantumStateGpu::*)(const std::vector<CPPCTYPE>&))&QuantumStateGpu::load)
         .def("get_device_name", &QuantumStateGpu::get_device_name)
-        .def("data_cpp", &QuantumStateGpu::data_cpp)
-        .def("data_c", &QuantumStateGpu::data_c)
+        //.def("data_cpp", &QuantumStateGpu::data_cpp)
+        //.def("data_c", &QuantumStateGpu::data_c)
         .def("add_state", &QuantumStateGpu::add_state)
         .def("multiply_coef", &QuantumStateGpu::multiply_coef)
         .def("get_classical_value", &QuantumStateGpu::get_classical_value)
@@ -206,9 +206,9 @@ PYBIND11_MODULE(qulacs, m) {
         .def("sampling", &QuantumStateGpu::sampling)
 
         .def("get_vector", [](const QuantumStateGpu& state) {
-        Eigen::VectorXcd vec = Eigen::Map<Eigen::VectorXcd>(state.data_cpp(), state.dim);
-        return vec;
-    })
+            Eigen::VectorXcd vec = Eigen::Map<Eigen::VectorXcd>(state.duplicate_data_cpp(), state.dim);
+            return vec;
+        }, pybind11::return_value_policy::take_ownership)
         .def("get_qubit_count", [](const QuantumStateGpu& state) -> unsigned int {return (unsigned int) state.qubit_count; })
         .def("__repr__", [](const QuantumStateGpu &p) {return p.to_string(); });
     ;

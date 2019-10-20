@@ -663,7 +663,7 @@ __global__ void multi_qubit_dense_matrix_gate_half_shared_gpu(UINT target_qubit_
     ITYPE basis0, basis1;
     
     ITYPE matrix_len = 1ULL << target_qubit_index_count;
-    ITYPE half_matrix_len = 1ULL << (target_qubit_index_count-1);
+    //ITYPE half_matrix_len = 1ULL << (target_qubit_index_count-1);
 	if (basis < loop_dim){
         for(int j=0;j<target_qubit_index_count;++j) basis = insert_zero_to_basis_index_device(basis, sorted_insert_index_list_gpu[j] );
         for(int j=0;j<target_qubit_index_count-1;++j) basis += (1ULL << target_index_list_gpu[j+1])*((threadIdx.y>>j)&1);
@@ -789,14 +789,14 @@ __host__ void multi_qubit_dense_matrix_gate_small_qubit_host(UINT* target_qubit_
 __host__ void multi_qubit_dense_matrix_gate_11qubit_host(UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim, void* stream){
     cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-	cudaError cudaStatus;
+	//cudaError cudaStatus;
 
 	// matrix dim, mask, buffer
     ITYPE matrix_dim = 1ULL << target_qubit_index_count;
     UINT* h_sorted_insert_index_list = create_sorted_ui_list_gsim(target_qubit_index_list, target_qubit_index_count);
     
     // loop variables
-	ITYPE loop_dim = dim >> target_qubit_index_count;
+	//ITYPE loop_dim = dim >> target_qubit_index_count;
 	
     GTYPE *matrix_gpu;
     
@@ -829,7 +829,7 @@ __host__ void multi_qubit_dense_matrix_gate_11qubit_host(UINT* target_qubit_inde
 __host__ void multi_qubit_dense_matrix_gate_more_than_11qubit_host(UINT* target_qubit_index_list, UINT target_qubit_index_count, const CPPCTYPE* matrix, void* state, ITYPE dim, void* stream){
 	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-	cudaError cudaStatus;
+	//cudaError cudaStatus;
 
 	// matrix dim, mask, buffer
     ITYPE matrix_dim = 1ULL << target_qubit_index_count;

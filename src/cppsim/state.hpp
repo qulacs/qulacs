@@ -167,6 +167,20 @@ public:
      */
     virtual CTYPE* data_c() const = 0;
 
+	/**
+	 * \~japanese-en 量子状態をC++の<code>std::complex\<double\></code>の配列として新たに確保する
+	 *
+	 * @return 複素ベクトルのポインタ
+	 */
+	virtual CPPCTYPE* duplicate_data_cpp() const = 0;
+
+	/**
+	 * \~japanese-en 量子状態をcsimのComplex型の配列として新たに確保する。
+	 *
+	 * @return 複素ベクトルのポインタ
+	 */
+	virtual CTYPE* duplicate_data_c() const = 0;
+
     /**
      * \~japanese-en 量子状態を足しこむ
      */
@@ -407,7 +421,14 @@ public:
         }
         
         this->_classical_register = _state->classical_register;
-        memcpy(this->data_cpp(), _state->data_cpp(), (size_t)(sizeof(CPPCTYPE)*_dim));
+		if (_state->get_device_name() == "gpu") {
+			auto ptr = _state->duplicate_data_cpp();
+			memcpy(this->data_cpp(), ptr, (size_t)(sizeof(CPPCTYPE)*_dim));
+			free(ptr);
+		}
+		else {
+			memcpy(this->data_cpp(), _state->data_cpp(), (size_t)(sizeof(CPPCTYPE)*_dim));
+		}
     }
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
@@ -453,12 +474,28 @@ public:
         return reinterpret_cast<CTYPE*>(this->_state_vector);
     }
 
+	virtual CTYPE* duplicate_data_c() const override {
+		CTYPE* new_data = (CTYPE*)malloc(sizeof(CTYPE)*_dim);
+		memcpy(new_data, this->data(), (size_t)(sizeof(CTYPE)*_dim));
+		return new_data;
+	}
+
+	virtual CPPCTYPE* duplicate_data_cpp() const override {
+		CPPCTYPE* new_data = (CPPCTYPE*)malloc(sizeof(CPPCTYPE)*_dim);
+		memcpy(new_data, this->data(), (size_t)(sizeof(CPPCTYPE)*_dim));
+		return new_data;
+	}
+
 
 
     /**
      * \~japanese-en 量子状態を足しこむ
      */
     virtual void add_state(const QuantumStateBase* state) override{
+		if (state->get_device_name() == "gpu") {
+			std::cerr << "State vector on GPU cannot be added to that on CPU" << std::endl;
+			return;
+		}
         state_add(state->data_c(), this->data_c(), this->dim);
     }
     /**

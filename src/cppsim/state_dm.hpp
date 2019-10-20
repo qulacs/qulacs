@@ -165,7 +165,14 @@ public:
             return;
         }
 		if (_state->is_state_vector()) {
-			dm_initialize_with_pure_state(this->data_c(), _state->data_c(), dim);
+			if (_state->get_device_name() == "gpu") {
+				auto ptr = _state->duplicate_data_c();
+				dm_initialize_with_pure_state(this->data_c(), ptr, dim);
+				free(ptr);
+			}
+			else {
+				dm_initialize_with_pure_state(this->data_c(), _state->data_c(), dim);
+			}
 		}else {
 			memcpy(this->data_cpp(), _state->data_cpp(), (size_t)(sizeof(CPPCTYPE)*_dim*_dim));
 		}
@@ -241,12 +248,27 @@ public:
         return reinterpret_cast<CTYPE*>(this->_density_matrix);
     }
 
+	virtual CTYPE* duplicate_data_c() const override {
+		CTYPE* new_data = (CTYPE*)malloc(sizeof(CTYPE)*_dim*_dim);
+		memcpy(new_data, this->data(), (size_t)(sizeof(CTYPE)*_dim*_dim));
+		return new_data;
+	}
+
+	virtual CPPCTYPE* duplicate_data_cpp() const override {
+		CPPCTYPE* new_data = (CPPCTYPE*)malloc(sizeof(CPPCTYPE)*_dim*_dim);
+		memcpy(new_data, this->data(), (size_t)(sizeof(CPPCTYPE)*_dim*_dim));
+		return new_data;
+	}
 
 
     /**
      * \~japanese-en 量子状態を足しこむ
      */
 	virtual void add_state(const QuantumStateBase* state) override {
+		if (state->is_state_vector()) {
+			std::cerr << "add state between density matrix and state vector is not implemented" << std::endl;
+			return;
+		}
 		dm_state_add(state->data_c(), this->data_c(), this->dim);
 	}
 	/**

@@ -503,7 +503,7 @@ __host__ void multi_Z_gate_host(int* gates, void *state, ITYPE dim, int n_qubits
 	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	ITYPE bit_mask = 0;
 	for (int i = 0; i < n_qubits; ++i) {
-		if (gates[i] == 3) bit_mask ^= (1 << i);
+		if (gates[i] == 3) bit_mask ^= (1ULL << i);
 	}
 	cudaError_t cudaStatus;
 	unsigned int block = dim <= 1024 ? dim : 1024;
@@ -635,7 +635,7 @@ __host__ double multipauli_get_expectation_value_host(unsigned int* gates, void 
 	for (int i = 0; i < n_qubits; ++i) ++num_pauli_op[gates[i]];
 	ITYPE bit_mask[4] = { 0, 0, 0, 0 };
 	for (int i = 0; i < n_qubits; ++i) {
-		bit_mask[gates[i]] ^= (1 << i);
+		bit_mask[gates[i]] ^= (1ULL << i);
 	}
 	if (num_pauli_op[1] == 0 && num_pauli_op[2] == 0) {
 		multi_Z_get_expectation_value_gpu << <grid, block, 0, *cuda_stream >> > (ret_gpu, bit_mask[3], dim, state_gpu);

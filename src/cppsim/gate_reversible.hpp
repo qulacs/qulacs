@@ -50,7 +50,7 @@ public:
 				//reversible_boolean_gate_gpu(target_index.data(), target_index.size(), function_ptr, state->data_c(), state->dim);
 			}
 			else {
-				reversible_boolean_gate(target_index.data(), target_index.size(), function_ptr, state->data_c(), state->dim);
+				reversible_boolean_gate(target_index.data(), (UINT)target_index.size(), function_ptr, state->data_c(), state->dim);
 			}
 #else
 			reversible_boolean_gate(target_index.data(), (UINT)target_index.size(), function_ptr, state->data_c(), state->dim);

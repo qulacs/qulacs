@@ -6,9 +6,20 @@
 #include <cppsim/gate_merge.hpp>
 #include <cppsim/pauli_operator.hpp>
 
+
+inline void assert_cpu_eq_gpu(QuantumStateCpu& state_cpu, QuantumStateGpu& state_gpu, ITYPE dim, double eps) {
+	auto gpu_state_vector = state_gpu.duplicate_data_cpp();
+	for (ITYPE i = 0; i < dim; ++i) {
+		ASSERT_NEAR(state_cpu.data_cpp()[i].real(), gpu_state_vector[i].real(), eps);
+		ASSERT_NEAR(state_cpu.data_cpp()[i].imag(), gpu_state_vector[i].imag(), eps);
+	}
+	delete gpu_state_vector;
+}
+
+
 TEST(CompatTest, ApplyRandomOrderUnitary) {
 	UINT n = 15;
-	UINT max_gate_count = 12;
+	UINT max_gate_count = 5;
 	ITYPE dim = 1ULL << n;
 	const double eps = 1e-14;
 
@@ -52,10 +63,8 @@ TEST(CompatTest, ApplyRandomOrderUnitary) {
 				gate->update_quantum_state(&state_gpu);
 				delete gate;
 			}
-			auto gpu_ptr = state_gpu.data_cpp();
-			auto cpu_ptr = state_cpu.data_cpp();
-			for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(cpu_ptr[i] - gpu_ptr[i]), 0, eps);
-			delete gpu_ptr;
+
+			assert_cpu_eq_gpu(state_cpu, state_gpu, dim, eps);
 		}
 	}
 }

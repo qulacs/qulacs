@@ -23,14 +23,14 @@
 
 __host__ void* allocate_cuda_stream_host(unsigned int max_cuda_stream) {
 	cudaStream_t* stream = (cudaStream_t*)malloc(max_cuda_stream * sizeof(cudaStream_t));
-	for (int i = 0; i < max_cuda_stream; ++i) cudaStreamCreate(&stream[i]);
+	for (unsigned int i = 0; i < max_cuda_stream; ++i) cudaStreamCreate(&stream[i]);
 	void* cuda_stream = reinterpret_cast<void*>(stream);
 	return cuda_stream;
 }
 
 __host__ void release_cuda_stream_host(void* cuda_stream, unsigned int max_cuda_stream) {
 	cudaStream_t* stream = reinterpret_cast<cudaStream_t*>(cuda_stream);
-	for (int i = 0; i < max_cuda_stream; ++i) cudaStreamDestroy(stream[i]);
+	for (unsigned int i = 0; i < max_cuda_stream; ++i) cudaStreamDestroy(stream[i]);
 	free(stream);
 }
 
@@ -125,7 +125,7 @@ __global__ void rand_normal_xorwow(curandState* rnd_state, GTYPE* state, ITYPE d
 __host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim, UINT seed, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
-	const ITYPE ignore_first = 40;
+	//const ITYPE ignore_first = 40;
 	double norm = 0.;
 
 	curandState* rnd_state;
