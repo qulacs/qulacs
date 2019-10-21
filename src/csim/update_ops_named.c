@@ -15,18 +15,6 @@
 #include <x86intrin.h>
 #endif
 
-void normalize(double norm, CTYPE* state, ITYPE dim){
-    const ITYPE loop_dim = dim;
-    const double normalize_factor = sqrt(1./norm);
-    ITYPE state_index;
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for(state_index=0 ; state_index<loop_dim ; ++state_index){
-        state[state_index] *= normalize_factor;
-    }
-}
-
 void S_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim){
     single_qubit_phase_gate(target_qubit_index, 1.i, state, dim);
 }
