@@ -35,7 +35,7 @@ void CZ_gate(UINT control_qubit_index, UINT target_qubit_index, CTYPE *state, IT
 		CZ_gate_parallel(control_qubit_index, target_qubit_index, state, dim);
 	}
 #else
-	CZ_gate_single_unroll(control_qubit_index, target_qubit_index, state, dim);
+	CZ_gate_single_simd(control_qubit_index, target_qubit_index, state, dim);
 #endif
 }
 

@@ -35,7 +35,7 @@ void SWAP_gate(UINT target_qubit_index_0, UINT target_qubit_index_1, CTYPE *stat
 		SWAP_gate_parallel(target_qubit_index_0, target_qubit_index_1, state, dim);
 	}
 #else
-	SWAP_gate_single_unroll(target_qubit_index_0, target_qubit_index_1, state, dim);
+	SWAP_gate_single_simd(target_qubit_index_0, target_qubit_index_1, state, dim);
 #endif
 }
 

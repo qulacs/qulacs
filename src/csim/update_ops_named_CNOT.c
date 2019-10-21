@@ -35,7 +35,7 @@ void CNOT_gate(UINT control_qubit_index, UINT target_qubit_index, CTYPE *state, 
 		CNOT_gate_parallel(control_qubit_index, target_qubit_index, state, dim);
 	}
 #else
-	CNOT_gate_single_unroll(control_qubit_index, target_qubit_index, state, dim);
+	CNOT_gate_single_simd(control_qubit_index, target_qubit_index, state, dim);
 #endif
 }
 

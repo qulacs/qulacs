@@ -40,7 +40,7 @@ void single_qubit_dense_matrix_gate(UINT target_qubit_index, const CTYPE matrix[
 		single_qubit_dense_matrix_gate_parallel(target_qubit_index, matrix, state, dim);
 	}
 #else
-	single_qubit_dense_matrix_gate_parallel(target_qubit_index, matrix, state, dim);
+	single_qubit_dense_matrix_gate_simd(target_qubit_index, matrix, state, dim);
 #endif
 }
 

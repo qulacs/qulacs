@@ -34,7 +34,7 @@ void X_gate(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 		X_gate_parallel(target_qubit_index, state, dim);
 	}
 #else
-	X_gate_single_unroll(target_qubit_index, state, dim);
+	X_gate_single_simd(target_qubit_index, state, dim);
 #endif
 }
 
