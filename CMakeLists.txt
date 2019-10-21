@@ -191,7 +191,8 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 	endif()
 
 	if(APPLE)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -msse4.1")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx2")
 	endif()
 
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
