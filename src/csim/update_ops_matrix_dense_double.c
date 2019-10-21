@@ -5,6 +5,7 @@
 #include <assert.h>
 #include "constant.h"
 #include "utility.h"
+#include "update_ops.h"
 
 #ifdef _OPENMP
 #include <omp.h>
