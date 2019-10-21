@@ -2,18 +2,53 @@
 #include "../util/util.h"
 
 #include <cmath>
-#include <cppsim/state.hpp>
+#include <cppsim/state_gpu.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate.hpp>
 #include <cppsim/gate_matrix.hpp>
 #include <cppsim/gate_merge.hpp>
 #include <cppsim/pauli_operator.hpp>
-#include <cppsim/state_gpu.hpp>
 
 #include <cppsim/utility.hpp>
 #include <csim/update_ops.h>
 #include <functional>
 
+
+
+inline void set_eigen_from_gpu(ComplexVector& dst, QuantumStateGpu& src, ITYPE dim) {
+	auto ptr = src.duplicate_data_cpp();
+	for (ITYPE i = 0; i < dim; ++i) dst[i] = ptr[i];
+	free(ptr);
+}
+
+inline void assert_eigen_eq_gpu(ComplexVector& v1, QuantumStateGpu& v2, ITYPE dim, double eps) {
+	auto ptr = v2.duplicate_data_cpp();
+	for (UINT i = 0; i < dim; ++i) {
+		ASSERT_NEAR(ptr[i].real(), v1[i].real(), eps);
+		ASSERT_NEAR(ptr[i].imag(), v1[i].imag(), eps);
+	}
+	free(ptr);
+}
+
+inline void assert_cpu_eq_gpu(QuantumStateCpu& state_cpu, QuantumStateGpu& state_gpu, ITYPE dim, double eps) {
+	auto gpu_state_vector = state_gpu.duplicate_data_cpp();
+	for (ITYPE i = 0; i < dim; ++i) {
+		ASSERT_NEAR(state_cpu.data_cpp()[i].real(), gpu_state_vector[i].real(), eps);
+		ASSERT_NEAR(state_cpu.data_cpp()[i].imag(), gpu_state_vector[i].imag(), eps);
+	}
+	free(gpu_state_vector);
+}
+
+inline void assert_gpu_eq_gpu(QuantumStateGpu& state_gpu1, QuantumStateGpu& state_gpu2, ITYPE dim, double eps) {
+	auto gpu_state_vector1 = state_gpu1.duplicate_data_cpp();
+	auto gpu_state_vector2 = state_gpu2.duplicate_data_cpp();
+	for (ITYPE i = 0; i < dim; ++i) {
+		ASSERT_NEAR(gpu_state_vector1[i].real(), gpu_state_vector2[i].real(), eps);
+		ASSERT_NEAR(gpu_state_vector1[i].imag(), gpu_state_vector2[i].imag(), eps);
+	}
+	free(gpu_state_vector1);
+	free(gpu_state_vector2);
+}
 
 
 TEST(GateTest, ApplySingleQubitGate) {
@@ -65,8 +100,8 @@ TEST(GateTest, ApplySingleQubitGate) {
             UINT target = random.int32() % n;
 
             state.set_Haar_random_state();
-            for (ITYPE i = 0; i < dim; ++i) test_state1[i] = state.data_cpp()[i];
-            for (ITYPE i = 0; i < dim; ++i) test_state2[i] = state.data_cpp()[i];
+			set_eigen_from_gpu(test_state1, state, dim);
+			set_eigen_from_gpu(test_state2, state, dim);
 
             auto gate = func(target);
             gate->update_quantum_state(&state);
@@ -75,9 +110,9 @@ TEST(GateTest, ApplySingleQubitGate) {
             test_state1 = get_expanded_eigen_matrix_with_identity(target, small_mat,n) * test_state1;
             test_state2 = get_expanded_eigen_matrix_with_identity(target, mat, n) * test_state2;
 
-            for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state1[i]), 0, eps);
-            for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state2[i]), 0, eps);
-        }
+			assert_eigen_eq_gpu(test_state1, state, dim, eps);
+			assert_eigen_eq_gpu(test_state2, state, dim, eps);
+		}
     }
 }
 
@@ -114,8 +149,8 @@ TEST(GateTest, ApplySingleQubitRotationGate) {
             auto mat = cos(angle/2) * Eigen::MatrixXcd::Identity(2,2) + 1.i * sin(angle/2)* func_mat.second;
 
             state.set_Haar_random_state();
-            for (ITYPE i = 0; i < dim; ++i) test_state1[i] = state.data_cpp()[i];
-            for (ITYPE i = 0; i < dim; ++i) test_state2[i] = state.data_cpp()[i];
+			set_eigen_from_gpu(test_state1, state, dim);
+			set_eigen_from_gpu(test_state2, state, dim);
 
             auto gate = func(target,angle);
             gate->update_quantum_state(&state);
@@ -124,9 +159,9 @@ TEST(GateTest, ApplySingleQubitRotationGate) {
             test_state1 = get_expanded_eigen_matrix_with_identity(target, small_mat, n) * test_state1;
             test_state2 = get_expanded_eigen_matrix_with_identity(target, mat, n) * test_state2;
 
-            for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state1[i]), 0, eps);
-            for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state2[i]), 0, eps);
-        }
+			assert_eigen_eq_gpu(test_state1, state, dim, eps);
+			assert_eigen_eq_gpu(test_state2, state, dim, eps);
+		}
     }
 }
 
@@ -155,7 +190,7 @@ TEST(GateTest, ApplyTwoQubitGate) {
 
             state.set_Haar_random_state();
             test_state.load(&state);
-            for (ITYPE i = 0; i < dim; ++i) test_state1[i] = state.data_cpp()[i];
+			set_eigen_from_gpu(test_state1, state, dim);
 
             // update state
             auto gate = func(control, target);
@@ -172,8 +207,8 @@ TEST(GateTest, ApplyTwoQubitGate) {
             gate_dense->update_quantum_state(&test_state);
             delete gate_dense;
 
-            for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state1[i]), 0, eps);
-            for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+			assert_eigen_eq_gpu(test_state1, state, dim, eps);
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
         }
     }
 
@@ -190,7 +225,7 @@ TEST(GateTest, ApplyTwoQubitGate) {
 
             state.set_Haar_random_state();
             test_state.load(&state);
-            for (ITYPE i = 0; i < dim; ++i) test_state1[i] = state.data_cpp()[i];
+			set_eigen_from_gpu(test_state1, state, dim);
 
             auto gate = func(control, target);
             gate->update_quantum_state(&state);
@@ -205,9 +240,9 @@ TEST(GateTest, ApplyTwoQubitGate) {
             gate_dense->update_quantum_state(&test_state);
             delete gate_dense;
 
-            for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state1[i]), 0, eps);
-            for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        }
+			assert_eigen_eq_gpu(test_state1, state, dim, eps);
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
+		}
     }
 }
 
@@ -232,7 +267,7 @@ TEST(GateTest, ApplyMultiQubitGate) {
 
         state.set_Haar_random_state();
         state.set_computational_basis(0);
-        for (ITYPE i = 0; i < dim; ++i) test_state1[i] = state.data_cpp()[i];
+		set_eigen_from_gpu(test_state1, state, dim);
 
         PauliOperator pauli(1.0);
         for (UINT i = 0; i < n; ++i) {
@@ -253,13 +288,13 @@ TEST(GateTest, ApplyMultiQubitGate) {
         //std::cout << small_mat << std::endl << large_mat << std::endl;
         //for (UINT i = 0; i < 4; ++i) std::cout << small_mat.data()[i] << std::endl;
 
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state1[i]), 0, eps);
-    }
+		assert_eigen_eq_gpu(test_state1, state, dim, eps);
+	}
 
     for (UINT repeat = 0; repeat < 10; ++repeat) {
 
         state.set_Haar_random_state();
-        for (ITYPE i = 0; i < dim; ++i) test_state1[i] = state.data_cpp()[i];
+		set_eigen_from_gpu(test_state1, state, dim);
 
         PauliOperator pauli(1.0);
         for (UINT i = 0; i < n; ++i) {
@@ -278,8 +313,8 @@ TEST(GateTest, ApplyMultiQubitGate) {
         gate_dense->update_quantum_state(&state);
         delete gate_dense;
 
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state1[i]), 0, eps);
-    }
+		assert_eigen_eq_gpu(test_state1, state, dim, eps);
+	}
 
 }
 
@@ -298,7 +333,7 @@ TEST(GateTest, MergeTensorProduct) {
     state.set_Haar_random_state();
 
     test_state.load(&state);
-    for (ITYPE i = 0; i < dim; ++i) test_state_eigen[i] = state.data_cpp()[i];
+	set_eigen_from_gpu(test_state_eigen, state, dim);
 
     xy01->update_quantum_state(&state);
     x0->update_quantum_state(&test_state);
@@ -306,8 +341,8 @@ TEST(GateTest, MergeTensorProduct) {
     Eigen::MatrixXcd mat = get_eigen_matrix_full_qubit_pauli({ 1,2 });
     test_state_eigen = mat * test_state_eigen;
 
-    for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps);
-    for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+	assert_eigen_eq_gpu(test_state_eigen, state, dim,eps);
+	assert_gpu_eq_gpu(state, test_state, dim, eps);
 
     delete x0;
     delete y1;
@@ -331,7 +366,7 @@ TEST(GateTest, MergeMultiply) {
     state.set_Haar_random_state();
 
     test_state.load(&state);
-    for (ITYPE i = 0; i < dim; ++i) test_state_eigen[i] = state.data_cpp()[i];
+	set_eigen_from_gpu(test_state_eigen, state, dim);
 
     xy00->update_quantum_state(&state);
     x0->update_quantum_state(&test_state);
@@ -339,8 +374,8 @@ TEST(GateTest, MergeMultiply) {
     Eigen::MatrixXcd mat = -1.i * get_eigen_matrix_full_qubit_pauli({ 3 });
     test_state_eigen = mat * test_state_eigen;
 
-    for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps);
-    for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+	assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
+	assert_gpu_eq_gpu(state, test_state, dim, eps);
 
     delete x0;
     delete y0;
@@ -366,7 +401,7 @@ TEST(GateTest, MergeTensorProductAndMultiply) {
     state.set_Haar_random_state();
 
     test_state.load(&state);
-    for (ITYPE i = 0; i < dim; ++i) test_state_eigen[i] = state.data_cpp()[i];
+	set_eigen_from_gpu(test_state_eigen, state, dim);
 
     iy01->update_quantum_state(&state);
     y1->update_quantum_state(&test_state);
@@ -376,8 +411,8 @@ TEST(GateTest, MergeTensorProductAndMultiply) {
     //std::cout << iy01 << std::endl << std::endl;
     //std::cout << mat << std::endl;
 
-    for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps);
-    for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+	assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
+	assert_gpu_eq_gpu(state, test_state, dim, eps);
 
     delete x0;
     delete y1;
@@ -406,11 +441,11 @@ TEST(GateTest, RandomPauliMerge) {
         // pick random state and copy to test
         state.set_Haar_random_state();
         test_state.load(&state);
-        for (ITYPE i = 0; i < dim; ++i) test_state_eigen[i] = state.data_cpp()[i];
+		set_eigen_from_gpu(test_state_eigen, state, dim);
 
         // check equivalence
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps);
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+		assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
+		assert_gpu_eq_gpu(test_state, state, dim, eps);
 
         auto merged_gate = gate::Identity(0);
         QuantumGateMatrix* next_merged_gate = NULL;
@@ -468,9 +503,9 @@ TEST(GateTest, RandomPauliMerge) {
         merged_gate->update_quantum_state(&state);
         delete merged_gate;
         // check equivalence
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps);
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-    }
+		assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
+		assert_gpu_eq_gpu(test_state, state, dim, eps);
+	}
 }
 
 
@@ -495,11 +530,11 @@ TEST(GateTest, RandomPauliRotationMerge) {
         // pick random state and copy to test
         state.set_Haar_random_state();
         test_state.load(&state);
-        for (ITYPE i = 0; i < dim; ++i) test_state_eigen[i] = state.data_cpp()[i];
+		set_eigen_from_gpu(test_state_eigen, state, dim);
 
         // check equivalence
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps);
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+		assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
+		assert_gpu_eq_gpu(test_state, state, dim, eps);
 
         auto merged_gate = gate::Identity(0);
         QuantumGateMatrix* next_merged_gate = NULL;
@@ -553,9 +588,9 @@ TEST(GateTest, RandomPauliRotationMerge) {
         merged_gate->update_quantum_state(&state);
         delete merged_gate;
         // check equivalence
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps);
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-    }
+		assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
+		assert_gpu_eq_gpu(test_state, state, dim, eps);
+	}
 }
 
 
@@ -580,11 +615,11 @@ TEST(GateTest, RandomUnitaryMerge) {
         // pick random state and copy to test
         state.set_Haar_random_state();
         test_state.load(&state);
-        for (ITYPE i = 0; i < dim; ++i) test_state_eigen[i] = state.data_cpp()[i];
+		set_eigen_from_gpu(test_state_eigen, state, dim);
 
         // check equivalence
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps);
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+		assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
+		assert_gpu_eq_gpu(test_state, state, dim, eps);
 
         auto merged_gate = gate::Identity(0);
         QuantumGateMatrix* next_merged_gate = NULL;
@@ -637,9 +672,9 @@ TEST(GateTest, RandomUnitaryMerge) {
         merged_gate->update_quantum_state(&state);
         delete merged_gate;
         // check equivalence
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps);
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-    }
+		assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
+		assert_gpu_eq_gpu(test_state, state, dim, eps);
+	}
 }
 
 
@@ -665,11 +700,11 @@ TEST(GateTest, RandomUnitaryMergeLarge) {
         // pick random state and copy to test
         state.set_Haar_random_state();
         test_state.load(&state);
-        for (ITYPE i = 0; i < dim; ++i) test_state_eigen[i] = state.data_cpp()[i];
+		set_eigen_from_gpu(test_state_eigen, state, dim);
 
         // check equivalence
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps);
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+		assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
+		assert_gpu_eq_gpu(test_state, state, dim, eps);
 
         auto merged_gate1 = gate::Identity(0);
         auto merged_gate2 = gate::Identity(0);
@@ -730,8 +765,8 @@ TEST(GateTest, RandomUnitaryMergeLarge) {
         delete merged_gate1;
         delete merged_gate2;
         // check equivalence
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-    }
+		assert_gpu_eq_gpu(test_state, state, dim, eps);
+	}
 }
 
 TEST(GateTest, U3MergeIBMQGate) {
@@ -895,7 +930,7 @@ TEST(GateTest, RandomControlMergeSmall) {
         ComplexVector test_state_eigen(dim);
         state.set_Haar_random_state();
         test_state.load(&state);
-        for (ITYPE i = 0; i < dim; ++i) test_state_eigen[i] = state.data_cpp()[i];
+		set_eigen_from_gpu(test_state_eigen, state, dim);
         auto merge_gate1 = gate::Identity(0);
         auto merge_gate2 = gate::Identity(0);
 
@@ -914,9 +949,9 @@ TEST(GateTest, RandomControlMergeSmall) {
         merge_gate1->update_quantum_state(&state);
         test_state_eigen = mat * test_state_eigen;
 
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps) << state << "\n\n" << test_state_eigen << "\n";
-    }
+		assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
+		assert_gpu_eq_gpu(test_state, state, dim, eps);
+	}
 }
 
 
@@ -937,8 +972,8 @@ TEST(GateTest, RandomControlMergeLarge) {
         ComplexVector test_state_eigen(dim);
         state.set_Haar_random_state();
         test_state.load(&state);
-        for (ITYPE i = 0; i < dim; ++i) test_state_eigen[i] = state.data_cpp()[i];
-        auto merge_gate1 = gate::Identity(0);
+		set_eigen_from_gpu(test_state_eigen, state, dim);
+		auto merge_gate1 = gate::Identity(0);
         auto merge_gate2 = gate::Identity(0);
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
@@ -969,9 +1004,9 @@ TEST(GateTest, RandomControlMergeLarge) {
         merge_gate2->update_quantum_state(&test_state);
         test_state_eigen = mat * test_state_eigen;
 
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps) << state << "\n\n" << test_state_eigen << "\n";
-    }
+		assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
+		assert_gpu_eq_gpu(test_state, state, dim, eps);
+	}
 }
 
 TEST(GateTest, ProbabilisticGate) {
@@ -1047,4 +1082,3 @@ TEST(GateTest, GateAdd) {
     auto a6 = gate::add(gate::merge(gate::P0(0), gate::P0(1)), gate::merge(gate::P1(0), gate::P1(1)));
     // TODO assert matrix element
 }
-

@@ -1,4 +1,6 @@
 #include <gtest/gtest.h>
+#include <cppsim/state_gpu.hpp>
+
 #include "../util/util.h"
 #include <cppsim/type.hpp>
 #include <csim/constant.h>
@@ -15,7 +17,43 @@
 #include <unsupported/Eigen/MatrixFunctions>
 #include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
-#include <cppsim/state_gpu.hpp>
+
+
+
+inline void set_eigen_from_gpu(ComplexVector& dst, QuantumStateGpu& src, ITYPE dim) {
+	auto ptr = src.duplicate_data_cpp();
+	for (ITYPE i = 0; i < dim; ++i) dst[i] = ptr[i];
+	free(ptr);
+}
+
+inline void assert_eigen_eq_gpu(ComplexVector& v1, QuantumStateGpu& v2, ITYPE dim, double eps) {
+	auto ptr = v2.duplicate_data_cpp();
+	for (UINT i = 0; i < dim; ++i) {
+		ASSERT_NEAR(ptr[i].real(), v1[i].real(), eps);
+		ASSERT_NEAR(ptr[i].imag(), v1[i].imag(), eps);
+	}
+	free(ptr);
+}
+
+inline void assert_cpu_eq_gpu(QuantumStateCpu& state_cpu, QuantumStateGpu& state_gpu, ITYPE dim, double eps) {
+	auto gpu_state_vector = state_gpu.duplicate_data_cpp();
+	for (ITYPE i = 0; i < dim; ++i) {
+		ASSERT_NEAR(state_cpu.data_cpp()[i].real(), gpu_state_vector[i].real(), eps);
+		ASSERT_NEAR(state_cpu.data_cpp()[i].imag(), gpu_state_vector[i].imag(), eps);
+	}
+	free(gpu_state_vector);
+}
+
+inline void assert_gpu_eq_gpu(QuantumStateGpu& state_gpu1, QuantumStateGpu& state_gpu2, ITYPE dim, double eps) {
+	auto gpu_state_vector1 = state_gpu1.duplicate_data_cpp();
+	auto gpu_state_vector2 = state_gpu2.duplicate_data_cpp();
+	for (ITYPE i = 0; i < dim; ++i) {
+		ASSERT_NEAR(gpu_state_vector1[i].real(), gpu_state_vector2[i].real(), eps);
+		ASSERT_NEAR(gpu_state_vector1[i].imag(), gpu_state_vector2[i].imag(), eps);
+	}
+	free(gpu_state_vector1);
+	free(gpu_state_vector2);
+}
 
 
 TEST(CircuitTest, CircuitBasic) {
@@ -42,7 +80,7 @@ TEST(CircuitTest, CircuitBasic) {
     ComplexVector state_eigen(dim);
 
     state.set_Haar_random_state();
-    for (ITYPE i = 0; i < dim; ++i) state_eigen[i] = state.data_cpp()[i];
+	set_eigen_from_gpu(state_eigen, state, dim);
 
     QuantumCircuit circuit(n);
     UINT target,target_sub;
@@ -138,7 +176,8 @@ TEST(CircuitTest, CircuitBasic) {
     state_eigen = get_eigen_matrix_full_qubit_SWAP(target, target_sub, n)*state_eigen;
 
     circuit.update_quantum_state(&state);
-    for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state_eigen[i] - state.data_cpp()[i]), 0, eps);
+
+	assert_eigen_eq_gpu(state_eigen, state, dim, eps);
 }
 
 
@@ -166,8 +205,8 @@ TEST(CircuitTest, CircuitOptimize) {
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
         //std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+		assert_gpu_eq_gpu(state, test_state, dim, eps);
+		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
@@ -191,8 +230,8 @@ TEST(CircuitTest, CircuitOptimize) {
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
         //std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+		assert_gpu_eq_gpu(state, test_state, dim, eps);
+		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
@@ -217,8 +256,8 @@ TEST(CircuitTest, CircuitOptimize) {
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
         //std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+		assert_gpu_eq_gpu(state, test_state, dim, eps);
+		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
@@ -243,8 +282,8 @@ TEST(CircuitTest, CircuitOptimize) {
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
         //std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+		assert_gpu_eq_gpu(state, test_state, dim, eps);
+		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
@@ -269,8 +308,8 @@ TEST(CircuitTest, CircuitOptimize) {
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
         //std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+		assert_gpu_eq_gpu(state, test_state, dim, eps);
+		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
@@ -295,8 +334,8 @@ TEST(CircuitTest, CircuitOptimize) {
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
         //std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+		assert_gpu_eq_gpu(state, test_state, dim, eps);
+		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
@@ -321,8 +360,8 @@ TEST(CircuitTest, CircuitOptimize) {
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
         //std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+		assert_gpu_eq_gpu(state, test_state, dim, eps);
+		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
@@ -347,8 +386,8 @@ TEST(CircuitTest, CircuitOptimize) {
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
         //std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+		assert_gpu_eq_gpu(state, test_state, dim, eps);
+		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
@@ -374,8 +413,8 @@ TEST(CircuitTest, CircuitOptimize) {
         copy_circuit->update_quantum_state(&state);
         //std::cout << circuit << std::endl << copy_circuit << std::endl;
         //std::cout << state << std::endl << test_state << std::endl;
-        for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+		assert_gpu_eq_gpu(state, test_state, dim, eps);
+		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
@@ -400,8 +439,8 @@ TEST(CircuitTest, CircuitOptimize) {
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
         //std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+		assert_gpu_eq_gpu(state, test_state, dim, eps);
+		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
@@ -427,8 +466,8 @@ TEST(CircuitTest, CircuitOptimize) {
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
         //std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+		assert_gpu_eq_gpu(state, test_state, dim, eps);
+		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
@@ -454,8 +493,8 @@ TEST(CircuitTest, CircuitOptimize) {
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
         //std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+		assert_gpu_eq_gpu(state, test_state, dim, eps);
+		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
@@ -481,8 +520,8 @@ TEST(CircuitTest, CircuitOptimize) {
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
         //std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-        ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+		assert_gpu_eq_gpu(state, test_state, dim, eps);
+		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
@@ -528,15 +567,15 @@ TEST(CircuitTest, RandomCircuitOptimize) {
             state.load(&org_state);
             copy_circuit->update_quantum_state(&state);
             //std::cout << copy_circuit << std::endl;
-            for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
-            delete copy_circuit;
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
+			delete copy_circuit;
         }
     }
 
 }
 
 TEST(CircuitTest, RandomCircuitOptimizeLarge) {
-	const UINT n = 8;
+	const UINT n = 5;
 	const UINT dim = 1ULL << n;
 	const UINT depth = 5;
 	Random random;
@@ -575,7 +614,7 @@ TEST(CircuitTest, RandomCircuitOptimizeLarge) {
 			state.load(&org_state);
 			copy_circuit->update_quantum_state(&state);
 			//std::cout << copy_circuit << std::endl;
-			for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
 			delete copy_circuit;
 		}
 	}
@@ -657,7 +696,7 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
 
 
     state.set_Haar_random_state(seed);
-    for (ITYPE i = 0; i < dim; ++i) test_state[i] = state.data_cpp()[i];
+	set_eigen_from_gpu(test_state, state, dim);
 
     test_state = test_circuit * test_state;
     circuit.update_quantum_state(&state);
@@ -724,7 +763,7 @@ TEST(CircuitTest, RotateDiagonalObservable){
     ASSERT_NEAR(test_res.imag(), 0, eps);
 
     state.set_Haar_random_state();
-    for (ITYPE i = 0; i < dim; ++i) test_state[i] = state.data_cpp()[i];
+	set_eigen_from_gpu(test_state, state, dim);
 
     res = observable.get_expectation_value(&state).real();
     test_res = (test_state.adjoint() * test_observable * test_state);

@@ -8,7 +8,7 @@ from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
-_VERSION = '0.1.6'
+_VERSION = '0.1.7'
 
 project_name = 'Qulacs-GPU'
 
@@ -64,9 +64,9 @@ class CMakeBuild(build_ext):
             else:
                 cmake_args += ['-DCMAKE_CXX_COMPILER=g++-7']
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-            cmake_args += ['-DUSE_GPU:STR=Yes']
             build_args += ['--', '-j2']
 
+        cmake_args += ['-DUSE_GPU:STR=Yes']
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
                                                               self.distribution.get_version())

@@ -18,6 +18,12 @@ typedef Eigen::VectorXcd ComplexVector;
 typedef Eigen::Matrix<CPPCTYPE, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor> ComplexMatrix;
 typedef Eigen::SparseMatrix<CPPCTYPE> SparseComplexMatrix;
 
+#ifdef __GNUC__
+#if __GNUC__ >= 9
+using namespace std::complex_literals;
+#endif
+#endif
+
 #ifdef _MSC_VER
 inline static FILE* popen(const char* command, const char* mode) { return _popen(command, mode); }
 inline static void pclose(FILE* fp) { _pclose(fp);  }

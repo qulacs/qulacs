@@ -4,6 +4,37 @@
 #include <cppsim/utility.hpp>
 #include <cppsim/state_gpu.hpp>
 
+
+inline void set_eigen_from_gpu(Eigen::VectorXcd& dst, QuantumStateGpu& src, ITYPE dim) {
+	auto ptr = src.duplicate_data_cpp();
+	for (ITYPE i = 0; i < dim; ++i) dst[i] = ptr[i];
+	free(ptr);
+}
+
+inline void set_vector_from_gpu(std::vector<std::complex<double>>& dst, QuantumStateGpu& src, ITYPE dim) {
+	auto ptr = src.duplicate_data_cpp();
+	for (ITYPE i = 0; i < dim; ++i) dst[i] = ptr[i];
+	free(ptr);
+}
+
+inline void assert_vector_eq_gpu(std::vector<std::complex<double>>& v1, QuantumStateGpu& v2, ITYPE dim, double eps) {
+	auto ptr = v2.duplicate_data_cpp();
+	for (UINT i = 0; i < dim; ++i) {
+		ASSERT_NEAR(ptr[i].real(), v1[i].real(), eps);
+		ASSERT_NEAR(ptr[i].imag(), v1[i].imag(), eps);
+	}
+	free(ptr);
+}
+
+inline void assert_cpu_eq_gpu(QuantumStateCpu& state_cpu, QuantumStateGpu& state_gpu, ITYPE dim, double eps) {
+	auto gpu_state_vector = state_gpu.duplicate_data_cpp();
+	for (ITYPE i = 0; i < dim; ++i) {
+		ASSERT_NEAR(state_cpu.data_cpp()[i].real(), gpu_state_vector[i].real(), eps);
+		ASSERT_NEAR(state_cpu.data_cpp()[i].imag(), gpu_state_vector[i].imag(), eps);
+	}
+	delete gpu_state_vector;
+}
+
 // post-selection probability check
 // referred to test/csim/test_stat.cpp
 TEST(StatOperationTest, ProbTest) {
@@ -21,9 +52,9 @@ TEST(StatOperationTest, ProbTest) {
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		state.set_Haar_random_state();
 		ASSERT_NEAR(state_norm_host(state.data(), dim), 1, eps);
-		auto state_cpp = state.data_cpp();
 		Eigen::VectorXcd test_state(dim);
-		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state_cpp[i];
+
+		set_eigen_from_gpu(test_state, state, dim);
 
 		for (UINT target = 0; target < n; ++target) {
 			double p0 = M0_prob_host(target, state.data(), dim);
@@ -52,9 +83,9 @@ TEST(StatOperationTest, MarginalProbTest) {
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		state.set_Haar_random_state();
 		ASSERT_NEAR(state_norm_host(state.data(), dim), 1, eps);
-		auto state_cpp = state.data_cpp();
 		Eigen::VectorXcd test_state(dim);
-		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state_cpp[i];
+
+		set_eigen_from_gpu(test_state, state, dim);
 
 		for (UINT target = 0; target < n; ++target) {
 			// merginal probability check
@@ -658,19 +689,25 @@ TEST(StateTest, GenerateAndRelease) {
     ASSERT_EQ(state.qubit_count, n);
     ASSERT_EQ(state.dim, 1ULL << n);
     state.set_zero_state();
-    for (UINT i = 0; i < state.dim; ++i) {
-        if (i == 0) ASSERT_NEAR(abs(state.data_cpp()[i] - 1.), 0, eps);
-        else ASSERT_NEAR(abs(state.data_cpp()[i]), 0, eps);
+
+	auto ptr = state.duplicate_data_cpp();
+	for (UINT i = 0; i < state.dim; ++i) {
+        if (i == 0) ASSERT_NEAR(abs(ptr[i] - 1.), 0, eps);
+        else ASSERT_NEAR(abs(ptr[i]), 0, eps);
     }
-    Random random;
+	delete ptr;
+
+	Random random;
     for (UINT repeat = 0; repeat < 10; ++repeat) {
         ITYPE basis = random.int64()%state.dim;
         state.set_computational_basis(basis);
-        for (UINT i = 0; i < state.dim; ++i) {
-            if (i == basis) ASSERT_NEAR(abs(state.data_cpp()[i] - 1.), 0, eps);
-            else ASSERT_NEAR(abs(state.data_cpp()[i]), 0, eps);
+		auto ptr = state.duplicate_data_cpp();
+		for (UINT i = 0; i < state.dim; ++i) {
+			if (i == basis) ASSERT_NEAR(abs(ptr[i] - 1.), 0, eps);
+            else ASSERT_NEAR(abs(ptr[i]), 0, eps);
         }
-    }
+		delete ptr;
+	}
     for (UINT repeat = 0; repeat < 10; ++repeat) {
         state.set_Haar_random_state();
         ASSERT_NEAR(state.get_norm(),1.,eps);
@@ -699,10 +736,8 @@ TEST(StateTest, SetState) {
 		state_vector[i] = d + std::complex<double>(0, 1)*(d + 0.1);
 	}
 	state.load(state_vector);
-	for (UINT i = 0; i < dim; ++i) {
-		ASSERT_NEAR(state.data_cpp()[i].real(), state_vector[i].real(), eps);
-		ASSERT_NEAR(state.data_cpp()[i].imag(), state_vector[i].imag(), eps);
-	}
+
+	assert_vector_eq_gpu(state_vector, state, dim, eps);
 }
 
 TEST(StateTest, CopyState) {
@@ -757,19 +792,16 @@ TEST(StateTest, AddState) {
 	const ITYPE dim = 1ULL << n;
 	std::vector<std::complex<double>> state_vector1(dim);
 	std::vector<std::complex<double>> state_vector2(dim);
-	for (ITYPE i = 0; i < dim; ++i) {
-		state_vector1[i] = state1.data_cpp()[i];
-		state_vector2[i] = state2.data_cpp()[i];
-	}
+
+	set_vector_from_gpu(state_vector1, state1, dim);
+	set_vector_from_gpu(state_vector2, state2, dim);
 
 	state1.add_state(&state2);
-
 	for (ITYPE i = 0; i < dim; ++i) {
-		ASSERT_NEAR(state1.data_cpp()[i].real(), state_vector1[i].real() + state_vector2[i].real(), eps);
-		ASSERT_NEAR(state1.data_cpp()[i].imag(), state_vector1[i].imag() + state_vector2[i].imag(), eps);
-		ASSERT_NEAR(state2.data_cpp()[i].real(), state_vector2[i].real(), eps);
-		ASSERT_NEAR(state2.data_cpp()[i].imag(), state_vector2[i].imag(), eps);
+		state_vector1[i] += state_vector2[i];
 	}
+	assert_vector_eq_gpu(state_vector1, state1,dim,eps);
+	assert_vector_eq_gpu(state_vector2, state2, dim, eps);
 }
 
 TEST(StateTest, MultiplyCoef) {
@@ -782,15 +814,15 @@ TEST(StateTest, MultiplyCoef) {
 
 	const ITYPE dim = 1ULL << n;
 	std::vector<std::complex<double>> state_vector(dim);
+
+	auto ptr = state.duplicate_data_cpp();
 	for (ITYPE i = 0; i < dim; ++i) {
-		state_vector[i] = state.data_cpp()[i] * coef;
+		state_vector[i] = ptr[i] * coef;
 	}
+	delete ptr;
 	state.multiply_coef(coef);
 
-	for (ITYPE i = 0; i < dim; ++i) {
-		ASSERT_NEAR(state.data_cpp()[i].real(), state_vector[i].real(), eps);
-		ASSERT_NEAR(state.data_cpp()[i].imag(), state_vector[i].imag(), eps);
-	}
+	assert_vector_eq_gpu(state_vector, state, dim, eps);
 }
 
 
@@ -804,11 +836,8 @@ TEST(StateTest, StateCPUtoGPU) {
 	QuantumState state_cpu(n);
 	state_cpu.set_Haar_random_state();
 	state_gpu.load(&state_cpu);
-	auto gpu_state_vector = state_gpu.data_cpp();
-	for (ITYPE i = 0; i < dim; ++i) {
-		ASSERT_NEAR(state_cpu.data_cpp()[i].real(), gpu_state_vector[i].real(), eps);
-		ASSERT_NEAR(state_cpu.data_cpp()[i].imag(), gpu_state_vector[i].imag(), eps);
-	}
+
+	assert_cpu_eq_gpu(state_cpu, state_gpu, dim, eps);
 }
 
 TEST(StateTest, StateGPUtoCPU) {
@@ -821,9 +850,6 @@ TEST(StateTest, StateGPUtoCPU) {
 	QuantumState state_cpu(n);
 	state_gpu.set_Haar_random_state();
 	state_cpu.load(&state_gpu);
-	auto gpu_state_vector = state_gpu.data_cpp();
-	for (ITYPE i = 0; i < dim; ++i) {
-		ASSERT_NEAR(state_cpu.data_cpp()[i].real(), gpu_state_vector[i].real(), eps);
-		ASSERT_NEAR(state_cpu.data_cpp()[i].imag(), gpu_state_vector[i].imag(), eps);
-	}
+
+	assert_cpu_eq_gpu(state_cpu, state_gpu, dim, eps);
 }

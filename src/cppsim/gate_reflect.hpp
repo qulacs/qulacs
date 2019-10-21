@@ -78,7 +78,7 @@ public:
 	 *
 	 * @param matrix 行列をセットする変数の参照
 	 */
-	virtual void set_matrix(ComplexMatrix& matrix) const override {
+	virtual void set_matrix(ComplexMatrix&) const override {
 		std::cerr << "ReflectionGate::set_matrix is not implemented" << std::endl;
 		exit(0);
 	}

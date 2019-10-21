@@ -150,6 +150,11 @@ public:
 					target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
 					_angle, state->data(), state->dim);
 			}
+			else {
+				multi_qubit_Pauli_rotation_gate_partial_list(
+					target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+					_angle, state->data_c(), state->dim);
+			}
 #else
 			multi_qubit_Pauli_rotation_gate_partial_list(
 				target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),

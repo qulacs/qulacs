@@ -168,9 +168,8 @@ public:
 	 * @return 複素ベクトルのポインタ
 	 */
 	virtual CPPCTYPE* data_cpp() const override { 
-		CPPCTYPE* _copy_state = (CPPCTYPE*)malloc(sizeof(CPPCTYPE)*dim);
-		get_quantum_state_host(this->_state_vector,_copy_state, dim);
-		return _copy_state;
+		std::cerr << "Cannot reinterpret state vector on GPU to cpp complex vector. Use duplicate_data_cpp instead." << std::endl;
+		return NULL;
 	}
 
 	/**
@@ -179,9 +178,8 @@ public:
 	* @return 複素ベクトルのポインタ
 	*/
 	virtual CTYPE* data_c() const override {
-		CTYPE* _copy_state = (CTYPE*)malloc(sizeof(CTYPE)*dim);
-		get_quantum_state_host(this->_state_vector, _copy_state, dim);
-		return _copy_state;
+		std::cerr << "Cannot reinterpret state vector on GPU to C complex vector. Use duplicate_data_cpp instead." << std::endl;
+		return NULL;
 	}
 
 	/**
@@ -193,6 +191,17 @@ public:
 		return reinterpret_cast<void*>(this->_state_vector);
 	}
 
+	virtual CTYPE* duplicate_data_c() const override {
+		CTYPE* _copy_state = (CTYPE*)malloc(sizeof(CTYPE)*dim);
+		get_quantum_state_host(this->_state_vector, _copy_state, dim);
+		return _copy_state;
+	}
+
+	virtual CPPCTYPE* duplicate_data_cpp() const override {
+		CPPCTYPE* _copy_state = (CPPCTYPE*)malloc(sizeof(CPPCTYPE)*dim);
+		get_quantum_state_host(this->_state_vector, _copy_state, dim);
+		return _copy_state;
+	}
 
 	/**
 	 * \~japanese-en 量子状態を足しこむ
@@ -219,7 +228,7 @@ public:
 		std::vector<double> stacked_prob;
 		std::vector<ITYPE> result;
 		double sum = 0.;
-		auto ptr = this->data_cpp();
+		auto ptr = this->duplicate_data_cpp();
 		stacked_prob.push_back(0.);
 		for (UINT i = 0; i < this->dim; ++i) {
 			sum += norm(ptr[i]);
@@ -235,6 +244,19 @@ public:
 		free(ptr);
 		return result;
 	}
+
+	virtual std::string to_string() const {
+		std::stringstream os;
+		ComplexVector eigen_state(this->dim);
+		auto data = this->duplicate_data_cpp();
+		for (UINT i = 0; i < this->dim; ++i) eigen_state[i] = data[i];
+		os << " *** Quantum State ***" << std::endl;
+		os << " * Qubit Count : " << this->qubit_count << std::endl;
+		os << " * Dimension   : " << this->dim << std::endl;
+		os << " * State vector : \n" << eigen_state << std::endl;
+		free(data);
+		return os.str();
+	}
 };
 
 namespace state {
@@ -245,9 +267,7 @@ namespace state {
 	* @param[in] state_ket 内積のケット側の量子状態
 	* @return 内積の値
 	*/
-	CPPCTYPE DllExport inner_product(const QuantumStateGpu* state_bra, const QuantumStateGpu* state_ket) {
-		return inner_product_host(state_bra->data(), state_ket->data(), state_ket->dim);
-	}
+	CPPCTYPE DllExport inner_product(const QuantumStateGpu* state_bra, const QuantumStateGpu* state_ket);
 }
 
 #endif // _USE_GPU
