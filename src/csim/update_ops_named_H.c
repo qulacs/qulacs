@@ -28,7 +28,7 @@ void H_gate(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	//H_gate_single_unroll(target_qubit_index, state, dim);
 	//H_gate_parallel(target_qubit_index, state, dim);
 	//return;
-	UINT threshold = 22;
+	UINT threshold = 13;
 	if (dim < (1ULL << threshold)) {
 		H_gate_single_simd(target_qubit_index, state, dim);
 	}
@@ -104,14 +104,14 @@ void H_gate_single_simd(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	__m256d sqrt2inv_array = _mm256_set_pd(sqrt2inv, sqrt2inv, sqrt2inv, sqrt2inv);
 	if (target_qubit_index == 0) {
 		__m256d sqrt2inv_array_half = _mm256_set_pd(sqrt2inv, sqrt2inv, -sqrt2inv, -sqrt2inv);
-		for (state_index = 0; state_index < loop_dim; state_index += 2) {
-			ITYPE basis_index = (state_index&mask_low) + ((state_index&mask_high) << 1);
+		ITYPE basis_index = 0;
+		for (basis_index = 0; basis_index < dim; basis_index += 2) {
 			double* ptr0 = (double*)(state + basis_index);
 			__m256d data0 = _mm256_loadu_pd(ptr0);
 			__m256d data1 = _mm256_permute4x64_pd(data0, 78); // (3210) -> (1032) : 1*2 + 4*3 + 16*0 + 64*1 = 2+12+64=78
 			__m256d data2 = _mm256_add_pd(data0, data1);
 			__m256d data3 = _mm256_sub_pd(data1, data0);
-			__m256d data4 = _mm256_blend_pd(data2, data3, 3); // take data3 for latter half
+			__m256d data4 = _mm256_blend_pd(data3, data2, 3); // take data3 for latter half
 			data4 = _mm256_mul_pd(data4, sqrt2inv_array);
 			_mm256_storeu_pd(ptr0, data4);
 		}
@@ -143,7 +143,7 @@ void H_gate_parallel(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	ITYPE state_index = 0;
 	const double sqrt2inv = 1. / sqrt(2.);
 	//std::cout << dim << std::endl;
-#pragma omp parallel
+#pragma omp parallel for
 	for (state_index = 0; state_index < loop_dim; ++state_index) {
 		ITYPE basis_index_0 = (state_index&mask_low) + ((state_index&mask_high) << 1);
 		ITYPE basis_index_1 = basis_index_0 + mask;

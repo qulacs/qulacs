@@ -10,64 +10,93 @@ extern "C" {
 #include <csim/memory_ops.h>
 #include <csim/stat_ops.h>
 #include <csim/update_ops.h>
+#include <csim/init_ops.h>
 }
 #else
 #include <csim/memory_ops.h>
 #include <csim/stat_ops.h>
 #include <csim/update_ops.h>
+#include <csim/init_ops.h>
 #endif
 
+void test_single_qubit_named_gate(UINT n, std::string name, std::function<void(UINT, CTYPE*, ITYPE)> func, Eigen::MatrixXcd mat) {
+	const ITYPE dim = 1ULL << n;
+	const UINT max_repeat = 2;
 
+	auto state = allocate_quantum_state(dim);
+	initialize_Haar_random_state_with_seed(state, dim, 0);
 
-TEST(UpdateTest, SingleQubitGateTest) {
-    const UINT n = 6;
-    const ITYPE dim = 1ULL << n;
-    const UINT max_repeat = 10;
+	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
+	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+	std::vector<UINT> indices;
+	for (UINT i = 0; i < n; ++i) indices.push_back(i);
 
-    Eigen::MatrixXcd X(2, 2), Y(2, 2), Z(2, 2), H(2, 2), S(2, 2), T(2, 2), sqrtX(2, 2), sqrtY(2, 2);
-    X << 0, 1, 1, 0;
-    Y << 0, -1.i, 1.i, 0;
-    Z << 1, 0, 0, -1;
-    H << 1, 1, 1, -1; H /= sqrt(2.);
-    S << 1, 0, 0, 1.i;
-    T << 1, 0, 0, (1. + 1.i) / sqrt(2.);
-    sqrtX << 0.5 + 0.5i, 0.5 - 0.5i, 0.5 - 0.5i, 0.5 + 0.5i;
-    sqrtY << 0.5 + 0.5i, -0.5 - 0.5i, 0.5 + 0.5i, 0.5 + 0.5i;
-
-    UINT target;
-
-    auto state = allocate_quantum_state(dim);
-    initialize_Haar_random_state(state, dim);
-    Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-    for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
-    typedef std::tuple<std::function<void(UINT, CTYPE*, ITYPE)>, Eigen::MatrixXcd, std::string> testset;
-    std::vector<testset> test_list;
-    test_list.push_back(std::make_tuple(X_gate, X, "X"));
-    test_list.push_back(std::make_tuple(Y_gate, Y, "Y"));
-    test_list.push_back(std::make_tuple(Z_gate, Z, "Z"));
-    test_list.push_back(std::make_tuple(S_gate, S, "S"));
-    test_list.push_back(std::make_tuple(Sdag_gate, S.adjoint(), "Sdag"));
-    test_list.push_back(std::make_tuple(T_gate, T, "T"));
-    test_list.push_back(std::make_tuple(Tdag_gate, T.adjoint(), "Tdag"));
-    test_list.push_back(std::make_tuple(sqrtX_gate, sqrtX, "sqrtX"));
-    test_list.push_back(std::make_tuple(sqrtXdag_gate, sqrtX.adjoint(), "sqrtXdag"));
-    test_list.push_back(std::make_tuple(sqrtY_gate, sqrtY, "sqrtY"));
-    test_list.push_back(std::make_tuple(sqrtYdag_gate, sqrtY.adjoint(), "sqrtYdag"));
-
-    for (UINT rep = 0; rep < max_repeat; ++rep) {
-        for (auto tup : test_list) {
-            target = rand_int(n);
-            auto func = std::get<0>(tup);
-            auto mat = std::get<1>(tup);
-            auto name = std::get<2>(tup);
-            func(target, state, dim);
-            test_state = get_expanded_eigen_matrix_with_identity(target, mat, n) * test_state;
-            state_equal(state, test_state, dim, name);
-        }
-    }
-    release_quantum_state(state);
+	for (UINT rep = 0; rep < max_repeat; ++rep) {
+		for(UINT i=0;i<n;++i){
+			UINT target = indices[i];
+			func(target, state, dim);
+			test_state = get_expanded_eigen_matrix_with_identity(target, mat, n) * test_state;
+			state_equal(state, test_state, dim, name);
+		}
+		std::random_shuffle(indices.begin(), indices.end());
+	}
+	release_quantum_state(state);
 }
 
+TEST(UpdateTest, XGate) {
+	Eigen::MatrixXcd mat(2,2);
+	mat << 0, 1, 1, 0;
+	test_single_qubit_named_gate(6, "XGate", X_gate, mat);
+}
+TEST(UpdateTest, YGate) {
+	Eigen::MatrixXcd mat(2, 2);
+	mat << 0, -1.i, 1.i, 0;
+	test_single_qubit_named_gate(6, "YGate", Y_gate, mat);
+}
+TEST(UpdateTest, ZGate) {
+	const UINT n = 3;
+	Eigen::MatrixXcd mat(2, 2);
+	mat << 1, 0, 0, -1;
+	test_single_qubit_named_gate(6, "ZGate", Z_gate, mat);
+}
+TEST(UpdateTest, HGate) {
+	const UINT n = 3;
+	Eigen::MatrixXcd mat(2, 2);
+	mat << 1, 1, 1, -1; mat /= sqrt(2.);
+	test_single_qubit_named_gate(n, "HGate", H_gate, mat);
+}
+
+TEST(UpdateTest, SGate) {
+	const UINT n = 3;
+	Eigen::MatrixXcd mat(2, 2);
+	mat << 1, 0, 0, 1.i;
+	test_single_qubit_named_gate(n, "SGate", S_gate, mat);
+	test_single_qubit_named_gate(n, "SGate", Sdag_gate, mat.adjoint());
+}
+
+TEST(UpdateTest, TGate) {
+	const UINT n = 3;
+	Eigen::MatrixXcd mat(2, 2);
+	mat << 1, 0, 0, (1. + 1.i) / sqrt(2.);
+	test_single_qubit_named_gate(n, "TGate", T_gate, mat);
+	test_single_qubit_named_gate(n, "TGate", Tdag_gate, mat.adjoint());
+}
+
+TEST(UpdateTest, sqrtXGate) {
+	const UINT n = 3;
+	Eigen::MatrixXcd mat(2, 2);
+	mat << 0.5 + 0.5i, 0.5 - 0.5i, 0.5 - 0.5i, 0.5 + 0.5i;
+	test_single_qubit_named_gate(n, "SqrtXGate", sqrtX_gate, mat);
+	test_single_qubit_named_gate(n, "SqrtXdagGate", sqrtXdag_gate, mat.adjoint());
+}
+
+TEST(UpdateTest, sqrtYGate) {
+	const UINT n = 3;
+	Eigen::MatrixXcd mat(2, 2);
+	mat << 0.5 + 0.5i, -0.5 - 0.5i, 0.5 + 0.5i, 0.5 + 0.5i;
+	test_single_qubit_named_gate(n, "SqrtYGate", sqrtY_gate, mat);
+	test_single_qubit_named_gate(n, "SqrtYdagGate", sqrtYdag_gate, mat.adjoint());
+}
 
 TEST(UpdateTest, ProjectionAndNormalizeTest) {
     const UINT n = 6;
@@ -159,46 +188,49 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
 }
 
 
-TEST(UpdateTest, TwoQubitGateTest) {
-    const UINT n = 6;
-    const ITYPE dim = 1ULL << n;
-    const UINT max_repeat = 10;
 
-    std::vector<UINT> index_list;
-    for (UINT i = 0; i < n; ++i) index_list.push_back(i);
+void test_two_qubit_named_gate(UINT n, std::string name, std::function<void(UINT, UINT, CTYPE*, ITYPE)> func,
+	std::function<Eigen::MatrixXcd(UINT, UINT, UINT)> matfunc) {
+	const ITYPE dim = 1ULL << n;
+	const UINT max_repeat = 2;
 
-    UINT target,control;
-    
-    auto state = allocate_quantum_state(dim);
-    initialize_Haar_random_state(state, dim);
-    Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-    for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
-    typedef std::tuple<
-        std::function<void(UINT, UINT, CTYPE*, ITYPE)>, 
-        std::function<Eigen::MatrixXcd(UINT,UINT,UINT)>, 
-        std::string> testset;
-    std::vector<testset> test_list;
-    test_list.push_back(std::make_tuple(CNOT_gate, get_eigen_matrix_full_qubit_CNOT, "CNOT"));
-    test_list.push_back(std::make_tuple(CZ_gate, get_eigen_matrix_full_qubit_CZ, "CZ"));
-    test_list.push_back(std::make_tuple(SWAP_gate, get_eigen_matrix_full_qubit_SWAP, "SWAP"));
+	auto state = allocate_quantum_state(dim);
+	initialize_Haar_random_state_with_seed(state, dim, 0);
 
-    for (UINT rep = 0; rep < max_repeat; ++rep) {
-        for (auto tup : test_list) {
-            std::random_shuffle(index_list.begin(), index_list.end());
-            target = index_list[0];
-            control = index_list[1];
-            ASSERT_NE(target, control);
-            auto func = std::get<0>(tup);
-            auto mat_func = std::get<1>(tup);
-            auto name = std::get<2>(tup);
+	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
+	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+	std::vector<UINT> indices;
+	for (UINT i = 0; i < n; ++i) indices.push_back(i);
 
-            func(control, target, state, dim);
-            test_state = mat_func(control,target,n) * test_state;
-            state_equal(state, test_state, dim, name);
-        }
-    }
-    release_quantum_state(state);
+	for (UINT rep = 0; rep < max_repeat; ++rep) {
+		for (UINT i = 0; i+1 < n; i+=2) {
+			UINT target = indices[i];
+			UINT control = indices[i+1];
+			func(control, target, state, dim);
+			Eigen::MatrixXcd mat = matfunc(control, target, n);
+			test_state = mat * test_state;
+			state_equal(state, test_state, dim, name);
+		}
+		std::random_shuffle(indices.begin(), indices.end());
+	}
+	release_quantum_state(state);
 }
+
+TEST(UpdateTest, CNOTGate) {
+	const UINT n = 4;
+	test_two_qubit_named_gate(n, "CNOT", CNOT_gate, get_eigen_matrix_full_qubit_CNOT);
+}
+
+TEST(UpdateTest, CZGate) {
+	const UINT n = 4;
+	test_two_qubit_named_gate(n, "CZ", CZ_gate, get_eigen_matrix_full_qubit_CZ);
+}
+
+TEST(UpdateTest, SWAPGate) {
+	const UINT n = 4;
+	test_two_qubit_named_gate(n, "SWAP", SWAP_gate, get_eigen_matrix_full_qubit_SWAP);
+}
+
 
 
 TEST(UpdateTest, SingleQubitPauliTest) {

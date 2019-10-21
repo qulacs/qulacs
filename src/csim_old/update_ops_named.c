@@ -9,14 +9,54 @@
 #include <omp.h>
 #endif
 
-#ifdef _MSC_VER
-#include <intrin.h>
-#else
-#include <x86intrin.h>
+void X_gate(UINT target_qubit_index, CTYPE *state, ITYPE dim){
+    const ITYPE loop_dim = dim/2;
+    const ITYPE mask = (1ULL << target_qubit_index);
+    ITYPE state_index;
+#ifdef _OPENMP
+#pragma omp parallel for
 #endif
+    for(state_index=0 ; state_index<loop_dim ; ++state_index){
+        ITYPE basis_index_0 = insert_zero_to_basis_index(state_index,mask,target_qubit_index);
+        ITYPE basis_index_1 = basis_index_0 ^ mask;
+        swap_amplitude(state,basis_index_0,basis_index_1);
+    }
+}
 
+void Y_gate(UINT target_qubit_index, CTYPE *state, ITYPE dim){
+    const ITYPE loop_dim = dim/2;
+    const ITYPE mask = (1ULL << target_qubit_index);
+    ITYPE state_index;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for(state_index=0 ; state_index<loop_dim ; ++state_index){
+        ITYPE basis_index_0 = insert_zero_to_basis_index(state_index,mask,target_qubit_index);
+        ITYPE basis_index_1 = basis_index_0 ^ mask;
+        CTYPE cval_0 = state[basis_index_0];
+        CTYPE cval_1 = state[basis_index_1];
+        state[basis_index_0] = -cval_1 * 1.i;
+        state[basis_index_1] = cval_0 * 1.i;
+    }
+}
 
+void Z_gate(UINT target_qubit_index, CTYPE *state, ITYPE dim){
+    const ITYPE loop_dim = dim/2;
+    ITYPE state_index;
+    ITYPE mask = (1ULL << target_qubit_index);
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for(state_index=0 ; state_index<loop_dim ; ++state_index){
+        ITYPE temp_index = insert_zero_to_basis_index(state_index,mask,target_qubit_index) ^ mask;
+        state[temp_index] *= -1;
+    }
+}
 
+/** Hadamard gate  **/
+void H_gate(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
+    single_qubit_dense_matrix_gate(target_qubit_index, HADAMARD_MATRIX, state, dim);
+}
 
 void CNOT_gate(UINT control_qubit_index, UINT target_qubit_index, CTYPE *state, ITYPE dim){
     const ITYPE loop_dim = dim/4;

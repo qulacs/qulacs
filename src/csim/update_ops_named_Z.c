@@ -82,7 +82,7 @@ void Z_gate_single_unroll(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	const ITYPE mask_high = ~mask_low;
 	ITYPE state_index = 0;
 	if (target_qubit_index == 0) {
-		for (state_index = 1; state_index < loop_dim; state_index += 2) {
+		for (state_index = 1; state_index < dim; state_index += 2) {
 			state[state_index] *= -1;
 		}
 	}
@@ -103,7 +103,7 @@ void Z_gate_single_simd(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	ITYPE state_index = 0;
 	__m256d minus_one = _mm256_set_pd(-1,-1,-1,-1);
 	if (target_qubit_index == 0) {
-		for (state_index = 1; state_index < loop_dim; state_index += 2) {
+		for (state_index = 1; state_index < dim; state_index += 2) {
 			state[state_index] *= -1;
 		}
 	}
@@ -112,7 +112,7 @@ void Z_gate_single_simd(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 			ITYPE basis_index = (state_index&mask_low) + ((state_index&mask_high) << 1) + mask;
 			double* ptr0 = (double*)(state + basis_index);
 			__m256d data0 = _mm256_loadu_pd(ptr0);
-			_mm256_mul_pd(data0, minus_one);
+			data0 = _mm256_mul_pd(data0, minus_one);
 			_mm256_storeu_pd(ptr0, data0);
 		}
 	}

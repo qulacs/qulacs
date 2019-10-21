@@ -5,10 +5,12 @@
 extern "C" {
 #include <csim/memory_ops.h>
 #include <csim/utility.h>
+#include <csim/init_ops.h>
 }
 #else
 #include <csim/memory_ops.h>
 #include <csim/utility.h>
+#include <csim/init_ops.h>
 #endif
 
 TEST(MemoryOperationTest, AllocateAndRelease) {

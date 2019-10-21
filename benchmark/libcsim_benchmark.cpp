@@ -1,16 +1,17 @@
 ﻿
 #ifndef _MSC_VER
 extern "C" {
-#include <csim_simd/memory_ops.h>
-#include <csim_simd/stat_ops.h>
-#include <csim_simd/update_ops.h>
+#include <csim/memory_ops.h>
+#include <csim/stat_ops.h>
+#include <csim/update_ops.h>
 }
 #else
-#include <csim_simd/memory_ops.h>
-#include <csim_simd/stat_ops.h>
-#include <csim_simd/update_ops.h>
+#include <csim/memory_ops.h>
+#include <csim/init_ops.h>
+#include <csim/stat_ops.h>
+#include <csim/update_ops.h>
 #endif
-#include <csim_simd/update_ops_cpp.hpp>
+#include <csim/update_ops_cpp.hpp>
 #include <iostream>
 #include <iomanip>
 #include <fstream>
@@ -226,6 +227,26 @@ double benchmark_gate_double_func(UINT n, UINT target1, UINT target2, std::funct
 	return timer.elapsed() / repeat;
 };
 
+double benchmark_gate_dense_single(UINT n, UINT target) {
+	UINT repeat = 0;
+	ITYPE dim = (1ULL << n);
+	Timer timer;
+	timer.reset();
+	timer.temporal_stop();
+	CTYPE* state;
+	state = allocate_quantum_state(dim);
+	initialize_Haar_random_state(state, dim);
+	CTYPE matrix[4] = { 1.0, 0.0, 0.0, 1.0 };
+	do {
+		timer.temporal_resume();
+		single_qubit_dense_matrix_gate(target, matrix, state, dim);
+		timer.temporal_stop();
+		repeat++;
+	} while (timer.elapsed() < timeout && repeat <= max_repeat);
+	release_quantum_state(state);
+	return timer.elapsed() / repeat;
+};
+
 
 void show(std::string name, UINT qubit_count, double elapsed_time, std::string filename) {
 	std::cout << std::fixed << std::setw(20) << name << std::setw(5) << qubit_count << " " << std::setw(20) << std::setprecision(2) << elapsed_time*1e9 << " ns" << std::endl;
@@ -268,15 +289,15 @@ int main() {
 		//show("gate X_3", qubit_count, benchmark_gate_single_func(qubit_count, 3, X_gate), fname);
 		//show("gate Y_3", qubit_count, benchmark_gate_single_func(qubit_count, 3, Y_gate), fname);
 		//show("gate Z_3", qubit_count, benchmark_gate_single_func(qubit_count, 3, Z_gate), fname);
-		show("gate H_3", qubit_count, benchmark_gate_single_func(qubit_count, 3, H_gate), fname);
+		//show("gate H_3", qubit_count, benchmark_gate_single_func(qubit_count, 3, H_gate), fname);
 
 		//show("gate CX_2,3", qubit_count, benchmark_gate_double_func(qubit_count, 2, 3, CNOT_gate), fname);
 		//show("gate CZ_2,3", qubit_count, benchmark_gate_double_func(qubit_count, 2, 3, CZ_gate), fname);
 		//show("gate SWAP_2,3", qubit_count, benchmark_gate_double_func(qubit_count, 2, 3, SWAP_gate), fname);
+		show("gate single_3", qubit_count, benchmark_gate_dense_single(qubit_count, 3), fname);
 
 
 		/*
-		
 		for(UINT k=1;k<=max_dense_qubit_count;++k){
 			ITYPE matrix_dim = 1ULL << k;
 			ComplexMatrix matrix = ComplexMatrix::Identity(matrix_dim,matrix_dim);
@@ -297,7 +318,9 @@ int main() {
 			fout << name << " " << qubit_count << " " << elapsed << std::endl;
 			free(targets);
 		}
+		*/
 
+		/*
 		for (UINT k = 1; k <= max_dense_qubit_count; ++k) {
 			ITYPE matrix_dim = 1ULL << k;
 			ComplexMatrix matrix = ComplexMatrix::Identity(matrix_dim, matrix_dim);

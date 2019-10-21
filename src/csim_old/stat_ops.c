@@ -37,8 +37,9 @@ double measurement_distribution_entropy(const CTYPE *state, ITYPE dim){
 #endif
     for(index = 0; index < dim; ++index){
         double prob = pow(cabs(state[index]),2);
-		prob = (prob > eps)?prob:eps;
-        ent += -1.0*prob*log(prob);
+        if(prob > eps){
+            ent += -1.0*prob*log(prob);
+        } 
     }
     return ent;
 }

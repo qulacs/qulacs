@@ -1,36 +1,12 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "memory_ops.h"
+#include "init_ops.h"
 #include "utility.h"
 #include <time.h>
 #include <limits.h>
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-
-#ifdef _MSC_VER
-#define aligned_free _aligned_free;
-#define aligned_malloc _aligned_malloc;
-#endif
-
-// memory allocation
-CTYPE* allocate_quantum_state(ITYPE dim) {
-    CTYPE* state = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*dim));
-	//CTYPE* state = (CTYPE*)_aligned_malloc((size_t)(sizeof(CTYPE)*dim), 32);
-
-    if (!state){
-        fprintf(stderr,"Out of memory\n");
-		fflush(stderr);
-        exit(1);
-    }
-    return state;
-}
-
-void release_quantum_state(CTYPE* state) {
-	free(state);
-	//_aligned_free(state);
-}
-
 
 // state initialization
 void initialize_quantum_state_single(CTYPE *state, ITYPE dim);
@@ -71,24 +47,12 @@ void initialize_quantum_state_parallel(CTYPE *state, ITYPE dim) {
 unsigned long xor128(unsigned long* state);
 double random_uniform(unsigned long* state);
 double random_normal(unsigned long* state);
-unsigned long xor128(unsigned long* state){
-    unsigned long t;
-    t = (state[0] ^ (state[0] << 11));
-    state[0] = state[1]; state[1] = state[2]; state[2] = state[3];
-    return (state[3] = (state[3] ^ (state[3] >> 19)) ^ (t ^ (t >> 8)));
-}
-double random_uniform(unsigned long* state) {
-    return xor128(state) / ((float)ULONG_MAX);
-}
-double random_normal(unsigned long* state) {
-    return sqrt(-1.0*log(random_uniform(state))) * sin(2.0*M_PI*random_uniform(state));
-}
-void initialize_Haar_random_state(CTYPE *state, ITYPE dim) {
-    initialize_Haar_random_state_with_seed(state, dim, (unsigned)time(NULL));
-}
-
 void initialize_Haar_random_state_with_seed_single(CTYPE *state, ITYPE dim, UINT seed);
 void initialize_Haar_random_state_with_seed_parallel(CTYPE *state, ITYPE dim, UINT seed);
+
+void initialize_Haar_random_state(CTYPE *state, ITYPE dim) {
+	initialize_Haar_random_state_with_seed(state, dim, (unsigned)time(NULL));
+}
 void initialize_Haar_random_state_with_seed(CTYPE *state, ITYPE dim, UINT seed) {
 #ifdef _OPENMP
 	UINT threshold = 8;
@@ -179,3 +143,16 @@ void initialize_Haar_random_state_with_seed_parallel(CTYPE *state, ITYPE dim, UI
     free(norm_list);
 }
 #endif
+
+unsigned long xor128(unsigned long* state) {
+	unsigned long t;
+	t = (state[0] ^ (state[0] << 11));
+	state[0] = state[1]; state[1] = state[2]; state[2] = state[3];
+	return (state[3] = (state[3] ^ (state[3] >> 19)) ^ (t ^ (t >> 8)));
+}
+double random_uniform(unsigned long* state) {
+	return xor128(state) / ((float)ULONG_MAX);
+}
+double random_normal(unsigned long* state) {
+	return sqrt(-1.0*log(random_uniform(state))) * sin(2.0*M_PI*random_uniform(state));
+}

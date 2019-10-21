@@ -28,7 +28,7 @@ void X_gate(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	//return;
 	UINT threshold = 13;
 	if (dim < (1ULL << threshold)) {
-		X_gate_single_unroll(target_qubit_index, state, dim);
+		X_gate_single_simd(target_qubit_index, state, dim);
 	}
 	else {
 		X_gate_parallel(target_qubit_index, state, dim);
@@ -75,11 +75,11 @@ void X_gate_single_unroll(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	const ITYPE mask_high = ~mask_low;
 	ITYPE state_index = 0;
 	if (target_qubit_index == 0) {
-		for (state_index = 0; state_index < loop_dim; state_index += 2) {
-			ITYPE basis_index = (state_index&mask_low) + ((state_index&mask_high) << 1);
+		ITYPE basis_index = 0;
+		for (basis_index = 0; basis_index < dim; basis_index += 2) {
 			CTYPE temp = state[basis_index];
 			state[basis_index] = state[basis_index + 1];
-			state[basis_index + 1] = state[basis_index];
+			state[basis_index + 1] = temp;
 		}
 	}
 	else {
@@ -104,11 +104,12 @@ void X_gate_single_simd(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	ITYPE state_index = 0;
 	double* cast_state = (double*)state;
 	if (target_qubit_index == 0) {
-		for (state_index = 0; state_index < loop_dim; state_index += 2) {
-			ITYPE basis_index = ((state_index&mask_low) + ((state_index&mask_high) << 1))<<1;
-			__m256d data = _mm256_loadu_pd(cast_state+basis_index);
+		ITYPE basis_index = 0;
+		for (basis_index = 0; basis_index < dim; basis_index += 2) {
+			double* ptr = (double*)(state + basis_index);
+			__m256d data = _mm256_loadu_pd(ptr);
 			data = _mm256_permute4x64_pd(data, 78); // (3210) -> (1032) : 1*2 + 4*3 + 16*0 + 64*1 = 2+12+64=78
-			_mm256_storeu_pd(cast_state+basis_index, data);
+			_mm256_storeu_pd(ptr, data);
 		}
 	}
 	else {

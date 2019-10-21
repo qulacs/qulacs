@@ -123,13 +123,13 @@ void Y_gate_single_simd(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	const ITYPE mask_high = ~mask_low;
 	ITYPE state_index = 0;
 	const CTYPE imag = 1.i;
-	__m256d minus_even = _mm256_set_pd(-1,1,-1,1);
+	__m256d minus_even = _mm256_set_pd(1, -1, 1, -1);
 	__m256d minus_odd = _mm256_set_pd(-1, 1, -1, 1);
 	__m256d minus_half = _mm256_set_pd(1, -1, -1, 1);
 	if (target_qubit_index == 0) {
-		for (state_index = 0; state_index < loop_dim; state_index += 2) {
-			ITYPE basis_index_0 = (state_index&mask_low) + ((state_index&mask_high) << 1);
-			double* ptr0 = (double*)(state + basis_index_0);
+		ITYPE basis_index = 0;
+		for (basis_index = 0; basis_index < dim; basis_index += 2) {
+			double* ptr0 = (double*)(state + basis_index);
 			__m256d data0 = _mm256_loadu_pd(ptr0);
 			data0 = _mm256_permute4x64_pd(data0, 27); // (3210) -> (0123) : 16+4*2+3=27
 			data0 = _mm256_mul_pd(data0, minus_half);
@@ -147,7 +147,7 @@ void Y_gate_single_simd(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 			data0 = _mm256_permute_pd(data0, 5); // (3210) -> (2301) : 4+1
 			data1 = _mm256_permute_pd(data1, 5);
 			data0 = _mm256_mul_pd(data0, minus_even);
-			data1 = _mm256_mul_pd(data0, minus_odd);
+			data1 = _mm256_mul_pd(data1, minus_odd);
 			_mm256_storeu_pd(ptr1, data0);
 			_mm256_storeu_pd(ptr0, data1);
 		}
