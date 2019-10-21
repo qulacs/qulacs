@@ -34,6 +34,7 @@ void double_qubit_dense_matrix_gate_eigen(UINT target_qubit_index1, UINT target_
 
 	const ITYPE target_mask1 = 1ULL << target_qubit_index1;
 	const ITYPE target_mask2 = 1ULL << target_qubit_index2;
+	std::complex<double>* eigen_state = reinterpret_cast<std::complex<double>*>(state);
 
 	// loop variables
 	const ITYPE loop_dim = dim / 4;
