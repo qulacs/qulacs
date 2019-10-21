@@ -13,6 +13,7 @@
 #else
 #include <complex.h>
 #endif
+#include <stddef.h>
 
 //! unsigned integer
 typedef unsigned int UINT;
