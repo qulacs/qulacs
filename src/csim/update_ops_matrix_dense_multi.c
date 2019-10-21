@@ -19,11 +19,19 @@ void multi_qubit_dense_matrix_gate_single(const UINT* target_qubit_index_list, U
 void multi_qubit_dense_matrix_gate_parallel(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
 
 void multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim) {
+	if (target_qubit_index_count == 1) {
+		single_qubit_dense_matrix_gate(target_qubit_index_list[0], matrix, state, dim);
+	}
+	else if (target_qubit_index_count == 2) {
+		two_qubit_dense_matrix_gate(target_qubit_index_list[0], target_qubit_index_list[1], matrix, state, dim);
+	}
+	else {
 #ifdef _OPENMP
-	multi_qubit_dense_matrix_gate_parallel(target_qubit_index_list, target_qubit_index_count, matrix, state, dim);
+		multi_qubit_dense_matrix_gate_parallel(target_qubit_index_list, target_qubit_index_count, matrix, state, dim);
 #else
-	multi_qubit_dense_matrix_gate_single(target_qubit_index_list, target_qubit_index_count, matrix, state, dim);
+		multi_qubit_dense_matrix_gate_single(target_qubit_index_list, target_qubit_index_count, matrix, state, dim);
 #endif
+	}
 	return;
 }
 

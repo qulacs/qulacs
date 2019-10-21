@@ -289,6 +289,48 @@ double benchmark_gate_phase_single(UINT n, UINT target) {
 };
 
 
+double benchmark_gate_single_control_single_target(UINT n, UINT control, UINT target) {
+	UINT repeat = 0;
+	ITYPE dim = (1ULL << n);
+	Timer timer;
+	timer.reset();
+	timer.temporal_stop();
+	CTYPE* state;
+	state = allocate_quantum_state(dim);
+	initialize_Haar_random_state(state, dim);
+	CTYPE matrix[4] = { 1.0, 0.0, 0.0, 1.0 };
+	do {
+		timer.temporal_resume();
+		single_qubit_control_single_qubit_dense_matrix_gate(control, 0, target, matrix, state, dim);
+		timer.temporal_stop();
+		repeat++;
+	} while (timer.elapsed() < timeout && repeat <= max_repeat);
+	release_quantum_state(state);
+	return timer.elapsed() / repeat;
+};
+
+double benchmark_gate_multi_control_single_target(UINT n, UINT c1, UINT c2, UINT target) {
+	UINT repeat = 0;
+	ITYPE dim = (1ULL << n);
+	Timer timer;
+	timer.reset();
+	timer.temporal_stop();
+	CTYPE* state;
+	state = allocate_quantum_state(dim);
+	initialize_Haar_random_state(state, dim);
+	CTYPE matrix[4] = { 1.0, 0.0, 0.0, 1.0 };
+	UINT control[2] = { c1,c2 };
+	UINT cvalue[2] = { 0,1 };
+	do {
+		timer.temporal_resume();
+		multi_qubit_control_single_qubit_dense_matrix_gate(control, cvalue, 2, target, matrix, state, dim);
+		timer.temporal_stop();
+		repeat++;
+	} while (timer.elapsed() < timeout && repeat <= max_repeat);
+	release_quantum_state(state);
+	return timer.elapsed() / repeat;
+};
+
 void show(std::string name, UINT qubit_count, double elapsed_time, std::string filename) {
 	std::cout << std::fixed << std::setw(20) << name << std::setw(5) << qubit_count << " " << std::setw(20) << std::setprecision(2) << elapsed_time*1e9 << " ns" << std::endl;
 	std::ofstream fout(filename, std::ios::app);
@@ -337,7 +379,9 @@ int main() {
 		//show("gate SWAP_2,3", qubit_count, benchmark_gate_double_func(qubit_count, 2, 3, SWAP_gate), fname);
 		//show("gate single_3", qubit_count, benchmark_gate_dense_single(qubit_count, 3), fname);
 		//show("gate diag_3", qubit_count, benchmark_gate_diag_single(qubit_count, 3), fname);
-		show("gate diag_3", qubit_count, benchmark_gate_phase_single(qubit_count, 3), fname);
+		//show("gate diag_3", qubit_count, benchmark_gate_phase_single(qubit_count, 3), fname);
+		//show("gate single_control_single_target_2,3", qubit_count, benchmark_gate_single_control_single_target(qubit_count, 2, 3), fname);
+		show("gate multi_control_single_target_2,3", qubit_count, benchmark_gate_multi_control_single_target(qubit_count, 1,2, 3), fname);
 
 
 		/*
