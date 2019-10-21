@@ -18,6 +18,7 @@ extern "C" {
 #include <csim/update_ops.h>
 #include <csim/init_ops.h>
 #endif
+#include <csim/update_ops_cpp.hpp>
 
 void test_single_qubit_named_gate(UINT n, std::string name, std::function<void(UINT, CTYPE*, ITYPE)> func, Eigen::MatrixXcd mat) {
 	const ITYPE dim = 1ULL << n;
