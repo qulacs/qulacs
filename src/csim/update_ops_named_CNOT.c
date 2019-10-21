@@ -1,3 +1,4 @@
+#include <stddef.h>
 #include "constant.h"
 #include "update_ops.h"
 #include "utility.h"

@@ -15,20 +15,23 @@
 #include <x86intrin.h>
 #endif
 
-// TODO: malloc should be cached, should not be repeated in every function call.
-void multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim) {
+void multi_qubit_dense_matrix_gate_single(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
+void multi_qubit_dense_matrix_gate_parallel(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
 
+void multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim) {
+	multi_qubit_dense_matrix_gate_single(target_qubit_index_list, target_qubit_index_count, matrix, state, dim);
+	//multi_qubit_dense_matrix_gate_parallel(target_qubit_index_list, target_qubit_index_count, matrix, state, dim);
+	return;
+}
+
+void multi_qubit_dense_matrix_gate_single(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim) {
 	// matrix dim, mask, buffer
 	const ITYPE matrix_dim = 1ULL << target_qubit_index_count;
 	const ITYPE* matrix_mask_list = create_matrix_mask_list(target_qubit_index_list, target_qubit_index_count);
-
 	// insert index
 	const UINT* sorted_insert_index_list = create_sorted_ui_list(target_qubit_index_list, target_qubit_index_count);
-
 	// loop variables
 	const ITYPE loop_dim = dim >> target_qubit_index_count;
-
-#ifndef _OPENMP
 	CTYPE* buffer = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*matrix_dim));
 	ITYPE state_index;
 	for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -53,7 +56,23 @@ void multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list, UINT tar
 		}
 	}
 	free(buffer);
-#else
+	free((UINT*)sorted_insert_index_list);
+	free((ITYPE*)matrix_mask_list);
+}
+
+#ifdef _OPENMP
+void multi_qubit_dense_matrix_gate_parallel(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim) {
+
+	// matrix dim, mask, buffer
+	const ITYPE matrix_dim = 1ULL << target_qubit_index_count;
+	const ITYPE* matrix_mask_list = create_matrix_mask_list(target_qubit_index_list, target_qubit_index_count);
+
+	// insert index
+	const UINT* sorted_insert_index_list = create_sorted_ui_list(target_qubit_index_list, target_qubit_index_count);
+
+	// loop variables
+	const ITYPE loop_dim = dim >> target_qubit_index_count;
+
 	const UINT thread_count = omp_get_max_threads();
 	CTYPE* buffer_list = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*matrix_dim*thread_count));
 
@@ -91,8 +110,7 @@ void multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list, UINT tar
 		}
 	}
 	free(buffer_list);
-#endif
-
 	free((UINT*)sorted_insert_index_list);
 	free((ITYPE*)matrix_mask_list);
 }
+#endif
