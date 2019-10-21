@@ -19,6 +19,7 @@ void multi_qubit_dense_matrix_gate_old_single(const UINT* target_qubit_index_lis
 void multi_qubit_dense_matrix_gate_old_parallel(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
 void multi_qubit_dense_matrix_gate_single(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
 void multi_qubit_dense_matrix_gate_parallel(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
+void create_shift_mask_list_from_list_buf(const UINT* array, UINT count, UINT* dst_array, ITYPE* dst_mask);
 
 void multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim) {
 	if (target_qubit_index_count == 1) {
@@ -157,8 +158,6 @@ void multi_qubit_dense_matrix_gate_single(const UINT* target_qubit_index_list, U
 	// matrix dim, mask, buffer
 	const ITYPE matrix_dim = 1ULL << target_qubit_index_count;
 	const ITYPE* matrix_mask_list = create_matrix_mask_list(target_qubit_index_list, target_qubit_index_count);
-	// insert index
-	const UINT* sorted_insert_index_list = create_sorted_ui_list(target_qubit_index_list, target_qubit_index_count);
 	// loop variables
 	const ITYPE loop_dim = dim >> target_qubit_index_count;
 	CTYPE* buffer = (CTYPE*)malloc((size_t)(sizeof(CTYPE)*matrix_dim));
@@ -194,8 +193,6 @@ void multi_qubit_dense_matrix_gate_parallel(const UINT* target_qubit_index_list,
 	// matrix dim, mask, buffer
 	const ITYPE matrix_dim = 1ULL << target_qubit_index_count;
 	const ITYPE* matrix_mask_list = create_matrix_mask_list(target_qubit_index_list, target_qubit_index_count);
-	// insert index
-	const UINT* sorted_insert_index_list = create_sorted_ui_list(target_qubit_index_list, target_qubit_index_count);
 	// loop variables
 	const ITYPE loop_dim = dim >> target_qubit_index_count;
 
@@ -235,7 +232,6 @@ void multi_qubit_dense_matrix_gate_parallel(const UINT* target_qubit_index_list,
 		}
 	}
 	free(buffer_list);
-	free((UINT*)sorted_insert_index_list);
 	free((ITYPE*)matrix_mask_list);
 }
 #endif
