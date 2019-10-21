@@ -102,7 +102,7 @@ void X_gate_single_simd(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	const ITYPE mask_low = mask - 1;
 	const ITYPE mask_high = ~mask_low;
 	ITYPE state_index = 0;
-	double* cast_state = (double*)state;
+	//double* cast_state = (double*)state;
 	if (target_qubit_index == 0) {
 		ITYPE basis_index = 0;
 		for (basis_index = 0; basis_index < dim; basis_index += 2) {

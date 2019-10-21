@@ -122,7 +122,7 @@ void Y_gate_single_simd(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	const ITYPE mask_low = mask - 1;
 	const ITYPE mask_high = ~mask_low;
 	ITYPE state_index = 0;
-	const CTYPE imag = 1.i;
+	//const CTYPE imag = 1.i;
 	__m256d minus_even = _mm256_set_pd(1, -1, 1, -1);
 	__m256d minus_odd = _mm256_set_pd(-1, 1, -1, 1);
 	__m256d minus_half = _mm256_set_pd(1, -1, -1, 1);

@@ -99,11 +99,11 @@ void H_gate_single_simd(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	const ITYPE mask_low = mask - 1;
 	const ITYPE mask_high = ~mask_low;
 	ITYPE state_index = 0;
-	const CTYPE imag = 1.i;
+	//const CTYPE imag = 1.i;
 	const double sqrt2inv = 1. / sqrt(2.);
 	__m256d sqrt2inv_array = _mm256_set_pd(sqrt2inv, sqrt2inv, sqrt2inv, sqrt2inv);
 	if (target_qubit_index == 0) {
-		__m256d sqrt2inv_array_half = _mm256_set_pd(sqrt2inv, sqrt2inv, -sqrt2inv, -sqrt2inv);
+		//__m256d sqrt2inv_array_half = _mm256_set_pd(sqrt2inv, sqrt2inv, -sqrt2inv, -sqrt2inv);
 		ITYPE basis_index = 0;
 		for (basis_index = 0; basis_index < dim; basis_index += 2) {
 			double* ptr0 = (double*)(state + basis_index);
