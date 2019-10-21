@@ -54,9 +54,9 @@ void double_qubit_dense_matrix_gate_eigen(UINT target_qubit_index1, UINT target_
 		// fetch values
 		Eigen::Vector4cd vec(state[basis_0], state[basis_1], state[basis_2], state[basis_3]);
 		vec = eigen_matrix * vec;
-		state[basis_0] = vec[0];
-		state[basis_1] = vec[1];
-		state[basis_2] = vec[2];
-		state[basis_3] = vec[3];
+		eigen_state[basis_0] = vec[0];
+		eigen_state[basis_1] = vec[1];
+		eigen_state[basis_2] = vec[2];
+		eigen_state[basis_3] = vec[3];
 	}
 }
