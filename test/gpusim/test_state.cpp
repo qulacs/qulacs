@@ -171,7 +171,7 @@ TEST(StatOperationTest, InnerProductTest) {
 		for (UINT target = 0; target < n; ++target) {
 			initialize_Haar_random_state_host(buffer_gpu, dim);
 			get_quantum_state_host(buffer_gpu, buffer, dim);
-			CTYPE inp = inner_product_host(buffer_gpu, state_gpu, dim);
+			CPPCTYPE inp = inner_product_host(buffer_gpu, state_gpu, dim);
 			Eigen::VectorXcd test_buffer(dim);
 			for (ITYPE i = 0; i < dim; ++i) test_buffer[i] = buffer[i];
 			std::complex<double> test_inp = (test_buffer.adjoint() * test_state);
