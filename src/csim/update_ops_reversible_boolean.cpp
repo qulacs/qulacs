@@ -1,6 +1,12 @@
 
 #include "update_ops_cpp.hpp"
+#ifndef _MSC_VER
+extern "C" {
 #include "utility.h"
+}
+#else
+#include "utility.h"
+#endif
 
 void reversible_boolean_gate(const UINT* target_qubit_index_list, UINT target_qubit_index_count, std::function<ITYPE(ITYPE, ITYPE)> function_ptr, CTYPE* state, ITYPE dim) {
 

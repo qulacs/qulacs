@@ -16,14 +16,11 @@
 #endif
 
 void P0_gate_single(UINT target_qubit_index, CTYPE *state, ITYPE dim);
-void P0_gate_parallel(UINT target_qubit_index, CTYPE *state, ITYPE dim);
 void P1_gate_single(UINT target_qubit_index, CTYPE *state, ITYPE dim);
+void P0_gate_parallel(UINT target_qubit_index, CTYPE *state, ITYPE dim);
 void P1_gate_parallel(UINT target_qubit_index, CTYPE *state, ITYPE dim);
 
 void P0_gate(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
-	P0_gate_parallel(target_qubit_index, state, dim);
-	return;
-
 #ifdef _OPENMP
 	UINT threshold = 13;
 	if (dim < (1ULL << threshold)) {
