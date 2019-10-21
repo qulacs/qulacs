@@ -15,7 +15,7 @@ matrix:
   include:
     # 1/ OSX GCC7 PYTHON3.6 build
     - os: osx
-      osx_image: xcode10.1
+      osx_image: xcode11.2
       compiler: gcc-7
       env:
         - PYTHON="${PYTHON3}"
@@ -24,7 +24,7 @@ matrix:
         - PATH="${PYENV_ROOT}/bin:$PATH"
     # 2/ OSX GCC7 PYTHON2.7 build
     - os: osx
-      osx_image: xcode10.1
+      osx_image: xcode11.2
       compiler: gcc-7
       env:
         - PYTHON="${PYTHON2}"

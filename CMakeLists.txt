@@ -190,11 +190,6 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 		add_compile_options("-fPIC")
 	endif()
 
-	if(APPLE)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -mavx2")
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -mavx2")
-	endif()
-
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
 
