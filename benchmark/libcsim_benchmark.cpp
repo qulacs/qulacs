@@ -248,6 +248,73 @@ double benchmark_gate_dense_single(UINT n, UINT target) {
 };
 
 
+double benchmark_gate_dense_two(UINT n, UINT t1, UINT t2) {
+	UINT repeat = 0;
+	ITYPE dim = (1ULL << n);
+	Timer timer;
+	timer.reset();
+	timer.temporal_stop();
+	CTYPE* state;
+	state = allocate_quantum_state(dim);
+	initialize_Haar_random_state(state, dim);
+	CTYPE matrix[16];
+	for (UINT i = 0; i < 4; ++i) matrix[4 * i + i] = 1.;
+	do {
+		timer.temporal_resume();
+		double_qubit_dense_matrix_gate(t1,t2, matrix, state, dim);
+		timer.temporal_stop();
+		repeat++;
+	} while (timer.elapsed() < timeout && repeat <= max_repeat);
+	release_quantum_state(state);
+	return timer.elapsed() / repeat;
+};
+
+
+double benchmark_gate_dense_two_eigen(UINT n, UINT t1, UINT t2) {
+	UINT repeat = 0;
+	ITYPE dim = (1ULL << n);
+	Timer timer;
+	timer.reset();
+	timer.temporal_stop();
+	CTYPE* state;
+	state = allocate_quantum_state(dim);
+	initialize_Haar_random_state(state, dim);
+	Eigen::Matrix4cd matrix;
+	for (UINT i = 0; i < 4; ++i) matrix(i,i) = 1.;
+	do {
+		timer.temporal_resume();
+		double_qubit_dense_matrix_gate_eigen(t1, t2, matrix, state, dim);
+		timer.temporal_stop();
+		repeat++;
+	} while (timer.elapsed() < timeout && repeat <= max_repeat);
+	release_quantum_state(state);
+	return timer.elapsed() / repeat;
+};
+
+
+double benchmark_gate_dense_three(UINT n, UINT t1, UINT t2, UINT t3) {
+	UINT repeat = 0;
+	ITYPE dim = (1ULL << n);
+	Timer timer;
+	timer.reset();
+	timer.temporal_stop();
+	CTYPE* state;
+	state = allocate_quantum_state(dim);
+	initialize_Haar_random_state(state, dim);
+	CTYPE matrix[64];
+	UINT target[3] = { t1,t2,t3 };
+	for (UINT i = 0; i < 8; ++i) matrix[8 * i + i] = 1.;
+	do {
+		timer.temporal_resume();
+		multi_qubit_dense_matrix_gate(target, 3, matrix, state, dim);
+		timer.temporal_stop();
+		repeat++;
+	} while (timer.elapsed() < timeout && repeat <= max_repeat);
+	release_quantum_state(state);
+	return timer.elapsed() / repeat;
+};
+
+
 double benchmark_gate_diag_single(UINT n, UINT target) {
 	UINT repeat = 0;
 	ITYPE dim = (1ULL << n);
@@ -373,15 +440,22 @@ int main() {
 		//show("gate Y_3", qubit_count, benchmark_gate_single_func(qubit_count, 3, Y_gate), fname);
 		//show("gate Z_3", qubit_count, benchmark_gate_single_func(qubit_count, 3, Z_gate), fname);
 		//show("gate H_3", qubit_count, benchmark_gate_single_func(qubit_count, 3, H_gate), fname);
+		//show("gate P0_3", qubit_count, benchmark_gate_single_func(qubit_count, 3, P0_gate), fname);
 
 		//show("gate CX_2,3", qubit_count, benchmark_gate_double_func(qubit_count, 2, 3, CNOT_gate), fname);
 		//show("gate CZ_2,3", qubit_count, benchmark_gate_double_func(qubit_count, 2, 3, CZ_gate), fname);
 		//show("gate SWAP_2,3", qubit_count, benchmark_gate_double_func(qubit_count, 2, 3, SWAP_gate), fname);
-		//show("gate single_3", qubit_count, benchmark_gate_dense_single(qubit_count, 3), fname);
 		//show("gate diag_3", qubit_count, benchmark_gate_diag_single(qubit_count, 3), fname);
-		//show("gate diag_3", qubit_count, benchmark_gate_phase_single(qubit_count, 3), fname);
+		//show("gate phase_3", qubit_count, benchmark_gate_phase_single(qubit_count, 3), fname);
+
+		//show("gate single_3", qubit_count, benchmark_gate_dense_single(qubit_count, 3), fname);
+
 		//show("gate single_control_single_target_2,3", qubit_count, benchmark_gate_single_control_single_target(qubit_count, 2, 3), fname);
-		show("gate multi_control_single_target_2,3", qubit_count, benchmark_gate_multi_control_single_target(qubit_count, 1,2, 3), fname);
+		//show("gate multi_control_single_target_2,3", qubit_count, benchmark_gate_multi_control_single_target(qubit_count, 1,2, 3), fname);
+
+		//show("gate two_2,3", qubit_count, benchmark_gate_dense_two(qubit_count, 2,3), fname);
+		show("gate two_eigen_2,3", qubit_count, benchmark_gate_dense_two_eigen(qubit_count, 2, 3), fname);
+		//show("gate three_1,2,3", qubit_count, benchmark_gate_dense_three(qubit_count, 1,2,3), fname);
 
 
 		/*

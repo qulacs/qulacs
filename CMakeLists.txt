@@ -202,6 +202,7 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 elseif(MSVC)
 	SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
 	add_compile_options("/TP") # compile csim with cpp
+	add_compile_options(/wd4251)
 	if(USE_OMP)
 		add_compile_options("/openmp")
 	endif()

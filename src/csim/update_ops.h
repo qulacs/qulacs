@@ -823,7 +823,7 @@ DllExport void multi_qubit_Pauli_rotation_gate_partial_list(const UINT* target_q
  * @param[in] dim 次元
  *
  */
-DllExport void two_qubit_dense_matrix_gate(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim);
+DllExport void double_qubit_dense_matrix_gate_c(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim);
 
 /**
  * \~english

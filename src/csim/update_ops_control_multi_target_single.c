@@ -165,7 +165,7 @@ void multi_qubit_control_single_qubit_dense_matrix_gate_single(const UINT* contr
 	free(shift_masks);
 }
 
-void create_shift_mask_list_buf(const UINT* array, UINT count, UINT target, UINT* dst_array, ITYPE* dst_mask) {
+void create_shift_mask_list_from_list_and_value_buf(const UINT* array, UINT count, UINT target, UINT* dst_array, ITYPE* dst_mask) {
 	UINT size = count + 1;
 	memcpy(dst_array, array, sizeof(UINT)*count);
 	dst_array[count] = target;
@@ -180,7 +180,7 @@ void multi_qubit_control_single_qubit_dense_matrix_gate_single_stack(const UINT*
 
 	UINT sort_array[64];
 	ITYPE mask_array[64];
-	create_shift_mask_list_buf(control_qubit_index_list, control_qubit_index_count, target_qubit_index, sort_array, mask_array);
+	create_shift_mask_list_from_list_and_value_buf(control_qubit_index_list, control_qubit_index_count, target_qubit_index, sort_array, mask_array);
 	const ITYPE target_mask = 1ULL << target_qubit_index;
 	ITYPE control_mask = create_control_mask(control_qubit_index_list, control_value_list, control_qubit_index_count);
 
@@ -212,7 +212,7 @@ void multi_qubit_control_single_qubit_dense_matrix_gate_unroll(const UINT* contr
 
 	UINT sort_array[64];
 	ITYPE mask_array[64];
-	create_shift_mask_list_buf(control_qubit_index_list, control_qubit_index_count, target_qubit_index, sort_array, mask_array);
+	create_shift_mask_list_from_list_and_value_buf(control_qubit_index_list, control_qubit_index_count, target_qubit_index, sort_array, mask_array);
 	const ITYPE target_mask = 1ULL << target_qubit_index;
 	ITYPE control_mask = create_control_mask(control_qubit_index_list, control_value_list, control_qubit_index_count);
 
@@ -289,7 +289,7 @@ void multi_qubit_control_single_qubit_dense_matrix_gate_simd(const UINT* control
 
 	UINT sort_array[64];
 	ITYPE mask_array[64];
-	create_shift_mask_list_buf(control_qubit_index_list, control_qubit_index_count, target_qubit_index, sort_array, mask_array);
+	create_shift_mask_list_from_list_and_value_buf(control_qubit_index_list, control_qubit_index_count, target_qubit_index, sort_array, mask_array);
 	const ITYPE target_mask = 1ULL << target_qubit_index;
 	ITYPE control_mask = create_control_mask(control_qubit_index_list, control_value_list, control_qubit_index_count);
 
@@ -406,7 +406,7 @@ void multi_qubit_control_single_qubit_dense_matrix_gate_parallel(const UINT* con
 
 	UINT sort_array[64];
 	ITYPE mask_array[64];
-	create_shift_mask_list_buf(control_qubit_index_list, control_qubit_index_count, target_qubit_index, sort_array, mask_array);
+	create_shift_mask_list_from_list_and_value_buf(control_qubit_index_list, control_qubit_index_count, target_qubit_index, sort_array, mask_array);
 	const ITYPE target_mask = 1ULL << target_qubit_index;
 	ITYPE control_mask = create_control_mask(control_qubit_index_list, control_value_list, control_qubit_index_count);
 
