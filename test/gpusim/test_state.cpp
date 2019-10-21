@@ -175,8 +175,8 @@ TEST(StatOperationTest, InnerProductTest) {
 			Eigen::VectorXcd test_buffer(dim);
 			for (ITYPE i = 0; i < dim; ++i) test_buffer[i] = buffer[i];
 			std::complex<double> test_inp = (test_buffer.adjoint() * test_state);
-			ASSERT_NEAR(creal(inp), test_inp.real(), eps);
-			ASSERT_NEAR(cimag(inp), test_inp.imag(), eps);
+			ASSERT_NEAR(inp.real(), test_inp.real(), eps);
+			ASSERT_NEAR(inp.imag(), test_inp.imag(), eps);
 		}
 	}
 	release_quantum_state(state);
