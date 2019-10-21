@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
-#include "update_ops_matrix_dense_double_bridge.hpp"
 #include "constant.h"
 #include "utility.h"
 
