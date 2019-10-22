@@ -142,7 +142,7 @@ void Z_gate_parallel_simd(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	}
 	else {
 #pragma omp parallel for
-			for (state_index = 0; state_index < loop_dim; state_index += 2) {
+		for (state_index = 0; state_index < loop_dim; state_index += 2) {
 			ITYPE basis_index = (state_index&mask_low) + ((state_index&mask_high) << 1) + mask;
 			double* ptr0 = (double*)(state + basis_index);
 			__m256d data0 = _mm256_loadu_pd(ptr0);
