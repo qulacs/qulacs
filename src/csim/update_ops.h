@@ -426,7 +426,7 @@ void P1_gate_parallel(UINT target_qubit_index, CTYPE *state, ITYPE dim);
  * @param[in,out] state 量子状態
  * @param[in] dim 次元
  */
-DllExport void normalize(double norm, CTYPE* state, ITYPE dim);
+DllExport void normalize(double squared_norm, CTYPE* state, ITYPE dim);
 
 /**
  * \~english

@@ -110,14 +110,14 @@ public:
      * 量子状態のノルムは非ユニタリなゲートを作用した時に小さくなる。
      * @return ノルム
      */
-    virtual double get_norm() const = 0;
+    virtual double get_squared_norm() const = 0;
 
     /**
      * \~japanese-en 量子状態を正規化する
      *
      * @param norm 自身のノルム
      */
-    virtual void normalize(double norm) = 0;
+    virtual void normalize(double squared_norm) = 0;
 
     /**
      * \~japanese-en バッファとして同じサイズの量子状態を作成する。
@@ -379,8 +379,8 @@ public:
      * 量子状態のノルムは非ユニタリなゲートを作用した時に小さくなる。
      * @return ノルム
      */
-    virtual double get_norm() const override {
-        return state_norm(this->data_c(),_dim);
+    virtual double get_squared_norm() const override {
+        return state_norm_squared(this->data_c(),_dim);
     }
 
     /**
@@ -388,8 +388,8 @@ public:
      *
      * @param norm 自身のノルム
      */
-    virtual void normalize(double norm) override{
-        ::normalize(norm, this->data_c(), _dim);
+    virtual void normalize(double squared_norm) override{
+        ::normalize(squared_norm, this->data_c(), _dim);
     }
 
 

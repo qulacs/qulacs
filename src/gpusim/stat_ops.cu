@@ -65,7 +65,7 @@ inline __device__ double warpAllReduceSum_double(double val){
     return val;
 }
 
-__global__ void state_norm_gpu(double* ret, GTYPE *state, ITYPE dim){
+__global__ void state_norm_squared_gpu(double* ret, GTYPE *state, ITYPE dim){
     double sum = double(0.0);
 	GTYPE tmp;
     ITYPE idx = blockIdx.x * blockDim.x + threadIdx.x;
@@ -80,7 +80,7 @@ __global__ void state_norm_gpu(double* ret, GTYPE *state, ITYPE dim){
     }
 }
 
-__host__ double state_norm_cublas_host(void *state, ITYPE dim) {
+__host__ double state_norm_squared_cublas_host(void *state, ITYPE dim) {
     cublasStatus_t status;
     cublasHandle_t handle;
     double norm;
@@ -111,7 +111,7 @@ __host__ double state_norm_cublas_host(void *state, ITYPE dim) {
     return norm;
 }
 
-__host__ double state_norm_host(void *state, ITYPE dim, void* stream) {
+__host__ double state_norm_squared_host(void *state, ITYPE dim, void* stream) {
 	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError_t cudaStatus;
 	double norm = 0.0;
@@ -129,7 +129,7 @@ __host__ double state_norm_host(void *state, ITYPE dim, void* stream) {
 	unsigned int block = loop_dim <= 256 ? loop_dim : 256;
 	unsigned int grid = loop_dim / block;
 
-	state_norm_gpu << < grid, block, 0, *cuda_stream >> > (norm_gpu, state_gpu, dim);
+	state_norm_squared_gpu << < grid, block, 0, *cuda_stream >> > (norm_gpu, state_gpu, dim);
 
 	// Check for any errors launching the kernel
 	cudaStatus = cudaGetLastError();
@@ -144,9 +144,9 @@ __host__ double state_norm_host(void *state, ITYPE dim, void* stream) {
 	return norm;
 }
 
-__host__ double state_norm_host(void *state, ITYPE dim) {
+__host__ double state_norm_squared_host(void *state, ITYPE dim) {
 	cudaStream_t cuda_stream = (cudaStream_t)0;
-	return state_norm_host(state, dim, &cuda_stream);
+	return state_norm_squared_host(state, dim, &cuda_stream);
 }
 
 __global__ void measurement_distribution_entropy_gpu(double* ret, const GTYPE *state, ITYPE dim){

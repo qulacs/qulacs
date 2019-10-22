@@ -147,7 +147,7 @@ __host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim
 	checkCudaErrors(cudaFree(rnd_state), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
 
-	norm = state_norm_host(state, dim, cuda_stream);
+	norm = state_norm_squared_host(state, dim, cuda_stream);
 	normalize_host(norm, state, dim, cuda_stream);
 }
 

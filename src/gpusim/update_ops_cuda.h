@@ -16,7 +16,7 @@ DllExport void Y_gate_host(unsigned int target_qubit_index, void *state, ITYPE d
 DllExport void Z_gate_host(unsigned int target_qubit_index, void *state, ITYPE dim);
 DllExport void P0_gate_host(UINT target_qubit_index, void *state, ITYPE dim);
 DllExport void P1_gate_host(UINT target_qubit_index, void *state, ITYPE dim);
-DllExport void normalize_host(double norm, void* state, ITYPE dim);
+DllExport void normalize_host(double squared_norm, void* state, ITYPE dim);
 DllExport void CZ_gate_host(unsigned int control_qubit_index, unsigned int target_qubit_index, void* state, ITYPE dim);
 DllExport void CNOT_gate_host(unsigned int control_qubit_index, unsigned int target_qubit_index, void* state, ITYPE dim);
 DllExport void SWAP_gate_host(unsigned int control_qubit_index, unsigned int target_qubit_index, void* state, ITYPE dim);
@@ -70,7 +70,7 @@ DllExport void CNOT_gate_host(unsigned int control_qubit_index, unsigned int tar
 DllExport void SWAP_gate_host(unsigned int target_qubit_index0, unsigned int target_qubit_index1, void* state, ITYPE dim, void* stream);
 DllExport void P0_gate_host(UINT target_qubit_index, void *state, ITYPE dim, void* stream);
 DllExport void P1_gate_host(UINT target_qubit_index, void *state, ITYPE dim, void* stream);
-DllExport void normalize_host(double norm, void* state, ITYPE dim, void* stream);
+DllExport void normalize_host(double squared_norm, void* state, ITYPE dim, void* stream);
 
 DllExport void RX_gate_host(UINT target_qubit_index, double angle, void* state, ITYPE dim, void* stream);
 DllExport void RY_gate_host(UINT target_qubit_index, double angle, void* state, ITYPE dim, void* stream);

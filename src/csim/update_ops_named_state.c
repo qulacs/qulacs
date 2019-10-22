@@ -15,9 +15,9 @@
 #include <x86intrin.h>
 #endif
 
-void normalize(double norm, CTYPE* state, ITYPE dim){
+void normalize(double squared_norm, CTYPE* state, ITYPE dim){
     const ITYPE loop_dim = dim;
-    const double normalize_factor = sqrt(1./norm);
+    const double normalize_factor = sqrt(1./squared_norm);
     ITYPE state_index;
 #ifdef _OPENMP
 #pragma omp parallel for
