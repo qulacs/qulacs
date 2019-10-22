@@ -1018,7 +1018,7 @@ __host__ void single_qubit_control_multi_qubit_dense_matrix_gate_host(UINT contr
     const UINT insert_index_count = target_qubit_index_count + 1;
     UINT* sorted_insert_index_list = create_sorted_ui_list_value_gsim(target_qubit_index_list, target_qubit_index_count ,control_qubit_index);
 
-    GTYPE *d_matrix, *d_matrix_mask_list, *d_sorted_insert_index_list;
+    GTYPE *d_matrix, *d_matrix_mask_list;
 
     // loop varaibles
     const ITYPE loop_dim = dim >> insert_index_count;
@@ -1171,7 +1171,7 @@ __host__ void multi_qubit_control_multi_qubit_dense_matrix_gate_host(const UINT*
     // loop varaibles
     const ITYPE loop_dim = dim >> (target_qubit_index_count+control_qubit_index_count);
 
-    GTYPE *d_matrix, *d_matrix_mask_list, *d_sorted_insert_index_list;
+    GTYPE *d_matrix, *d_matrix_mask_list;
 
 	unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
 	unsigned int grid = loop_dim / block;
