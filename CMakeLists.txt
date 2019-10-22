@@ -11,12 +11,15 @@ endif()
 
 
 ##### Set default behavior #####
+set(DEFAULT_USE_SIMD Yes)
 set(DEFAULT_USE_OMP Yes)
 set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)
 set(DEFAULT_USE_TEST Yes)
 
-# Use OpenMP as default behavior
+if(NOT DEFINED USE_SIMD)
+	set(USE_SIMD ${DEFAULT_USE_SIMD})
+endif()
 if(NOT DEFINED USE_OMP)
 	set(USE_OMP ${DEFAULT_USE_OMP})
 endif()
@@ -30,6 +33,7 @@ if(NOT DEFINED USE_TEST)
 	set(USE_TEST ${DEFAULT_USE_TEST})
 endif()
 
+message(STATUS "USE_SIMD = ${USE_SIMD}")
 message(STATUS "USE_OMP = ${USE_OMP}")
 message(STATUS "USE_GPU = ${USE_GPU}")
 message(STATUS "USE_TEST = ${USE_TEST}")
@@ -42,9 +46,7 @@ foreach(path IN LISTS header_files)
 	string(REPLACE ${CMAKE_CURRENT_SOURCE_DIR}/src/ ${CMAKE_CURRENT_SOURCE_DIR}/include/ path_dst ${path})
 	configure_file(${path} ${path_dst} COPYONLY)
 endforeach()
-
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
-
 
 
 ##### set external projects #####
@@ -68,7 +70,6 @@ ExternalProject_Add(
 )
 include_directories(SYSTEM ${EIGEN_INCLUDE_DIR})
 
-
 # Google test
 if(USE_TEST)
 	FetchContent_Declare(
@@ -85,7 +86,6 @@ if(USE_TEST)
 else()
 	message(STATUS "Skip downloding googletest")
 endif()
-
 
 # Pybind11
 if(USE_PYTHON)
@@ -121,9 +121,9 @@ else()
 	message(STATUS "Skip downloding pybind11")
 endif()
 
+
 ##### set warnings #####
-if(USE_GPU)
-else()
+if(NOT USE_GPU)
 	set(WARNING_C "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
 	 -Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
 	 -Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=missing-declarations -Werror=return-type \
@@ -168,13 +168,16 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 
+
+	# GCC>=9.0.0 requires C++14 for building python
 	if(9.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14")
 	else()
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
 	endif()
-
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+
+	# set for literals of imaginary number
 	if(NOT MINGW)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
 	endif()
@@ -190,6 +193,10 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 		add_compile_options("-fPIC")
 	endif()
 
+	if(USE_SIMD)
+		add_compile_options("-D _USE_SIMD")
+	endif()
+
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
 
@@ -201,7 +208,15 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 
 elseif(MSVC)
 	SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
-	add_compile_options("/TP") # compile csim with cpp
+
+	# compile csim with cpp since VC not completely support C99 complex values
+	add_compile_options("/TP")
+	# ignore warning about template export
+	add_compile_options(/wd4251)
+
+	if(USE_SIMD)
+		add_compile_options("/D_USE_SIMD")
+	endif()
 	if(USE_OMP)
 		add_compile_options("/openmp")
 	endif()
@@ -209,6 +224,7 @@ elseif(MSVC)
 		add_compile_options("/D_USE_GPU")
 	endif()
 
+	# static link to multithread runtimes
 	set(variables 
 		CMAKE_CXX_FLAGS_DEBUG
 		CMAKE_CXX_FLAGS_RELEASE
@@ -227,7 +243,6 @@ endif()
 message(STATUS "CMAKE_SYSTEM_NAME = ${CMAKE_SYSTEM_NAME}")
 message(STATUS "CMAKE_C_COMPILER = ${CMAKE_C_COMPILER}")
 message(STATUS "CMAKE_CXX_COMPILER = ${CMAKE_CXX_COMPILER}")
-message(STATUS "USE_OMP = ${USE_OMP}")
 message(STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
 message(STATUS "CMAKE_CXX_FLAGS = ${CMAKE_CXX_FLAGS}")
 message(STATUS "CMAKE_CXX_FLAGS_DEBUG = ${CMAKE_CXX_FLAGS_DEBUG}")

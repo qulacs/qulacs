@@ -37,8 +37,9 @@ double measurement_distribution_entropy(const CTYPE *state, ITYPE dim){
 #endif
     for(index = 0; index < dim; ++index){
         double prob = pow(cabs(state[index]),2);
-		prob = (prob > eps)?prob:eps;
-        ent += -1.0*prob*log(prob);
+        if(prob > eps){
+            ent += -1.0*prob*log(prob);
+        } 
     }
     return ent;
 }
@@ -72,6 +73,28 @@ CTYPE state_inner_product(const CTYPE *state_bra, const CTYPE *state_ket, ITYPE 
     return real_sum + 1.i * imag_sum;
 #endif
 }
+
+
+void state_add(const CTYPE *state_added, CTYPE *state, ITYPE dim) {
+	ITYPE index;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+	for (index = 0; index < dim; ++index) {
+		state[index] += state_added[index];
+	}
+}
+
+void state_multiply(CTYPE coef, CTYPE *state, ITYPE dim) {
+	ITYPE index;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+	for (index = 0; index < dim; ++index) {
+		state[index] *= coef;
+	}
+}
+
 
 // calculate probability with which we obtain 0 at target qubit
 double M0_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim){

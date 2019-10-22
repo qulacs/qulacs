@@ -11,10 +11,6 @@ extern "C"{
 #include "type.h"
 #endif
 
-DllExport void double_qubit_dense_matrix_gate(UINT target_qubit_index0, UINT target_qubit_index1, const CTYPE matrix[16], CTYPE* state, ITYPE dim);
-DllExport void double_qubit_dense_matrix_gate(UINT target_qubit_index0, UINT target_qubit_index1, const Eigen::Matrix4cd& eigen_matrix, CTYPE* state, ITYPE dim);
-DllExport void double_qubit_dense_matrix_gate_eigen(UINT target_qubit_index0, UINT target_qubit_index1, const Eigen::Matrix4cd& eigen_matrix, CTYPE* state, ITYPE dim);
-
 DllExport void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
 DllExport void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const Eigen::MatrixXcd& eigen_matrix, CTYPE* state, ITYPE dim);
 DllExport void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const Eigen::Matrix<std::complex<double>,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor>& eigen_matrix, CTYPE* state, ITYPE dim);

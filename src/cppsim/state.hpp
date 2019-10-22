@@ -1,4 +1,4 @@
-
+﻿
 #pragma once
 
 #ifndef _MSC_VER
@@ -6,11 +6,13 @@ extern "C"{
 #include <csim/memory_ops.h>
 #include <csim/stat_ops.h>
 #include <csim/update_ops.h>
+#include <csim/init_ops.h>
 }
 #else
 #include <csim/memory_ops.h>
 #include <csim/stat_ops.h>
 #include <csim/update_ops.h>
+#include <csim/init_ops.h>
 #endif
 
 #include "type.hpp"

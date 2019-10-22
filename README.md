@@ -71,7 +71,6 @@ If you want to use GPU, install CUDA >= 8.0.
 
 ## Install from Source
 If you encounter some troubles, see [troubleshooting (Japanese)](http://qulacs.org/md_4__trouble_shooting.html).
-Currently, if you want to use GPU, qulacs must be installed from source.
 
 ### Requirements
 
@@ -82,13 +81,21 @@ Currently, if you want to use GPU, qulacs must be installed from source.
 - cmake >= 3.0
 - (optional) CUDA >= 8.0
 
-### Install qulacs from source
+### Install python libs from source
 
-Install
+Install (Multi-thread without GPU)
 ```
-git clone https://github.com/qulacs/qulacs.git
-cd qulacs
 python setup.py install
+```
+
+Install (Multithread with GPU, CUDA is required)
+```
+python setup_gpu.py install
+```
+
+Install (Single-thread without GPU, for executing multiple processes in parallel)
+```
+python setup_singlethread.py install
 ```
 
 Uninstall
@@ -111,10 +118,10 @@ When you want to build with GPU, use <code>build_gcc_with_gpu.sh</code>.
 ```
 git clone https://github.com/qulacs/qulacs.git
 cd qulacs
-script/build_msvc.bat
+script/build_msvc_2017.bat
 ```
 
-When you want to build with GPU, use <code>build_msvc_with_gpu.bat</code>.
+When you want to build with GPU, use <code>build_msvc_2017_with_gpu.bat</code>.
 
 ## Tutorial and API document
 
