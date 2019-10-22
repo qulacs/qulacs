@@ -15,11 +15,6 @@
 #include <x86intrin.h>
 #endif
 
-void P0_gate_single(UINT target_qubit_index, CTYPE *state, ITYPE dim);
-void P1_gate_single(UINT target_qubit_index, CTYPE *state, ITYPE dim);
-void P0_gate_parallel(UINT target_qubit_index, CTYPE *state, ITYPE dim);
-void P1_gate_parallel(UINT target_qubit_index, CTYPE *state, ITYPE dim);
-
 void P0_gate(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 #ifdef _OPENMP
 	UINT threshold = 13;

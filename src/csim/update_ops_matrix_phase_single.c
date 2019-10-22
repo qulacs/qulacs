@@ -19,10 +19,6 @@
 //void single_qubit_phase_gate_old_single(UINT target_qubit_index, CTYPE phase, CTYPE *state, ITYPE dim);
 //void single_qubit_phase_gate_old_parallel(UINT target_qubit_index, CTYPE phase, CTYPE *state, ITYPE dim);
 //void single_qubit_phase_gate_single(UINT target_qubit_index, CTYPE phase, CTYPE *state, ITYPE dim);
-void single_qubit_phase_gate_single_unroll(UINT target_qubit_index, CTYPE phase, CTYPE *state, ITYPE dim);
-void single_qubit_phase_gate_parallel_unroll(UINT target_qubit_index, CTYPE phase, CTYPE *state, ITYPE dim);
-void single_qubit_phase_gate_single_simd(UINT target_qubit_index, CTYPE phase, CTYPE *state, ITYPE dim);
-void single_qubit_phase_gate_parallel_simd(UINT target_qubit_index, CTYPE phase, CTYPE *state, ITYPE dim);
 
 void single_qubit_phase_gate(UINT target_qubit_index, CTYPE phase, CTYPE *state, ITYPE dim) {
 	//single_qubit_phase_gate_old_single(target_qubit_index, phase, state, dim);

@@ -16,10 +16,6 @@
 #include <x86intrin.h>
 #endif
 
-void single_qubit_control_single_qubit_dense_matrix_gate_single_unroll(UINT control_qubit_index, UINT control_value, UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
-void single_qubit_control_single_qubit_dense_matrix_gate_parallel_unroll(UINT control_qubit_index, UINT control_value, UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
-void single_qubit_control_single_qubit_dense_matrix_gate_single_simd(UINT control_qubit_index, UINT control_value, UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
-void single_qubit_control_single_qubit_dense_matrix_gate_parallel_simd(UINT control_qubit_index, UINT control_value, UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
 
 //void single_qubit_control_single_qubit_dense_matrix_gate_single(UINT control_qubit_index, UINT control_value, UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
 //void single_qubit_control_single_qubit_dense_matrix_gate_old_single(UINT control_qubit_index, UINT control_value, UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);

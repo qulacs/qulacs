@@ -18,8 +18,6 @@
 //void multi_qubit_dense_matrix_gate_old_single(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
 //void multi_qubit_dense_matrix_gate_old_parallel(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
 void create_shift_mask_list_from_list_buf(const UINT* array, UINT count, UINT* dst_array, ITYPE* dst_mask);
-void multi_qubit_dense_matrix_gate_single(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
-void multi_qubit_dense_matrix_gate_parallel(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
 
 void multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim) {
 	if (target_qubit_index_count == 1) {

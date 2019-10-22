@@ -16,11 +16,6 @@
 //void X_gate_single(UINT target_qubit_index, CTYPE *state, ITYPE dim);
 //void X_gate_parallel(UINT target_qubit_index, CTYPE *state, ITYPE dim);
 
-void X_gate_single_unroll(UINT target_qubit_index, CTYPE *state, ITYPE dim);
-void X_gate_single_simd(UINT target_qubit_index, CTYPE *state, ITYPE dim);
-void X_gate_parallel_unroll(UINT target_qubit_index, CTYPE *state, ITYPE dim);
-void X_gate_parallel_simd(UINT target_qubit_index, CTYPE *state, ITYPE dim);
-
 void X_gate(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	//UINT threshold = 13;
 	//X_gate_old(target_qubit_index, state, dim);

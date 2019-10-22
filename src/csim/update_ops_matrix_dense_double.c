@@ -18,8 +18,6 @@
 
 //void double_qubit_dense_matrix_gate_old_single(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim);
 //void double_qubit_dense_matrix_gate_old_parallel(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim);
-void double_qubit_dense_matrix_gate_single(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim);
-void double_qubit_dense_matrix_gate_parallel(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim);
 
 void double_qubit_dense_matrix_gate_c(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim) {
 	//double_qubit_dense_matrix_gate_old_single(target_qubit_index1, target_qubit_index2, matrix,state, dim);

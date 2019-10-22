@@ -17,11 +17,6 @@
 //void Y_gate_single(UINT target_qubit_index, CTYPE *state, ITYPE dim);
 //void Y_gate_parallel(UINT target_qubit_index, CTYPE *state, ITYPE dim);
 
-void Y_gate_single_unroll(UINT target_qubit_index, CTYPE *state, ITYPE dim);
-void Y_gate_single_simd(UINT target_qubit_index, CTYPE *state, ITYPE dim);
-void Y_gate_parallel_unroll(UINT target_qubit_index, CTYPE *state, ITYPE dim);
-void Y_gate_parallel_simd(UINT target_qubit_index, CTYPE *state, ITYPE dim);
-
 void Y_gate(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	//Y_gate_old_single(target_qubit_index, state, dim);
 	//Y_gate_old_parallel(target_qubit_index, state, dim);

@@ -17,10 +17,6 @@
 
 
 void create_shift_mask_list_from_list_and_value_buf(const UINT* array, UINT count, UINT target, UINT* dst_array, ITYPE* dst_mask);
-void multi_qubit_control_single_qubit_dense_matrix_gate_single_unroll(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
-void multi_qubit_control_single_qubit_dense_matrix_gate_parallel_unroll(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
-void multi_qubit_control_single_qubit_dense_matrix_gate_single_simd(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
-void multi_qubit_control_single_qubit_dense_matrix_gate_parallel_simd(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
 
 //void multi_qubit_control_single_qubit_dense_matrix_gate_old_single(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
 //void multi_qubit_control_single_qubit_dense_matrix_gate_old_parallel(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);

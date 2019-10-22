@@ -15,10 +15,6 @@
 //void CNOT_gate_old_single(UINT control_qubit_index, UINT target_qubit_index, CTYPE *state, ITYPE dim);
 //void CNOT_gate_old_parallel(UINT control_qubit_index, UINT target_qubit_index, CTYPE *state, ITYPE dim);
 //void CNOT_gate_single(UINT control_qubit_index, UINT target_qubit_index, CTYPE *state, ITYPE dim);
-void CNOT_gate_single_unroll(UINT control_qubit_index, UINT target_qubit_index, CTYPE *state, ITYPE dim);
-void CNOT_gate_single_simd(UINT control_qubit_index, UINT target_qubit_index, CTYPE *state, ITYPE dim);
-void CNOT_gate_parallel_unroll(UINT control_qubit_index, UINT target_qubit_index, CTYPE *state, ITYPE dim);
-void CNOT_gate_parallel_simd(UINT control_qubit_index, UINT target_qubit_index, CTYPE *state, ITYPE dim);
 
 void CNOT_gate(UINT control_qubit_index, UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	//CNOT_gate_old_single(control_qubit_index, target_qubit_index, state, dim);

@@ -28,7 +28,6 @@ void single_qubit_control_multi_qubit_dense_matrix_gate(UINT control_qubit_index
 	const ITYPE loop_dim = dim >> insert_index_count;
 	ITYPE state_index;
 
-
 	for (state_index = 0; state_index < loop_dim; ++state_index) {
 
 		// create base index

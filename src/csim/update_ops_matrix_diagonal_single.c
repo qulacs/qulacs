@@ -18,10 +18,6 @@
 
 //void single_qubit_diagonal_matrix_gate_old_single(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
 //void single_qubit_diagonal_matrix_gate_old_parallel(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
-void single_qubit_diagonal_matrix_gate_single_unroll(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
-void single_qubit_diagonal_matrix_gate_parallel_unroll(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
-void single_qubit_diagonal_matrix_gate_single_simd(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
-void single_qubit_diagonal_matrix_gate_parallel_simd(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
 
 void single_qubit_diagonal_matrix_gate(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim) {
 	//single_qubit_diagonal_matrix_gate_old_single(target_qubit_index, diagonal_matrix, state, dim);
