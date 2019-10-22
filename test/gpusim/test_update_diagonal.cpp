@@ -3,7 +3,7 @@
 #include <gpusim/memory_ops.h>
 #include <gpusim/update_ops_cuda.h>
 
-void test_single_diagonal_matrix_gate(std::function<void(UINT, const CTYPE*, void*, ITYPE)> func) {
+void test_single_diagonal_matrix_gate(std::function<void(UINT, const CPPCTYPE*, void*, ITYPE)> func) {
 	const UINT n = 6;
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 10;
@@ -31,7 +31,7 @@ void test_single_diagonal_matrix_gate(std::function<void(UINT, const CTYPE*, voi
 		icoef /= norm; zcoef /= norm;
 		U = icoef * Identity + 1.i*zcoef * Z;
 		Eigen::VectorXcd diag = U.diagonal();
-		func(target, (CTYPE*)diag.data(), state, dim);
+		func(target, (CPPCTYPE*)diag.data(), state, dim);
 		test_state = get_expanded_eigen_matrix_with_identity(target, U, n) * test_state;
 		state_equal_gpu(state, test_state, dim, "single diagonal gate");
 	}
@@ -44,7 +44,7 @@ TEST(UpdateTest, SingleDiagonalMatrixTest) {
 	test_single_diagonal_matrix_gate(func);
 }
 
-void test_single_phase_gate(std::function<void(UINT, CTYPE, void*, ITYPE)> func) {
+void test_single_phase_gate(std::function<void(UINT, CPPCTYPE, void*, ITYPE)> func) {
 	const UINT n = 6;
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 10;
@@ -74,7 +74,7 @@ void test_single_phase_gate(std::function<void(UINT, CTYPE, void*, ITYPE)> func)
 
 
 TEST(UpdateTest, SinglePhaseGateTest) {
-	void(*func)(UINT, CTYPE, void*, ITYPE)
+	void(*func)(UINT, CPPCTYPE, void*, ITYPE)
 		= &single_qubit_phase_gate_host;
 	test_single_phase_gate(func);
 }

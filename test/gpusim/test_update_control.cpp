@@ -28,7 +28,7 @@ void test_single_control_single_target(std::function<void(unsigned int, unsigned
         control = rand_int(n - 1);
         if (control >= target) control++;
         U = get_eigen_matrix_random_single_qubit_unitary();
-        func(control, 1, target, (CTYPE*)U.data(), state, dim);
+        func(control, 1, target, (CPPCTYPE*)U.data(), state, dim);
         test_state = (get_expanded_eigen_matrix_with_identity(control, P0, n) + get_expanded_eigen_matrix_with_identity(control, P1, n)*get_expanded_eigen_matrix_with_identity(target, U, n)) * test_state;
         state_equal_gpu(state, test_state, dim, "single qubit control sinlge qubit dense gate");
 
@@ -37,7 +37,7 @@ void test_single_control_single_target(std::function<void(unsigned int, unsigned
         control = rand_int(n - 1);
         if (control >= target) control++;
         U = get_eigen_matrix_random_single_qubit_unitary();
-        func(control, 0, target, (CTYPE*)U.data(), state, dim);
+        func(control, 0, target, (CPPCTYPE*)U.data(), state, dim);
         test_state = (get_expanded_eigen_matrix_with_identity(control, P1, n) + get_expanded_eigen_matrix_with_identity(control, P0, n)*get_expanded_eigen_matrix_with_identity(target, U, n)) * test_state;
         state_equal_gpu(state, test_state, dim, "single qubit control sinlge qubit dense gate");
     }
@@ -51,7 +51,7 @@ TEST(UpdateTest, SingleQubitControlSingleQubitDenseMatrixTest) {
 }
 
 /*
-void test_two_control_single_target(std::function<void(const UINT*, const UINT*, UINT, UINT, const CTYPE*, void*, ITYPE)> func) {
+void test_two_control_single_target(std::function<void(const UINT*, const UINT*, UINT, UINT, const CPPCTYPE*, void*, ITYPE)> func) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
@@ -83,7 +83,7 @@ void test_two_control_single_target(std::function<void(const UINT*, const UINT*,
 
         U = get_eigen_matrix_random_single_qubit_unitary();
         UINT mvalues[2] = { 1,0 };
-        func(controls, mvalues, 2, target, (CTYPE*)U.data(), state, dim);
+        func(controls, mvalues, 2, target, (CPPCTYPE*)U.data(), state, dim);
         test_state = (
             get_expanded_eigen_matrix_with_identity(controls[0], P0, n)*get_expanded_eigen_matrix_with_identity(controls[1], P0, n) +
             get_expanded_eigen_matrix_with_identity(controls[0], P0, n)*get_expanded_eigen_matrix_with_identity(controls[1], P1, n) +
@@ -136,7 +136,7 @@ TEST(UpdateTest, SingleQubitControlTwoQubitDenseMatrixTest) {
 
         Umerge = kronecker_product(U2, U);
         test_state = (get_expanded_eigen_matrix_with_identity(control, P0, n) + get_expanded_eigen_matrix_with_identity(control, P1, n)*get_expanded_eigen_matrix_with_identity(targets[1], U2, n) * get_expanded_eigen_matrix_with_identity(targets[0], U, n)) * test_state;
-        single_qubit_control_multi_qubit_dense_matrix_gate_host(control, 1, targets, 2, (CTYPE*)Umerge.data(), state, dim);
+        single_qubit_control_multi_qubit_dense_matrix_gate_host(control, 1, targets, 2, (CPPCTYPE*)Umerge.data(), state, dim);
         state_equal_gpu(state, test_state, dim, "single qubit control two-qubit separable dense gate");
     }
     release_quantum_state_host(state);
@@ -180,7 +180,7 @@ TEST(UpdateTest, TwoQubitControlTwoQubitDenseMatrixTest) {
 
         mvalues[0] = 1; mvalues[1] = 1;
         Umerge = kronecker_product(U2, U);
-        multi_qubit_control_multi_qubit_dense_matrix_gate_host(controls, mvalues, 2, targets, 2, (CTYPE*)Umerge.data(), state, dim);
+        multi_qubit_control_multi_qubit_dense_matrix_gate_host(controls, mvalues, 2, targets, 2, (CPPCTYPE*)Umerge.data(), state, dim);
         test_state = (
             get_expanded_eigen_matrix_with_identity(controls[0], P0, n)*get_expanded_eigen_matrix_with_identity(controls[1], P0, n) +
             get_expanded_eigen_matrix_with_identity(controls[0], P0, n)*get_expanded_eigen_matrix_with_identity(controls[1], P1, n) +

@@ -3,7 +3,7 @@
 #include <gpusim/memory_ops.h>
 #include <gpusim/update_ops_cuda.h>
 
-void test_single_dense_matrix_gate(std::function<void(UINT, const CTYPE*, void*, ITYPE)> func) {
+void test_single_dense_matrix_gate(std::function<void(UINT, const CPPCTYPE*, void*, ITYPE)> func) {
 	const UINT n = 6;
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 10;
@@ -23,7 +23,7 @@ void test_single_dense_matrix_gate(std::function<void(UINT, const CTYPE*, void*,
 		// NOTE: Eigen uses column major by default. To use raw-data of eigen matrix, we need to specify RowMajor.
 		target = rand_int(n);
 		U = get_eigen_matrix_random_single_qubit_unitary();
-		func(target, (CTYPE*)U.data(), state, dim);
+		func(target, (CPPCTYPE*)U.data(), state, dim);
 		test_state = get_expanded_eigen_matrix_with_identity(target, U, n) * test_state;
 		state_equal_gpu(state, test_state, dim, "single dense gate");
 	}
@@ -37,7 +37,7 @@ TEST(UpdateTest, SingleDenseMatrixTest) {
 }
 
 
-void test_double_dense_matrix_gate(std::function<void(UINT, UINT, const CTYPE*, void*, ITYPE)> func) {
+void test_double_dense_matrix_gate(std::function<void(UINT, UINT, const CPPCTYPE*, void*, ITYPE)> func) {
 	const UINT n = 6;
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 10;
@@ -71,7 +71,7 @@ void test_double_dense_matrix_gate(std::function<void(UINT, UINT, const CTYPE*, 
 		//UINT targets_rev[2] = { targets[1], targets[0] };
 		//Umerge = kronecker_product(U, U2);
 		test_state = get_expanded_eigen_matrix_with_identity(targets[1], U2, n) * get_expanded_eigen_matrix_with_identity(targets[0], U, n) * test_state;
-		func(targets[0], targets[1], (CTYPE*)Umerge.data(), state, dim);
+		func(targets[0], targets[1], (CPPCTYPE*)Umerge.data(), state, dim);
 		state_equal_gpu(state, test_state, dim, "two-qubit separable dense gate");
 	}
 	release_quantum_state_host(state);
@@ -83,7 +83,7 @@ TEST(UpdateTest, TwoQubitDenseMatrixTest) {
 	test_double_dense_matrix_gate(func);
 }
 
-void test_three_dense_matrix_gate(std::function<void(UINT, UINT, UINT, const CTYPE*, void*, ITYPE)> func) {
+void test_three_dense_matrix_gate(std::function<void(UINT, UINT, UINT, const CPPCTYPE*, void*, ITYPE)> func) {
 	const UINT n = 6;
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 10;
@@ -120,7 +120,7 @@ void test_three_dense_matrix_gate(std::function<void(UINT, UINT, UINT, const CTY
 			* get_expanded_eigen_matrix_with_identity(targets[1], U2, n)
 			* get_expanded_eigen_matrix_with_identity(targets[0], U1, n)
 			* test_state;
-		func(targets[0], targets[1], targets[2], (CTYPE*)Umerge.data(), state, dim);
+		func(targets[0], targets[1], targets[2], (CPPCTYPE*)Umerge.data(), state, dim);
 		state_equal_gpu(state, test_state, dim, "three-qubit separable dense gate");
 	}
 	release_quantum_state_host(state);
@@ -135,7 +135,7 @@ TEST(UpdateTest, ThreeQubitDenseMatrixTest) {
 
 
 
-void test_quad_dense_matrix_gate(std::function<void(const UINT*,  const CTYPE*, void*, ITYPE)> func) {
+void test_quad_dense_matrix_gate(std::function<void(const UINT*,  const CPPCTYPE*, void*, ITYPE)> func) {
 	const UINT n = 6;
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 10;
@@ -175,7 +175,7 @@ void test_quad_dense_matrix_gate(std::function<void(const UINT*,  const CTYPE*, 
 			* get_expanded_eigen_matrix_with_identity(targets[1], U2, n)
 			* get_expanded_eigen_matrix_with_identity(targets[0], U1, n)
 			* test_state;
-		func(targets, (CTYPE*)Umerge.data(), state, dim);
+		func(targets, (CPPCTYPE*)Umerge.data(), state, dim);
 		state_equal_gpu(state, test_state, dim, "four-qubit separable dense gate");
 	}
 	release_quantum_state_host(state);
@@ -189,7 +189,7 @@ TEST(UpdateTest, FourQubitDenseMatrixTest) {
 
 
 
-void test_penta_dense_matrix_gate(std::function<void(const UINT*, const CTYPE*, void*, ITYPE)> func) {
+void test_penta_dense_matrix_gate(std::function<void(const UINT*, const CPPCTYPE*, void*, ITYPE)> func) {
 	const UINT n = 6;
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 10;
@@ -232,7 +232,7 @@ void test_penta_dense_matrix_gate(std::function<void(const UINT*, const CTYPE*, 
 			* get_expanded_eigen_matrix_with_identity(targets[1], U2, n)
 			* get_expanded_eigen_matrix_with_identity(targets[0], U1, n)
 			* test_state;
-		func(targets, (CTYPE*)Umerge.data(), state, dim);
+		func(targets, (CPPCTYPE*)Umerge.data(), state, dim);
 		state_equal_gpu(state, test_state, dim, "five-qubit separable dense gate");
 	}
 	release_quantum_state_host(state);
@@ -246,7 +246,7 @@ TEST(UpdateTest, FiveQubitDenseMatrixTest) {
 
 
 
-void test_general_dense_matrix_gate(std::function<void(const UINT*, UINT, const CTYPE*, void*, ITYPE)> func) {
+void test_general_dense_matrix_gate(std::function<void(const UINT*, UINT, const CPPCTYPE*, void*, ITYPE)> func) {
 	const UINT n = 6;
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 10;
@@ -292,7 +292,7 @@ void test_general_dense_matrix_gate(std::function<void(const UINT*, UINT, const 
 			* get_expanded_eigen_matrix_with_identity(targets[1], U2, n)
 			* get_expanded_eigen_matrix_with_identity(targets[0], U1, n)
 			* test_state;
-		func(targets, 6, (CTYPE*)Umerge.data(), state, dim);
+		func(targets, 6, (CPPCTYPE*)Umerge.data(), state, dim);
 		state_equal_gpu(state, test_state, dim, "six-qubit separable dense gate");
 	}
 	release_quantum_state_host(state);

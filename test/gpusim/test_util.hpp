@@ -6,7 +6,7 @@
 #include "../util/util.h"
 
 static Eigen::VectorXcd copy_cpu_from_gpu(void* gpu_state, ITYPE dim) {
-	CTYPE* cpu_state = (CTYPE*)malloc(sizeof(CTYPE)*dim);
+	CPPCTYPE* cpu_state = (CPPCTYPE*)malloc(sizeof(CPPCTYPE)*dim);
 	Eigen::VectorXcd state(dim);
 	get_quantum_state_host(gpu_state, cpu_state, dim);
 	for (ITYPE i = 0; i < dim; ++i) state[i] = cpu_state[i];
