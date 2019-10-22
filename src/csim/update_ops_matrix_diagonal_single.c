@@ -16,62 +16,48 @@
 #include <x86intrin.h>
 #endif
 
-void single_qubit_diagonal_matrix_gate_old_single(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
-void single_qubit_diagonal_matrix_gate_old_parallel(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
-void single_qubit_diagonal_matrix_gate_unroll(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
-void single_qubit_diagonal_matrix_gate_simd(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
-void single_qubit_diagonal_matrix_gate_parallel(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
+//void single_qubit_diagonal_matrix_gate_old_single(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
+//void single_qubit_diagonal_matrix_gate_old_parallel(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
+void single_qubit_diagonal_matrix_gate_single_unroll(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
+void single_qubit_diagonal_matrix_gate_parallel_unroll(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
+void single_qubit_diagonal_matrix_gate_single_simd(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
+void single_qubit_diagonal_matrix_gate_parallel_simd(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim);
 
 void single_qubit_diagonal_matrix_gate(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim) {
 	//single_qubit_diagonal_matrix_gate_old_single(target_qubit_index, diagonal_matrix, state, dim);
 	//single_qubit_diagonal_matrix_gate_old_parallel(target_qubit_index, diagonal_matrix, state, dim);
-	//single_qubit_diagonal_matrix_gate_unroll(target_qubit_index, diagonal_matrix, state, dim);
-	//single_qubit_diagonal_matrix_gate_simd(target_qubit_index, diagonal_matrix, state, dim);
-	//single_qubit_diagonal_matrix_gate_parallel(target_qubit_index, diagonal_matrix, state, dim);
+	//single_qubit_diagonal_matrix_gate_single_unroll(target_qubit_index, diagonal_matrix, state, dim);
+	//single_qubit_diagonal_matrix_gate_single_simd(target_qubit_index, diagonal_matrix, state, dim);
+	//single_qubit_diagonal_matrix_gate_parallel_simd(target_qubit_index, diagonal_matrix, state, dim);
 
+#ifdef _USE_SIMD
 #ifdef _OPENMP
 	UINT threshold = 12;
-	if (dim < (1ULL << threshold)) {
-		single_qubit_diagonal_matrix_gate_simd(target_qubit_index, diagonal_matrix, state, dim);
+	if (dim < (((ITYPE)1) << threshold)) {
+		single_qubit_diagonal_matrix_gate_single_simd(target_qubit_index, diagonal_matrix, state, dim);
 	}
 	else {
-		single_qubit_diagonal_matrix_gate_parallel(target_qubit_index, diagonal_matrix, state, dim);
+		single_qubit_diagonal_matrix_gate_parallel_simd(target_qubit_index, diagonal_matrix, state, dim);
 	}
 #else
-	single_qubit_diagonal_matrix_gate_simd(target_qubit_index, diagonal_matrix, state, dim);
+	single_qubit_diagonal_matrix_gate_single_simd(target_qubit_index, diagonal_matrix, state, dim);
 #endif
-}
-
-void single_qubit_diagonal_matrix_gate_old_single(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim) {
-	// loop variables
-	const ITYPE loop_dim = dim;
-	ITYPE state_index;
-	for (state_index = 0; state_index < loop_dim; ++state_index) {
-		// determin matrix pos
-		UINT bit_val = (state_index >> target_qubit_index) % 2;
-
-		// set value
-		state[state_index] *= diagonal_matrix[bit_val];
-	}
-}
-
+#else
 #ifdef _OPENMP
-void single_qubit_diagonal_matrix_gate_old_parallel(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim) {
-	// loop variables
-	const ITYPE loop_dim = dim;
-	ITYPE state_index;
-#pragma omp parallel for
-	for (state_index = 0; state_index < loop_dim; ++state_index) {
-		// determin matrix pos
-		UINT bit_val = (state_index >> target_qubit_index) % 2;
-
-		// set value
-		state[state_index] *= diagonal_matrix[bit_val];
+	UINT threshold = 12;
+	if (dim < (((ITYPE)1) << threshold)) {
+		single_qubit_diagonal_matrix_gate_single_unroll(target_qubit_index, diagonal_matrix, state, dim);
 	}
-}
+	else {
+		single_qubit_diagonal_matrix_gate_parallel_unroll(target_qubit_index, diagonal_matrix, state, dim);
+	}
+#else
+	single_qubit_diagonal_matrix_gate_single_unroll(target_qubit_index, diagonal_matrix, state, dim);
 #endif
+#endif
+}
 
-void single_qubit_diagonal_matrix_gate_unroll(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim) {
+void single_qubit_diagonal_matrix_gate_single_unroll(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim) {
 	// loop variables
 	const ITYPE loop_dim = dim;
 	ITYPE state_index;
@@ -91,8 +77,32 @@ void single_qubit_diagonal_matrix_gate_unroll(UINT target_qubit_index, const CTY
 	}
 }
 
+#ifdef _OPENMP
+void single_qubit_diagonal_matrix_gate_parallel_unroll(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim) {
+	// loop variables
+	const ITYPE loop_dim = dim;
+	ITYPE state_index;
+	if (target_qubit_index == 0) {
+#pragma omp parallel for
+		for (state_index = 0; state_index < loop_dim; state_index += 2) {
+			state[state_index] *= diagonal_matrix[0];
+			state[state_index + 1] *= diagonal_matrix[1];
+		}
+	}
+	else {
+		ITYPE mask = 1ULL << target_qubit_index;
+#pragma omp parallel for
+		for (state_index = 0; state_index < loop_dim; state_index += 2) {
+			int bitval = ((state_index&mask) != 0);
+			state[state_index] *= diagonal_matrix[bitval];
+			state[state_index + 1] *= diagonal_matrix[bitval];
+		}
+	}
+}
+#endif
 
-void single_qubit_diagonal_matrix_gate_simd(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim) {
+#ifdef _USE_SIMD
+void single_qubit_diagonal_matrix_gate_single_simd(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim) {
 	// loop variables
 	const ITYPE loop_dim = dim;
 	ITYPE state_index;
@@ -130,7 +140,7 @@ void single_qubit_diagonal_matrix_gate_simd(UINT target_qubit_index, const CTYPE
 }
 
 #ifdef _OPENMP
-void single_qubit_diagonal_matrix_gate_parallel(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim) {
+void single_qubit_diagonal_matrix_gate_parallel_simd(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim) {
 	// loop variables
 	const ITYPE loop_dim = dim;
 	ITYPE state_index;
@@ -169,6 +179,37 @@ void single_qubit_diagonal_matrix_gate_parallel(UINT target_qubit_index, const C
 	}
 }
 #endif
+#endif
 
 
+/*
 
+void single_qubit_diagonal_matrix_gate_old_single(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim) {
+	// loop variables
+	const ITYPE loop_dim = dim;
+	ITYPE state_index;
+	for (state_index = 0; state_index < loop_dim; ++state_index) {
+		// determin matrix pos
+		UINT bit_val = (state_index >> target_qubit_index) % 2;
+
+		// set value
+		state[state_index] *= diagonal_matrix[bit_val];
+	}
+}
+
+#ifdef _OPENMP
+void single_qubit_diagonal_matrix_gate_old_parallel(UINT target_qubit_index, const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim) {
+	// loop variables
+	const ITYPE loop_dim = dim;
+	ITYPE state_index;
+#pragma omp parallel for
+	for (state_index = 0; state_index < loop_dim; ++state_index) {
+		// determin matrix pos
+		UINT bit_val = (state_index >> target_qubit_index) % 2;
+
+		// set value
+		state[state_index] *= diagonal_matrix[bit_val];
+	}
+}
+#endif
+*/

@@ -1,7 +1,7 @@
 
 /**
  * @file type.h
- * @brief basic definitins of types
+ * @brief basic definitins of types and macros
  */
 
 
@@ -13,6 +13,8 @@
 #else
 #include <complex.h>
 #endif
+
+//! size_t for gcc
 #include <stddef.h>
 
 //! unsigned integer
@@ -37,7 +39,18 @@ typedef signed long long ITYPE;
 typedef unsigned long long ITYPE;
 #endif
 
+//! check AVX2 support
+#ifdef _MSC_VER
+// MSVC
+// In MSVC, flag __AVX2__ is not automatically set by default
+#else
+// GCC remove simd flag when AVX2 is not supported
+#ifndef __AVX2__
+#undef _USE_SIMD
+#endif
+#endif
 
+//! define export command
 #if defined(__MINGW32__) || defined(_MSC_VER)
 #define DllExport __declspec(dllexport)
 #else
