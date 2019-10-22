@@ -142,7 +142,7 @@ void single_qubit_dense_matrix_gate_parallel_unroll(UINT target_qubit_index, con
 		}
 	}
 }
-#endif _OPENMP
+#endif
 
 #ifdef _USE_SIMD
 void single_qubit_dense_matrix_gate_single_simd(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim) {
@@ -299,7 +299,7 @@ void single_qubit_dense_matrix_gate_parallel_simd(UINT target_qubit_index, const
 	}
 }
 #endif
-#endif _USE_SIMD
+#endif
 
 /*
 

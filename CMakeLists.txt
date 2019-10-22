@@ -11,7 +11,7 @@ endif()
 
 
 ##### Set default behavior #####
-set(DEFAULT_USE_SIMD Yes)
+set(DEFAULT_USE_SIMD No)
 set(DEFAULT_USE_OMP Yes)
 set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)

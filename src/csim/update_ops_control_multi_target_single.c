@@ -473,7 +473,7 @@ void multi_qubit_control_single_qubit_dense_matrix_gate_parallel_simd(const UINT
 	}
 }
 #endif
-#endif _USE_SIMD
+#endif
 
 
 

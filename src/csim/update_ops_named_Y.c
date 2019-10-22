@@ -66,14 +66,13 @@ void Y_gate_single_unroll(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	ITYPE state_index = 0;
 	const CTYPE imag = 1.i;
 	if (target_qubit_index == 0) {
-		for (state_index = 1; state_index < loop_dim; state_index += 2) {
-			ITYPE basis_index_0 = (state_index&mask_low) + ((state_index&mask_high) << 1);
-			CTYPE temp0 = state[basis_index_0];
-			state[basis_index_0] = -imag * state[basis_index_0+1];
-			state[basis_index_0+1] = imag * temp0;
+		ITYPE basis_index;
+		for (basis_index = 0; basis_index < dim; basis_index += 2) {
+			CTYPE temp0 = state[basis_index];
+			state[basis_index] = -imag * state[basis_index + 1];
+			state[basis_index + 1] = imag * temp0;
 		}
-	}
-	else {
+	} else {
 		for (state_index = 0; state_index < loop_dim; state_index += 2) {
 			ITYPE basis_index_0 = (state_index&mask_low) + ((state_index&mask_high) << 1);
 			ITYPE basis_index_1 = basis_index_0 + mask;
@@ -96,12 +95,12 @@ void Y_gate_parallel_unroll(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	ITYPE state_index = 0;
 	const CTYPE imag = 1.i;
 	if (target_qubit_index == 0) {
+		ITYPE basis_index;
 #pragma omp parallel for 
-		for (state_index = 1; state_index < loop_dim; state_index += 2) {
-			ITYPE basis_index_0 = (state_index&mask_low) + ((state_index&mask_high) << 1);
-			CTYPE temp0 = state[basis_index_0];
-			state[basis_index_0] = -imag * state[basis_index_0 + 1];
-			state[basis_index_0 + 1] = imag * temp0;
+		for (basis_index = 0; basis_index < dim; basis_index += 2) {
+			CTYPE temp0 = state[basis_index];
+			state[basis_index] = -imag * state[basis_index + 1];
+			state[basis_index + 1] = imag * temp0;
 		}
 	}
 	else {

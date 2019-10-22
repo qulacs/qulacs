@@ -67,12 +67,12 @@ void H_gate_single_unroll(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	const double sqrt2inv = 1. / sqrt(2.);
 	ITYPE state_index = 0;
 	if (target_qubit_index == 0) {
-		for (state_index = 0; state_index < loop_dim; state_index += 2) {
-			ITYPE basis_index_0 = (state_index&mask_low) + ((state_index&mask_high) << 1);
-			CTYPE temp0 = state[basis_index_0];
-			CTYPE temp1 = state[basis_index_0 + 1];
-			state[basis_index_0] = (temp0 + temp1)*sqrt2inv;
-			state[basis_index_0 + 1] = (temp0 - temp1)*sqrt2inv;
+		ITYPE basis_index;
+		for (basis_index = 0; basis_index < dim; basis_index += 2) {
+			CTYPE temp0 = state[basis_index];
+			CTYPE temp1 = state[basis_index + 1];
+			state[basis_index] = (temp0 + temp1)*sqrt2inv;
+			state[basis_index + 1] = (temp0 - temp1)*sqrt2inv;
 		}
 	}
 	else {
@@ -100,13 +100,13 @@ void H_gate_parallel_unroll(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 	const double sqrt2inv = 1. / sqrt(2.);
 	ITYPE state_index = 0;
 	if (target_qubit_index == 0) {
+		ITYPE basis_index;
 #pragma omp parallel for
-		for (state_index = 0; state_index < loop_dim; state_index += 2) {
-			ITYPE basis_index_0 = (state_index&mask_low) + ((state_index&mask_high) << 1);
-			CTYPE temp0 = state[basis_index_0];
-			CTYPE temp1 = state[basis_index_0 + 1];
-			state[basis_index_0] = (temp0 + temp1)*sqrt2inv;
-			state[basis_index_0 + 1] = (temp0 - temp1)*sqrt2inv;
+		for (basis_index = 0; basis_index < dim; basis_index += 2) {
+			CTYPE temp0 = state[basis_index];
+			CTYPE temp1 = state[basis_index + 1];
+			state[basis_index] = (temp0 + temp1)*sqrt2inv;
+			state[basis_index + 1] = (temp0 - temp1)*sqrt2inv;
 		}
 	}
 	else {
