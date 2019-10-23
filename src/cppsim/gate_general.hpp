@@ -135,13 +135,13 @@ public:
 			double r = random.uniform();
 
 			double sum = 0.;
-			double org_norm = state->get_norm();
+			double org_norm = state->get_squared_norm();
 
 			auto buffer = state->copy();
 			double norm;
 			for (auto gate : _gate_list) {
 				gate->update_quantum_state(buffer);
-				norm = buffer->get_norm() / org_norm;
+				norm = buffer->get_squared_norm() / org_norm;
 				sum += norm;
 				if (r < sum) {
 					state->load(buffer);
@@ -233,14 +233,14 @@ public:
         double r = random.uniform();
 
         double sum = 0.;
-        double org_norm = state->get_norm();
+        double org_norm = state->get_squared_norm();
 
         auto buffer = state->copy();
         double norm;
         UINT index = 0;
         for (auto gate : _gate_list) {
             gate->update_quantum_state(buffer);
-            norm = buffer->get_norm() / org_norm;
+            norm = buffer->get_squared_norm() / org_norm;
             sum += norm;
             if (r < sum) {
                 state->load(buffer);

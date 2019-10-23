@@ -158,7 +158,7 @@ void test_projection_gate(std::function<void(UINT, CTYPE*, ITYPE)> func, std::fu
 		prob = prob_func(target, state, dim);
 		EXPECT_GT(prob, 1e-10);
 		func(target, state, dim);
-		ASSERT_NEAR(state_norm(state, dim), prob, eps);
+		ASSERT_NEAR(state_norm_squared(state, dim), prob, eps);
 		normalize(prob, state, dim);
 
 		test_state = get_expanded_eigen_matrix_with_identity(target, mat, n)*test_state;

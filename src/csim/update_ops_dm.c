@@ -9,9 +9,9 @@
 #include <omp.h>
 #endif
 
-void dm_normalize(double norm, CTYPE* state, ITYPE dim) {
+void dm_normalize(double squared_norm, CTYPE* state, ITYPE dim) {
 	const ITYPE loop_dim = dim;
-	const double normalize_factor = 1. / norm;
+	const double normalize_factor = 1. / squared_norm;
 	ITYPE state_index_y;
 #ifdef _OPENMP
 #pragma omp parallel for

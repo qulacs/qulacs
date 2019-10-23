@@ -7,7 +7,7 @@
 #include "constant.h"
 
 // calculate norm
-double dm_state_norm(const CTYPE *state, ITYPE dim) {
+double dm_state_norm_squared(const CTYPE *state, ITYPE dim) {
     ITYPE index;
     double norm = 0;
 #ifdef _OPENMP

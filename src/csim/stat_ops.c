@@ -15,7 +15,7 @@ CTYPE transition_amplitude_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mas
 CTYPE transition_amplitude_multi_qubit_Pauli_operator_Z_mask(ITYPE phase_flip_mask, const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim);
 
 // calculate norm
-double state_norm(const CTYPE *state, ITYPE dim) {
+double state_norm_squared(const CTYPE *state, ITYPE dim) {
     ITYPE index;
     double norm = 0;
 #ifdef _OPENMP
@@ -179,7 +179,7 @@ double expectation_value_Z_Pauli_operator(UINT target_qubit_index, const CTYPE* 
 // calculate expectation value for single-qubit pauli operator
 double expectation_value_single_qubit_Pauli_operator(UINT target_qubit_index, UINT Pauli_operator_type, const CTYPE *state, ITYPE dim) {
     if(Pauli_operator_type == 0){
-        return state_norm(state,dim);
+        return state_norm_squared(state,dim);
     }else if(Pauli_operator_type == 1){
         return expectation_value_X_Pauli_operator(target_qubit_index, state, dim);
     }else if(Pauli_operator_type == 2){

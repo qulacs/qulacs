@@ -14,7 +14,7 @@ void initialize_quantum_state_parallel(CTYPE *state, ITYPE dim);
 void initialize_quantum_state(CTYPE *state, ITYPE dim) {
 #ifdef _OPENMP
 	UINT threshold = 15;
-	if (dim < (1ULL << threshold)) {
+	if (dim < (((ITYPE)1) << threshold)) {
 		initialize_quantum_state_single(state, dim);
 	}
 	else {

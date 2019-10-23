@@ -457,12 +457,12 @@ __global__ void normalize_gpu(const double normalize_factor, GTYPE *state_gpu, I
     }
 }
 
-__host__ void normalize_host(double norm, void* state, ITYPE dim, void* stream) {
+__host__ void normalize_host(double squared_norm, void* state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	cudaError cudaStatus;
 	const ITYPE loop_dim = dim;
-	const double normalize_factor = sqrt(1./norm);
+	const double normalize_factor = sqrt(1./squared_norm);
 	//const double normalize_factor = 1. / norm;
 
 	unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
@@ -476,9 +476,9 @@ __host__ void normalize_host(double norm, void* state, ITYPE dim, void* stream) 
 	state = reinterpret_cast<void*>(state_gpu);
 }
 
-__host__ void normalize_host(double norm, void* state, ITYPE dim) {
+__host__ void normalize_host(double squared_norm, void* state, ITYPE dim) {
 	cudaStream_t cuda_stream = (cudaStream_t)0;
-	normalize_host(norm, state, dim, &cuda_stream);
+	normalize_host(squared_norm, state, dim, &cuda_stream);
 }
 
 __host__ void RX_gate_host(UINT target_qubit_index, double angle, void* state, ITYPE dim, void* stream) {

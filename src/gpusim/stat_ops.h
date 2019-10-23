@@ -4,8 +4,8 @@
 #include "util_type.h"
 #include "util_export.h"
 
-DllExport double state_norm_cublas_host(void *state, ITYPE dim);
-DllExport double state_norm_host(void *state, ITYPE dim);
+DllExport double state_norm_squared_cublas_host(void *state, ITYPE dim);
+DllExport double state_norm_squared_host(void *state, ITYPE dim);
 DllExport double measurement_distribution_entropy_host(void* state, ITYPE dim);
 DllExport void state_add_host(void *state_added, void *state, ITYPE dim);
 DllExport void state_multiply_host(CPPCTYPE coef, void *state, ITYPE dim);
@@ -26,7 +26,7 @@ DllExport CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_partial_list_
 DllExport CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_whole_list_host(const UINT* Pauli_operator_type_list, UINT qubit_count, void* state_bra, void* state_ket, ITYPE dim);
 
 // using cuda_stream to launch kernel simultaneously
-DllExport double state_norm_host(void *state, ITYPE dim, void* stream);
+DllExport double state_norm_squared_host(void *state, ITYPE dim, void* stream);
 DllExport double measurement_distribution_entropy_host(void* state, ITYPE dim, void* stream);
 DllExport void state_add_host(void *state_added, void *state, ITYPE dim, void* stream);
 DllExport void state_multiply_host(CPPCTYPE coef, void *state, ITYPE dim, void* stream);

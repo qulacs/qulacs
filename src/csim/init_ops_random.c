@@ -21,7 +21,7 @@ void initialize_Haar_random_state(CTYPE *state, ITYPE dim) {
 void initialize_Haar_random_state_with_seed(CTYPE *state, ITYPE dim, UINT seed) {
 #ifdef _OPENMP
 	UINT threshold = 8;
-	if (dim < (1ULL << threshold)) {
+	if (dim < (((ITYPE)1) << threshold)) {
 		initialize_Haar_random_state_with_seed_single(state, dim, seed);
 	}
 	else {

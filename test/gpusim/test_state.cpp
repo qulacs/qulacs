@@ -51,7 +51,7 @@ TEST(StatOperationTest, ProbTest) {
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		state.set_Haar_random_state();
-		ASSERT_NEAR(state_norm_host(state.data(), dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state.data(), dim), 1, eps);
 		Eigen::VectorXcd test_state(dim);
 
 		set_eigen_from_gpu(test_state, state, dim);
@@ -82,7 +82,7 @@ TEST(StatOperationTest, MarginalProbTest) {
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		state.set_Haar_random_state();
-		ASSERT_NEAR(state_norm_host(state.data(), dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state.data(), dim), 1, eps);
 		Eigen::VectorXcd test_state(dim);
 
 		set_eigen_from_gpu(test_state, state, dim);
@@ -130,7 +130,7 @@ TEST(StatOperationTest, EntropyTest) {
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state_host(state, dim);
-		ASSERT_NEAR(state_norm_host(state, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state, dim), 1, eps);
 		Eigen::VectorXcd test_state(dim);
 		get_quantum_state_host(state, state_cpp, dim);
 		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state_cpp[i];
@@ -163,7 +163,7 @@ TEST(StatOperationTest, InnerProductTest) {
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 
 		initialize_Haar_random_state_host(state_gpu, dim);
-		ASSERT_NEAR(state_norm_host(state_gpu, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state_gpu, dim), 1, eps);
 		Eigen::VectorXcd test_state(dim);
 		get_quantum_state_host(state_gpu, state, dim);
 		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
@@ -204,7 +204,7 @@ TEST(StatOperationTest, SingleQubitExpectationValueTest) {
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state_host(state_gpu, dim);
-		ASSERT_NEAR(state_norm_host(state_gpu, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state_gpu, dim), 1, eps);
 		Eigen::VectorXcd test_state(dim);
 		get_quantum_state_host(state_gpu, state, dim);
 		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
@@ -246,7 +246,7 @@ TEST(StatOperationTest, MultiQubitExpectationValueWholeTest) {
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state_host(state_gpu, dim);
-		ASSERT_NEAR(state_norm_host(state_gpu, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state_gpu, dim), 1, eps);
 		Eigen::VectorXcd test_state(dim);
 		get_quantum_state_host(state_gpu, state, dim);
 		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
@@ -293,7 +293,7 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopWholeTest) {
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state_host(state_gpu, dim);
-		ASSERT_NEAR(state_norm_host(state_gpu, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state_gpu, dim), 1, eps);
 		Eigen::VectorXcd test_state(dim);
 		get_quantum_state_host(state_gpu, state, dim);
 		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
@@ -333,7 +333,7 @@ TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
 	void* state_gpu = allocate_quantum_state_host(dim);
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state_host(state_gpu, dim);
-		ASSERT_NEAR(state_norm_host(state_gpu, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state_gpu, dim), 1, eps);
 		Eigen::VectorXcd test_state(dim);
 		get_quantum_state_host(state_gpu, state, dim);
 		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
@@ -389,7 +389,7 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopPartialTest) {
 	void* state_gpu = allocate_quantum_state_host(dim);
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state_host(state_gpu, dim);
-		ASSERT_NEAR(state_norm_host(state_gpu, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state_gpu, dim), 1, eps);
 		Eigen::VectorXcd test_state(dim);
 		get_quantum_state_host(state_gpu, state, dim);
 		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
@@ -454,8 +454,8 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeWholeTest) {
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state_host(state_ket_gpu, dim);
 		initialize_Haar_random_state_host(state_bra_gpu, dim);
-		ASSERT_NEAR(state_norm_host(state_ket_gpu, dim), 1, eps);
-		ASSERT_NEAR(state_norm_host(state_bra_gpu, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state_ket_gpu, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state_bra_gpu, dim), 1, eps);
 
 		Eigen::VectorXcd test_state_ket(dim);
 		Eigen::VectorXcd test_state_bra(dim);
@@ -512,8 +512,8 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopWholeTest) {
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state_host(state_ket_gpu, dim);
 		initialize_Haar_random_state_host(state_bra_gpu, dim);
-		ASSERT_NEAR(state_norm_host(state_ket_gpu, dim), 1, eps);
-		ASSERT_NEAR(state_norm_host(state_bra_gpu, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state_ket_gpu, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state_bra_gpu, dim), 1, eps);
 
 		Eigen::VectorXcd test_state_ket(dim);
 		Eigen::VectorXcd test_state_bra(dim);
@@ -569,8 +569,8 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudePartialTest) {
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state_host(state_ket_gpu, dim);
 		initialize_Haar_random_state_host(state_bra_gpu , dim);
-		ASSERT_NEAR(state_norm_host(state_ket_gpu, dim), 1, eps);
-		ASSERT_NEAR(state_norm_host(state_bra_gpu, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state_ket_gpu, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state_bra_gpu, dim), 1, eps);
 
 		Eigen::VectorXcd test_state_ket(dim);
 		Eigen::VectorXcd test_state_bra(dim);
@@ -637,8 +637,8 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state_host(state_ket_gpu, dim);
 		initialize_Haar_random_state_host(state_bra_gpu, dim);
-		ASSERT_NEAR(state_norm_host(state_ket_gpu, dim), 1, eps);
-		ASSERT_NEAR(state_norm_host(state_bra_gpu, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state_ket_gpu, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared_host(state_bra_gpu, dim), 1, eps);
 
 		Eigen::VectorXcd test_state_ket(dim);
 		Eigen::VectorXcd test_state_bra(dim);
@@ -710,7 +710,7 @@ TEST(StateTest, GenerateAndRelease) {
 	}
     for (UINT repeat = 0; repeat < 10; ++repeat) {
         state.set_Haar_random_state();
-        ASSERT_NEAR(state.get_norm(),1.,eps);
+        ASSERT_NEAR(state.get_squared_norm(),1.,eps);
     }
 }
 
