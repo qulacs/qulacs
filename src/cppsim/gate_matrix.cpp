@@ -141,8 +141,12 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
 #ifdef _USE_GPU
 				if (state->get_device_name() == "gpu") {
 					//
-					std::cerr << "This function is not implemented in GPU" << std::endl;
-					exit(0);
+					std::cerr << "Redirected to multi_control multi_target in GPU" << std::endl;
+					multi_qubit_control_multi_qubit_dense_matrix_gate_host(
+						control_index.data(), control_value.data(), (UINT)(control_index.size()),
+						target_index.data(), (UINT)(target_index.size()),
+						(const CPPCTYPE*)matrix_ptr, state->data(), dim);
+					//exit(0);
 					/*
 					multi_qubit_control_single_qubit_dense_matrix_gate_host(
 						control_index.data(), control_value.data(), (UINT)(control_index.size()),
