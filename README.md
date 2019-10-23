@@ -50,36 +50,29 @@ pip install qulacs-gpu
 [QuEST](https://github.com/quest-kit/QuEST) and [qHiPSTER](https://github.com/intel/Intel-QS) is also fast circuit
 simulator but we excluded since it doesn't have python interface.
 
-## Supported environment
-Qulacs is tested on the following systems.
+## Requirement
 
-- OS
-  - Ubuntu 16.04
-  - MacOS X Sierra
-  - Windows 10
-
-The following languages are supported.
-
-- C++
-  - gcc/g++ >= 7.0.0
-  - Microsoft VisualStudio C++ 2015, 2017
-- python
-  - python 2.7
-  - python 3.x
-
-If you want to use GPU, install CUDA >= 8.0.
-
-## Install from Source
-If you encounter some troubles, see [troubleshooting (Japanese)](http://qulacs.org/md_4__trouble_shooting.html).
-
-### Requirements
-
-- C++
-    - gcc/g++ >= 7.0.0  (for python on Unix platforms in Linux, MacOS, or Windows)
-    - Microsoft VisualStudio C++ 2015 or 2017   (for other python on Windows)
+- C++ compiler (gcc or VisualStudio)
+    - gcc/g++ >= 7.0.0 (checked in Linux, MacOS, cygwin, MinGW, and WSL)
+    - Microsoft VisualStudio C++ 2015 or 2017
 - python 2.7 or 3.x
 - cmake >= 3.0
-- (optional) CUDA >= 8.0
+- git
+- (option) CUDA >= 8.0
+- (option) AVX2 support
+
+If your system supports AVX2 instructions, SIMD optimization is automatically enabled. If you want to enable GPU simulator, install qulacs through <code>qulacs-gpu</code> package or build from source.
+
+Qulacs is tested on the following systems.
+
+- Ubuntu 16.04 / 18.04
+- MacOS X Sierra
+- Windows 10
+
+
+## Install from Source
+If you encounter some troubles, see [troubleshooting](http://qulacs.org/md_4__trouble_shooting.html).
+
 
 ### Install python libs from source
 
@@ -88,12 +81,12 @@ Install (Multi-thread without GPU)
 python setup.py install
 ```
 
-Install (Multithread with GPU, CUDA is required)
+Install (Multithread with GPU. CUDA is required)
 ```
 python setup_gpu.py install
 ```
 
-Install (Single-thread without GPU, for executing multiple processes in parallel)
+Install (Single-thread without GPU. For launching multiple qulacs processes.)
 ```
 python setup_singlethread.py install
 ```
@@ -121,7 +114,7 @@ cd qulacs
 script/build_msvc_2017.bat
 ```
 
-When you want to build with GPU, use <code>build_msvc_2017_with_gpu.bat</code>.
+When you want to build with GPU, use <code>build_msvc_2017_with_gpu.bat</code>. If you use MSVC2015, replace 2017 in file names to 2015.
 
 ## Tutorial and API document
 
@@ -155,7 +148,7 @@ value = observable.get_expectation_value(state)
 print(value)
 ```
 
-If you want to run it on GPU, install qulacs from source and replace <code>QuantumState</code> with <code>QuantumStateGpu</code>.
+If you want to run it on GPU, install GPU-enabled qulacs and replace <code>QuantumState</code> in the above codes to <code>QuantumStateGpu</code>.
 
 ### C++
 
