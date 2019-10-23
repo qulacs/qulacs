@@ -16,7 +16,7 @@
 #include <omp.h>
 #endif
 
-DllExport void dm_normalize(double norm, CTYPE* state, ITYPE dim);
+DllExport void dm_normalize(double squared_norm, CTYPE* state, ITYPE dim);
 DllExport void dm_single_qubit_dense_matrix_gate(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
 DllExport void dm_multi_qubit_control_single_qubit_dense_matrix_gate(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
 DllExport void dm_multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);

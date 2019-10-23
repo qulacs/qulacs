@@ -30,7 +30,7 @@ TEST(DensityMatrixTest, GenerateAndRelease) {
 	}
 	for (UINT repeat = 0; repeat < 10; ++repeat) {
 		state.set_Haar_random_state();
-		ASSERT_NEAR(state.get_norm(), 1., eps);
+		ASSERT_NEAR(state.get_squared_norm(), 1., eps);
 	}
 }
 

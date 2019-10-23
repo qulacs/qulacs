@@ -2,7 +2,7 @@
 
 #include "type.h"
 
-DllExport double dm_state_norm(const CTYPE *state, ITYPE dim) ;
+DllExport double dm_state_norm_squared(const CTYPE *state, ITYPE dim) ;
 DllExport double dm_measurement_distribution_entropy(const CTYPE *state, ITYPE dim);
 DllExport void dm_state_add(const CTYPE *state_added, CTYPE *state, ITYPE dim);
 DllExport void dm_state_multiply(CTYPE coef, CTYPE *state, ITYPE dim);

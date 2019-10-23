@@ -6,10 +6,12 @@
 extern "C" {
 #include <csim/memory_ops.h>
 #include <csim/stat_ops.h>
+#include <csim/init_ops.h>
 }
 #else
 #include <csim/memory_ops.h>
 #include <csim/stat_ops.h>
+#include <csim/init_ops.h>
 #endif
 
 
@@ -28,7 +30,7 @@ TEST(StatOperationTest, ProbTest) {
 
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state, dim);
-        ASSERT_NEAR(state_norm(state, dim), 1, eps);
+        ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
         for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
 
@@ -58,7 +60,7 @@ TEST(StatOperationTest, MarginalProbTest) {
 
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state, dim);
-        ASSERT_NEAR(state_norm(state, dim), 1, eps);
+        ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
         for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
 
@@ -104,7 +106,7 @@ TEST(StatOperationTest, EntropyTest) {
     CTYPE* state = allocate_quantum_state(dim);
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state, dim);
-        ASSERT_NEAR(state_norm(state, dim), 1, eps);
+        ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
         for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
 
@@ -134,7 +136,7 @@ TEST(StatOperationTest, InnerProductTest) {
     for (UINT rep = 0; rep < max_repeat; ++rep) {
 
         initialize_Haar_random_state(state, dim);
-        ASSERT_NEAR(state_norm(state, dim), 1, eps);
+        ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
         for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
 
@@ -169,7 +171,7 @@ TEST(StatOperationTest, SingleQubitExpectationValueTest) {
 
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state, dim);
-        ASSERT_NEAR(state_norm(state, dim), 1, eps);
+        ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
         for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
 
@@ -209,7 +211,7 @@ TEST(StatOperationTest, MultiQubitExpectationValueWholeTest) {
 
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state, dim);
-        ASSERT_NEAR(state_norm(state, dim), 1, eps);
+        ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
         for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
 
@@ -255,7 +257,7 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopWholeTest) {
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state(state, dim);
-		ASSERT_NEAR(state_norm(state, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
 		Eigen::VectorXcd test_state(dim);
 		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
 
@@ -291,7 +293,7 @@ TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
     CTYPE* state = allocate_quantum_state(dim);
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state, dim);
-        ASSERT_NEAR(state_norm(state, dim), 1, eps);
+        ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
         for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
 
@@ -344,7 +346,7 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopPartialTest) {
 	CTYPE* state = allocate_quantum_state(dim);
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state(state, dim);
-		ASSERT_NEAR(state_norm(state, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
 		Eigen::VectorXcd test_state(dim);
 		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
 
@@ -409,8 +411,8 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeWholeTest) {
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state(state_ket, dim);
 		initialize_Haar_random_state(state_bra, dim);
-		ASSERT_NEAR(state_norm(state_ket, dim), 1, eps);
-		ASSERT_NEAR(state_norm(state_bra, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared(state_ket, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared(state_bra, dim), 1, eps);
 
 		Eigen::VectorXcd test_state_ket(dim);
 		Eigen::VectorXcd test_state_bra(dim);
@@ -459,8 +461,8 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopWholeTest) {
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state(state_ket, dim);
 		initialize_Haar_random_state(state_bra, dim);
-		ASSERT_NEAR(state_norm(state_ket, dim), 1, eps);
-		ASSERT_NEAR(state_norm(state_bra, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared(state_ket, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared(state_bra, dim), 1, eps);
 
 		Eigen::VectorXcd test_state_ket(dim);
 		Eigen::VectorXcd test_state_bra(dim);
@@ -508,8 +510,8 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudePartialTest) {
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state(state_ket, dim);
 		initialize_Haar_random_state(state_bra, dim);
-		ASSERT_NEAR(state_norm(state_ket, dim), 1, eps);
-		ASSERT_NEAR(state_norm(state_bra, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared(state_ket, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared(state_bra, dim), 1, eps);
 
 		Eigen::VectorXcd test_state_ket(dim);
 		Eigen::VectorXcd test_state_bra(dim);
@@ -570,8 +572,8 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		initialize_Haar_random_state(state_ket, dim);
 		initialize_Haar_random_state(state_bra, dim);
-		ASSERT_NEAR(state_norm(state_ket, dim), 1, eps);
-		ASSERT_NEAR(state_norm(state_bra, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared(state_ket, dim), 1, eps);
+		ASSERT_NEAR(state_norm_squared(state_bra, dim), 1, eps);
 
 		Eigen::VectorXcd test_state_ket(dim);
 		Eigen::VectorXcd test_state_bra(dim);
