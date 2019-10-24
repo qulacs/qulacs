@@ -213,13 +213,25 @@ elseif(MSVC)
 	add_compile_options("/TP")
 	# ignore warning about template export
 	add_compile_options(/wd4251)
+	# ignore warning on non-Unicode files
+	add_compile_options(/wd4819)
 
-	if(USE_SIMD)
+	# Check if AVX2 is supported
+	include(${CMAKE_SOURCE_DIR}/FindAVX2.cmake)
+	CHECK_AVX2_WINDOWS()
+	#CHECK_AVX2_LINUX()
+	message(STATUS "AVX2_FOUND = ${AVX2_FOUND}")
+	if(USE_SIMD AND AVX2_FOUND)
+		message(STATUS "AVX2 Enabled")
 		add_compile_options("/D_USE_SIMD")
+	else()
+		message(STATUS "AVX2 Disabled")
 	endif()
+
 	if(USE_OMP)
 		add_compile_options("/openmp")
 	endif()
+
 	if(USE_GPU)
 		add_compile_options("/D_USE_GPU")
 	endif()
