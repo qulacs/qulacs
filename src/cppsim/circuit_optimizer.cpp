@@ -1,4 +1,4 @@
-
+#include <stdio.h>
 #include <algorithm>
 #include <iterator>
 #include "circuit_optimizer.hpp"

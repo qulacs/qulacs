@@ -1,4 +1,4 @@
-
+#include <stdio.h>
 #include "simulator.hpp"
 #include "state.hpp"
 #include "observable.hpp"
