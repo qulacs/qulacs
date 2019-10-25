@@ -169,8 +169,8 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 
 
-	# GCC>=9.0.0 requires C++14 for building python
-	if(9.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
+	# GCC>=8.0.0 requires C++14 for building python
+	if(8.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14")
 	else()
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
@@ -200,10 +200,8 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
 
-	if(9.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
+	if(8.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
 		set(PYBIND11_CPP_STANDARD -std=gnu++14)
-	elseif(8.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
-		set(PYBIND11_CPP_STANDARD -std=gnu++11)
 	endif()
 
 elseif(MSVC)
@@ -213,13 +211,25 @@ elseif(MSVC)
 	add_compile_options("/TP")
 	# ignore warning about template export
 	add_compile_options(/wd4251)
+	# ignore warning on non-Unicode files
+	add_compile_options(/wd4819)
 
-	if(USE_SIMD)
+	# Check if AVX2 is supported
+	include(${CMAKE_SOURCE_DIR}/FindAVX2.cmake)
+	CHECK_AVX2_WINDOWS()
+	#CHECK_AVX2_LINUX()
+	message(STATUS "AVX2_FOUND = ${AVX2_FOUND}")
+	if(USE_SIMD AND AVX2_FOUND)
+		message(STATUS "AVX2 Enabled")
 		add_compile_options("/D_USE_SIMD")
+	else()
+		message(STATUS "AVX2 Disabled")
 	endif()
+
 	if(USE_OMP)
 		add_compile_options("/openmp")
 	endif()
+
 	if(USE_GPU)
 		add_compile_options("/D_USE_GPU")
 	endif()

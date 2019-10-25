@@ -51,6 +51,7 @@ matrix:
             - gfortran-7
             - lcov
             - swig
+
     # 4/ Linux GCC7 PYTHON2.7 build
     - os: linux
       dist: trusty
@@ -71,6 +72,7 @@ matrix:
             - gfortran-7
             - lcov
             - swig
+
     # 5/ Windows VS17 PYTHON3.6 build
     - os: windows
       env:
@@ -80,6 +82,7 @@ matrix:
         - CMAKE_BIN='C:\Program Files\CMake'
         - PYTHON_BIN='C:\Python36'
         - PATH="$MSBUILD_BIN:$CMAKE_BIN:$PYTHON_BIN:$PYTHON_BIN\Scripts:$PATH"
+
     # 6/ Windows VS17 PYTHON2.7 build
     - os: windows
       env:
