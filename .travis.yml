@@ -51,6 +51,7 @@ matrix:
             - gfortran-7
             - lcov
             - swig
+
     # 4/ Linux GCC7 PYTHON2.7 build
     - os: linux
       dist: trusty
@@ -71,6 +72,7 @@ matrix:
             - gfortran-7
             - lcov
             - swig
+
     # 5/ Windows VS17 PYTHON3.6 build
     - os: windows
       env:
@@ -80,6 +82,7 @@ matrix:
         - CMAKE_BIN='C:\Program Files\CMake'
         - PYTHON_BIN='C:\Python36'
         - PATH="$MSBUILD_BIN:$CMAKE_BIN:$PYTHON_BIN:$PYTHON_BIN\Scripts:$PATH"
+
     # 6/ Windows VS17 PYTHON2.7 build
     - os: windows
       env:
@@ -89,6 +92,48 @@ matrix:
         - CMAKE_BIN='C:\Program Files\CMake'
         - PYTHON_BIN='C:\tools\python'
         - PATH="$MSBUILD_BIN:$CMAKE_BIN:$PYTHON_BIN:$PYTHON_BIN\Scripts:$PATH"
+
+    # 7/ Linux GCC7 PYTHON3.6 build gcc-8
+    - os: linux
+      dist: trusty
+      compiler: gcc-8
+      env:
+        - PYTHON="${PYTHON3}"
+        - COVERAGE=ON
+        - PYENV_ROOT="${HOME}/.pyenv"
+        - PATH="${PYENV_ROOT}/bin:$PATH"
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - cmake3
+            - g++-8
+            - gcc-8
+            - gfortran-8
+            - lcov
+            - swig
+
+    # 8/ Linux GCC7 PYTHON3.6 build gcc-9
+    - os: linux
+      dist: trusty
+      compiler: gcc-9
+      env:
+        - PYTHON="${PYTHON3}"
+        - COVERAGE=ON
+        - PYENV_ROOT="${HOME}/.pyenv"
+        - PATH="${PYENV_ROOT}/bin:$PATH"
+      addons:
+        apt:
+          sources:
+            - ubuntu-toolchain-r-test
+          packages:
+            - cmake3
+            - g++-9
+            - gcc-9
+            - gfortran-9
+            - lcov
+            - swig
 
 cache:
   directories:
