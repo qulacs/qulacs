@@ -21,11 +21,11 @@ print(state)
 (0,0)
 (0,0)
 ```
-メモリが不足している場合は量子状態を生成できません。一般的なノートパソコンやデスクトップPCでは26,27量子ビット程度でメモリ容量の限界になることが多いです。
+一般的なノートパソコンやデスクトップPCでは26,27量子ビット程度がメモリ容量から作成できる限界です。
 
 ### 量子状態の初期化
 生成した量子状態は<code>set_computational_basis</code>関数で計算基底に初期化したり、<code>set_Haar_random_state</code>関数でランダムな状態に初期化することが出来ます。
-なお、Qulacsでは量子ビットのカウントは0から始まり、かつ|0000>と書いたときに一番右のビットが0-th qubitになります(他のライブラリや教科書では一番左が0-th qubitであることもあります。)
+なお、Qulacsでは量子ビットの添え字は0から始まり、かつ|0000>と書いたときに一番右のビットが0-th qubitになります(他のライブラリや教科書では一番左が0-th qubitであることもあります。)
 ```python
 from qulacs import QuantumState
 
@@ -134,7 +134,7 @@ print([format(value, "b").zfill(2) for value in data]) # 二進数表示
 ['00', '11', '11', '11', '11', '00', '10', '11', '00', '11']
 ```
 
-このほかにも多くの関数が用意されています。詳しくは次の章を参照してください。
+このほかにも多くの関数が用意されています。詳しくはAdvancedの章を参照してください。
 
 
 ### 量子状態の内積
@@ -160,7 +160,7 @@ print(value)
 ## 量子ゲート
 
 ### 量子ゲートの生成
-量子ゲートは<code>qulacs.gate</code>モジュールの中で定義されています。このモジュールでは幾つかの有名な量子ゲートが既に定義されています。例えば、X-gateは以下のように生成できます。量子ゲートを<code>print</code>することで素のゲートの情報を表示できます。
+量子ゲートは<code>qulacs.gate</code>モジュールの中で定義されています。このモジュールでは幾つかの典型的な量子ゲートが既に定義されています。例えば、X-gateは以下のように生成できます。量子ゲートを<code>print</code>することでゲートの情報を表示できます。
 
 ```python
 from qulacs.gate import X
@@ -219,7 +219,7 @@ print(state)
 ```
 
 ### 様々な量子ゲート
-下記にしばしば使う名前の付いたゲートを紹介します。どのゲートも<code>update_quantum_state</code>関数を用いて量子状態を更新できます。その他のゲートについては、次の章を参照してください。
+下記にしばしば使う名前の付いたゲートを紹介します。どのゲートも<code>update_quantum_state</code>関数を用いて量子状態を更新できます。その他のゲートについては、Advancedの章を参照してください。
 ```python
 import numpy as np
 
@@ -386,7 +386,7 @@ gate.add_control_qubit(3,1)
 (0,0) (1,0)
 (1,0) (0,0)
 ```
-変換によりゲート名がXからDenseMatrixに変わっていることが分かります。
+変換によりゲート名がXからDenseMatrixに変わり露にゲート行列を保持していることが分かります。
 
 ### 量子ゲートのゲート行列の取得
 生成した量子ゲートのゲート行列は<code>get_matrix</code>関数で取得できます。なお重要な注意点として、controlled-qubitがあるゲートの場合、controlled-qubitはゲート行列には含まれません。このため、例えば<code>CNOT</code>ゲートのゲート行列は2x2行列になります。
@@ -410,7 +410,7 @@ print(matrix)
 ## 量子回路
 
 ### 量子回路の生成と構成
-量子回路<code>QuantumCircuit</code>クラスとして定義されています。<code>QuantumCircuit</code>クラスには<code>add_\<gatename\>_gate</code>としてゲートを追加するか、<code>add_gate</code>関数を用いてゲートを追加できます。量子回路を<code>print</code>することで量子回路の情報が表示されます。
+量子回路<code>QuantumCircuit</code>クラスとして定義されています。<code>QuantumCircuit</code>クラスには<code>add_\<gatename\>_gate</code>としてゲートを追加するか、<code>add_gate</code>関数を用いてゲートのインスタンスを追加できます。量子回路を<code>print</code>することで量子回路の情報が表示されます。
 
 ```python
 from qulacs import QuantumCircuit
