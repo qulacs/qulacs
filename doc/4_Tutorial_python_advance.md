@@ -248,7 +248,7 @@ gpu
 ### 量子ゲートの種類
 量子ゲートは特殊ゲートと一般ゲートの二種類にわかれます。なお、Qulacsではユニタリ演算子に限らず、InstrumentやCPTP-mapをはじめとする任意の量子状態を更新する操作をゲートと呼びます。
 
-特殊ゲートは事前に指定されたゲート行列を持ち、量子ゲートに対し限定された変形しか行えないものを指します。例えば、パウリゲート、パウリでの回転ゲート、射影測定などが対応します。特殊ゲートの利点は、ゲートの特性が限定されているため量子状態の更新関数が一般ゲートに比べ効率的である点です。特殊ゲートの欠点は上記の理由からゲートに対する可能な操作が限定されている点です。
+特殊ゲートは事前に指定されたゲート行列を持ち、量子ゲートに対し限定された変形しか行えないものを指します。例えば、パウリゲート、パウリでの回転ゲート、射影測定などが対応します。特殊ゲートの利点は、ゲートの特性が限定されているため量子状態の更新関数が一般ゲートに比べ効率的である点です。また、定義時に自身が各量子ビットで何らかのパウリの基底で対角化されるかの情報を保持しており、この情報は回路最適化の時に利用されます。特殊ゲートの欠点は上記の理由からゲートに対する可能な操作が限定されている点です。
 
 作用するゲート行列を露に持つゲートを一般ゲートと呼びます。一般ゲートの利点はゲート行列を好きに指定できるところですが、欠点は特殊ゲートに比べ更新が低速である点です。
 
@@ -289,7 +289,8 @@ from qulacs.gate import X, Y, Z	# パウリ
 from qulacs.gate import H, S, Sdag, sqrtX, sqrtXdag, sqrtY, sqrtYdag # クリフォード
 from qulacs.gate import T, Tdag # Tゲート
 from qulacs.gate import P0, P1 # 0,1への射影 (規格化はされない)
-gate = T(3)
+target = 3
+gate = T(target)
 print(gate)
 ```
 ```
@@ -311,7 +312,9 @@ print(gate)
 ```python
 import numpy as np
 from qulacs.gate import RX, RY, RZ
-gate = RX(0, 0.1)
+target = 0
+angle = 0.1
+gate = RX(target, angle)
 print(gate)
 print(gate.get_matrix())
 ```
@@ -366,8 +369,11 @@ print(U3(0, 0.1, 0.2, 0.3))
 from qulacs.gate import CNOT, CZ, SWAP
 control = 5
 target = 2
+target2 = 3
 gate = CNOT(control, target)
 print(gate)
+gate = CZ(control, target)
+gate = SWAP(target, target2)
 ```
 ```
  *** gate info ***
@@ -551,12 +557,13 @@ print(gate)
 
 
 #### 疎行列ゲート
-疎行列を元に定義されるゲートです。要素が十分疎であるばあい、密行列より高速に更新が可能です。
+疎行列を元に定義されるゲートです。要素が十分疎である場合、密行列より高速に更新が可能です。疎行列はscipyのcsc_matrixを用いて定義してください。
 
 ```python
+from qulacs import QuantumState
 from qulacs.gate import SparseMatrix
 from scipy.sparse import csc_matrix
-mat = csc_matrix((2,2), dtype = complex)
+mat = csc_matrix((2,2))
 mat[1,1] = 1
 print("sparse matrix", mat)
 
@@ -731,7 +738,8 @@ print(proj_00_plus_11)
 ハール測度でランダムなユニタリ行列をサンプリングし、密行列ゲートを生成するには<code>RandomUnitary</code>関数を用います。
 ```python
 from qulacs.gate import RandomUnitary
-gate = RandomUnitary([2,3])
+target_list = [2,3]
+gate = RandomUnitary(target_list)
 print(gate)
 ```
 ```
@@ -754,7 +762,7 @@ print(gate)
 ```
 
 #### 確率的作用
-<code>Probabilistic</code>関数を用いて、複数のユニタリ操作と確率分布を与えて作成します。
+<code>Probabilistic</code>関数を用いて、複数のゲート操作と確率分布を与えて作成します。与える確率分布の総和が1に満たない場合、満たない確率でIdentityが作用します。
 
 ```python
 from qulacs.gate import Probabilistic, H, Z
@@ -792,33 +800,40 @@ for _ in range(10):
 [0.+0.j 0.+0.j 1.+0.j 0.+0.j]
 ```
 
-なお、確率的作用をするゲートとして、<code>BitFlipNoise</code>, <code>DephasingNoise</code>, <code>IndependentXZNoise</code>, <code>DepolarizingNoise</code>ゲートが定義されています。それぞれ、エラー確率を入れることで<code>Probabilistic</code>のインスタンスが生成されます。
+なお、確率的作用をするゲートとして、<code>BitFlipNoise</code>, <code>DephasingNoise</code>, <code>IndependentXZNoise</code>, <code>DepolarizingNoise</code>, <code>TwoQubitDepolarizingNoise</code>ゲートが定義されています。それぞれ、エラー確率を入れることで<code>Probabilistic</code>のインスタンスが生成されます。
 
 ```python
-from qulacs.gate import DepolarizingNoise
-gate = DepolarizingNoise(0, 0.3)
+from qulacs.gate import BitFlipNoise, DephasingNoise, IndependentXZNoise, DepolarizingNoise, TwoQubitDepolarizingNoise
+target = 0
+second_target = 1
+error_prob = 0.8
+gate = BitFlipNoise(target, error_prob) # X: prob
+gate = DephasingNoise(target, error_prob) # Z: prob
+gate = IndependentXZNoise(target, error_prob) # X,Z : prob*(1-prob), Y: prob*prob
+gate = DepolarizingNoise(target, error_prob) # X,Y,Z : prob/3
+gate = TwoQubitDepolarizingNoise(target, second_target, error_prob) # {I,X,Y,Z} \times {I,X,Y,Z} \setminus {II} : prob/15
 
 from qulacs import QuantumState
-state = QuantumState(1)
+state = QuantumState(2)
 for _ in range(10):
 	gate.update_quantum_state(state)
 	print(state.get_vector())
 ```
 ```
-[1.+0.j 0.+0.j]
-[0.+0.j 1.+0.j]
-[ 0.-1.j -0.+0.j]
-[-0.+0.j  0.-1.j]
-[-0.+0.j  0.-1.j]
-[-0.+0.j  0.-1.j]
-[-0.+0.j -0.+1.j]
-[-0.+0.j -0.+1.j]
-[ 1.+0.j -0.-0.j]
-[-0.+0.j -0.+1.j]
+[0.-0.j 0.+0.j 0.-0.j 0.+1.j]
+[0.-0.j 0.+0.j 0.-0.j 0.+1.j]
+[0.+0.j 0.+1.j 0.+0.j 0.+0.j]
+[0.-0.j 0.+0.j 0.+0.j 1.-0.j]
+[-1.+0.j  0.+0.j  0.+0.j  0.+0.j]
+[ 0.+0.j  0.+0.j -1.+0.j  0.+0.j]
+[-1.+0.j -0.+0.j  0.+0.j -0.+0.j]
+[-1.+0.j  0.-0.j  0.+0.j  0.-0.j]
+[ 0.+0.j -1.+0.j  0.+0.j  0.+0.j]
+[ 0.+0.j -1.+0.j  0.+0.j  0.+0.j]
 ```
 
 #### CPTP写像
-<code>CPTP</code>関数に完全性を満たすクラウス演算子のリストとして与えて作成します。
+<code>CPTP</code>は完全性を満たすクラウス演算子のリストを与えて作成します。
 
 ```python
 from qulacs.gate import merge,CPTP, P0,P1
@@ -854,6 +869,12 @@ for _ in range(10):
 ```
 なお、CPTP-mapとして<code>AmplitudeDampingNoise</code>ゲートが定義されています。
 
+```python
+from qulacs.gate import AmplitudeDampingNoise
+target = 0
+damping_rate = 0.1
+AmplitudeDampingNoise(target, damping_rate) # K_0: [[1,0],[0,sqrt(1-p)]], K_1: [[0,sqrt(p)], [0,0]]
+```
 #### Instrument
 Instrumentは一般のCPTP-mapの操作に加え、ランダムに作用したクラウス演算子の添え字を取得する操作です。例えば、Z基底での測定は<code>P0</code>と<code>P1</code>からなるCPTP-mapを作用し、どちらが作用したかを知ることに相当します。
 cppsimでは<code>Instrument</code>関数にCPTP-mapの情報と、作用したクラウス演算子の添え字を書きこむ古典レジスタのアドレスを指定することで実現します。
@@ -895,9 +916,15 @@ for index in range(10):
 ```
 なお、Instrumentとして<code>Measurement</code>ゲートが定義されています。
 
+```python
+from qulacs.gate import Measurement
+target = 0
+classical_pos = 0
+gate = Measurement(target, classical_pos)
+```
+
 #### Adaptive操作
-古典レジスタに書き込まれた値を用いた条件に応じて操作を行うか決定します。
-条件はpythonの関数として記述することができます。pythonの関数は<code>unsigned int</code>型のリストを引数として受け取り、<code>bool</code>型を返す関数でなくてはなりません。
+古典レジスタの値の可変長リストを引数としブール値を返す関数を用いて、古典レジスタから求まる条件に応じて操作を行うか決定するゲートです。条件はpythonの関数として記述することができます。pythonの関数は<code>unsigned int</code>型のリストを引数として受け取り、<code>bool</code>型を返す関数でなくてはなりません。
 
 ```python
 from qulacs.gate import Adaptive, X
@@ -927,6 +954,187 @@ func is called! content is  [0]
 [1.+0.j 0.+0.j]
 func is called! content is  [1]
 [0.+0.j 1.+0.j]
+```
+
+
+
+## 物理量
+### パウリ演算子
+オブザーバブルは実係数を持つパウリ演算子の線形結合として表現されます。<code>PauliOperator</code>クラスはその中のそれぞれの項を表す、$n$-qubitパウリ演算子の元に係数を付与したものを表現するクラスです。ゲートと異なり、量子状態の更新はできません。
+
+#### パウリ演算子の生成と状態の取得
+```python
+from qulacs import PauliOperator
+coef = 0.1
+s = "X 0 Y 1 Z 3"
+pauli = PauliOperator(s, coef)
+
+# pauliの記号を後から追加
+pauli.add_single_Pauli(3, 2)
+
+# pauliの各記号の添え字を取得
+index_list = pauli.get_index_list()
+
+# pauliの各記号を取得 (I,X,Y,Z -> 0,1,2,3)
+pauli_id_list = pauli.get_pauli_id_list()
+
+# pauliの係数を取得
+coef = pauli.get_coef()
+
+# pauli演算子のコピーを作成
+another_pauli = pauli.copy()
+
+s = ["I","X","Y","Z"]
+pauli_str = [s[i] for i in pauli_id_list]
+terms_str = [item[0]+str(item[1]) for item in zip(pauli_str,index_list)]
+full_str = str(coef) + " " + " ".join(terms_str)
+print(full_str)
+```
+```
+(0.1+0j) X0 Y1 Z3 Y3
+```
+
+#### パウリ演算子の期待値
+状態に対してパウリ演算子の期待値や遷移モーメントを評価できます。
+```python
+from qulacs import PauliOperator, QuantumState
+
+n = 5
+coef = 2.0
+Pauli_string = "X 0 X 1 Y 2 Z 4"
+pauli = Pauli(Pauli_string,coef)
+
+# 期待値の計算 <a|H|a>
+state = QuantumState(n)
+state.set_Haar_random_state()
+value = pauli.get_expectation_value(state)
+print("expect", value)
+
+# 遷移モーメントの計算 <a|H|b>
+# 第一引数がブラ側に来る
+bra = QuantumState(n)
+bra.set_Haar_random_state()
+value = pauli.get_transition_amplitude(bra, state)
+print("transition", value)
+```
+
+```
+expect (-0.013936248917618807-0j)
+transition (-0.009179829550387531-0.02931360609180049j)
+```
+
+### 線形演算子
+線形演算子<code>GeneralQuantumOperator</code>はパウリ演算子の複素数の線形結合で表されます。係数付きのPauliOperatorを項として<code>add_operator</code>で追加することが出来ます。
+```python
+from qulacs import GeneralQuantumOperator, PauliOperator, QuantumState
+
+n = 5
+operator = GeneralQuantumOperator(n)
+
+# pauli演算子を追加できる
+coef = 2.0+0.5j
+Pauli_string = "X 0 X 1 Y 2 Z 4"
+pauli = Pauli(Pauli_string,coef)
+operator.add_operator(pauli)
+# 直接係数と文字列から追加することもできる
+operator.add_operator(0.5j, "Y 1 Z 4")
+
+# 項の数を取得
+term_count = operator.get_term_count()
+
+# 量子ビット数を取得
+qubit_count = operator.get_qubit_count()
+
+# 特定の項をPauliOperatorとして取得
+index = 1
+pauli = operator.get_term(index)
+
+
+# 期待値の計算 <a|H|a>
+## 一般に自己随伴ではないので複素が帰りうる
+state = QuantumState(n)
+state.set_Haar_random_state()
+value = operator.get_expectation_value(state)
+print("expect", value)
+
+# 遷移モーメントの計算 <a|H|b>
+# 第一引数がブラ側に来る
+bra = QuantumState(n)
+bra.set_Haar_random_state()
+value = operator.get_transition_amplitude(bra, state)
+print("transition", value)
+```
+```
+expect (0.01844802681960955+0.05946837146359432j)
+transition (-0.00359496979054156+0.0640782452494485j)
+```
+
+
+#### エルミート演算子/オブザーバブル
+エルミート演算子はパウリ演算子の実数での線形結合で表されます。固有値あるいは期待値が実数であることを保証される以外、<code>GeneralQuatnumOperator</code>クラスと同等です。
+
+
+#### OpenFermionを用いた演算子の生成
+OpenFermionは化学計算で解くべきハミルトニアンをパウリ演算子の表現で与えてくれるツールです。このツールの出力をファイルまたは文字列の形で読み取り、演算子の形で使用することが可能です。
+
+```python
+from qulacs.quantum_operator import create_quantum_operator_from_openfermion_file
+from qulacs.quantum_operator import create_quantum_operator_from_openfermion_text
+
+of_text = """
+(-0.8126100000000005+0j) [] +
+(0.04532175+0j) [X0 Z1 X2] +
+(0.04532175+0j) [X0 Z1 X2 Z3] +
+(0.04532175+0j) [Y0 Z1 Y2] +
+(0.04532175+0j) [Y0 Z1 Y2 Z3] +
+(0.17120100000000002+0j) [Z0] +
+(0.17120100000000002+0j) [Z0 Z1] +
+(0.165868+0j) [Z0 Z1 Z2] +
+(0.165868+0j) [Z0 Z1 Z2 Z3] +
+(0.12054625+0j) [Z0 Z2] +
+(0.12054625+0j) [Z0 Z2 Z3] +
+(0.16862325+0j) [Z1] +
+(-0.22279649999999998+0j) [Z1 Z2 Z3] +
+(0.17434925+0j) [Z1 Z3] +
+(-0.22279649999999998+0j) [Z2]
+"""
+
+operator = create_quantum_operator_from_openfermion_text(of_text)
+print(operator.get_term_count())
+print(operator.get_qubit_count())
+
+# create_quantum_operator_from_openfermion_fileの場合は上記が書かれたファイルのパスを引数で指定する。
+```
+
+#### 演算子を対角項と非対角な項に分離する
+演算子をテキストで読み込む際、<code>create_split_quantum_operator</code>関数で対角成分と非対角成分に分離できます。
+
+```python
+from qulacs.quantum_operator import create_quantum_operator_from_openfermion_text
+from qulacs.quantum_operator import create_split_quantum_operator
+
+of_text = """
+(-0.8126100000000005+0j) [] +
+(0.04532175+0j) [X0 Z1 X2] +
+(0.04532175+0j) [X0 Z1 X2 Z3] +
+(0.04532175+0j) [Y0 Z1 Y2] +
+(0.04532175+0j) [Y0 Z1 Y2 Z3] +
+(0.17120100000000002+0j) [Z0] +
+(0.17120100000000002+0j) [Z0 Z1] +
+(0.165868+0j) [Z0 Z1 Z2] +
+(0.165868+0j) [Z0 Z1 Z2 Z3] +
+(0.12054625+0j) [Z0 Z2] +
+(0.12054625+0j) [Z0 Z2 Z3] +
+(0.16862325+0j) [Z1] +
+(-0.22279649999999998+0j) [Z1 Z2 Z3] +
+(0.17434925+0j) [Z1 Z3] +
+(-0.22279649999999998+0j) [Z2]
+"""
+
+operator = create_quantum_operator_from_openfermion_file("./H2.txt")
+diag, nondiag = create_split_quantum_operator("./H2.txt")
+print(operator.get_term_count(), diag.get_term_count(), nondiag.get_term_count())
+print(operator.get_qubit_count(), diag.get_qubit_count(), nondiag.get_qubit_count())
 ```
 
 
@@ -1020,74 +1228,6 @@ print(circuit)
 # of 1 qubit gate: 50
 Clifford  : yes
 Gaussian  : no
-```
-
-
-## オブザーバブル
-### オブザーバブルの生成
-オブザーバブルは実係数を持つパウリ演算子の線形結合として表現されます。パウリ演算子は下記のように定義できます。
-```python
-from qulacs import Observable
-n = 5
-coef = 2.0
-# 2.0 X_0 X_1 Y_2 Z_4というパウリ演算子を設定
-Pauli_string = "X 0 X 1 Y 2 Z 4"
-observable = Observable(n)
-observable.add_operator(coef,Pauli_string)
-```
-
-一般の複素係数によるパウリ演算子の線形結合は行列の基底をなしますが、一般に実固有値を持つとは限らないためオブザーバブルではありません。これらはGeneralPauliOperatorとして定義されます。
-
-### オブザーバブルの評価
-状態に対してオブザーバブルの期待値を評価できます。
-```python
-from qulacs import Observable, QuantumState
-
-n = 5
-coef = 2.0
-Pauli_string = "X 0 X 1 Y 2 Z 4"
-observable = Observable(n)
-observable.add_operator(coef,Pauli_string)
-
-state = QuantumState(n)
-state.set_Haar_random_state()
-# 期待値の計算
-value = observable.get_expectation_value(state)
-print(value)
-```
-```
-0.3217495074528794
-```
-
-### 遷移振動子の計算
-ハミルトニアンHに対し<a|H|b>は遷移振動子と呼ばれます。一般の演算子に対し、transition_amplitude関数で遷移振動子を計算することが可能です。
-
-```python
-from qulacs import Observable, QuantumState
-
-n = 5
-coef = 2.0
-Pauli_string = "X 0 X 1 Y 2 Z 4"
-observable = Observable(n)
-observable.add_operator(coef,Pauli_string)
-
-state1 = QuantumState(n)
-state2 = QuantumState(n)
-# 遷移振動子の計算
-state1.set_Haar_random_state(0)
-state1.set_Haar_random_state(1)
-value = observable.get_transition_amplitude(state1,state2)
-print(value)
-
-# 遷移振動子の計算
-state1.set_computational_basis(0)
-state1.set_computational_basis(7)
-value = observable.get_transition_amplitude(state1,state2)
-print(value)
-```
-```
-(-0.3115821573638754-0.04398469813302448j)
-2j
 ```
 
 
