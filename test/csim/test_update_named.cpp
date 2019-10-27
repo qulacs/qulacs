@@ -148,23 +148,29 @@ void test_projection_gate(std::function<void(UINT, CTYPE*, ITYPE)> func, std::fu
 	double prob;
 
 	auto state = allocate_quantum_state(dim);
+	std::vector<UINT> indices;
+	for (UINT i = 0; i < n; ++i) indices.push_back(i);
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
-		initialize_Haar_random_state(state, dim);
-		Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+		for (int i = 0; i < n; ++i) {
+			target = indices[i];
+			initialize_Haar_random_state(state, dim);
+			Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
+			for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
 
-		// Z-projection operators 
-		prob = prob_func(target, state, dim);
-		EXPECT_GT(prob, 1e-10);
-		func(target, state, dim);
-		ASSERT_NEAR(state_norm_squared(state, dim), prob, eps);
-		normalize(prob, state, dim);
+			// Z-projection operators 
+			prob = prob_func(target, state, dim);
+			EXPECT_GT(prob, 1e-10);
+			func(target, state, dim);
+			ASSERT_NEAR(state_norm_squared(state, dim), prob, eps);
+			normalize(prob, state, dim);
 
-		test_state = get_expanded_eigen_matrix_with_identity(target, mat, n)*test_state;
-		ASSERT_NEAR(test_state.squaredNorm(), prob, eps);
-		test_state.normalize();
-		state_equal(state, test_state, dim, "Projection gate");
+			test_state = get_expanded_eigen_matrix_with_identity(target, mat, n)*test_state;
+			ASSERT_NEAR(test_state.squaredNorm(), prob, eps);
+			test_state.normalize();
+			state_equal(state, test_state, dim, "Projection gate");
+		}
+		std::random_shuffle(indices.begin(), indices.end());
 	}
 	release_quantum_state(state);
 }
