@@ -1069,19 +1069,14 @@ expect (0.01844802681960955+0.05946837146359432j)
 transition (-0.00359496979054156+0.0640782452494485j)
 ```
 
-
-#### エルミート演算子/オブザーバブル
-エルミート演算子はパウリ演算子の実数での線形結合で表されます。固有値あるいは期待値が実数であることを保証される以外、<code>GeneralQuatnumOperator</code>クラスと同等です。
-
-
-#### OpenFermionを用いた演算子の生成
+#### OpenFermionを用いたオブザーバブルの生成
 OpenFermionは化学計算で解くべきハミルトニアンをパウリ演算子の表現で与えてくれるツールです。このツールの出力をファイルまたは文字列の形で読み取り、演算子の形で使用することが可能です。
 
 ```python
 from qulacs.quantum_operator import create_quantum_operator_from_openfermion_file
 from qulacs.quantum_operator import create_quantum_operator_from_openfermion_text
 
-of_text = """
+open_fermion_text = """
 (-0.8126100000000005+0j) [] +
 (0.04532175+0j) [X0 Z1 X2] +
 (0.04532175+0j) [X0 Z1 X2 Z3] +
@@ -1099,40 +1094,30 @@ of_text = """
 (-0.22279649999999998+0j) [Z2]
 """
 
-operator = create_quantum_operator_from_openfermion_text(of_text)
+operator = create_quantum_operator_from_openfermion_text(open_fermion_text)
 print(operator.get_term_count())
 print(operator.get_qubit_count())
-
 # create_quantum_operator_from_openfermion_fileの場合は上記が書かれたファイルのパスを引数で指定する。
 ```
 
+### エルミート演算子/オブザーバブル
+エルミート演算子はパウリ演算子の実数での線形結合で表されます。固有値あるいは期待値が実数であることを保証される以外、<code>GeneralQuatnumOperator</code>クラスと等価です。
+
+外部ファイルから読み込んで処理をする関数は<code>quantum_operator</code>を<code>observable</code>に置き換えて
+<code>create_observable_from_openfermion_file</code>
+<code>create_observable_from_openfermion_text</code>
+<code>create_split_observable</code>
+などの関数で可能です。
+
 #### 演算子を対角項と非対角な項に分離する
-演算子をテキストで読み込む際、<code>create_split_quantum_operator</code>関数で対角成分と非対角成分に分離できます。
+演算子をファイルからで読み込む際、<code>create_split_observable</code>関数で対角成分と非対角成分に分離できます。
 
 ```python
-from qulacs.quantum_operator import create_quantum_operator_from_openfermion_text
-from qulacs.quantum_operator import create_split_quantum_operator
+from qulacs.observable import create_split_observable, create_observable_from_openfermion_file
 
-of_text = """
-(-0.8126100000000005+0j) [] +
-(0.04532175+0j) [X0 Z1 X2] +
-(0.04532175+0j) [X0 Z1 X2 Z3] +
-(0.04532175+0j) [Y0 Z1 Y2] +
-(0.04532175+0j) [Y0 Z1 Y2 Z3] +
-(0.17120100000000002+0j) [Z0] +
-(0.17120100000000002+0j) [Z0 Z1] +
-(0.165868+0j) [Z0 Z1 Z2] +
-(0.165868+0j) [Z0 Z1 Z2 Z3] +
-(0.12054625+0j) [Z0 Z2] +
-(0.12054625+0j) [Z0 Z2 Z3] +
-(0.16862325+0j) [Z1] +
-(-0.22279649999999998+0j) [Z1 Z2 Z3] +
-(0.17434925+0j) [Z1 Z3] +
-(-0.22279649999999998+0j) [Z2]
-"""
-
-operator = create_quantum_operator_from_openfermion_file("./H2.txt")
-diag, nondiag = create_split_quantum_operator("./H2.txt")
+# 事前にH2.txtをopenfermonの形式で配置する必要があります。
+operator = create_observable_from_openfermion_file("./H2.txt")
+diag, nondiag = create_split_observable("./H2.txt")
 print(operator.get_term_count(), diag.get_term_count(), nondiag.get_term_count())
 print(operator.get_qubit_count(), diag.get_qubit_count(), nondiag.get_qubit_count())
 ```
@@ -1169,7 +1154,7 @@ print(state.get_vector())
 ```
 [ 0.35355339+0.j -0.35355339-0.j -0.35355339-0.j  0.35355339+0.j
  -0.35355339-0.j  0.35355339+0.j  0.35355339+0.j -0.35355339-0.j]
- ```
+```
 
 ### 量子回路のdepthの計算と最適化
 
