@@ -422,7 +422,7 @@ print(gate.get_matrix())
  [ 0.+0.j  0.+0.j -1.-0.j  0.+0.j  0.+0.j  0.+0.j  0.+0.j  0.+0.j]]
  ```
 
-#### 多ビットパウリ回転
+#### 多ビットパウリ回転操作
 多ビットパウリ演算子の回転操作です。多ビットのパウリ回転は愚直にゲート行列を計算すると大きいものになりますが、この形で定義すると効率的に更新が可能です。
 ```python
 from qulacs.gate import PauliRotation
@@ -450,7 +450,7 @@ print(gate.get_matrix().shape)
  ```
 
 #### 可逆回路
-\f$2^n\f$個の添え字に対する全単射関数を与えることで、基底間の置換操作を行います。ゲート行列が置換行列になっていることと同義です。
+\f$2^n\f$個の添え字に対する全単射関数を与えることで、基底間の置換操作を行います。ゲート行列が置換行列になっていることと同義です。全単射でない場合正常に動作しないため注意してください。
 ```python
 from qulacs.gate import ReversibleBoolean
 def upper(val, dim):
@@ -1023,7 +1023,7 @@ expect (-0.013936248917618807-0j)
 transition (-0.009179829550387531-0.02931360609180049j)
 ```
 
-### 線形演算子
+### 一般の線形演算子
 線形演算子<code>GeneralQuantumOperator</code>はパウリ演算子の複素数の線形結合で表されます。係数付きのPauliOperatorを項として<code>add_operator</code>で追加することが出来ます。
 ```python
 from qulacs import GeneralQuantumOperator, PauliOperator, QuantumState
