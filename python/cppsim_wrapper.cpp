@@ -32,6 +32,7 @@ extern "C" {
 
 #ifdef _USE_GPU
 #include <cppsim/state_gpu.hpp>
+#include <cppsim/state_multi_gpu.hpp>
 #endif
 
 #include <vqcsim/parametric_gate.hpp>
@@ -211,13 +212,50 @@ PYBIND11_MODULE(qulacs, m) {
         }, pybind11::return_value_policy::take_ownership)
         .def("get_qubit_count", [](const QuantumStateGpu& state) -> unsigned int {return (unsigned int) state.qubit_count; })
         .def("__repr__", [](const QuantumStateGpu &p) {return p.to_string(); });
-    ;
+        ;
+    py::class_<QuantumStateMultiGpu, QuantumStateBase>(m, "QuantumStateMultiGpu")
+        .def(py::init<unsigned int>())
+        .def(py::init<unsigned int, unsigned int>())
+        .def("set_zero_state", &QuantumStateMultiGpu::set_zero_state)
+        .def("set_computational_basis", &QuantumStateMultiGpu::set_computational_basis)
+        .def("set_Haar_random_state", (void (QuantumStateMultiGpu::*)(void))&QuantumStateMultiGpu::set_Haar_random_state)
+        .def("set_Haar_random_state", (void (QuantumStateMultiGpu::*)(UINT))&QuantumStateMultiGpu::set_Haar_random_state)
+        .def("get_zero_probability", &QuantumStateMultiGpu::get_zero_probability)
+        .def("get_marginal_probability", &QuantumStateMultiGpu::get_marginal_probability)
+        .def("get_entropy", &QuantumStateMultiGpu::get_entropy)
+        .def("get_squared_norm", &QuantumStateMultiGpu::get_squared_norm)
+        .def("normalize", &QuantumStateMultiGpu::normalize)
+        .def("allocate_buffer", &QuantumStateMultiGpu::allocate_buffer, pybind11::return_value_policy::automatic_reference)
+        //.def("copy", &QuantumStateMultiGpu::copy, pybind11::return_value_policy::automatic_reference)
+        .def("copy", &QuantumStateMultiGpu::copy)
+        .def("load", (void (QuantumStateMultiGpu::*)(const QuantumStateBase*))&QuantumStateMultiGpu::load)
+        .def("load", (void (QuantumStateMultiGpu::*)(const std::vector<CPPCTYPE>&))&QuantumStateMultiGpu::load)
+        .def("get_device_name", &QuantumStateMultiGpu::get_device_name)
+        //.def("data_cpp", &QuantumStateMultiGpu::data_cpp)
+        //.def("data_c", &QuantumStateMultiGpu::data_c)
+        .def("add_state", &QuantumStateMultiGpu::add_state)
+        .def("multiply_coef", &QuantumStateMultiGpu::multiply_coef)
+        .def("get_classical_value", &QuantumStateMultiGpu::get_classical_value)
+        .def("set_classical_value", &QuantumStateMultiGpu::set_classical_value)
+        .def("to_string", &QuantumStateMultiGpu::to_string)
+        .def("sampling", &QuantumStateMultiGpu::sampling)
+        .def("get_vector", [](const QuantumStateMultiGpu& state) {
+            Eigen::VectorXcd vec = Eigen::Map<Eigen::VectorXcd>(state.duplicate_data_cpp(), state.dim);
+            return vec;
+        }, pybind11::return_value_policy::take_ownership)
+        .def("get_qubit_count", [](const QuantumStateMultiGpu& state) -> unsigned int {return (unsigned int) state.qubit_count; })
+        .def("__repr__", [](const QuantumStateMultiGpu &p) {return p.to_string(); });
+        ;
+
 #endif
 
     auto mstate = m.def_submodule("state");
     //using namespace state;
 #ifdef _USE_GPU
     mstate.def("inner_product", py::overload_cast<const QuantumStateGpu*, const QuantumStateGpu*>(&state::inner_product));
+    mstate.def("inner_product", py::overload_cast<const QuantumStateMultiGpu*, const QuantumStateMultiGpu*>(&state::inner_product));
+    mstate.def("inner_product", py::overload_cast<const QuantumStateMultiGpu*, const QuantumStateGpu*>(&state::inner_product));
+    mstate.def("inner_product", py::overload_cast<const QuantumStateGpu*, const QuantumStateMultiGpu*>(&state::inner_product));
 #endif
     mstate.def("inner_product", py::overload_cast<const QuantumState*, const QuantumState*>(&state::inner_product));
     //mstate.def("inner_product", &state::inner_product);

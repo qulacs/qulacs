@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <cuComplex.h>
 #include "util_type.h"
+#include "util_func.h"
 #include "util_type_internal.h"
 #include "util.cuh"
 #include "memory_ops.h"
@@ -28,10 +29,22 @@ __host__ void* allocate_cuda_stream_host(unsigned int max_cuda_stream) {
 	return cuda_stream;
 }
 
+__host__ void* allocate_cuda_stream_host(unsigned int max_cuda_stream, unsigned int device_number) {
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    return allocate_cuda_stream_host(max_cuda_stream);
+}
+
 __host__ void release_cuda_stream_host(void* cuda_stream, unsigned int max_cuda_stream) {
 	cudaStream_t* stream = reinterpret_cast<cudaStream_t*>(cuda_stream);
 	for (unsigned int i = 0; i < max_cuda_stream; ++i) cudaStreamDestroy(stream[i]);
 	free(stream);
+}
+
+__host__ void release_cuda_stream_host(void* cuda_stream, unsigned int max_cuda_stream, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    release_cuda_stream_host(cuda_stream, max_cuda_stream);
 }
 
 __global__ void init_qstate(GTYPE* state_gpu, ITYPE dim){
@@ -45,10 +58,15 @@ __global__ void init_qstate(GTYPE* state_gpu, ITYPE dim){
 // void* (GTYPE*)
 __host__ void* allocate_quantum_state_host(ITYPE dim){
 	GTYPE *state_gpu;
-	checkCudaErrors(cudaSetDevice(0));
 	checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(GTYPE)));
 	void* psi_gpu = reinterpret_cast<void*>(state_gpu);
     return psi_gpu;
+}
+
+__host__ void* allocate_quantum_state_host(ITYPE dim, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    return allocate_quantum_state_host(dim);
 }
 
 __host__ void initialize_quantum_state_host(void* state, ITYPE dim, void* stream) {
@@ -71,9 +89,21 @@ __host__ void initialize_quantum_state_host(void* state, ITYPE dim) {
 	initialize_quantum_state_host(state, dim, &cuda_stream);
 }
 
+__host__ void initialize_quantum_state_host(void* state, ITYPE dim, void* stream, unsigned int device_number) {
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    initialize_quantum_state_host(state, dim, stream);
+}
+
 __host__ void release_quantum_state_host(void* state){
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	checkCudaErrors(cudaFree(state_gpu), __FILE__, __LINE__);
+}
+
+__host__ void release_quantum_state_host(void* state, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    release_quantum_state_host(state);
 }
 
 __host__ void initialize_Haar_random_state_host(void *state, ITYPE dim, void* stream) {
@@ -82,6 +112,12 @@ __host__ void initialize_Haar_random_state_host(void *state, ITYPE dim, void* st
 
 __host__ void initialize_Haar_random_state_host(void *state, ITYPE dim) {
 	initialize_Haar_random_state_with_seed_host(state, dim, (unsigned)time(NULL));
+}
+
+__host__ void initialize_Haar_random_state_host(void *state, ITYPE dim, void* stream, unsigned int device_number) {
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+	initialize_Haar_random_state_with_seed_host(state, dim, (unsigned)time(NULL), stream);
 }
 
 __global__ void init_rnd(curandState *const rnd_state, const unsigned int seed)
@@ -155,3 +191,10 @@ __host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim
 	cudaStream_t cuda_stream = (cudaStream_t)0;
 	initialize_Haar_random_state_with_seed_host(state, dim, seed, &cuda_stream);
 }
+
+__host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim, UINT seed, void* stream, unsigned int device_number) {
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    initialize_Haar_random_state_with_seed_host(state, dim, seed, stream);
+}
+

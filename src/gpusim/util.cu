@@ -17,7 +17,21 @@
 #include "util_func.h"
 #include "memory_ops.h"
 
+int get_num_device(){
+    int n_gpu;
+    cudaGetDeviceCount(&n_gpu);
+    return n_gpu;
+}
 
+void set_device(unsigned int device_num){
+    cudaSetDevice(device_num);
+}
+
+int get_current_device() {
+	int curr_dev_num;
+	cudaGetDevice(&curr_dev_num);
+	return curr_dev_num;
+}
 inline __device__ double __shfl_down_double(double var, unsigned int srcLane, int width = 32) {
 	int2 a = *reinterpret_cast<int2*>(&var);
 	a.x = __shfl_down_sync(a.x, srcLane, width);
@@ -98,6 +112,12 @@ __host__ void set_computational_basis_host(ITYPE comp_basis, void* state, ITYPE 
 	set_computational_basis_host(comp_basis, state, dim, &cuda_stream);
 }
 
+__host__ void set_computational_basis_host(ITYPE comp_basis, void* state, ITYPE dim, unsigned int device_number) {
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    set_computational_basis_host(comp_basis, state, dim);
+}
+
 // copy state_gpu to state_gpu_copy
 void copy_quantum_state_from_device_to_device(void* state_gpu_copy, const void* state_gpu, ITYPE dim, void* stream) {
 	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
@@ -113,6 +133,12 @@ void copy_quantum_state_from_device_to_device(void* state_gpu_copy, const void* 
 	copy_quantum_state_from_device_to_device(state_gpu_copy, state_gpu, dim, &cuda_stream);
 }
 
+void copy_quantum_state_from_device_to_device(void* state_gpu_copy, const void* state_gpu, ITYPE dim, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    copy_quantum_state_from_device_to_device(state_gpu_copy, state_gpu, dim);
+}
+
 // copy cppstate to state_gpu_copy
 void copy_quantum_state_from_host_to_device(void* state_gpu_copy, const void* state, ITYPE dim, void* stream){
     cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
@@ -126,8 +152,19 @@ void copy_quantum_state_from_host_to_device(void* state_gpu_copy, const void* st
 	copy_quantum_state_from_host_to_device(state_gpu_copy, state, dim, &cuda_stream);
 }
 
+void copy_quantum_state_from_host_to_device(void* state_gpu_copy, const void* state, ITYPE dim, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    copy_quantum_state_from_host_to_device(state_gpu_copy, state, dim);
+}
+
+// this function will be removed in the future version
 void copy_quantum_state_from_cppstate_host(void* state_gpu_copy, const CPPCTYPE* cppstate, ITYPE dim) {
 	copy_quantum_state_from_host_to_device(state_gpu_copy, cppstate, dim);
+}
+
+void copy_quantum_state_from_cppstate_host(void* state_gpu_copy, const CPPCTYPE* cppstate, ITYPE dim, UINT device_number) {
+	copy_quantum_state_from_host_to_device(state_gpu_copy, cppstate, dim, device_number);
 }
 
 void copy_quantum_state_from_device_to_host(void* state_cpu_copy, const void* state_gpu_original, ITYPE dim, void* stream) {
@@ -140,6 +177,12 @@ void copy_quantum_state_from_device_to_host(void* state_cpu_copy, const void* st
 void copy_quantum_state_from_device_to_host(void* state_cpu_copy, const void* state_gpu_original, ITYPE dim) {
 	cudaStream_t cuda_stream = (cudaStream_t)0;
 	copy_quantum_state_from_device_to_host(state_cpu_copy, state_gpu_original, dim, &cuda_stream);
+}
+
+void copy_quantum_state_from_device_to_host(void* state_cpu_copy, const void* state_gpu_original, ITYPE dim, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    copy_quantum_state_from_device_to_host(state_cpu_copy, state_gpu_original, dim);
 }
 
 // copy state_gpu to psi_cpu_copy
@@ -157,6 +200,12 @@ void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim) {
 	get_quantum_state_host(state_gpu, psi_cpu_copy, dim, &cuda_stream);
 }
 
+void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+	get_quantum_state_host(state_gpu, psi_cpu_copy, dim);
+}
+
 void print_quantum_state_host(void* state, ITYPE dim){
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	CPPCTYPE* state_cpu=(CPPCTYPE*)malloc(sizeof(CPPCTYPE)*dim);
@@ -168,6 +217,12 @@ void print_quantum_state_host(void* state, ITYPE dim){
 	std::cout << '\n';
 	free(state_cpu);
 	state = reinterpret_cast<void*>(state);
+}
+
+void print_quantum_state_host(void* state, ITYPE dim, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+	print_quantum_state_host(state, dim);
 }
 
 ITYPE insert_zero_to_basis_index_gsim(ITYPE basis_index, unsigned int qubit_index){

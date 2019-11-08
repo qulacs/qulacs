@@ -13,9 +13,11 @@ class QuantumGate_OneQubit : public QuantumGateBase{
 protected:
     typedef void (T_UPDATE_FUNC)(UINT, CTYPE*, ITYPE);
 	typedef void (T_GPU_UPDATE_FUNC)(UINT, void*, ITYPE);
+	typedef void (T_MULTI_GPU_UPDATE_FUNC)(UINT, void*, ITYPE, void*, UINT);
 	T_UPDATE_FUNC* _update_func;
 	T_UPDATE_FUNC* _update_func_dm;
 	T_GPU_UPDATE_FUNC* _update_func_gpu;
+	T_MULTI_GPU_UPDATE_FUNC* _update_func_multi_gpu;
     ComplexMatrix _matrix_element;
 
     QuantumGate_OneQubit() {};
@@ -28,7 +30,10 @@ public:
     virtual void update_quantum_state(QuantumStateBase* state) override{
 		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-			if (state->get_device_name() == "gpu") {
+            if (state->get_device_name()== "multi_gpu") {
+                _update_func_multi_gpu(this->target_qubit_list[0].index(), state->data(), state->dim, state->get_cuda_stream(), state->device_number);
+            }
+			else if (state->get_device_name() == "gpu") {
 				_update_func_gpu(this->target_qubit_list[0].index(), state->data(), state->dim);
 			}
 			else {
@@ -67,9 +72,11 @@ class QuantumGate_TwoQubit : public QuantumGateBase{
 protected:
     typedef void (T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
 	typedef void (T_GPU_UPDATE_FUNC)(UINT, UINT, void*, ITYPE);
+	typedef void (T_MULTI_GPU_UPDATE_FUNC)(UINT, UINT, void*, ITYPE, void*, UINT);
 	T_UPDATE_FUNC* _update_func;
 	T_UPDATE_FUNC* _update_func_dm;
 	T_GPU_UPDATE_FUNC* _update_func_gpu;
+	T_MULTI_GPU_UPDATE_FUNC* _update_func_multi_gpu;
     ComplexMatrix _matrix_element;
 
     QuantumGate_TwoQubit() {};
@@ -82,7 +89,10 @@ public:
     virtual void update_quantum_state(QuantumStateBase* state) override{
 		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-			if (state->get_device_name() == "gpu") {
+			if (state->get_device_name() == "multi_gpu") {
+				_update_func_multi_gpu(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data(), state->dim, state->get_cuda_stream(), state->device_number);
+			}
+			else if (state->get_device_name() == "gpu") {
 				_update_func_gpu(this->_target_qubit_list[0].index(), this->_target_qubit_list[1].index(), state->data(), state->dim);
 			}
 			else {
@@ -121,9 +131,11 @@ class QuantumGate_OneControlOneTarget : public QuantumGateBase {
 protected:
     typedef void (T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
 	typedef void (T_GPU_UPDATE_FUNC)(UINT, UINT, void*, ITYPE);
+	typedef void (T_MULTI_GPU_UPDATE_FUNC)(UINT, UINT, void*, ITYPE, void*, UINT);
 	T_UPDATE_FUNC* _update_func;
 	T_UPDATE_FUNC* _update_func_dm;
 	T_GPU_UPDATE_FUNC* _update_func_gpu;
+	T_MULTI_GPU_UPDATE_FUNC* _update_func_multi_gpu;
     ComplexMatrix _matrix_element;
 
     QuantumGate_OneControlOneTarget() {};
@@ -136,7 +148,10 @@ public:
     virtual void update_quantum_state(QuantumStateBase* state) override {
 		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-			if (state->get_device_name() == "gpu") {
+			if (state->get_device_name() == "multi_gpu") {
+				_update_func_multi_gpu(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data(), state->dim, state->get_cuda_stream(), state->device_number);
+			}
+			else if (state->get_device_name() == "gpu") {
 				_update_func_gpu(this->_control_qubit_list[0].index(), this->_target_qubit_list[0].index(), state->data(), state->dim);
 			}
 			else {
@@ -175,9 +190,11 @@ class QuantumGate_OneQubitRotation : public QuantumGateBase{
 protected:
 	typedef void (T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
 	typedef void (T_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE);
+	typedef void (T_MULTI_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE, void*, UINT);
 	T_UPDATE_FUNC* _update_func;
 	T_UPDATE_FUNC* _update_func_dm;
 	T_GPU_UPDATE_FUNC* _update_func_gpu;
+	T_MULTI_GPU_UPDATE_FUNC* _update_func_multi_gpu;
     ComplexMatrix _matrix_element;
     double _angle;
 
@@ -191,9 +208,12 @@ public:
     virtual void update_quantum_state(QuantumStateBase* state) override{
 		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-			if (state->get_device_name() == "gpu") {
+			if (state->get_device_name() == "multi_gpu") {
+				_update_func_multi_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim, state->get_cuda_stream(), state->device_number);
+            }
+			else if (state->get_device_name() == "gpu") {
 				_update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim);
-}
+            }
 			else {
 				_update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
 			}

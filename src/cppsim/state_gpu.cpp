@@ -2,6 +2,7 @@
 #ifdef _USE_GPU
 
 #include "state_gpu.hpp"
+#include <assert.h>
 
 namespace state {
 	CPPCTYPE DllExport inner_product(const QuantumStateGpu* state_bra, const QuantumStateGpu* state_ket) {

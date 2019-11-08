@@ -5,23 +5,31 @@
 #include "util_export.h"
 #include "util_type.h"
 
+DllExport int get_num_device();
+DllExport void set_device(unsigned int device_num);
+DllExport int get_current_device();
 DllExport void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim);
-DllExport void* allocate_quantum_state_host(ITYPE dim);
-DllExport void initialize_quantum_state_host(void* state_gpu, ITYPE dim);
-DllExport void release_quantum_state_host(void* state_gpu);
+DllExport void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim, void* stream);
+DllExport void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim, unsigned int device_number);
+//DllExport void* allocate_quantum_state_host(ITYPE dim);
+//DllExport void initialize_quantum_state_host(void* state_gpu, ITYPE dim);
+//DllExport void release_quantum_state_host(void* state_gpu);
 DllExport void print_quantum_state_host(void* state, ITYPE dim);
+DllExport void print_quantum_state_host(void* state, ITYPE dim, unsigned int device_number);
 DllExport void copy_quantum_state_from_device_to_device(void* state_gpu_copy, const void* state_gpu, ITYPE dim);
+DllExport void copy_quantum_state_from_device_to_device(void* state_gpu_copy, const void* state_gpu, ITYPE dim, unsigned int device_number);
 DllExport void copy_quantum_state_from_device_to_host(void* state_cpu_copy, const void* state_gpu_original, ITYPE dim);
+DllExport void copy_quantum_state_from_device_to_host(void* state_cpu_copy, const void* state_gpu_original, ITYPE dim, unsigned int device_number);
+DllExport void copy_quantum_state_from_host_to_device(void* state_gpu_copy, const void* state, ITYPE dim, unsigned int device_number);
 DllExport void copy_quantum_state_from_host_to_device(void* state_gpu_copy, const void* state, ITYPE dim);
 DllExport void copy_quantum_state_from_cppstate_host(void* state_gpu_copy, const CPPCTYPE* cppstate, ITYPE dim); // copy_quantum_state_from_host_to_device
+DllExport void copy_quantum_state_from_cppstate_host(void* state_gpu_copy, const CPPCTYPE* cppstate, ITYPE dim, UINT device_number);
 DllExport void set_computational_basis_host(ITYPE comp_basis, void* state, ITYPE dim);
-
+DllExport void set_computational_basis_host(ITYPE comp_basis, void* state, ITYPE dim, unsigned int device_number);
 void get_Pauli_masks_partial_list_gsim(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count,
     ITYPE* bit_flip_mask, ITYPE* phase_flip_mask, UINT* global_phase_90rot_count, UINT* pivot_qubit_index);
 void get_Pauli_masks_whole_list_gsim(const UINT* Pauli_operator_type_list, UINT target_qubit_index_count,
     ITYPE* bit_flip_mask, ITYPE* phase_flip_mask, UINT* global_phase_90rot_count, UINT* pivot_qubit_index);
-
-DllExport void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim, void* stream);
 DllExport void set_computational_basis_host(ITYPE comp_basis, void* state, ITYPE dim, void* stream);
 DllExport void copy_quantum_state_from_device_to_device(void* state_gpu_copy, const void* state_gpu, ITYPE dim, void* stream);
 DllExport void copy_quantum_state_from_host_to_device(void* state_gpu_copy, const void* state, ITYPE dim, void* stream);

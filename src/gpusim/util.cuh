@@ -38,7 +38,12 @@ inline void checkCudaErrors(const cudaError error)
 
 //inline void memcpy_quantum_state_HostToDevice(CPPCTYPE* state_cpu, GTYPE* state_gpu, ITYPE dim){
 inline void memcpy_quantum_state_HostToDevice(CPPCTYPE* state_cpu, GTYPE* state_gpu, ITYPE dim){
-	checkCudaErrors(cudaSetDevice(0));
+	checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(CPPCTYPE)));
+	checkCudaErrors(cudaMemcpy(state_gpu, state_cpu, dim * sizeof(CPPCTYPE), cudaMemcpyHostToDevice));
+}
+
+inline void memcpy_quantum_state_HostToDevice(CPPCTYPE* state_cpu, GTYPE* state_gpu, ITYPE dim, unsigned int device_number){
+	cudaSetDevice(device_number);
 	checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(CPPCTYPE)));
 	checkCudaErrors(cudaMemcpy(state_gpu, state_cpu, dim * sizeof(CPPCTYPE), cudaMemcpyHostToDevice));
 }

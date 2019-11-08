@@ -51,12 +51,11 @@ __host__ void single_qubit_Pauli_gate_host(UINT target_qubit_index, UINT Pauli_o
     }
 }
 
-/*
-__host__ void single_qubit_Pauli_gate_host(UINT target_qubit_index, UINT Pauli_operator_type, void* state, ITYPE dim) {
-	cudaStream_t cuda_stream = (cudaStream_t)0;
-	single_qubit_Pauli_gate_host(target_qubit_index, Pauli_operator_type, state, dim, &cuda_stream);
+__host__ void single_qubit_Pauli_gate_host(UINT target_qubit_index, UINT Pauli_operator_type, void* state, ITYPE dim, void* stream, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    single_qubit_Pauli_gate_host(target_qubit_index, Pauli_operator_type, state, dim, stream);
 }
-*/
 
 __host__ void single_qubit_Pauli_rotation_gate_host(unsigned int target_qubit_index, unsigned int op_idx, double angle, void *state, ITYPE dim, void* stream) {
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
@@ -120,6 +119,12 @@ __host__ void single_qubit_Pauli_rotation_gate_host(unsigned int target_qubit_in
 	state = reinterpret_cast<void*>(state_gpu);
 }
 
+__host__ void single_qubit_Pauli_rotation_gate_host(unsigned int target_qubit_index, unsigned int op_idx, double angle, void *state, ITYPE dim, void* stream, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    single_qubit_Pauli_rotation_gate_host(target_qubit_index, op_idx, angle, state, dim, stream);
+}
+
 __device__ void single_qubit_dense_matrix_gate_device(unsigned int target_qubit_index, GTYPE *state_gpu, ITYPE dim){
 	ITYPE basis0, basis1;
 	ITYPE half_dim = dim >> 1;
@@ -180,6 +185,12 @@ __host__ void single_qubit_dense_matrix_gate_host(unsigned int target_qubit_inde
 	single_qubit_dense_matrix_gate_host(target_qubit_index, matrix, state, dim, &cuda_stream);
 }
 
+__host__ void single_qubit_dense_matrix_gate_host(unsigned int target_qubit_index, const CPPCTYPE matrix[4], void* state, ITYPE dim, void* stream, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    single_qubit_dense_matrix_gate_host(target_qubit_index, matrix, state, dim, stream);
+}
+
 __device__ void single_qubit_diagonal_matrix_gate_device(unsigned int target_qubit_index, GTYPE *state_gpu, ITYPE dim) {
     ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x;
 	
@@ -212,6 +223,12 @@ __host__ void single_qubit_diagonal_matrix_gate_host(unsigned int target_qubit_i
 __host__ void single_qubit_diagonal_matrix_gate_host(unsigned int target_qubit_index, const CPPCTYPE diagonal_matrix[2], void* state, ITYPE dim) {
 	cudaStream_t cuda_stream = (cudaStream_t)0;
 	single_qubit_diagonal_matrix_gate_host(target_qubit_index, diagonal_matrix, state, dim, &cuda_stream);
+}
+
+__host__ void single_qubit_diagonal_matrix_gate_host(unsigned int target_qubit_index, const CPPCTYPE diagonal_matrix[2], void* state, ITYPE dim, void* stream, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    single_qubit_diagonal_matrix_gate_host(target_qubit_index, diagonal_matrix, state, dim, stream);
 }
 
 __device__ void single_qubit_control_single_qubit_dense_matrix_gate_device(unsigned int control_qubit_index, unsigned int control_value, unsigned int target_qubit_index, GTYPE *state, ITYPE dim) {
@@ -271,6 +288,12 @@ __host__ void single_qubit_control_single_qubit_dense_matrix_gate_host(unsigned 
 	single_qubit_control_single_qubit_dense_matrix_gate_host(control_qubit_index, control_value, target_qubit_index, matrix, state, dim, &cuda_stream);
 }
 
+__host__ void single_qubit_control_single_qubit_dense_matrix_gate_host(unsigned int control_qubit_index, unsigned int control_value, unsigned int target_qubit_index, const CPPCTYPE matrix[4], void* state, ITYPE dim, void* stream, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    single_qubit_control_single_qubit_dense_matrix_gate_host(control_qubit_index, control_value, target_qubit_index, matrix, state, dim, stream);
+}
+
 __device__ void single_qubit_phase_gate_device(unsigned int target_qubit_index, GTYPE phase, GTYPE *state_gpu, ITYPE dim){
 	ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x;
 	// target tmask
@@ -314,6 +337,12 @@ __host__ void single_qubit_phase_gate_host(unsigned int target_qubit_index, CPPC
 __host__ void single_qubit_phase_gate_host(unsigned int target_qubit_index, CPPCTYPE phase, void* state, ITYPE dim) {
 	cudaStream_t cuda_stream = (cudaStream_t)0;
 	single_qubit_phase_gate_host(target_qubit_index, phase, state, dim, &cuda_stream);
+}
+
+__host__ void single_qubit_phase_gate_host(unsigned int target_qubit_index, CPPCTYPE phase, void* state, ITYPE dim, void* stream, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    single_qubit_phase_gate_host(target_qubit_index, phase, state, dim, stream);
 }
 
 /*
@@ -403,6 +432,13 @@ __host__ void multi_qubit_control_single_qubit_dense_matrix_gate_host(const UINT
 	cudaStream_t cuda_stream = (cudaStream_t)0;
 	multi_qubit_control_single_qubit_dense_matrix_gate_host(control_qubit_index_list, control_value_list, control_qubit_index_count, target_qubit_index, matrix, state, dim, &cuda_stream);
 }
+
+__host__ void multi_qubit_control_single_qubit_dense_matrix_gate_host(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, UINT target_qubit_index, const CPPCTYPE matrix[4], void *state, ITYPE dim, void* stream, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+    multi_qubit_control_single_qubit_dense_matrix_gate_host( control_qubit_index_list, control_value_list, control_qubit_index_count, target_qubit_index, matrix, state, dim, stream);
+}
+
 /*
 __host__ void multi_qubit_control_single_qubit_dense_matrix_gate_host(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, UINT target_qubit_index, const CPPCTYPE matrix[4], void *state, ITYPE dim) {
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);

@@ -42,9 +42,11 @@ class QuantumGate_SingleParameterOneQubitRotation : public QuantumGate_SinglePar
 protected:
     typedef void (T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
 	typedef void (T_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE);
+	typedef void (T_MULTI_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE, void*, UINT);
 	T_UPDATE_FUNC* _update_func;
 	T_UPDATE_FUNC* _update_func_dm;
 	T_GPU_UPDATE_FUNC* _update_func_gpu;
+	T_MULTI_GPU_UPDATE_FUNC* _update_func_multi_gpu;
 
     QuantumGate_SingleParameterOneQubitRotation(double angle) : QuantumGate_SingleParameter(angle) {
         _angle = angle;
@@ -53,7 +55,10 @@ public:
     virtual void update_quantum_state(QuantumStateBase* state) override {
 		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-			if (state->get_device_name() == "gpu") {
+			if (state->get_device_name() == "multi_gpu") {
+				_update_func_multi_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim, state->get_cuda_stream(), state->device_number);
+			}
+            else if (state->get_device_name() == "gpu") {
 				_update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim);
 			}
 			else {
@@ -77,6 +82,7 @@ public:
 		this->_update_func = RX_gate;
 		this->_update_func_dm = dm_RX_gate;
 #ifdef _USE_GPU
+		this->_update_func_multi_gpu = RX_gate_host;
 		this->_update_func_gpu = RX_gate_host;
 #endif
 		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
@@ -98,6 +104,7 @@ public:
 		this->_update_func_dm = dm_RY_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = RY_gate_host;
+		this->_update_func_multi_gpu = RY_gate_host;
 #endif
 		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
 	}
@@ -118,6 +125,7 @@ public:
 		this->_update_func_dm = dm_RZ_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = RZ_gate_host;
+		this->_update_func_multi_gpu = RZ_gate_host;
 #endif
 		this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
 	}
@@ -158,7 +166,12 @@ public:
         auto pauli_id_list = _pauli->get_pauli_id_list();
 		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-			if (state->get_device_name() == "gpu") {
+			if (state->get_device_name() == "multi_gpu") {
+				multi_qubit_Pauli_rotation_gate_partial_list_host(
+					target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
+					_angle, state->data(), state->dim, state->get_cuda_stream(), state->device_number);
+			}
+			else if (state->get_device_name() == "gpu") {
 				multi_qubit_Pauli_rotation_gate_partial_list_host(
 					target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
 					_angle, state->data(), state->dim);
