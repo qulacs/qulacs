@@ -5,7 +5,7 @@
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_merge.hpp>
 #include <cppsim/pauli_operator.hpp>
-
+#include <windows.h>
 
 inline void assert_cpu_eq_gpu(QuantumStateCpu& state_cpu, QuantumStateGpu& state_gpu, ITYPE dim, double eps) {
 	auto gpu_state_vector = state_gpu.duplicate_data_cpp();

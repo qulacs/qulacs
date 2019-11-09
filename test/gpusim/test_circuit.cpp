@@ -19,7 +19,6 @@
 #include <cppsim/pauli_operator.hpp>
 
 
-
 inline void set_eigen_from_gpu(ComplexVector& dst, QuantumStateGpu& src, ITYPE dim) {
 	auto ptr = src.duplicate_data_cpp();
 	for (ITYPE i = 0; i < dim; ++i) dst[i] = ptr[i];
@@ -76,108 +75,114 @@ TEST(CircuitTest, CircuitBasic) {
     double eps = 1e-14;
     Random random;
 
-    QuantumStateGpu state(n);
-    ComplexVector state_eigen(dim);
+	int ngpus = get_num_device();
+	for (int idx = 0; idx < ngpus; ++idx) {
+		set_device(idx);
+		auto stream_ptr = allocate_cuda_stream_host(1, idx);
 
-    state.set_Haar_random_state();
-	set_eigen_from_gpu(state_eigen, state, dim);
+		QuantumStateGpu state(n, idx);
+		ComplexVector state_eigen(dim);
 
-    QuantumCircuit circuit(n);
-    UINT target,target_sub;
-    double angle;
+		state.set_Haar_random_state();
+		set_eigen_from_gpu(state_eigen, state, dim);
 
-    target = random.int32() % n;
-    circuit.add_X_gate(target);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, get_eigen_matrix_single_Pauli(1),n)*state_eigen;
+		QuantumCircuit circuit(n);
+		UINT target, target_sub;
+		double angle;
 
-    target = random.int32() % n;
-    circuit.add_Y_gate(target);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, get_eigen_matrix_single_Pauli(2), n)*state_eigen;
+		target = random.int32() % n;
+		circuit.add_X_gate(target);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, get_eigen_matrix_single_Pauli(1), n) * state_eigen;
 
-    target = random.int32() % n;
-    circuit.add_Z_gate(target);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, get_eigen_matrix_single_Pauli(3), n)*state_eigen;
+		target = random.int32() % n;
+		circuit.add_Y_gate(target);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, get_eigen_matrix_single_Pauli(2), n) * state_eigen;
 
-    target = random.int32() % n;
-    circuit.add_H_gate(target);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, H, n)*state_eigen;
+		target = random.int32() % n;
+		circuit.add_Z_gate(target);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, get_eigen_matrix_single_Pauli(3), n) * state_eigen;
 
-    target = random.int32() % n;
-    circuit.add_S_gate(target);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, S, n)*state_eigen;
+		target = random.int32() % n;
+		circuit.add_H_gate(target);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, H, n) * state_eigen;
+		
+		target = random.int32() % n;
+		circuit.add_S_gate(target);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, S, n) * state_eigen;
+		
+		target = random.int32() % n;
+		circuit.add_Sdag_gate(target);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, S.adjoint(), n) * state_eigen;
 
-    target = random.int32() % n;
-    circuit.add_Sdag_gate(target);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, S.adjoint(), n)*state_eigen;
+		target = random.int32() % n;
+		circuit.add_T_gate(target);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, T, n) * state_eigen;
+		
+		target = random.int32() % n;
+		circuit.add_Tdag_gate(target);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, T.adjoint(), n) * state_eigen;
 
-    target = random.int32() % n;
-    circuit.add_T_gate(target);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, T, n)*state_eigen;
+		target = random.int32() % n;
+		circuit.add_sqrtX_gate(target);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, sqrtX, n) * state_eigen;
 
-    target = random.int32() % n;
-    circuit.add_Tdag_gate(target);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, T.adjoint(), n)*state_eigen;
+		target = random.int32() % n;
+		circuit.add_sqrtXdag_gate(target);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, sqrtX.adjoint(), n) * state_eigen;
 
-    target = random.int32() % n;
-    circuit.add_sqrtX_gate(target);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, sqrtX, n)*state_eigen;
+		target = random.int32() % n;
+		circuit.add_sqrtY_gate(target);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, sqrtY, n) * state_eigen;
 
-    target = random.int32() % n;
-    circuit.add_sqrtXdag_gate(target);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, sqrtX.adjoint(), n)*state_eigen;
+		target = random.int32() % n;
+		circuit.add_sqrtYdag_gate(target);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, sqrtY.adjoint(), n) * state_eigen;
 
-    target = random.int32() % n;
-    circuit.add_sqrtY_gate(target);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, sqrtY, n)*state_eigen;
+		target = random.int32() % n;
+		circuit.add_P0_gate(target);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, P0, n) * state_eigen;
 
-    target = random.int32() % n;
-    circuit.add_sqrtYdag_gate(target);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, sqrtY.adjoint(), n)*state_eigen;
+		target = (target + 1) % n;
+		circuit.add_P1_gate(target);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, P1, n) * state_eigen;
 
-    target = random.int32() % n;
-    circuit.add_P0_gate(target);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, P0, n)*state_eigen;
+		target = random.int32() % n;
+		angle = random.uniform() * 3.14159;
+		circuit.add_RX_gate(target, angle);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2) * Identity + 1.i * sin(angle / 2) * X, n) * state_eigen;
 
-    target = (target+1)%n;
-    circuit.add_P1_gate(target);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, P1, n)*state_eigen;
+		target = random.int32() % n;
+		angle = random.uniform() * 3.14159;
+		circuit.add_RY_gate(target, angle);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2) * Identity + 1.i * sin(angle / 2) * Y, n) * state_eigen;
 
-    target = random.int32() % n;
-    angle = random.uniform() * 3.14159;
-    circuit.add_RX_gate(target,angle);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + 1.i*sin(angle/2)*X, n)*state_eigen;
+		target = random.int32() % n;
+		angle = random.uniform() * 3.14159;
+		circuit.add_RZ_gate(target, angle);
+		state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2) * Identity + 1.i * sin(angle / 2) * Z, n) * state_eigen;
 
-    target = random.int32() % n;
-    angle = random.uniform() * 3.14159;
-    circuit.add_RY_gate(target, angle);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + 1.i*sin(angle/2)*Y, n)*state_eigen;
+		target = random.int32() % n;
+		target_sub = random.int32() % (n - 1);
+		if (target_sub >= target) target_sub++;
+		circuit.add_CNOT_gate(target, target_sub);
+		state_eigen = get_eigen_matrix_full_qubit_CNOT(target, target_sub, n) * state_eigen;
 
-    target = random.int32() % n;
-    angle = random.uniform() * 3.14159;
-    circuit.add_RZ_gate(target, angle);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + 1.i*sin(angle/2)*Z, n)*state_eigen;
+		target = random.int32() % n;
+		target_sub = random.int32() % (n - 1);
+		if (target_sub >= target) target_sub++;
+		circuit.add_CZ_gate(target, target_sub);
+		state_eigen = get_eigen_matrix_full_qubit_CZ(target, target_sub, n) * state_eigen;
 
-    target = random.int32() % n;
-    target_sub = random.int32() % (n-1);
-    if (target_sub >= target) target_sub++;
-    circuit.add_CNOT_gate(target, target_sub);
-    state_eigen = get_eigen_matrix_full_qubit_CNOT(target,target_sub,n)*state_eigen;
+		target = random.int32() % n;
+		target_sub = random.int32() % (n - 1);
+		if (target_sub >= target) target_sub++;
+		circuit.add_SWAP_gate(target, target_sub);
+		state_eigen = get_eigen_matrix_full_qubit_SWAP(target, target_sub, n) * state_eigen;
+		
+		circuit.update_quantum_state(&state);
 
-    target = random.int32() % n;
-    target_sub = random.int32() % (n - 1);
-    if (target_sub >= target) target_sub++;
-    circuit.add_CZ_gate(target, target_sub);
-    state_eigen = get_eigen_matrix_full_qubit_CZ(target, target_sub, n)*state_eigen;
-
-    target = random.int32() % n;
-    target_sub = random.int32() % (n - 1);
-    if (target_sub >= target) target_sub++;
-    circuit.add_SWAP_gate(target, target_sub);
-    state_eigen = get_eigen_matrix_full_qubit_SWAP(target, target_sub, n)*state_eigen;
-
-    circuit.update_quantum_state(&state);
-
-	assert_eigen_eq_gpu(state_eigen, state, dim, eps);
+		assert_eigen_eq_gpu(state_eigen, state, dim, eps);
+	}
 }
 
 
@@ -188,342 +193,407 @@ TEST(CircuitTest, CircuitOptimize) {
 
     {
         // merge successive gates
-        QuantumStateGpu state(n), test_state(n);
-        state.set_Haar_random_state();
-        test_state.load(&state);
-        QuantumCircuit circuit(n);
+		int ngpus = get_num_device();
+		for (int idx = 0; idx < ngpus; ++idx) {
+			set_device(idx);
 
-        circuit.add_X_gate(0);
-        circuit.add_Y_gate(0);
-        UINT block_size = 2;
-        UINT expected_depth = 1;
-        UINT expected_gate_count = 1;
+			QuantumStateGpu state(n, idx), test_state(n, idx);
+			state.set_Haar_random_state();
+			test_state.load(&state);
+			QuantumCircuit circuit(n);
 
-        QuantumCircuit* copy_circuit = circuit.copy();
-        QuantumCircuitOptimizer qco;
-        qco.optimize(copy_circuit,block_size);
-        circuit.update_quantum_state(&test_state);
-        copy_circuit->update_quantum_state(&state);
-        //std::cout << circuit << std::endl << copy_circuit << std::endl;
-		assert_gpu_eq_gpu(state, test_state, dim, eps);
-		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
-        ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-        delete copy_circuit;
+			circuit.add_X_gate(0);
+			circuit.add_Y_gate(0);
+			UINT block_size = 2;
+			UINT expected_depth = 1;
+			UINT expected_gate_count = 1;
+
+			QuantumCircuit* copy_circuit = circuit.copy();
+			QuantumCircuitOptimizer qco;
+			qco.optimize(copy_circuit, block_size);
+			circuit.update_quantum_state(&test_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << circuit << std::endl << copy_circuit << std::endl;
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
+			ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+			ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
+			delete copy_circuit;
+		}
     }
 
     {
         // tensor product, merged
-        QuantumStateGpu state(n), test_state(n);
-        state.set_Haar_random_state();
-        test_state.load(&state);
-        QuantumCircuit circuit(n);
+		int ngpus = get_num_device();
+		for (int idx = 0; idx < ngpus; ++idx) {
+			set_device(idx);
 
-        circuit.add_X_gate(0);
-        circuit.add_Y_gate(1);
-        UINT block_size = 2;
-        UINT expected_depth = 1;
-        UINT expected_gate_count = 1;
+			QuantumStateGpu state(n, idx), test_state(n, idx);
+			state.set_Haar_random_state();
+			test_state.load(&state);
+			QuantumCircuit circuit(n);
 
-        QuantumCircuit* copy_circuit = circuit.copy();
-        QuantumCircuitOptimizer qco;
-        qco.optimize(copy_circuit, block_size);
-        circuit.update_quantum_state(&test_state);
-        copy_circuit->update_quantum_state(&state);
-        //std::cout << circuit << std::endl << copy_circuit << std::endl;
-		assert_gpu_eq_gpu(state, test_state, dim, eps);
-		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
-        ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-        delete copy_circuit;
+			circuit.add_X_gate(0);
+			circuit.add_Y_gate(1);
+			UINT block_size = 2;
+			UINT expected_depth = 1;
+			UINT expected_gate_count = 1;
+
+			QuantumCircuit* copy_circuit = circuit.copy();
+			QuantumCircuitOptimizer qco;
+			qco.optimize(copy_circuit, block_size);
+			circuit.update_quantum_state(&test_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << circuit << std::endl << copy_circuit << std::endl;
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
+			ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+			ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
+			delete copy_circuit;
+		}
     }
 
 
     {
         // do not take tensor product
-        QuantumStateGpu state(n), test_state(n);
-        state.set_Haar_random_state();
-        test_state.load(&state);
-        QuantumCircuit circuit(n);
+		int ngpus = get_num_device();
+		for (int idx = 0; idx < ngpus; ++idx) {
+			set_device(idx);
 
-        circuit.add_X_gate(0);
-        circuit.add_Y_gate(1);
-        UINT block_size = 1;
-        UINT expected_depth = 1;
-        UINT expected_gate_count = 2;
+			QuantumStateGpu state(n, idx), test_state(n, idx);
+			state.set_Haar_random_state();
+			test_state.load(&state);
+			QuantumCircuit circuit(n);
 
-        QuantumCircuit* copy_circuit = circuit.copy();
-        QuantumCircuitOptimizer qco;
-        qco.optimize(copy_circuit, block_size);
-        circuit.update_quantum_state(&test_state);
-        copy_circuit->update_quantum_state(&state);
-        //std::cout << circuit << std::endl << copy_circuit << std::endl;
-		assert_gpu_eq_gpu(state, test_state, dim, eps);
-		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
-        ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-        delete copy_circuit;
+			circuit.add_X_gate(0);
+			circuit.add_Y_gate(1);
+			UINT block_size = 1;
+			UINT expected_depth = 1;
+			UINT expected_gate_count = 2;
+
+			QuantumCircuit* copy_circuit = circuit.copy();
+			QuantumCircuitOptimizer qco;
+			qco.optimize(copy_circuit, block_size);
+			circuit.update_quantum_state(&test_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << circuit << std::endl << copy_circuit << std::endl;
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
+			ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+			ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
+			delete copy_circuit;
+		}
     }
 
     {
         // CNOT, control does not commute with X
-        QuantumStateGpu state(n), test_state(n);
-        state.set_Haar_random_state();
-        test_state.load(&state);
-        QuantumCircuit circuit(n);
+		int ngpus = get_num_device();
+		for (int idx = 0; idx < ngpus; ++idx) {
+			set_device(idx);
 
-        circuit.add_X_gate(0);
-        circuit.add_CNOT_gate(0, 1);
-        circuit.add_Y_gate(0);
-        UINT block_size = 1;
-        UINT expected_depth = 3;
-        UINT expected_gate_count = 3;
+			QuantumStateGpu state(n, idx), test_state(n, idx);
+			state.set_Haar_random_state();
+			test_state.load(&state);
+			QuantumCircuit circuit(n);
 
-        QuantumCircuit* copy_circuit = circuit.copy();
-        QuantumCircuitOptimizer qco;
-        qco.optimize(copy_circuit, block_size);
-        circuit.update_quantum_state(&test_state);
-        copy_circuit->update_quantum_state(&state);
-        //std::cout << circuit << std::endl << copy_circuit << std::endl;
-		assert_gpu_eq_gpu(state, test_state, dim, eps);
-		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
-        ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-        delete copy_circuit;
+			circuit.add_X_gate(0);
+			circuit.add_CNOT_gate(0, 1);
+			circuit.add_Y_gate(0);
+			UINT block_size = 1;
+			UINT expected_depth = 3;
+			UINT expected_gate_count = 3;
+
+			QuantumCircuit* copy_circuit = circuit.copy();
+			QuantumCircuitOptimizer qco;
+			qco.optimize(copy_circuit, block_size);
+			circuit.update_quantum_state(&test_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << circuit << std::endl << copy_circuit << std::endl;
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
+			ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+			ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
+			delete copy_circuit;
+		}
     }
 
     {
         // CNOT, control does not commute with Z
-        QuantumStateGpu state(n), test_state(n);
-        state.set_Haar_random_state();
-        test_state.load(&state);
-        QuantumCircuit circuit(n);
+		int ngpus = get_num_device();
+		for (int idx = 0; idx < ngpus; ++idx) {
+			set_device(idx);
 
-        circuit.add_X_gate(0);
-        circuit.add_CNOT_gate(0, 1);
-        circuit.add_Z_gate(0);
-        UINT block_size = 1;
-        UINT expected_depth = 2;
-        UINT expected_gate_count = 2;
+			QuantumStateGpu state(n, idx), test_state(n, idx);
+			state.set_Haar_random_state();
+			test_state.load(&state);
+			QuantumCircuit circuit(n);
 
-        QuantumCircuit* copy_circuit = circuit.copy();
-        QuantumCircuitOptimizer qco;
-        qco.optimize(copy_circuit, block_size);
-        circuit.update_quantum_state(&test_state);
-        copy_circuit->update_quantum_state(&state);
-        //std::cout << circuit << std::endl << copy_circuit << std::endl;
-		assert_gpu_eq_gpu(state, test_state, dim, eps);
-		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
-        ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-        delete copy_circuit;
+			circuit.add_X_gate(0);
+			circuit.add_CNOT_gate(0, 1);
+			circuit.add_Z_gate(0);
+			UINT block_size = 1;
+			UINT expected_depth = 2;
+			UINT expected_gate_count = 2;
+
+			QuantumCircuit* copy_circuit = circuit.copy();
+			QuantumCircuitOptimizer qco;
+			qco.optimize(copy_circuit, block_size);
+			circuit.update_quantum_state(&test_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << circuit << std::endl << copy_circuit << std::endl;
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
+			ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+			ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
+			delete copy_circuit;
+		}
     }
 
     {
         // CNOT, control commute with Z
-        QuantumStateGpu state(n), test_state(n);
-        state.set_Haar_random_state();
-        test_state.load(&state);
-        QuantumCircuit circuit(n);
+		int ngpus = get_num_device();
+		for (int idx = 0; idx < ngpus; ++idx) {
+			set_device(idx);
 
-        circuit.add_Z_gate(0);
-        circuit.add_CNOT_gate(0, 1);
-        circuit.add_Z_gate(0);
-        UINT block_size = 1;
-        UINT expected_depth = 2;
-        UINT expected_gate_count = 2;
+			QuantumStateGpu state(n, idx), test_state(n, idx);
+			state.set_Haar_random_state();
+			test_state.load(&state);
+			QuantumCircuit circuit(n);
 
-        QuantumCircuit* copy_circuit = circuit.copy();
-        QuantumCircuitOptimizer qco;
-        qco.optimize(copy_circuit, block_size);
-        circuit.update_quantum_state(&test_state);
-        copy_circuit->update_quantum_state(&state);
-        //std::cout << circuit << std::endl << copy_circuit << std::endl;
-		assert_gpu_eq_gpu(state, test_state, dim, eps);
-		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
-        ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-        delete copy_circuit;
+			circuit.add_Z_gate(0);
+			circuit.add_CNOT_gate(0, 1);
+			circuit.add_Z_gate(0);
+			UINT block_size = 1;
+			UINT expected_depth = 2;
+			UINT expected_gate_count = 2;
+
+			QuantumCircuit* copy_circuit = circuit.copy();
+			QuantumCircuitOptimizer qco;
+			qco.optimize(copy_circuit, block_size);
+			circuit.update_quantum_state(&test_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << circuit << std::endl << copy_circuit << std::endl;
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
+			ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+			ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
+			delete copy_circuit;
+		}
     }
 
     {
         // CNOT, target commute with X
-        QuantumStateGpu state(n), test_state(n);
-        state.set_Haar_random_state();
-        test_state.load(&state);
-        QuantumCircuit circuit(n);
+		int ngpus = get_num_device();
+		for (int idx = 0; idx < ngpus; ++idx) {
+			set_device(idx);
 
-        circuit.add_X_gate(1);
-        circuit.add_CNOT_gate(0, 1);
-        circuit.add_X_gate(1);
-        UINT block_size = 1;
-        UINT expected_depth = 2;
-        UINT expected_gate_count = 2;
+			QuantumStateGpu state(n, idx), test_state(n, idx);
+			state.set_Haar_random_state();
+			test_state.load(&state);
+			QuantumCircuit circuit(n);
 
-        QuantumCircuit* copy_circuit = circuit.copy();
-        QuantumCircuitOptimizer qco;
-        qco.optimize(copy_circuit, block_size);
-        circuit.update_quantum_state(&test_state);
-        copy_circuit->update_quantum_state(&state);
-        //std::cout << circuit << std::endl << copy_circuit << std::endl;
-		assert_gpu_eq_gpu(state, test_state, dim, eps);
-		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
-        ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-        delete copy_circuit;
+			circuit.add_X_gate(1);
+			circuit.add_CNOT_gate(0, 1);
+			circuit.add_X_gate(1);
+			UINT block_size = 1;
+			UINT expected_depth = 2;
+			UINT expected_gate_count = 2;
+
+			QuantumCircuit* copy_circuit = circuit.copy();
+			QuantumCircuitOptimizer qco;
+			qco.optimize(copy_circuit, block_size);
+			circuit.update_quantum_state(&test_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << circuit << std::endl << copy_circuit << std::endl;
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
+			ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+			ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
+			delete copy_circuit;
+		}
     }
 
     {
         // CNOT, target commute with X
-        QuantumStateGpu state(n), test_state(n);
-        state.set_Haar_random_state();
-        test_state.load(&state);
-        QuantumCircuit circuit(n);
+		int ngpus = get_num_device();
+		for (int idx = 0; idx < ngpus; ++idx) {
+			set_device(idx);
 
-        circuit.add_Z_gate(1);
-        circuit.add_CNOT_gate(0, 1);
-        circuit.add_X_gate(1);
-        UINT block_size = 1;
-        UINT expected_depth = 2;
-        UINT expected_gate_count = 2;
+			QuantumStateGpu state(n, idx), test_state(n, idx);
+			state.set_Haar_random_state();
+			test_state.load(&state);
+			QuantumCircuit circuit(n);
 
-        QuantumCircuit* copy_circuit = circuit.copy();
-        QuantumCircuitOptimizer qco;
-        qco.optimize(copy_circuit, block_size);
-        circuit.update_quantum_state(&test_state);
-        copy_circuit->update_quantum_state(&state);
-        //std::cout << circuit << std::endl << copy_circuit << std::endl;
-		assert_gpu_eq_gpu(state, test_state, dim, eps);
-		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
-        ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-        delete copy_circuit;
+			circuit.add_Z_gate(1);
+			circuit.add_CNOT_gate(0, 1);
+			circuit.add_X_gate(1);
+			UINT block_size = 1;
+			UINT expected_depth = 2;
+			UINT expected_gate_count = 2;
+
+			QuantumCircuit* copy_circuit = circuit.copy();
+			QuantumCircuitOptimizer qco;
+			qco.optimize(copy_circuit, block_size);
+			circuit.update_quantum_state(&test_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << circuit << std::endl << copy_circuit << std::endl;
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
+			ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+			ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
+			delete copy_circuit;
+		}
     }
 
     {
         // CNOT, target commute with X
-        QuantumStateGpu state(n), test_state(n);
-        state.set_Haar_random_state();
-        test_state.load(&state);
-        QuantumCircuit circuit(n);
+		int ngpus = get_num_device();
+		for (int idx = 0; idx < ngpus; ++idx) {
+			set_device(idx);
 
-        circuit.add_X_gate(1);
-        circuit.add_CNOT_gate(0, 1);
-        circuit.add_Z_gate(1);
-        UINT block_size = 1;
-        UINT expected_depth = 2;
-        UINT expected_gate_count = 2;
+			QuantumStateGpu state(n, idx), test_state(n, idx);
+			state.set_Haar_random_state();
+			test_state.load(&state);
+			QuantumCircuit circuit(n);
 
-        QuantumCircuit* copy_circuit = circuit.copy();
-        QuantumCircuitOptimizer qco;
-        qco.optimize(copy_circuit, block_size);
-        circuit.update_quantum_state(&test_state);
-        copy_circuit->update_quantum_state(&state);
-        //std::cout << circuit << std::endl << copy_circuit << std::endl;
-        //std::cout << state << std::endl << test_state << std::endl;
-		assert_gpu_eq_gpu(state, test_state, dim, eps);
-		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
-        ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-        delete copy_circuit;
+			circuit.add_X_gate(1);
+			circuit.add_CNOT_gate(0, 1);
+			circuit.add_Z_gate(1);
+			UINT block_size = 1;
+			UINT expected_depth = 2;
+			UINT expected_gate_count = 2;
+
+			QuantumCircuit* copy_circuit = circuit.copy();
+			QuantumCircuitOptimizer qco;
+			qco.optimize(copy_circuit, block_size);
+			circuit.update_quantum_state(&test_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << circuit << std::endl << copy_circuit << std::endl;
+			//std::cout << state << std::endl << test_state << std::endl;
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
+			ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+			ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
+			delete copy_circuit;
+		}
     }
 
     {
         // CNOT, target commute with X
-        QuantumStateGpu state(n), test_state(n);
-        state.set_Haar_random_state();
-        test_state.load(&state);
-        QuantumCircuit circuit(n);
+		int ngpus = get_num_device();
+		for (int idx = 0; idx < ngpus; ++idx) {
+			set_device(idx);
 
-        circuit.add_Z_gate(1);
-        circuit.add_CNOT_gate(0, 1);
-        circuit.add_Z_gate(1);
-        UINT block_size = 1;
-        UINT expected_depth = 3;
-        UINT expected_gate_count = 3;
+			QuantumStateGpu state(n, idx), test_state(n, idx);
+			state.set_Haar_random_state();
+			test_state.load(&state);
+			QuantumCircuit circuit(n);
 
-        QuantumCircuit* copy_circuit = circuit.copy();
-        QuantumCircuitOptimizer qco;
-        qco.optimize(copy_circuit, block_size);
-        circuit.update_quantum_state(&test_state);
-        copy_circuit->update_quantum_state(&state);
-        //std::cout << circuit << std::endl << copy_circuit << std::endl;
-		assert_gpu_eq_gpu(state, test_state, dim, eps);
-		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
-        ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-        delete copy_circuit;
+			circuit.add_Z_gate(1);
+			circuit.add_CNOT_gate(0, 1);
+			circuit.add_Z_gate(1);
+			UINT block_size = 1;
+			UINT expected_depth = 3;
+			UINT expected_gate_count = 3;
+
+			QuantumCircuit* copy_circuit = circuit.copy();
+			QuantumCircuitOptimizer qco;
+			qco.optimize(copy_circuit, block_size);
+			circuit.update_quantum_state(&test_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << circuit << std::endl << copy_circuit << std::endl;
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
+			ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+			ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
+			delete copy_circuit;
+		}
     }
 
 
     {
         // CNOT, target commute with X
-        QuantumStateGpu state(n), test_state(n);
-        state.set_Haar_random_state();
-        test_state.load(&state);
-        QuantumCircuit circuit(n);
+		int ngpus = get_num_device();
+		for (int idx = 0; idx < ngpus; ++idx) {
+			set_device(idx);
 
-        circuit.add_Z_gate(1);
-        circuit.add_CNOT_gate(0, 1);
-        circuit.add_Z_gate(1);
-        UINT block_size = 2;
-        UINT expected_depth = 1;
-        UINT expected_gate_count = 1;
+			QuantumStateGpu state(n, idx), test_state(n, idx);
+			state.set_Haar_random_state();
+			test_state.load(&state);
+			QuantumCircuit circuit(n);
 
-        QuantumCircuit* copy_circuit = circuit.copy();
-        QuantumCircuitOptimizer qco;
-        qco.optimize(copy_circuit, block_size);
-        circuit.update_quantum_state(&test_state);
-        copy_circuit->update_quantum_state(&state);
-        //std::cout << circuit << std::endl << copy_circuit << std::endl;
-		assert_gpu_eq_gpu(state, test_state, dim, eps);
-		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
-        ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-        delete copy_circuit;
+			circuit.add_Z_gate(1);
+			circuit.add_CNOT_gate(0, 1);
+			circuit.add_Z_gate(1);
+			UINT block_size = 2;
+			UINT expected_depth = 1;
+			UINT expected_gate_count = 1;
+
+			QuantumCircuit* copy_circuit = circuit.copy();
+			QuantumCircuitOptimizer qco;
+			qco.optimize(copy_circuit, block_size);
+			circuit.update_quantum_state(&test_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << circuit << std::endl << copy_circuit << std::endl;
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
+			ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+			ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
+			delete copy_circuit;
+		}
     }
 
     {
         // CNOT, target commute with X
-        QuantumStateGpu state(n), test_state(n);
-        state.set_Haar_random_state();
-        test_state.load(&state);
-        QuantumCircuit circuit(n);
+		int ngpus = get_num_device();
+		for (int idx = 0; idx < ngpus; ++idx) {
+			set_device(idx);
 
-        circuit.add_Z_gate(0);
-        circuit.add_gate( gate::merge(gate::CNOT(0,1), gate::Y(2)));
-        circuit.add_gate( gate::merge(gate::CNOT(1,0), gate::Y(2)));
-        circuit.add_Z_gate(1);
-        UINT block_size = 2;
-        UINT expected_depth = 3;
-        UINT expected_gate_count = 3;
+			QuantumStateGpu state(n, idx), test_state(n, idx);
+			state.set_Haar_random_state();
+			test_state.load(&state);
+			QuantumCircuit circuit(n);
 
-        QuantumCircuit* copy_circuit = circuit.copy();
-        QuantumCircuitOptimizer qco;
-        qco.optimize(copy_circuit, block_size);
-        circuit.update_quantum_state(&test_state);
-        copy_circuit->update_quantum_state(&state);
-        //std::cout << circuit << std::endl << copy_circuit << std::endl;
-		assert_gpu_eq_gpu(state, test_state, dim, eps);
-		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
-        ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-        delete copy_circuit;
+			circuit.add_Z_gate(0);
+			circuit.add_gate(gate::merge(gate::CNOT(0, 1), gate::Y(2)));
+			circuit.add_gate(gate::merge(gate::CNOT(1, 0), gate::Y(2)));
+			circuit.add_Z_gate(1);
+			UINT block_size = 2;
+			UINT expected_depth = 3;
+			UINT expected_gate_count = 3;
+
+			QuantumCircuit* copy_circuit = circuit.copy();
+			QuantumCircuitOptimizer qco;
+			qco.optimize(copy_circuit, block_size);
+			circuit.update_quantum_state(&test_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << circuit << std::endl << copy_circuit << std::endl;
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
+			ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+			ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
+			delete copy_circuit;
+		}
     }
 
     {
         // CNOT, target commute with X
-        QuantumStateGpu state(n), test_state(n);
-        state.set_Haar_random_state();
-        test_state.load(&state);
-        QuantumCircuit circuit(n);
+		int ngpus = get_num_device();
+		for (int idx = 0; idx < ngpus; ++idx) {
+			set_device(idx);
 
-        circuit.add_Z_gate(0);
-        circuit.add_gate(gate::merge(gate::CNOT(0, 1), gate::Y(2)));
-        circuit.add_gate(gate::merge(gate::CNOT(1, 0), gate::Y(2)));
-        circuit.add_Z_gate(1);
-        UINT block_size = 3;
-        UINT expected_depth = 1;
-        UINT expected_gate_count = 1;
+			QuantumStateGpu state(n, idx), test_state(n, idx);
+			state.set_Haar_random_state();
+			test_state.load(&state);
+			QuantumCircuit circuit(n);
 
-        QuantumCircuit* copy_circuit = circuit.copy();
-        QuantumCircuitOptimizer qco;
-        qco.optimize(copy_circuit, block_size);
-        circuit.update_quantum_state(&test_state);
-        copy_circuit->update_quantum_state(&state);
-        //std::cout << circuit << std::endl << copy_circuit << std::endl;
-		assert_gpu_eq_gpu(state, test_state, dim, eps);
-		ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
-        ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-        delete copy_circuit;
+			circuit.add_Z_gate(0);
+			circuit.add_gate(gate::merge(gate::CNOT(0, 1), gate::Y(2)));
+			circuit.add_gate(gate::merge(gate::CNOT(1, 0), gate::Y(2)));
+			circuit.add_Z_gate(1);
+			UINT block_size = 3;
+			UINT expected_depth = 1;
+			UINT expected_gate_count = 1;
+
+			QuantumCircuit* copy_circuit = circuit.copy();
+			QuantumCircuitOptimizer qco;
+			qco.optimize(copy_circuit, block_size);
+			circuit.update_quantum_state(&test_state);
+			copy_circuit->update_quantum_state(&state);
+			//std::cout << circuit << std::endl << copy_circuit << std::endl;
+			assert_gpu_eq_gpu(state, test_state, dim, eps);
+			ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+			ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
+			delete copy_circuit;
+		}
     }
 }
 
@@ -540,7 +610,7 @@ TEST(CircuitTest, RandomCircuitOptimize) {
         QuantumStateGpu state(n), org_state(n), test_state(n);
         state.set_Haar_random_state();
         org_state.load(&state);
-        QuantumCircuit circuit(n);
+		QuantumCircuit circuit(n);
 
         for (UINT d = 0; d < depth; ++d) {
             for (UINT i = 0; i < n; ++i) {
@@ -558,15 +628,15 @@ TEST(CircuitTest, RandomCircuitOptimize) {
         }
 
         test_state.load(&org_state);
-        circuit.update_quantum_state(&test_state);
+		circuit.update_quantum_state(&test_state);
         //std::cout << circuit << std::endl;
         QuantumCircuitOptimizer qco;
         for (UINT block_size = 1; block_size <= max_block_size; ++block_size) {
             QuantumCircuit* copy_circuit = circuit.copy();
             qco.optimize(copy_circuit, block_size);
             state.load(&org_state);
-            copy_circuit->update_quantum_state(&state);
-            //std::cout << copy_circuit << std::endl;
+			copy_circuit->update_quantum_state(&state);
+            // std::cout << copy_circuit << std::endl;
 			assert_gpu_eq_gpu(state, test_state, dim, eps);
 			delete copy_circuit;
         }
