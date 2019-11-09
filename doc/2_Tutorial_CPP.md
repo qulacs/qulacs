@@ -95,7 +95,7 @@ int main() {
 	state.set_zero_state();
 
 	// normの計算
-	double norm = state.get_norm();
+	double norm = state.get_squared_norm();
 	// Z基底で測定した時のentropyの計算
 	double entropy = state.get_entropy();
 
