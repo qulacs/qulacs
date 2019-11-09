@@ -22,8 +22,7 @@ extern "C"{
  */
 class ClsIGate : public QuantumGate_OneQubit{
     static void idling(UINT,CTYPE*,ITYPE){};
-	static void idling_gpu(UINT, void*, ITYPE) {};
-	static void idling_multi_gpu(UINT, void*, ITYPE, void*, UINT) {};
+	static void idling_gpu(UINT, void*, ITYPE, void*, UINT) {};
 public:
     /**
      * \~japanese-en コンストラクタ
@@ -34,7 +33,6 @@ public:
         this->_update_func = ClsIGate::idling;
 		this->_update_func_dm = ClsIGate::idling;
 		this->_update_func_gpu = ClsIGate::idling_gpu;
-		this->_update_func_multi_gpu = ClsIGate::idling_multi_gpu;
 		this->_name = "I";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE | FLAG_Y_COMMUTE | FLAG_Z_COMMUTE ));
         this->_gate_property = FLAG_PAULI | FLAG_CLIFFORD | FLAG_GAUSSIAN;
@@ -58,7 +56,6 @@ public:
 		this->_update_func_dm = dm_X_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = X_gate_host;
-		this->_update_func_multi_gpu = X_gate_host;
 #endif
         this->_name = "X";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE ));
@@ -83,7 +80,6 @@ public:
 		this->_update_func_dm = dm_Y_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = Y_gate_host;
-		this->_update_func_multi_gpu = Y_gate_host;
 #endif
         this->_name = "Y";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE ));
@@ -108,7 +104,6 @@ public:
 		this->_update_func_dm = dm_Z_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = Z_gate_host;
-		this->_update_func_multi_gpu = Z_gate_host;
 #endif
 	    this->_name = "Z";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE ));
@@ -133,7 +128,6 @@ public:
 		this->_update_func_dm = dm_H_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = H_gate_host;
-		this->_update_func_multi_gpu = H_gate_host;
 #endif
 	    this->_name = "H";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
@@ -159,7 +153,6 @@ public:
 		this->_update_func_dm = dm_S_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = S_gate_host;
-		this->_update_func_multi_gpu = S_gate_host;
 #endif
         this->_name = "S";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
@@ -184,7 +177,6 @@ public:
 		this->_update_func_dm = dm_Sdag_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = Sdag_gate_host;
-		this->_update_func_multi_gpu = Sdag_gate_host;
 #endif
         this->_name = "Sdag";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
@@ -209,7 +201,6 @@ public:
 		this->_update_func_dm = dm_T_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = T_gate_host;
-		this->_update_func_multi_gpu = T_gate_host;
 #endif
         this->_name = "T";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
@@ -234,7 +225,6 @@ public:
 		this->_update_func_dm = dm_Tdag_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = Tdag_gate_host;
-		this->_update_func_multi_gpu = Tdag_gate_host;
 #endif
         this->_name = "Tdag";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
@@ -259,7 +249,6 @@ public:
 		this->_update_func_dm = dm_sqrtX_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = sqrtX_gate_host;
-		this->_update_func_multi_gpu = sqrtX_gate_host;
 #endif
         this->_name = "sqrtX";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
@@ -284,7 +273,6 @@ public:
 		this->_update_func_dm = dm_sqrtXdag_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = sqrtXdag_gate_host;
-		this->_update_func_multi_gpu = sqrtXdag_gate_host;
 #endif
         this->_name = "sqrtXdag";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
@@ -309,7 +297,6 @@ public:
 		this->_update_func_dm = dm_sqrtY_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = sqrtY_gate_host;
-		this->_update_func_multi_gpu = sqrtY_gate_host;
 #endif
         this->_name = "sqrtY";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
@@ -334,7 +321,6 @@ public:
 		this->_update_func_dm = dm_sqrtYdag_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = sqrtYdag_gate_host;
-		this->_update_func_multi_gpu = sqrtYdag_gate_host;
 #endif
         this->_name = "sqrtYdag";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
@@ -359,7 +345,6 @@ public:
 		this->_update_func_dm = dm_P0_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = P0_gate_host;
-		this->_update_func_multi_gpu = P0_gate_host;
 #endif
         this->_name = "Projection-0";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
@@ -384,7 +369,6 @@ public:
 		this->_update_func_dm = dm_P1_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = P1_gate_host;
-		this->_update_func_multi_gpu = P1_gate_host;
 #endif
         this->_name = "Projection-1";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
@@ -410,7 +394,6 @@ public:
 		this->_update_func_dm = dm_RX_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = RX_gate_host;
-		this->_update_func_multi_gpu = RX_gate_host;
 #endif
         this->_name = "X-rotation";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE ));
@@ -435,7 +418,6 @@ public:
 		this->_update_func_dm = dm_RY_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = RY_gate_host;
-		this->_update_func_multi_gpu = RY_gate_host;
 #endif
         this->_name = "Y-rotation";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
@@ -460,7 +442,6 @@ public:
 		this->_update_func_dm = dm_RZ_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = RZ_gate_host;
-		this->_update_func_multi_gpu = RZ_gate_host;
 #endif
         this->_name = "Z-rotation";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));

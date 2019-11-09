@@ -27,7 +27,6 @@ public:
 		this->_update_func_dm = dm_CNOT_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = CNOT_gate_host;
-		this->_update_func_multi_gpu = CNOT_gate_host;
 #endif
         this->_name = "CNOT";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE ));
@@ -54,7 +53,6 @@ public:
 		this->_update_func_dm = dm_CZ_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = CZ_gate_host;
-		this->_update_func_multi_gpu = CZ_gate_host;
 #endif
         this->_name = "CZ";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE ));
@@ -81,7 +79,6 @@ public:
 		this->_update_func_dm = dm_SWAP_gate;
 #ifdef _USE_GPU
 		this->_update_func_gpu = SWAP_gate_host;
-		this->_update_func_multi_gpu = SWAP_gate_host;
 #endif
         this->_name = "SWAP";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index1, 0 ));

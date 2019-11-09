@@ -285,7 +285,7 @@ public:
         return os;
     }
 
-	virtual void* get_cuda_stream() {
+	virtual void* get_cuda_stream() const {
 		return this->_cuda_stream;
 	}
 };

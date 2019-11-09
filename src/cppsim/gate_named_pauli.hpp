@@ -57,16 +57,10 @@ public:
         auto pauli_id_list = _pauli->get_pauli_id_list();
 		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-			if (state->get_device_name() == "multi_gpu") {
+            if (state->get_device_name() == "gpu") {
 				multi_qubit_Pauli_gate_partial_list_host(
 					target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
 					state->data(), state->dim, state->get_cuda_stream(), state->device_number);
-				//_update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim);
-			}		
-            else if (state->get_device_name() == "gpu") {
-				multi_qubit_Pauli_gate_partial_list_host(
-					target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
-					state->data(), state->dim);
 				//_update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim);
 			}
 			else {
@@ -151,15 +145,10 @@ public:
         auto pauli_id_list = _pauli->get_pauli_id_list();
 		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-			if (state->get_device_name() == "multi_gpu") {
+			if (state->get_device_name() == "gpu") {
 				multi_qubit_Pauli_rotation_gate_partial_list_host(
 					target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
 					_angle, state->data(), state->dim, state->get_cuda_stream(), state->device_number);
-			}
-			else if (state->get_device_name() == "gpu") {
-				multi_qubit_Pauli_rotation_gate_partial_list_host(
-					target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
-					_angle, state->data(), state->dim);
 			}
 			else {
 				multi_qubit_Pauli_rotation_gate_partial_list(

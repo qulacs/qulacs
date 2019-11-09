@@ -35,19 +35,26 @@ inline void checkCudaErrors(const cudaError error)
 		exit(1);
 	}
 }
-
+/*
 //inline void memcpy_quantum_state_HostToDevice(CPPCTYPE* state_cpu, GTYPE* state_gpu, ITYPE dim){
-inline void memcpy_quantum_state_HostToDevice(CPPCTYPE* state_cpu, GTYPE* state_gpu, ITYPE dim){
+inline void memcpy_quantum_state_HostToDevice(CPPCTYPE* state_cpu, GTYPE* state_gpu, ITYPE dim, void* stream, UINT device_number){
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+	int current_device = get_current_device();
+	if (device_number != current_device) cudaSetDevice(device_number);
+
 	checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(CPPCTYPE)));
-	checkCudaErrors(cudaMemcpy(state_gpu, state_cpu, dim * sizeof(CPPCTYPE), cudaMemcpyHostToDevice));
+	checkCudaErrors(cudaMemcpyAsync(state_gpu, state_cpu, dim * sizeof(CPPCTYPE), cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
 }
 
-inline void memcpy_quantum_state_HostToDevice(CPPCTYPE* state_cpu, GTYPE* state_gpu, ITYPE dim, unsigned int device_number){
-	cudaSetDevice(device_number);
-	checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(CPPCTYPE)));
-	checkCudaErrors(cudaMemcpy(state_gpu, state_cpu, dim * sizeof(CPPCTYPE), cudaMemcpyHostToDevice));
-}
+inline void memcpy_quantum_state_HostToDevice(CPPCTYPE* state_cpu, GTYPE* state_gpu, ITYPE dim, void* stream, unsigned int device_number){
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+	int current_device = get_current_device();
+	if (device_number != current_device) cudaSetDevice(device_number);
 
+	checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(CPPCTYPE)));
+	checkCudaErrors(cudaMemcpyAsync(state_gpu, state_cpu, dim * sizeof(CPPCTYPE), cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
+}
+*/
 inline void __cudaSafeCall(cudaError err, const char *file, const int line)
 {
 #ifdef CUDA_ERROR_CHECK
