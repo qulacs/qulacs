@@ -606,42 +606,45 @@ TEST(CircuitTest, RandomCircuitOptimize) {
     UINT max_repeat=3;
     UINT max_block_size = n;
 
-    for(UINT repeat=0;repeat<max_repeat;++repeat){
-        QuantumStateGpu state(n), org_state(n), test_state(n);
-        state.set_Haar_random_state();
-        org_state.load(&state);
-		QuantumCircuit circuit(n);
+	int ngpus = get_num_device();
+	for (int idx = 0; idx < ngpus; ++idx) {
+		set_device(idx);
+		for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
+			QuantumStateGpu state(n, idx), org_state(n, idx), test_state(n, idx);
+			state.set_Haar_random_state();
+			org_state.load(&state);
+			QuantumCircuit circuit(n);
 
-        for (UINT d = 0; d < depth; ++d) {
-            for (UINT i = 0; i < n; ++i) {
-                UINT r = random.int32() % 5;
-                if (r == 0)    circuit.add_sqrtX_gate(i);
-                else if (r == 1) circuit.add_sqrtY_gate(i);
-                else if (r == 2) circuit.add_T_gate(i);
-                else if (r == 3) {
-                    if (i + 1 < n) circuit.add_CNOT_gate(i, i + 1);
-                }
-                else if (r == 4) {
-                    if (i + 1 < n) circuit.add_CZ_gate(i, i + 1);
-                }
-            }
-        }
+			for (UINT d = 0; d < depth; ++d) {
+				for (UINT i = 0; i < n; ++i) {
+					UINT r = random.int32() % 5;
+					if (r == 0)    circuit.add_sqrtX_gate(i);
+					else if (r == 1) circuit.add_sqrtY_gate(i);
+					else if (r == 2) circuit.add_T_gate(i);
+					else if (r == 3) {
+						if (i + 1 < n) circuit.add_CNOT_gate(i, i + 1);
+					}
+					else if (r == 4) {
+						if (i + 1 < n) circuit.add_CZ_gate(i, i + 1);
+					}
+				}
+			}
 
-        test_state.load(&org_state);
-		circuit.update_quantum_state(&test_state);
-        //std::cout << circuit << std::endl;
-        QuantumCircuitOptimizer qco;
-        for (UINT block_size = 1; block_size <= max_block_size; ++block_size) {
-            QuantumCircuit* copy_circuit = circuit.copy();
-            qco.optimize(copy_circuit, block_size);
-            state.load(&org_state);
-			copy_circuit->update_quantum_state(&state);
-            // std::cout << copy_circuit << std::endl;
-			assert_gpu_eq_gpu(state, test_state, dim, eps);
-			delete copy_circuit;
-        }
-    }
-
+			test_state.load(&org_state);
+			circuit.update_quantum_state(&test_state);
+			//std::cout << circuit << std::endl;
+			QuantumCircuitOptimizer qco;
+			for (UINT block_size = 1; block_size <= max_block_size; ++block_size) {
+				QuantumCircuit* copy_circuit = circuit.copy();
+				qco.optimize(copy_circuit, block_size);
+				state.load(&org_state);
+				copy_circuit->update_quantum_state(&state);
+				// std::cout << copy_circuit << std::endl;
+				assert_gpu_eq_gpu(state, test_state, dim, eps);
+				delete copy_circuit;
+			}
+		}
+	}
 }
 
 TEST(CircuitTest, RandomCircuitOptimizeLarge) {
@@ -652,43 +655,45 @@ TEST(CircuitTest, RandomCircuitOptimizeLarge) {
 	double eps = 1e-14;
 	UINT max_repeat = 3;
 	UINT max_block_size = n;
+	int ngpus = get_num_device();
+	for (int idx = 0; idx < ngpus; ++idx) {
+		set_device(idx);
+		for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
+			QuantumStateGpu state(n, idx), org_state(n, idx), test_state(n, idx);
+			state.set_Haar_random_state();
+			org_state.load(&state);
+			QuantumCircuit circuit(n);
 
-	for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
-		QuantumStateGpu state(n), org_state(n), test_state(n);
-		state.set_Haar_random_state();
-		org_state.load(&state);
-		QuantumCircuit circuit(n);
-
-		for (UINT d = 0; d < depth; ++d) {
-			for (UINT i = 0; i < n; ++i) {
-				UINT r = random.int32() % 5;
-				if (r == 0)    circuit.add_sqrtX_gate(i);
-				else if (r == 1) circuit.add_sqrtY_gate(i);
-				else if (r == 2) circuit.add_T_gate(i);
-				else if (r == 3) {
-					if (i + 1 < n) circuit.add_CNOT_gate(i, i + 1);
-				}
-				else if (r == 4) {
-					if (i + 1 < n) circuit.add_CZ_gate(i, i + 1);
+			for (UINT d = 0; d < depth; ++d) {
+				for (UINT i = 0; i < n; ++i) {
+					UINT r = random.int32() % 5;
+					if (r == 0)    circuit.add_sqrtX_gate(i);
+					else if (r == 1) circuit.add_sqrtY_gate(i);
+					else if (r == 2) circuit.add_T_gate(i);
+					else if (r == 3) {
+						if (i + 1 < n) circuit.add_CNOT_gate(i, i + 1);
+					}
+					else if (r == 4) {
+						if (i + 1 < n) circuit.add_CZ_gate(i, i + 1);
+					}
 				}
 			}
-		}
 
-		test_state.load(&org_state);
-		circuit.update_quantum_state(&test_state);
-		//std::cout << circuit << std::endl;
-		QuantumCircuitOptimizer qco;
-		for (UINT block_size = 1; block_size <= max_block_size; ++block_size) {
-			QuantumCircuit* copy_circuit = circuit.copy();
-			qco.optimize(copy_circuit, block_size);
-			state.load(&org_state);
-			copy_circuit->update_quantum_state(&state);
-			//std::cout << copy_circuit << std::endl;
-			assert_gpu_eq_gpu(state, test_state, dim, eps);
-			delete copy_circuit;
+			test_state.load(&org_state);
+			circuit.update_quantum_state(&test_state);
+			//std::cout << circuit << std::endl;
+			QuantumCircuitOptimizer qco;
+			for (UINT block_size = 1; block_size <= max_block_size; ++block_size) {
+				QuantumCircuit* copy_circuit = circuit.copy();
+				qco.optimize(copy_circuit, block_size);
+				state.load(&org_state);
+				copy_circuit->update_quantum_state(&state);
+				//std::cout << copy_circuit << std::endl;
+				assert_gpu_eq_gpu(state, test_state, dim, eps);
+				delete copy_circuit;
+			}
 		}
 	}
-
 }
 
 TEST(CircuitTest, SuzukiTrotterExpansion) {
@@ -714,66 +719,69 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
     double res;
     CPPCTYPE test_res;
 
-    Observable diag_observable(n), non_diag_observable(n), observable(n);
-    Eigen::MatrixXcd test_observable;
+	int ngpus = get_num_device();
+	for (int idx = 0; idx < ngpus; ++idx) {
+		Observable diag_observable(n), non_diag_observable(n), observable(n);
+		Eigen::MatrixXcd test_observable;
 
-    QuantumStateGpu state(n);
-    Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
+		QuantumStateGpu state(n, idx);
+		Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
 
-    QuantumCircuit circuit(n);
-    Eigen::MatrixXcd test_circuit;
+		QuantumCircuit circuit(n);
+		Eigen::MatrixXcd test_circuit;
 
-    for (ITYPE i = 0; i < 6; ++i){
-        coef.push_back(-random.uniform());
-        // coef.push_back(-1.);
-    }
-    angle = 2 * PI * random.uniform();
-
-
-    observable.add_operator(coef[0], "Z 0 I 1");
-    observable.add_operator(coef[1], "X 0 Y 1");
-    observable.add_operator(coef[2], "Z 0 Z 1");
-    observable.add_operator(coef[3], "Z 0 X 1");
-    observable.add_operator(coef[4], "Y 0 X 1");
-    observable.add_operator(coef[5], "I 0 Z 1");
-
-    test_observable = coef[0] * get_expanded_eigen_matrix_with_identity(0, Z, n);
-    test_observable += coef[1] * kronecker_product(Y, X);
-    test_observable += coef[2] * kronecker_product(Z, Z);
-    test_observable += coef[3] * kronecker_product(X, Z);
-    test_observable += coef[4] * kronecker_product(X, Y);
-    test_observable += coef[5] * get_expanded_eigen_matrix_with_identity(1, Z, n);
-
-    num_repeats = (UINT) std::ceil(angle * (double)n* 100.);
-    // circuit.add_diagonal_observable_rotation_gate(diag_observable, angle);
-    circuit.add_observable_rotation_gate(observable, angle, num_repeats);
-
-    test_circuit = J * angle * test_observable;
-    test_circuit = test_circuit.exp();
-
-    state.set_computational_basis(0);
-    test_state(0) = 1.;
-
-    res = observable.get_expectation_value(&state).real();
-    test_res = (test_state.adjoint() * test_observable * test_state);
-
-    circuit.update_quantum_state(&state);
-    test_state = test_circuit * test_state;
-
-    res = observable.get_expectation_value(&state).real();
-    test_res = (test_state.adjoint() * test_observable * test_state);
-    ASSERT_NEAR(abs(test_res.real() - res)/ res, 0, 0.01);
+		for (ITYPE i = 0; i < 6; ++i) {
+			coef.push_back(-random.uniform());
+			// coef.push_back(-1.);
+		}
+		angle = 2 * PI * random.uniform();
 
 
-    state.set_Haar_random_state(seed);
-	set_eigen_from_gpu(test_state, state, dim);
+		observable.add_operator(coef[0], "Z 0 I 1");
+		observable.add_operator(coef[1], "X 0 Y 1");
+		observable.add_operator(coef[2], "Z 0 Z 1");
+		observable.add_operator(coef[3], "Z 0 X 1");
+		observable.add_operator(coef[4], "Y 0 X 1");
+		observable.add_operator(coef[5], "I 0 Z 1");
 
-    test_state = test_circuit * test_state;
-    circuit.update_quantum_state(&state);
+		test_observable = coef[0] * get_expanded_eigen_matrix_with_identity(0, Z, n);
+		test_observable += coef[1] * kronecker_product(Y, X);
+		test_observable += coef[2] * kronecker_product(Z, Z);
+		test_observable += coef[3] * kronecker_product(X, Z);
+		test_observable += coef[4] * kronecker_product(X, Y);
+		test_observable += coef[5] * get_expanded_eigen_matrix_with_identity(1, Z, n);
 
-    res = observable.get_expectation_value(&state).real();
-    test_res = (test_state.adjoint() * test_observable * test_state);
-    ASSERT_NEAR(abs(test_res.real() - res)/ res, 0, 0.01);
+		num_repeats = (UINT)std::ceil(angle * (double)n * 100.);
+		// circuit.add_diagonal_observable_rotation_gate(diag_observable, angle);
+		circuit.add_observable_rotation_gate(observable, angle, num_repeats);
+
+		test_circuit = J * angle * test_observable;
+		test_circuit = test_circuit.exp();
+
+		state.set_computational_basis(0);
+		test_state(0) = 1.;
+
+		res = observable.get_expectation_value(&state).real();
+		test_res = (test_state.adjoint() * test_observable * test_state);
+
+		circuit.update_quantum_state(&state);
+		test_state = test_circuit * test_state;
+
+		res = observable.get_expectation_value(&state).real();
+		test_res = (test_state.adjoint() * test_observable * test_state);
+		ASSERT_NEAR(abs(test_res.real() - res) / res, 0, 0.01);
+
+
+		state.set_Haar_random_state(seed);
+		set_eigen_from_gpu(test_state, state, dim);
+
+		test_state = test_circuit * test_state;
+		circuit.update_quantum_state(&state);
+
+		res = observable.get_expectation_value(&state).real();
+		test_res = (test_state.adjoint() * test_observable * test_state);
+		ASSERT_NEAR(abs(test_res.real() - res) / res, 0, 0.01);
+	}
 }
 
 TEST(CircuitTest, RotateDiagonalObservable){
@@ -794,68 +802,74 @@ TEST(CircuitTest, RotateDiagonalObservable){
     double res;
     CPPCTYPE test_res;
 
-    Observable observable(n);
-    Eigen::MatrixXcd test_observable;
+	int ngpus = get_num_device();
+	for (int idx = 0; idx < ngpus; ++idx) {
+		Observable observable(n);
+		Eigen::MatrixXcd test_observable;
 
-    QuantumStateGpu state(n);
-    Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
+		QuantumStateGpu state(n, idx);
+		Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
 
-    QuantumCircuit circuit(n);
-    Eigen::MatrixXcd test_circuit;
+		QuantumCircuit circuit(n);
+		Eigen::MatrixXcd test_circuit;
 
-    coef1 = -random.uniform();
-    coef2 = -random.uniform();
-    angle = 2 * PI * random.uniform();
+		coef1 = -random.uniform();
+		coef2 = -random.uniform();
+		angle = 2 * PI * random.uniform();
 
 
-    observable.add_operator(coef1, "Z 0");
-    observable.add_operator(coef2, "Z 0 Z 1");
+		observable.add_operator(coef1, "Z 0");
+		observable.add_operator(coef2, "Z 0 Z 1");
 
-    test_observable = coef1 * get_expanded_eigen_matrix_with_identity(0, Z, n);
-    test_observable += coef2 * kronecker_product(Z, Z);
+		test_observable = coef1 * get_expanded_eigen_matrix_with_identity(0, Z, n);
+		test_observable += coef2 * kronecker_product(Z, Z);
 
-    circuit.add_diagonal_observable_rotation_gate(observable, angle);
-    test_circuit = (J * angle * test_observable).exp();
+		circuit.add_diagonal_observable_rotation_gate(observable, angle);
+		test_circuit = (J * angle * test_observable).exp();
 
-    state.set_computational_basis(0);
-    test_state(0) = 1.;
+		state.set_computational_basis(0);
+		test_state(0) = 1.;
 
-    // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
+		// for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
 
-    circuit.update_quantum_state(&state);
-    test_state = test_circuit * test_state;
+		circuit.update_quantum_state(&state);
+		test_state = test_circuit * test_state;
 
-    res = observable.get_expectation_value(&state).real();
-    test_res = (test_state.adjoint() * test_observable * test_state);
+		res = observable.get_expectation_value(&state).real();
+		test_res = (test_state.adjoint() * test_observable * test_state);
 
-    // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
-    ASSERT_NEAR(abs(test_res.real() - res)/test_res.real(), 0, 0.01);
-    ASSERT_NEAR(test_res.imag(), 0, eps);
+		// for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
+		ASSERT_NEAR(abs(test_res.real() - res) / test_res.real(), 0, 0.01);
+		ASSERT_NEAR(test_res.imag(), 0, eps);
 
-    state.set_Haar_random_state();
-	set_eigen_from_gpu(test_state, state, dim);
+		state.set_Haar_random_state();
+		set_eigen_from_gpu(test_state, state, dim);
 
-    res = observable.get_expectation_value(&state).real();
-    test_res = (test_state.adjoint() * test_observable * test_state);
+		res = observable.get_expectation_value(&state).real();
+		test_res = (test_state.adjoint() * test_observable * test_state);
 
-    test_state = test_circuit * test_state;
-    circuit.update_quantum_state(&state);
+		test_state = test_circuit * test_state;
+		circuit.update_quantum_state(&state);
 
-    res = observable.get_expectation_value(&state).real();
-    test_res = (test_state.adjoint() * test_observable * test_state);
+		res = observable.get_expectation_value(&state).real();
+		test_res = (test_state.adjoint() * test_observable * test_state);
 
-    // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
-    ASSERT_NEAR(abs(test_res.real() - res)/test_res.real(), 0, 0.01);
-    ASSERT_NEAR(test_res.imag(), 0, eps);
-
+		// for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
+		ASSERT_NEAR(abs(test_res.real() - res) / test_res.real(), 0, 0.01);
+		ASSERT_NEAR(test_res.imag(), 0, eps);
+	}
 }
 
 
 TEST(CircuitTest, SpecialGatesToString) {
-	QuantumStateGpu state(1);
-	QuantumCircuit c(1);
-	c.add_gate(gate::DepolarizingNoise(0, 0));
-	c.update_quantum_state(&state);
-	std::string s = c.to_string();
+	int ngpus = get_num_device();
+	for (int idx = 0; idx < ngpus; ++idx) {
+		set_device(idx);
+		QuantumStateGpu state(1, idx);
+		QuantumCircuit c(1);
+		c.add_gate(gate::DepolarizingNoise(0, 0));
+		c.update_quantum_state(&state);
+		std::string s = c.to_string();
+	}
 }
 

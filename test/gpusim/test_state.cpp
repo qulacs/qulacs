@@ -794,16 +794,19 @@ TEST(StateTest, Sampling) {
 TEST(StateTest, SetState) {
 	const double eps = 1e-10;
 	const UINT n = 10;
-	QuantumStateGpu state(n);
-	const ITYPE dim = 1ULL << n;
-	std::vector<std::complex<double>> state_vector(dim);
-	for (UINT i = 0; i < dim; ++i) {
-		double d = (double)i;
-		state_vector[i] = d + std::complex<double>(0, 1)*(d + 0.1);
-	}
-	state.load(state_vector);
+	int ngpus = get_num_device();
+	for (int idx = 0; idx < ngpus; ++idx) {
+		QuantumStateGpu state(n, idx);
+		const ITYPE dim = 1ULL << n;
+		std::vector<std::complex<double>> state_vector(dim);
+		for (UINT i = 0; i < dim; ++i) {
+			double d = (double)i;
+			state_vector[i] = d + std::complex<double>(0, 1) * (d + 0.1);
+		}
+		state.load(state_vector);
 
-	assert_vector_eq_gpu(state_vector, state, dim, eps);
+		assert_vector_eq_gpu(state_vector, state, dim, eps);
+	}
 }
 
 TEST(StateTest, CopyState) {
