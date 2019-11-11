@@ -100,7 +100,9 @@ CPPCTYPE PauliOperator::get_expectation_value(const QuantumStateBase* state) con
 				this->get_pauli_id_list().data(),
 				(UINT)this->get_index_list().size(),
 				state->data(),
-				state->dim
+				state->dim,
+				state->get_cuda_stream(),
+				state->device_number
 			);
 		}
 		else {
@@ -145,7 +147,9 @@ CPPCTYPE PauliOperator::get_transition_amplitude(const QuantumStateBase* state_b
             (UINT)this->get_index_list().size(),
             state_bra->data(),
             state_ket->data(),
-            state_bra->dim
+            state_bra->dim,
+			state_ket->get_cuda_stream(),
+			state_ket->device_number
         );
     }else{
         return _coef * (CPPCTYPE)transition_amplitude_multi_qubit_Pauli_operator_partial_list(
