@@ -229,7 +229,13 @@ public:
 		state_multiply_host(coef, this->data(), this->dim, _cuda_stream, device_number);
 	}
 
-
+    virtual void multiply_diagonal_matrix(const std::function<CPPCTYPE(ITYPE)> &func) override{
+		std::vector<CPPCTYPE> diagonal_matrix(dim);
+		for (ITYPE i = 0; i < dim; ++i) {
+			diagonal_matrix[i] = func(i);
+		}
+		multi_qubit_diagonal_matrix_gate_host(diagonal_matrix.data(), this->data(), dim, _cuda_stream, device_number);
+	}
 
 	/**
 	 * \~japanese-en 量子状態を測定した際の計算基底のサンプリングを行う

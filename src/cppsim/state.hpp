@@ -203,6 +203,8 @@ public:
      */
     virtual void multiply_coef(CPPCTYPE coef) = 0;
     
+    virtual void multiply_diagonal_matrix(const std::function<CPPCTYPE(ITYPE)> &func) = 0;
+    
     /**
      * \~japanese-en 指定した添え字の古典レジスタの値を取得する。
      * 
@@ -527,6 +529,12 @@ public:
 #endif
     }
 
+    virtual void multiply_diagonal_matrix(const std::function<CPPCTYPE(ITYPE)> &func) override{
+		CPPCTYPE* state = this->data_cpp();
+		for (ITYPE idx = 0; idx < dim; ++idx) {
+			state[idx] *= (CPPCTYPE)func(idx);
+		}
+	}
 
     /**
      * \~japanese-en 量子状態を測定した際の計算基底のサンプリングを行う
