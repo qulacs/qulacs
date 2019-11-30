@@ -8,12 +8,12 @@ env:
       C_COMPILER='gcc-8'
       Fortran_COMPILER='gfortran'
       BUILD_TYPE='Release'
-      PYTHON3='3.6.7'
-      PYTHON2='2.7.11'
+      PYTHON3='3.7.5'
+      PYTHON2='2.7.17' # but Windows uses 2.7.11
 
 matrix:
   include:
-    # 1/ OSX GCC8 PYTHON3.6 build
+    # 1/ OSX GCC8 PYTHON3.7 build
     - os: osx
       osx_image: xcode11.2
       compiler: gcc
@@ -27,6 +27,7 @@ matrix:
           packages:
             - gcc@8
             - swig
+            - openssl
           update: true
     # 2/ OSX GCC8 PYTHON2.7 build
     - os: osx
@@ -42,10 +43,11 @@ matrix:
           packages:
             - gcc@8
             - swig
+            - openssl
           update: true
-    # 3/ Linux GCC8 PYTHON3.6 build
+    # 3/ Linux GCC8 PYTHON3.7 build
     - os: linux
-      dist: trusty
+      dist: bionic
       compiler: gcc
       env:
         - PYTHON="${PYTHON3}"
@@ -55,17 +57,18 @@ matrix:
       addons:
         apt:
           sources:
-            - ubuntu-toolchain-r-test
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
           packages:
-            - cmake3
+            - cmake
             - g++-8
             - gcc-8
             - gfortran-7
             - lcov
             - swig
+            - libssl1.0-dev
     # 4/ Linux GCC8 PYTHON2.7 build
     - os: linux
-      dist: trusty
+      dist: bionic
       compiler: gcc
       env:
         - PYTHON="${PYTHON2}"
@@ -75,29 +78,30 @@ matrix:
       addons:
         apt:
           sources:
-            - ubuntu-toolchain-r-test
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
           packages:
-            - cmake3
+            - cmake
             - g++-8
             - gcc-8
             - gfortran-7
             - lcov
             - swig
             - libssl-dev
-    # 5/ Windows VS17 PYTHON3.6 build
+    # 5/ Windows VS17 PYTHON3.7 build
     - os: windows
       env:
         - COVERAGE=ON
         - PYTHON="${PYTHON3}"
         - MSBUILD_BIN='C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin'
         - CMAKE_BIN='C:\Program Files\CMake'
-        - PYTHON_BIN='C:\Python36'
+        - PYTHON_BIN='C:\Python37'
         - PATH="$MSBUILD_BIN:$CMAKE_BIN:$PYTHON_BIN:$PYTHON_BIN\Scripts:$PATH"
     # 6/ Windows VS17 PYTHON2.7 build
     - os: windows
       env:
         - COVERAGE=ON
-        - PYTHON="${PYTHON2}"
+        # chocolatey does not provide 2.7.17.
+        - PYTHON="2.7.11"
         - MSBUILD_BIN='C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin'
         - CMAKE_BIN='C:\Program Files\CMake'
         - PYTHON_BIN='C:\tools\python'
@@ -127,7 +131,6 @@ before_install:
       brew update &> /dev/null
       brew cask uninstall --force oclint
       brew upgrade cmake
-      brew install gcc@8 swig
     fi
   - |
     if [[ "${TRAVIS_OS_NAME}" != "windows" && -z "$(ls -A ${PYENV_ROOT})" ]]; then
@@ -137,7 +140,9 @@ before_install:
       pyenv local "${PYTHON}"
     elif [[ "${TRAVIS_OS_NAME}" != "windows" ]]; then
       eval "$(pyenv init -)"
-      pyenv local "${PYTHON}"
+      pyenv local "${PYTHON}" || \
+        (pyenv install "${PYTHON}" && \
+        pyenv local "${PYTHON}")
     fi
   - python --version
   - python -m pip install --upgrade pip
