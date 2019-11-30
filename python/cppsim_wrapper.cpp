@@ -181,6 +181,7 @@ PYBIND11_MODULE(qulacs, m) {
 #ifdef _USE_GPU
     py::class_<QuantumStateGpu, QuantumStateBase>(m, "QuantumStateGpu")
         .def(py::init<unsigned int>())
+        .def(py::init<unsigned int, unsigned int>())
         .def("set_zero_state", &QuantumStateGpu::set_zero_state)
         .def("set_computational_basis", &QuantumStateGpu::set_computational_basis)
         .def("set_Haar_random_state", (void (QuantumStateGpu::*)(void))&QuantumStateGpu::set_Haar_random_state)
@@ -204,14 +205,14 @@ PYBIND11_MODULE(qulacs, m) {
         .def("set_classical_value", &QuantumStateGpu::set_classical_value)
         .def("to_string", &QuantumStateGpu::to_string)
         .def("sampling", &QuantumStateGpu::sampling)
-
         .def("get_vector", [](const QuantumStateGpu& state) {
             Eigen::VectorXcd vec = Eigen::Map<Eigen::VectorXcd>(state.duplicate_data_cpp(), state.dim);
             return vec;
         }, pybind11::return_value_policy::take_ownership)
         .def("get_qubit_count", [](const QuantumStateGpu& state) -> unsigned int {return (unsigned int) state.qubit_count; })
         .def("__repr__", [](const QuantumStateGpu &p) {return p.to_string(); });
-    ;
+        ;
+
 #endif
 
     auto mstate = m.def_submodule("state");

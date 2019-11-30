@@ -22,7 +22,7 @@ extern "C"{
  */
 class ClsIGate : public QuantumGate_OneQubit{
     static void idling(UINT,CTYPE*,ITYPE){};
-	static void idling_gpu(UINT, void*, ITYPE) {};
+	static void idling_gpu(UINT, void*, ITYPE, void*, UINT) {};
 public:
     /**
      * \~japanese-en コンストラクタ
