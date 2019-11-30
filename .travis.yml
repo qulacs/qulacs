@@ -72,6 +72,7 @@ matrix:
             - gfortran-7
             - lcov
             - swig
+            - libssl-dev
 
     # 5/ Windows VS17 PYTHON3.6 build
     - os: windows
