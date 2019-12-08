@@ -1,0 +1,12 @@
+root = true
+
+[*]
+
+charset = utf-8
+
+[*.cpp]
+
+# If you change these settings,
+# you have to change `.clang-format` similarly.
+indent_style = tab
+indent_size = 4

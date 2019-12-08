@@ -1,0 +1,22 @@
+name: Format
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  format:
+    name: Check format
+    strategy:
+      matrix:
+        os: [ 'ubuntu-latest' ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+       
+      - name: Run clang-format style check
+        uses: jidicula/clang-format-action@v4.6.2
+        with:
+          clang-format-version: '13'
+          check-path: 'src'
+          fallback-style: 'Mozilla'
