@@ -49,8 +49,10 @@ matrix:
       dist: trusty
       compiler: gcc-8
       env:
-        - CXX_COMPILER='g++-8'
         - C_COMPILER='gcc-8'
+        - CMAKE_C_COMPILER='gcc-8'
+        - CXX_COMPILER='g++-8'
+        - CMAKE_CXX_COMPILER='g++-8'
         - PYTHON="${PYTHON3}"
         - COVERAGE=ON
         - PYENV_ROOT="${HOME}/.pyenv"
@@ -72,8 +74,10 @@ matrix:
       dist: trusty
       compiler: gcc-9
       env:
-        - CXX_COMPILER='g++-9'
         - C_COMPILER='gcc-9'
+        - CMAKE_C_COMPILER='gcc-9'
+        - CXX_COMPILER='g++-9'
+        - CMAKE_CXX_COMPILER='g++-9'
         - PYTHON="${PYTHON3}"
         - COVERAGE=ON
         - PYENV_ROOT="${HOME}/.pyenv"
