@@ -19,7 +19,7 @@ typedef Eigen::Matrix<CPPCTYPE, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
 typedef Eigen::SparseMatrix<CPPCTYPE> SparseComplexMatrix;
 
 #ifdef __GNUC__
-#if __GNUC__ >= 9
+#if __GNUC__ >= 8
 using namespace std::complex_literals;
 #endif
 #endif
