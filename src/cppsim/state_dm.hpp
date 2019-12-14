@@ -283,8 +283,8 @@ public:
 #endif
 	}
 
-	virtual void multiply_diagonal_matrix(const std::function<CPPCTYPE(ITYPE)> &func) override{
-			std::cerr << "multiply_diagonal_matrix between density matrix and state vector is not implemented" << std::endl;
+    virtual void multiply_elementwise_function(const std::function<CPPCTYPE(ITYPE)> &func) override{
+			std::cerr << "multiply_elementwise_function between density matrix and state vector is not implemented" << std::endl;
     }
     
     /**

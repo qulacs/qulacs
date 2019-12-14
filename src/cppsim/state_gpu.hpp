@@ -228,8 +228,8 @@ public:
 	virtual void multiply_coef(CPPCTYPE coef) override {
 		state_multiply_host(coef, this->data(), this->dim, _cuda_stream, device_number);
 	}
-
-    virtual void multiply_diagonal_matrix(const std::function<CPPCTYPE(ITYPE)> &func) override{
+    
+    virtual void multiply_elementwise_function(const std::function<CPPCTYPE(ITYPE)> &func) override{
 		std::vector<CPPCTYPE> diagonal_matrix(dim);
 		for (ITYPE i = 0; i < dim; ++i) {
 			diagonal_matrix[i] = func(i);
