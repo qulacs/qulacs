@@ -4,6 +4,11 @@
 #include <Eigen/Core>
 #include <string>
 
+#ifdef __GNUC__
+#if __GNUC__ >= 8
+using namespace std::complex_literals;
+#endif
+#endif
 
 // random
 static UINT rand_int(UINT max) {

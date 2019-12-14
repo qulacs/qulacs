@@ -4,38 +4,38 @@ sudo: false
 
 env:
   global:
-    - CXX_COMPILER='g++-7'
-      C_COMPILER='gcc-7'
-      Fortran_COMPILER='gfortran'
+    - Fortran_COMPILER='gfortran'
       BUILD_TYPE='Release'
-      PYTHON3='3.6.7'
-      PYTHON2='2.7.11'
+      PYTHON3='3.7.5'
+      PYTHON2='2.7.17'
 
 matrix:
   include:
-    # 1/ OSX GCC7 PYTHON3.6 build
+    # 1/ OSX GCC8 PYTHON3.7 build
     - os: osx
-      osx_image: xcode10.1
-      compiler: gcc-7
+      osx_image: xcode11.2
+      compiler: gcc
       env:
+        - CXX_COMPILER='g++-8'
+        - C_COMPILER='gcc-8'
         - PYTHON="${PYTHON3}"
         - COVERAGE=OFF
         - PYENV_ROOT="${HOME}/.pyenv"
         - PATH="${PYENV_ROOT}/bin:$PATH"
-    # 2/ OSX GCC7 PYTHON2.7 build
-    - os: osx
-      osx_image: xcode10.1
-      compiler: gcc-7
-      env:
-        - PYTHON="${PYTHON2}"
-        - COVERAGE=OFF
-        - PYENV_ROOT="${HOME}/.pyenv"
-        - PATH="${PYENV_ROOT}/bin:$PATH"
-    # 3/ Linux GCC7 PYTHON3.6 build
+      addons:
+        homebrew:
+          packages:
+            - gcc@8
+            - swig
+            - openssl
+          update: true
+    # 2/ Linux GCC8 PYTHON3.7 build
     - os: linux
-      dist: trusty
-      compiler: gcc-7
+      dist: bionic
+      compiler: gcc
       env:
+        - CXX_COMPILER='g++-8'
+        - C_COMPILER='gcc-8'
         - PYTHON="${PYTHON3}"
         - COVERAGE=ON
         - PYENV_ROOT="${HOME}/.pyenv"
@@ -43,20 +43,45 @@ matrix:
       addons:
         apt:
           sources:
-            - ubuntu-toolchain-r-test
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
           packages:
-            - cmake3
+            - cmake
+            - g++-8
+            - gcc-8
+            - gfortran-7
+            - lcov
+            - swig
+            - libssl1.0-dev
+    # 3/ Linux GCC7 PYTHON3.7 build
+    - os: linux
+      dist: bionic
+      compiler: gcc
+      env:
+        - CXX_COMPILER='g++-7'
+        - C_COMPILER='gcc-7'
+        - PYTHON="${PYTHON3}"
+        - COVERAGE=ON
+        - PYENV_ROOT="${HOME}/.pyenv"
+        - PATH="${PYENV_ROOT}/bin:$PATH"
+      addons:
+        apt:
+          sources:
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
+          packages:
+            - cmake
             - g++-7
             - gcc-7
             - gfortran-7
             - lcov
             - swig
-
-    # 4/ Linux GCC7 PYTHON2.7 build
+            - libssl1.0-dev
+    # 4/ Linux GCC8 PYTHON2.7 build
     - os: linux
-      dist: trusty
-      compiler: gcc-7
+      dist: bionic
+      compiler: gcc
       env:
+        - CXX_COMPILER='g++-8'
+        - C_COMPILER='gcc-8'
         - PYTHON="${PYTHON2}"
         - COVERAGE=ON
         - PYENV_ROOT="${HOME}/.pyenv"
@@ -64,33 +89,23 @@ matrix:
       addons:
         apt:
           sources:
-            - ubuntu-toolchain-r-test
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
           packages:
-            - cmake3
-            - g++-7
-            - gcc-7
+            - cmake
+            - g++-8
+            - gcc-8
             - gfortran-7
             - lcov
             - swig
-
-    # 5/ Windows VS17 PYTHON3.6 build
+            - libssl-dev
+    # 5/ Windows VS17 PYTHON3.7 build
     - os: windows
       env:
         - COVERAGE=ON
         - PYTHON="${PYTHON3}"
         - MSBUILD_BIN='C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin'
         - CMAKE_BIN='C:\Program Files\CMake'
-        - PYTHON_BIN='C:\Python36'
-        - PATH="$MSBUILD_BIN:$CMAKE_BIN:$PYTHON_BIN:$PYTHON_BIN\Scripts:$PATH"
-
-    # 6/ Windows VS17 PYTHON2.7 build
-    - os: windows
-      env:
-        - COVERAGE=ON
-        - PYTHON="${PYTHON2}"
-        - MSBUILD_BIN='C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin'
-        - CMAKE_BIN='C:\Program Files\CMake'
-        - PYTHON_BIN='C:\tools\python'
+        - PYTHON_BIN='C:\Python37'
         - PATH="$MSBUILD_BIN:$CMAKE_BIN:$PYTHON_BIN:$PYTHON_BIN\Scripts:$PATH"
 
 cache:
@@ -117,7 +132,6 @@ before_install:
       brew update &> /dev/null
       brew cask uninstall --force oclint
       brew upgrade cmake
-      brew install gcc@7 swig
     fi
   - |
     if [[ "${TRAVIS_OS_NAME}" != "windows" && -z "$(ls -A ${PYENV_ROOT})" ]]; then
@@ -127,13 +141,16 @@ before_install:
       pyenv local "${PYTHON}"
     elif [[ "${TRAVIS_OS_NAME}" != "windows" ]]; then
       eval "$(pyenv init -)"
-      pyenv local "${PYTHON}"
+      pyenv local "${PYTHON}" || \
+        (pyenv install "${PYTHON}" && \
+        pyenv local "${PYTHON}")
     fi
   - python --version
   - python -m pip install --upgrade pip
   - pip install -U --only-binary=numpy,scipy numpy scipy
 
 install:
+  - set -o pipefail
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
       ./script/build_msvc_2015.bat
@@ -144,6 +161,7 @@ install:
   - python setup.py install
 
 script:
+  - set -o pipefail
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
       cmake --build ./visualstudio --target test --config Release
