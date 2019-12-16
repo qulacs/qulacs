@@ -283,7 +283,10 @@ public:
 #endif
 	}
 
-
+    virtual void multiply_elementwise_function(const std::function<CPPCTYPE(ITYPE)> &func) override{
+			std::cerr << "multiply_elementwise_function between density matrix and state vector is not implemented" << std::endl;
+    }
+    
     /**
      * \~japanese-en 量子状態を測定した際の計算基底のサンプリングを行う
      *
