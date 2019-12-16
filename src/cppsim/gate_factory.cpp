@@ -208,22 +208,29 @@ namespace gate{
 
 
     QuantumGateBase* BitFlipNoise(UINT target_index, double prob) {
-		auto gate = X(target_index);
-        auto new_gate = new QuantumGate_Probabilistic({ prob }, { gate });
-		delete gate;
+		auto gate0 = X(target_index);
+		auto gate1 = Identity(target_index);
+        auto new_gate = new QuantumGate_Probabilistic({ prob, 1-prob }, { gate0, gate1 });
+		delete gate0;
+		delete gate1;
 		return new_gate;
     }
     QuantumGateBase* DephasingNoise(UINT target_index, double prob) {
-		auto gate = Z(target_index);
-		auto new_gate = new QuantumGate_Probabilistic({ prob }, { gate });
-		delete gate;
+		auto gate0 = Z(target_index);
+		auto gate1 = Identity(target_index);
+		auto new_gate = new QuantumGate_Probabilistic({ prob, 1-prob }, { gate0, gate1 });
+		delete gate0;
+		delete gate1;
 		return new_gate;
     }
     QuantumGateBase* IndependentXZNoise(UINT target_index, double prob) {
 		auto gate0 = X(target_index);
 		auto gate1 = Z(target_index);
 		auto gate2 = Y(target_index);
-        auto new_gate = new QuantumGate_Probabilistic({ prob*(1-prob), prob*(1-prob), prob*prob }, { gate0, gate1, gate2});
+		auto gate3 = Identity(target_index);
+		double p1 = prob * (1 - prob);
+		double p2 = prob * prob;
+        auto new_gate = new QuantumGate_Probabilistic({ p1, p1, p2, 1-2*p1-p2}, { gate0, gate1, gate2, gate3});
 		delete gate0;
 		delete gate1;
 		delete gate2;
@@ -233,10 +240,12 @@ namespace gate{
 		auto gate0 = X(target_index);
 		auto gate1 = Z(target_index);
 		auto gate2 = Y(target_index);
-		auto new_gate = new QuantumGate_Probabilistic({ prob / 3,prob / 3,prob / 3 }, { gate0, gate1, gate2 });
+		auto gate3 = Identity(target_index);
+		auto new_gate = new QuantumGate_Probabilistic({ prob / 3,prob / 3,prob / 3, 1-prob }, { gate0, gate1, gate2, gate3 });
 		delete gate0;
 		delete gate1;
 		delete gate2;
+		delete gate3;
 		return new_gate;
 	}
 	QuantumGateBase* TwoQubitDepolarizingNoise(UINT target_index1, UINT target_index2, double prob) {
