@@ -17,7 +17,21 @@
 #include "util_func.h"
 #include "memory_ops.h"
 
+int get_num_device(){
+    int n_gpu;
+    cudaGetDeviceCount(&n_gpu);
+    return n_gpu;
+}
 
+void set_device(unsigned int device_num){
+    cudaSetDevice(device_num);
+}
+
+int get_current_device() {
+	int curr_dev_num;
+	cudaGetDevice(&curr_dev_num);
+	return curr_dev_num;
+}
 inline __device__ double __shfl_down_double(double var, unsigned int srcLane, int width = 32) {
 	int2 a = *reinterpret_cast<int2*>(&var);
 	a.x = __shfl_down_sync(a.x, srcLane, width);
@@ -35,27 +49,11 @@ inline __device__ int warpReduceSum(int val) {
 // __device__ int __popcll ( unsigned long long int x )
 inline __device__ int popcount64(ITYPE b) {
     return __popcll(b);
-    /*
-	b -= (b >> 1) & 0x5555555555555555ULL;
-	b = ((b >> 2) & 0x3333333333333333ULL) + (b & 0x3333333333333333ULL);
-	b = ((b >> 4) + b) & 0x0F0F0F0F0F0F0F0FULL;
-	return (b * 0x0101010101010101ULL) >> 56;
-    */
 }
 
 //__device__ int __popc ( unsigned int  x )
 inline __device__ int popcount32(unsigned int b) {
 	return __popc(b);
-    /*
-    unsigned int w = b >> 32;
-	unsigned int v = b;
-	v -= (v >> 1) & 0x55555555;
-	w -= (w >> 1) & 0x55555555;
-	v = ((v >> 2) & 0x33333333) + (v & 0x33333333);
-	w = ((w >> 2) & 0x33333333) + (w & 0x33333333);
-	v = ((v >> 4) + v + (w >> 4) + w) & 0x0F0F0F0F;
-	return (v * 0x01010101) >> 24;
-    */
 }
 
 __global__ void deviceReduceWarpAtomicKernel(int *in, int* out, ITYPE N) {
@@ -78,7 +76,10 @@ __global__ void set_computational_basis_gpu(ITYPE comp_basis, GTYPE* state, ITYP
     if(idx==comp_basis) state[comp_basis] = make_cuDoubleComplex(1.0, 0.0);
 }
 
-__host__ void set_computational_basis_host(ITYPE comp_basis, void* state, ITYPE dim, void* stream) {
+__host__ void set_computational_basis_host(ITYPE comp_basis, void* state, ITYPE dim, void* stream, unsigned int device_number) {
+	int current_device = get_current_device();
+	if (device_number != current_device) cudaSetDevice(device_number);
+
 	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 
@@ -93,58 +94,53 @@ __host__ void set_computational_basis_host(ITYPE comp_basis, void* state, ITYPE 
 	state = reinterpret_cast<void*>(state_gpu);
 }
 
-__host__ void set_computational_basis_host(ITYPE comp_basis, void* state, ITYPE dim) {
-	cudaStream_t cuda_stream = (cudaStream_t)0;
-	set_computational_basis_host(comp_basis, state, dim, &cuda_stream);
-}
-
 // copy state_gpu to state_gpu_copy
-void copy_quantum_state_from_device_to_device(void* state_gpu_copy, const void* state_gpu, ITYPE dim, void* stream) {
+void copy_quantum_state_from_device_to_device(void* state_gpu_copy, const void* state_gpu, ITYPE dim, void* stream, unsigned int device_number) {
+	int current_device = get_current_device();
+	if (device_number != current_device) cudaSetDevice(device_number);
+
 	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	const GTYPE* psi_gpu = reinterpret_cast<const GTYPE*>(state_gpu);
 	GTYPE* psi_gpu_copy = reinterpret_cast<GTYPE*>(state_gpu_copy);
 	checkCudaErrors(cudaMemcpyAsync(psi_gpu_copy, psi_gpu, dim * sizeof(GTYPE), cudaMemcpyDeviceToDevice, *cuda_stream), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	state_gpu = reinterpret_cast<const void*>(psi_gpu);
 	state_gpu_copy = reinterpret_cast<void*>(psi_gpu_copy);
 }
 
-void copy_quantum_state_from_device_to_device(void* state_gpu_copy, const void* state_gpu, ITYPE dim) {
-	cudaStream_t cuda_stream = (cudaStream_t)0;
-	copy_quantum_state_from_device_to_device(state_gpu_copy, state_gpu, dim, &cuda_stream);
-}
-
 // copy cppstate to state_gpu_copy
-void copy_quantum_state_from_host_to_device(void* state_gpu_copy, const void* state, ITYPE dim, void* stream){
-    cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+void copy_quantum_state_from_host_to_device(void* state_gpu_copy, const void* state, ITYPE dim, void* stream, unsigned int device_number) {
+	int current_device = get_current_device();
+	if (device_number != current_device) cudaSetDevice(device_number);
+
+	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     GTYPE* psi_gpu_copy = reinterpret_cast<GTYPE*>(state_gpu_copy);
 	checkCudaErrors(cudaMemcpyAsync(psi_gpu_copy, state, dim * sizeof(GTYPE), cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
-    state_gpu_copy = reinterpret_cast<void*>(psi_gpu_copy);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
+	state_gpu_copy = reinterpret_cast<void*>(psi_gpu_copy);
 }
 
-void copy_quantum_state_from_host_to_device(void* state_gpu_copy, const void* state, ITYPE dim) {
-	cudaStream_t cuda_stream = (cudaStream_t)0;
-	copy_quantum_state_from_host_to_device(state_gpu_copy, state, dim, &cuda_stream);
+// this function will be removed in the future version
+void copy_quantum_state_from_cppstate_host(void* state_gpu_copy, const CPPCTYPE* cppstate, ITYPE dim, void* stream, UINT device_number) {
+	copy_quantum_state_from_host_to_device(state_gpu_copy, cppstate, dim, stream, device_number);
 }
 
-void copy_quantum_state_from_cppstate_host(void* state_gpu_copy, const CPPCTYPE* cppstate, ITYPE dim) {
-	copy_quantum_state_from_host_to_device(state_gpu_copy, cppstate, dim);
-}
+void copy_quantum_state_from_device_to_host(void* state_cpu_copy, const void* state_gpu_original, ITYPE dim, void* stream, unsigned int device_number) {
+	int current_device = get_current_device();
+	if (device_number != current_device) cudaSetDevice(device_number);
 
-void copy_quantum_state_from_device_to_host(void* state_cpu_copy, const void* state_gpu_original, ITYPE dim, void* stream) {
 	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	const GTYPE* psi_gpu = reinterpret_cast<const GTYPE*>(state_gpu_original);
 	checkCudaErrors(cudaMemcpyAsync(state_cpu_copy, psi_gpu, dim * sizeof(GTYPE), cudaMemcpyDeviceToHost, *cuda_stream), __FILE__, __LINE__);
+	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
 	state_gpu_original = reinterpret_cast<const void*>(psi_gpu);
-}
-
-void copy_quantum_state_from_device_to_host(void* state_cpu_copy, const void* state_gpu_original, ITYPE dim) {
-	cudaStream_t cuda_stream = (cudaStream_t)0;
-	copy_quantum_state_from_device_to_host(state_cpu_copy, state_gpu_original, dim, &cuda_stream);
 }
 
 // copy state_gpu to psi_cpu_copy
 // this function is same as copy_quantum_state_from_device_to_host
-void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim, void* stream) {
+void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim, void* stream, unsigned int device_number) {
+	int current_device = get_current_device();
+	if (device_number != current_device) cudaSetDevice(device_number);
 	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	GTYPE* psi_gpu = reinterpret_cast<GTYPE*>(state_gpu);
 	psi_cpu_copy = reinterpret_cast<CPPCTYPE*>(psi_cpu_copy);
@@ -152,12 +148,9 @@ void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim, void
 	state_gpu = reinterpret_cast<void*>(psi_gpu);
 }
 
-void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim) {
-	cudaStream_t cuda_stream = (cudaStream_t)0;
-	get_quantum_state_host(state_gpu, psi_cpu_copy, dim, &cuda_stream);
-}
-
-void print_quantum_state_host(void* state, ITYPE dim){
+void print_quantum_state_host(void* state, ITYPE dim, unsigned int device_number) {
+	int current_device = get_current_device();
+	if (device_number != current_device) cudaSetDevice(device_number);
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	CPPCTYPE* state_cpu=(CPPCTYPE*)malloc(sizeof(CPPCTYPE)*dim);
 	checkCudaErrors(cudaDeviceSynchronize());

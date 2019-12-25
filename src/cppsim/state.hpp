@@ -29,22 +29,33 @@ protected:
     UINT _qubit_count;
 	bool _is_state_vector;
     std::vector<UINT> _classical_register;
+    UINT _device_number;
+	void* _cuda_stream;
 public:
     const UINT& qubit_count; /**< \~japanese-en 量子ビット数 */
     const ITYPE& dim; /**< \~japanese-en 量子状態の次元 */
     const std::vector<UINT>& classical_register; /**< \~japanese-en 古典ビットのレジスタ */
-
+    const UINT& device_number;
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param qubit_count_ 量子ビット数
      */
     QuantumStateBase(UINT qubit_count_, bool is_state_vector):
-        qubit_count(_qubit_count), dim(_dim), classical_register(_classical_register)
+        qubit_count(_qubit_count), dim(_dim), classical_register(_classical_register), device_number(_device_number)
     {
         this->_qubit_count = qubit_count_;
         this->_dim = 1ULL << qubit_count_;
 		this->_is_state_vector = is_state_vector;
+        this->_device_number=0;
+    }
+    QuantumStateBase(UINT qubit_count_, bool is_state_vector, UINT device_number_):
+        qubit_count(_qubit_count), dim(_dim), classical_register(_classical_register), device_number(_device_number)
+    {
+        this->_qubit_count = qubit_count_;
+        this->_dim = 1ULL << qubit_count_;
+		this->_is_state_vector = is_state_vector;
+        this->_device_number = device_number_;
     }
     /**
      * \~japanese-en デストラクタ
@@ -192,6 +203,8 @@ public:
      */
     virtual void multiply_coef(CPPCTYPE coef) = 0;
     
+    virtual void multiply_elementwise_function(const std::function<CPPCTYPE(ITYPE)> &func) = 0;
+    
     /**
      * \~japanese-en 指定した添え字の古典レジスタの値を取得する。
      * 
@@ -273,6 +286,10 @@ public:
         os << *state;
         return os;
     }
+
+	virtual void* get_cuda_stream() const {
+		return this->_cuda_stream;
+	}
 };
 
 class QuantumStateCpu : public QuantumStateBase{
@@ -512,6 +529,12 @@ public:
 #endif
     }
 
+    virtual void multiply_elementwise_function(const std::function<CPPCTYPE(ITYPE)> &func) override{
+		CPPCTYPE* state = this->data_cpp();
+		for (ITYPE idx = 0; idx < dim; ++idx) {
+			state[idx] *= (CPPCTYPE)func(idx);
+		}
+	}
 
     /**
      * \~japanese-en 量子状態を測定した際の計算基底のサンプリングを行う

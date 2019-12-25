@@ -41,7 +41,7 @@ public:
 class QuantumGate_SingleParameterOneQubitRotation : public QuantumGate_SingleParameter {
 protected:
     typedef void (T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
-	typedef void (T_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE);
+	typedef void (T_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE, void*, UINT);
 	T_UPDATE_FUNC* _update_func;
 	T_UPDATE_FUNC* _update_func_dm;
 	T_GPU_UPDATE_FUNC* _update_func_gpu;
@@ -53,8 +53,8 @@ public:
     virtual void update_quantum_state(QuantumStateBase* state) override {
 		if (state->is_state_vector()) {
 #ifdef _USE_GPU
-			if (state->get_device_name() == "gpu") {
-				_update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim);
+            if (state->get_device_name() == "gpu") {
+				_update_func_gpu(this->_target_qubit_list[0].index(), _angle, state->data(), state->dim, state->get_cuda_stream(), state->device_number);
 			}
 			else {
 				_update_func(this->_target_qubit_list[0].index(), _angle, state->data_c(), state->dim);
@@ -161,7 +161,7 @@ public:
 			if (state->get_device_name() == "gpu") {
 				multi_qubit_Pauli_rotation_gate_partial_list_host(
 					target_index_list.data(), pauli_id_list.data(), (UINT)target_index_list.size(),
-					_angle, state->data(), state->dim);
+					_angle, state->data(), state->dim, state->get_cuda_stream(), state->device_number);
 			}
 			else {
 				multi_qubit_Pauli_rotation_gate_partial_list(

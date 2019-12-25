@@ -8,7 +8,7 @@ from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
-_VERSION = '0.1.8'
+_VERSION = '0.1.9'
 
 project_name = 'Qulacs'
 
@@ -48,21 +48,27 @@ class CMakeBuild(build_ext):
             build_args += ['--', '/m']
         else:
             try:
-                gcc_out = subprocess.check_output(['gcc', '-dumpfullversion', '-dumpversion']).decode()
+                gcc_out = subprocess.check_output([os.getenv('C_COMPILER', 'gcc'), '-dumpfullversion', '-dumpversion']).decode()
                 gcc_version = LooseVersion(gcc_out)
-                gxx_out = subprocess.check_output(['g++', '-dumpfullversion', '-dumpversion']).decode()
+                gxx_out = subprocess.check_output([os.getenv('CXX_COMPILER', 'g++'), '-dumpfullversion', '-dumpversion']).decode()
                 gxx_version = LooseVersion(gxx_out)
             except OSError:
                 raise RuntimeError("gcc/g++ must be installed to build the following extensions: " +
                                ", ".join(e.name for e in self.extensions))
-            if(gcc_version >= LooseVersion('7.0.0')):
+            if(gcc_version > LooseVersion('9.0.0')):
                 cmake_args += ['-DCMAKE_C_COMPILER=gcc']
+            elif(gcc_version >= LooseVersion('8.0.0')):
+                cmake_args += ['-DCMAKE_C_COMPILER=gcc-8']
             else:
                 cmake_args += ['-DCMAKE_C_COMPILER=gcc-7']
-            if(gxx_version >= LooseVersion('7.0.0')):
+
+            if(gxx_version > LooseVersion('9.0.0')):
                 cmake_args += ['-DCMAKE_CXX_COMPILER=g++']
+            elif(gxx_version >= LooseVersion('8.0.0')):
+                cmake_args += ['-DCMAKE_CXX_COMPILER=g++-8']
             else:
                 cmake_args += ['-DCMAKE_CXX_COMPILER=g++-7']
+
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j2']
 

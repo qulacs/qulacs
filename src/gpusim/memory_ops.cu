@@ -14,6 +14,7 @@
 #include <algorithm>
 #include <cuComplex.h>
 #include "util_type.h"
+#include "util_func.h"
 #include "util_type_internal.h"
 #include "util.cuh"
 #include "memory_ops.h"
@@ -21,14 +22,19 @@
 #include "stat_ops.h"
 #include "update_ops_cuda.h"
 
-__host__ void* allocate_cuda_stream_host(unsigned int max_cuda_stream) {
+
+__host__ void* allocate_cuda_stream_host(unsigned int max_cuda_stream, unsigned int device_number) {
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
 	cudaStream_t* stream = (cudaStream_t*)malloc(max_cuda_stream * sizeof(cudaStream_t));
 	for (unsigned int i = 0; i < max_cuda_stream; ++i) cudaStreamCreate(&stream[i]);
 	void* cuda_stream = reinterpret_cast<void*>(stream);
 	return cuda_stream;
 }
 
-__host__ void release_cuda_stream_host(void* cuda_stream, unsigned int max_cuda_stream) {
+__host__ void release_cuda_stream_host(void* cuda_stream, unsigned int max_cuda_stream, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
 	cudaStream_t* stream = reinterpret_cast<cudaStream_t*>(cuda_stream);
 	for (unsigned int i = 0; i < max_cuda_stream; ++i) cudaStreamDestroy(stream[i]);
 	free(stream);
@@ -42,46 +48,37 @@ __global__ void init_qstate(GTYPE* state_gpu, ITYPE dim){
 	if (idx == 0) state_gpu[idx] = make_cuDoubleComplex(1.0, 0.0);
 }
 
-// void* (GTYPE*)
-__host__ void* allocate_quantum_state_host(ITYPE dim){
-	GTYPE *state_gpu;
-	checkCudaErrors(cudaSetDevice(0));
-	checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(GTYPE)));
+__host__ void* allocate_quantum_state_host(ITYPE dim, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
+	GTYPE* state_gpu;
+	checkCudaErrors(cudaMalloc((void**)& state_gpu, dim * sizeof(GTYPE)));
 	void* psi_gpu = reinterpret_cast<void*>(state_gpu);
-    return psi_gpu;
+	return psi_gpu;
 }
 
-__host__ void initialize_quantum_state_host(void* state, ITYPE dim, void* stream) {
+__host__ void initialize_quantum_state_host(void* state, ITYPE dim, void* stream, unsigned int device_number) {
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
-	cudaError cudaStatus;
+
 	unsigned int block = dim <= 1024 ? dim : 1024;
 	unsigned int grid = dim / block;
-	init_qstate << <grid, block, 0, *cuda_stream >> > (state_gpu, dim);
+	init_qstate << <grid, block, 0, * cuda_stream >> > (state_gpu, dim);
 
 	checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
-	cudaStatus = cudaGetLastError();
-	checkCudaErrors(cudaStatus, __FILE__, __LINE__);
+	checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
-	stream = reinterpret_cast<void*>(cuda_stream);
+	//stream = reinterpret_cast<void*>(cuda_stream);
+
 }
 
-__host__ void initialize_quantum_state_host(void* state, ITYPE dim) {
-	cudaStream_t cuda_stream = (cudaStream_t)0;
-	initialize_quantum_state_host(state, dim, &cuda_stream);
-}
-
-__host__ void release_quantum_state_host(void* state){
+__host__ void release_quantum_state_host(void* state, unsigned int device_number){
+    int current_device = get_current_device();
+	if(device_number!=current_device) cudaSetDevice(device_number);
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	checkCudaErrors(cudaFree(state_gpu), __FILE__, __LINE__);
-}
-
-__host__ void initialize_Haar_random_state_host(void *state, ITYPE dim, void* stream) {
-	initialize_Haar_random_state_with_seed_host(state, dim, (unsigned)time(NULL), stream);
-}
-
-__host__ void initialize_Haar_random_state_host(void *state, ITYPE dim) {
-	initialize_Haar_random_state_with_seed_host(state, dim, (unsigned)time(NULL));
 }
 
 __global__ void init_rnd(curandState *const rnd_state, const unsigned int seed)
@@ -122,7 +119,10 @@ __global__ void rand_normal_xorwow(curandState* rnd_state, GTYPE* state, ITYPE d
     }
 }
 
-__host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim, UINT seed, void* stream) {
+__host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim, UINT seed, void* stream, unsigned int device_number) {
+	int current_device = get_current_device();
+	if (device_number != current_device) cudaSetDevice(device_number);
+
 	GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 	cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 	//const ITYPE ignore_first = 40;
@@ -147,11 +147,10 @@ __host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim
 	checkCudaErrors(cudaFree(rnd_state), __FILE__, __LINE__);
 	state = reinterpret_cast<void*>(state_gpu);
 
-	norm = state_norm_squared_host(state, dim, cuda_stream);
-	normalize_host(norm, state, dim, cuda_stream);
+	norm = state_norm_squared_host(state, dim, cuda_stream, device_number);
+	normalize_host(norm, state, dim, cuda_stream, device_number);
 }
 
-__host__ void initialize_Haar_random_state_with_seed_host(void *state, ITYPE dim, UINT seed) {
-	cudaStream_t cuda_stream = (cudaStream_t)0;
-	initialize_Haar_random_state_with_seed_host(state, dim, seed, &cuda_stream);
+__host__ void initialize_Haar_random_state_host(void* state, ITYPE dim, void* stream, unsigned int device_number) {
+	initialize_Haar_random_state_with_seed_host(state, dim, (unsigned)time(NULL), stream, device_number);
 }
