@@ -300,7 +300,7 @@ public:
         auto ptr = this->data_cpp();
         stacked_prob.push_back(0.);
         for (UINT i = 0; i < this->dim; ++i) {
-            sum += norm(ptr[i*dim+i]);
+            sum += abs(ptr[i*dim+i]);
             stacked_prob.push_back(sum);
         }
 
