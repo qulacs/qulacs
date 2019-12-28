@@ -1,7 +1,5 @@
 language: cpp
 
-sudo: false
-
 env:
   global:
     - Fortran_COMPILER='gfortran'
