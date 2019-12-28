@@ -245,10 +245,12 @@ public:
      * \~japanese-en 量子状態を測定した際の計算基底のサンプリングを行う
      *
      * @param[in] sampling_count サンプリングを行う回数
+	 * @param[in] random_seed サンプリングで乱数を振るシード値
      * @return サンプルされた値のリスト
      */
     virtual std::vector<ITYPE> sampling(UINT sampling_count) = 0;
-    
+	virtual std::vector<ITYPE> sampling(UINT sampling_count, UINT random_seed) = 0;
+
 
     /**
      * \~japanese-en 量子回路のデバッグ情報の文字列を生成する
@@ -561,6 +563,10 @@ public:
         }
         return result;
     }
+	virtual std::vector<ITYPE> sampling(UINT sampling_count, UINT random_seed) override {
+		random.set_seed(random_seed);
+		return this->sampling(sampling_count);
+	}
 
 };
 
