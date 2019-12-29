@@ -130,7 +130,8 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_classical_value", &QuantumState::get_classical_value)
         .def("set_classical_value", &QuantumState::set_classical_value)
         .def("to_string",&QuantumState::to_string)
-        .def("sampling",&QuantumState::sampling)
+        .def("sampling", (std::vector<ITYPE> (QuantumState::*)(UINT))&QuantumState::sampling)
+		.def("sampling", (std::vector<ITYPE>(QuantumState::*)(UINT, UINT))&QuantumState::sampling)
 
         .def("get_vector", [](const QuantumState& state) {
         Eigen::VectorXcd vec = Eigen::Map<Eigen::VectorXcd>(state.data_cpp(), state.dim);
@@ -164,7 +165,8 @@ PYBIND11_MODULE(qulacs, m) {
 		.def("get_classical_value", &DensityMatrix::get_classical_value)
 		.def("set_classical_value", &DensityMatrix::set_classical_value)
 		.def("to_string", &DensityMatrix::to_string)
-		.def("sampling", &DensityMatrix::sampling)
+		.def("sampling", (std::vector<ITYPE>(DensityMatrix::*)(UINT))&DensityMatrix::sampling)
+		.def("sampling", (std::vector<ITYPE>(DensityMatrix::*)(UINT, UINT))&DensityMatrix::sampling)
 
 		.def("get_matrix", [](const DensityMatrix& state) {
 			Eigen::MatrixXcd mat(state.dim, state.dim);
@@ -206,8 +208,9 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_classical_value", &QuantumStateGpu::get_classical_value)
         .def("set_classical_value", &QuantumStateGpu::set_classical_value)
         .def("to_string", &QuantumStateGpu::to_string)
-        .def("sampling", &QuantumStateGpu::sampling)
-        .def("get_vector", [](const QuantumStateGpu& state) {
+		.def("sampling", (std::vector<ITYPE>(QuantumStateGpu::*)(UINT))&QuantumStateGpu::sampling)
+		.def("sampling", (std::vector<ITYPE>(QuantumStateGpu::*)(UINT, UINT))&QuantumStateGpu::sampling)
+		.def("get_vector", [](const QuantumStateGpu& state) {
             Eigen::VectorXcd vec = Eigen::Map<Eigen::VectorXcd>(state.duplicate_data_cpp(), state.dim);
             return vec;
         }, pybind11::return_value_policy::take_ownership)
