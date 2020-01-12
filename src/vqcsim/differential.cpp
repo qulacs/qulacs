@@ -16,19 +16,19 @@ double GradientByHalfPi::compute_gradient(ParametricQuantumCircuitSimulator* sim
         sim->simulate_range(previous_pos, current_pos);
 
         sim->copy_state_to_buffer();
-        sim->add_parameter_value(i, +M_PI / 4);
+        sim->add_parameter_value(i, M_PI / 2);
         sim->simulate_range(current_pos, last_pos);
         double res1 = instance->compute_loss(sim->get_state_ptr());
 
         sim->copy_state_from_buffer();
-        sim->add_parameter_value(i, -M_PI/2);
+        sim->add_parameter_value(i, -M_PI);
         sim->simulate_range(current_pos, last_pos);
         double res2 = instance->compute_loss(sim->get_state_ptr());
 
         (*gradient)[i] = (res1 - res2) / 2;
 
         sim->copy_state_from_buffer();
-        sim->add_parameter_value(i, +M_PI / 4);
+        sim->add_parameter_value(i, M_PI / 2);
         previous_pos = current_pos;
     }
     sim->simulate_range(previous_pos, last_pos);
