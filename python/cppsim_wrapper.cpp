@@ -43,25 +43,25 @@ PYBIND11_MODULE(qulacs, m) {
     m.doc() = "cppsim python interface";
 
     py::class_<PauliOperator>(m, "PauliOperator")
-        .def(py::init<std::complex<double>>())
-        .def(py::init<std::string, std::complex<double>>())
-        .def(py::init<std::vector<unsigned int>&, std::string, std::complex<double>>())
-        .def(py::init<std::vector<unsigned int>&, std::vector<unsigned int>&, std::complex<double>>())
-        .def(py::init<std::vector<unsigned int>&, std::complex<double>>())
+        .def(py::init<std::complex<double>>(), "Constructor", py::arg("coef"))
+        .def(py::init<std::string, std::complex<double>>(), "Constructor", py::arg("pauli_string"), py::arg("coef"))
+        //.def(py::init<std::vector<unsigned int>&, std::string, std::complex<double>>(), "Constructor")
+        //.def(py::init<std::vector<unsigned int>&, std::vector<unsigned int>&, std::complex<double>>(), "Constructor")
+        //.def(py::init<std::vector<unsigned int>&, std::complex<double>>(), "Constructor")
         .def("get_index_list", &PauliOperator::get_index_list,"Get list of target qubit indices")
         .def("get_pauli_id_list", &PauliOperator::get_pauli_id_list, "Get list of Pauli IDs (I,X,Y,Z) = (0,1,2,3)")
         .def("get_coef", &PauliOperator::get_coef, "Get coefficient of Pauli term")
-        .def("add_single_Pauli", &PauliOperator::add_single_Pauli, "Add Pauli operator to this term")
+        .def("add_single_Pauli", &PauliOperator::add_single_Pauli, "Add Pauli operator to this term", py::arg("index"), py::arg("pauli_string"))
         .def("get_expectation_value", &PauliOperator::get_expectation_value, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &PauliOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         .def("copy", &PauliOperator::copy, pybind11::return_value_policy::take_ownership, "Create copied instance of Pauli operator class")
         ;
 
     py::class_<GeneralQuantumOperator>(m, "GeneralQuantumOperator")
-        .def(py::init<unsigned int>())
+        .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
         // .def(py::init<std::string>())
         .def("add_operator", (void (GeneralQuantumOperator::*)(const PauliOperator*)) &GeneralQuantumOperator::add_operator, "Add Pauli operator", py::arg("pauli_operator"))
-        .def("add_operator", (void (GeneralQuantumOperator::*)(std::complex<double> coef, std::string))&GeneralQuantumOperator::add_operator, "Add Pauli operator", py::arg("coef"), py::arg("string"))
+        .def("add_operator", (void (GeneralQuantumOperator::*)(std::complex<double> coef, std::string))&GeneralQuantumOperator::add_operator, "Add Pauli operator", py::arg("coef"), py::arg("pauli_string"))
         .def("is_hermitian", &GeneralQuantumOperator::is_hermitian, "Get is Herimitian")
         .def("get_qubit_count", &GeneralQuantumOperator::get_qubit_count, "Get qubit count")
         .def("get_state_dim", &GeneralQuantumOperator::get_state_dim, "Get state dimension")
@@ -80,7 +80,7 @@ PYBIND11_MODULE(qulacs, m) {
     mquantum_operator.def("create_split_quantum_operator", &quantum_operator::create_split_general_quantum_operator, pybind11::return_value_policy::take_ownership);
 
     py::class_<HermitianQuantumOperator, GeneralQuantumOperator>(m, "Observable")
-        .def(py::init<unsigned int>())
+        .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
         // .def(py::init<std::string>())
         .def("add_operator", (void (HermitianQuantumOperator::*)(const PauliOperator*)) &HermitianQuantumOperator::add_operator, "Add Pauli operator", py::arg("pauli_operator"))
         .def("add_operator", (void (HermitianQuantumOperator::*)(std::complex<double> coef, std::string))&HermitianQuantumOperator::add_operator, "Add Pauli operator", py::arg("coef"), py::arg("string"))
@@ -106,7 +106,7 @@ PYBIND11_MODULE(qulacs, m) {
 
     py::class_<QuantumStateBase>(m, "QuantumStateBase");
     py::class_<QuantumState, QuantumStateBase>(m, "QuantumState")
-        .def(py::init<unsigned int>())
+        .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
         .def("set_zero_state", &QuantumState::set_zero_state, "Set state to |0>")
         .def("set_computational_basis", &QuantumState::set_computational_basis, "Set state to computational basis", py::arg("index"))
         .def("set_Haar_random_state", (void (QuantumState::*)(void))&QuantumState::set_Haar_random_state, "Set Haar random state")
@@ -142,7 +142,7 @@ PYBIND11_MODULE(qulacs, m) {
         ;
 
 	py::class_<DensityMatrix, QuantumStateBase>(m, "DensityMatrix")
-		.def(py::init<unsigned int>())
+		.def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
 		.def("set_zero_state", &DensityMatrix::set_zero_state, "Set state to |0>")
 		.def("set_computational_basis", &DensityMatrix::set_computational_basis, "Set state to computational basis", py::arg("index"))
 		.def("set_Haar_random_state", (void (DensityMatrix::*)(void))&DensityMatrix::set_Haar_random_state, "Set Haar random state")
@@ -183,8 +183,8 @@ PYBIND11_MODULE(qulacs, m) {
 
 #ifdef _USE_GPU
     py::class_<QuantumStateGpu, QuantumStateBase>(m, "QuantumStateGpu")
-        .def(py::init<unsigned int>())
-        .def(py::init<unsigned int, unsigned int>())
+        .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
+        .def(py::init<unsigned int, unsigned int>(), "Constructor", py::arg("qubit_count"), py::arg("gpu_id"))
         .def("set_zero_state", &QuantumStateGpu::set_zero_state, "Set state to |0>")
         .def("set_computational_basis", &QuantumStateGpu::set_computational_basis, "Set state to computational basis", py::arg("index"))
         .def("set_Haar_random_state", (void (QuantumStateGpu::*)(void))&QuantumStateGpu::set_Haar_random_state, "Set Haar random state")
@@ -402,7 +402,7 @@ PYBIND11_MODULE(qulacs, m) {
 
 
     py::class_<QuantumCircuit>(m, "QuantumCircuit")
-        .def(py::init<unsigned int>())
+        .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
         .def("copy", &QuantumCircuit::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
         // In order to avoid double release, we force using add_gate_copy in python
         .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate, "Add gate and take ownership", py::arg("gate"))
@@ -465,7 +465,7 @@ PYBIND11_MODULE(qulacs, m) {
     ;
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(m, "ParametricQuantumCircuit")
-        .def(py::init<unsigned int>())
+        .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
         .def("copy", &ParametricQuantumCircuit::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
         .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate))  &ParametricQuantumCircuit::add_parametric_gate, "Add parametric gate", py::arg("gate"))
         .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate, UINT))  &ParametricQuantumCircuit::add_parametric_gate, "Add parametric gate", py::arg("gate"), py::arg("position"))
@@ -489,13 +489,13 @@ PYBIND11_MODULE(qulacs, m) {
 
     auto mcircuit = m.def_submodule("circuit");
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
-        .def(py::init<>())
+        .def(py::init<>(), "Constructor")
         .def("optimize", &QuantumCircuitOptimizer::optimize, "Optimize quantum circuit", py::arg("circuit"), py::arg("block_size"))
         .def("merge_all", &QuantumCircuitOptimizer::merge_all, pybind11::return_value_policy::take_ownership, py::arg("circuit"))
         ;
 
     py::class_<QuantumCircuitSimulator>(m, "QuantumCircuitSimulator")
-        .def(py::init<QuantumCircuit*, QuantumStateBase*>())
+        .def(py::init<QuantumCircuit*, QuantumStateBase*>(), "Constructor", py::arg("circuit"), py::arg("state"))
         .def("initialize_state", &QuantumCircuitSimulator::initialize_state, "Initialize state")
         .def("initialize_random_state", &QuantumCircuitSimulator::initialize_random_state, "Initialize state with random pure state")
         .def("simulate", &QuantumCircuitSimulator::simulate, "Simulate circuit")
