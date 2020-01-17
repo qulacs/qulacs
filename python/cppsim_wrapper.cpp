@@ -129,7 +129,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("multiply_elementwise_function", &QuantumState::multiply_elementwise_function, "Multiply elementwise function", py::arg("func"))
         .def("get_classical_value", &QuantumState::get_classical_value, "Get classical value", py::arg("index"))
         .def("set_classical_value", &QuantumState::set_classical_value, "Set classical value", py::arg("index"), py::arg("value"))
-        //.def("to_string",&QuantumState::to_string)
+        .def("to_string",&QuantumState::to_string, "Get string representation")
         .def("sampling", (std::vector<ITYPE> (QuantumState::*)(UINT))&QuantumState::sampling, "Sampling measurement results", py::arg("count"))
 		.def("sampling", (std::vector<ITYPE>(QuantumState::*)(UINT, UINT))&QuantumState::sampling, "Sampling measurement results", py::arg("count"), py::arg("seed"))
 
@@ -164,7 +164,7 @@ PYBIND11_MODULE(qulacs, m) {
 		.def("multiply_coef", &DensityMatrix::multiply_coef, "Multiply coefficient to this state", py::arg("coef"))
 		.def("get_classical_value", &DensityMatrix::get_classical_value, "Get classical value", py::arg("index"))
 		.def("set_classical_value", &DensityMatrix::set_classical_value, "Set classical value", py::arg("index"), py::arg("value"))
-		//.def("to_string", &DensityMatrix::to_string)
+		.def("to_string", &QuantumState::to_string, "Get string representation")
 		.def("sampling", (std::vector<ITYPE>(DensityMatrix::*)(UINT))&DensityMatrix::sampling, "Sampling measurement results", py::arg("count"))
 		.def("sampling", (std::vector<ITYPE>(DensityMatrix::*)(UINT, UINT))&DensityMatrix::sampling, "Sampling measurement results", py::arg("count"), py::arg("seed"))
 
@@ -185,36 +185,36 @@ PYBIND11_MODULE(qulacs, m) {
     py::class_<QuantumStateGpu, QuantumStateBase>(m, "QuantumStateGpu")
         .def(py::init<unsigned int>())
         .def(py::init<unsigned int, unsigned int>())
-        .def("set_zero_state", &QuantumStateGpu::set_zero_state)
-        .def("set_computational_basis", &QuantumStateGpu::set_computational_basis)
-        .def("set_Haar_random_state", (void (QuantumStateGpu::*)(void))&QuantumStateGpu::set_Haar_random_state)
-        .def("set_Haar_random_state", (void (QuantumStateGpu::*)(UINT))&QuantumStateGpu::set_Haar_random_state)
-        .def("get_zero_probability", &QuantumStateGpu::get_zero_probability)
-        .def("get_marginal_probability", &QuantumStateGpu::get_marginal_probability)
-        .def("get_entropy", &QuantumStateGpu::get_entropy)
-        .def("get_squared_norm", &QuantumStateGpu::get_squared_norm)
-        .def("normalize", &QuantumStateGpu::normalize)
-        .def("allocate_buffer", &QuantumStateGpu::allocate_buffer, pybind11::return_value_policy::automatic_reference)
+        .def("set_zero_state", &QuantumStateGpu::set_zero_state, "Set state to |0>")
+        .def("set_computational_basis", &QuantumStateGpu::set_computational_basis, "Set state to computational basis", py::arg("index"))
+        .def("set_Haar_random_state", (void (QuantumStateGpu::*)(void))&QuantumStateGpu::set_Haar_random_state, "Set Haar random state")
+        .def("set_Haar_random_state", (void (QuantumStateGpu::*)(UINT))&QuantumStateGpu::set_Haar_random_state, "Set Haar random state", py::arg("seed"))
+        .def("get_zero_probability", &QuantumStateGpu::get_zero_probability, "Get probability with which we obtain 0 when we measure a qubit", py::arg("index"))
+        .def("get_marginal_probability", &QuantumStateGpu::get_marginal_probability, "Get merginal probability for measured values", py::arg("measured_value"))
+        .def("get_entropy", &QuantumStateGpu::get_entropy, "Get entropy")
+        .def("get_squared_norm", &QuantumStateGpu::get_squared_norm, "Get squared norm")
+        .def("normalize", &QuantumStateGpu::normalize, "Normalize quantum state", py::arg("squared_norm"))
+        .def("allocate_buffer", &QuantumStateGpu::allocate_buffer, pybind11::return_value_policy::automatic_reference, "Allocate buffer with the same size")
         //.def("copy", &QuantumStateGpu::copy, pybind11::return_value_policy::automatic_reference)
-        .def("copy", &QuantumStateGpu::copy)
-        .def("load", (void (QuantumStateGpu::*)(const QuantumStateBase*))&QuantumStateGpu::load)
-        .def("load", (void (QuantumStateGpu::*)(const std::vector<CPPCTYPE>&))&QuantumStateGpu::load)
-        .def("get_device_name", &QuantumStateGpu::get_device_name)
+        .def("copy", &QuantumStateGpu::copy, "Create copied insntace")
+        .def("load", (void (QuantumStateGpu::*)(const QuantumStateBase*))&QuantumStateGpu::load, "Load quantum state vector", py::arg("state"))
+        .def("load", (void (QuantumStateGpu::*)(const std::vector<CPPCTYPE>&))&QuantumStateGpu::load, "Load quantum state vector", py::arg("state"))
+        .def("get_device_name", &QuantumStateGpu::get_device_name, "Get allocated device name")
         //.def("data_cpp", &QuantumStateGpu::data_cpp)
         //.def("data_c", &QuantumStateGpu::data_c)
-        .def("add_state", &QuantumStateGpu::add_state)
-        .def("multiply_coef", &QuantumStateGpu::multiply_coef)
-        .def("multiply_elementwise_function", &QuantumStateGpu::multiply_elementwise_function)
-        .def("get_classical_value", &QuantumStateGpu::get_classical_value)
-        .def("set_classical_value", &QuantumStateGpu::set_classical_value)
-        .def("to_string", &QuantumStateGpu::to_string)
-		.def("sampling", (std::vector<ITYPE>(QuantumStateGpu::*)(UINT))&QuantumStateGpu::sampling)
-		.def("sampling", (std::vector<ITYPE>(QuantumStateGpu::*)(UINT, UINT))&QuantumStateGpu::sampling)
+        .def("add_state", &QuantumStateGpu::add_state, "Add state vector to this state", py::arg("state"))
+        .def("multiply_coef", &QuantumStateGpu::multiply_coef, "Multiply coefficient to this state", py::arg("coef"))
+        .def("multiply_elementwise_function", &QuantumStateGpu::multiply_elementwise_function, "Multiply elementwise function", py::arg("func"))
+        .def("get_classical_value", &QuantumStateGpu::get_classical_value, "Get classical value", py::arg("index"))
+        .def("set_classical_value", &QuantumStateGpu::set_classical_value, "Set classical value", py::arg("index"), py::arg("value"))
+        .def("to_string", &QuantumStateGpu::to_string, "Get string representation")
+		.def("sampling", (std::vector<ITYPE>(QuantumStateGpu::*)(UINT))&QuantumStateGpu::sampling, "Sampling measurement results", py::arg("count"))
+		.def("sampling", (std::vector<ITYPE>(QuantumStateGpu::*)(UINT, UINT))&QuantumStateGpu::sampling, "Sampling measurement results", py::arg("count"), py::arg("seed"))
 		.def("get_vector", [](const QuantumStateGpu& state) {
             Eigen::VectorXcd vec = Eigen::Map<Eigen::VectorXcd>(state.duplicate_data_cpp(), state.dim);
             return vec;
-        }, pybind11::return_value_policy::take_ownership)
-        .def("get_qubit_count", [](const QuantumStateGpu& state) -> unsigned int {return (unsigned int) state.qubit_count; })
+        }, pybind11::return_value_policy::take_ownership, "Get state vector")
+        .def("get_qubit_count", [](const QuantumStateGpu& state) -> unsigned int {return (unsigned int) state.qubit_count; }, "Get qubit count")
         .def("__repr__", [](const QuantumStateGpu &p) {return p.to_string(); });
         ;
 
@@ -223,9 +223,9 @@ PYBIND11_MODULE(qulacs, m) {
     auto mstate = m.def_submodule("state");
     //using namespace state;
 #ifdef _USE_GPU
-    mstate.def("inner_product", py::overload_cast<const QuantumStateGpu*, const QuantumStateGpu*>(&state::inner_product));
+    mstate.def("inner_product", py::overload_cast<const QuantumStateGpu*, const QuantumStateGpu*>(&state::inner_product), "Get inner product", py::arg("state_bra"), py::arg("state_ket"));
 #endif
-    mstate.def("inner_product", py::overload_cast<const QuantumState*, const QuantumState*>(&state::inner_product));
+    mstate.def("inner_product", py::overload_cast<const QuantumState*, const QuantumState*>(&state::inner_product), "Get inner product", py::arg("state_bra"), py::arg("state_ket"));
     //mstate.def("inner_product", &state::inner_product);
 
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
