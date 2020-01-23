@@ -290,14 +290,14 @@ void QuantumCircuit::add_RY_gate(UINT target_index, double angle) {
 void QuantumCircuit::add_RZ_gate(UINT target_index, double angle) {
     this->add_gate(gate::RZ(target_index,angle));
 }
-void QuantumCircuit::add_U1_gate(UINT target_index, double phi) {
-    this->add_gate(gate::U1(target_index,phi));
+void QuantumCircuit::add_U1_gate(UINT target_index, double lambda) {
+    this->add_gate(gate::U1(target_index,lambda));
 }
-void QuantumCircuit::add_U2_gate(UINT target_index, double phi, double psi) {
-    this->add_gate(gate::U2(target_index,phi,psi));
+void QuantumCircuit::add_U2_gate(UINT target_index, double phi, double lambda) {
+    this->add_gate(gate::U2(target_index,phi,lambda));
 }
-void QuantumCircuit::add_U3_gate(UINT target_index, double phi, double psi, double lambda) {
-    this->add_gate(gate::U3(target_index,phi,psi,lambda));
+void QuantumCircuit::add_U3_gate(UINT target_index, double theta, double phi, double lambda) {
+    this->add_gate(gate::U3(target_index,theta,phi,lambda));
 }
 void QuantumCircuit::add_multi_Pauli_gate(std::vector<UINT> target_index_list, std::vector<UINT> pauli_id_list) {
     this->add_gate(gate::Pauli(target_index_list, pauli_id_list));
