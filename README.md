@@ -53,20 +53,9 @@ pip install qulacs-gpu
    
    for N times.
    
-   Note that mesured time inculed time for create quantum circuit.
+   Note that measured time include time for create quantum circuit.
 
 ### Single thread benchmark
-In the case of singlethread,   
-added following settings
-- OMP_NUM_THREADS = 1
-- MKL_NUM_THREADS = 1
-- MKL_DOMAIN_NUM_THREADS = 1
-
-and set the following at the beggining of scripts.  
-```
-import mkl
-mkl.set_num_threads(1)
-```  
 
 
 ![single thread benchmark](https://storage.googleapis.com/qunasys/singlethread_plot.png)
