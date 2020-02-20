@@ -9,7 +9,8 @@ Implemented in C/C++ and with python interface, Qulacs achieved both high speed 
 
 Qulacs was developed in Prof. `Fujii's group <http://quantphys.org/wp/qinfp/>`_. Maintained and developing new features by `QunaSys <http://www.qunasys.com/>`_.
 
-`About Qulacs <intro/About_Qulacs>`_
+:doc:`intro/About_Qulacs`.
+
 
 `Github repository
 <https://github.com/qulacs/qulacs>`_ |
@@ -24,7 +25,7 @@ Quick Install
   
    pip install qulacs
 
-More detail instruction in :doc:`Usage <intro/HowToInstall>`.
+More detail instruction in :doc:`intro/HowToInstall`.
   
 
 Supported systems
@@ -39,7 +40,7 @@ Qulacs is tested on the following systems.
 
 Trouble Shooting
 """"""""""""""""""
-`FAQ <intro/TroubleShooting>`_
+:doc:`intro/TroubleShooting`
 
 
 .. toctree::
@@ -54,9 +55,9 @@ Trouble Shooting
 Getting statred with Qulacs
 -----------------------------------
 
-* **Installation**: `Link<basic/install>`_.
+* **Installation**: :doc:`basic/install`.
 
-* **Tutorials**: `Python <basics/Tutorial_python_first>`_ | `C++ <basics/Tutorial_CPP>`_.
+* **Tutorials**: :doc:`basics/Tutorial_python_first` | :doc:`basics/Tutorial_CPP`.
 
 
 .. toctree::
@@ -74,13 +75,13 @@ Advanced features
 
 Brief description of the Advanced feature
 
-* **Advanced Tutorials**: `Python Advanced <guide/Tutorial_python_advance>`_.
+* **Advanced Tutorials**: :doc:`guide/Tutorial_python_advance`.
 
 * **User Manual**:
 
 * **Qulacs Cookbooks**:
 
-* **API reference**: `C++ <api/cpp_library_root>`_.
+* **C++ API reference**: :doc:`api/cpp_library_root`.
 
 
 
@@ -98,7 +99,7 @@ How to contribute to this document
 
 We come contributions to Qulacs Documentation!
 
-* **Contribution Guide**: `README <write/readme>`_.
+* **Contribution Guide**: :doc:`write/readme`.
 
 * **TODOs**
 

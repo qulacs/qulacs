@@ -41,8 +41,12 @@ exhale_args = {
      "exhaleExecutesDoxygen": True,
      "exhaleDoxygenStdin": \
         "INPUT = ../../qulacs-src \n \
-        OUTPUT_LANGUAGE = Japanese-en"
-
+        OUTPUT_LANGUAGE = Japanese-en \n \
+        GENERATE_LEGEND        = YES \n \
+        GRAPHICAL_HIERARCHY    = YES \n \
+        CLASS_GRAPH            = YES \n\
+        HIDE_UNDOC_RELATIONS   = YES\n\
+        CLASS_DIAGRAMS         = YES\n"
 }
 
 # Tell sphinx what the primary language being documented is.

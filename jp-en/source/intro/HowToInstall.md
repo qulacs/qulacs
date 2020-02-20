@@ -1,4 +1,3 @@
-# Usage
 
 ## Installation
 
@@ -10,6 +9,7 @@ If you encounter some troubles, see [troubleshooting](http://qulacs.org/md_4__tr
 - gcc/g++ >= 7.0.0 or VisualStudio 2017
 - cmake >= 2.8
 - git
+
 
 ### C++ Library(cppsim)
 

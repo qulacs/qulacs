@@ -1,5 +1,3 @@
-Install
-=======
+Configuring Installation
+------------------------
 
-Requirement
-----------
