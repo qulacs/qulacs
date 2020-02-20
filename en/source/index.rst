@@ -19,33 +19,19 @@ Qulacs was developed in Prof. `Fujii's group <http://quantphys.org/wp/qinfp/>`_.
 
 
 
-Quick Install
-""""""""""""""""""
+Quick-Start
+-----------
 ::
   
    pip install qulacs
 
 More detail instruction in :doc:`intro/HowToInstall`.
-  
-
-Supported systems
-"""""""""""""""""
-
-Qulacs is tested on the following systems.
-
-- Ubuntu 16.04
-- MacOS X Sierra
-- Windows 10
-
-
-Trouble Shooting
-""""""""""""""""""
-:doc:`intro/TroubleShooting`
+Having trouble starting? see :doc:`intro/TroubleShooting`.
 
 
 .. toctree::
    :maxdepth: 2
-   :hidden:
+   
    :caption: First steps
 
    intro/About_Qulacs
@@ -55,9 +41,9 @@ Trouble Shooting
 Getting statred with Qulacs
 -----------------------------------
 
-* **Installation**: :doc:`basic/install`.
+* **Installation**: :doc:`intro/install`.
 
-* **Tutorials**: :doc:`basics/Tutorial_python_first` | :doc:`basics/Tutorial_CPP`.
+* **Tutorials**: :doc:`intro/Tutorial_python_first` | :doc:`intro/Tutorial_CPP`.
 
 
 .. toctree::
@@ -65,9 +51,9 @@ Getting statred with Qulacs
    :hidden:
    :caption: Getting started
    
-   basic/install
-   basic/Tutorial_python_first
-   basic/Tutorial_CPP
+   intro/install
+   intro/Tutorial_python_first
+   intro/Tutorial_CPP
 
 
 Advanced features
@@ -75,11 +61,11 @@ Advanced features
 
 Brief description of the Advanced feature
 
-* **Advanced Tutorials**: :doc:`guide/Tutorial_python_advance`.
+* **User Manual**: :doc:`guide/0_root`.
 
-* **User Manual**:
+* **Advanced Tutorials**: :doc:`guide/2_python`. :doc:`guide/3_cpp`.
 
-* **Qulacs Cookbooks**:
+* **Qulacs Cookbooks**: :doc:`apply/0_root`.
 
 * **C++ API reference**: :doc:`api/cpp_library_root`.
 
@@ -87,10 +73,15 @@ Brief description of the Advanced feature
 
 .. toctree::
    :maxdepth: 2
+   :hidden:
    :caption: Advanced features
    
-   guide/Tutorial_python_advance
-   guide/guide1
+   guide/0_root
+   guide/1_concepts
+   guide/2_python
+   guide/3_cpp
+   guide/4_config
+   apply/0_root
    api/cpp_library_root
 
 
@@ -112,5 +103,7 @@ We come contributions to Qulacs Documentation!
    :caption: How to write this doc
    
    write/readme
+   write/contents
+   write/intl
 
 

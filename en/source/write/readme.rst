@@ -1,11 +1,14 @@
-Documentation Guide
-==================
+Documentation Manual
+=====================
 
-Documentation is an import component of our project.
-Thank you for considering to continuously improve this document.
+Documentation is an important component of a open source project.
+Thank you for considering improving this document.
 
-* **Guides**
+Documentation overview
+----------------------
 
-* **Documentation structure**
+Tools
+-----
 
-* **Work Flow**
+How to contribute
+-----------------
