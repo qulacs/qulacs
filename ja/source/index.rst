@@ -7,7 +7,7 @@ Qulacs ドキュメンテーション
 Qulacsは、大きな、ノイズの多い、またはパラメトリックな量子回路をシミュレートするための高速な量子回路シミュレータです。
 Qulacsは、C / C ++およびPythonインターフェイスで実装され、高速回路シミュレーションと高い操作性の両方を実現しました。
 
-Qulacsは、`藤井のグループ <http://quantphys.org/wp/qinfp/>`_ で開発されました。 `QunaSys <http://www.qunasys.com/>`_ による新機能の維持と開発。
+Qulacsは、`藤井研究室 <http://quantphys.org/wp/qinfp/>`_ で開発されました。 `QunaSys <http://www.qunasys.com/>`_ による新機能の維持と開発。
 
 :doc:`intro/About_Qulacs`.
 
@@ -51,7 +51,7 @@ Qulacsは、`藤井のグループ <http://quantphys.org/wp/qinfp/>`_ で開発�
    intro/HowToInstall
    intro/TroubleShooting
 
-Getting statred with Qulacs
+概要
 -----------------------------------
 
 * **Installation**: :doc:`basic/install`.
