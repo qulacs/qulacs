@@ -1,13 +1,13 @@
-Qulacs Documentation
+Qulacs ドキュメンテーション
 ======================================
 
 .. meta::
    :description lang=en: qulacs documentation
 
-Qulacs is a fast quantum circuit simulator for simulating large, noisy, or parametric quantum circuits.
-Implemented in C/C++ and with python interface, Qulacs achieved both high speed circuit simulation and high usability.
+Qulacsは、大きな、ノイズの多い、またはパラメトリックな量子回路をシミュレートするための高速な量子回路シミュレータです。
+Qulacsは、C / C ++およびPythonインターフェイスで実装され、高速回路シミュレーションと高い操作性の両方を実現しました。
 
-Qulacs was developed in Prof. `Fujii's group <http://quantphys.org/wp/qinfp/>`_. Maintained and developing new features by `QunaSys <http://www.qunasys.com/>`_.
+Qulacsは、`藤井のグループ <http://quantphys.org/wp/qinfp/>`_ で開発されました。 `QunaSys <http://www.qunasys.com/>`_ による新機能の維持と開発。
 
 :doc:`intro/About_Qulacs`.
 
@@ -19,26 +19,25 @@ Qulacs was developed in Prof. `Fujii's group <http://quantphys.org/wp/qinfp/>`_.
 
 
 
-Quick Install
+インストール
 """"""""""""""""""
 ::
   
    pip install qulacs
 
-More detail instruction in :doc:`intro/HowToInstall`.
+
   
 
-Supported systems
+サポートされているシステム
 """""""""""""""""
 
-Qulacs is tested on the following systems.
 
 - Ubuntu 16.04
 - MacOS X Sierra
 - Windows 10
 
 
-Trouble Shooting
+診断
 """"""""""""""""""
 :doc:`intro/TroubleShooting`
 

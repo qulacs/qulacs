@@ -2,7 +2,7 @@ import textwrap
 
 project = "Qulacs Documentation"
 
-language = 'en'
+language = 'ja'
 locale_dirs = ['locale/']
 
 # The `extensions` list should already be in here from `sphinx-quickstart`
@@ -41,7 +41,7 @@ exhale_args = {
      "exhaleExecutesDoxygen": True,
      "exhaleDoxygenStdin": \
         "INPUT = ../../qulacs-src \n \
-        OUTPUT_LANGUAGE = English \n \
+        OUTPUT_LANGUAGE = Japanese-en \n \
         GENERATE_LEGEND        = YES \n \
         GRAPHICAL_HIERARCHY    = YES \n \
         CLASS_GRAPH            = YES \n\

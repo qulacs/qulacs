@@ -136,7 +136,7 @@ dmypy.json
 
 **/_build/
 **/xml/
-*/source/api/*
+*/source/api
 
 
 **/.DS_Store
