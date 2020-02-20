@@ -1,6 +1,6 @@
 import textwrap
 
-project = "C++/Python Project"
+project = "Qulacs Documentation"
 
 language = 'ja'
 locale_dirs = ['locale/']
@@ -40,7 +40,7 @@ exhale_args = {
     "treeViewIsBootstrap": True,
      "exhaleExecutesDoxygen": True,
      "exhaleDoxygenStdin": \
-        "INPUT = ../../qulacs-src-min \n \
+        "INPUT = ../../qulacs-src \n \
         OUTPUT_LANGUAGE = Japanese-en"
 
 }

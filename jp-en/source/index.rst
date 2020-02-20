@@ -1,28 +1,45 @@
-Temp Project
-=======================================
+Qulacs Documentation
+======================================
 
 .. meta::
-   :description lang=en: description
+   :description lang=en: qulacs documentation
 
-Summary of the project
+Qulacs is a fast quantum circuit simulator for simulating large, noisy, or parametric quantum circuits.
+Implemented in C/C++ and with python interface, Qulacs achieved both high speed circuit simulation and high usability.
 
-Paragraph 1
-    Sub Paragraph
+Qulacs was developed in Prof. `Fujii's group <http://quantphys.org/wp/qinfp/>`_. Maintained and developing new features by `QunaSys <http://www.qunasys.com/>`_.
+
+`About Qulacs <intro/About_Qulacs>`_
+
+`Github repository
+<https://github.com/qulacs/qulacs>`_ |
+`Slack Community <https://join.slack.com/t/qulacs/shared_invite/enQtNzY1OTM5MDYxMjAxLWM1ZDc3MzdiNjZhZjdmYTQ5MTJiOTEzZjI3ZjAwZTg0OGFiNjcxY2VjZWRjMWY0YjE5ZTViOWQzZTliYzdmYzY>`_ | 
+`Study Material (Japanese) <https://dojo.qulacs.org/>`_ 
 
 
 
+Quick Install
+""""""""""""""""""
+::
+  
+   pip install qulacs
+
+More detail instruction in :doc:`Usage <intro/HowToInstall>`.
+  
+
+Supported systems
+"""""""""""""""""
+
+Qulacs is tested on the following systems.
+
+- Ubuntu 16.04
+- MacOS X Sierra
+- Windows 10
 
 
-Intro
------------
-
-Are you new to {$project}?
-
-* **Install**:
-  :doc:`Install <intro/install>`
-
-* **First_example**:
-  :doc:`Example <intro/first_example>`
+Trouble Shooting
+""""""""""""""""""
+`FAQ <intro/TroubleShooting>`_
 
 
 .. toctree::
@@ -30,45 +47,48 @@ Are you new to {$project}?
    :hidden:
    :caption: First steps
 
-   intro/install
-   intro/first_example
+   intro/About_Qulacs
+   intro/HowToInstall
+   intro/TroubleShooting
 
-Getting statred with *****
+Getting statred with Qulacs
 -----------------------------------
 
-Brief description of how to get start with getting started
+* **Installation**: `Link<basic/install>`_.
 
-* **Overview**:
-  Link 1
+* **Tutorials**: `Python <basics/Tutorial_python_first>`_ | `C++ <basics/Tutorial_CPP>`_.
 
-* **Details**:
-   Link 2
-
-* **FAQ**
-
-.. toctree::
-   :maxdepth: 1
-   :hidden:
-   :caption: Getting started
-   
-   basic/tutorial
-   basic/faq
-
-
-Advanced features of Read the Docs
-----------------------------------
-
-Brief description of the Advanced feature
-
-* **Feature 1**:
-  Link
 
 .. toctree::
    :maxdepth: 2
    :hidden:
-   :glob:
+   :caption: Getting started
+   
+   basic/install
+   basic/Tutorial_python_first
+   basic/Tutorial_CPP
+
+
+Advanced features
+----------------------------------
+
+Brief description of the Advanced feature
+
+* **Advanced Tutorials**: `Python Advanced <guide/Tutorial_python_advance>`_.
+
+* **User Manual**:
+
+* **Qulacs Cookbooks**:
+
+* **API reference**: `C++ <api/cpp_library_root>`_.
+
+
+
+.. toctree::
+   :maxdepth: 2
    :caption: Advanced features
    
+   guide/Tutorial_python_advance
    guide/guide1
    api/cpp_library_root
 
@@ -76,10 +96,13 @@ Brief description of the Advanced feature
 How to contribute to this document
 ----------------------------------
 
-Brief description 
+We come contributions to Qulacs Documentation!
 
-* **Feature 1**:
-  Link
+* **Contribution Guide**: `README <write/readme>`_.
+
+* **TODOs**
+
+* **Internationalization**
 
 .. toctree::
    :maxdepth: 1
