@@ -3,16 +3,18 @@ What to write
 
 
 Core documentation
-^^^^^^^^^^^^^^^^^^
+^^^^^^^^^^^^^^^^^^^^
+
 Consider writing a complete user manual to Qulacs,
 for both programmer and physicists.
 
 
 Application and research
 ^^^^^^^^^^^^^^^^^^^^^^^^
-Consier this as pulishing a research paper, or a blog post by you, the writer.
-Here we encourage contributors to use one single Jypter notebook file to illustrate a self contained idea using the software.
-For example, answering a research question, developing a small algorithm, or a nice way to use Qulacs with other open source programs.
+Consider this as publishing a research paper, or a blog post by the contributor.
+Here we encourage contributors to use one single Jupyter notebook or `.rst` file to illustrate a self contained idea using the software.
+For example, answering a research question, developing a small algorithm, or a nice way to use Qulacs with other open source softwares,
+or a best practice for getting the best performance.
 
 
 C++ API comments
@@ -25,7 +27,7 @@ Python docstring
 
 
 
-Doc review
-^^^^^^^^^^^
+Proofreading
+^^^^^^^^^^^^^^
 
 
