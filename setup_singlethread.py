@@ -24,12 +24,11 @@ class CMakeBuild(build_ext):
     ]
 
     def initialize_options(self):
-        super().initialize_options()
+        build_ext.initialize_options(self)
         self.opt_flags = None
 
     def finalize_options(self):
-        super().finalize_options()
-        pass
+        build_ext.finalize_options(self)
 
     def run(self):
         try:
