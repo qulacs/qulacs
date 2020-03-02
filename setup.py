@@ -19,6 +19,18 @@ class CMakeExtension(Extension):
 
 
 class CMakeBuild(build_ext):
+    user_options = build_ext.user_options + [
+        ('opt-flags=', 'o', 'optimization flags for compiler')
+    ]
+
+    def initialize_options(self):
+        super().initialize_options()
+        self.opt_flags = None
+
+    def finalize_options(self):
+        super().finalize_options()
+        pass
+
     def run(self):
         try:
             out = subprocess.check_output(['cmake', '--version'])
@@ -71,6 +83,9 @@ class CMakeBuild(build_ext):
 
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j2']
+
+        if self.opt_flags is not None:
+            cmake_args += ['-DOPT_FLAGS=' + self.opt_flags]
 
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),

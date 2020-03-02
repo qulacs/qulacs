@@ -16,6 +16,7 @@ set(DEFAULT_USE_OMP Yes)
 set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)
 set(DEFAULT_USE_TEST Yes)
+set(DEFAULT_OPT_FLAGS "-mtune=native -march=native -mfpmath=both")
 
 if(NOT DEFINED USE_SIMD)
 	set(USE_SIMD ${DEFAULT_USE_SIMD})
@@ -32,12 +33,16 @@ endif()
 if(NOT DEFINED USE_TEST)
 	set(USE_TEST ${DEFAULT_USE_TEST})
 endif()
+if(NOT DEFINED OPT_FLAGS)
+	set(OPT_FLAGS ${DEFAULT_OPT_FLAGS})
+endif()
 
 message(STATUS "USE_SIMD = ${USE_SIMD}")
 message(STATUS "USE_OMP = ${USE_OMP}")
 message(STATUS "USE_GPU = ${USE_GPU}")
 message(STATUS "USE_TEST = ${USE_TEST}")
 message(STATUS "USE_PYTHON = ${USE_PYTHON}")
+message(STATUS "OPT_FLAGS = ${OPT_FLAGS}")
 
 
 ##### configure include files #####
@@ -197,8 +202,8 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 		add_compile_options("-D _USE_SIMD")
 	endif()
 
-	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
-	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} -mtune=native -march=native -mfpmath=both")
+	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${OPT_FLAGS}")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OPT_FLAGS}")
 
 	if(8.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
 		set(PYBIND11_CPP_STANDARD -std=gnu++14)
