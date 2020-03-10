@@ -59,13 +59,13 @@ pip install qulacs-gpu
 ### Single thread benchmark
 
 
-![single thread benchmark](https://storage.googleapis.com/qunasys/singlethread_plot.png)
+![single thread benchmark](https://storage.googleapis.com/qunasys/singlethread_plot2.png)
 
 ### Multi thread / GPU benchmark
 
 
 
-![multi thread benchmark](https://storage.googleapis.com/qunasys/multithread_plot.png)
+![multi thread benchmark](https://storage.googleapis.com/qunasys/multithread_plot2.png)
 
 
 This benchmark was done with majour quantum circuit simulator with python interface.  
