@@ -37,6 +37,7 @@ pip install qulacs-gpu
 | [ProjectQ](https://github.com/ProjectQ-Framework/ProjectQ) | 0.4.2   |
 | [qHiPSTER](https://github.com/intel/Intel-QS) | [latest master branch](https://github.com/intel/Intel-QS/tree/94e47c04b33ad51c4cb07feade48612d8690e425)   |
 | [Python interface](https://github.com/HQSquantumsimulations/PyQuEST-cffi) of [QuEST](https://github.com/QuEST-Kit/QuEST) (PyQuest-cffi) | 3.0.0   |
+| [qsim](https://github.com/quantumlib/qsim) | [latest master branch](https://github.com/quantumlib/qsim/tree/24a9af400c3d9e4aac011cb8e5dc6b9e1ac4233b)   |
 
 ### Test environment:
 - Azure NC6s_v3 (6vcpu / Mem112GiB)
