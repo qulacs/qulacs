@@ -116,14 +116,14 @@ void double_qubit_dense_matrix_gate_simd_high(UINT target_qubit_index1, UINT tar
 		__m256d dup_mr, dup_mi;
 
 		// create index
-		__int64 basis00 = (state_index&low_mask)
+		ITYPE basis00 = (state_index&low_mask)
 			+ ((state_index&mid_mask) << 1)
 			+ ((state_index&high_mask) << 2);
 		// shited due to index from complex -> double
 		basis00 = basis00 << 1;
-		__int64 basis01 = basis00 + target_mask1_shift;
-		__int64 basis10 = basis00 + target_mask2_shift;
-		__int64 basis11 = basis01 + target_mask2_shift;
+		ITYPE basis01 = basis00 + target_mask1_shift;
+		ITYPE basis10 = basis00 + target_mask2_shift;
+		ITYPE basis11 = basis01 + target_mask2_shift;
 
 		//// Pick 4 complex values from basis00
 		vec_before = _mm256_loadu_pd(ptr_vec + basis00);	// (i1 r1 i0 r0)
@@ -320,8 +320,8 @@ void double_qubit_dense_matrix_gate_simd_low(UINT target_qubit_index1, UINT targ
 	assert(dim >= 8);
 
 	// loop variables
-	const __int64 loop_dim = dim * 2;
-	__int64 state_index;
+	const ITYPE loop_dim = dim * 2;
+	ITYPE state_index;
 
 	double* ptr_vec = (double*)vec;
 	const double* ptr_mat = (const double*)mat;
