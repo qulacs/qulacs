@@ -54,7 +54,9 @@ pip install qulacs-gpu
    
    for N times.
    
-   Note that measured time include time for create quantum circuit.
+#### Note
+ - execution time include time for creating quantum circuit
+ - benchmark was done with float64 precision except written float32 explictly
 
 ### Single thread benchmark
 
