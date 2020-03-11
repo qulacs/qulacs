@@ -491,7 +491,8 @@ PYBIND11_MODULE(qulacs, m) {
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
         .def(py::init<>(), "Constructor")
         .def("optimize", &QuantumCircuitOptimizer::optimize, "Optimize quantum circuit", py::arg("circuit"), py::arg("block_size"))
-        .def("merge_all", &QuantumCircuitOptimizer::merge_all, pybind11::return_value_policy::take_ownership, py::arg("circuit"))
+		.def("optimize_light", &QuantumCircuitOptimizer::optimize_light, "Optimize quantum circuit with light method", py::arg("circuit"))
+		.def("merge_all", &QuantumCircuitOptimizer::merge_all, pybind11::return_value_policy::take_ownership, py::arg("circuit"))
         ;
 
     py::class_<QuantumCircuitSimulator>(m, "QuantumCircuitSimulator")
