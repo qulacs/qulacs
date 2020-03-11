@@ -4,20 +4,21 @@
 #include <cppsim/utility.hpp>
 #include <cppsim/state_gpu.hpp>
 
-
-inline void set_eigen_from_gpu(Eigen::VectorXcd& dst, QuantumStateGpu& src, ITYPE dim) {
+inline void set_eigen_from_gpu(Eigen::VectorXcd &dst, QuantumStateGpu &src, ITYPE dim) {
 	auto ptr = src.duplicate_data_cpp();
-	for (ITYPE i = 0; i < dim; ++i) dst[i] = ptr[i];
+	for (ITYPE i = 0; i < dim; ++i)
+		dst[i] = ptr[i];
 	free(ptr);
 }
 
-inline void set_vector_from_gpu(std::vector<std::complex<double>>& dst, QuantumStateGpu& src, ITYPE dim) {
+inline void set_vector_from_gpu(std::vector<std::complex<double>> &dst, QuantumStateGpu &src, ITYPE dim) {
 	auto ptr = src.duplicate_data_cpp();
-	for (ITYPE i = 0; i < dim; ++i) dst[i] = ptr[i];
+	for (ITYPE i = 0; i < dim; ++i)
+		dst[i] = ptr[i];
 	free(ptr);
 }
 
-inline void assert_vector_eq_gpu(std::vector<std::complex<double>>& v1, QuantumStateGpu& v2, ITYPE dim, double eps) {
+inline void assert_vector_eq_gpu(std::vector<std::complex<double>> &v1, QuantumStateGpu &v2, ITYPE dim, double eps) {
 	auto ptr = v2.duplicate_data_cpp();
 	for (UINT i = 0; i < dim; ++i) {
 		ASSERT_NEAR(ptr[i].real(), v1[i].real(), eps);
@@ -26,7 +27,7 @@ inline void assert_vector_eq_gpu(std::vector<std::complex<double>>& v1, QuantumS
 	free(ptr);
 }
 
-inline void assert_cpu_eq_gpu(QuantumStateCpu& state_cpu, QuantumStateGpu& state_gpu, ITYPE dim, double eps) {
+inline void assert_cpu_eq_gpu(QuantumStateCpu &state_cpu, QuantumStateGpu &state_gpu, ITYPE dim, double eps) {
 	auto gpu_state_vector = state_gpu.duplicate_data_cpp();
 	for (ITYPE i = 0; i < dim; ++i) {
 		ASSERT_NEAR(state_cpu.data_cpp()[i].real(), gpu_state_vector[i].real(), eps);
@@ -106,11 +107,9 @@ TEST(StatOperationTest, MarginalProbTest) {
 					}
 					if (measured_value == 0) {
 						mat = kronecker_product(P0, mat);
-					}
-					else if (measured_value == 1) {
+					} else if (measured_value == 1) {
 						mat = kronecker_product(P1, mat);
-					}
-					else {
+					} else {
 						mat = kronecker_product(Identity, mat);
 					}
 				}
@@ -135,15 +134,16 @@ TEST(StatOperationTest, EntropyTest) {
 		auto stream_ptr = allocate_cuda_stream_host(1, idx);
 
 		// CTYPE* state = allocate_quantum_state(dim);
-		void* state = allocate_quantum_state_host(dim, idx);
-		CTYPE* state_cpp = (CTYPE*)malloc(dim * sizeof(CTYPE));
+		void *state = allocate_quantum_state_host(dim, idx);
+		CTYPE *state_cpp = (CTYPE *)malloc(dim * sizeof(CTYPE));
 
 		for (UINT rep = 0; rep < max_repeat; ++rep) {
 			initialize_Haar_random_state_host(state, dim, stream_ptr, idx);
 			ASSERT_NEAR(state_norm_squared_host(state, dim, stream_ptr, idx), 1, eps);
 			Eigen::VectorXcd test_state(dim);
 			get_quantum_state_host(state, state_cpp, dim, stream_ptr, idx);
-			for (ITYPE i = 0; i < dim; ++i) test_state[i] = state_cpp[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state[i] = state_cpp[i];
 
 			for (UINT target = 0; target < n; ++target) {
 				double ent = 0;
@@ -172,24 +172,26 @@ TEST(StatOperationTest, InnerProductTest) {
 	for (int idx = 0; idx < ngpus; ++idx) {
 		set_device(idx);
 		auto stream_ptr = allocate_cuda_stream_host(1, idx);
-		CTYPE* state = allocate_quantum_state(dim);
-		void* state_gpu = allocate_quantum_state_host(dim, idx);
-		CTYPE* buffer = allocate_quantum_state(dim);
-		void* buffer_gpu = allocate_quantum_state_host(dim, idx);
+		CTYPE *state = allocate_quantum_state(dim);
+		void *state_gpu = allocate_quantum_state_host(dim, idx);
+		CTYPE *buffer = allocate_quantum_state(dim);
+		void *buffer_gpu = allocate_quantum_state_host(dim, idx);
 		for (UINT rep = 0; rep < max_repeat; ++rep) {
 
 			initialize_Haar_random_state_host(state_gpu, dim, stream_ptr, idx);
 			ASSERT_NEAR(state_norm_squared_host(state_gpu, dim, stream_ptr, idx), 1, eps);
 			Eigen::VectorXcd test_state(dim);
 			get_quantum_state_host(state_gpu, state, dim, stream_ptr, idx);
-			for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state[i] = state[i];
 
 			for (UINT target = 0; target < n; ++target) {
 				initialize_Haar_random_state_host(buffer_gpu, dim, stream_ptr, idx);
 				get_quantum_state_host(buffer_gpu, buffer, dim, stream_ptr, idx);
 				CPPCTYPE inp = inner_product_host(buffer_gpu, state_gpu, dim, stream_ptr, idx);
 				Eigen::VectorXcd test_buffer(dim);
-				for (ITYPE i = 0; i < dim; ++i) test_buffer[i] = buffer[i];
+				for (ITYPE i = 0; i < dim; ++i)
+					test_buffer[i] = buffer[i];
 				std::complex<double> test_inp = (test_buffer.adjoint() * test_state);
 				ASSERT_NEAR(inp.real(), test_inp.real(), eps);
 				ASSERT_NEAR(inp.imag(), test_inp.imag(), eps);
@@ -202,7 +204,6 @@ TEST(StatOperationTest, InnerProductTest) {
 	}
 }
 
-
 // single qubit expectation value
 TEST(StatOperationTest, SingleQubitExpectationValueTest) {
 	const UINT n = 6;
@@ -214,8 +215,8 @@ TEST(StatOperationTest, SingleQubitExpectationValueTest) {
 	for (int idx = 0; idx < ngpus; ++idx) {
 		set_device(idx);
 		auto stream_ptr = allocate_cuda_stream_host(1, idx);
-		CTYPE* state = allocate_quantum_state(dim);
-		void* state_gpu = allocate_quantum_state_host(dim, idx);
+		CTYPE *state = allocate_quantum_state(dim);
+		void *state_gpu = allocate_quantum_state_host(dim, idx);
 		Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
 		Eigen::MatrixXcd pauli_op;
 		Identity << 1, 0, 0, 1;
@@ -228,16 +229,21 @@ TEST(StatOperationTest, SingleQubitExpectationValueTest) {
 			ASSERT_NEAR(state_norm_squared_host(state_gpu, dim, stream_ptr, idx), 1, eps);
 			Eigen::VectorXcd test_state(dim);
 			get_quantum_state_host(state_gpu, state, dim, stream_ptr, idx);
-			for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state[i] = state[i];
 
 			for (UINT target = 0; target < n; ++target) {
 				// single qubit expectation value check
 				target = rand_int(n);
 				UINT pauli = rand_int(3) + 1;
-				if (pauli == 0) pauli_op = Identity;
-				else if (pauli == 1) pauli_op = X;
-				else if (pauli == 2) pauli_op = Y;
-				else if (pauli == 3) pauli_op = Z;
+				if (pauli == 0)
+					pauli_op = Identity;
+				else if (pauli == 1)
+					pauli_op = X;
+				else if (pauli == 2)
+					pauli_op = Y;
+				else if (pauli == 3)
+					pauli_op = Z;
 				std::complex<double> value = (test_state.adjoint() * get_expanded_eigen_matrix_with_identity(target, pauli_op, n) * test_state);
 				ASSERT_NEAR(value.imag(), 0, eps);
 				double test_expectation = value.real();
@@ -261,8 +267,8 @@ TEST(StatOperationTest, MultiQubitExpectationValueWholeTest) {
 	for (int idx = 0; idx < ngpus; ++idx) {
 		set_device(idx);
 		auto stream_ptr = allocate_cuda_stream_host(1, idx);
-		CTYPE* state = allocate_quantum_state(dim);
-		void* state_gpu = allocate_quantum_state_host(dim, idx);
+		CTYPE *state = allocate_quantum_state(dim);
+		void *state_gpu = allocate_quantum_state_host(dim, idx);
 		Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
 		Eigen::MatrixXcd pauli_op;
 		Identity << 1, 0, 0, 1;
@@ -275,7 +281,8 @@ TEST(StatOperationTest, MultiQubitExpectationValueWholeTest) {
 			ASSERT_NEAR(state_norm_squared_host(state_gpu, dim, stream_ptr, idx), 1, eps);
 			Eigen::VectorXcd test_state(dim);
 			get_quantum_state_host(state_gpu, state, dim, stream_ptr, idx);
-			for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state[i] = state[i];
 
 			for (UINT target = 0; target < n; ++target) {
 				// multi qubit expectation whole list value check
@@ -283,10 +290,14 @@ TEST(StatOperationTest, MultiQubitExpectationValueWholeTest) {
 				std::vector<UINT> pauli_whole;
 				for (UINT i = 0; i < n; ++i) {
 					UINT pauli = rand_int(4);
-					if (pauli == 0) pauli_op = Identity;
-					else if (pauli == 1) pauli_op = X;
-					else if (pauli == 2) pauli_op = Y;
-					else if (pauli == 3) pauli_op = Z;
+					if (pauli == 0)
+						pauli_op = Identity;
+					else if (pauli == 1)
+						pauli_op = X;
+					else if (pauli == 2)
+						pauli_op = Y;
+					else if (pauli == 3)
+						pauli_op = Z;
 					mat = kronecker_product(pauli_op, mat);
 					pauli_whole.push_back(pauli);
 				}
@@ -313,8 +324,8 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopWholeTest) {
 	for (int idx = 0; idx < ngpus; ++idx) {
 		set_device(idx);
 		auto stream_ptr = allocate_cuda_stream_host(1, idx);
-		CTYPE* state = allocate_quantum_state(dim);
-		void* state_gpu = allocate_quantum_state_host(dim, idx);
+		CTYPE *state = allocate_quantum_state(dim);
+		void *state_gpu = allocate_quantum_state_host(dim, idx);
 		Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
 		Eigen::MatrixXcd pauli_op;
 		Identity << 1, 0, 0, 1;
@@ -327,7 +338,8 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopWholeTest) {
 			ASSERT_NEAR(state_norm_squared_host(state_gpu, dim, stream_ptr, idx), 1, eps);
 			Eigen::VectorXcd test_state(dim);
 			get_quantum_state_host(state_gpu, state, dim, stream_ptr, idx);
-			for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state[i] = state[i];
 
 			for (UINT target = 0; target < n; ++target) {
 				// multi qubit expectation whole list value check
@@ -335,9 +347,12 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopWholeTest) {
 				std::vector<UINT> pauli_whole;
 				for (UINT i = 0; i < n; ++i) {
 					UINT pauli = rand_int(2);
-					if (pauli == 1) pauli = 3;
-					if (pauli == 0) pauli_op = Identity;
-					else pauli_op = Z;
+					if (pauli == 1)
+						pauli = 3;
+					if (pauli == 0)
+						pauli_op = Identity;
+					else
+						pauli_op = Z;
 					mat = kronecker_product(pauli_op, mat);
 					pauli_whole.push_back(pauli);
 				}
@@ -353,7 +368,6 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopWholeTest) {
 	}
 }
 
-
 // multi qubit expectation value whole
 TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
 	const UINT n = 6;
@@ -365,14 +379,15 @@ TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
 	for (int idx = 0; idx < ngpus; ++idx) {
 		set_device(idx);
 		auto stream_ptr = allocate_cuda_stream_host(1, idx);
-		CTYPE* state = allocate_quantum_state(dim);
-		void* state_gpu = allocate_quantum_state_host(dim, idx);
+		CTYPE *state = allocate_quantum_state(dim);
+		void *state_gpu = allocate_quantum_state_host(dim, idx);
 		for (UINT rep = 0; rep < max_repeat; ++rep) {
 			initialize_Haar_random_state_host(state_gpu, dim, stream_ptr, idx);
 			ASSERT_NEAR(state_norm_squared_host(state_gpu, dim, stream_ptr, idx), 1, eps);
 			Eigen::VectorXcd test_state(dim);
 			get_quantum_state_host(state_gpu, state, dim, stream_ptr, idx);
-			for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state[i] = state[i];
 
 			Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
 			Identity << 1, 0, 0, 1;
@@ -389,10 +404,14 @@ TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
 				std::vector<std::pair<UINT, UINT>> pauli_partial_pair;
 				for (UINT i = 0; i < n; ++i) {
 					UINT pauli = rand_int(4);
-					if (pauli == 0) pauli_op = Identity;
-					else if (pauli == 1) pauli_op = X;
-					else if (pauli == 2) pauli_op = Y;
-					else if (pauli == 3) pauli_op = Z;
+					if (pauli == 0)
+						pauli_op = Identity;
+					else if (pauli == 1)
+						pauli_op = X;
+					else if (pauli == 2)
+						pauli_op = Y;
+					else if (pauli == 3)
+						pauli_op = Z;
 					mat = kronecker_product(pauli_op, mat);
 					if (pauli != 0) {
 						pauli_partial_pair.push_back(std::make_pair(i, pauli));
@@ -426,14 +445,15 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopPartialTest) {
 	for (int idx = 0; idx < ngpus; ++idx) {
 		set_device(idx);
 		auto stream_ptr = allocate_cuda_stream_host(1, idx);
-		CTYPE* state = allocate_quantum_state(dim);
-		void* state_gpu = allocate_quantum_state_host(dim, idx);
+		CTYPE *state = allocate_quantum_state(dim);
+		void *state_gpu = allocate_quantum_state_host(dim, idx);
 		for (UINT rep = 0; rep < max_repeat; ++rep) {
 			initialize_Haar_random_state_host(state_gpu, dim, stream_ptr, idx);
 			ASSERT_NEAR(state_norm_squared_host(state_gpu, dim, stream_ptr, idx), 1, eps);
 			Eigen::VectorXcd test_state(dim);
 			get_quantum_state_host(state_gpu, state, dim, stream_ptr, idx);
-			for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state[i] = state[i];
 
 			Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
 			Identity << 1, 0, 0, 1;
@@ -450,9 +470,12 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopPartialTest) {
 				std::vector<std::pair<UINT, UINT>> pauli_partial_pair;
 				for (UINT i = 0; i < n; ++i) {
 					UINT pauli = rand_int(2);
-					if (pauli == 1) pauli = 3;
-					if (pauli == 0) pauli_op = Identity;
-					else pauli_op = Z;
+					if (pauli == 1)
+						pauli = 3;
+					if (pauli == 0)
+						pauli_op = Identity;
+					else
+						pauli_op = Z;
 					mat = kronecker_product(pauli_op, mat);
 					if (pauli != 0) {
 						pauli_partial_pair.push_back(std::make_pair(i, pauli));
@@ -486,10 +509,10 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeWholeTest) {
 		set_device(idx);
 		auto stream_ptr = allocate_cuda_stream_host(1, idx);
 
-		CTYPE* state_ket = allocate_quantum_state(dim);
-		CTYPE* state_bra = allocate_quantum_state(dim);
-		void* state_ket_gpu = allocate_quantum_state_host(dim, idx);
-		void* state_bra_gpu = allocate_quantum_state_host(dim, idx);
+		CTYPE *state_ket = allocate_quantum_state(dim);
+		CTYPE *state_bra = allocate_quantum_state(dim);
+		void *state_ket_gpu = allocate_quantum_state_host(dim, idx);
+		void *state_bra_gpu = allocate_quantum_state_host(dim, idx);
 
 		Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
 		Eigen::MatrixXcd pauli_op;
@@ -509,8 +532,10 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeWholeTest) {
 			get_quantum_state_host(state_ket_gpu, state_ket, dim, stream_ptr, idx);
 			get_quantum_state_host(state_bra_gpu, state_bra, dim, stream_ptr, idx);
 
-			for (ITYPE i = 0; i < dim; ++i) test_state_ket[i] = state_ket[i];
-			for (ITYPE i = 0; i < dim; ++i) test_state_bra[i] = state_bra[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state_ket[i] = state_ket[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state_bra[i] = state_bra[i];
 
 			for (UINT target = 0; target < n; ++target) {
 				// multi qubit expectation whole list value check
@@ -518,10 +543,14 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeWholeTest) {
 				std::vector<UINT> pauli_whole;
 				for (UINT i = 0; i < n; ++i) {
 					UINT pauli = rand_int(4);
-					if (pauli == 0) pauli_op = Identity;
-					else if (pauli == 1) pauli_op = X;
-					else if (pauli == 2) pauli_op = Y;
-					else if (pauli == 3) pauli_op = Z;
+					if (pauli == 0)
+						pauli_op = Identity;
+					else if (pauli == 1)
+						pauli_op = X;
+					else if (pauli == 2)
+						pauli_op = Y;
+					else if (pauli == 3)
+						pauli_op = Z;
 					mat = kronecker_product(pauli_op, mat);
 					pauli_whole.push_back(pauli);
 				}
@@ -550,10 +579,10 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopWholeTest) {
 		set_device(idx);
 		auto stream_ptr = allocate_cuda_stream_host(1, idx);
 
-		CTYPE* state_ket = allocate_quantum_state(dim);
-		CTYPE* state_bra = allocate_quantum_state(dim);
-		void* state_ket_gpu = allocate_quantum_state_host(dim, idx);
-		void* state_bra_gpu = allocate_quantum_state_host(dim, idx);
+		CTYPE *state_ket = allocate_quantum_state(dim);
+		CTYPE *state_bra = allocate_quantum_state(dim);
+		void *state_ket_gpu = allocate_quantum_state_host(dim, idx);
+		void *state_bra_gpu = allocate_quantum_state_host(dim, idx);
 
 		Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
 		Eigen::MatrixXcd pauli_op;
@@ -573,8 +602,10 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopWholeTest) {
 			get_quantum_state_host(state_ket_gpu, state_ket, dim, stream_ptr, idx);
 			get_quantum_state_host(state_bra_gpu, state_bra, dim, stream_ptr, idx);
 
-			for (ITYPE i = 0; i < dim; ++i) test_state_ket[i] = state_ket[i];
-			for (ITYPE i = 0; i < dim; ++i) test_state_bra[i] = state_bra[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state_ket[i] = state_ket[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state_bra[i] = state_bra[i];
 
 			for (UINT target = 0; target < n; ++target) {
 				// multi qubit expectation whole list value check
@@ -582,9 +613,12 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopWholeTest) {
 				std::vector<UINT> pauli_whole;
 				for (UINT i = 0; i < n; ++i) {
 					UINT pauli = rand_int(2);
-					if (pauli == 1) pauli = 3;
-					if (pauli == 0) pauli_op = Identity;
-					else pauli_op = Z;
+					if (pauli == 1)
+						pauli = 3;
+					if (pauli == 0)
+						pauli_op = Identity;
+					else
+						pauli_op = Z;
 					mat = kronecker_product(pauli_op, mat);
 					pauli_whole.push_back(pauli);
 				}
@@ -613,10 +647,10 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudePartialTest) {
 		set_device(idx);
 		auto stream_ptr = allocate_cuda_stream_host(1, idx);
 
-		CTYPE* state_ket = allocate_quantum_state(dim);
-		CTYPE* state_bra = allocate_quantum_state(dim);
-		void* state_ket_gpu = allocate_quantum_state_host(dim, idx);
-		void* state_bra_gpu = allocate_quantum_state_host(dim, idx);
+		CTYPE *state_ket = allocate_quantum_state(dim);
+		CTYPE *state_bra = allocate_quantum_state(dim);
+		void *state_ket_gpu = allocate_quantum_state_host(dim, idx);
+		void *state_bra_gpu = allocate_quantum_state_host(dim, idx);
 
 		Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
 		Eigen::MatrixXcd pauli_op;
@@ -636,8 +670,10 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudePartialTest) {
 			get_quantum_state_host(state_ket_gpu, state_ket, dim, stream_ptr, idx);
 			get_quantum_state_host(state_bra_gpu, state_bra, dim, stream_ptr, idx);
 
-			for (ITYPE i = 0; i < dim; ++i) test_state_ket[i] = state_ket[i];
-			for (ITYPE i = 0; i < dim; ++i) test_state_bra[i] = state_bra[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state_ket[i] = state_ket[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state_bra[i] = state_bra[i];
 
 			for (UINT target = 0; target < n; ++target) {
 				// multi qubit expectation partial list value check
@@ -648,10 +684,14 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudePartialTest) {
 				std::vector<std::pair<UINT, UINT>> pauli_partial_pair;
 				for (UINT i = 0; i < n; ++i) {
 					UINT pauli = rand_int(4);
-					if (pauli == 0) pauli_op = Identity;
-					else if (pauli == 1) pauli_op = X;
-					else if (pauli == 2) pauli_op = Y;
-					else if (pauli == 3) pauli_op = Z;
+					if (pauli == 0)
+						pauli_op = Identity;
+					else if (pauli == 1)
+						pauli_op = X;
+					else if (pauli == 2)
+						pauli_op = Y;
+					else if (pauli == 3)
+						pauli_op = Z;
 					mat = kronecker_product(pauli_op, mat);
 					if (pauli != 0) {
 						pauli_partial_pair.push_back(std::make_pair(i, pauli));
@@ -687,10 +727,10 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
 		set_device(idx);
 		auto stream_ptr = allocate_cuda_stream_host(1, idx);
 
-		CTYPE* state_ket = allocate_quantum_state(dim);
-		CTYPE* state_bra = allocate_quantum_state(dim);
-		void* state_ket_gpu = allocate_quantum_state_host(dim, idx);
-		void* state_bra_gpu = allocate_quantum_state_host(dim, idx);
+		CTYPE *state_ket = allocate_quantum_state(dim);
+		CTYPE *state_bra = allocate_quantum_state(dim);
+		void *state_ket_gpu = allocate_quantum_state_host(dim, idx);
+		void *state_bra_gpu = allocate_quantum_state_host(dim, idx);
 
 		Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
 		Eigen::MatrixXcd pauli_op;
@@ -710,8 +750,10 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
 			get_quantum_state_host(state_ket_gpu, state_ket, dim, stream_ptr, idx);
 			get_quantum_state_host(state_bra_gpu, state_bra, dim, stream_ptr, idx);
 
-			for (ITYPE i = 0; i < dim; ++i) test_state_ket[i] = state_ket[i];
-			for (ITYPE i = 0; i < dim; ++i) test_state_bra[i] = state_bra[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state_ket[i] = state_ket[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state_bra[i] = state_bra[i];
 
 			for (UINT target = 0; target < n; ++target) {
 				// multi qubit expectation partial list value check
@@ -722,9 +764,12 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
 				std::vector<std::pair<UINT, UINT>> pauli_partial_pair;
 				for (UINT i = 0; i < n; ++i) {
 					UINT pauli = rand_int(2);
-					if (pauli == 1) pauli = 3;
-					if (pauli == 0) pauli_op = Identity;
-					else pauli_op = Z;
+					if (pauli == 1)
+						pauli = 3;
+					if (pauli == 0)
+						pauli_op = Identity;
+					else
+						pauli_op = Z;
 					mat = kronecker_product(pauli_op, mat);
 					if (pauli != 0) {
 						pauli_partial_pair.push_back(std::make_pair(i, pauli));
@@ -748,48 +793,51 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
 	}
 }
 
-TEST(StateTest, GenerateAndRelease) {    
-    UINT n = 10;
-    double eps = 1e-14;
-    QuantumState state(n);
-    ASSERT_EQ(state.qubit_count, n);
-    ASSERT_EQ(state.dim, 1ULL << n);
-    state.set_zero_state();
+TEST(StateTest, GenerateAndRelease) {
+	UINT n = 10;
+	double eps = 1e-14;
+	QuantumState state(n);
+	ASSERT_EQ(state.qubit_count, n);
+	ASSERT_EQ(state.dim, 1ULL << n);
+	state.set_zero_state();
 
 	auto ptr = state.duplicate_data_cpp();
 	for (UINT i = 0; i < state.dim; ++i) {
-        if (i == 0) ASSERT_NEAR(abs(ptr[i] - 1.), 0, eps);
-        else ASSERT_NEAR(abs(ptr[i]), 0, eps);
-    }
+		if (i == 0)
+			ASSERT_NEAR(abs(ptr[i] - 1.), 0, eps);
+		else
+			ASSERT_NEAR(abs(ptr[i]), 0, eps);
+	}
 	delete ptr;
 
 	Random random;
-    for (UINT repeat = 0; repeat < 10; ++repeat) {
-        ITYPE basis = random.int64()%state.dim;
-        state.set_computational_basis(basis);
+	for (UINT repeat = 0; repeat < 10; ++repeat) {
+		ITYPE basis = random.int64() % state.dim;
+		state.set_computational_basis(basis);
 		auto ptr = state.duplicate_data_cpp();
 		for (UINT i = 0; i < state.dim; ++i) {
-			if (i == basis) ASSERT_NEAR(abs(ptr[i] - 1.), 0, eps);
-            else ASSERT_NEAR(abs(ptr[i]), 0, eps);
-        }
+			if (i == basis)
+				ASSERT_NEAR(abs(ptr[i] - 1.), 0, eps);
+			else
+				ASSERT_NEAR(abs(ptr[i]), 0, eps);
+		}
 		delete ptr;
 	}
-    for (UINT repeat = 0; repeat < 10; ++repeat) {
-        state.set_Haar_random_state();
-        ASSERT_NEAR(state.get_squared_norm(),1.,eps);
-    }
+	for (UINT repeat = 0; repeat < 10; ++repeat) {
+		state.set_Haar_random_state();
+		ASSERT_NEAR(state.get_squared_norm(), 1., eps);
+	}
 }
 
 TEST(StateTest, Sampling) {
-    UINT n = 10;
-    QuantumState state(n);
-    state.set_Haar_random_state();
-    state.set_computational_basis(100);
-    auto res1 = state.sampling(1024);
-    state.set_computational_basis(100);
-    auto res2 = state.sampling(1024);
+	UINT n = 10;
+	QuantumState state(n);
+	state.set_Haar_random_state();
+	state.set_computational_basis(100);
+	auto res1 = state.sampling(1024);
+	state.set_computational_basis(100);
+	auto res2 = state.sampling(1024);
 }
-
 
 TEST(StateTest, SetState) {
 	const double eps = 1e-10;
@@ -819,9 +867,9 @@ TEST(StateTest, CopyState) {
 		QuantumState state(n);
 		state.set_Haar_random_state();
 		const ITYPE dim = 1ULL << n;
-		void* state_gpu = allocate_quantum_state_host(dim, idx);
+		void *state_gpu = allocate_quantum_state_host(dim, idx);
 		copy_quantum_state_from_host_to_device(state_gpu, state.data(), dim, stream_ptr, idx);
-		CPPCTYPE* state_cpu_copy = (CPPCTYPE*)malloc(sizeof(CPPCTYPE) * dim);
+		CPPCTYPE *state_cpu_copy = (CPPCTYPE *)malloc(sizeof(CPPCTYPE) * dim);
 		get_quantum_state_host(state_gpu, state_cpu_copy, dim, stream_ptr, idx);
 
 		for (UINT i = 0; i < dim; ++i) {
@@ -841,13 +889,13 @@ TEST(StateTest, CopyStateDevice) {
 		set_device(idx);
 		auto stream_ptr = allocate_cuda_stream_host(1, idx);
 
-		void* state1_gpu = allocate_quantum_state_host(dim, idx);
-		void* state2_gpu = allocate_quantum_state_host(dim, idx);
+		void *state1_gpu = allocate_quantum_state_host(dim, idx);
+		void *state2_gpu = allocate_quantum_state_host(dim, idx);
 
 		initialize_Haar_random_state_host(state1_gpu, dim, stream_ptr, idx);
 
-		CPPCTYPE* state1_cpu_copy = (CPPCTYPE*)malloc(sizeof(CPPCTYPE) * dim);
-		CPPCTYPE* state2_cpu_copy = (CPPCTYPE*)malloc(sizeof(CPPCTYPE) * dim);
+		CPPCTYPE *state1_cpu_copy = (CPPCTYPE *)malloc(sizeof(CPPCTYPE) * dim);
+		CPPCTYPE *state2_cpu_copy = (CPPCTYPE *)malloc(sizeof(CPPCTYPE) * dim);
 		get_quantum_state_host(state1_gpu, state1_cpu_copy, dim, stream_ptr, idx);
 		copy_quantum_state_from_device_to_device(state2_gpu, state1_gpu, dim, stream_ptr, idx);
 		get_quantum_state_host(state2_gpu, state2_cpu_copy, dim, stream_ptr, idx);
@@ -911,7 +959,6 @@ TEST(StateTest, MultiplyCoef) {
 		assert_vector_eq_gpu(state_vector, state, dim, eps);
 	}
 }
-
 
 TEST(StateTest, StateCPUtoGPU) {
 	const double eps = 1e-10;

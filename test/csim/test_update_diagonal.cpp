@@ -20,7 +20,7 @@ extern "C" {
 #endif
 #include <csim/update_ops_cpp.hpp>
 
-void test_single_diagonal_matrix_gate(std::function<void(UINT, const CTYPE*, CTYPE*, ITYPE)> func) {
+void test_single_diagonal_matrix_gate(std::function<void(UINT, const CTYPE *, CTYPE *, ITYPE)> func) {
 	const UINT n = 6;
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 10;
@@ -37,19 +37,22 @@ void test_single_diagonal_matrix_gate(std::function<void(UINT, const CTYPE*, CTY
 	auto state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+	for (ITYPE i = 0; i < dim; ++i)
+		test_state[i] = state[i];
 
 	Eigen::MatrixXcd whole_I = Eigen::MatrixXcd::Identity(dim, dim);
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		// single qubit diagonal matrix gate
 		target = rand_int(n);
-		icoef = rand_real(); zcoef = rand_real();
+		icoef = rand_real();
+		zcoef = rand_real();
 		norm = sqrt(icoef * icoef + zcoef * zcoef);
-		icoef /= norm; zcoef /= norm;
-		U = icoef * Identity + 1.i*zcoef * Z;
+		icoef /= norm;
+		zcoef /= norm;
+		U = icoef * Identity + 1.i * zcoef * Z;
 		Eigen::VectorXcd diag = U.diagonal();
-		func(target, (CTYPE*)diag.data(), state, dim);
+		func(target, (CTYPE *)diag.data(), state, dim);
 		test_state = get_expanded_eigen_matrix_with_identity(target, U, n) * test_state;
 		state_equal(state, test_state, dim, "single diagonal gate");
 	}
@@ -70,7 +73,7 @@ TEST(UpdateTest, SingleDiagonalMatrixTest) {
 #endif
 }
 
-void test_single_phase_gate(std::function<void(UINT, CTYPE, CTYPE*, ITYPE)> func) {
+void test_single_phase_gate(std::function<void(UINT, CTYPE, CTYPE *, ITYPE)> func) {
 	const UINT n = 6;
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 10;
@@ -83,7 +86,8 @@ void test_single_phase_gate(std::function<void(UINT, CTYPE, CTYPE*, ITYPE)> func
 	auto state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+	for (ITYPE i = 0; i < dim; ++i)
+		test_state[i] = state[i];
 
 	Eigen::MatrixXcd whole_I = Eigen::MatrixXcd::Identity(dim, dim);
 
@@ -91,8 +95,8 @@ void test_single_phase_gate(std::function<void(UINT, CTYPE, CTYPE*, ITYPE)> func
 		// single qubit phase matrix gate
 		target = rand_int(n);
 		angle = rand_real();
-		U << 1, 0, 0, cos(angle) + 1.i*sin(angle);
-		auto s = cos(angle) + 1.i*sin(angle);
+		U << 1, 0, 0, cos(angle) + 1.i * sin(angle);
+		auto s = cos(angle) + 1.i * sin(angle);
 		CTYPE t;
 		__real__ t = s.real();
 		__imag__ t = s.imag();
@@ -102,7 +106,6 @@ void test_single_phase_gate(std::function<void(UINT, CTYPE, CTYPE*, ITYPE)> func
 	}
 	release_quantum_state(state);
 }
-
 
 TEST(UpdateTest, SinglePhaseGateTest) {
 	test_single_phase_gate(single_qubit_phase_gate);

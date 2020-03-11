@@ -20,7 +20,6 @@ extern "C" {
 #endif
 #include <csim/update_ops_cpp.hpp>
 
-
 TEST(UpdateTest, SingleQubitPauliTest) {
 	const UINT n = 6;
 	const ITYPE dim = 1ULL << n;
@@ -34,7 +33,8 @@ TEST(UpdateTest, SingleQubitPauliTest) {
 	auto state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+	for (ITYPE i = 0; i < dim; ++i)
+		test_state[i] = state[i];
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		/* single qubit Pauli gate */
@@ -61,14 +61,15 @@ TEST(UpdateTest, SingleQubitPauliRotationTest) {
 	auto state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+	for (ITYPE i = 0; i < dim; ++i)
+		test_state[i] = state[i];
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		target = rand_int(n);
 		pauli = rand_int(3) + 1;
 		angle = rand_real();
 		single_qubit_Pauli_rotation_gate(target, pauli, angle, state, dim);
-		test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2)*Identity + 1.i * sin(angle / 2) * get_eigen_matrix_single_Pauli(pauli), n) * test_state;
+		test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2) * Identity + 1.i * sin(angle / 2) * get_eigen_matrix_single_Pauli(pauli), n) * test_state;
 		state_equal(state, test_state, dim, "single rotation Pauli gate");
 	}
 	release_quantum_state(state);
@@ -84,7 +85,8 @@ TEST(UpdateTest, MultiQubitPauliTest) {
 	auto state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+	for (ITYPE i = 0; i < dim; ++i)
+		test_state[i] = state[i];
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		// multi pauli whole
@@ -133,7 +135,8 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
 	auto state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+	for (ITYPE i = 0; i < dim; ++i)
+		test_state[i] = state[i];
 
 	Eigen::MatrixXcd whole_I = Eigen::MatrixXcd::Identity(dim, dim);
 
@@ -149,7 +152,7 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
 		}
 		angle = rand_real();
 		multi_qubit_Pauli_rotation_gate_whole_list(pauli_whole.data(), n, angle, state, dim);
-		test_state = (cos(angle / 2)*whole_I + 1.i * sin(angle / 2)* get_eigen_matrix_full_qubit_pauli(pauli_whole)) * test_state;
+		test_state = (cos(angle / 2) * whole_I + 1.i * sin(angle / 2) * get_eigen_matrix_full_qubit_pauli(pauli_whole)) * test_state;
 		state_equal(state, test_state, dim, "multi Pauli rotation whole gate");
 
 		// multi pauli rotation partial
@@ -170,7 +173,7 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
 		}
 		angle = rand_real();
 		multi_qubit_Pauli_rotation_gate_partial_list(pauli_partial_index.data(), pauli_partial.data(), (UINT)pauli_partial.size(), angle, state, dim);
-		test_state = (cos(angle / 2)*whole_I + 1.i * sin(angle / 2)* get_eigen_matrix_full_qubit_pauli(pauli_whole)) * test_state;
+		test_state = (cos(angle / 2) * whole_I + 1.i * sin(angle / 2) * get_eigen_matrix_full_qubit_pauli(pauli_whole)) * test_state;
 		state_equal(state, test_state, dim, "multi Pauli rotation partial gate");
 	}
 	release_quantum_state(state);

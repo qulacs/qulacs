@@ -3,42 +3,45 @@
 #include <cppsim/state.hpp>
 #include <cppsim/utility.hpp>
 
-TEST(StateTest, GenerateAndRelease) {    
-    UINT n = 10;
-    double eps = 1e-14;
-    QuantumState state(n);
-    ASSERT_EQ(state.qubit_count, n);
-    ASSERT_EQ(state.dim, 1ULL << n);
-    state.set_zero_state();
-    for (UINT i = 0; i < state.dim; ++i) {
-        if (i == 0) ASSERT_NEAR(abs(state.data_cpp()[i] - 1.), 0, eps);
-        else ASSERT_NEAR(abs(state.data_cpp()[i]), 0, eps);
-    }
-    Random random;
-    for (UINT repeat = 0; repeat < 10; ++repeat) {
-        ITYPE basis = random.int64()%state.dim;
-        state.set_computational_basis(basis);
-        for (UINT i = 0; i < state.dim; ++i) {
-            if (i == basis) ASSERT_NEAR(abs(state.data_cpp()[i] - 1.), 0, eps);
-            else ASSERT_NEAR(abs(state.data_cpp()[i]), 0, eps);
-        }
-    }
-    for (UINT repeat = 0; repeat < 10; ++repeat) {
-        state.set_Haar_random_state();
-        ASSERT_NEAR(state.get_squared_norm(),1.,eps);
-    }
+TEST(StateTest, GenerateAndRelease) {
+	UINT n = 10;
+	double eps = 1e-14;
+	QuantumState state(n);
+	ASSERT_EQ(state.qubit_count, n);
+	ASSERT_EQ(state.dim, 1ULL << n);
+	state.set_zero_state();
+	for (UINT i = 0; i < state.dim; ++i) {
+		if (i == 0)
+			ASSERT_NEAR(abs(state.data_cpp()[i] - 1.), 0, eps);
+		else
+			ASSERT_NEAR(abs(state.data_cpp()[i]), 0, eps);
+	}
+	Random random;
+	for (UINT repeat = 0; repeat < 10; ++repeat) {
+		ITYPE basis = random.int64() % state.dim;
+		state.set_computational_basis(basis);
+		for (UINT i = 0; i < state.dim; ++i) {
+			if (i == basis)
+				ASSERT_NEAR(abs(state.data_cpp()[i] - 1.), 0, eps);
+			else
+				ASSERT_NEAR(abs(state.data_cpp()[i]), 0, eps);
+		}
+	}
+	for (UINT repeat = 0; repeat < 10; ++repeat) {
+		state.set_Haar_random_state();
+		ASSERT_NEAR(state.get_squared_norm(), 1., eps);
+	}
 }
 
 TEST(StateTest, Sampling) {
-    UINT n = 10;
-    QuantumState state(n);
-    state.set_Haar_random_state();
-    state.set_computational_basis(100);
-    auto res1 = state.sampling(1024);
-    state.set_computational_basis(100);
-    auto res2 = state.sampling(1024);
+	UINT n = 10;
+	QuantumState state(n);
+	state.set_Haar_random_state();
+	state.set_computational_basis(100);
+	auto res1 = state.sampling(1024);
+	state.set_computational_basis(100);
+	auto res2 = state.sampling(1024);
 }
-
 
 TEST(StateTest, SetState) {
 	const double eps = 1e-10;
@@ -48,7 +51,7 @@ TEST(StateTest, SetState) {
 	std::vector<std::complex<double>> state_vector(dim);
 	for (ITYPE i = 0; i < dim; ++i) {
 		double d = (double)i;
-		state_vector[i] = d + std::complex<double>(0, 1)*(d + 0.1);
+		state_vector[i] = d + std::complex<double>(0, 1) * (d + 0.1);
 	}
 	state.load(state_vector);
 	for (ITYPE i = 0; i < dim; ++i) {
@@ -65,19 +68,18 @@ TEST(StateTest, GetMarginalProbability) {
 	state.set_Haar_random_state();
 	std::vector<double> probs;
 	for (ITYPE i = 0; i < dim; ++i) {
-		probs.push_back(pow(abs(state.data_cpp()[i]),2));
+		probs.push_back(pow(abs(state.data_cpp()[i]), 2));
 	}
-	ASSERT_NEAR(state.get_marginal_probability({ 0,0 }), probs[0], eps);
-	ASSERT_NEAR(state.get_marginal_probability({ 1,0 }), probs[1], eps);
-	ASSERT_NEAR(state.get_marginal_probability({ 0,1 }), probs[2], eps);
-	ASSERT_NEAR(state.get_marginal_probability({ 1,1 }), probs[3], eps);
-	ASSERT_NEAR(state.get_marginal_probability({ 0,2 }), probs[0] + probs[2], eps);
-	ASSERT_NEAR(state.get_marginal_probability({ 1,2 }), probs[1] + probs[3], eps);
-	ASSERT_NEAR(state.get_marginal_probability({ 2,0 }), probs[0] + probs[1], eps);
-	ASSERT_NEAR(state.get_marginal_probability({ 2,1 }), probs[2] + probs[3], eps);
-	ASSERT_NEAR(state.get_marginal_probability({ 2,2 }), 1., eps);
+	ASSERT_NEAR(state.get_marginal_probability({0, 0}), probs[0], eps);
+	ASSERT_NEAR(state.get_marginal_probability({1, 0}), probs[1], eps);
+	ASSERT_NEAR(state.get_marginal_probability({0, 1}), probs[2], eps);
+	ASSERT_NEAR(state.get_marginal_probability({1, 1}), probs[3], eps);
+	ASSERT_NEAR(state.get_marginal_probability({0, 2}), probs[0] + probs[2], eps);
+	ASSERT_NEAR(state.get_marginal_probability({1, 2}), probs[1] + probs[3], eps);
+	ASSERT_NEAR(state.get_marginal_probability({2, 0}), probs[0] + probs[1], eps);
+	ASSERT_NEAR(state.get_marginal_probability({2, 1}), probs[2] + probs[3], eps);
+	ASSERT_NEAR(state.get_marginal_probability({2, 2}), 1., eps);
 }
-
 
 TEST(StateTest, AddState) {
 	const double eps = 1e-10;

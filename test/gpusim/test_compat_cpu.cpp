@@ -6,7 +6,7 @@
 #include <cppsim/gate_merge.hpp>
 #include <cppsim/pauli_operator.hpp>
 
-inline void assert_cpu_eq_gpu(QuantumStateCpu& state_cpu, QuantumStateGpu& state_gpu, ITYPE dim, double eps) {
+inline void assert_cpu_eq_gpu(QuantumStateCpu &state_cpu, QuantumStateGpu &state_gpu, ITYPE dim, double eps) {
 	auto gpu_state_vector = state_gpu.duplicate_data_cpp();
 	for (ITYPE i = 0; i < dim; ++i) {
 		ASSERT_NEAR(state_cpu.data_cpp()[i].real(), gpu_state_vector[i].real(), eps);
@@ -14,7 +14,6 @@ inline void assert_cpu_eq_gpu(QuantumStateCpu& state_cpu, QuantumStateGpu& state
 	}
 	delete gpu_state_vector;
 }
-
 
 TEST(CompatTest, ApplyRandomOrderUnitary) {
 	UINT n = 15;
@@ -36,12 +35,18 @@ TEST(CompatTest, ApplyRandomOrderUnitary) {
 		QuantumStateCpu state_cpu(n);
 		QuantumStateGpu state_gpu(n, idx);
 		std::vector<UINT> indices(n);
-		for (UINT i = 0; i < n; ++i) indices[i] = i;
+		for (UINT i = 0; i < n; ++i)
+			indices[i] = i;
 		std::mt19937 engine(0);
 
 		for (UINT m = 1; m <= max_gate_count; ++m) {
-			if (m <= 5) { gate_count = 10; max_repeat = 3; }
-			else { gate_count = 1; max_repeat = 1; }
+			if (m <= 5) {
+				gate_count = 10;
+				max_repeat = 3;
+			} else {
+				gate_count = 1;
+				max_repeat = 1;
+			}
 			for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
 				state_gpu.set_Haar_random_state();
 				state_cpu.load(&state_gpu);
@@ -50,16 +55,18 @@ TEST(CompatTest, ApplyRandomOrderUnitary) {
 					std::shuffle(indices.begin(), indices.end(), engine);
 					std::vector<UINT> targets(indices.begin(), indices.begin() + m);
 					//for (UINT i : targets) std::cout << i << " "; std::cout << std::endl;
-					QuantumGateBase* gate = NULL;
+					QuantumGateBase *gate = NULL;
 
 					// for small matrix, use random unitary
-					if (m <= 7) gate = gate::RandomUnitary(targets);
+					if (m <= 7)
+						gate = gate::RandomUnitary(targets);
 					// for large matrix, use pauli rotation
 					else {
 						std::vector<UINT> paulis(m);
-						for (UINT i = 0; i < m; ++i) paulis[i] = random.int32() % 4;
+						for (UINT i = 0; i < m; ++i)
+							paulis[i] = random.int32() % 4;
 						gate = gate::PauliRotation(targets, paulis, 3.14159 * random.uniform());
-						QuantumGateBase* new_gate = gate::to_matrix_gate(gate);
+						QuantumGateBase *new_gate = gate::to_matrix_gate(gate);
 						delete gate;
 						gate = new_gate;
 					}
@@ -73,7 +80,6 @@ TEST(CompatTest, ApplyRandomOrderUnitary) {
 		}
 	}
 }
-
 
 TEST(CompatTest, SingleControlQubitApplyRandomOrderUnitary) {
 	UINT n = 15;
@@ -95,12 +101,18 @@ TEST(CompatTest, SingleControlQubitApplyRandomOrderUnitary) {
 		QuantumStateCpu state_cpu(n);
 		QuantumStateGpu state_gpu(n, idx);
 		std::vector<UINT> indices(n);
-		for (UINT i = 0; i < n; ++i) indices[i] = i;
+		for (UINT i = 0; i < n; ++i)
+			indices[i] = i;
 		std::mt19937 engine(0);
 
 		for (UINT m = 1; m <= max_gate_count; ++m) {
-			if (m <= 5) { gate_count = 10; max_repeat = 3; }
-			else { gate_count = 1; max_repeat = 1; }
+			if (m <= 5) {
+				gate_count = 10;
+				max_repeat = 3;
+			} else {
+				gate_count = 1;
+				max_repeat = 1;
+			}
 			for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
 				state_gpu.set_Haar_random_state();
 				state_cpu.load(&state_gpu);
@@ -109,7 +121,7 @@ TEST(CompatTest, SingleControlQubitApplyRandomOrderUnitary) {
 					std::shuffle(indices.begin(), indices.end(), engine);
 					std::vector<UINT> targets(indices.begin(), indices.begin() + m);
 					//for (UINT i : targets) std::cout << i << " "; std::cout << std::endl;
-					QuantumGateMatrix* gate = NULL;
+					QuantumGateMatrix *gate = NULL;
 
 					gate = gate::RandomUnitary(targets);
 					gate->add_control_qubit(indices[m], 1);
@@ -144,12 +156,18 @@ TEST(CompatTest, DoubleControlQubitApplyRandomOrderUnitary) {
 		QuantumStateCpu state_cpu(n);
 		QuantumStateGpu state_gpu(n, idx);
 		std::vector<UINT> indices(n);
-		for (UINT i = 0; i < n; ++i) indices[i] = i;
+		for (UINT i = 0; i < n; ++i)
+			indices[i] = i;
 		std::mt19937 engine(0);
 
 		for (UINT m = 1; m <= max_gate_count; ++m) {
-			if (m <= 5) { gate_count = 10; max_repeat = 3; }
-			else { gate_count = 1; max_repeat = 1; }
+			if (m <= 5) {
+				gate_count = 10;
+				max_repeat = 3;
+			} else {
+				gate_count = 1;
+				max_repeat = 1;
+			}
 			for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
 				state_gpu.set_Haar_random_state();
 				state_cpu.load(&state_gpu);
@@ -158,11 +176,11 @@ TEST(CompatTest, DoubleControlQubitApplyRandomOrderUnitary) {
 					std::shuffle(indices.begin(), indices.end(), engine);
 					std::vector<UINT> targets(indices.begin(), indices.begin() + m);
 					//for (UINT i : targets) std::cout << i << " "; std::cout << std::endl;
-					QuantumGateMatrix* gate = NULL;
+					QuantumGateMatrix *gate = NULL;
 
 					gate = gate::RandomUnitary(targets);
 					gate->add_control_qubit(indices[m], 1);
-					gate->add_control_qubit(indices[m+1], 1);
+					gate->add_control_qubit(indices[m + 1], 1);
 					gate->update_quantum_state(&state_cpu);
 					gate->update_quantum_state(&state_gpu);
 					delete gate;
@@ -173,7 +191,6 @@ TEST(CompatTest, DoubleControlQubitApplyRandomOrderUnitary) {
 		}
 	}
 }
-
 
 TEST(CompatTest, MultiControlQubitApplyRandomOrderUnitary) {
 	UINT n = 15;
@@ -196,13 +213,19 @@ TEST(CompatTest, MultiControlQubitApplyRandomOrderUnitary) {
 		QuantumStateCpu state_cpu(n);
 		QuantumStateGpu state_gpu(n, idx);
 		std::vector<UINT> indices(n);
-		for (UINT i = 0; i < n; ++i) indices[i] = i;
+		for (UINT i = 0; i < n; ++i)
+			indices[i] = i;
 		std::mt19937 engine(0);
 
 		for (UINT c = 0; c <= max_control; ++c) {
 			for (UINT m = 1; m <= max_gate_count; ++m) {
-				if (m <= 5) { gate_count = 10; max_repeat = 3; }
-				else { gate_count = 1; max_repeat = 1; }
+				if (m <= 5) {
+					gate_count = 10;
+					max_repeat = 3;
+				} else {
+					gate_count = 1;
+					max_repeat = 1;
+				}
 				for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
 					state_gpu.set_Haar_random_state();
 					state_cpu.load(&state_gpu);
@@ -211,7 +234,7 @@ TEST(CompatTest, MultiControlQubitApplyRandomOrderUnitary) {
 						std::shuffle(indices.begin(), indices.end(), engine);
 						std::vector<UINT> targets(indices.begin(), indices.begin() + m);
 						//for (UINT i : targets) std::cout << i << " "; std::cout << std::endl;
-						QuantumGateMatrix* gate = NULL;
+						QuantumGateMatrix *gate = NULL;
 
 						gate = gate::RandomUnitary(targets);
 						for (int i = m; i <= m + c; ++i) {

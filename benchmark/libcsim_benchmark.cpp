@@ -24,16 +24,16 @@ extern "C" {
 #include <intrin.h>
 std::string get_cpu_name();
 std::string get_cpu_name() {
-	int CPUInfo[4] = { -1 };
+	int CPUInfo[4] = {-1};
 	__cpuid(CPUInfo, 0x80000000);
 	unsigned int nExIds = CPUInfo[0];
-	char CPUBrandString[0x40] = { 0 };
-	for (unsigned int i = 0x80000000; i <= nExIds; ++i){
+	char CPUBrandString[0x40] = {0};
+	for (unsigned int i = 0x80000000; i <= nExIds; ++i) {
 		__cpuid(CPUInfo, i);
 		if (i == 0x80000002)
-			memcpy(CPUBrandString,CPUInfo,sizeof(CPUInfo));
+			memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
 		else if (i == 0x80000003)
-			memcpy(CPUBrandString + 16,CPUInfo,sizeof(CPUInfo));
+			memcpy(CPUBrandString + 16, CPUInfo, sizeof(CPUInfo));
 		else if (i == 0x80000004)
 			memcpy(CPUBrandString + 32, CPUInfo, sizeof(CPUInfo));
 	}
@@ -42,18 +42,18 @@ std::string get_cpu_name() {
 #else
 #include <cpuid.h>
 std::string get_cpu_name();
-std::string get_cpu_name(){
+std::string get_cpu_name() {
 	char CPUBrandString[0x40];
-	unsigned int CPUInfo[4] = {0,0,0,0};
-	
+	unsigned int CPUInfo[4] = {0, 0, 0, 0};
+
 	__cpuid(0x80000000, CPUInfo[0], CPUInfo[1], CPUInfo[2], CPUInfo[3]);
 	unsigned int nExIds = CPUInfo[0];
-	
+
 	memset(CPUBrandString, 0, sizeof(CPUBrandString));
-	
-	for (unsigned int i = 0x80000000; i <= nExIds; ++i){
+
+	for (unsigned int i = 0x80000000; i <= nExIds; ++i) {
 		__cpuid(i, CPUInfo[0], CPUInfo[1], CPUInfo[2], CPUInfo[3]);
-	
+
 		if (i == 0x80000002)
 			memcpy(CPUBrandString, CPUInfo, sizeof(CPUInfo));
 		else if (i == 0x80000003)
@@ -66,11 +66,12 @@ std::string get_cpu_name(){
 #endif
 
 class Timer {
-private:
+  private:
 	std::chrono::system_clock::time_point last;
 	long long stock;
 	bool is_stop;
-public:
+
+  public:
 	Timer() {
 		reset();
 		is_stop = false;
@@ -80,10 +81,11 @@ public:
 		last = std::chrono::system_clock::now();
 	}
 	double elapsed() {
-		if (is_stop) return stock * 1e-6;
+		if (is_stop)
+			return stock * 1e-6;
 		else {
 			auto duration = std::chrono::system_clock::now() - last;
-			return (stock + std::chrono::duration_cast<std::chrono::microseconds>(duration).count())*1e-6;
+			return (stock + std::chrono::duration_cast<std::chrono::microseconds>(duration).count()) * 1e-6;
 		}
 	}
 	void temporal_stop() {
@@ -101,7 +103,6 @@ public:
 	}
 };
 
-
 double timeout = 0.5;
 UINT max_repeat = 1000000;
 UINT firstrun = 1000;
@@ -112,7 +113,7 @@ double benchmark_memory_allocate(UINT n) {
 	Timer timer;
 	timer.reset();
 	timer.temporal_stop();
-	CTYPE* state;
+	CTYPE *state;
 	do {
 		timer.temporal_resume();
 		state = allocate_quantum_state(dim);
@@ -129,7 +130,7 @@ double benchmark_memory_release(UINT n) {
 	Timer timer;
 	timer.reset();
 	timer.temporal_stop();
-	CTYPE* state;
+	CTYPE *state;
 	do {
 		state = allocate_quantum_state(dim);
 		timer.temporal_resume();
@@ -140,13 +141,13 @@ double benchmark_memory_release(UINT n) {
 	return timer.elapsed() / repeat;
 };
 
-double benchmark_state_func(UINT n, std::function<void(CTYPE*, ITYPE)>func) {
+double benchmark_state_func(UINT n, std::function<void(CTYPE *, ITYPE)> func) {
 	UINT repeat = 0;
 	ITYPE dim = (1ULL << n);
 	Timer timer;
 	timer.reset();
 	timer.temporal_stop();
-	CTYPE* state;
+	CTYPE *state;
 	state = allocate_quantum_state(dim);
 	do {
 		timer.temporal_resume();
@@ -165,14 +166,14 @@ double benchmark_state_randomize(UINT n) {
 	return benchmark_state_func(n, initialize_Haar_random_state);
 }
 
-template<typename T>
-double benchmark_state_stat_func(UINT n, std::function<T(CTYPE*, ITYPE)>func) {
+template <typename T>
+double benchmark_state_stat_func(UINT n, std::function<T(CTYPE *, ITYPE)> func) {
 	UINT repeat = 0;
 	ITYPE dim = (1ULL << n);
 	Timer timer;
 	timer.reset();
 	timer.temporal_stop();
-	CTYPE* state;
+	CTYPE *state;
 	state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state);
 	do {
@@ -189,14 +190,14 @@ double benchmark_state_norm(UINT n) {
 	return benchmark_state_func(n, state_norm);
 }
 
-double benchmark_gate_single_func(UINT n, UINT target, std::function<void(UINT, CTYPE*, ITYPE)>func) {
+double benchmark_gate_single_func(UINT n, UINT target, std::function<void(UINT, CTYPE *, ITYPE)> func) {
 	UINT repeat = 0;
 	ITYPE dim = (1ULL << n);
 	Timer timer;
-	CTYPE* state;
+	CTYPE *state;
 	double elapsed;
 	state = allocate_quantum_state(dim);
-	initialize_Haar_random_state(state,dim);
+	initialize_Haar_random_state(state, dim);
 	timer.reset();
 	do {
 		func(target, state, dim);
@@ -208,15 +209,15 @@ double benchmark_gate_single_func(UINT n, UINT target, std::function<void(UINT, 
 	return elapsed;
 };
 
-double benchmark_gate_double_func(UINT n, UINT target1, UINT target2, std::function<void(UINT, UINT, CTYPE*, ITYPE)>func) {
+double benchmark_gate_double_func(UINT n, UINT target1, UINT target2, std::function<void(UINT, UINT, CTYPE *, ITYPE)> func) {
 	UINT repeat = 0;
 	ITYPE dim = (1ULL << n);
 	Timer timer;
 	timer.reset();
 	timer.temporal_stop();
-	CTYPE* state;
+	CTYPE *state;
 	state = allocate_quantum_state(dim);
-	initialize_Haar_random_state(state,dim);
+	initialize_Haar_random_state(state, dim);
 	do {
 		timer.temporal_resume();
 		func(target1, target2, state, dim);
@@ -233,10 +234,10 @@ double benchmark_gate_dense_single(UINT n, UINT target) {
 	Timer timer;
 	timer.reset();
 	timer.temporal_stop();
-	CTYPE* state;
+	CTYPE *state;
 	state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
-	CTYPE matrix[4] = { 1.0, 0.0, 0.0, 1.0 };
+	CTYPE matrix[4] = {1.0, 0.0, 0.0, 1.0};
 	do {
 		timer.temporal_resume();
 		single_qubit_dense_matrix_gate(target, matrix, state, dim);
@@ -247,21 +248,21 @@ double benchmark_gate_dense_single(UINT n, UINT target) {
 	return timer.elapsed() / repeat;
 };
 
-
 double benchmark_gate_dense_two(UINT n, UINT t1, UINT t2) {
 	UINT repeat = 0;
 	ITYPE dim = (1ULL << n);
 	Timer timer;
 	timer.reset();
 	timer.temporal_stop();
-	CTYPE* state;
+	CTYPE *state;
 	state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	CTYPE matrix[16];
-	for (UINT i = 0; i < 4; ++i) matrix[4 * i + i] = 1.;
+	for (UINT i = 0; i < 4; ++i)
+		matrix[4 * i + i] = 1.;
 	do {
 		timer.temporal_resume();
-		double_qubit_dense_matrix_gate(t1,t2, matrix, state, dim);
+		double_qubit_dense_matrix_gate(t1, t2, matrix, state, dim);
 		timer.temporal_stop();
 		repeat++;
 	} while (timer.elapsed() < timeout && repeat <= max_repeat);
@@ -269,18 +270,18 @@ double benchmark_gate_dense_two(UINT n, UINT t1, UINT t2) {
 	return timer.elapsed() / repeat;
 };
 
-
 double benchmark_gate_dense_two_eigen(UINT n, UINT t1, UINT t2) {
 	UINT repeat = 0;
 	ITYPE dim = (1ULL << n);
 	Timer timer;
 	timer.reset();
 	timer.temporal_stop();
-	CTYPE* state;
+	CTYPE *state;
 	state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	Eigen::Matrix4cd matrix;
-	for (UINT i = 0; i < 4; ++i) matrix(i,i) = 1.;
+	for (UINT i = 0; i < 4; ++i)
+		matrix(i, i) = 1.;
 	do {
 		timer.temporal_resume();
 		double_qubit_dense_matrix_gate_eigen(t1, t2, matrix, state, dim);
@@ -291,19 +292,19 @@ double benchmark_gate_dense_two_eigen(UINT n, UINT t1, UINT t2) {
 	return timer.elapsed() / repeat;
 };
 
-
 double benchmark_gate_dense_three(UINT n, UINT t1, UINT t2, UINT t3) {
 	UINT repeat = 0;
 	ITYPE dim = (1ULL << n);
 	Timer timer;
 	timer.reset();
 	timer.temporal_stop();
-	CTYPE* state;
+	CTYPE *state;
 	state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	CTYPE matrix[64];
-	UINT target[3] = { t1,t2,t3 };
-	for (UINT i = 0; i < 8; ++i) matrix[8 * i + i] = 1.;
+	UINT target[3] = {t1, t2, t3};
+	for (UINT i = 0; i < 8; ++i)
+		matrix[8 * i + i] = 1.;
 	do {
 		timer.temporal_resume();
 		multi_qubit_dense_matrix_gate(target, 3, matrix, state, dim);
@@ -314,17 +315,16 @@ double benchmark_gate_dense_three(UINT n, UINT t1, UINT t2, UINT t3) {
 	return timer.elapsed() / repeat;
 };
 
-
 double benchmark_gate_diag_single(UINT n, UINT target) {
 	UINT repeat = 0;
 	ITYPE dim = (1ULL << n);
 	Timer timer;
 	timer.reset();
 	timer.temporal_stop();
-	CTYPE* state;
+	CTYPE *state;
 	state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
-	CTYPE matrix[2] = { 1.0, 1.0 };
+	CTYPE matrix[2] = {1.0, 1.0};
 	do {
 		timer.temporal_resume();
 		single_qubit_diagonal_matrix_gate(target, matrix, state, dim);
@@ -341,7 +341,7 @@ double benchmark_gate_phase_single(UINT n, UINT target) {
 	Timer timer;
 	timer.reset();
 	timer.temporal_stop();
-	CTYPE* state;
+	CTYPE *state;
 	state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	CTYPE phase = 1.0;
@@ -355,17 +355,16 @@ double benchmark_gate_phase_single(UINT n, UINT target) {
 	return timer.elapsed() / repeat;
 };
 
-
 double benchmark_gate_single_control_single_target(UINT n, UINT control, UINT target) {
 	UINT repeat = 0;
 	ITYPE dim = (1ULL << n);
 	Timer timer;
 	timer.reset();
 	timer.temporal_stop();
-	CTYPE* state;
+	CTYPE *state;
 	state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
-	CTYPE matrix[4] = { 1.0, 0.0, 0.0, 1.0 };
+	CTYPE matrix[4] = {1.0, 0.0, 0.0, 1.0};
 	do {
 		timer.temporal_resume();
 		single_qubit_control_single_qubit_dense_matrix_gate(control, 0, target, matrix, state, dim);
@@ -382,12 +381,12 @@ double benchmark_gate_multi_control_single_target(UINT n, UINT c1, UINT c2, UINT
 	Timer timer;
 	timer.reset();
 	timer.temporal_stop();
-	CTYPE* state;
+	CTYPE *state;
 	state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
-	CTYPE matrix[4] = { 1.0, 0.0, 0.0, 1.0 };
-	UINT control[2] = { c1,c2 };
-	UINT cvalue[2] = { 0,1 };
+	CTYPE matrix[4] = {1.0, 0.0, 0.0, 1.0};
+	UINT control[2] = {c1, c2};
+	UINT cvalue[2] = {0, 1};
 	do {
 		timer.temporal_resume();
 		multi_qubit_control_single_qubit_dense_matrix_gate(control, cvalue, 2, target, matrix, state, dim);
@@ -399,7 +398,7 @@ double benchmark_gate_multi_control_single_target(UINT n, UINT c1, UINT c2, UINT
 };
 
 void show(std::string name, UINT qubit_count, double elapsed_time, std::string filename) {
-	std::cout << std::fixed << std::setw(20) << name << std::setw(5) << qubit_count << " " << std::setw(20) << std::setprecision(2) << elapsed_time*1e9 << " ns" << std::endl;
+	std::cout << std::fixed << std::setw(20) << name << std::setw(5) << qubit_count << " " << std::setw(20) << std::setprecision(2) << elapsed_time * 1e9 << " ns" << std::endl;
 	std::ofstream fout(filename, std::ios::app);
 	fout << std::fixed << std::setw(20) << name << std::setw(5) << qubit_count << " " << std::setw(20) << std::setprecision(2) << elapsed_time * 1e9 << " ns" << std::endl;
 	fout.close();
@@ -413,16 +412,16 @@ int main() {
 	const UINT max_repeat = 10;
 	const UINT max_dense_qubit_count = 5;
 
-	#ifdef _MSC_VER
+#ifdef _MSC_VER
 	std::string compiler_name = "msvc";
-	#elif __GNUG__
+#elif __GNUG__
 	std::string compiler_name = "gcc";
-	#elif __clang__
+#elif __clang__
 	std::string compiler_name = "clang";
-	#else
+#else
 	std::string compiler_name = "unknowncompiler";
-	#endif
-	
+#endif
+
 	std::string fname = "bench_" + compiler_name + "_" + get_cpu_name() + ".txt";
 	std::ofstream fout(fname, std::ios::out);
 	fout.close();
@@ -456,7 +455,6 @@ int main() {
 		//show("gate two_2,3", qubit_count, benchmark_gate_dense_two(qubit_count, 2,3), fname);
 		show("gate two_eigen_2,3", qubit_count, benchmark_gate_dense_two_eigen(qubit_count, 2, 3), fname);
 		//show("gate three_1,2,3", qubit_count, benchmark_gate_dense_three(qubit_count, 1,2,3), fname);
-
 
 		/*
 		for(UINT k=1;k<=max_dense_qubit_count;++k){
@@ -505,4 +503,3 @@ int main() {
 		*/
 	}
 }
-

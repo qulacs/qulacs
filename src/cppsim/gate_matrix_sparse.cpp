@@ -18,7 +18,7 @@ extern "C" {
 #endif
 
 // In construction, "copy" a given matrix. If a given matrix is large, use "move" constructor.
-QuantumGateSparseMatrix::QuantumGateSparseMatrix(const std::vector<UINT>& target_qubit_index_list_, const SparseComplexMatrix& matrix_element, const std::vector<UINT>& control_qubit_index_list_) {
+QuantumGateSparseMatrix::QuantumGateSparseMatrix(const std::vector<UINT> &target_qubit_index_list_, const SparseComplexMatrix &matrix_element, const std::vector<UINT> &control_qubit_index_list_) {
 	for (auto val : target_qubit_index_list_) {
 		this->_target_qubit_list.push_back(TargetQubitInfo(val, 0));
 	}
@@ -28,7 +28,7 @@ QuantumGateSparseMatrix::QuantumGateSparseMatrix(const std::vector<UINT>& target
 	this->_matrix_element = SparseComplexMatrix(matrix_element);
 	this->_name = "SparseMatrix";
 }
-QuantumGateSparseMatrix::QuantumGateSparseMatrix(const std::vector<TargetQubitInfo>& target_qubit_index_list_, const SparseComplexMatrix& matrix_element, const std::vector<ControlQubitInfo>& control_qubit_index_list_) {
+QuantumGateSparseMatrix::QuantumGateSparseMatrix(const std::vector<TargetQubitInfo> &target_qubit_index_list_, const SparseComplexMatrix &matrix_element, const std::vector<ControlQubitInfo> &control_qubit_index_list_) {
 	this->_target_qubit_list = std::vector<TargetQubitInfo>(target_qubit_index_list_);
 	this->_control_qubit_list = std::vector<ControlQubitInfo>(control_qubit_index_list_);
 	this->_matrix_element = SparseComplexMatrix(matrix_element);
@@ -36,7 +36,7 @@ QuantumGateSparseMatrix::QuantumGateSparseMatrix(const std::vector<TargetQubitIn
 }
 
 // In construction, "move" a given matrix, which surpess the cost of copying large matrix element.
-QuantumGateSparseMatrix::QuantumGateSparseMatrix(const std::vector<UINT>& target_qubit_index_list_, SparseComplexMatrix* matrix_element, const std::vector<UINT>& control_qubit_index_list_) {
+QuantumGateSparseMatrix::QuantumGateSparseMatrix(const std::vector<UINT> &target_qubit_index_list_, SparseComplexMatrix *matrix_element, const std::vector<UINT> &control_qubit_index_list_) {
 	for (auto val : target_qubit_index_list_) {
 		this->_target_qubit_list.push_back(TargetQubitInfo(val, 0));
 	}
@@ -46,16 +46,14 @@ QuantumGateSparseMatrix::QuantumGateSparseMatrix(const std::vector<UINT>& target
 	this->_matrix_element.swap(*matrix_element);
 	this->_name = "SparseMatrix";
 }
-QuantumGateSparseMatrix::QuantumGateSparseMatrix(const std::vector<TargetQubitInfo>& target_qubit_index_list_, SparseComplexMatrix* matrix_element, const std::vector<ControlQubitInfo>& control_qubit_index_list_) {
+QuantumGateSparseMatrix::QuantumGateSparseMatrix(const std::vector<TargetQubitInfo> &target_qubit_index_list_, SparseComplexMatrix *matrix_element, const std::vector<ControlQubitInfo> &control_qubit_index_list_) {
 	this->_target_qubit_list = std::vector<TargetQubitInfo>(target_qubit_index_list_);
 	this->_control_qubit_list = std::vector<ControlQubitInfo>(control_qubit_index_list_);
 	this->_matrix_element.swap(*matrix_element);
 	this->_name = "SparseMatrix";
 }
 
-
-
-void QuantumGateSparseMatrix::update_quantum_state(QuantumStateBase* state) {
+void QuantumGateSparseMatrix::update_quantum_state(QuantumStateBase *state) {
 	ITYPE dim = 1ULL << state->qubit_count;
 
 	if (this->_control_qubit_list.size() > 0) {
@@ -73,8 +71,7 @@ void QuantumGateSparseMatrix::update_quantum_state(QuantumStateBase* state) {
 #ifdef _USE_GPU
 		if (state->get_device_name() == "gpu") {
 			std::cerr << "Sparse matrix gate is not supported on GPU" << std::endl;
-		}
-		else {
+		} else {
 			multi_qubit_sparse_matrix_gate_eigen(
 				target_index.data(), (UINT)(target_index.size()),
 				this->_matrix_element, state->data_c(), dim);
@@ -84,13 +81,10 @@ void QuantumGateSparseMatrix::update_quantum_state(QuantumStateBase* state) {
 			target_index.data(), (UINT)(target_index.size()),
 			this->_matrix_element, state->data_c(), dim);
 #endif
-	}
-	else {
+	} else {
 		std::cerr << "not implemented" << std::endl;
 	}
-
 }
-
 
 void QuantumGateSparseMatrix::add_control_qubit(UINT qubit_index, UINT control_value) {
 	this->_control_qubit_list.push_back(ControlQubitInfo(qubit_index, control_value));
@@ -106,11 +100,11 @@ std::string QuantumGateSparseMatrix::to_string() const {
 	return os.str();
 }
 
-std::ostream& operator<<(std::ostream& os, const QuantumGateSparseMatrix& gate) {
+std::ostream &operator<<(std::ostream &os, const QuantumGateSparseMatrix &gate) {
 	os << gate.to_string();
 	return os;
 }
-std::ostream& operator<<(std::ostream& os, QuantumGateSparseMatrix* gate) {
+std::ostream &operator<<(std::ostream &os, QuantumGateSparseMatrix *gate) {
 	os << *gate;
 	return os;
 }

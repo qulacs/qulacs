@@ -10,14 +10,12 @@
 #include <cppsim/utility.hpp>
 #include <fstream>
 
-
-
 TEST(DensityMatrixObservableTest, CheckExpectationValue) {
 	const UINT n = 4;
 	const UINT dim = 1ULL << n;
 	const double eps = 1e-14;
 	double coef;
-	CPPCTYPE res_vec,res_mat;
+	CPPCTYPE res_vec, res_mat;
 	CPPCTYPE test_res;
 	Random random;
 
@@ -68,9 +66,12 @@ TEST(DensityMatrixObservableTest, CheckExpectationValue) {
 			for (UINT ind = 0; ind < paulis.size(); ind++) {
 				UINT val = paulis[ind];
 				if (val != 0) {
-					if (val == 1) str += " X";
-					else if (val == 2) str += " Y";
-					else if (val == 3) str += " Z";
+					if (val == 1)
+						str += " X";
+					else if (val == 2)
+						str += " Y";
+					else if (val == 3)
+						str += " Z";
 					str += " " + std::to_string(ind);
 				}
 			}
@@ -88,9 +89,8 @@ TEST(DensityMatrixObservableTest, CheckExpectationValue) {
 	}
 }
 
-
 TEST(DensityMatrixObservableTest, CheckParsedObservableFromOpenFermionText) {
-	auto func = [](const std::string str, const QuantumStateBase* state) -> CPPCTYPE {
+	auto func = [](const std::string str, const QuantumStateBase *state) -> CPPCTYPE {
 		CPPCTYPE energy = 0;
 
 		std::vector<std::string> lines = split(str, "\n");
@@ -112,33 +112,32 @@ TEST(DensityMatrixObservableTest, CheckParsedObservableFromOpenFermionText) {
 			// std::cout << elems[3].c_str() << std::endl;
 			energy += mpt.get_expectation_value(state);
 			// mpt.get_expectation_value(state);
-
 		}
 		return energy;
 	};
 
 	const double eps = 1e-14;
 	const std::string text = "(-0.8126100000000005+0j) [] +\n"
-		"(0.04532175+0j) [X0 Z1 X2] +\n"
-		"(0.04532175+0j) [X0 Z1 X2 Z3] +\n"
-		"(0.04532175+0j) [Y0 Z1 Y2] +\n"
-		"(0.04532175+0j) [Y0 Z1 Y2 Z3] +\n"
-		"(0.17120100000000002+0j) [Z0] +\n"
-		"(0.17120100000000002+0j) [Z0 Z1] +\n"
-		"(0.165868+0j) [Z0 Z1 Z2] +\n"
-		"(0.165868+0j) [Z0 Z1 Z2 Z3] +\n"
-		"(0.12054625+0j) [Z0 Z2] +\n"
-		"(0.12054625+0j) [Z0 Z2 Z3] +\n"
-		"(0.16862325+0j) [Z1] +\n"
-		"(-0.22279649999999998+0j) [Z1 Z2 Z3] +\n"
-		"(0.17434925+0j) [Z1 Z3] +\n"
-		"(-0.22279649999999998+0j) [Z2]";
+							 "(0.04532175+0j) [X0 Z1 X2] +\n"
+							 "(0.04532175+0j) [X0 Z1 X2 Z3] +\n"
+							 "(0.04532175+0j) [Y0 Z1 Y2] +\n"
+							 "(0.04532175+0j) [Y0 Z1 Y2 Z3] +\n"
+							 "(0.17120100000000002+0j) [Z0] +\n"
+							 "(0.17120100000000002+0j) [Z0 Z1] +\n"
+							 "(0.165868+0j) [Z0 Z1 Z2] +\n"
+							 "(0.165868+0j) [Z0 Z1 Z2 Z3] +\n"
+							 "(0.12054625+0j) [Z0 Z2] +\n"
+							 "(0.12054625+0j) [Z0 Z2 Z3] +\n"
+							 "(0.16862325+0j) [Z1] +\n"
+							 "(-0.22279649999999998+0j) [Z1 Z2 Z3] +\n"
+							 "(0.17434925+0j) [Z1 Z3] +\n"
+							 "(-0.22279649999999998+0j) [Z2]";
 
 	CPPCTYPE res_vec, res_mat;
 
-	Observable* observable;
+	Observable *observable;
 	observable = observable::create_observable_from_openfermion_text(text);
-	ASSERT_NE(observable, (Observable*)NULL);
+	ASSERT_NE(observable, (Observable *)NULL);
 	UINT qubit_count = observable->get_qubit_count();
 
 	QuantumState vector_state(qubit_count);
@@ -150,7 +149,6 @@ TEST(DensityMatrixObservableTest, CheckParsedObservableFromOpenFermionText) {
 	res_mat = observable->get_expectation_value(&density_matrix);
 	ASSERT_NEAR(res_vec.real(), res_mat.real(), eps);
 	ASSERT_NEAR(res_vec.imag(), res_mat.imag(), eps);
-
 
 	vector_state.set_Haar_random_state();
 	density_matrix.load(&vector_state);

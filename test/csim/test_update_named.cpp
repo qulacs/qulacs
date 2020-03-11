@@ -20,7 +20,7 @@ extern "C" {
 #endif
 #include <csim/update_ops_cpp.hpp>
 
-void test_single_qubit_named_gate(UINT n, std::string name, std::function<void(UINT, CTYPE*, ITYPE)> func, Eigen::MatrixXcd mat) {
+void test_single_qubit_named_gate(UINT n, std::string name, std::function<void(UINT, CTYPE *, ITYPE)> func, Eigen::MatrixXcd mat) {
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 2;
 
@@ -28,9 +28,11 @@ void test_single_qubit_named_gate(UINT n, std::string name, std::function<void(U
 	initialize_Haar_random_state_with_seed(state, dim, 0);
 
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+	for (ITYPE i = 0; i < dim; ++i)
+		test_state[i] = state[i];
 	std::vector<UINT> indices;
-	for (UINT i = 0; i < n; ++i) indices.push_back(i);
+	for (UINT i = 0; i < n; ++i)
+		indices.push_back(i);
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		for (UINT i = 0; i < n; ++i) {
@@ -93,7 +95,8 @@ TEST(UpdateTest, ZGate) {
 TEST(UpdateTest, HGate) {
 	const UINT n = 3;
 	Eigen::MatrixXcd mat(2, 2);
-	mat << 1, 1, 1, -1; mat /= sqrt(2.);
+	mat << 1, 1, 1, -1;
+	mat /= sqrt(2.);
 	test_single_qubit_named_gate(n, "HGate", H_gate, mat);
 	test_single_qubit_named_gate(6, "HGate", H_gate_single_unroll, mat);
 #ifdef _OPENMP
@@ -139,7 +142,7 @@ TEST(UpdateTest, sqrtYGate) {
 	test_single_qubit_named_gate(n, "SqrtYdagGate", sqrtYdag_gate, mat.adjoint());
 }
 
-void test_projection_gate(std::function<void(UINT, CTYPE*, ITYPE)> func, std::function<double(UINT, CTYPE*, ITYPE)> prob_func, Eigen::MatrixXcd mat) {
+void test_projection_gate(std::function<void(UINT, CTYPE *, ITYPE)> func, std::function<double(UINT, CTYPE *, ITYPE)> prob_func, Eigen::MatrixXcd mat) {
 	const UINT n = 6;
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 10;
@@ -149,23 +152,25 @@ void test_projection_gate(std::function<void(UINT, CTYPE*, ITYPE)> func, std::fu
 
 	auto state = allocate_quantum_state(dim);
 	std::vector<UINT> indices;
-	for (UINT i = 0; i < n; ++i) indices.push_back(i);
+	for (UINT i = 0; i < n; ++i)
+		indices.push_back(i);
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		for (int i = 0; i < n; ++i) {
 			target = indices[i];
 			initialize_Haar_random_state(state, dim);
 			Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-			for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+			for (ITYPE i = 0; i < dim; ++i)
+				test_state[i] = state[i];
 
-			// Z-projection operators 
+			// Z-projection operators
 			prob = prob_func(target, state, dim);
 			EXPECT_GT(prob, 1e-10);
 			func(target, state, dim);
 			ASSERT_NEAR(state_norm_squared(state, dim), prob, eps);
 			normalize(prob, state, dim);
 
-			test_state = get_expanded_eigen_matrix_with_identity(target, mat, n)*test_state;
+			test_state = get_expanded_eigen_matrix_with_identity(target, mat, n) * test_state;
 			ASSERT_NEAR(test_state.squaredNorm(), prob, eps);
 			test_state.normalize();
 			state_equal(state, test_state, dim, "Projection gate");
@@ -189,7 +194,6 @@ TEST(UpdateTest, ProjectionAndNormalizeTest) {
 #endif
 }
 
-
 TEST(UpdateTest, SingleQubitRotationGateTest) {
 	const UINT n = 6;
 	const ITYPE dim = 1ULL << n;
@@ -207,8 +211,9 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
 	auto state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
-	typedef std::tuple<std::function<void(UINT, double, CTYPE*, ITYPE)>, Eigen::MatrixXcd, std::string> testset;
+	for (ITYPE i = 0; i < dim; ++i)
+		test_state[i] = state[i];
+	typedef std::tuple<std::function<void(UINT, double, CTYPE *, ITYPE)>, Eigen::MatrixXcd, std::string> testset;
 	std::vector<testset> test_list;
 	test_list.push_back(std::make_tuple(RX_gate, X, "Xrot"));
 	test_list.push_back(std::make_tuple(RY_gate, Y, "Yrot"));
@@ -222,15 +227,15 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
 			auto mat = std::get<1>(tup);
 			auto name = std::get<2>(tup);
 			func(target, angle, state, dim);
-			test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2)*Identity + 1.i*sin(angle / 2)*mat, n) * test_state;
+			test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2) * Identity + 1.i * sin(angle / 2) * mat, n) * test_state;
 			state_equal(state, test_state, dim, name);
 		}
 	}
 	release_quantum_state(state);
 }
 
-void test_two_qubit_named_gate(UINT n, std::string name, std::function<void(UINT, UINT, CTYPE*, ITYPE)> func,
-	std::function<Eigen::MatrixXcd(UINT, UINT, UINT)> matfunc) {
+void test_two_qubit_named_gate(UINT n, std::string name, std::function<void(UINT, UINT, CTYPE *, ITYPE)> func,
+							   std::function<Eigen::MatrixXcd(UINT, UINT, UINT)> matfunc) {
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 2;
 
@@ -238,9 +243,11 @@ void test_two_qubit_named_gate(UINT n, std::string name, std::function<void(UINT
 	initialize_Haar_random_state_with_seed(state, dim, 0);
 
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+	for (ITYPE i = 0; i < dim; ++i)
+		test_state[i] = state[i];
 	std::vector<UINT> indices;
-	for (UINT i = 0; i < n; ++i) indices.push_back(i);
+	for (UINT i = 0; i < n; ++i)
+		indices.push_back(i);
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		for (UINT i = 0; i + 1 < n; i += 2) {
@@ -300,4 +307,3 @@ TEST(UpdateTest, SWAPGate) {
 #endif
 #endif
 }
-

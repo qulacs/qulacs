@@ -42,6 +42,8 @@ matrix:
         apt:
           sources:
             - sourceline: "ppa:ubuntu-toolchain-r/test"
+            - sourceline: 'deb http://apt.llvm.org/bionic/ llvm-toolchain-bionic-9 main'
+              key_url: 'https://apt.llvm.org/llvm-snapshot.gpg.key'
           packages:
             - cmake
             - g++-8
@@ -50,6 +52,7 @@ matrix:
             - lcov
             - swig
             - libssl1.0-dev
+            - clang-format-9
     # 3/ Linux GCC7 PYTHON3.7 build
     - os: linux
       dist: bionic
@@ -117,6 +120,19 @@ cache:
     - $HOME/Library/Caches/Homebrew
 
 before_install:
+  # Check C++ format
+  - set -o pipefail
+  - |
+    if [[ "${TRAVIS_OS_NAME}" == "linux" && "${PYTHON}" == "${PYTHON3}" && "${CXX_COMPILER}" == "g++-8" ]]; then
+      clang-format-9 --version
+      git ls-files "*.cpp" | xargs clang-format-9 -style=file -i
+      git --no-pager diff --exit-code
+      diff_result=$?
+      if [[  "$diff_result" -eq 1 ]]; then
+        echo "There are some code which has not been formatted."
+        exit 1
+      fi
+    fi
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
       travis_retry choco install -y cmake

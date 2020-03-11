@@ -14,8 +14,6 @@
 #include <functional>
 #include <numeric>
 
-
-
 TEST(DensityMatrixGateTest, ApplySingleQubitGate) {
 
 	Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2), H(2, 2), S(2, 2), T(2, 2), sqrtX(2, 2), sqrtY(2, 2), P0(2, 2), P1(2, 2);
@@ -24,7 +22,8 @@ TEST(DensityMatrixGateTest, ApplySingleQubitGate) {
 	X << 0, 1, 1, 0;
 	Y << 0, -1.i, 1.i, 0;
 	Z << 1, 0, 0, -1;
-	H << 1, 1, 1, -1; H /= sqrt(2.);
+	H << 1, 1, 1, -1;
+	H /= sqrt(2.);
 	S << 1, 0, 0, 1.i;
 	T << 1, 0, 0, (1. + 1.i) / sqrt(2.);
 	sqrtX << 0.5 + 0.5i, 0.5 - 0.5i, 0.5 - 0.5i, 0.5 + 0.5i;
@@ -32,14 +31,13 @@ TEST(DensityMatrixGateTest, ApplySingleQubitGate) {
 	P0 << 1, 0, 0, 0;
 	P1 << 0, 0, 0, 1;
 
-
 	const UINT n = 5;
 	const ITYPE dim = 1ULL << n;
 	double eps = 1e-15;
 
 	Random random;
 	DensityMatrix state(n);
-	std::vector< std::pair< std::function<QuantumGateBase*(UINT)>, Eigen::MatrixXcd >> funclist;
+	std::vector<std::pair<std::function<QuantumGateBase *(UINT)>, Eigen::MatrixXcd>> funclist;
 	funclist.push_back(std::make_pair(gate::Identity, Identity));
 	funclist.push_back(std::make_pair(gate::X, X));
 	funclist.push_back(std::make_pair(gate::Y, Y));
@@ -74,11 +72,12 @@ TEST(DensityMatrixGateTest, ApplySingleQubitGate) {
 
 			DensityMatrix dm_test(n);
 			dm_test.load(&test_state);
-			for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm_test.data_cpp()[i*dim + j]), 0, eps);
+			for (ITYPE i = 0; i < dim; ++i)
+				for (ITYPE j = 0; j < dim; ++j)
+					ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm_test.data_cpp()[i * dim + j]), 0, eps);
 		}
 	}
 }
-
 
 TEST(DensityMatrixGateTest, ApplySingleQubitRotationGate) {
 
@@ -96,7 +95,7 @@ TEST(DensityMatrixGateTest, ApplySingleQubitRotationGate) {
 	Random random;
 	DensityMatrix state(n);
 	QuantumState test_state(n);
-	std::vector< std::pair< std::function<QuantumGateBase*(UINT, double)>, Eigen::MatrixXcd >> funclist;
+	std::vector<std::pair<std::function<QuantumGateBase *(UINT, double)>, Eigen::MatrixXcd>> funclist;
 	funclist.push_back(std::make_pair(gate::RX, X));
 	funclist.push_back(std::make_pair(gate::RY, Y));
 	funclist.push_back(std::make_pair(gate::RZ, Z));
@@ -107,7 +106,7 @@ TEST(DensityMatrixGateTest, ApplySingleQubitRotationGate) {
 			double angle = random.uniform() * 3.14159;
 
 			auto func = func_mat.first;
-			auto mat = cos(angle / 2) * Eigen::MatrixXcd::Identity(2, 2) + 1.i * sin(angle / 2)* func_mat.second;
+			auto mat = cos(angle / 2) * Eigen::MatrixXcd::Identity(2, 2) + 1.i * sin(angle / 2) * func_mat.second;
 
 			test_state.set_Haar_random_state();
 			state.load(&test_state);
@@ -118,7 +117,9 @@ TEST(DensityMatrixGateTest, ApplySingleQubitRotationGate) {
 
 			DensityMatrix dm_test(n);
 			dm_test.load(&test_state);
-			for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm_test.data_cpp()[i*dim + j]), 0, eps);
+			for (ITYPE i = 0; i < dim; ++i)
+				for (ITYPE j = 0; j < dim; ++j)
+					ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm_test.data_cpp()[i * dim + j]), 0, eps);
 		}
 	}
 }
@@ -132,7 +133,7 @@ TEST(DensityMatrixGateTest, ApplyTwoQubitGate) {
 	Random random;
 	DensityMatrix state(n);
 	QuantumState test_state(n);
-	std::vector< std::pair< std::function<QuantumGateBase*(UINT, UINT)>, std::function<Eigen::MatrixXcd(UINT, UINT, UINT)>>> funclist;
+	std::vector<std::pair<std::function<QuantumGateBase *(UINT, UINT)>, std::function<Eigen::MatrixXcd(UINT, UINT, UINT)>>> funclist;
 	funclist.push_back(std::make_pair(gate::CNOT, get_eigen_matrix_full_qubit_CNOT));
 	funclist.push_back(std::make_pair(gate::CZ, get_eigen_matrix_full_qubit_CZ));
 
@@ -140,7 +141,8 @@ TEST(DensityMatrixGateTest, ApplyTwoQubitGate) {
 		for (auto func_mat : funclist) {
 			UINT control = random.int32() % n;
 			UINT target = random.int32() % n;
-			if (target == control) target = (target + 1) % n;
+			if (target == control)
+				target = (target + 1) % n;
 
 			auto func = func_mat.first;
 			auto func_eig = func_mat.second;
@@ -155,7 +157,9 @@ TEST(DensityMatrixGateTest, ApplyTwoQubitGate) {
 
 			DensityMatrix dm_test(n);
 			dm_test.load(&test_state);
-			for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm_test.data_cpp()[i*dim + j]), 0, eps);
+			for (ITYPE i = 0; i < dim; ++i)
+				for (ITYPE j = 0; j < dim; ++j)
+					ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm_test.data_cpp()[i * dim + j]), 0, eps);
 		}
 	}
 
@@ -165,7 +169,8 @@ TEST(DensityMatrixGateTest, ApplyTwoQubitGate) {
 		for (auto func_mat : funclist) {
 			UINT control = random.int32() % n;
 			UINT target = random.int32() % n;
-			if (target == control) target = (target + 1) % n;
+			if (target == control)
+				target = (target + 1) % n;
 
 			auto func = func_mat.first;
 			auto func_eig = func_mat.second;
@@ -179,11 +184,12 @@ TEST(DensityMatrixGateTest, ApplyTwoQubitGate) {
 
 			DensityMatrix dm_test(n);
 			dm_test.load(&test_state);
-			for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm_test.data_cpp()[i*dim + j]), 0, eps);
+			for (ITYPE i = 0; i < dim; ++i)
+				for (ITYPE j = 0; j < dim; ++j)
+					ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm_test.data_cpp()[i * dim + j]), 0, eps);
 		}
 	}
 }
-
 
 TEST(DensityMatrixGateTest, ApplyMultiQubitGate) {
 
@@ -194,7 +200,7 @@ TEST(DensityMatrixGateTest, ApplyMultiQubitGate) {
 	Random random;
 	DensityMatrix state(n);
 	QuantumState test_state(n);
-	std::vector< std::pair< std::function<QuantumGateBase*(UINT, UINT)>, std::function<Eigen::MatrixXcd(UINT, UINT, UINT)>>> funclist;
+	std::vector<std::pair<std::function<QuantumGateBase *(UINT, UINT)>, std::function<Eigen::MatrixXcd(UINT, UINT, UINT)>>> funclist;
 
 	//gate::DenseMatrix
 	//gate::Pauli
@@ -215,7 +221,9 @@ TEST(DensityMatrixGateTest, ApplyMultiQubitGate) {
 
 		DensityMatrix dm_test(n);
 		dm_test.load(&test_state);
-		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm_test.data_cpp()[i*dim + j]), 0, eps);
+		for (ITYPE i = 0; i < dim; ++i)
+			for (ITYPE j = 0; j < dim; ++j)
+				ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm_test.data_cpp()[i * dim + j]), 0, eps);
 	}
 
 	for (UINT repeat = 0; repeat < 10; ++repeat) {
@@ -227,7 +235,7 @@ TEST(DensityMatrixGateTest, ApplyMultiQubitGate) {
 		for (UINT i = 0; i < n; ++i) {
 			pauli.add_single_Pauli(i, random.int32() % 4);
 		}
-		double angle = random.uniform()*3.14159;
+		double angle = random.uniform() * 3.14159;
 
 		auto gate = gate::PauliRotation(pauli.get_index_list(), pauli.get_pauli_id_list(), angle);
 
@@ -236,11 +244,11 @@ TEST(DensityMatrixGateTest, ApplyMultiQubitGate) {
 
 		DensityMatrix dm_test(n);
 		dm_test.load(&test_state);
-		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm_test.data_cpp()[i*dim + j]), 0, eps);
+		for (ITYPE i = 0; i < dim; ++i)
+			for (ITYPE j = 0; j < dim; ++j)
+				ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm_test.data_cpp()[i * dim + j]), 0, eps);
 	}
-
 }
-
 
 TEST(DensityMatrixGateTest, MergeTensorProduct) {
 	UINT n = 2;
@@ -261,7 +269,9 @@ TEST(DensityMatrixGateTest, MergeTensorProduct) {
 
 	DensityMatrix dm(n);
 	dm.load(&test_state);
-	for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim +j] - dm.data_cpp()[i*dim+j]), 0, eps);
+	for (ITYPE i = 0; i < dim; ++i)
+		for (ITYPE j = 0; j < dim; ++j)
+			ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm.data_cpp()[i * dim + j]), 0, eps);
 
 	delete x0;
 	delete y1;
@@ -289,7 +299,9 @@ TEST(DensityMatrixGateTest, MergeMultiply) {
 
 	DensityMatrix dm(n);
 	dm.load(&test_state);
-	for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm.data_cpp()[i*dim + j]), 0, eps);
+	for (ITYPE i = 0; i < dim; ++i)
+		for (ITYPE j = 0; j < dim; ++j)
+			ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm.data_cpp()[i * dim + j]), 0, eps);
 
 	delete x0;
 	delete y0;
@@ -318,7 +330,9 @@ TEST(DensityMatrixGateTest, MergeTensorProductAndMultiply) {
 
 	DensityMatrix dm(n);
 	dm.load(&test_state);
-	for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm.data_cpp()[i*dim + j]), 0, eps);
+	for (ITYPE i = 0; i < dim; ++i)
+		for (ITYPE j = 0; j < dim; ++j)
+			ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm.data_cpp()[i * dim + j]), 0, eps);
 
 	delete x0;
 	delete y1;
@@ -336,8 +350,8 @@ TEST(DensityMatrixGateTest, RandomPauliMerge) {
 	Random random;
 	random.set_seed(2);
 
-	std::vector<UINT> new_pauli_ids = { 0,0,0,1 };
-	std::vector<UINT> targets = { 0,1,2,2 };
+	std::vector<UINT> new_pauli_ids = {0, 0, 0, 1};
+	std::vector<UINT> targets = {0, 1, 2, 2};
 
 	// define states
 	DensityMatrix state(n);
@@ -349,18 +363,23 @@ TEST(DensityMatrixGateTest, RandomPauliMerge) {
 		state.load(&test_state);
 
 		auto merged_gate = gate::Identity(0);
-		QuantumGateMatrix* next_merged_gate = NULL;
-		QuantumGateBase* new_gate = NULL;
+		QuantumGateMatrix *next_merged_gate = NULL;
+		QuantumGateBase *new_gate = NULL;
 		for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
 
 			// pick random pauli
 			UINT new_pauli_id = random.int32() % 4;
 			UINT target = random.int32() % n;
-			if (new_pauli_id == 0) new_gate = gate::Identity(target);
-			else if (new_pauli_id == 1) new_gate = gate::X(target);
-			else if (new_pauli_id == 2) new_gate = gate::Y(target);
-			else if (new_pauli_id == 3) new_gate = gate::Z(target);
-			else FAIL();
+			if (new_pauli_id == 0)
+				new_gate = gate::Identity(target);
+			else if (new_pauli_id == 1)
+				new_gate = gate::X(target);
+			else if (new_pauli_id == 2)
+				new_gate = gate::Y(target);
+			else if (new_pauli_id == 3)
+				new_gate = gate::Z(target);
+			else
+				FAIL();
 
 			// create new gate with merge
 			next_merged_gate = gate::merge(merged_gate, new_gate);
@@ -375,10 +394,11 @@ TEST(DensityMatrixGateTest, RandomPauliMerge) {
 
 		DensityMatrix dm(n);
 		dm.load(&test_state);
-		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm.data_cpp()[i*dim + j]), 0, eps);
+		for (ITYPE i = 0; i < dim; ++i)
+			for (ITYPE j = 0; j < dim; ++j)
+				ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm.data_cpp()[i * dim + j]), 0, eps);
 
 		delete merged_gate;
-
 	}
 }
 
@@ -392,8 +412,8 @@ TEST(DensityMatrixGateTest, RandomPauliRotationMerge) {
 	Random random;
 	random.set_seed(2);
 
-	std::vector<UINT> new_pauli_ids = { 0,0,0,1 };
-	std::vector<UINT> targets = { 0,1,2,2 };
+	std::vector<UINT> new_pauli_ids = {0, 0, 0, 1};
+	std::vector<UINT> targets = {0, 1, 2, 2};
 
 	// define states
 	DensityMatrix state(n);
@@ -405,8 +425,8 @@ TEST(DensityMatrixGateTest, RandomPauliRotationMerge) {
 		state.load(&test_state);
 
 		auto merged_gate = gate::Identity(0);
-		QuantumGateMatrix* next_merged_gate = NULL;
-		QuantumGateBase* new_gate = NULL;
+		QuantumGateMatrix *next_merged_gate = NULL;
+		QuantumGateBase *new_gate = NULL;
 
 		for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
 
@@ -414,10 +434,14 @@ TEST(DensityMatrixGateTest, RandomPauliRotationMerge) {
 			UINT new_pauli_id = (random.int32() % 3) + 1;
 			UINT target = random.int32() % n;
 			double angle = random.uniform() * 3.14159;
-			if (new_pauli_id == 1) new_gate = gate::RX(target, angle);
-			else if (new_pauli_id == 2) new_gate = gate::RY(target, angle);
-			else if (new_pauli_id == 3) new_gate = gate::RZ(target, angle);
-			else FAIL();
+			if (new_pauli_id == 1)
+				new_gate = gate::RX(target, angle);
+			else if (new_pauli_id == 2)
+				new_gate = gate::RY(target, angle);
+			else if (new_pauli_id == 3)
+				new_gate = gate::RZ(target, angle);
+			else
+				FAIL();
 
 			// create new gate with merge
 			next_merged_gate = gate::merge(merged_gate, new_gate);
@@ -432,7 +456,9 @@ TEST(DensityMatrixGateTest, RandomPauliRotationMerge) {
 
 		DensityMatrix dm(n);
 		dm.load(&test_state);
-		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm.data_cpp()[i*dim + j]), 0, eps);
+		for (ITYPE i = 0; i < dim; ++i)
+			for (ITYPE j = 0; j < dim; ++j)
+				ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm.data_cpp()[i * dim + j]), 0, eps);
 	}
 }
 
@@ -446,8 +472,8 @@ TEST(DensityMatrixGateTest, RandomUnitaryMerge) {
 	Random random;
 	random.set_seed(2);
 
-	std::vector<UINT> new_pauli_ids = { 0,0,0,1 };
-	std::vector<UINT> targets = { 0,1,2,2 };
+	std::vector<UINT> new_pauli_ids = {0, 0, 0, 1};
+	std::vector<UINT> targets = {0, 1, 2, 2};
 
 	// define states
 	DensityMatrix state(n);
@@ -459,8 +485,8 @@ TEST(DensityMatrixGateTest, RandomUnitaryMerge) {
 		state.load(&test_state);
 
 		auto merged_gate = gate::Identity(0);
-		QuantumGateMatrix* next_merged_gate = NULL;
-		QuantumGateBase* new_gate = NULL;
+		QuantumGateMatrix *next_merged_gate = NULL;
+		QuantumGateBase *new_gate = NULL;
 		for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
 
 			// pick random pauli
@@ -471,8 +497,11 @@ TEST(DensityMatrixGateTest, RandomUnitaryMerge) {
 			double dy = random.uniform();
 			double dz = random.uniform();
 			double norm = sqrt(di * di + dx * dx + dy * dy + dz * dz);
-			di /= norm; dx /= norm; dy /= norm; dz /= norm;
-			ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + 1.i*(dx*get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
+			di /= norm;
+			dx /= norm;
+			dy /= norm;
+			dz /= norm;
+			ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + 1.i * (dx * get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
 
 			auto new_gate = gate::DenseMatrix(target, mat);
 
@@ -491,7 +520,9 @@ TEST(DensityMatrixGateTest, RandomUnitaryMerge) {
 
 		DensityMatrix dm(n);
 		dm.load(&test_state);
-		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm.data_cpp()[i*dim + j]), 0, eps);
+		for (ITYPE i = 0; i < dim; ++i)
+			for (ITYPE j = 0; j < dim; ++j)
+				ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm.data_cpp()[i * dim + j]), 0, eps);
 	}
 }
 
@@ -505,13 +536,13 @@ TEST(DensityMatrixGateTest, RandomUnitaryMergeLarge) {
 	Random random;
 	random.set_seed(2);
 
-	std::vector<UINT> new_pauli_ids = { 0,0,0,1 };
-	std::vector<UINT> targets = { 0,1,2,2 };
+	std::vector<UINT> new_pauli_ids = {0, 0, 0, 1};
+	std::vector<UINT> targets = {0, 1, 2, 2};
 
 	// define states
-	DensityMatrix state(n),state2(n);
+	DensityMatrix state(n), state2(n);
 	QuantumState test_state(n);
-	
+
 	for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
 		// pick random state and copy to test
 		test_state.set_Haar_random_state();
@@ -520,8 +551,8 @@ TEST(DensityMatrixGateTest, RandomUnitaryMergeLarge) {
 
 		auto merged_gate1 = gate::Identity(0);
 		auto merged_gate2 = gate::Identity(0);
-		QuantumGateMatrix* next_merged_gate = NULL;
-		QuantumGateBase* new_gate = NULL;
+		QuantumGateMatrix *next_merged_gate = NULL;
+		QuantumGateBase *new_gate = NULL;
 		for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
 			// pick random pauli
 			UINT new_pauli_id = (random.int32() % 3) + 1;
@@ -531,8 +562,11 @@ TEST(DensityMatrixGateTest, RandomUnitaryMergeLarge) {
 			double dy = random.uniform();
 			double dz = random.uniform();
 			double norm = sqrt(di * di + dx * dx + dy * dy + dz * dz);
-			di /= norm; dx /= norm; dy /= norm; dz /= norm;
-			ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + 1.i*(dx*get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
+			di /= norm;
+			dx /= norm;
+			dy /= norm;
+			dz /= norm;
+			ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + 1.i * (dx * get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
 
 			auto new_gate = gate::DenseMatrix(target, mat);
 
@@ -554,8 +588,11 @@ TEST(DensityMatrixGateTest, RandomUnitaryMergeLarge) {
 			double dy = random.uniform();
 			double dz = random.uniform();
 			double norm = sqrt(di * di + dx * dx + dy * dy + dz * dz);
-			di /= norm; dx /= norm; dy /= norm; dz /= norm;
-			ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + 1.i*(dx*get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
+			di /= norm;
+			dx /= norm;
+			dy /= norm;
+			dz /= norm;
+			ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + 1.i * (dx * get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
 
 			auto new_gate = gate::DenseMatrix(target, mat);
 
@@ -581,11 +618,14 @@ TEST(DensityMatrixGateTest, RandomUnitaryMergeLarge) {
 		// check equivalence
 		DensityMatrix dm(n);
 		dm.load(&test_state);
-		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm.data_cpp()[i*dim + j]), 0, eps);
-		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - state2.data_cpp()[i*dim + j]), 0, eps);
+		for (ITYPE i = 0; i < dim; ++i)
+			for (ITYPE j = 0; j < dim; ++j)
+				ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm.data_cpp()[i * dim + j]), 0, eps);
+		for (ITYPE i = 0; i < dim; ++i)
+			for (ITYPE j = 0; j < dim; ++j)
+				ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - state2.data_cpp()[i * dim + j]), 0, eps);
 	}
 }
-
 
 TEST(DensityMatrixGateTest, RandomControlMergeSmall) {
 	UINT n = 4;
@@ -596,7 +636,8 @@ TEST(DensityMatrixGateTest, RandomControlMergeSmall) {
 	Random random;
 
 	std::vector<UINT> arr;
-	for (UINT i = 0; i < n; ++i) arr.push_back(i);
+	for (UINT i = 0; i < n; ++i)
+		arr.push_back(i);
 
 	for (gate_count = 1; gate_count < n * 2; ++gate_count) {
 		ComplexMatrix mat = ComplexMatrix::Identity(dim, dim);
@@ -624,10 +665,11 @@ TEST(DensityMatrixGateTest, RandomControlMergeSmall) {
 
 		DensityMatrix dm(n);
 		dm.load(&test_state);
-		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm.data_cpp()[i*dim + j]), 0, eps);
+		for (ITYPE i = 0; i < dim; ++i)
+			for (ITYPE j = 0; j < dim; ++j)
+				ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm.data_cpp()[i * dim + j]), 0, eps);
 	}
 }
-
 
 TEST(DensityMatrixGateTest, RandomControlMergeLarge) {
 	UINT n = 4;
@@ -638,7 +680,8 @@ TEST(DensityMatrixGateTest, RandomControlMergeLarge) {
 	Random random;
 
 	std::vector<UINT> arr;
-	for (UINT i = 0; i < n; ++i) arr.push_back(i);
+	for (UINT i = 0; i < n; ++i)
+		arr.push_back(i);
 
 	for (gate_count = 1; gate_count < n * 2; ++gate_count) {
 		ComplexMatrix mat = ComplexMatrix::Identity(dim, dim);
@@ -682,16 +725,14 @@ TEST(DensityMatrixGateTest, RandomControlMergeLarge) {
 
 		DensityMatrix dm(n);
 		dm.load(&test_state);
-		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm.data_cpp()[i*dim + j]), 0, eps);
-		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - state2.data_cpp()[i*dim + j]), 0, eps);
+		for (ITYPE i = 0; i < dim; ++i)
+			for (ITYPE j = 0; j < dim; ++j)
+				ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm.data_cpp()[i * dim + j]), 0, eps);
+		for (ITYPE i = 0; i < dim; ++i)
+			for (ITYPE j = 0; j < dim; ++j)
+				ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - state2.data_cpp()[i * dim + j]), 0, eps);
 	}
 }
-
-
-
-
-
-
 
 TEST(DensityMatrixGateTest, MultiTarget) {
 	const UINT n = 8;
@@ -703,12 +744,14 @@ TEST(DensityMatrixGateTest, MultiTarget) {
 	DensityMatrix state(n);
 	QuantumState test_state(n);
 	std::vector<UINT> arr;
-	for (UINT i = 0; i < n; ++i) arr.push_back(i);
+	for (UINT i = 0; i < n; ++i)
+		arr.push_back(i);
 
 	for (UINT repeat = 0; repeat < 10; ++repeat) {
 		std::random_shuffle(arr.begin(), arr.end());
 		std::vector<UINT> target_list;
-		for (UINT i = 0; i < target_count; ++i) target_list.push_back(arr[i]);
+		for (UINT i = 0; i < target_count; ++i)
+			target_list.push_back(arr[i]);
 		auto gate = gate::RandomUnitary(target_list);
 
 		test_state.set_Haar_random_state();
@@ -721,10 +764,11 @@ TEST(DensityMatrixGateTest, MultiTarget) {
 
 		DensityMatrix dm_test(n);
 		dm_test.load(&test_state);
-		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm_test.data_cpp()[i*dim + j]), 0, eps);
+		for (ITYPE i = 0; i < dim; ++i)
+			for (ITYPE j = 0; j < dim; ++j)
+				ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm_test.data_cpp()[i * dim + j]), 0, eps);
 	}
 }
-
 
 TEST(DensityMatrixGateTest, MultiControlSingleTarget) {
 	const UINT n = 8;
@@ -736,7 +780,8 @@ TEST(DensityMatrixGateTest, MultiControlSingleTarget) {
 	DensityMatrix state(n);
 	QuantumState test_state(n);
 	std::vector<UINT> arr;
-	for (UINT i = 0; i < n; ++i) arr.push_back(i);
+	for (UINT i = 0; i < n; ++i)
+		arr.push_back(i);
 
 	for (UINT repeat = 0; repeat < 10; ++repeat) {
 		std::random_shuffle(arr.begin(), arr.end());
@@ -757,10 +802,11 @@ TEST(DensityMatrixGateTest, MultiControlSingleTarget) {
 
 		DensityMatrix dm_test(n);
 		dm_test.load(&test_state);
-		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm_test.data_cpp()[i*dim + j]), 0, eps);
+		for (ITYPE i = 0; i < dim; ++i)
+			for (ITYPE j = 0; j < dim; ++j)
+				ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm_test.data_cpp()[i * dim + j]), 0, eps);
 	}
 }
-
 
 TEST(DensityMatrixGateTest, SingleControlMultiTarget) {
 	const UINT n = 8;
@@ -772,13 +818,15 @@ TEST(DensityMatrixGateTest, SingleControlMultiTarget) {
 	DensityMatrix state(n);
 	QuantumState test_state(n);
 	std::vector<UINT> arr;
-	for (UINT i = 0; i < n; ++i) arr.push_back(i);
+	for (UINT i = 0; i < n; ++i)
+		arr.push_back(i);
 
 	for (UINT repeat = 0; repeat < 10; ++repeat) {
 		std::random_shuffle(arr.begin(), arr.end());
 		std::vector<UINT> target_list;
-		for (UINT i = 0; i < target_count; ++i) target_list.push_back(arr[i]);
-		UINT control = arr[target_count+1];
+		for (UINT i = 0; i < target_count; ++i)
+			target_list.push_back(arr[i]);
+		UINT control = arr[target_count + 1];
 		UINT control_value = random.int32() % 2;
 		auto gate = gate::RandomUnitary(target_list);
 		gate->add_control_qubit(control, control_value);
@@ -793,7 +841,9 @@ TEST(DensityMatrixGateTest, SingleControlMultiTarget) {
 
 		DensityMatrix dm_test(n);
 		dm_test.load(&test_state);
-		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm_test.data_cpp()[i*dim + j]), 0, eps);
+		for (ITYPE i = 0; i < dim; ++i)
+			for (ITYPE j = 0; j < dim; ++j)
+				ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm_test.data_cpp()[i * dim + j]), 0, eps);
 	}
 }
 
@@ -808,12 +858,14 @@ TEST(DensityMatrixGateTest, MultiControlMultiTarget) {
 	DensityMatrix state(n);
 	QuantumState test_state(n);
 	std::vector<UINT> arr;
-	for (UINT i = 0; i < n; ++i) arr.push_back(i);
+	for (UINT i = 0; i < n; ++i)
+		arr.push_back(i);
 
 	for (UINT repeat = 0; repeat < 10; ++repeat) {
 		std::random_shuffle(arr.begin(), arr.end());
 		std::vector<UINT> target_list;
-		for (UINT i = 0; i < target_count; ++i) target_list.push_back(arr[i]);
+		for (UINT i = 0; i < target_count; ++i)
+			target_list.push_back(arr[i]);
 		auto gate = gate::RandomUnitary(target_list);
 		for (UINT i = 0; i < control_count; ++i) {
 			gate->add_control_qubit(arr[target_count + i], random.int32() % 2);
@@ -829,7 +881,8 @@ TEST(DensityMatrixGateTest, MultiControlMultiTarget) {
 
 		DensityMatrix dm_test(n);
 		dm_test.load(&test_state);
-		for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(state.data_cpp()[i*dim + j] - dm_test.data_cpp()[i*dim + j]), 0, eps);
+		for (ITYPE i = 0; i < dim; ++i)
+			for (ITYPE j = 0; j < dim; ++j)
+				ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] - dm_test.data_cpp()[i * dim + j]), 0, eps);
 	}
 }
-

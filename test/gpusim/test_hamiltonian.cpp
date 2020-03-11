@@ -10,7 +10,6 @@
 #include <fstream>
 #include <cppsim/state_gpu.hpp>
 
-
 /*
 TEST(ObservableTest, CheckExpectationValue) {
     const UINT n = 4;
