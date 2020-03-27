@@ -5,3 +5,4 @@ breathe == 4.14.*
 exhale == 0.2.*
 nbsphinx == 0.5.*
 sphinx-copybutton
+ipykernel
