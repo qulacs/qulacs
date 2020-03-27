@@ -1,5 +1,5 @@
-What to write
---------------
+Writing Qulacs documentation
+====================================
 
 
 Core documentation
