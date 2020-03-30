@@ -14,6 +14,10 @@ extensions = [
     'nbsphinx',
     'sphinx.ext.mathjax',
     'sphinx_copybutton',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.graphviz',
+    'sphinx.ext.inheritance_diagram',
 ]
 
 exclude_patterns = ['_build', '**.ipynb_checkpoints']
@@ -38,7 +42,7 @@ exhale_args = {
     # These arguments are required
     "containmentFolder":     "./api",
     "rootFileName":          "cpp_library_root.rst",
-    "rootFileTitle":         "Library API",
+    "rootFileTitle":         "C++ API Reference",
     "doxygenStripFromPath":  "..",
     # Suggested optional arguments
     "createTreeView":        True,

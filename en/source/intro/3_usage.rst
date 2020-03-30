@@ -2,10 +2,13 @@ Usage
 -------------
 
 | See the following document for more detail.
-| `C++ Tutorial`_
-| `Python Tutorial`_
-| `Examples`_
-| `API document`_
+
+| :doc:`4.1_python_tutorial`.
+| :doc:`4.2_cpp_tutorial`.
+| `Examples`_.
+| :doc:`../pyRef/modules`.
+| :doc:`../api/cpp_library_root`.
+
 
 C++ Libraries
 ~~~~~~~~~~~~~
@@ -76,8 +79,7 @@ Example of python code:
    value = observable.get_expectation_value(state)
    print(value)
 
-.. _troubleshooting: http://qulacs.org/md_4__trouble_shooting.html
-.. _C++ Tutorial: http://qulacs.org/md_2__tutorial__c_p_p.html
-.. _Python Tutorial: http://qulacs.org/md_3__tutorial_python.html
+.. _C++ Tutorial: 
+.. _Python Tutorial: 
 .. _Examples: https://github.com/qulacs/quantum-circuits
-.. _API document: http://qulacs.org/annotated.html
+.. _API document: 

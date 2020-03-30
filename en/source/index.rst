@@ -39,54 +39,31 @@ Basic usage of qulacs in Python and C++: :doc:`intro/3_usage`.
    intro/2_faq
    intro/3_usage
 
-
-
-.. * **Tutorials**: 
-   :doc:`intro/3_python_tutorial`
-   :doc:`intro/4_cpp_tutorial`.
-
-
 .. toctree::
    :maxdepth: 1
-   :caption: Tutorial
+   :caption: Tutorials
    
    intro/4.1_python_tutorial
    intro/4.2_cpp_tutorial
 
-.. Advanced features
-   ----------------------------------
-   Brief description of the Advanced feature
-   * **User Manual**: :doc:`guide/0_root`.
-   * **Advanced Tutorials**: :doc:`guide/2_python`. :doc:`guide/3_cpp`.
-   * **Qulacs Cookbooks**: :doc:`apply/0_root`.
-   * **C++ API reference**: :doc:`api/cpp_library_root`.
-
-
-.. comment
 .. toctree::
    :maxdepth: 2
-   :caption: Guides
-   guide/0_root
-   guide/1_concepts
-   guide/2_python
-   guide/3_cpp
+   :caption: User Manual
    
-..   guide/4_config
+   guide/2.1_states
+   guide/2.2_gates
+   guide/2.3_circuits
+   guide/2.4_parametric
+
 
 .. toctree::
-   :maxdepth:2
+   :maxdepth: 2
    :caption: API reference
    :hidden:
 
+   pyRef/modules
    api/cpp_library_root
-
-
-.. How to contribute to this document
-   ----------------------------------
-   We come contributions to Qulacs Documentation!
-   * **Contribution Guide**: :doc:`write/0_readme`.
-   * **TODOs**: :doc:`write/1_contents`.
-   * **Internationalization**: :doc:`write/2_intl`.
+   
 
 
 .. toctree::
