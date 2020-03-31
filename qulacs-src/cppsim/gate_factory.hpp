@@ -44,6 +44,37 @@ namespace gate{
      * @param[in] gate_string ゲートを生成する文字列
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate a quantum gate from a string.
+     * 
+     * The tring for generating the gate is as follows:
+     * Identity     :   I \<index\>
+     * X            :   X \<index\>
+     * Y            :   Y \<index\>
+     * Z            :   Z \<index\>
+     * H            :   H \<index\>
+     * S            :   S \<index\>
+     * Sdag         :   Sdag \<index\>
+     * T            :   T \<index\>
+     * Tdag         :   Tdag \<index\>
+     * CNOT,CX      :   CNOT \<control\> \<target\>, or CX \<control\> \<target\>
+     * CZ           :   CZ \<control\> \<target\>
+     * SWAP         :   SWAP \<target1\> \<target2\>
+     * U1           :   U1 \<index\> \<angle1\>
+     * U2           :   U2 \<index\> \<angle1\> \<angle2\>
+     * U3           :   U3 \<index\> \<angle1\> \<angle2\> \<angle3\>
+     * Rot X        :   RX \<index\> \<angle1\>
+     * Rot Y        :   RY \<index\> \<angle1\>
+     * Rot Z        :   RZ \<index\> \<angle1\>
+     * DifRot X     :   RDX \<index\>
+     * DifRot Y     :   RDY \<index\>
+     * DifRot Z     :   RDZ \<index\>
+     * MultiRot     :   RM \<paulistr\> \<index1\> \<index2\> ... \<theta\> (for example: "RM XYZ 2 3 1 0.123")
+     * DifMultiRot  :   RDM \<paulistr\> \<index1\> \<index2\> ...  (for example: "RDM XYZ 2 3 1")
+     * general U    :   U \<index_count\> \<index1\> \<index2\> ... \<element1_real\> \<element1_imag\> \<element2_real\> ...
+     * @param[in] gate_string Strint to generate the gate
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* create_quantum_gate_from_string(std::string gate_string);
 
     /**
@@ -53,6 +84,13 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate Identity gate
+     * 
+     * Identity gate does not change the state, but behaves differently when noise is added.
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* Identity(UINT qubit_index);
 
     /**
@@ -60,6 +98,12 @@ namespace gate{
      * 
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
+     */
+    /**
+     * \~english Generate \f$X\f$ gate
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
      */
     DllExport QuantumGateBase* X(UINT qubit_index);
 
@@ -69,6 +113,12 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate \f$Y\f$ gate
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* Y(UINT qubit_index);
 
     /**
@@ -76,6 +126,12 @@ namespace gate{
      * 
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
+     */
+    /**
+     * \~english Generate \f$Z\f$ gate
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
      */
     DllExport QuantumGateBase* Z(UINT qubit_index);
 
@@ -85,6 +141,12 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate Hadamard gate
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* H(UINT qubit_index);
 
     /**
@@ -92,6 +154,12 @@ namespace gate{
      * 
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
+     */
+    /**
+     * \~english Generate \f$S\f$ gate
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
      */
     DllExport QuantumGateBase* S(UINT qubit_index);
 
@@ -101,6 +169,12 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate \f$S^{\dagger}\f$ gate
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* Sdag(UINT qubit_index);
 
     /**
@@ -108,6 +182,12 @@ namespace gate{
      * 
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
+     */
+    /**
+     * \~english Generate \f$T\f$ gate
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
      */
     DllExport QuantumGateBase* T(UINT qubit_index);
 
@@ -117,6 +197,12 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate \f$T^{\dagger}\f$ gate
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* Tdag(UINT qubit_index);
 
     /**
@@ -124,6 +210,12 @@ namespace gate{
      * 
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
+     */
+    /**
+     * \~english Generate \f$\sqrt{X}\f$ gate
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
      */
     DllExport QuantumGateBase* sqrtX(UINT qubit_index);
 
@@ -133,6 +225,12 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate \f$\sqrt{X}^{\dagger}\f$ gate
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* sqrtXdag(UINT qubit_index);
 
     /**
@@ -140,6 +238,12 @@ namespace gate{
      * 
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
+     */
+    /**
+     * \~english Generate \f$\sqrt{Y}\f$ gate
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
      */
     DllExport QuantumGateBase* sqrtY(UINT qubit_index);
 
@@ -149,6 +253,12 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate \f$\sqrt{Y}^{\dagger}\f$ gate
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* sqrtYdag(UINT qubit_index);
 
     /**
@@ -157,6 +267,12 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate a gate that projects <code> qubit_index </ code> to 0
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* P0(UINT qubit_index);
 
     /**
@@ -164,6 +280,12 @@ namespace gate{
      * 
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
+     */
+    /**
+     * \~english Generate a gate that projects <code> qubit_index </ code> to 1
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
      */
     DllExport QuantumGateBase* P1(UINT qubit_index);
 
@@ -175,6 +297,15 @@ namespace gate{
      * @param[in] lambda 回転角の第一引数
      * @return 作成されたゲートのインスタンス
      */
+
+    /**
+     * \~english Generate U1 gate of OpenQASM
+     * 
+     * See the OpenQASM manual for details of gates
+     * @param[in] qubit_index Subscript of target qubit
+     * @param[in] lambda The first argument of rotation angle
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* U1(UINT qubit_index, double lambda);
 
     /**
@@ -185,6 +316,15 @@ namespace gate{
      * @param[in] lambda 回転角の第一引数
      * @param[in] phi 回転角の第二引数
      * @return 作成されたゲートのインスタンス
+     */
+    /**
+     * \~english Generate U2 gate of OpenQASM
+     * 
+     * See the OpenQASM manual for details of gates
+     * @param[in] qubit_index Subscript of target qubit
+     * @param[in] lambda The first argument of rotation angle
+     * @param[in] phi The second argument of rotation angle
+     * @return Instance of generated gate
      */
     DllExport QuantumGateBase* U2(UINT qubit_index, double phi, double lambda);
 
@@ -198,6 +338,16 @@ namespace gate{
      * @param[in] theta 回転角の第三引数
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate U3 gate of OpenQASM
+     * 
+     * See the OpenQASM manual for details of gates
+     * @param[in] qubit_index Subscript of target qubit
+     * @param[in] lambda The first argument of rotation angle
+     * @param[in] phi The second argument of rotation angle
+     * @param[in] theta The third argument of rotation angle
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* U3(UINT qubit_index, double theta, double phi, double lambda);
 
     /**
@@ -206,6 +356,12 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @param[in] angle 回転角
      * @return 作成されたゲートのインスタンス
+     */
+    /**
+     * \~english Generate \f$X\f$ rotation gate
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @return Instance of generated gate
      */
     DllExport QuantumGateBase* RX(UINT qubit_index,double angle);
 
