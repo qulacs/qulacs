@@ -557,6 +557,13 @@ namespace gate{
 	 * @param[in] function_ptr 可逆古典回路の動作をする関数
 	 * @return 作成されたゲートのインスタンス
 	 */
+	/**
+	 * \~english Operate on \f$n\f$-qubit reversible classical circuit.
+	 *
+	 * @param[in] target_qubit_index_list List of subscript of target qubit
+	 * @param[in] function_ptr Functions that operate reversible classical circuits
+	 * @return Instance of generated gate
+	 */
 	DllExport QuantumGateBase* ReversibleBoolean(std::vector<UINT> target_qubit_index_list, std::function<ITYPE(ITYPE,ITYPE)>);
 
 	/**
@@ -564,6 +571,12 @@ namespace gate{
 	 *
 	 * @param[in] reflection_state 反射に用いられる量子状態
 	 * @return 作成されたゲートのインスタンス
+	 */
+	/**
+	 * \~english Reflect a quantum state with respect to quantum state.
+	 *
+	 * @param[in] reflection_state Quantum states used for reflection
+	 * @return Instance of generated gate
 	 */
 	DllExport QuantumGateBase* StateReflection(const QuantumStateBase* reflection_state);
 
@@ -575,6 +588,14 @@ namespace gate{
      * @param[in] prob エラーが生じる確率
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Gate that generates bit-flip noise
+     *
+     * @param[in] target_index Subscript of target qubit
+     * @param[in] prob Probability of error
+     * @return Instance of generated gate
+     */
+
     DllExport QuantumGateBase* BitFlipNoise(UINT target_index, double prob);
 
     /**
@@ -584,6 +605,14 @@ namespace gate{
      * @param[in] prob エラーが生じる確率
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Gate that generates phase-flip noise
+     *
+     * @param[in] target_index Subscript of target qubit
+     * @param[in] prob Probability of error
+     * @return Instance of generated gate
+     */
+
     DllExport QuantumGateBase* DephasingNoise(UINT target_index, double prob);
 
     /**
@@ -593,6 +622,14 @@ namespace gate{
      * @param[in] prob エラーが生じる確率
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english A gate that generates bit-flip and phase-flip noises with the same probability
+     *
+     * @param[in] target_index Subscript of target qubit
+     * @param[in] prob Probability of error
+     * @return Instance of generated gate
+     */
+
     DllExport QuantumGateBase* IndependentXZNoise(UINT target_index, double prob);
 
     /**
@@ -603,6 +640,15 @@ namespace gate{
      * @param[in] prob エラーが生じる確率
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english A gate that generates Depolarizin noise
+     *
+     * X, Y, and Z occur with a probability of <code> prob /3 </code>.
+     * @param[in] target_index Subscript of target qubit
+     * @param[in] prob Probability of error
+     * @return Instance of generated gate
+     */
+
     DllExport QuantumGateBase* DepolarizingNoise(UINT target_index, double prob);
 
 	/**
@@ -614,6 +660,18 @@ namespace gate{
 	* @param[in] prob エラーが生じる確率
 	* @return 作成されたゲートのインスタンス
 	*/
+
+	/**
+	* \~english A gate that generates two-qubit depolarizin noise
+	*
+	* Two qubit Pauli operations except II occur with a probability of <code>prob/15</code>.
+	* @param[in] target_index1 Subscript of target qubit
+	* @param[in] target_index2 Subscript of target qubit
+	* @param[in] prob Probability of error
+        * @return Instance of generated gate
+	*/
+	
+	
 	DllExport QuantumGateBase* TwoQubitDepolarizingNoise(UINT target_index1, UINT target_index2, double prob);
 
 	/**
@@ -623,6 +681,13 @@ namespace gate{
 	 * @param[in] prob エラーが生じる確率
 	 * @return 作成されたゲートのインスタンス
 	 */
+       /**
+         * \~english A gate that generates Amplitude damping noise
+         *
+         * @param[in] target_index Subscript of target qubit
+         * @param[in] prob Probability of error
+         * @return Instance of generated gate
+         */
 	DllExport QuantumGateBase* AmplitudeDampingNoise(UINT target_index, double prob);
 
     /**
@@ -635,9 +700,9 @@ namespace gate{
     /**
      * \~english Measure
      *
-     * @param[in] target_index ターゲットとなる量子ビットの添え字
-     * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
-     * @return 作成されたゲートのインスタンス
+     * @param[in] target_index Subscript of target qubit
+     * @param[in] classical_register_address Location of classic register to store measurement values
+     * @return Instance of generated gate
      */
     DllExport QuantumGateBase* Measurement(UINT target_index, UINT classical_register_address);
 
