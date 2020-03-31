@@ -361,6 +361,7 @@ namespace gate{
      * \~english Generate \f$X\f$ rotation gate
      * 
      * @param[in] qubit_index Subscript of target qubit
+     * @param[in] angle rotation angle
      * @return Instance of generated gate
      */
     DllExport QuantumGateBase* RX(UINT qubit_index,double angle);
@@ -372,6 +373,13 @@ namespace gate{
      * @param[in] angle 回転角
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate \f$Y\f$ rotation gate
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @param[in] angle rotation angle
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* RY(UINT qubit_index, double angle);
 
     /**
@@ -380,6 +388,13 @@ namespace gate{
      * @param[in] qubit_index ターゲットとなる量子ビットの添え字
      * @param[in] angle 回転角
      * @return 作成されたゲートのインスタンス
+     */
+    /**
+     * \~english Generate \f$Z\f$ rotation gate
+     * 
+     * @param[in] qubit_index Subscript of target qubit
+     * @param[in] angle rotation angle
+     * @return Instance of generated gate
      */
     DllExport QuantumGateBase* RZ(UINT qubit_index, double angle);
 
@@ -390,6 +405,13 @@ namespace gate{
      * @param[in] target_qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate CNOT gate
+     * 
+     * @param[in] control_qubit_index Subscript of control qubit
+     * @param[in] target_qubit_index Subscript of target qubit
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* CNOT(UINT control_qubit_index, UINT target_qubit_index);
 
     /**
@@ -398,6 +420,13 @@ namespace gate{
      * @param[in] control_qubit_index コントロールとなる量子ビットの添え字
      * @param[in] target_qubit_index ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
+     */
+    /**
+     * \~english Generate CZ gate
+     * 
+     * @param[in] control_qubit_index Subscript of control qubit
+     * @param[in] target_qubit_index Subscript of target qubit
+     * @return Instance of generated gate
      */
     DllExport QuantumGateBase* CZ(UINT control_qubit_index, UINT target_qubit_index);
 
@@ -408,20 +437,35 @@ namespace gate{
      * @param[in] qubit_index2 ターゲットとなる量子ビットの添え字
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate SWAP gate
+     * 
+     * @param[in] qubit_index1 Subscript of target qubit
+     * @param[in] qubit_index2 Subscript of target qubit
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* SWAP(UINT qubit_index1, UINT qubit_index2);
 
     /**
-     * \f$n\f$-qubit パウリ演算子のゲートを作成する
+     * \~japanese-en \f$n\f$-qubit パウリ演算子のゲートを作成する
      * 
      * 例えば\f$Y_1 X_3\f$であれば、<code>target_qubit_index_list = {1,3}, pauli_id_list = {2,1};</code>である。
      * @param[in] target_qubit_index_list ターゲットとなる量子ビットの添え字のリスト
      * @param[in] pauli_id_list その量子ビットに作用するパウリ演算子。\f${I,X,Y,Z}\f$が\f${0,1,2,3}\f$に対応する。
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate \f$n\f$-qubit Pauli gate
+     * 
+     * For example, if \f$Y_1 X_3\f$, then <code>target_qubit_index_list = {1,3}, pauli_id_list = {2,1};</code>.
+     * @param[in] target_qubit_index_list List of subscript of target qubit
+     * @param[in] pauli_id_list Pauli operator acting on qubit. \f${I, X, Y, Z}\f$ corresponds to \f$ {0,1,2,3} \f$.
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* Pauli(std::vector<UINT> target_qubit_index_list, std::vector<UINT> pauli_id_list);
 
     /**
-     * \f$n\f$-qubit パウリ演算子の回転ゲートを作成する
+     * \~japanese-en \f$n\f$-qubit パウリ演算子の回転ゲートを作成する
      * 
      * 例えば\f$Y_1 X_3\f$であれば、<code>target_qubit_index_list = {1,3}, pauli_id_list = {2,1};</code>である。
      * @param[in] target_qubit_index_list ターゲットとなる量子ビットの添え字のリスト
@@ -429,47 +473,85 @@ namespace gate{
      * @param[in] angle 回転角
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate \f$n\f$-qubit Pauli rotation gate
+     * 
+     * For example, if \f$Y_1 X_3\f$, then <code>target_qubit_index_list = {1,3}, pauli_id_list = {2,1};</code>.
+     * @param[in] target_qubit_index_list List of subscript of target qubit
+     * @param[in] pauli_id_list Pauli operator acting on qubit. \f${I, X, Y, Z}\f$ corresponds to \f$ {0,1,2,3} \f$.
+     * @param[in] angle Rotation angle
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateBase* PauliRotation(std::vector<UINT> target_qubit_index_list, std::vector<UINT> pauli_id_list, double angle);
 
     /**
-     * \f$n\f$-qubit 行列を用いて1-qubitゲートを生成する。
+     * \~japanese-en \f$n\f$-qubit 行列を用いて1-qubitゲートを生成する。
      * 
      * @param[in] target_qubit_index ターゲットとなる量子ビットの添え字
      * @param[in] matrix 作用するゲートの\f$2\times 2\f$の複素行列
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate 1-qubit gate using \f$n\f$-qubit matrix
+     * 
+     * @param[in] target_qubit_index Subscript of target qubit
+     * @param[in] matrix \F$2\times 2\f$ complex matrix of gates to be operated
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateMatrix* DenseMatrix(UINT target_qubit_index, ComplexMatrix matrix);
 
     /**
-     * \f$n\f$-qubit 行列を用いてn-qubitゲートを生成する。
+     * \~japanese-en \f$n\f$-qubit 行列を用いてn-qubitゲートを生成する。
      * 
      * <code>target_qubit_index_list</code>の要素数を\f$m\f$としたとき、<code>matrix</code>は\f$2^m \times 2^m \f$の複素行列でなくてはいけない。
      * @param[in] target_qubit_index_list ターゲットとなる量子ビットの添え字
      * @param[in] matrix 作用するゲートの複素行列。
      * @return 作成されたゲートのインスタンス
      */
+    /**
+     * \~english Generate n-qubit gate using \f$n\f$-qubit matrix
+     * 
+     * When the length of <code> target_qubit_index_list </ code> is \f$m\f$, <code> matrix </ code> has to be a complex matrix of \f$2 ^m \times 2^m\f$ dimension.
+     * @param[in] target_qubit_index_list List of subscript of target qubit
+     * @param[in] matrix Gate matrix to be operated
+     * @return Instance of generated gate
+     */
     DllExport QuantumGateMatrix* DenseMatrix(std::vector<UINT> target_qubit_index_list, ComplexMatrix matrix);
 
 	/**
-	 * \f$n\f$-qubit スパースな行列を用いてn-qubitゲートを生成する。
+	 * \~japanese-en \f$n\f$-qubit スパースな行列を用いてn-qubitゲートを生成する。
 	 *
 	 * <code>target_qubit_index_list</code>の要素数を\f$m\f$としたとき、<code>matrix</code>は\f$2^m \times 2^m \f$の複素行列でなくてはいけない。
 	 * @param[in] target_qubit_index_list ターゲットとなる量子ビットの添え字
 	 * @param[in] matrix 作用するゲートの複素行列。
 	 * @return 作成されたゲートのインスタンス
 	 */
+	/**
+	 * \~english Generate n-qubit gate using \f$n\f$-qubit sparse matrix
+	 *
+	 * When the length of <code> target_qubit_index_list </ code> is \f$m\f$, <code> matrix </ code> has to be a complex matrix of \f$2 ^m \times 2^m\f$ dimension.
+         * @param[in] target_qubit_index_list List of subscript of target qubit
+	 * @param[in] matrix Gate matrix to be operated
+	 * @return Instance of generated gate
+	 */
 	DllExport QuantumGateBase* SparseMatrix(std::vector<UINT> target_qubit_index_list, SparseComplexMatrix matrix);
 
 	/**
-	 * \f$n\f$-qubit のランダムユニタリゲートを作成する。
+	 * \~japanese-en \f$n\f$-qubit のランダムユニタリゲートを作成する。
 	 *
 	 * @param[in] target_qubit_index_list ターゲットとなる量子ビットの添え字
 	 * @return 作成されたゲートのインスタンス
 	 */
+	/**
+	 * \~english Generate n-qubit random unitary gate
+	 *
+	 * @param[in] target_qubit_index_list List of subscript of target qubit
+	 * @return Instance of generated gate
+	 */
 	DllExport QuantumGateMatrix* RandomUnitary(std::vector<UINT> target_qubit_index_list);
 
 	/**
-	 * \f$n\f$-qubit の可逆古典回路を作用する。
+	 * \~japanese-en \f$n\f$-qubit の可逆古典回路を作用する。
 	 *
 	 * @param[in] target_qubit_index_list ターゲットとなる量子ビットの添え字
 	 * @param[in] function_ptr 可逆古典回路の動作をする関数
@@ -478,7 +560,7 @@ namespace gate{
 	DllExport QuantumGateBase* ReversibleBoolean(std::vector<UINT> target_qubit_index_list, std::function<ITYPE(ITYPE,ITYPE)>);
 
 	/**
-	 * 量子状態に対して量子状態を反射する。
+	 * \~japanese-en 量子状態に対して量子状態を反射する。
 	 *
 	 * @param[in] reflection_state 反射に用いられる量子状態
 	 * @return 作成されたゲートのインスタンス
@@ -487,7 +569,7 @@ namespace gate{
 
 
     /**
-     * bit-flipノイズを発生させるゲート
+     * \~japanese-en bit-flipノイズを発生させるゲート
      *
      * @param[in] target_index ターゲットとなる量子ビットの添え字
      * @param[in] prob エラーが生じる確率
@@ -496,7 +578,7 @@ namespace gate{
     DllExport QuantumGateBase* BitFlipNoise(UINT target_index, double prob);
 
     /**
-     * phase-flipノイズを発生させるゲート
+     * \~japanese-en phase-flipノイズを発生させるゲート
      *
      * @param[in] target_index ターゲットとなる量子ビットの添え字
      * @param[in] prob エラーが生じる確率
@@ -505,7 +587,7 @@ namespace gate{
     DllExport QuantumGateBase* DephasingNoise(UINT target_index, double prob);
 
     /**
-     * bit-flipとphase-flipを同じ確率でノイズを発生させるゲート
+     * \~japanese-en bit-flipとphase-flipを同じ確率でノイズを発生させるゲート
      *
      * @param[in] target_index ターゲットとなる量子ビットの添え字
      * @param[in] prob エラーが生じる確率
@@ -514,7 +596,7 @@ namespace gate{
     DllExport QuantumGateBase* IndependentXZNoise(UINT target_index, double prob);
 
     /**
-     * Depolarizin noiseを発生させるゲート
+     * \~japanese-en Depolarizin noiseを発生させるゲート
      *
      * X,Y,Zがそれぞれ<code>prob/3</code>の確率で生じる。
      * @param[in] target_index ターゲットとなる量子ビットの添え字
@@ -524,7 +606,7 @@ namespace gate{
     DllExport QuantumGateBase* DepolarizingNoise(UINT target_index, double prob);
 
 	/**
-	* Two-qubit depolarizin noiseを発生させるゲート
+	* \~japanese-en Two-qubit depolarizin noiseを発生させるゲート
 	*
 	* IIを除くtwo qubit Pauli operationがそれぞれ<code>prob/15</code>の確率で生じる。
 	* @param[in] target_index1 ターゲットとなる量子ビットの添え字
@@ -535,7 +617,7 @@ namespace gate{
 	DllExport QuantumGateBase* TwoQubitDepolarizingNoise(UINT target_index1, UINT target_index2, double prob);
 
 	/**
-	 * Amplitude damping noiseを発生させるゲート
+	 * \~japanese-en Amplitude damping noiseを発生させるゲート
 	 *
 	 * @param[in] target_index ターゲットとなる量子ビットの添え字
 	 * @param[in] prob エラーが生じる確率
@@ -544,7 +626,14 @@ namespace gate{
 	DllExport QuantumGateBase* AmplitudeDampingNoise(UINT target_index, double prob);
 
     /**
-     * 測定を行う
+     * \~japanese-en 測定を行う
+     *
+     * @param[in] target_index ターゲットとなる量子ビットの添え字
+     * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
+     * @return 作成されたゲートのインスタンス
+     */
+    /**
+     * \~english Measure
      *
      * @param[in] target_index ターゲットとなる量子ビットの添え字
      * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
