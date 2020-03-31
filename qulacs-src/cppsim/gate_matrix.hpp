@@ -6,6 +6,10 @@
 /**
  * \~japanese-en 行列要素で自身が作用する内容を保持するクラス
  */
+/**
+ * \~english Class that holds the contents on which matrix elements operate
+ */
+
 class DllExport QuantumGateMatrix : public QuantumGateBase{
 private:
     ComplexMatrix _matrix_element;     /**< list of elements of unitary matrix as 1D array with length dim*dim (only for dense gate))*/
