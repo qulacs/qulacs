@@ -10,8 +10,18 @@ extensions = [
     # there may be others here already, e.g. 'sphinx.ext.mathjax'
     'breathe',
     'exhale',
-    'recommonmark'
+    'recommonmark',
+    'nbsphinx',
+    'sphinx.ext.mathjax',
+    'sphinx_copybutton',
+    'sphinx.ext.napoleon',
+    'sphinx.ext.autodoc',
+    'sphinx.ext.graphviz',
+    'sphinx.ext.inheritance_diagram',
 ]
+
+exclude_patterns = ['_build', '**.ipynb_checkpoints']
+nbsphinx_allow_errors = True
 
 # source files for shpinx
 source_suffix = {
@@ -32,7 +42,7 @@ exhale_args = {
     # These arguments are required
     "containmentFolder":     "./api",
     "rootFileName":          "cpp_library_root.rst",
-    "rootFileTitle":         "Library API",
+    "rootFileTitle":         "C++ API Reference",
     "doxygenStripFromPath":  "..",
     # Suggested optional arguments
     "createTreeView":        True,
@@ -83,3 +93,8 @@ html_theme_options = {
     'includehidden': True,
     'titles_only': False
 }
+
+templates_path = ["_templates"]
+html_static_path = ['_static']
+
+copyright = '2018 Qulacs Authors'

@@ -9,7 +9,7 @@ Implemented in C/C++ and with python interface, Qulacs achieved both high speed 
 
 Qulacs was developed in Prof. `Fujii's group <http://quantphys.org/wp/qinfp/>`_. Maintained and developing new features by `QunaSys <http://www.qunasys.com/>`_.
 
-:doc:`intro/About_Qulacs`.
+:doc:`intro/0_about`.
 
 
 `Github repository
@@ -19,91 +19,64 @@ Qulacs was developed in Prof. `Fujii's group <http://quantphys.org/wp/qinfp/>`_.
 
 
 
-Quick-Start
+Get Started
 -----------
 ::
   
    pip install qulacs
 
-More detail instruction in :doc:`intro/HowToInstall`.
-Having trouble starting? see :doc:`intro/TroubleShooting`.
-
-
-.. toctree::
-   :maxdepth: 2
-   
-   :caption: First steps
-
-   intro/About_Qulacs
-   intro/HowToInstall
-   intro/TroubleShooting
-
-Getting statred with Qulacs
------------------------------------
-
-* **Installation**: :doc:`intro/install`.
-
-* **Tutorials**: :doc:`intro/Tutorial_python_first` | :doc:`intro/Tutorial_CPP`.
-
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Getting started
-   
-   intro/install
-   intro/Tutorial_python_first
-   intro/Tutorial_CPP
-
-
-Advanced features
-----------------------------------
-
-Brief description of the Advanced feature
-
-* **User Manual**: :doc:`guide/0_root`.
-
-* **Advanced Tutorials**: :doc:`guide/2_python`. :doc:`guide/3_cpp`.
-
-* **Qulacs Cookbooks**: :doc:`apply/0_root`.
-
-* **C++ API reference**: :doc:`api/cpp_library_root`.
-
-
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Advanced features
-   
-   guide/0_root
-   guide/1_concepts
-   guide/2_python
-   guide/3_cpp
-   guide/4_config
-   apply/0_root
-   api/cpp_library_root
-
-
-How to contribute to this document
-----------------------------------
-
-We come contributions to Qulacs Documentation!
-
-* **Contribution Guide**: :doc:`write/readme`.
-
-* **TODOs**
-
-* **Internationalization**
+Detailed instructions about installation in :doc:`intro/1_install`.
+Having trouble starting? see :doc:`intro/2_faq`.
+Basic usage of qulacs in Python and C++: :doc:`intro/3_usage`.
 
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :glob:
-   :caption: How to write this doc
+   :caption: Get Started
+
+   intro/0_about
+   intro/1_install
+   intro/2_faq
+   intro/3_usage
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Tutorials
    
-   write/readme
-   write/contents
-   write/intl
+   intro/4.1_python_tutorial
+   intro/4.2_cpp_tutorial
+
+.. toctree::
+   :maxdepth: 2
+   :caption: User Manual
+   :hidden:
+   
+   guide/2.0_python_advanced
+
+.. tortree::
+   :maxdepth: 1
+   :caption: Applications
+
+   apply/0_overview
+   apply/6.2_vqe
+   apply/6.3_ssvqe
+   apply/5.2_qcl
+
+.. toctree::
+   :maxdepth: 2
+   :caption: API reference
+   :hidden:
+
+   pyRef/modules
+   api/cpp_library_root
+   
+
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Contributing
+
+   write/0_readme
+   
 
 
