@@ -6,6 +6,7 @@
 
 /**
  * \~japanese-en 確率的なユニタリ操作
+ * \~english Stochastic unitary operations
  */
 class QuantumGate_Probabilistic : public QuantumGateBase {
 protected:
@@ -20,6 +21,12 @@ public:
      *
      * @param distribution ゲートが現れる確率
      * @param gate_list ゲートのリスト
+     */
+    /**
+     * \~english Constructor
+     *
+     * @param distribution Probability that gate occurs
+     * @param gate_list List of gate
      */
     QuantumGate_Probabilistic(std::vector<double> distribution, std::vector<QuantumGateBase*> gate_list) {
         _distribution = distribution;
@@ -45,6 +52,12 @@ public:
      * \~japanese-en 量子状態を更新する
      *
      * @param state 更新する量子状態
+     */
+	
+    /**
+     * \~english Update quantum state
+     *
+     * @param state Quantum state to be updated
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
 		if (state->is_state_vector()) {
@@ -86,6 +99,11 @@ public:
      *
      * @return 自身のディープコピー
      */
+    /**
+     * \~english Generate deep copy of itself
+     *
+     * @return Deep copy of itself
+     */
     virtual QuantumGateBase* copy() const override {
         std::vector<QuantumGateBase*> new_gate_list;
         for (auto item : _gate_list) {
@@ -99,6 +117,11 @@ public:
      *
      * @param matrix 行列をセットする変数の参照
      */
+    /**
+     * \~english Set gate matrix of itself
+     *
+     * @param matrix Referencing variables to set matrix
+     */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         std::cerr << "* Warning : Gate-matrix of probabilistic gate cannot be obtained. Identity matrix is returned." << std::endl;
         matrix = Eigen::MatrixXcd::Ones(1, 1);
@@ -107,6 +130,9 @@ public:
 
 /**
  * \~japanese-en Kraus表現のCPTP-map
+ */
+/**
+ * \~english Kraus representation of CPTP-map
  */
 class QuantumGate_CPTP : public QuantumGateBase {
 protected:
@@ -129,6 +155,11 @@ public:
      * \~japanese-en 量子状態を更新する
      *
      * @param state 更新する量子状態
+     */
+    /**
+     * \~english Update quantum state
+     *
+     * @param state Quantum state to be updated
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
 		if (state->is_state_vector()) {
@@ -184,6 +215,11 @@ public:
      *
      * @return 自身のディープコピー
      */
+    /**
+     * \~english Generate deep copy of itself
+     *
+     * @return Deep copy of itself
+     */
     virtual QuantumGateBase* copy() const override {
         std::vector<QuantumGateBase*> new_gate_list;
         for (auto item : _gate_list) {
@@ -196,6 +232,11 @@ public:
      *
      * @param matrix 行列をセットする変数の参照
      */
+    /**
+     * \~english Set gate matrix of itself
+     *
+     * @param matrix Referencing variables to set matrix
+     */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         std::cerr << "* Warning : Gate-matrix of CPTP-map cannot be obtained. Identity matrix is returned." << std::endl;
         matrix = Eigen::MatrixXcd::Ones(1, 1);
@@ -204,6 +245,9 @@ public:
 
 /**
  * \~japanese-en Instrument
+ */
+/**
+ * \~english Instrument
  */
 class QuantumGate_Instrument : public QuantumGateBase {
 protected:
@@ -228,6 +272,11 @@ public:
      * \~japanese-en 量子状態を更新する
      *
      * @param state 更新する量子状態
+     */
+    /**
+     * \~english Update quantum state
+     *
+     * @param state Quantum state to be updated
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
         double r = random.uniform();
@@ -264,6 +313,11 @@ public:
      *
      * @return 自身のディープコピー
      */
+    /**
+     * \~english Generate deep copy of itself
+     *
+     * @return Deep copy of itself
+     */
     virtual QuantumGateBase* copy() const override {
         std::vector<QuantumGateBase*> new_gate_list;
         for (auto item : _gate_list) {
@@ -276,6 +330,11 @@ public:
      *
      * @param matrix 行列をセットする変数の参照
      */
+    /**
+     * \~english Set gate matrix of itself
+     *
+     * @param matrix Referencing variables to set matrix
+     */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         std::cerr << "* Warning : Gate-matrix of Instrument cannot be obtained. Identity matrix is returned." << std::endl;
         matrix = Eigen::MatrixXcd::Ones(1, 1);
@@ -285,6 +344,9 @@ public:
 
 /**
  * \~japanese-en Adaptiveな操作
+ */
+/**
+ * \~english Adaptive operation
  */
 class QuantumGate_Adaptive : public QuantumGateBase {
 protected:
@@ -304,6 +366,11 @@ public:
      *
      * @param state 更新する量子状態
      */
+    /**
+     * \~english Update quantum state
+     *
+     * @param state Quantum state to be updated
+     */
     virtual void update_quantum_state(QuantumStateBase* state) override {
         bool result = _func(state->get_classical_register());
         if (result) {
@@ -315,6 +382,11 @@ public:
      *
      * @return 自身のディープコピー
      */
+    /**
+     * \~english Generate deep copy of itself
+     *
+     * @return Deep copy of itself
+     */
     virtual QuantumGateBase* copy() const override {
         return new QuantumGate_Adaptive(_gate->copy(), _func);
     };
@@ -322,6 +394,12 @@ public:
      * \~japanese-en 自身のゲート行列をセットする
      *
      * @param matrix 行列をセットする変数の参照
+     */
+	
+    /**
+     * \~english Set gate matrix of itself
+     *
+     * @param matrix Referencing variables to set matrix
      */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         std::cerr << "* Warning : Gate-matrix of Adaptive-gate cannot be obtained. Identity matrix is returned." << std::endl;
