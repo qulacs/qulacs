@@ -1,13 +1,9 @@
 
 /**
- * @file circuit.hpp
- * 
- * @brief QuantumCircuitクラスの詳細
- */
-/**
- * @file circuit.hpp
- * 
- * @brief Details of QuantumCircuit class
+ * @file gate.hpp
+ *
+ * \~japanese-en @brief 日本語説明
+ * \~english @ @brief Definition and basic functions for QuantumGate
  */
 #pragma once
 
