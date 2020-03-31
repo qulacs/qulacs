@@ -1,9 +1,9 @@
 /**
- * ゲートを生成するための関数
- * 
  * @file gate_factory.hpp
+ *
+ * \~japanese-en ゲートを生成するための関数
+ * \~english Functions to generate gate
  */
-
 #pragma once
 
 #include "type.hpp"
