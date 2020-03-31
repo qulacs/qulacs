@@ -53,14 +53,12 @@ Basic usage of qulacs in Python and C++: :doc:`intro/3_usage`.
    
    guide/2.0_python_advanced
 
-.. tortree::
-   :maxdepth: 1
+.. toctree::
+   :maxdepth: 2
    :caption: Applications
 
    apply/0_overview
-   apply/6.2_vqe
-   apply/6.3_ssvqe
-   apply/5.2_qcl
+
 
 .. toctree::
    :maxdepth: 2
