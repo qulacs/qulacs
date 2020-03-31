@@ -49,12 +49,18 @@ Basic usage of qulacs in Python and C++: :doc:`intro/3_usage`.
 .. toctree::
    :maxdepth: 2
    :caption: User Manual
+   :hidden:
    
-   guide/2.1_states
-   guide/2.2_gates
-   guide/2.3_circuits
-   guide/2.4_parametric
+   guide/2.0_python_advanced
 
+.. tortree::
+   :maxdepth: 1
+   :caption: Applications
+
+   apply/0_overview
+   apply/6.2_vqe
+   apply/6.3_ssvqe
+   apply/5.2_qcl
 
 .. toctree::
    :maxdepth: 2
@@ -68,10 +74,9 @@ Basic usage of qulacs in Python and C++: :doc:`intro/3_usage`.
 
 .. toctree::
    :maxdepth: 1
-   :glob:
    :caption: Contributing
 
    write/0_readme
-   write/1_contents
+   
 
 
