@@ -3,7 +3,7 @@
  * @file gate.hpp
  *
  * \~japanese-en @brief 日本語説明
- * \~english @ @brief Definition and basic functions for QuantumGate
+ * \~english @brief Definition and basic functions for QuantumGate
  */
 #pragma once
 
