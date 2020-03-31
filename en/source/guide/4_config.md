@@ -1,2 +1,0 @@
-## Configurating Qulacs
-

@@ -1,3 +1,0 @@
-# Qulacs User Guide
-
-## Overview
