@@ -44,6 +44,7 @@ namespace gate{
      * @param[in] gate_string ゲートを生成する文字列
      * @return 作成されたゲートのインスタンス
      */
+	
     /**
      * \~english Generate a quantum gate from a string.
      * 
@@ -698,7 +699,7 @@ namespace gate{
      * @return 作成されたゲートのインスタンス
      */
     /**
-     * \~english Measure
+     * \~english Do measurement
      *
      * @param[in] target_index Subscript of target qubit
      * @param[in] classical_register_address Location of classic register to store measurement values
