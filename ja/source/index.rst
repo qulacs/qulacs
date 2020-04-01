@@ -4,10 +4,10 @@ Qulacs ドキュメンテーション
 .. meta::
    :description lang=en: qulacs documentation
 
-Qulacsは、大きな、ノイズの多い、またはパラメトリックな量子回路をシミュレートするための高速な量子回路シミュレータです。
-Qulacsは、C / C ++およびPythonインターフェイスで実装され、高速回路シミュレーションと高い操作性の両方を実現しました。
+Qulacsは、高速な量子回路シミュレータであり、大きな量子回路やノイズがあったり、パラメトリックな量子回路にも対応しております。
+Qulacsは、C / C ++で実装されており、Pythonインターフェイスもあるため、高速回路シミュレーションと高い操作性の両立しました。
 
-Qulacsは、`藤井研究室 <http://quantphys.org/wp/qinfp/>`_ で開発されました。 `QunaSys <http://www.qunasys.com/>`_ による新機能の維持と開発。
+Qulacsは、`藤井研究室 <http://quantphys.org/wp/qinfp/>`_ で開発され、 `QunaSys <http://www.qunasys.com/>`_ による新機能の開発とメンテナンスが行われています。
 
 :doc:`intro/About_Qulacs`.
 
@@ -19,7 +19,7 @@ Qulacsは、`藤井研究室 <http://quantphys.org/wp/qinfp/>`_ で開発され�
 
 
 
-インストール
+インストール方法
 """"""""""""""""""
 ::
   
@@ -28,7 +28,7 @@ Qulacsは、`藤井研究室 <http://quantphys.org/wp/qinfp/>`_ で開発され�
 
   
 
-サポートされているシステム
+サポートされているオペレーションシステム
 """""""""""""""""
 
 
@@ -37,7 +37,7 @@ Qulacsは、`藤井研究室 <http://quantphys.org/wp/qinfp/>`_ で開発され�
 - Windows 10
 
 
-診断
+トラブルシューティング
 """"""""""""""""""
 :doc:`intro/TroubleShooting`
 
@@ -51,7 +51,7 @@ Qulacsは、`藤井研究室 <http://quantphys.org/wp/qinfp/>`_ で開発され�
    intro/HowToInstall
    intro/TroubleShooting
 
-概要
+基本ガイド
 -----------------------------------
 
 * **Installation**: :doc:`basic/install`.
