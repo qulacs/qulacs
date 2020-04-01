@@ -59,26 +59,21 @@ class CMakeBuild(build_ext):
             build_args += ['--', '/m']
         else:
             try:
-                gcc_out = subprocess.check_output([os.getenv('C_COMPILER', 'gcc'), '-dumpfullversion', '-dumpversion']).decode()
+                gcc = os.getenv('C_COMPILER', 'gcc')
+                gcc_out = subprocess.check_output([gcc, '-dumpfullversion', '-dumpversion']).decode()
                 gcc_version = LooseVersion(gcc_out)
-                gxx_out = subprocess.check_output([os.getenv('CXX_COMPILER', 'g++'), '-dumpfullversion', '-dumpversion']).decode()
+                gxx = os.getenv('CXX_COMPILER', 'g++')
+                gxx_out = subprocess.check_output([gxx, '-dumpfullversion', '-dumpversion']).decode()
                 gxx_version = LooseVersion(gxx_out)
             except OSError:
-                raise RuntimeError("gcc/g++ must be installed to build the following extensions: " +
+                raise RuntimeError("gcc/g++ >= 7.0.0 must be installed to build the following extensions: " +
                                ", ".join(e.name for e in self.extensions))
-            if(gcc_version > LooseVersion('9.0.0')):
-                cmake_args += ['-DCMAKE_C_COMPILER=gcc']
-            elif(gcc_version >= LooseVersion('8.0.0')):
-                cmake_args += ['-DCMAKE_C_COMPILER=gcc-8']
-            else:
-                cmake_args += ['-DCMAKE_C_COMPILER=gcc-7']
+            if(gcc_version < LooseVersion('7.0.0') or gxx_version < LooseVersion('7.0.0')):
+                raise RuntimeError("gcc/g++ >= 7.0.0 must be installed to build the following extensions: " +
+                               ", ".join(e.name for e in self.extensions))
 
-            if(gxx_version > LooseVersion('9.0.0')):
-                cmake_args += ['-DCMAKE_CXX_COMPILER=g++']
-            elif(gxx_version >= LooseVersion('8.0.0')):
-                cmake_args += ['-DCMAKE_CXX_COMPILER=g++-8']
-            else:
-                cmake_args += ['-DCMAKE_CXX_COMPILER=g++-7']
+            cmake_args += ['-DCMAKE_C_COMPILER=' + gcc]
+            cmake_args += ['-DCMAKE_CXX_COMPILER=' + gxx]
 
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j2']
