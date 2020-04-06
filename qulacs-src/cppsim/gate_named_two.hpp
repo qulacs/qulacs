@@ -14,6 +14,9 @@ extern "C" {
 /**
  * \~japanese-en CNOTゲート
  */
+/**
+ * \~english CNOT gate
+ */
 class ClsCNOTGate : public QuantumGate_OneControlOneTarget{
 public:
     /**
@@ -21,6 +24,12 @@ public:
      * 
      * @param control_qubit_index コントロール量子ビットの添え字
      * @param target_qubit_index ターゲット量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param control_qubit_index Subscript of control qubit 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsCNOTGate(UINT control_qubit_index, UINT target_qubit_index) {
         this->_update_func = CNOT_gate;
@@ -40,6 +49,9 @@ public:
 /**
  * \~japanese-en Control-Zゲート
  */
+/**
+ * \~english Control-Z gate
+ */
 class ClsCZGate : public QuantumGate_OneControlOneTarget {
 public:
     /**
@@ -47,6 +59,12 @@ public:
      * 
      * @param control_qubit_index コントロール量子ビットの添え字
      * @param target_qubit_index ターゲット量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param control_qubit_index Subscript of control qubit 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsCZGate(UINT control_qubit_index, UINT target_qubit_index) {
         this->_update_func = CZ_gate;
@@ -66,6 +84,9 @@ public:
 /**
  * \~japanese-en SWAPゲート
  */
+/**
+ * \~english SWAP gate
+ */
 class ClsSWAPGate : public QuantumGate_TwoQubit{
 public:
     /**
@@ -73,6 +94,12 @@ public:
      * 
      * @param target_qubit_index1 ターゲット量子ビットの添え字
      * @param target_qubit_index2 もう一つのターゲット量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index1 Subscript of target qubit 
+     * @param target_qubit_index2 Subscript of another target qubit
      */
     ClsSWAPGate(UINT target_qubit_index1, UINT target_qubit_index2) {
         this->_update_func = SWAP_gate;
