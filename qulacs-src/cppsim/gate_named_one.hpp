@@ -20,6 +20,9 @@ extern "C"{
 /**
  * \~japanese-en Identityゲート
  */
+/**
+ * \~english Identity gate
+ */
 class ClsIGate : public QuantumGate_OneQubit{
     static void idling(UINT,CTYPE*,ITYPE){};
 	static void idling_gpu(UINT, void*, ITYPE, void*, UINT) {};
@@ -28,6 +31,11 @@ public:
      * \~japanese-en コンストラクタ
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsIGate(UINT target_qubit_index) {
         this->_update_func = ClsIGate::idling;
@@ -44,12 +52,20 @@ public:
 /**
  * \~japanese-en Pauli-\f$X\f$ゲート
  */
+/**
+ * \~english Pauli-\f$X\f$ gate
+ */
 class ClsXGate : public QuantumGate_OneQubit{
 public:
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsXGate(UINT target_qubit_index) {
         this->_update_func = X_gate;
@@ -68,12 +84,20 @@ public:
 /**
  * \~japanese-en Pauli-\f$Y\f$ゲート
  */
+/**
+ * \~english Pauli-\f$Y\f$ gate
+ */
 class ClsYGate : public QuantumGate_OneQubit{
 public:
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsYGate(UINT target_qubit_index) {
         this->_update_func = Y_gate;
@@ -92,12 +116,20 @@ public:
 /**
  * \~japanese-en Pauli-\f$Z\f$ゲート
  */
+/**
+ * \~english Pauli-\f$Z\f$ gate
+ */
 class ClsZGate : public QuantumGate_OneQubit{
 public:
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsZGate(UINT target_qubit_index){
         this->_update_func = Z_gate;
@@ -116,12 +148,20 @@ public:
 /**
  * \~japanese-en Pauli-\f$H\f$ゲート
  */
+/**
+ * \~english Pauli-\f$H\f$ gate
+ */
 class ClsHGate : public QuantumGate_OneQubit{
 public:
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsHGate(UINT target_qubit_index) {
         this->_update_func = H_gate;
@@ -141,12 +181,20 @@ public:
 /**
  * \~japanese-en Pauli-\f$S\f$ゲート
  */
+/**
+ * \~english Pauli-\f$S\f$ gate
+ */
 class ClsSGate : public QuantumGate_OneQubit{
 public:
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsSGate(UINT target_qubit_index){
         this->_update_func = S_gate;
@@ -165,12 +213,20 @@ public:
 /**
  * \~japanese-en Pauli-\f$S^{\dagger}\f$ゲート
  */
+/**
+ * \~english Pauli-\f$S^{\dagger}\f$ gate
+ */
 class ClsSdagGate : public QuantumGate_OneQubit{
 public:
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsSdagGate(UINT target_qubit_index){
         this->_update_func = Sdag_gate;
@@ -189,12 +245,20 @@ public:
 /**
  * \~japanese-en Pauli-\f$T\f$ゲート
  */
+/**
+ * \~english Pauli-\f$T\f$ gate
+ */
 class ClsTGate : public QuantumGate_OneQubit{
 public:
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsTGate(UINT target_qubit_index){
         this->_update_func = T_gate;
@@ -213,12 +277,20 @@ public:
 /**
  * \~japanese-en Pauli-\f$T^{\dagger}\f$ゲート
  */
+/**
+ * \~english Pauli-\f$T^{\dagger}\f$ gate
+ */
 class ClsTdagGate : public QuantumGate_OneQubit{
 public:
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsTdagGate(UINT target_qubit_index){
         this->_update_func = Tdag_gate;
@@ -237,12 +309,20 @@ public:
 /**
  * \~japanese-en Pauli-\f$\sqrt{X}\f$ゲート
  */
+/**
+ * \~english Pauli-\f$\sqrt{X}\f$ gate
+ */
 class ClsSqrtXGate : public QuantumGate_OneQubit {
 public:
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsSqrtXGate(UINT target_qubit_index) {
         this->_update_func = sqrtX_gate;
@@ -261,12 +341,20 @@ public:
 /**
  * \~japanese-en Pauli-\f$\sqrt{X}^{\dagger}\f$ゲート
  */
+/**
+ * \~english Pauli-\f$\sqrt{X}^{\dagger}\f$ gate
+ */
 class ClsSqrtXdagGate : public QuantumGate_OneQubit {
 public:
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsSqrtXdagGate(UINT target_qubit_index) {
         this->_update_func = sqrtXdag_gate;
@@ -285,12 +373,20 @@ public:
 /**
  * \~japanese-en Pauli-\f$\sqrt{Y}\f$ゲート
  */
+/**
+ * \~english Pauli-\f$\sqrt{Y}\f$ gate
+ */
 class ClsSqrtYGate : public QuantumGate_OneQubit {
 public:
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsSqrtYGate(UINT target_qubit_index) {
         this->_update_func = sqrtY_gate;
@@ -309,12 +405,20 @@ public:
 /**
  * \~japanese-en Pauli-\f$\sqrt{Y}^{\dagger}\f$ゲート
  */
+/**
+ * \~english Pauli-\f$\sqrt{Y}^{\dagger}\f$ gate
+ */
 class ClsSqrtYdagGate : public QuantumGate_OneQubit {
 public:
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsSqrtYdagGate(UINT target_qubit_index) {
         this->_update_func = sqrtYdag_gate;
@@ -333,12 +437,20 @@ public:
 /**
  * \~japanese-en 作用する量子ビットを0状態へ射影するゲート
  */
+/**
+ * \~english A gate that projects a working qubit into state 0
+ */
 class ClsP0Gate : public QuantumGate_OneQubit{
 public:
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsP0Gate(UINT target_qubit_index){
         this->_update_func = P0_gate;
@@ -357,12 +469,20 @@ public:
 /**
  * \~japanese-en 作用する量子ビットを1状態へ射影するゲート
  */
+/**
+ * \~english A gate that projects a working qubit into state 1
+ */
 class ClsP1Gate : public QuantumGate_OneQubit{
 public:
     /**
      * \~japanese-en コンストラクタ
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
      */
     ClsP1Gate(UINT target_qubit_index){
         this->_update_func = P1_gate;
@@ -381,6 +501,9 @@ public:
 /**
  * \~japanese-en \f$X\f$回転ゲート
  */ 
+/**
+ * \~english \f$X\f$ rotation gate
+ */ 
 class ClsRXGate : public QuantumGate_OneQubitRotation{
 public:
     /**
@@ -388,6 +511,12 @@ public:
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
      * @param angle 回転角
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
+     * @param angle Rotation angle
      */
     ClsRXGate(UINT target_qubit_index, double angle) : QuantumGate_OneQubitRotation(angle) {
         this->_update_func = RX_gate;
@@ -405,6 +534,9 @@ public:
 /**
  * \~japanese-en \f$Y\f$回転ゲート
  */ 
+/**
+ * \~english \f$Y\f$ rotation gate
+ */ 
 class ClsRYGate : public QuantumGate_OneQubitRotation{
 public:
     /**
@@ -412,6 +544,12 @@ public:
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
      * @param angle 回転角
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
+     * @param angle Rotation angle
      */
     ClsRYGate(UINT target_qubit_index, double angle): QuantumGate_OneQubitRotation(angle){
         this->_update_func = RY_gate;
@@ -429,6 +567,9 @@ public:
 /**
  * \~japanese-en \f$Z\f$回転ゲート
  */ 
+/**
+ * \~english \f$Z\f$ rotation gate
+ */ 
 class ClsRZGate : public QuantumGate_OneQubitRotation{
 public:
     /**
@@ -436,6 +577,12 @@ public:
      * 
      * @param target_qubit_index ターゲットの量子ビットの添え字
      * @param angle 回転角
+     */
+    /**
+     * \~english Construct
+     * 
+     * @param target_qubit_index Subscript of target qubit
+     * @param angle Rotation angle
      */
     ClsRZGate(UINT target_qubit_index, double angle): QuantumGate_OneQubitRotation(angle){
         this->_update_func = RZ_gate;
