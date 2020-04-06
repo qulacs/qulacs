@@ -22,6 +22,14 @@ public:
      * @param matrix_element 行列要素
      * @param control_qubit_index_list コントロールとなる量子ビットのリスト <code>control_value</code>はすべて1になる。
      */
+    /**
+     * \~english Construct
+     * 
+     * Matrix can be reused but the process is slow because matrix elements are copied
+     * @param target_qubit_index_list List of target qubit subscripts
+     * @param matrix_element Matrix element
+     * @param control_qubit_index_list List of qubits to control <code>control_value</code> becomes all ones.
+     */
     QuantumGateMatrix(const std::vector<UINT>& target_qubit_index_list, const ComplexMatrix& matrix_element, const std::vector<UINT>& control_qubit_index_list = {});
 
     /**
@@ -31,6 +39,14 @@ public:
      * @param target_qubit_index_list ターゲットとなる量子ビットの添え字のリスト
      * @param matrix_element 行列要素
      * @param control_qubit_index_list コントロールとなる量子ビットのリスト <code>control_value</code>はすべて1になる。
+     */
+    /**
+     * \~english Construct
+     * 
+     * Matrix can be reused but the process is slow because matrix elements are copied
+     * @param target_qubit_index_list List of target qubit subscripts
+     * @param matrix_element Matrix element
+     * @param control_qubit_index_list List of qubits to control <code>control_value</code> becomes all ones.
      */
     QuantumGateMatrix(const std::vector<UINT>& target_qubit_index_list, ComplexMatrix* matrix_element, const std::vector<UINT>& control_qubit_index_list = {});
 
@@ -42,6 +58,14 @@ public:
      * @param matrix_element 行列要素
      * @param control_qubit_index_list コントロールとなる量子ビットの情報のリスト
      */
+    /**
+     * \~english Construct
+     * 
+     * Matrix can be reused but the process is slow because matrix elements are copied
+     * @param target_qubit_index_list List of target qubit subscripts
+     * @param matrix_element Matrix element
+     * @param target_qubit_index_list List of control qubit subscripts
+     */
     QuantumGateMatrix(const std::vector<TargetQubitInfo>& target_qubit_index_list, const ComplexMatrix& matrix_element, const std::vector<ControlQubitInfo>& control_qubit_index_list = {});
 
     /**
@@ -52,10 +76,21 @@ public:
      * @param matrix_element 行列要素
      * @param control_qubit_index_list コントロールとなる量子ビットの情報のリスト
      */
+    /**
+     * \~english Construct
+     * 
+     * Matrix can be reused but the process is slow because matrix elements are copied
+     * @param target_qubit_index_list List of target qubit subscripts
+     * @param matrix_element Matrix element
+     * @param target_qubit_index_list List of control qubit subscripts
+     */
     QuantumGateMatrix(const std::vector<TargetQubitInfo>& target_qubit_index_list, ComplexMatrix* matrix_element, const std::vector<ControlQubitInfo>& control_qubit_index_list = {});
 
     /**
      * \~japanese-en デストラクタ
+     */
+    /**
+     * \~japanese-en Destruct
      */
     virtual ~QuantumGateMatrix() {};
 
@@ -66,12 +101,24 @@ public:
      * @param[in] qubit_index コントロールの量子ビットの添え字
      * @param[in] control_value 基底の<code>qubit_index</code>が<code>control_value</code>である場合にのみゲートが作用する。
      */
+    /**
+     * \~english Add control qubit
+     * 
+     * <code>qubit_index</code> must not be included in the gate target or control value.
+     * @param[in] qubit_index Subscript of control qubit
+     * @param[in] control_value The gate works only if the base <code>qubit_index</code> is <code>control_value</code>.
+     */
     virtual void add_control_qubit(UINT qubit_index, UINT control_value);
 
     /**
      * \~japanese-en ゲート行列にスカラー値をかける
      *
      * @param[in] value かける値
+     */
+    /**
+     * \~english Multiply gate matrix by scalar value
+     *
+     * @param[in] value Multiply value
      */
     virtual void multiply_scalar(CPPCTYPE value) {
         _matrix_element *= value;
@@ -82,6 +129,11 @@ public:
      * 
      * @param[in] gate_property_ ゲートのプロパティ値
      */
+    /**
+     * \~english Set gate properties
+     * 
+     * @param[in] gate_property_ Gate property values
+     */
     virtual void set_gate_property(UINT gate_property_) {
         _gate_property = gate_property_;
     }
@@ -91,12 +143,22 @@ public:
      * 
      * @param[in,out] state 更新する量子状態
      */
+    /**
+     * \~english Operate on quantum states
+     * 
+     * @param[in,out] state Update quantum state
+     */
     virtual void update_quantum_state(QuantumStateBase* state) override;
 
     /**
      * \~japanese-en 自身のコピーを作成する
      * 
      * @return コピーされたゲートのインスタンス
+     */
+    /**
+     * \~english Make a copy of itself
+     * 
+     * @return Instance of the copied gate
      */
     virtual QuantumGateBase* copy() const override{
         return new QuantumGateMatrix(*this);
@@ -107,6 +169,11 @@ public:
      * 
      * @param[out] matrix 行列要素をセットする行列の参照
      */
+    /**
+     * \~english Set matrix elements of itself
+     * 
+     * @param[out] matrix Matrix reference to set the matrix elements
+     */
     virtual void set_matrix(ComplexMatrix& matrix) const override{
         matrix = this->_matrix_element;
     }
@@ -115,6 +182,11 @@ public:
      * \~japanese-en 量子回路のデバッグ情報の文字列を生成する
      *
      * @return 生成した文字列
+     */
+    /**
+     * \~english Generate a string of debug information for a quantum circuit
+     *
+     * @return The generated string
      */
     virtual std::string to_string() const override;
 
@@ -125,6 +197,13 @@ public:
      * @param gate 情報の出力を行うゲート
      * @return 受け取ったストリーム
      */
+    /**
+     * \~english Output gate information as a character string
+     * 
+     * @param os The stream to output
+     * @param gate Gate that outputs information
+     * @return Stream received
+     */
     friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumGateMatrix& gate);
 
     /**
@@ -133,6 +212,13 @@ public:
      * @param os 出力するストリーム
      * @param gate 情報の出力を行うゲート
      * @return 受け取ったストリーム
+     */
+    /**
+     * \~english Output gate information as a character string
+     * 
+     * @param os The stream to output
+     * @param gate Gate that outputs information
+     * @return Stream received
      */
     friend DllExport std::ostream& operator<<(std::ostream& os, QuantumGateMatrix* gate);
 
