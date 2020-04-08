@@ -23,7 +23,7 @@ public:
      * @param control_qubit_index_list コントロールとなる量子ビットのリスト <code>control_value</code>はすべて1になる。
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * Matrix can be reused but the process is slow because matrix elements are copied
      * @param target_qubit_index_list List of target qubit subscripts
@@ -41,7 +41,7 @@ public:
      * @param control_qubit_index_list コントロールとなる量子ビットのリスト <code>control_value</code>はすべて1になる。
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * Matrix can be reused but the process is slow because matrix elements are copied
      * @param target_qubit_index_list List of target qubit subscripts
@@ -59,7 +59,7 @@ public:
      * @param control_qubit_index_list コントロールとなる量子ビットの情報のリスト
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * Matrix can be reused but the process is slow because matrix elements are copied
      * @param target_qubit_index_list List of target qubit subscripts
@@ -77,7 +77,7 @@ public:
      * @param control_qubit_index_list コントロールとなる量子ビットの情報のリスト
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * Matrix can be reused but the process is slow because matrix elements are copied
      * @param target_qubit_index_list List of target qubit subscripts
@@ -90,7 +90,7 @@ public:
      * \~japanese-en デストラクタ
      */
     /**
-     * \~japanese-en Destruct
+     * \~japanese-en Destructor
      */
     virtual ~QuantumGateMatrix() {};
 
