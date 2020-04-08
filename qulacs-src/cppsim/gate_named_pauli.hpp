@@ -32,7 +32,7 @@ public:
      * @param pauli 作用させるパウリ演算子
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * Pauli operator used is released in class
      * @param pauli Pauli operator
@@ -54,7 +54,7 @@ public:
      * \~japanese-en デストラクタ
      */
     /**
-     * \~english Destruct
+     * \~english Destructor
      */
     virtual ~ClsPauliGate() {
         delete _pauli;
@@ -146,7 +146,7 @@ public:
      * @param pauli 作用させるパウリ演算子
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * Pauli operator used is released in class
      * @param angle Rotation angle
@@ -170,7 +170,7 @@ public:
      * \~japanese-en デストラクタ
      */
     /**
-     * \~english Destruct
+     * \~english Destructor
      */
     virtual ~ClsPauliRotationGate() {
         delete _pauli;
