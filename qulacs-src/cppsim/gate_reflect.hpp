@@ -19,7 +19,10 @@ extern "C" {
 #include <iostream>
 
 /**
- * ¥‾japanese-en 量子状態を、別の量子状態に対して反射するゲートのクラス
+ * \~japanese-en 量子状態を、別の量子状態に対して反射するゲートのクラス
+ */
+/**
+ * \~english A class of gates that reflects a quantum state to another quantum state
  */
 class ClsStateReflectionGate : public QuantumGateBase {
 private:
@@ -38,10 +41,15 @@ public:
 	}
 
 	/**
-	 * ¥‾japanese-en 量子状態を更新する
+	 * \~japanese-en 量子状態を更新する
 	 *
 	 * @param state 更新する量子状態
 	 */
+	/**
+     	 * \~english Update quantum state
+     	 *
+     	 * @param state Quantum state to be updated
+     	 */
 	virtual void update_quantum_state(QuantumStateBase* state) override {
 		if (state->is_state_vector()) {
 #ifdef _USE_GPU
@@ -66,18 +74,28 @@ public:
 		}
 	};
 	/**
-	 * ¥‾japanese-en 自身のディープコピーを生成する
+	 * \~japanese-en 自身のディープコピーを生成する
 	 *
 	 * @return 自身のディープコピー
 	 */
+	/**
+     	 * \~english Generate a deep copy of itself
+     	 *
+      	 * @return Deep copy of itself
+     	 */
 	virtual QuantumGateBase* copy() const override {
 		return new ClsStateReflectionGate(this->reflection_state);
 	};
 	/**
-	 * ¥‾japanese-en 自身のゲート行列をセットする
+	 * \~japanese-en 自身のゲート行列をセットする
 	 *
 	 * @param matrix 行列をセットする変数の参照
 	 */
+    	/**
+    	 * \~english Set gate matrix of itself
+    	 *
+    	 * @param matrix Reference variables to set matrix
+    	 */
 	virtual void set_matrix(ComplexMatrix&) const override {
 		std::cerr << "ReflectionGate::set_matrix is not implemented" << std::endl;
 		exit(0);
