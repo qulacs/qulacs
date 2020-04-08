@@ -87,7 +87,7 @@ public:
      * Add a Pauli operator string and coefficient pair to GeneralQuantumOperator.
      *
      * @param[in] coef Coefficient of PauliOperator created from pauli_string
-     * @param[in] pauli_string Character string consisting of a pair of Pauli operator and index。(example: "X 1 Y 2 Z 5")
+     * @param[in] pauli_string Character string consisting of a pair of Pauli operator and index. (example: "X 1 Y 2 Z 5")
      */
     virtual void add_operator(CPPCTYPE coef, std::string pauli_string);
 
