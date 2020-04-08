@@ -26,7 +26,7 @@ public:
      * @param target_qubit_index ターゲット量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param control_qubit_index Subscript of control qubit 
      * @param target_qubit_index Subscript of target qubit
@@ -61,7 +61,7 @@ public:
      * @param target_qubit_index ターゲット量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param control_qubit_index Subscript of control qubit 
      * @param target_qubit_index Subscript of target qubit
@@ -96,7 +96,7 @@ public:
      * @param target_qubit_index2 もう一つのターゲット量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index1 Subscript of target qubit 
      * @param target_qubit_index2 Subscript of another target qubit
