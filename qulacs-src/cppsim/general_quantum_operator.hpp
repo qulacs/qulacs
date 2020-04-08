@@ -29,7 +29,7 @@ public:
      */
     /**
      * \~english
-     * Construct
+     * Constructor
      *
      * Create an empty GeneralQuantumOperator
      * @param[in] qubit_count Number of qubit
