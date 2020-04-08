@@ -33,7 +33,7 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      */
@@ -63,7 +63,7 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      */
@@ -95,7 +95,7 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      */
@@ -127,7 +127,7 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      */
@@ -159,7 +159,7 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      */
@@ -192,7 +192,7 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      */
@@ -224,7 +224,7 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      */
@@ -256,7 +256,7 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      */
@@ -288,7 +288,7 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      */
@@ -320,7 +320,7 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      */
@@ -352,7 +352,7 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      */
@@ -384,7 +384,7 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      */
@@ -416,7 +416,7 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      */
@@ -448,7 +448,7 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      */
@@ -480,7 +480,7 @@ public:
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      */
@@ -513,7 +513,7 @@ public:
      * @param angle 回転角
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      * @param angle Rotation angle
@@ -546,7 +546,7 @@ public:
      * @param angle 回転角
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      * @param angle Rotation angle
@@ -579,7 +579,7 @@ public:
      * @param angle 回転角
      */
     /**
-     * \~english Construct
+     * \~english Constructor
      * 
      * @param target_qubit_index Subscript of target qubit
      * @param angle Rotation angle
