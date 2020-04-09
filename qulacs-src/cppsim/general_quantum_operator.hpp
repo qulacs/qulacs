@@ -43,7 +43,7 @@ public:
      */
     /**
      * \~english
-     * Destruct PauliOperator held by GeneralQuantumOperator is released.
+     * Destructor PauliOperator held by GeneralQuantumOperator is released.
      */
     virtual ~GeneralQuantumOperator();
 
