@@ -42,7 +42,7 @@ public:
      */
     /**
      * \~english
-     * Construct
+     * Constructor
      *
      * Creating empty HermitianQuantumOperator
      * @param[in] qubit_count Number of qubit
