@@ -35,7 +35,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      */
     ClsIGate(UINT target_qubit_index) {
         this->_update_func = ClsIGate::idling;
@@ -65,7 +65,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      */
     ClsXGate(UINT target_qubit_index) {
         this->_update_func = X_gate;
@@ -97,7 +97,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      */
     ClsYGate(UINT target_qubit_index) {
         this->_update_func = Y_gate;
@@ -129,7 +129,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      */
     ClsZGate(UINT target_qubit_index){
         this->_update_func = Z_gate;
@@ -161,7 +161,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      */
     ClsHGate(UINT target_qubit_index) {
         this->_update_func = H_gate;
@@ -194,7 +194,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      */
     ClsSGate(UINT target_qubit_index){
         this->_update_func = S_gate;
@@ -226,7 +226,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      */
     ClsSdagGate(UINT target_qubit_index){
         this->_update_func = Sdag_gate;
@@ -258,7 +258,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      */
     ClsTGate(UINT target_qubit_index){
         this->_update_func = T_gate;
@@ -290,7 +290,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      */
     ClsTdagGate(UINT target_qubit_index){
         this->_update_func = Tdag_gate;
@@ -322,7 +322,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      */
     ClsSqrtXGate(UINT target_qubit_index) {
         this->_update_func = sqrtX_gate;
@@ -354,7 +354,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      */
     ClsSqrtXdagGate(UINT target_qubit_index) {
         this->_update_func = sqrtXdag_gate;
@@ -386,7 +386,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      */
     ClsSqrtYGate(UINT target_qubit_index) {
         this->_update_func = sqrtY_gate;
@@ -418,7 +418,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      */
     ClsSqrtYdagGate(UINT target_qubit_index) {
         this->_update_func = sqrtYdag_gate;
@@ -450,7 +450,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      */
     ClsP0Gate(UINT target_qubit_index){
         this->_update_func = P0_gate;
@@ -482,7 +482,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      */
     ClsP1Gate(UINT target_qubit_index){
         this->_update_func = P1_gate;
@@ -515,7 +515,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      * @param angle Rotation angle
      */
     ClsRXGate(UINT target_qubit_index, double angle) : QuantumGate_OneQubitRotation(angle) {
@@ -548,7 +548,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      * @param angle Rotation angle
      */
     ClsRYGate(UINT target_qubit_index, double angle): QuantumGate_OneQubitRotation(angle){
@@ -581,7 +581,7 @@ public:
     /**
      * \~english Constructor
      * 
-     * @param target_qubit_index Subscript of target qubit
+     * @param target_qubit_index Index of target qubit
      * @param angle Rotation angle
      */
     ClsRZGate(UINT target_qubit_index, double angle): QuantumGate_OneQubitRotation(angle){
