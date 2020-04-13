@@ -438,7 +438,7 @@ public:
  * \~japanese-en 作用する量子ビットを0状態へ射影するゲート
  */
 /**
- * \~english A gate that projects a working qubit into state 0
+ * \~english A gate that projects a qubit into state 0
  */
 class ClsP0Gate : public QuantumGate_OneQubit{
 public:
