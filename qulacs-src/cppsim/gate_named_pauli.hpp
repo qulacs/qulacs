@@ -18,6 +18,9 @@ extern "C" {
 /**
  * \~japanese-en 複数の量子ビットに作用するPauli演算子を作用させるゲート
  */ 
+/**
+ * \~english A gate that operates Pauli operator for multiple qubits
+ */ 
 class ClsPauliGate : public QuantumGateBase {
 protected:
     PauliOperator* _pauli;
@@ -27,6 +30,12 @@ public:
      * 
      * 使用したパウリ演算子はクラスにて解放される
      * @param pauli 作用させるパウリ演算子
+     */
+    /**
+     * \~english Constructor
+     * 
+     * Pauli operator used is released in class
+     * @param pauli Pauli operator
      */
     ClsPauliGate(PauliOperator* pauli) {
         _pauli = pauli;
@@ -44,6 +53,9 @@ public:
     /**
      * \~japanese-en デストラクタ
      */
+    /**
+     * \~english Destructor
+     */
     virtual ~ClsPauliGate() {
         delete _pauli;
     }
@@ -51,6 +63,11 @@ public:
      * \~japanese-en 量子状態を更新する
      * 
      * @param state 更新する量子状態
+     */
+    /**
+     * \~english Update quantum state
+     * 
+     * @param state Quantum state to be updated
      */
     virtual void update_quantum_state(QuantumStateBase* state)  override {
         auto target_index_list = _pauli->get_index_list();
@@ -85,6 +102,11 @@ public:
      * 
      * @return 自身のディープコピー
      */
+    /**
+     * \~english Generate a deep copy of itself
+     * 
+     * @return Deep copy of itself
+     */
     virtual QuantumGateBase* copy() const override {
         return new ClsPauliGate(_pauli->copy());
     };
@@ -94,6 +116,11 @@ public:
      * 
      * @param matrix 行列をセットする変数の参照
      */
+    /**
+     * \~english Set gate matrix of itself
+     * 
+     * @param matrix Reference variables to set matrix
+     */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         get_Pauli_matrix(matrix, _pauli->get_pauli_id_list());
     }
@@ -102,6 +129,9 @@ public:
 
 /**
  * \~japanese-en 複数の量子ビットに作用するPauli演算子で回転するゲート
+ */ 
+/**
+ * \~english A gate that rotates with Pauli operator for multiple qubits
  */ 
 class ClsPauliRotationGate : public QuantumGateBase {
 protected:
@@ -114,6 +144,13 @@ public:
      * 使用したパウリ演算子はクラスにて解放される
      * @param angle 回転角
      * @param pauli 作用させるパウリ演算子
+     */
+    /**
+     * \~english Constructor
+     * 
+     * Pauli operator used is released in class
+     * @param angle Rotation angle
+     * @param pauli Pauli operator
      */
     ClsPauliRotationGate(double angle, PauliOperator* pauli)
         : _angle(angle) {
@@ -132,6 +169,9 @@ public:
     /**
      * \~japanese-en デストラクタ
      */
+    /**
+     * \~english Destructor
+     */
     virtual ~ClsPauliRotationGate() {
         delete _pauli;
     }
@@ -139,6 +179,11 @@ public:
      * \~japanese-en 量子状態を更新する
      * 
      * @param state 更新する量子状態
+     */
+    /**
+     * \~english Update quantum state
+     * 
+     * @param state Quantum state to be updated
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
         auto target_index_list = _pauli->get_index_list();
@@ -172,6 +217,11 @@ public:
      * 
      * @return 自身のディープコピー
      */
+    /**
+     * \~english Generate a deep copy of itself
+     * 
+     * @return Deep copy of itself
+     */
     virtual QuantumGateBase* copy() const override {
         return new ClsPauliRotationGate(_angle, _pauli->copy());
     };
@@ -180,6 +230,11 @@ public:
      * \~japanese-en 自身のゲート行列をセットする
      * 
      * @param matrix 行列をセットする変数の参照
+     */
+    /**
+     * \~english Set gate matrix of itself
+     * 
+     * @param matrix Reference variables to set matrix
      */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         get_Pauli_matrix(matrix, _pauli->get_pauli_id_list());

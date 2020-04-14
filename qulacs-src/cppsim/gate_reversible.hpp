@@ -19,7 +19,10 @@ extern "C" {
 #include <iostream>
 
 /**
- * ¥‾japanese-en 可逆古典回路のを表すクラス
+ * \~japanese-en 可逆古典回路のを表すクラス
+ */
+/**
+ * \~english A class representing reversible classical circuits
  */
 class ClsReversibleBooleanGate : public QuantumGateBase {
 private:
@@ -32,11 +35,16 @@ public:
 		this->_name = "ReversibleBoolean";
 	};
 
-	/**
-	 * ¥‾japanese-en 量子状態を更新する
-	 *
-	 * @param state 更新する量子状態
-	 */
+    /**
+     * \~japanese-en 量子状態を更新する
+     *
+     * @param state 更新する量子状態
+     */
+    /**
+     * \~english Update quantum state
+     *
+     * @param state Quantum state to be updated
+     */
 	virtual void update_quantum_state(QuantumStateBase* state) override {
 		std::vector<UINT> target_index;
 		for (auto val : this->_target_qubit_list) {
@@ -61,19 +69,29 @@ public:
 		}
 
 	};
-	/**
-	 * ¥‾japanese-en 自身のディープコピーを生成する
-	 *
-	 * @return 自身のディープコピー
-	 */
+    /**
+     * \~japanese-en 自身のディープコピーを生成する
+     *
+     * @return 自身のディープコピー
+     */
+    /**
+     * \~english Generate a deep copy of itself
+     *
+     * @return Deep copy of itself
+     */
 	virtual QuantumGateBase* copy() const override {
 		return new ClsReversibleBooleanGate(*this);
 	};
 	/**
-	 * ¥‾japanese-en 自身のゲート行列をセットする
-	 *
-	 * @param matrix 行列をセットする変数の参照
-	 */
+     	 * \~japanese-en 自身のゲート行列をセットする
+     	 *
+    	 * @param matrix 行列をセットする変数の参照
+    	 */
+   	/**
+    	 * \~english Set gate matrix of itself
+    	 *
+    	 * @param matrix Reference variables to set matrix
+    	 */
 	virtual void set_matrix(ComplexMatrix& matrix) const override {
 		ITYPE matrix_dim = 1ULL << this->_target_qubit_list.size();
 		matrix = ComplexMatrix::Zero(matrix_dim, matrix_dim);

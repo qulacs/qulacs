@@ -1,10 +1,10 @@
 
 /**
- * @file circuit.hpp
- * 
- * @brief QuantumCircuitクラスの詳細
+ * @file gate.hpp
+ *
+ * \~japanese-en @brief 日本語説明
+ * \~english @brief Definition and basic functions for QuantumGate
  */
-
 #pragma once
 
 #include "type.hpp"
@@ -23,6 +23,12 @@ typedef HermitianQuantumOperator Observable;
  * 量子回路を管理するクラス。QuantumGateクラスをリストとして持ち、種々の操作を行う。
  * 管理する量子ゲートは量子回路の解放時にすべて解放される。
  */
+/**
+ * \~english Quantum circuit class
+ * 
+ * This is a class managing quantum circuit. It takes QuantumGate class as a list and performs various operations.
+ * The quantum gates under management are all released when the quantum circuit is released.
+ */
 class DllExport QuantumCircuit{
 protected:
     std::vector<QuantumGateBase*> _gate_list; 
@@ -34,7 +40,9 @@ protected:
 
 public:
 	const UINT& qubit_count; /**< \~japanese-en 量子ビットの数*/
+	/**< \~english Number of quantum bit*/
 	const std::vector<QuantumGateBase*>& gate_list; /**< \~japanese-en 量子ゲートのリスト*/
+	/**< \~english List of quantum gate*/
 
     /**
      * \~japanese-en 空の量子回路を作成する
@@ -42,6 +50,13 @@ public:
      * @param[in] qubit_count 量子ビットの数
      * @return 生成された量子回路のインスタンス
      */
+    /**
+     * \~english Create an empty quantum circuit
+     * 
+     * @param[in] qubit_count number of quantum bit
+     * @return Instance of created quantum circuit
+     */
+
     QuantumCircuit(UINT qubit_count);
 
     /**
@@ -53,6 +68,15 @@ public:
      * @param[in] qasm_loader_script_path QASMを読むためのpythonのパス
      * @return 生成されたインスタンス。生成でエラーが生じた場合はNULLを返す。
      */
+    /**
+     * \~english Create quantum circuit from QASM
+     * 
+     * Specify the path to the QASM file and create a quantum circuit described in QASM.
+     * Qiskit must be specified for QASM parsing.
+     * @param[in] qasm_path Path of QASM file
+     * @param[in] qasm_loader_script_path Python path to read QASM
+     * @return Created instance, if error occurs, return NULL.
+     */
     QuantumCircuit(std::string qasm_path, std::string qasm_loader_script_path = "qasmloader.py");
 
     /**
@@ -60,10 +84,18 @@ public:
      * 
      * @return 量子回路のディープコピー
      */
+    /**
+     * \~english Create deep copy of quantum circuit
+     * 
+     * @return Deep copy of quantum circuit
+     */
     QuantumCircuit* copy() const;
 
     /**
      * \~japanese-en デストラクタ
+     */
+    /**
+     * \~english Destructor
      */
     virtual ~QuantumCircuit();
 
@@ -77,6 +109,13 @@ public:
      * 追加した量子ゲートは量子回路の解放時に開放される。
      * @param[in] gate 追加する量子ゲート
      */
+    /**
+     * \~english Add a quantum gate to the end of the circuit
+     * 
+     * Add quantum gate to the circuit.
+     * The added quantum gate is released when the quantum circuit is released.
+     * @param[in] gate Quantum gate to be added
+     */
     virtual void add_gate(QuantumGateBase* gate);
 
     /**
@@ -87,6 +126,14 @@ public:
      * @param[in] gate 追加する量子ゲート
      * @param[in] index 追加する位置
      */
+    /**
+     * \~english Add a quantum gate to the specified position in the circuit.
+     * 
+     * Add a quantum gate to the specified position in the circuit.
+     * The added quantum gate is released when the quantum circuit is released.
+     * @param[in] gate gate Quantum gate to be added
+     * @param[in] index where to added
+     */
     virtual void add_gate(QuantumGateBase* gate, UINT index);
 
     /**
@@ -95,6 +142,13 @@ public:
      * 与えられた量子ゲートのコピーを回路に追加する。
      * add_gateに比べコピーが発生する分低速な一方、引数で与えたゲートを再利用できる。
      * @param[in] gate 追加する量子ゲート
+     */
+    /**
+     * \~english Add a quantum gate to the end of the circuit
+     * 
+     * Add a copy of given quantum gate to the circuit.
+     * While it is slower than add_gate by the amount of copying, the gate given by the argument can be reused.
+     * @param[in] gate Quantum gate to be added
      */
     virtual void add_gate_copy(const QuantumGateBase* gate);
 
@@ -105,6 +159,13 @@ public:
      * @param[in] gate 追加する量子ゲート
      * @param[in] index 追加する位置
      */
+    /**
+     * \~english Add a quantum gate to the specified position in the circuit.
+     * 
+     * Add a given quantum gate to the specified position in the circuit.
+     * @param[in] gate Quantum gate to be added
+     * @param[in] index Where to add
+     */
     virtual void add_gate_copy(const QuantumGateBase* gate, UINT index);
 
     /**
@@ -112,6 +173,12 @@ public:
      * 
      * 削除した量子ゲートは解放される。
      * @param[in] index 削除するゲートの位置
+     */
+    /**
+     * \~english Delete quantum gate from a quantum circuit
+     * 
+     * Release the quantum gate deleted
+     * @param[in] index Where to delete
      */
     virtual void remove_gate(UINT index);
 
@@ -124,6 +191,12 @@ public:
      * 順番にすべての量子ゲートを作用する。量子状態の初期化などは行わない。
      * @param[in,out] state 作用する量子状態
      */
+    /**
+     * \~english Update quantum state
+     * 
+     * Operate on all quantum gates in order. It does not initialize the quantum state.
+     * @param[in,out] state State to be operated
+     */
     void update_quantum_state(QuantumStateBase* state);
 
     /**
@@ -133,6 +206,14 @@ public:
      * @param[in,out] state 作用する量子状態
      * @param[in] start_index 開始位置
      * @param[in] end_index 修了位置
+     */
+    /**
+     * \~english Update the quantum state using only the specified part of the quantum circuit
+     * 
+     * Quantum gates operate on the quantum state with subscripts from start_index to end_index-1 in order. It does not initialize the quantum state.
+     * @param[in,out] state Quantum state to be operated
+     * @param[in] start_index Start position
+     * @param[in] end_index End position
      */
     void update_quantum_state(QuantumStateBase* state, UINT start_index, UINT end_index);
 
@@ -147,13 +228,29 @@ public:
      * @retval true Clifford
      * @retval false Non-Clifford
      */
+    /**
+     * \~english Determine whether the quantum circuit is Clifford.
+     * 
+     * True if all quantum gates are Clifford.
+     * Note that if there are multiple Non-Clifford gates and the product is Clifford, it will be judged as false.
+     * @retval true Clifford
+     * @retval false Non-Clifford
+     */
     bool is_Clifford() const;
 
     /**
      * \~japanese-en 量子回路がFermionic Gaussianかどうかを判定する。
      * 
      * 全ての量子ゲートがFermionic Gaussianである場合にtrueと判定される。
-     * Non-Cliffordゲートが複数あり、結果としてCliffordとなっている場合もNon-Cliffordとして判定される点に注意。
+     * Non-fermionic Gaussianゲートが複数あり、結果としてFermionic Gaussianとなっている場合もNon-fermionic Gaussianとして判定される点に注意。
+     * @retval true Fermionic Gaussian
+     * @retval false Non-fermionic Gaussian
+     */
+    /**
+     * \~english Determine whether the quantum circuit is Fermionic Gaussian.
+     * 
+     * True if all quantum gates are Fermionic Gaussian.
+     * Note that if there are multiple Non-fermionic Gaussian gates and the product is Fermionic Gaussian, it will be judged as false.
      * @retval true Fermionic Gaussian
      * @retval false Non-fermionic Gaussian
      */
@@ -165,12 +262,23 @@ public:
      * ここでいうdepthとは、可能な限り量子ゲートを並列実行した時に掛かるステップ数を指す。
      * @return 量子回路のdepth
      */
+    /**
+     * \~english Caculate the depth of quantum circuit.
+     * 
+     * Here, the depth refers to the number of steps required when the quantum gates are executed in parallel as much as possible.
+     * @return Depth of quantum circuit
+     */
     UINT calculate_depth() const;
 
     /**
      * \~japanese-en 量子回路のデバッグ情報の文字列を生成する
      *
      * @return 生成した文字列
+     */
+    /**
+     * \~english Generate a string of debug information for a quantum circuit
+     *
+     * @return Generated string
      */
     virtual std::string to_string() const;
 
@@ -179,12 +287,22 @@ public:
      * 
      * @return 受け取ったストリーム
      */
+    /**
+     * \~english Output debug information for a quantum circuit
+     * 
+     * @return Stream received
+     */
     friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumCircuit&);
 
     /**
      * \~japanese-en 量子回路のデバッグ情報を出力する。
      * 
      * @return 受け取ったストリーム
+     */
+    /**
+     * \~english Output debug information for a quantum circuit
+     * 
+     * @return Stream received
      */
     friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumCircuit* gate);
 
@@ -193,12 +311,22 @@ public:
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
+    /**
+     * \~english Add \f$X\f$ gate.
+     * 
+     * @param[in] target_index Subscript of qubit to be operated
+     */
     virtual void add_X_gate(UINT target_index);
 
     /**
      * \~japanese-en \f$Y\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
+     */
+    /**
+     * \~english Add \f$Y\f$ gate.
+     * 
+     * @param[in] target_index Subscript of qubit to be operated
      */
     virtual void add_Y_gate(UINT target_index);
 
@@ -207,12 +335,22 @@ public:
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
+    /**
+     * \~english Add \f$Z\f$ gate.
+     * 
+     * @param[in] target_index Subscript of qubit to be operated
+     */
     virtual void add_Z_gate(UINT target_index);
 
     /**
      * \~japanese-en Hadamard gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
+     */
+    /**
+     * \~english Add Hadamard gate gate.
+     * 
+     * @param[in] target_index Subscript of qubit to be operated
      */
     virtual void add_H_gate(UINT target_index);
 
@@ -221,12 +359,22 @@ public:
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
+    /**
+     * \~english Add \f$S\f$ gate.
+     * 
+     * @param[in] target_index Subscript of qubit to be operated
+     */
     virtual void add_S_gate(UINT target_index);
 
     /**
      * \~japanese-en \f$S^{\dagger}\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
+     */
+    /**
+     * \~english Add \f$S^{\dagger}\f$ gate.
+     * 
+     * @param[in] target_index Subscript of qubit to be operated
      */
     virtual void add_Sdag_gate(UINT target_index);
 
@@ -235,12 +383,22 @@ public:
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
+    /**
+     * \~english Add \f$T\f$ gate.
+     * 
+     * @param[in] target_index Subscript of qubit to be operated
+     */
     virtual void add_T_gate(UINT target_index);
 
     /**
      * \~japanese-en \f$T^{\dagger}\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
+     */
+    /**
+     * \~english Add \f$T^{dagger}\f$ gate.
+     * 
+     * @param[in] target_index Subscript of qubit to be operated
      */
     virtual void add_Tdag_gate(UINT target_index);
 
@@ -249,12 +407,22 @@ public:
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
+    /**
+     * \~english Add \f$\sqrt{X}\f$ gate.
+     * 
+     * @param[in] target_index Subscript of qubit to be operated
+     */
     virtual void add_sqrtX_gate(UINT target_index);
 
     /**
      * \~japanese-en \f$\sqrt{X}^{\dagger}\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
+     */
+    /**
+     * \~english Add \f$\sqrt{X}^{\dagger}\f$ gate.
+     * 
+     * @param[in] target_index Subscript of qubit to be operated
      */
     virtual void add_sqrtXdag_gate(UINT target_index);
 
@@ -263,12 +431,22 @@ public:
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
+    /**
+     * \~english Add \f$\sqrt{Y}\f$ gate.
+     * 
+     * @param[in] target_index Subscript of qubit to be operated
+     */
     virtual void add_sqrtY_gate(UINT target_index);
 
     /**
      * \~japanese-en \f$\sqrt{Y}^{\dagger}\f$ gateを追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
+     */
+    /**
+     * \~english Add \f$\sqrt{Y}^{\dagger}\f$ gate.
+     * 
+     * @param[in] target_index Subscript of qubit to be operated
      */
     virtual void add_sqrtYdag_gate(UINT target_index);
 
@@ -277,12 +455,22 @@ public:
      * 
      * @param[in] target_index 作用する量子ビットの添え字
      */
+    /**
+     * \~english Add a projection operation to the 0 state.
+     * 
+     * @param[in] target_index Subscript of qubit to be operated
+     */
     virtual void add_P0_gate(UINT target_index);
 
     /**
      * \~japanese-en 1状態への射影演算を追加する。
      * 
      * @param[in] target_index 作用する量子ビットの添え字
+     */
+    /**
+     * \~english Add a projection operation to the 1 state.
+     * 
+     * @param[in] target_index Subscript of qubit to be operated
      */
     virtual void add_P1_gate(UINT target_index);
 
@@ -292,6 +480,12 @@ public:
      * @param[in] control_index 作用するcontrol qubitの添え字
      * @param[in] target_index 作用するtarget qubitの添え字
      */
+    /**
+     * \~english Add CNOT gate.
+     * 
+     * @param[in] control_index Subscript of control qubit to be operated
+     * @param[in] target_index Subscript of target qubit to be operated
+     */
     virtual void add_CNOT_gate(UINT control_index, UINT target_index);
 
     /**
@@ -300,6 +494,12 @@ public:
      * @param[in] control_index 作用するcontrol qubitの添え字
      * @param[in] target_index 作用するtarget qubitの添え字
      */
+    /**
+     * \~english Add Control-Z gate.
+     * 
+     * @param[in] control_index Subscript of control qubit to be operated
+     * @param[in] target_index Subscript of target qubit to be operated
+     */
     virtual void add_CZ_gate(UINT control_index, UINT target_index);
 
     /**
@@ -307,6 +507,12 @@ public:
      * 
      * @param[in] target_index1 作用するtarget qubitの添え字
      * @param[in] target_index2 作用するもう一方のtarget qubitの添え字
+     */
+    /**
+     * \~english Add SWAP gate.
+     * 
+     * @param[in] control_index Subscript of control qubit to be operated
+     * @param[in] target_index Subscript of target qubit to be operated
      */
     virtual void add_SWAP_gate(UINT target_index1, UINT target_index2);
 
@@ -317,6 +523,13 @@ public:
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] angle 回転角\f$\theta\f$
      */
+    /**
+     * \~english Add X-rotation gate.
+     * 
+     * The notation of the gate becomes \f$ R_X(\theta) = \exp(i\theta X) \f$.
+     * @param[in] target_index Subscript of target qubit to be operated
+     * @param[in] angle Rotation angle \f$\theta\f$
+     */
     virtual void add_RX_gate(UINT target_index, double angle);
 
     /**
@@ -325,6 +538,13 @@ public:
      * ゲートの表記は \f$ R_Y(\theta) = \exp(i\theta Y) \f$になっている。
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] angle 回転角\f$\theta\f$
+     */
+    /**
+     * \~english Add Y-rotation gate.
+     * 
+     * The notation of the gate becomes \f$ R_Y(\theta) = \exp(i\theta Y) \f$.
+     * @param[in] target_index Subscript of target qubit to be operated
+     * @param[in] angle Rotation angle \f$\theta\f$
      */
     virtual void add_RY_gate(UINT target_index, double angle);
 
@@ -335,6 +555,13 @@ public:
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] angle 回転角\f$\theta\f$
      */
+    /**
+     * \~english Add Z-rotation gate.
+     * 
+     * The notation of the gate becomes \f$ R_Z(\theta) = \exp(i\theta Z) \f$.
+     * @param[in] target_index Subscript of target qubit to be operated
+     * @param[in] angle Rotation angle \f$\theta\f$
+     */
     virtual void add_RZ_gate(UINT target_index, double angle);
 
     /**
@@ -343,6 +570,13 @@ public:
      * ゲートの表記はIBMQのページを参照。
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] phi 回転角\f$\phi\f$
+     */
+    /**
+     * \~english Add u1 gate of OpenQASM.
+     * 
+     * The notation of the gate refers to IBMQ page.
+     * @param[in] target_index Subscript of target qubit to be operated
+     * @param[in] phi Rotation angle \f$\phi\f$
      */
     virtual void add_U1_gate(UINT target_index, double phi);
 
@@ -354,6 +588,14 @@ public:
      * @param[in] phi 回転角\f$\phi\f$
      * @param[in] psi 回転角\f$\psi\f$
      */
+    /**
+     * \~english Add u2 gate of OpenQASM.
+     * 
+     * The notation of the gate refers to IBMQ page.
+     * @param[in] target_index Subscript of target qubit to be operated
+     * @param[in] phi Rotation angle \f$\phi\f$
+     * @param[in] psi Rotation angle \f$\psi\f$
+     */
     virtual void add_U2_gate(UINT target_index, double phi, double psi);
 
     /**
@@ -364,6 +606,15 @@ public:
      * @param[in] phi 回転角\f$\phi\f$
      * @param[in] psi 回転角\f$\psi\f$
      * @param[in] lambda 回転角\f$\lambda\f$
+     */
+    /**
+     * \~english Add u3 gate of OpenQASM.
+     * 
+     * The notation of the gate refers to IBMQ page.
+     * @param[in] target_index Subscript of target qubit to be operated
+     * @param[in] phi Rotation angle \f$\phi\f$
+     * @param[in] psi Rotation angle \f$\psi\f$
+     * @param[in] lambda Rotation angle \f$\lambda\f$
      */
     virtual void add_U3_gate(UINT target_index, double phi, double psi, double lambda);
 
@@ -377,6 +628,16 @@ public:
      * @param[in] target_index_list 作用するtarget qubitの添え字のリスト
      * @param[in] pauli_id_list target_index_listに対応したパウリ演算子のid
      */
+    /**
+     * \~english Add n-qubit Pauli gate
+     * 
+     * Operate n-qubit Pauli gate
+     * The Pauli operator corresponds to \f$(I,X,Y,Z) \mapsto (0,1,2,3)\f$.
+     * For example, \f$X_3 Y_2 Z_4\f$ has target_index_list = {3,2,4}, and pauli_id_list = {1,2,3}.
+     * Since the computational cost of 1-qubit Pauligate and n-qubit Pauligate are almost the same, when operate the tensor product of the Pauli gate, the processing speed is faster by operating as Pauli gate.
+     * @param[in] target_index_list List of target qubit indices to operated on
+     * @param[in] pauli_id_list Id of Pauli operator corresponding to target_index_list
+     */
     virtual void add_multi_Pauli_gate(std::vector<UINT> target_index_list, std::vector<UINT> pauli_id_list);
 
     /**
@@ -384,6 +645,12 @@ public:
      * 
      * n-qubitパウリゲートを作用する。
      * @param[in] pauli_operator 追加するパウリ演算子
+     */
+    /**
+     * \~english Add n-qubit Pauli gate
+     * 
+     * Operate n-qubit Pauli gate
+     * @param[in] pauli_operator Pauli operator to be added
      */
     virtual void add_multi_Pauli_gate(const PauliOperator& pauli_operator);
 
@@ -398,6 +665,17 @@ public:
      * @param[in] pauli_id_list target_index_listに対応したパウリ演算子のid
      * @param[in] angle 回転角
      */
+    /**
+     * \~english Add n-qubit Pauli rotation gate
+     * 
+     * Operate n-qubit Pauli rotation gate
+     * The Pauli operator corresponds to \f$(I,X,Y,Z) \mapsto (0,1,2,3)\f$.
+     * For example, \f$\exp(i\theta X_3 Y_2 Z_4)\f$ has target_index_list = {3,2,4}, pauli_id_list = {1,2,3}, and angle = \f$\theta\f$.
+     * Since the computational cost of 1-qubit Pauligate and n-qubit Pauligate are almost the same, when operate the tensor product of the Pauli gate, the processing speed is faster by operating as Pauli gate.
+     * @param[in] target_index_list List of target qubit indices to operated on
+     * @param[in] pauli_id_list Id of Pauli operator corresponding to target_index_list
+     * @param[in] angle Rotation angle
+     */
     virtual void add_multi_Pauli_rotation_gate(std::vector<UINT> target_index_list, std::vector<UINT> pauli_id_list, double angle);
 
     /**
@@ -406,6 +684,13 @@ public:
      * n-qubitパウリ回転ゲートを作用する。
      * 回転角はPauliOperatorの係数を用いる。
      * @param[in] pauli_operator 追加するパウリ演算子
+     */
+   /**
+     * \~english Add n-qubit Pauli rotation gate
+     * 
+     * Operate n-qubit Pauli rotation gate
+     * Rotation angle uses the coefficient of PauliOperator.
+     * @param[in] pauli_operator Pauli operator to be added
      */
     virtual void add_multi_Pauli_rotation_gate(const PauliOperator& pauli_operator);
 
@@ -416,6 +701,15 @@ public:
      * @param[in] observable 追加するオブザーバブル
      * @param[in] angle 回転角
      */
+    /**
+     * \~english Add an n-qubit observable rotation gate. (Diagonal only)
+     * 
+     * Operates on an n-qubit observable rotation gate. The observables used here need to be diagonal.
+     * @param[in] observable Observable to be added
+     * @param[in] angle Rotation angle
+     */
+
+
     virtual void add_diagonal_observable_rotation_gate(const Observable& observable, double angle);
 
     /**
@@ -425,7 +719,15 @@ public:
      * @param[in] observable 追加するオブザーバブル
      * @param[in] angle 回転角 \f$ \theta \f$
      * @param[in] num_repeats Trotter展開をする際の分割数\f$N\f$。指定しない場合は、関数内部で\f$ \#qubit \cdot \theta / N = 0.01\f$ となるように設定される。
-*/
+     */
+    /**
+     * \~japanese-en Add an n-qubit observable rotation gate.
+     * 
+     * Operates an n-qubit observable rotation gate by Suzuki-Trotter expansion. The observables used here is not necessarily diagonal.
+     * @param[in] observable Observable to be added
+     * @param[in] angle Rotation angle \f$ \theta \f$
+     * @param[in] num_repeats Number of divisions \f$N\f$ for Trotter expansion. If not specified, it is set so that \f$ \#qubit \cdot \theta / N = 0.01\f$ inside the function.
+     */
     virtual void add_observable_rotation_gate(const Observable& observable, double angle, UINT num_repeats = 0);
     /**
      * \~japanese-en 1-qubitのdenseな行列のゲートを追加する。
@@ -434,6 +736,14 @@ public:
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] matrix 作用する2*2の行列
      */
+    /**
+     * \~english Add 1-qubit dense matrix gate
+     * 
+     * Dense matrices do not need to be unitary, and may be projection operators or Claus operators.
+     * @param[in] target_index Subscript of target qubit to be operated
+     * @param[in] matrix 2*2 matrix to be operated
+     */
+
     virtual void add_dense_matrix_gate(UINT target_index, const ComplexMatrix& matrix);
 
     /**
@@ -444,6 +754,14 @@ public:
      * @param[in] target_index_list 作用するtarget qubitの添え字のリスト
      * @param[in] matrix 作用する行列
      */
+    /**
+     * \~english Add multi qubit dense matrix gate
+     * 
+     * Dense matrices do not need to be unitary, and may be projection operators or Claus operators.
+     * The dimension of the matrix must be \f$2^m\f$ when the size of target_index_list is \f$m\f$.
+     * @param[in] target_index_list List of target qubit indices to operated on
+     * @param[in] matrix Matrix to be operated
+     */
     virtual void add_dense_matrix_gate(std::vector<UINT> target_index_list, const ComplexMatrix& matrix);
 
 	/**
@@ -452,6 +770,13 @@ public:
 	 * @param[in] target_index_list 作用するtarget qubitの添え字のリスト
 	 * @param[in] matrix 作用する行列
 	 */
+	/**
+	 * \~english Add multi qubit random unitary gate
+	 *
+	 * @param[in] target_index_list List of target qubit indices to operated on
+	 * @param[in] matrix Matrix to be operated
+	 */
+
 	virtual void add_random_unitary_gate(std::vector<UINT> target_index_list);
 };
 

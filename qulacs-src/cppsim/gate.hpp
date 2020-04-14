@@ -73,11 +73,15 @@ class QuantumStateBase;
 /**
  * \~japanese-en 量子ゲートの基底クラス
  */
+/**
+ * \~english Basis class of quantum gate
+ */
 class DllExport QuantumGateBase {
 protected:
     std::vector<TargetQubitInfo> _target_qubit_list; 
     std::vector<ControlQubitInfo> _control_qubit_list;
     UINT _gate_property=0;                            /**< \~japanese-en property of whole gate (e.g. Clifford or Pauli)*/
+	/**< \~english property of whole gate (e.g. Clifford or Pauli)*/
     std::string _name="Generic gate";
 
     // prohibit constructor, destructor, copy constructor, and insertion
@@ -96,16 +100,26 @@ protected:
 public:
     /**
      * \~japanese-en デストラクタ
+     */    
+    /**
+     * \~english destructor
      */
     virtual ~QuantumGateBase() {};
 
-	const std::vector<TargetQubitInfo>& target_qubit_list; /**< ターゲット量子ビットのリスト */
-	const std::vector<ControlQubitInfo>& control_qubit_list; /**< コントロール量子ビットのリスト */
+	const std::vector<TargetQubitInfo>& target_qubit_list; /**< \~japanese-en ターゲット量子ビットのリスト */
+	/**< \~english List of target qubit */
+	const std::vector<ControlQubitInfo>& control_qubit_list; /**< \~japanese-en コントロール量子ビットのリスト */
+	/**< \~english List of control qubit */
 
     /**
      * \~japanese-en ターゲット量子ビットの添え字のリストを取得する
      * 
      * @return 量子ビットの添え字のリスト
+     */
+    /**
+     * \~english Obtain the list of target qubit subscripts
+     * 
+     * @return List of target qubit subscripts
      */
     std::vector<UINT> get_target_index_list() const {
         std::vector<UINT> res(target_qubit_list.size());
@@ -116,6 +130,11 @@ public:
      * \~japanese-en コントロール量子ビットの添え字のリストを取得する
      * 
      * @return 量子ビットの添え字のリスト
+     */
+    /**
+     * \~english Obtain the list of control qubit subscripts
+     * 
+     * @return List of target qubit subscripts
      */
     std::vector<UINT> get_control_index_list() const {
         std::vector<UINT> res(control_qubit_list.size());
@@ -128,17 +147,32 @@ public:
      * 
      * @param state 更新する量子状態
      */
+    /**
+     * \~english Update quantum state
+     * 
+     * @param state Quantum state to be updated
+     */
     virtual void update_quantum_state(QuantumStateBase* state)  = 0 ;
     /**
      * \~japanese-en 自身のディープコピーを生成する
      * 
      * @return 自身のディープコピー
      */
+    /**
+     * \~english Generate a deep copy of itself
+     * 
+     * @return Deep copy of itself
+     */
     virtual QuantumGateBase* copy() const = 0;
     /**
      * \~japanese-en 自身のゲート行列をセットする
      * 
      * @param matrix 行列をセットする変数の参照
+     */
+    /**
+     * \~english Set gate matrix of itself
+     * 
+     * @param matrix Reference variables to set matrix
      */
     virtual void set_matrix(ComplexMatrix& matrix) const = 0;
 
@@ -151,12 +185,27 @@ public:
      * @return true 可換である
      * @return false 非可換である
      */
+    /**
+     * \~english Determines whether the given gate <code> gate </code> is interchangeable with itself.
+     * 
+     * Even if it is determined to be non-commutative, it may actually be commutative.
+     * If it is determined that commutation is possible, it is always commutative.
+     * @param gate Gate to compare or commute
+     * @return true Commutative
+     * @return false Non-commutative
+     */
     bool is_commute(const QuantumGateBase* gate) const;
     /**
      * \~japanese-en ゲートがパウリゲートかどうかを判定する
      * 
      * @return true パウリゲートである
      * @return false パウリゲートではない
+     */
+    /**
+     * \~english Determine if a gate is Pauligate
+     * 
+     * @return true Pauligate
+     * @return false Not Pauligate
      */
     bool is_Pauli() const;
     /**
@@ -165,12 +214,24 @@ public:
      * @return true クリフォードゲートである
      * @return false クリフォードゲートではない
      */
+    /**
+     * \~english Determine if a gate is Clifford gate
+     * 
+     * @return true Clifford gate
+     * @return false Not Clifford gate
+     */
     bool is_Clifford() const;
     /**
      * \~japanese-en ゲートがFermionic Gaussianかどうかを判定する
      * 
      * @return true Fermionic Gaussianである
      * @return false Fermionic Gaussianではない
+     */
+    /**
+     * \~english Determine if a gate is Fermionic Gaussian
+     * 
+     * @return true Fermionic Gaussian
+     * @return false Not Fermionic Gaussian
      */
     bool is_Gaussian() const;
     /**
@@ -179,12 +240,24 @@ public:
      * @return true parametricである
      * @return false parametricではない
      */
+    /**
+     * \~english Determine if a gate is parametric
+     * 
+     * @return true Parametric
+     * @return false Notparametric
+     */
     bool is_parametric() const;
     /**
      * \~japanese-en ゲート行列が対角行列かどうかを判定する
      * 
      * @return true 対角行列である
      * @return false 対角行列ではない
+     */
+    /**
+     * \~english Determine if a gate matrix is diagonal 
+     * 
+     * @return true Diagonal matrix
+     * @return false Non-diagonal matrix
      */
     bool is_diagonal() const;
 
@@ -193,6 +266,12 @@ public:
      * 
      * ゲートのプロパティ値はゲートがパウリかどうかなどのゲート全体の性質の情報を持つ
      * @return プロパティ値
+     */
+    /**
+     * \~english Get the property value of a gate
+     * 
+     * The gate property value contains information about the properties of entire gate, such as whether the gate is Pauli.
+     * @return Property value
      */
     UINT get_property_value() const;
 
@@ -204,12 +283,25 @@ public:
      * @return true 可換である
      * @return false 可換ではない
      */
+    /**
+     * \~english Determine whether a gate is commutative with a given Pauli operator at a certain subscript of qubit.
+     * 
+     * @param qubit_index Subscript of qubit
+     * @param pauli_type Pauli operator to compare. (I, X, Y, Z) corresponds to (0,1,2,3).
+     * @return true Commutative
+     * @return false Non-commutative
+     */
     bool commute_Pauli_at(UINT qubit_index, UINT pauli_type) const;
 
     /**
      * \~japanese-en 量子ゲートの名前を出力する。
      * 
      * @return ゲート名
+     */
+    /**
+     * \~english Output gate name
+     * 
+     * @return Gate name
      */
     virtual std::string get_name () const;
 
@@ -218,6 +310,11 @@ public:
      *
      * @return 生成した文字列
      */
+    /**
+     * \~english Generate a string of debug information of quantum gate
+     *
+     * @return Generated string
+     */
     virtual std::string to_string() const;
 
     /**
@@ -225,11 +322,21 @@ public:
      * 
      * @return 受け取ったストリーム
      */
+    /**
+     * \~english Outupt debug information of quantum gate
+     * 
+     * @return Received string
+     */
     friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumGateBase&);
     /**
      * \~japanese-en 量子回路のデバッグ情報を出力する。
      * 
      * @return 受け取ったストリーム
+     */
+    /**
+     * \~english Outupt debug information of quantum gate
+     * 
+     * @return Received string
      */
     friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumGateBase* gate);
 };

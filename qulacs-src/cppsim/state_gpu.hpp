@@ -19,6 +19,11 @@ public:
 	 *
 	 * @param qubit_count_ 量子ビット数
 	 */
+        /**
+         * \~english Constructor
+         * 
+         * @param qubit_count_ Qubit number
+         */
 	QuantumStateGpu(UINT qubit_count_) : QuantumStateBase(qubit_count_, true, 0) {
 		set_device(0);
 		this->_cuda_stream = allocate_cuda_stream_host(1, 0);
@@ -38,6 +43,9 @@ public:
 	/**
 	 * \~japanese-en デストラクタ
 	 */
+        /**
+         * \~english Destructor
+         */
 	virtual ~QuantumStateGpu() {
 		release_quantum_state_host(this->data(), device_number);
 		release_cuda_stream_host(this->_cuda_stream, 1, device_number);
@@ -45,6 +53,9 @@ public:
 	/**
 	 * \~japanese-en 量子状態を計算基底の0状態に初期化する
 	 */
+        /**
+         * \~english Initialize the quantum state to the 0 state of the computational basis
+         */
 	virtual void set_zero_state() override {
 		initialize_quantum_state_host(this->data(), _dim, _cuda_stream, device_number);
 	}
@@ -53,18 +64,29 @@ public:
 	 *
 	 * @param comp_basis 初期化する基底を表す整数
 	 */
+        /**
+         * \~english Initialize quantum state to basis state of <code>comp_basis</code>
+         * 
+         * @param comp_basis An integer indicating the initializing basis
+         */
 	virtual void set_computational_basis(ITYPE comp_basis)  override {
 		set_computational_basis_host(comp_basis, _state_vector, _dim, _cuda_stream, device_number);
 	}
 	/**
 	 * \~japanese-en 量子状態をHaar randomにサンプリングされた量子状態に初期化する
 	 */
+        /**
+         * \~english Initialize the quantum state to Haar random sampled quantum states
+         */
 	virtual void set_Haar_random_state() override {
 		initialize_Haar_random_state_with_seed_host(this->data(), _dim, random.int32(), _cuda_stream, device_number);
 	}
 	/**
 	 * \~japanese-en 量子状態をシードを用いてHaar randomにサンプリングされた量子状態に初期化する
 	 */
+        /**
+         * \~english Initialize the quantum state to Haar random sampled quantum states using seed
+         */
 	virtual void set_Haar_random_state(UINT seed) override {
 		initialize_Haar_random_state_with_seed_host(this->data(), _dim, seed, _cuda_stream, device_number);
 	}
@@ -75,6 +97,13 @@ public:
 	 * @param target_qubit_index
 	 * @return double
 	 */
+        /**
+         * \~english Calculate the probability of observing 0 when measuring the qubit at the index of <code>target_qubit_index</code>.
+         * 
+         * The quantum state does not change.
+         * @param target_qubit_index 
+         * @return double 
+         */
 	virtual double get_zero_probability(UINT target_qubit_index) const override {
 		return M0_prob_host(target_qubit_index, this->data(), _dim, _cuda_stream, device_number);
 	}
@@ -84,6 +113,12 @@ public:
 	 * @param measured_values 量子ビット数と同じ長さの0,1,2の配列。0,1はその値が観測され、2は測定をしないことを表す。
 	 * @return 計算された周辺確率
 	 */
+        /**
+         * \~english Calculate marginal probabilities when measuring multiple qubits
+         * 
+         * @param measured_values An array of 0,1,2 with the same length as the number of qubits. 0,1 means that the value is observed, and 2 means no measurement.
+         * @return Calculated marginal probabilities
+         */
 	virtual double get_marginal_probability(std::vector<UINT> measured_values) const override {
 		std::vector<UINT> target_index;
 		std::vector<UINT> target_value;
@@ -101,6 +136,11 @@ public:
 	 *
 	 * @return エントロピー
 	 */
+	/**
+	 * \~english Calculate the entropy of the probability distribution obtained when measuring on the calculation basis.
+         * 
+         * @return Entropy
+         */
 	virtual double get_entropy() const override {
 		return measurement_distribution_entropy_host(this->data(), _dim, _cuda_stream, device_number);
 	}
@@ -111,6 +151,12 @@ public:
 	 * 量子状態のノルムは非ユニタリなゲートを作用した時に小さくなる。
 	 * @return ノルム
 	 */
+        /**
+         * \~english Calculate norm of quantum state
+         * 
+         * The norm of the quantum state becomes smaller when a non-unitary gate is applied.
+         * @return Norm
+         */
 	virtual double get_squared_norm() const override {
 		return state_norm_squared_host(this->data(), _dim, _cuda_stream, device_number);
 	}
@@ -120,6 +166,11 @@ public:
 	 *
 	 * @param norm 自身のノルム
 	 */
+        /**
+         * \~english Normalize quantum states
+         *
+         * @param norm Norm of itself
+         */
 	virtual void normalize(double squared_norm) override {
 		normalize_host(squared_norm, this->data(), _dim, _cuda_stream, device_number);
 	}
@@ -130,6 +181,11 @@ public:
 	 *
 	 * @return 生成された量子状態
 	 */
+	/**
+         * \~english Create a quantum state of the same size as a buffer.
+         * 
+         * @return Created quantum state
+         */
 	virtual QuantumStateBase* allocate_buffer() const override {
 		QuantumStateGpu* new_state = new QuantumStateGpu(this->_qubit_count, device_number);
 		return new_state;
@@ -139,6 +195,11 @@ public:
 	 *
 	 * @return 自身のディープコピー
 	 */
+        /**
+         * \~english Generate a deep copy of itself
+         * 
+         * @return Deep copy of itself
+         */
 	virtual QuantumStateBase* copy() const override {
 		QuantumStateGpu* new_state = new QuantumStateGpu(this->_qubit_count, device_number);
 		copy_quantum_state_from_device_to_device(new_state->data(), _state_vector, _dim, _cuda_stream, device_number);
@@ -147,6 +208,9 @@ public:
 	/**
 	 * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
 	 */
+        /**
+         * \~english Copy quantum state <code>state</code> to itself
+         */
 	virtual void load(const QuantumStateBase* _state) override {
 		if (_state->get_device_name() == "gpu") {
 			copy_quantum_state_from_device_to_device(this->data(), _state->data(), dim, _cuda_stream, device_number);
@@ -160,6 +224,9 @@ public:
 	/**
 	* \~japanese-en <code>state</code>の量子状態を自身へコピーする。
 	*/
+        /**
+         * \~english Copy quantum state <code>state</code> to itself
+         */
 	virtual void load(const std::vector<CPPCTYPE>& _state) override {
 		copy_quantum_state_from_cppstate_host(this->data(), _state.data(), dim, _cuda_stream, device_number);
 	}
@@ -167,12 +234,18 @@ public:
 	/**
 	* \~japanese-en <code>state</code>の量子状態を自身へコピーする。
 	*/
+        /**
+         * \~english Copy quantum state <code>state</code> to itself
+         */
 	virtual void load(const CPPCTYPE* _state) override {
 		copy_quantum_state_from_cppstate_host(this->data(), _state, dim, _cuda_stream, device_number);
 	}
 	/**
 	 * \~japanese-en 量子状態が配置されているメモリを保持するデバイス名を取得する。
 	 */
+        /**
+         * \~english Obtain the name of the device that holds the memory where the quantum state is located.
+         */
 	virtual const std::string get_device_name() const override { return "gpu"; }
 
 	/**
@@ -180,6 +253,11 @@ public:
 	 *
 	 * @return 複素ベクトルのポインタ
 	 */
+        /**
+         * \~english Obtain quantum state as an array of <code>std::complex\<double\></code> of C++
+         * 
+         * @return Pointer of complex vector
+         */
 	virtual CPPCTYPE* data_cpp() const override {
 		std::cerr << "Cannot reinterpret state vector on GPU to cpp complex vector. Use duplicate_data_cpp instead." << std::endl;
 		return NULL;
@@ -190,6 +268,11 @@ public:
 	*
 	* @return 複素ベクトルのポインタ
 	*/
+        /**
+         * \~english Obtain quantum state as an array of <code>std::complex\<double\></code> of C++
+         * 
+         * @return Pointer of complex vector
+         */
 	virtual CTYPE* data_c() const override {
 		std::cerr << "Cannot reinterpret state vector on GPU to C complex vector. Use duplicate_data_cpp instead." << std::endl;
 		return NULL;
@@ -200,6 +283,12 @@ public:
 	 *
 	 * @return 複素ベクトルのポインタ
 	 */
+        /**
+         * \~english Obtain quantum state as an array of complex type of csim
+         * 
+         * @return Pointer of complex vector
+         */
+
 	virtual void* data() const override {
 		return reinterpret_cast<void*>(this->_state_vector);
 	}
@@ -219,12 +308,18 @@ public:
 	/**
 	 * \~japanese-en 量子状態を足しこむ
 	 */
+	/**
+         * \~english Add quantum state
+         */
 	virtual void add_state(const QuantumStateBase* state) override {
 		state_add_host(state->data(), this->data(), this->dim, _cuda_stream, device_number);
 	}
 	/**
 	 * \~japanese-en 複素数をかける
 	 */
+        /**
+         * \~english Multiply complex number
+         */
 	virtual void multiply_coef(CPPCTYPE coef) override {
 		state_multiply_host(coef, this->data(), this->dim, _cuda_stream, device_number);
 	}
@@ -243,6 +338,12 @@ public:
 	 * @param[in] sampling_count サンプリングを行う回数
 	 * @return サンプルされた値のリスト
 	 */
+        /**
+         * \~english Sampling the computational basis when measuring the quantum state
+         *
+         * @param[in] sampling_count Number of times sampling is performed
+         * @return List of sampled values
+         */
 	virtual std::vector<ITYPE> sampling(UINT sampling_count) override {
 		std::vector<double> stacked_prob;
 		std::vector<ITYPE> result;
@@ -286,6 +387,13 @@ namespace state {
 	* @param[in] state_ket 内積のケット側の量子状態
 	* @return 内積の値
 	*/
+       /**
+        * \~english Calculate inner product between quantum states
+        *
+        * @param[in] state_bra Bra side quantum state of inner product
+        * @param[in] state_ket Ket side quantum state of inner product
+        * @return Value of inner product
+        */
 	CPPCTYPE DllExport inner_product(const QuantumStateGpu* state_bra, const QuantumStateGpu* state_ket);
 }
 

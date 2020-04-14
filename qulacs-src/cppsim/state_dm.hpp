@@ -25,6 +25,11 @@ public:
      * 
      * @param qubit_count_ 量子ビット数
      */
+    /**
+     * \~english Constructor
+     * 
+     * @param qubit_count_ Qubit number
+     */
     DensityMatrixCpu(UINT qubit_count_) : QuantumStateBase(qubit_count_, false){
         this->_density_matrix = reinterpret_cast<CPPCTYPE*>(dm_allocate_quantum_state(this->_dim));
         dm_initialize_quantum_state(this->data_c(), _dim);
@@ -32,11 +37,17 @@ public:
     /**
      * \~japanese-en デストラクタ
      */
+    /**
+     * \~english Destructor
+     */
     virtual ~DensityMatrixCpu(){
         dm_release_quantum_state(this->data_c());
     }
     /**
      * \~japanese-en 量子状態を計算基底の0状態に初期化する
+     */
+    /**
+     * \~english Initialize the quantum state to the 0 state of the computational basis
      */
     virtual void set_zero_state() override{
         dm_initialize_quantum_state(this->data_c(), _dim);
@@ -45,6 +56,11 @@ public:
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
      * 
      * @param comp_basis 初期化する基底を表す整数
+     */
+    /**
+     * \~english Initialize quantum state to basis state of <code>comp_basis</code>
+     * 
+     * @param comp_basis An integer indicating the initializing basis
      */
     virtual void set_computational_basis(ITYPE comp_basis)  override {
         if (comp_basis >= (ITYPE)(1ULL << this->qubit_count)) {
@@ -58,11 +74,17 @@ public:
     /**
      * \~japanese-en 量子状態をHaar randomにサンプリングされた量子状態に初期化する
      */
+     /**
+     * \~english Initialize the quantum state to Haar random sampled quantum states
+     */
     virtual void set_Haar_random_state() override{
 		this->set_Haar_random_state(random.int32());
     }
     /**
      * \~japanese-en 量子状態をシードを用いてHaar randomにサンプリングされた量子状態に初期化する
+     */
+     /**
+     * \~english Initialize the quantum state to Haar random sampled quantum states using seed
      */
     virtual void set_Haar_random_state(UINT seed) override {
 		QuantumStateCpu* pure_state = new QuantumStateCpu(qubit_count);
@@ -74,6 +96,13 @@ public:
      * \~japanese-en <code>target_qubit_index</code>の添え字の量子ビットを測定した時、0が観測される確率を計算する。
      * 
      * 量子状態は変更しない。
+     * @param target_qubit_index 
+     * @return double 
+     */
+    /**
+     * \~english Calculate the probability of observing 0 when measuring the qubit at the index of <code>target_qubit_index</code>.
+     * 
+     * The quantum state does not change.
      * @param target_qubit_index 
      * @return double 
      */
@@ -89,6 +118,12 @@ public:
      * 
      * @param measured_values 量子ビット数と同じ長さの0,1,2の配列。0,1はその値が観測され、2は測定をしないことを表す。
      * @return 計算された周辺確率
+     */
+    /**
+     * \~english Calculate marginal probabilities when measuring multiple qubits
+     * 
+     * @param measured_values An array of 0,1,2 with the same length as the number of qubits. 0,1 means that the value is observed, and 2 means no measurement.
+     * @return Calculated marginal probabilities
      */
     virtual double get_marginal_probability(std::vector<UINT> measured_values) const override {
         if (measured_values.size() != this->qubit_count) {
@@ -112,6 +147,11 @@ public:
      * 
      * @return エントロピー
      */
+    /**
+     * \~english Calculate the entropy of the probability distribution obtained when measuring on the calculation basis.
+     * 
+     * @return Entropy
+     */
     virtual double get_entropy() const override{
         return dm_measurement_distribution_entropy(this->data_c(), _dim);
     }
@@ -122,6 +162,12 @@ public:
      * 量子状態のノルムは非ユニタリなゲートを作用した時に小さくなる。
      * @return ノルム
      */
+    /**
+     * \~english Calculate norm of quantum state
+     * 
+     * The norm of the quantum state becomes smaller when a non-unitary gate is applied.
+     * @return Norm
+     */
     virtual double get_squared_norm() const override {
         return dm_state_norm_squared(this->data_c(),_dim);
     }
@@ -130,6 +176,11 @@ public:
      * \~japanese-en 量子状態を正規化する
      *
      * @param norm 自身のノルム
+     */
+    /**
+     * \~english Normalize quantum states
+     *
+     * @param norm Norm of itself
      */
     virtual void normalize(double squared_norm) override{
         dm_normalize(squared_norm, this->data_c(), _dim);
@@ -141,6 +192,11 @@ public:
      * 
      * @return 生成された量子状態
      */
+    /**
+     * \~english Create a quantum state of the same size as a buffer.
+     * 
+     * @return Created quantum state
+     */
     virtual QuantumStateBase* allocate_buffer() const override {
         DensityMatrixCpu* new_state = new DensityMatrixCpu(this->_qubit_count);
         return new_state;
@@ -150,6 +206,11 @@ public:
      * 
      * @return 自身のディープコピー
      */
+    /**
+     * \~english Generate a deep copy of itself
+     * 
+     * @return Deep copy of itself
+     */
     virtual QuantumStateBase* copy() const override {
         DensityMatrixCpu* new_state = new DensityMatrixCpu(this->_qubit_count);
         memcpy(new_state->data_cpp(), _density_matrix, (size_t)(sizeof(CPPCTYPE)*_dim*_dim));
@@ -158,6 +219,9 @@ public:
     }
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
+     */
+    /**
+     * \~english Copy quantum state <code>state</code> to itself
      */
     virtual void load(const QuantumStateBase* _state) {
         if (_state->qubit_count != this->qubit_count) {
@@ -180,6 +244,9 @@ public:
 	}
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
+     */
+    /**
+     * \~english Copy quantum state <code>state</code> to itself
      */
     virtual void load(const std::vector<CPPCTYPE>& _state) {
         if (_state.size() != _dim && _state.size() != _dim*_dim) {
@@ -218,6 +285,9 @@ public:
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
+    /**
+     * \~english Copy quantum state <code>state</code> to itself
+     */
     virtual void load(const CPPCTYPE* _state) {
         memcpy(this->data_cpp(), _state, (size_t)(sizeof(CPPCTYPE)*_dim*_dim));
     }
@@ -225,10 +295,16 @@ public:
     /**
      * \~japanese-en 量子状態が配置されているメモリを保持するデバイス名を取得する。
      */
+    /**
+     * \~english Obtain the name of the device that holds the memory where the quantum state is located.
+     */
     virtual const std::string get_device_name() const override {return "cpu";}
 
     /**
      * \~japanese-en 量子状態のポインタをvoid*型として返す
+     */
+    /**
+     * \~english Return the pointer of quantum state as void* type
      */
     virtual void* data() const override {
         return reinterpret_cast<void*>(this->_density_matrix);
@@ -238,12 +314,23 @@ public:
      * 
      * @return 複素ベクトルのポインタ
      */
+    /**
+     * \~english Obtain quantum state as an array of <code>std::complex\<double\></code> of C++
+     * 
+     * @return Pointer of complex vector
+     */
     virtual CPPCTYPE* data_cpp() const override { return this->_density_matrix; }
     /**
      * \~japanese-en 量子状態をcsimのComplex型の配列として取得する
      * 
      * @return 複素ベクトルのポインタ
      */
+    /**
+     * \~english Obtain quantum state as an array of complex type of csim
+     * 
+     * @return Pointer of complex vector
+     */
+
     virtual CTYPE* data_c() const override {
         return reinterpret_cast<CTYPE*>(this->_density_matrix);
     }
@@ -264,6 +351,9 @@ public:
     /**
      * \~japanese-en 量子状態を足しこむ
      */
+    /**
+     * \~english Add quantum state
+     */
 	virtual void add_state(const QuantumStateBase* state) override {
 		if (state->is_state_vector()) {
 			std::cerr << "add state between density matrix and state vector is not implemented" << std::endl;
@@ -274,6 +364,9 @@ public:
 	/**
 	 * \~japanese-en 複素数をかける
 	 */
+        /**
+         * \~english Multiply complex number
+         */
 	virtual void multiply_coef(CPPCTYPE coef) override {
 #ifdef _MSC_VER
 		dm_state_multiply(coef, this->data_c(), this->dim);
@@ -292,6 +385,12 @@ public:
      *
      * @param[in] sampling_count サンプリングを行う回数
      * @return サンプルされた値のリスト
+     */
+    /**
+     * \~english Sampling the computational basis when measuring the quantum state
+     *
+     * @param[in] sampling_count Number of times sampling is performed
+     * @return List of sampled values
      */
     virtual std::vector<ITYPE> sampling(UINT sampling_count) override{
         std::vector<double> stacked_prob;

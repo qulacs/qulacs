@@ -3,6 +3,11 @@
  * 
  * @file utility.hpp
  */
+/**
+ * \~english Utility functions and classes
+ * 
+ * @file utility.hpp
+ */
 
 #pragma once
 
@@ -19,6 +24,12 @@
  * 
  * @param[in] x 1になっているビットの数を数える整数
  * @return 1になっているビットの数
+ */
+/**
+ * \~english Count the number of bits that are 1
+ * 
+ * @param[in] x An integer that counts the number of bits that are 1
+ * @return Number of bits that are 1
  */
 inline static UINT count_population_cpp(ITYPE x)
 {
@@ -43,10 +54,19 @@ inline static UINT count_population_cpp(ITYPE x)
  * @param[out] matrix 作成する行列を格納する行列の参照
  * @param[in] pauli_id_list 生成するパウリ演算子のIDのリスト。\f${I,X,Y,Z}\f$が\f${0,1,2,3}\f$に対応する。
  */
+/**
+ * \~english Generate Pauli matrix as <code>matrix</code> from <code>pauli_id_list</code>.
+ * 
+ * @param[out] matrix Reference to the matrix that stores the matrix to be created
+ * @param[in] pauli_id_list List of IDs of Pauli operators to be generated.\f${I,X,Y,Z}\f$ correspond to \f${0,1,2,3}\f$.
+ */
 void DllExport get_Pauli_matrix(ComplexMatrix& matrix, const std::vector<UINT>& pauli_id_list) ;
 
 /**
  * \~japanese-en 乱数を管理するクラス
+ */
+/**
+ * \~english A class that manages random numbers
  */
 class Random{
 private:
@@ -56,6 +76,9 @@ private:
 public:
     /**
      * \~japanese-en コンストラクタ
+     */
+    /**
+     * \~english Constructor
      */
     Random(): uniform_dist(0,1), normal_dist(0,1){
         std::random_device rd;
@@ -67,6 +90,11 @@ public:
      * 
      * @param seed シード値
      */
+    /**
+     * \~english Set seed
+     * 
+     * @param seed Seed value
+     */
     void set_seed(uint64_t seed){
         mt.seed(seed);
     }
@@ -75,12 +103,22 @@ public:
      * 
      * @return 生成された乱数
      */
+    /**
+     * \~english Generate random numbers from uniform distribution of \f$[0,1)\f$
+     * 
+     * @return Generated random numbers
+     */
     double uniform() {return uniform_dist(mt);}
 
     /**
-     * \~japanese-en 期待値0、分散1の正規分から乱数を生成する
+     * \~japanese-en 期待値0、分散1の正規分布から乱数を生成する
      * 
      * @return double 生成された乱数
+     */
+    /**
+     * \~english Generate random numbers from normal distribution with expecation value 0 and variance 1
+     * 
+     * @return Generated random numbers
      */
     double normal(){return normal_dist(mt);}
 
@@ -89,12 +127,22 @@ public:
      * 
      * @return 生成された乱数
      */
+    /**
+     * \~english Generate random numbers as 64-bit integer
+     * 
+     * @return Generated random numbers
+     */
     unsigned long long int64() { return mt(); }
 
     /**
      * \~japanese-en 32bit整数の乱数を生成する
      * 
      * @return 生成された乱数
+     */
+    /**
+     * \~english Generate random numbers as 32-bit integer
+     * 
+     * @return Generated random numbers
      */
     unsigned long int32() { return mt() % ULONG_MAX; }
 };
@@ -104,6 +152,11 @@ public:
  * 
  * 一時停止を行うことで、必要な箇所だけの積算時間を計測する。
  */
+/**
+ * \~english Utility class for time measurement
+ * 
+ * By performing a pause, the integration time of only the necessary parts is measured.
+ */
 class Timer{
 private:
     std::chrono::system_clock::time_point last;
@@ -112,6 +165,9 @@ private:
 public:
     /**
      * \~japanese-en コンストラクタ
+     */
+    /**
+     * \~english Constructor
      */
     Timer(){
         reset();
@@ -123,16 +179,27 @@ public:
      * 
      * 蓄積された時間を0にし、測定の起点となる時間を0にする。
      */
+    /**
+     * \~english Reset time measurement
+     * 
+     * The accumulated time is set to 0, and the staring time of measurement is set to 0.
+     */
     void reset(){
         stock=0;
         last = std::chrono::system_clock::now();
     }
 
     /**
-     * \~japanese-en 現在の経過時間を取得する
+     * \~japanese-en Obtain current elapsed time
      * 
      * 経過時間を取得する。単位は秒で返される。一時停止を用いて時間を積算している場合は、積算している時間も併せた値が帰る。
      * @return 経過時間　単位は秒
+     */
+    /**
+     * \~english 
+     * 
+     * Obtain elapsed time. Units are returned in seconds. When the time is accumulated using the pause, the value including the accumulated time is returned.
+     * @return Elapsed time. Unit is seconds.
      */
     double elapsed(){
         if (is_stop) return stock*1e-6;
@@ -147,6 +214,11 @@ public:
      * 
      * タイマーを一時停止し、現在までの経過時間を蓄積中の時間に加える。
      */
+    /**
+     * \~english Pause timer
+     * 
+     * Pause the timer and add the elapsed time to the current time.
+     */
     void temporal_stop(){
         if (!is_stop) {
             auto duration = std::chrono::system_clock::now() - last;
@@ -159,6 +231,11 @@ public:
      * \~japanese-en タイマーを再開する
      * 
      * タイマーを再開し、新たな時間計測のための起点を設定する。
+     */
+    /**
+     * \~english Restart timer
+     * 
+     * Restart the timer and set the starting point for the new time measurement.
      */
     void temporal_resume(){
         if (is_stop) {
@@ -176,12 +253,24 @@ public:
  * @param[in] delim 区切り文字列。
  * @return 第一引数に含まれる区切り文字列で区切った文字列。(example: split("aabcaaca", "bc") -> {"aa", "aa", "a"}
  */
+/**
+ * \~english Returns a list of the first argument string separated by the second argument string. This function is non-destructive with respect to the first argument.
+ * 
+ * @param[in] s The string to split.
+ * @param[in] delim Separating string
+ * @return String separated by the separating string included in the first argument.(example: split("aabcaaca", "bc") -> {"aa", "aa", "a"}
+ */
 DllExport std::vector<std::string> split(const std::string &s, const std::string &delim);
 
 /**
  * \~japanese-en 引数にとった文字列を、PauliOperatorで渡すことができる形に整形します。この関数は第一引数に与えた文字列に破壊的な変更を加えます。
  * 
  * @param[in] ops 演算子と添字が隣り合った文字列。(example: "X12 Y13 Z5" に対して, "X 12 Y 13 Z 5"のように変更を加えます。)
+ */
+/**
+ * \~english Format the character string taken as an argument so that it can be passed by PauliOperator. This function makes a destructive change to the string given as the first argument.
+ * 
+ * @param[in] ops String with adjacent operator and subscript.(example: "X12 Y13 Z5" changes into "X 12 Y 13 Z 5".)
  */
 DllExport void chfmt(std::string& ops);
 
@@ -193,5 +282,11 @@ DllExport std::tuple<double, double, std::string> parse_openfermion_line(std::st
  *
  * @param[in] index_list チェックする配列
  * @return 重複がある場合にtrue、ない場合にfalse
+ */
+/**
+ * \~english Check for duplicate indices in the array.
+ *
+ * @param[in] index_list Array to check
+ * @return True if there is a duplicate, false otherwise.
  */
 bool check_is_unique_index_list(std::vector<UINT> index_list);
