@@ -9,7 +9,7 @@ Qulacsは、C / C ++で実装されており、Pythonインターフェイスも
 
 Qulacsは、`藤井研究室 <http://quantphys.org/wp/qinfp/>`_ で開発され、 `QunaSys <http://www.qunasys.com/>`_ による新機能の開発とメンテナンスが行われています。
 
-:doc:`intro/About_Qulacs`.
+:doc:`intro/0_about`.
 
 
 `Github repository
@@ -26,90 +26,35 @@ Qulacsは、`藤井研究室 <http://quantphys.org/wp/qinfp/>`_ で開発され�
    pip install qulacs
 
 
-  
+トラブルシューティング: :doc:`intro/2_faq`.
 
-サポートされているオペレーションシステム
-"""""""""""""""""
-
-
-- Ubuntu 16.04
-- MacOS X Sierra
-- Windows 10
-
-
-トラブルシューティング
-""""""""""""""""""
-:doc:`intro/TroubleShooting`
-
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: First steps
-
-   intro/About_Qulacs
-   intro/HowToInstall
-   intro/TroubleShooting
-
-基本ガイド
------------------------------------
-
-* **Installation**: :doc:`basic/install`.
-
-* **Tutorials**: :doc:`basics/Tutorial_python_first` | :doc:`basics/Tutorial_CPP`.
-
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Getting started
-   
-   basic/install
-   basic/Tutorial_python_first
-   basic/Tutorial_CPP
-
-
-Advanced features
-----------------------------------
-
-Brief description of the Advanced feature
-
-* **Advanced Tutorials**: :doc:`guide/Tutorial_python_advance`.
-
-* **User Manual**:
-
-* **Qulacs Cookbooks**:
-
-* **C++ API reference**: :doc:`api/cpp_library_root`.
-
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Advanced features
-   
-   guide/Tutorial_python_advance
-   guide/guide1
-   api/cpp_library_root
-
-
-How to contribute to this document
-----------------------------------
-
-We come contributions to Qulacs Documentation!
-
-* **Contribution Guide**: :doc:`write/readme`.
-
-* **TODOs**
-
-* **Internationalization**
 
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :glob:
-   :caption: How to write this doc
+   :caption: 入門
+
+   intro/0_about
+   intro/1_install
+   intro/2_faq
+   intro/3_usage
+
+.. toctree::
+   :maxdepth: 1
+   :caption: チュートリアル
    
-   write/readme
+   intro/4.1_python_tutorial
+   guide/2.0_python_advanced
+   intro/4.2_cpp_tutorial
+
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: API リファレンス
+   :hidden:
+
+   pyRef/modules
+   api/cpp_library_root
+
 
 
