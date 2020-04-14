@@ -22,6 +22,8 @@ extensions = [
 
 exclude_patterns = ['_build', '**.ipynb_checkpoints']
 nbsphinx_allow_errors = True
+enable_inline_math = True
+
 
 # source files for shpinx
 source_suffix = {
