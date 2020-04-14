@@ -4,12 +4,12 @@ Qulacs ドキュメンテーション
 .. meta::
    :description lang=en: qulacs documentation
 
-Qulacsは、大きな、ノイズの多い、またはパラメトリックな量子回路をシミュレートするための高速な量子回路シミュレータです。
-Qulacsは、C / C ++およびPythonインターフェイスで実装され、高速回路シミュレーションと高い操作性の両方を実現しました。
+Qulacsは、高速な量子回路シミュレータであり、大きな量子回路やノイズがあったり、パラメトリックな量子回路にも対応しております。
+Qulacsは、C / C ++で実装されており、Pythonインターフェイスもあるため、高速回路シミュレーションと高い操作性の両立しました。
 
-Qulacsは、`藤井研究室 <http://quantphys.org/wp/qinfp/>`_ で開発されました。 `QunaSys <http://www.qunasys.com/>`_ による新機能の維持と開発。
+Qulacsは、`藤井研究室 <http://quantphys.org/wp/qinfp/>`_ で開発され、 `QunaSys <http://www.qunasys.com/>`_ による新機能の開発とメンテナンスが行われています。
 
-:doc:`intro/About_Qulacs`.
+:doc:`intro/0_about`.
 
 
 `Github repository
@@ -19,97 +19,42 @@ Qulacsは、`藤井研究室 <http://quantphys.org/wp/qinfp/>`_ で開発され�
 
 
 
-インストール
+インストール方法
 """"""""""""""""""
 ::
   
    pip install qulacs
 
 
-  
+トラブルシューティング: :doc:`intro/2_faq`.
 
-サポートされているシステム
-"""""""""""""""""
-
-
-- Ubuntu 16.04
-- MacOS X Sierra
-- Windows 10
-
-
-診断
-""""""""""""""""""
-:doc:`intro/TroubleShooting`
-
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: First steps
-
-   intro/About_Qulacs
-   intro/HowToInstall
-   intro/TroubleShooting
-
-概要
------------------------------------
-
-* **Installation**: :doc:`basic/install`.
-
-* **Tutorials**: :doc:`basics/Tutorial_python_first` | :doc:`basics/Tutorial_CPP`.
-
-
-.. toctree::
-   :maxdepth: 2
-   :hidden:
-   :caption: Getting started
-   
-   basic/install
-   basic/Tutorial_python_first
-   basic/Tutorial_CPP
-
-
-Advanced features
-----------------------------------
-
-Brief description of the Advanced feature
-
-* **Advanced Tutorials**: :doc:`guide/Tutorial_python_advance`.
-
-* **User Manual**:
-
-* **Qulacs Cookbooks**:
-
-* **C++ API reference**: :doc:`api/cpp_library_root`.
-
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: Advanced features
-   
-   guide/Tutorial_python_advance
-   guide/guide1
-   api/cpp_library_root
-
-
-How to contribute to this document
-----------------------------------
-
-We come contributions to Qulacs Documentation!
-
-* **Contribution Guide**: :doc:`write/readme`.
-
-* **TODOs**
-
-* **Internationalization**
 
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :glob:
-   :caption: How to write this doc
+   :caption: 入門
+
+   intro/0_about
+   intro/1_install
+   intro/2_faq
+   intro/3_usage
+
+.. toctree::
+   :maxdepth: 1
+   :caption: チュートリアル
    
-   write/readme
+   intro/4.1_python_tutorial
+   guide/2.0_python_advanced
+   intro/4.2_cpp_tutorial
+
+   
+.. toctree::
+   :maxdepth: 2
+   :caption: API リファレンス
+   :hidden:
+
+   pyRef/modules
+   api/cpp_library_root
+
 
 
