@@ -1,14 +1,13 @@
-Qulacs Documentation
+Qulacs ドキュメンテーション
 ======================================
 
 .. meta::
    :description lang=en: qulacs documentation
 
-Qulacs is a fast quantum circuit simulator for simulating large, noisy, or parametric quantum circuits.
-Implemented in C/C++ and with python interface, Qulacs achieved both high speed circuit simulation and high usability.
+Qulacsは、高速な量子回路シミュレータであり、大きな量子回路やノイズがあったり、パラメトリックな量子回路にも対応しております。
+Qulacsは、C / C ++で実装されており、Pythonインターフェイスもあるため、高速回路シミュレーションと高い操作性の両立しました。
 
-Qulacs was developed in Prof. `Fujii's group <http://quantphys.org/wp/qinfp/>`_. Maintained and developing new features by `QunaSys <http://www.qunasys.com/>`_.
-
+Qulacsは、`藤井研究室 <http://quantphys.org/wp/qinfp/>`_ で開発され、 `QunaSys <http://www.qunasys.com/>`_ による新機能の開発とメンテナンスが行われています。
 
 .. raw :: html
 
@@ -17,9 +16,10 @@ Qulacs was developed in Prof. `Fujii's group <http://quantphys.org/wp/qinfp/>`_.
       display: block;
       margin-left: auto;
       margin-right: auto;
-      width: 40%;
+      width: 50%;
   }
   .column-h {
+    height: 30vh;
     width: 100%;
   }
    </style>
@@ -27,7 +27,7 @@ Qulacs was developed in Prof. `Fujii's group <http://quantphys.org/wp/qinfp/>`_.
    <div class="column-h">
       <div class="center">
       <a href="https://www.github.com/qulacs/qulacs">
-            <img align="middle" src="_static/images/github.png" width="160">
+         <img align="middle" src="_static/images/github.png" width="160">
          GitHub
       </a>
       </div>
@@ -52,21 +52,20 @@ Qulacs was developed in Prof. `Fujii's group <http://quantphys.org/wp/qinfp/>`_.
 
 
 
-
-Get Started
------------
+インストール方法
+""""""""""""""""""
 ::
   
    pip install qulacs
 
-Detailed instructions about installation in :doc:`intro/1_install`.
-Having trouble starting? see :doc:`intro/2_faq`.
-Basic usage of qulacs in Python and C++: :doc:`intro/3_usage`.
+
+トラブルシューティング: :doc:`intro/2_faq`.
+
 
 .. toctree::
    :maxdepth: 1
    :hidden:
-   :caption: Get Started
+   :caption: 入門
 
    intro/0_about
    intro/1_install
@@ -75,39 +74,20 @@ Basic usage of qulacs in Python and C++: :doc:`intro/3_usage`.
 
 .. toctree::
    :maxdepth: 1
-   :caption: Tutorials
+   :caption: チュートリアル
    
    intro/4.1_python_tutorial
+   guide/2.0_python_advanced
    intro/4.2_cpp_tutorial
 
-.. toctree::
-   :maxdepth: 2
-   :caption: User Manual
    
-   guide/2.0_python_advanced
-
 .. toctree::
    :maxdepth: 2
-   :caption: Applications
-
-   apply/0_overview
-
-
-.. toctree::
-   :maxdepth: 2
-   :caption: API reference
+   :caption: API リファレンス
    :hidden:
 
    pyRef/modules
    api/cpp_library_root
-   
 
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Contributing
-
-   write/0_readme
-   
 
 

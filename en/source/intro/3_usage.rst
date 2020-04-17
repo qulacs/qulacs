@@ -1,11 +1,12 @@
 Usage
 -------------
 
-| See the following document for more detail.
+| See the following documents for more detail.
 
 | :doc:`4.1_python_tutorial`.
 | :doc:`4.2_cpp_tutorial`.
-| `Examples`_.
+| :doc:`../guide/2.0_python_advanced`.
+| :doc:`../apply/0_overview`.
 | :doc:`../pyRef/modules`.
 | :doc:`../api/cpp_library_root`.
 
