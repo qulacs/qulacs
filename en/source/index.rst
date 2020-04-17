@@ -17,10 +17,9 @@ Qulacs was developed in Prof. `Fujii's group <http://quantphys.org/wp/qinfp/>`_.
       display: block;
       margin-left: auto;
       margin-right: auto;
-      width: 50%;
+      width: 40%;
   }
   .column-h {
-    height: 30vh;
     width: 100%;
   }
    </style>
@@ -84,7 +83,6 @@ Basic usage of qulacs in Python and C++: :doc:`intro/3_usage`.
 .. toctree::
    :maxdepth: 2
    :caption: User Manual
-   :hidden:
    
    guide/2.0_python_advanced
 
