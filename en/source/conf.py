@@ -1,6 +1,6 @@
 import textwrap
 
-project = "Qulacs Documentation"
+project = "Qulacs"
 
 language = 'en'
 locale_dirs = ['locale/']
@@ -100,3 +100,4 @@ templates_path = ["_templates"]
 html_static_path = ['_static']
 
 copyright = '2018 Qulacs Authors'
+version = '0.1.9'
