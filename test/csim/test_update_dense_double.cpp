@@ -94,3 +94,4 @@ TEST(UpdateTest, TwoQubitDenseMatrixTest) {
 #endif
 }
 
+
