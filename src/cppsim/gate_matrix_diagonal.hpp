@@ -125,7 +125,7 @@ public:
 	 * @param gate 情報の出力を行うゲート
 	 * @return 受け取ったストリーム
 	 */
-	friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumGateSparseMatrix& gate);
+	friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumGateDiagonalMatrix& gate);
 
 	/**
 	 * \~japanese-en ゲートの情報を文字列で出力する
@@ -134,6 +134,6 @@ public:
 	 * @param gate 情報の出力を行うゲート
 	 * @return 受け取ったストリーム
 	 */
-	friend DllExport std::ostream& operator<<(std::ostream& os, QuantumGateSparseMatrix* gate);
+	friend DllExport std::ostream& operator<<(std::ostream& os, QuantumGateDiagonalMatrix* gate);
 
 };
