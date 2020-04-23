@@ -43,6 +43,17 @@ public:
      */
     void optimize(QuantumCircuit* circuit, UINT max_block_size=2);
 
+	/**
+	 * \~japanese-en 与えられた量子回路のゲートを指定されたブロックまで纏める。
+	 *
+	 * 与えられた量子回路において、若い添え字から任意の二つのゲートを選び、二つが他のゲートに影響を与えず合成可能なら合成を行う。
+	 * これを合成可能なペアがなくなるまで繰り返す。
+	 * 二つのゲートが合成可能であるとは、二つのゲートそれぞれについて隣接するゲートとの交換を繰り返し、二つのゲートが隣接した位置まで移動できることを指す。
+	 *
+	 * @param[in] circuit 量子回路のインスタンス
+	 */
+	void optimize_light(QuantumCircuit* circuit);
+
     /**
      * \~japanese-en 量子回路を纏めて一つの巨大な量子ゲートにする
      * 
