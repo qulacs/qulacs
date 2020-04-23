@@ -299,11 +299,29 @@ PYBIND11_MODULE(qulacs, m) {
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to CZ.");
 		return ptr;
 	}, pybind11::return_value_policy::take_ownership, "Create CZ gate", py::arg("control"), py::arg("target"));
-    mgate.def("SWAP", [](UINT target_index1, UINT target_index2) {
+	mgate.def("SWAP", [](UINT target_index1, UINT target_index2) {
 		auto ptr = gate::SWAP(target_index1, target_index2);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to SWAP.");
 		return ptr;
 	}, pybind11::return_value_policy::take_ownership, "Create SWAP gate", py::arg("target1"), py::arg("target2")); 
+
+	mgate.def("TOFFOLI", [](UINT control_index1, UINT control_index2, UINT target_index) {
+		auto ptr = gate::X(target_index);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to TOFFOLI.");
+		auto toffoli = gate::to_matrix_gate(ptr);
+		toffoli->add_control_qubit(control_index1, 1);
+		toffoli->add_control_qubit(control_index2, 1);
+		delete ptr;
+		return toffoli;
+	}, pybind11::return_value_policy::take_ownership, "Create TOFFOLI gate", py::arg("control1"), py::arg("control2"), py::arg("target"));
+	mgate.def("FREDKIN", [](UINT control_index, UINT target_index1, UINT target_index2) {
+		auto ptr = gate::SWAP(target_index1, target_index2);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to FREDKIN.");
+		auto fredkin = gate::to_matrix_gate(ptr);
+		fredkin->add_control_qubit(control_index, 1);
+		delete ptr;
+		return fredkin;
+	}, pybind11::return_value_policy::take_ownership, "Create FREDKIN gate", py::arg("control"), py::arg("target1"), py::arg("target2"));
 
     mgate.def("Pauli", [](std::vector<unsigned int> target_qubit_index_list, std::vector<unsigned int> pauli_ids) {
 		if (target_qubit_index_list.size() != pauli_ids.size()) throw std::invalid_argument("Size of qubit list and pauli list must be equal.");
@@ -461,7 +479,8 @@ PYBIND11_MODULE(qulacs, m) {
         .def("add_random_unitary_gate", &QuantumCircuit::add_random_unitary_gate, "Add random unitary gate", py::arg("index_list"))
         .def("add_diagonal_observable_rotation_gate", &QuantumCircuit::add_diagonal_observable_rotation_gate, "Add diagonal observable rotation gate", py::arg("observable"), py::arg("angle"))
         .def("add_observable_rotation_gate", &QuantumCircuit::add_observable_rotation_gate, "Add observable rotation gate", py::arg("observable"), py::arg("angle"), py::arg("repeat"))
-        .def("__repr__", [](const QuantumCircuit &p) {return p.to_string(); });
+			
+		.def("__repr__", [](const QuantumCircuit &p) {return p.to_string(); });
     ;
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(m, "ParametricQuantumCircuit")
