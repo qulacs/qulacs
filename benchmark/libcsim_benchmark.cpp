@@ -186,7 +186,7 @@ double benchmark_state_stat_func(UINT n, std::function<T(CTYPE*, ITYPE)>func) {
 };
 
 double benchmark_state_norm(UINT n) {
-	return benchmark_state_func(n, state_norm);
+	return benchmark_state_func(n, state_norm_squared);
 }
 
 double benchmark_gate_single_func(UINT n, UINT target, std::function<void(UINT, CTYPE*, ITYPE)>func) {

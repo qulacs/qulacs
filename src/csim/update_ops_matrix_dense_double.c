@@ -16,6 +16,12 @@
 #include <x86intrin.h>
 #endif
 
+#ifdef _USE_SIMD
+void double_qubit_dense_matrix_gate_simd_high(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE mat[16], CTYPE* vec, ITYPE dim);
+void double_qubit_dense_matrix_gate_simd_middle(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE mat[16], CTYPE* vec, ITYPE dim);
+void double_qubit_dense_matrix_gate_simd_low(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE mat[16], CTYPE* vec, ITYPE dim);
+#endif
+
 void double_qubit_dense_matrix_gate_c(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim) {
 #ifdef _OPENMP
 	UINT threshold = 12;
