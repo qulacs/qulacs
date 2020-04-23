@@ -51,7 +51,7 @@ TEST(UpdateTest, MultiQubitDiagonalMatrixTest) {
 			//std::cout << test_state << std::endl;
 			//std::cout << diag << std::endl;
 			//std::cout << matrix << std::endl;
-			multi_qubit_diagonal_matrix_gate(index_list.data(), gate_size, diag.data(), state, dim);
+			multi_qubit_diagonal_matrix_gate(index_list.data(), gate_size, (CTYPE*)diag.data(), state, dim);
 			test_state = matrix * test_state;
 			state_equal(state, test_state, dim, "diagonal gate");
 		}
@@ -92,7 +92,7 @@ TEST(UpdateTest, MultiQubitDiagonalMatrixTest2) {
 			//std::cout << test_state << std::endl;
 			//std::cout << diag << std::endl;
 			//std::cout << matrix << std::endl;
-			multi_qubit_control_multi_qubit_diagonal_matrix_gate({}, {}, 0, index_list.data(), gate_size, diag.data(), state, dim);
+			multi_qubit_control_multi_qubit_diagonal_matrix_gate({}, {}, 0, index_list.data(), gate_size, (CTYPE*)diag.data(), state, dim);
 			test_state = matrix * test_state;
 			state_equal(state, test_state, dim, "diagonal gate");
 		}
