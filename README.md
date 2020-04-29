@@ -27,28 +27,51 @@ pip install qulacs-gpu
 - Many utility functions for research
 
 ## Performance
-- Compared processing time with following libraries on October 1st, 2018
-    - Qulacs CPU & GPU (ours)
-    - [Cirq](https://github.com/quantumlib/Cirq)
-    - [ProjectQ](https://github.com/ProjectQ-Framework/ProjectQ)
-    - [pyQuil](https://github.com/rigetticomputing/pyquil)
-    - [Q#](https://github.com/Microsoft/Quantum)
-    - [Qiskit Terra QASM Simulator](https://github.com/Qiskit/qiskit-terra/tree/master/src/qasm-simulator-cpp)
-    - [Qiskit Aer](https://github.com/Qiskit/qiskit-aer)
-    - [QuPy CPU & GPU](https://github.com/ken-nakanishi/qupy)
+- Compared following libraries on January, 2020
 
-- Test environment:
-    - 100 shot sampling of 10 layers of all random rotation X gate and 9 layers of all neighboring CNOT
-    - Intel Core i7-8700 CPU
-    - NVIDIA GTX 1050 Ti GPU
-    - OpenMP enabled
-    - MKL enabled (numpy runs in multi thread)
-    - Circuit compression disabled
-    
-![benchmark](https://storage.googleapis.com/qunasys/Qulacs_bench.png)
+|       Package        | Version |
+| -------------------- | ------- |
+| [Qulacs GPU](https://github.com/qulacs/qulacs)     | 0.1.9   |
+| [Cirq](https://github.com/quantumlib/Cirq)         | 0.6.0   |
+| [Qiskit Aer](https://github.com/Qiskit/qiskit-aer) | 0.3.4   |
+| [ProjectQ](https://github.com/ProjectQ-Framework/ProjectQ) | 0.4.2   |
+| [qHiPSTER](https://github.com/intel/Intel-QS) | [latest master branch](https://github.com/intel/Intel-QS/tree/94e47c04b33ad51c4cb07feade48612d8690e425)   |
+| [Python interface](https://github.com/HQSquantumsimulations/PyQuEST-cffi) of [QuEST](https://github.com/QuEST-Kit/QuEST) (PyQuest-cffi) | 3.0.0   |
+| [qsim](https://github.com/quantumlib/qsim) | [latest master branch](https://github.com/quantumlib/qsim/tree/24a9af400c3d9e4aac011cb8e5dc6b9e1ac4233b)   |
 
-[QuEST](https://github.com/quest-kit/QuEST) and [qHiPSTER](https://github.com/intel/Intel-QS) is also fast circuit
-simulator but we excluded since it doesn't have python interface.
+### Test environment:
+- Azure NC6s_v3 (6vcpu / Mem112GiB)
+- Intel(R) Xeon(R) CPU E5-2690 v4 @ 2.60GHz
+- Tesla V100 PCIE (driver 440.33.01)
+
+### What is Benchmarked
+   for each qubit number N:
+   - Apply simultaneous random single-qubit Pauli-X rotation  
+   
+   and then repeat:
+   - Apply CNOT(i,(i+1)%N) for all i in [0..N-1]
+   - Apply simultaneous random single-qubit Pauli-X rotation  
+   
+   for N times.
+   
+   Note that measured time include time for create quantum circuit.
+
+### Single thread benchmark
+
+
+![single thread benchmark](https://storage.googleapis.com/qunasys/singlethread_plot2.png)
+
+### Multi thread / GPU benchmark
+
+
+
+![multi thread benchmark](https://storage.googleapis.com/qunasys/multithread_plot2.png)
+
+
+This benchmark was done with majour quantum circuit simulator with python interface.  
+[Yao](https://github.com/QuantumBFS/Yao.jl) is quantum circuit simulator using Julia that is as fast as Qulacs.  
+Benchmark inculde Yao can be found [here](https://github.com/Roger-luo/quantum-benchmarks/blob/master/RESULTS.md).  
+
 
 ## Requirement
 
@@ -187,3 +210,14 @@ g++ -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -fopen
 
 If you want to run it on GPU, include <code>cppsim/state_gpu.hpp</code> and replace <code>QuantumState</code> with <code>QuantumStateGpu</code>.
 
+## How to cite
+Please cite this GitHub URL: https://github.com/qulacs/qulacs
+
+in bibtex style: 
+```
+@misc{Qulacs,
+title = {{Qulacs}},
+year = {2018},
+eprint = "https://github.com/qulacs/qulacs"
+}
+```
