@@ -141,6 +141,11 @@ PYBIND11_MODULE(qulacs, m) {
         .def("__repr__", [](const QuantumState &p) {return p.to_string();});
         ;
 
+		m.def("StateVector", [](const unsigned int qubit_count) {
+			auto ptr = new QuantumState(qubit_count);
+			return ptr;
+		}, "StateVector");
+
 	py::class_<DensityMatrix, QuantumStateBase>(m, "DensityMatrix")
 		.def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
 		.def("set_zero_state", &DensityMatrix::set_zero_state, "Set state to |0>")
@@ -217,6 +222,10 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_qubit_count", [](const QuantumStateGpu& state) -> unsigned int {return (unsigned int) state.qubit_count; }, "Get qubit count")
         .def("__repr__", [](const QuantumStateGpu &p) {return p.to_string(); });
         ;
+		m.def("StateVectorGpu", [](const unsigned int qubit_count) {
+			auto ptr = new QuantumStateGpu(qubit_count);
+			return ptr;
+		}, "StateVectorGpu");
 
 #endif
 
@@ -358,6 +367,13 @@ PYBIND11_MODULE(qulacs, m) {
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to SparseMatrix.");
 		return ptr;
 	}, pybind11::return_value_policy::take_ownership, "Create sparse matrix gate", py::arg("index_list"), py::arg("matrix")); 
+	mgate.def("DiagonalMatrix", [](std::vector<unsigned int> target_qubit_index_list, ComplexVector diagonal_element) {
+		const ITYPE dim = 1ULL << target_qubit_index_list.size();
+		if (diagonal_element.size() != dim) throw std::invalid_argument("dim of diagonal elemet is not consistent.");
+		auto ptr = gate::DiagonalMatrix(target_qubit_index_list, diagonal_element);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to SparseMatrix.");
+		return ptr;
+	}, pybind11::return_value_policy::take_ownership, "Create diagonal matrix gate", py::arg("index_list"), py::arg("diagonal_element"));
 
     mgate.def("RandomUnitary", [](std::vector<unsigned int> target_qubit_index_list) {
 		auto ptr = gate::RandomUnitary(target_qubit_index_list);
@@ -417,7 +433,6 @@ PYBIND11_MODULE(qulacs, m) {
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to ParametricPauliRotation.");
 		return ptr;
 	}, pybind11::return_value_policy::take_ownership, "Create parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"));
-
 
     py::class_<QuantumCircuit>(m, "QuantumCircuit")
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))

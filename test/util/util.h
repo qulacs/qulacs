@@ -44,6 +44,15 @@ static Eigen::MatrixXcd get_eigen_matrix_random_single_qubit_unitary() {
     return icoef * Identity + 1.i*xcoef * X + 1.i*ycoef * Y + 1.i*zcoef * Z;
 }
 
+static Eigen::VectorXcd get_eigen_diagonal_matrix_random_multi_qubit_unitary(UINT qubit_count) {
+	ITYPE dim = (1ULL) << qubit_count;
+	auto vec = Eigen::VectorXcd(dim);
+	for (ITYPE i = 0; i < dim; ++i) {
+		double angle = rand_real() * 2 * 3.14159;
+		vec[i] = cos(angle) + 1.i*sin(angle);
+	}
+	return vec;
+}
 
 // expand matrix
 static Eigen::MatrixXcd kronecker_product(const Eigen::MatrixXcd& lhs, const Eigen::MatrixXcd& rhs) {
