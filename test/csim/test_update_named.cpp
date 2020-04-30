@@ -207,6 +207,7 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
 
 	UINT target;
 	double angle;
+	std::complex<double> imag_unit(0,1);
 
 	auto state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
@@ -227,13 +228,14 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
 			auto mat = std::get<1>(tup);
 			auto name = std::get<2>(tup);
 			func(target, angle, state, dim);
-			test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2)*Identity + 1.i*sin(angle / 2)*mat, n) * test_state;
+			test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2)*Identity + imag_unit*sin(angle / 2)*mat, n) * test_state;
 			std::cout << angle << std::endl;
-			std::cout << 1.i*sin(angle/2) << std::endl;
+			std::cout << sin(angle/2) << std::endl;
+			std::cout << imag_unit*sin(angle/2) << std::endl;
 			std::cout << mat << std::endl;
-			std::cout << 1.i*sin(angle / 2)*mat << std::endl;
+			std::cout << imag_unit*sin(angle / 2)*mat << std::endl;
 			std::cout << cos(angle / 2)*Identity + 1.i*sin(angle / 2)*mat << std::endl;
-			std::cout << get_expanded_eigen_matrix_with_identity(target, cos(angle / 2)*Identity + 1.i*sin(angle / 2)*mat, n) << std::endl;
+			std::cout << get_expanded_eigen_matrix_with_identity(target, cos(angle / 2)*Identity + imag_unit*sin(angle / 2)*mat, n) << std::endl;
 			std::cout << target << std::endl;
 			std::cout << state << std::endl;
 			std::cout << test_state << std::endl;
