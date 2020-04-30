@@ -212,6 +212,7 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
 	initialize_Haar_random_state(state, dim);
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
 	for (ITYPE i = 0; i < dim; ++i) test_state[i] = (std::complex<double>) state[i];
+	std::cout << test_state << std::endl;
 	typedef std::tuple<std::function<void(UINT, double, CTYPE*, ITYPE)>, Eigen::MatrixXcd, std::string> testset;
 	std::vector<testset> test_list;
 	test_list.push_back(std::make_tuple(RX_gate, X, "Xrot"));
