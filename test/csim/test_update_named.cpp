@@ -229,6 +229,7 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
 			func(target, angle, state, dim);
 			test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2)*Identity + 1.i*sin(angle / 2)*mat, n) * test_state;
 			std::cout << angle << std::endl;
+			std::cout << 1.i*sin(angle / 2)*mat << std::endl;
 			std::cout << cos(angle / 2)*Identity + 1.i*sin(angle / 2)*mat << std::endl;
 			std::cout << get_expanded_eigen_matrix_with_identity(target, cos(angle / 2)*Identity + 1.i*sin(angle / 2)*mat, n) << std::endl;
 			std::cout << target << std::endl;
