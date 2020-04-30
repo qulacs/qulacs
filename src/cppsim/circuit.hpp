@@ -45,17 +45,6 @@ public:
     QuantumCircuit(UINT qubit_count);
 
     /**
-     * \~japanese-en 量子回路をQASMから生成する
-     * 
-     * QASMのファイルをパスを指定し、QASMに記載されている量子回路を作成する。
-     * QASMのパースのためにqiskitが指定されている必要がある。
-     * @param[in] qasm_path QASMファイルのパス
-     * @param[in] qasm_loader_script_path QASMを読むためのpythonのパス
-     * @return 生成されたインスタンス。生成でエラーが生じた場合はNULLを返す。
-     */
-    QuantumCircuit(std::string qasm_path, std::string qasm_loader_script_path = "qasmloader.py");
-
-    /**
      * \~japanese-en 量子回路のディープコピーを生成する
      * 
      * @return 量子回路のディープコピー

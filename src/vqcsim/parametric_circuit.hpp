@@ -10,7 +10,6 @@ private:
     std::vector<UINT> _parametric_gate_position;
 public:
     ParametricQuantumCircuit(UINT qubit_count);
-    ParametricQuantumCircuit(std::string qasm_path, std::string qasm_loader_script_path = "qasmloader.py");
 
 	ParametricQuantumCircuit* copy() const;
 	
