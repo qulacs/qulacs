@@ -191,13 +191,9 @@ TEST(UpdateTest, ProjectionAndNormalizeTest) {
 
 
 TEST(UpdateTest, SingleQubitRotationGateTest) {
-	//const UINT n = 6;
-	//const ITYPE dim = 1ULL << n;
-	//const UINT max_repeat = 10;
-
-	const UINT n = 1;
+	const UINT n = 6;
 	const ITYPE dim = 1ULL << n;
-	const UINT max_repeat = 1;
+	const UINT max_repeat = 10;
 
 	Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
 	Identity << 1, 0, 0, 1;
@@ -207,18 +203,17 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
 
 	UINT target;
 	double angle;
-	std::complex<double> imag_unit(0,1);
 
 	auto state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
 	for (ITYPE i = 0; i < dim; ++i) test_state[i] = (std::complex<double>) state[i];
-	std::cout << test_state << std::endl;
 	typedef std::tuple<std::function<void(UINT, double, CTYPE*, ITYPE)>, Eigen::MatrixXcd, std::string> testset;
 	std::vector<testset> test_list;
 	test_list.push_back(std::make_tuple(RX_gate, X, "Xrot"));
 	test_list.push_back(std::make_tuple(RY_gate, Y, "Yrot"));
 	test_list.push_back(std::make_tuple(RZ_gate, Z, "Zrot"));
+	std::complex<double> imag_unit(0,1);
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		for (auto tup : test_list) {
@@ -229,16 +224,6 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
 			auto name = std::get<2>(tup);
 			func(target, angle, state, dim);
 			test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2)*Identity + imag_unit*sin(angle / 2)*mat, n) * test_state;
-			std::cout << angle << std::endl;
-			std::cout << sin(angle/2) << std::endl;
-			std::cout << imag_unit*sin(angle/2) << std::endl;
-			std::cout << mat << std::endl;
-			std::cout << imag_unit*sin(angle / 2)*mat << std::endl;
-			std::cout << cos(angle / 2)*Identity + 1.i*sin(angle / 2)*mat << std::endl;
-			std::cout << get_expanded_eigen_matrix_with_identity(target, cos(angle / 2)*Identity + imag_unit*sin(angle / 2)*mat, n) << std::endl;
-			std::cout << target << std::endl;
-			std::cout << state << std::endl;
-			std::cout << test_state << std::endl;
 			state_equal(state, test_state, dim, name);
 		}
 	}
