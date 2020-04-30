@@ -272,6 +272,7 @@ TEST(GateTest, ApplyMultiQubitGate) {
         std::cout << imag_unit*sin(angle/2) << std::endl;
         std::cout << get_eigen_matrix_full_qubit_pauli(pauli.get_index_list(), pauli.get_pauli_id_list(), n) << std::endl;
         std::cout << imag_unit*sin(angle/2)*get_eigen_matrix_full_qubit_pauli(pauli.get_index_list(), pauli.get_pauli_id_list(), n) << std::endl;
+        std::cout << test_state1 << std::endl;
 
         Eigen::MatrixXcd large_mat = cos(angle/2)*Eigen::MatrixXcd::Identity(dim,dim) + imag_unit*sin(angle/2)*get_eigen_matrix_full_qubit_pauli(pauli.get_index_list(), pauli.get_pauli_id_list(), n);
         test_state1 = large_mat * test_state1;
