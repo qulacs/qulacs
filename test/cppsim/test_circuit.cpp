@@ -698,7 +698,7 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
     test_state(0) = 1.;
 
     res = observable.get_expectation_value(&state);
-    test_res = (test_state.adjoint() * test_observable * test_state);
+    test_res = (test_state.adjoint() * test_observable * test_state)(0,0);
 
     circuit.update_quantum_state(&state);
     test_state = test_circuit * test_state;
