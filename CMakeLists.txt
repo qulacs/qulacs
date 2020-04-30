@@ -16,25 +16,28 @@ message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "CMAKE_C_COMPILER_VERSION = ${CMAKE_C_COMPILER_VERSION}")
 message(STATUS "CMAKE_CXX_COMPILER_VERSION = ${CMAKE_CXX_COMPILER_VERSION}")
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
+
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
 	if(${CMAKE_C_COMPILER_VERSION} VERSION_LESS 7.0.0)
 		message(FATAL_ERROR, "gcc >= 7.0.0 is required.")
 	endif()
 	if(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 7.0.0)
 		message(FATAL_ERROR, "g++ >= 7.0.0 is required.")
 	endif()
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
 	message(STATUS "MSVC_VERSION = ${MSVC_VERSION}")
 	if(${MSVC_VERSION} VERSION_LESS 1900)
 		message(FATAL_ERROR, "MSVC >= 2015 is required.")
 	endif()
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang")
 	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native")
 	set(DEFAULT_USE_OMP No)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+elseif ($[CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang")
 	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native")
 	set(DEFAULT_USE_OMP No)
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel")
 else()
 	message(FATAL_ERROR, "Unsupported Compiler.")
 endif()
@@ -191,7 +194,7 @@ endif()
 
 
 ##### set flags #####
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
@@ -234,7 +237,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	endif()
 
 
-elseif ((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang"))
+elseif ((${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang") OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang"))
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
@@ -262,7 +265,7 @@ elseif ((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") OR (CMAKE_CXX_COMPILER_ID STREQ
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${OPT_FLAGS}")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OPT_FLAGS}")
 
-elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
 	SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
 
 	# compile csim with cpp since VC not completely support C99 complex values
@@ -304,6 +307,8 @@ elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 			string(REGEX REPLACE "/MD" "/MT" ${variable} "${${variable}}")
 		endif()
 	endforeach()
+else()
+	message(FATAL_ERROR, "Unsupported Compiler.")
 endif()
 
 

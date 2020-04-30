@@ -48,7 +48,7 @@ TEST(UpdateTest, SingleQubitPauliTest) {
 }
 
 TEST(UpdateTest, SingleQubitPauliRotationTest) {
-	const UINT n = 6;
+	const UINT n = 1;
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 10;
 
