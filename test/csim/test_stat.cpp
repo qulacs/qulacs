@@ -32,7 +32,7 @@ TEST(StatOperationTest, ProbTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i) test_state[i] = (std::complex<double>) state[i];
 
         for (UINT target = 0; target < n; ++target) {
             double p0 = M0_prob(target, state, dim);
@@ -62,7 +62,7 @@ TEST(StatOperationTest, MarginalProbTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i) test_state[i] = (std::complex<double>) state[i];
 
         for (UINT target = 0; target < n; ++target) {
             // merginal probability check
@@ -108,7 +108,7 @@ TEST(StatOperationTest, EntropyTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i) test_state[i] = (std::complex<double>) state[i];
 
         for (UINT target = 0; target < n; ++target) {
             double ent = 0;
@@ -138,7 +138,7 @@ TEST(StatOperationTest, InnerProductTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i) test_state[i] = (std::complex<double>) state[i];
 
         for (UINT target = 0; target < n; ++target) {
             initialize_Haar_random_state(buffer, dim);
@@ -173,7 +173,7 @@ TEST(StatOperationTest, SingleQubitExpectationValueTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i) test_state[i] = (std::complex<double>) state[i];
 
         for (UINT target = 0; target < n; ++target) {
             // single qubit expectation value check
@@ -213,7 +213,7 @@ TEST(StatOperationTest, MultiQubitExpectationValueWholeTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i) test_state[i] = (std::complex<double>) state[i];
 
         for (UINT target = 0; target < n; ++target) {
             // multi qubit expectation whole list value check
@@ -259,7 +259,7 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopWholeTest) {
 		initialize_Haar_random_state(state, dim);
 		ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
 		Eigen::VectorXcd test_state(dim);
-		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+		for (ITYPE i = 0; i < dim; ++i) test_state[i] = (std::complex<double>) state[i];
 
 		for (UINT target = 0; target < n; ++target) {
 			// multi qubit expectation whole list value check
@@ -295,7 +295,7 @@ TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i) test_state[i] = (std::complex<double>) state[i];
 
         Eigen::MatrixXcd Identity(2,2), X(2,2), Y(2,2), Z(2,2);
         Identity << 1, 0, 0, 1;
@@ -348,7 +348,7 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopPartialTest) {
 		initialize_Haar_random_state(state, dim);
 		ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
 		Eigen::VectorXcd test_state(dim);
-		for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+		for (ITYPE i = 0; i < dim; ++i) test_state[i] = (std::complex<double>) state[i];
 
 		Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
 		Identity << 1, 0, 0, 1;
