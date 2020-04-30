@@ -172,7 +172,7 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
 		}
 		angle = rand_real();
 		multi_qubit_Pauli_rotation_gate_partial_list(pauli_partial_index.data(), pauli_partial.data(), (UINT)pauli_partial.size(), angle, state, dim);
-		test_state = (cos(angle / 2)*whole_I + 1.i * sin(angle / 2)* get_eigen_matrix_full_qubit_pauli(pauli_whole)) * test_state;
+		test_state = (cos(angle / 2)*whole_I + imag_unit * sin(angle / 2)* get_eigen_matrix_full_qubit_pauli(pauli_whole)) * test_state;
 		state_equal(state, test_state, dim, "multi Pauli rotation partial gate");
 	}
 	release_quantum_state(state);
