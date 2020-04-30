@@ -191,9 +191,13 @@ TEST(UpdateTest, ProjectionAndNormalizeTest) {
 
 
 TEST(UpdateTest, SingleQubitRotationGateTest) {
-	const UINT n = 6;
+	//const UINT n = 6;
+	//const ITYPE dim = 1ULL << n;
+	//const UINT max_repeat = 10;
+
+	const UINT n = 1;
 	const ITYPE dim = 1ULL << n;
-	const UINT max_repeat = 10;
+	const UINT max_repeat = 1;
 
 	Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
 	Identity << 1, 0, 0, 1;
@@ -223,7 +227,9 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
 			auto name = std::get<2>(tup);
 			func(target, angle, state, dim);
 			test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2)*Identity + 1.i*sin(angle / 2)*mat, n) * test_state;
-			state_equal(state, test_state, dim, name);
+			//state_equal(state, test_state, dim, name);
+			std::cout << state << std::endl;
+			std::cout << test_state << std::endl;
 		}
 	}
 	release_quantum_state(state);
