@@ -20,6 +20,7 @@
 void double_qubit_dense_matrix_gate_simd_high(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE mat[16], CTYPE* vec, ITYPE dim);
 void double_qubit_dense_matrix_gate_simd_middle(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE mat[16], CTYPE* vec, ITYPE dim);
 void double_qubit_dense_matrix_gate_simd_low(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE mat[16], CTYPE* vec, ITYPE dim);
+void _element_swap(CTYPE* vec, UINT i1, UINT i2);
 #endif
 
 void double_qubit_dense_matrix_gate_c(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim) {
@@ -590,7 +591,7 @@ void double_qubit_dense_matrix_gate_simd_low(UINT target_qubit_index1, UINT targ
 }
 
 
-__inline void _element_swap(CTYPE* vec, UINT i1, UINT i2) {
+void _element_swap(CTYPE* vec, UINT i1, UINT i2) {
 	CTYPE temp = vec[i1];
 	vec[i1] = vec[i2];
 	vec[i2] = temp;
