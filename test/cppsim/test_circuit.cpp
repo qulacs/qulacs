@@ -704,7 +704,7 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
     test_state = test_circuit * test_state;
 
     res = observable.get_expectation_value(&state);
-    test_res = (test_state.adjoint() * test_observable * test_state);
+    test_res = (test_state.adjoint() * test_observable * test_state)(0,0);
     ASSERT_NEAR(abs(test_res.real() - res.real())/ test_res.real(), 0, 0.01);
 
 
@@ -715,7 +715,7 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
     circuit.update_quantum_state(&state);
 
     res = observable.get_expectation_value(&state);
-    test_res = (test_state.adjoint() * test_observable * test_state);
+    test_res = (test_state.adjoint() * test_observable * test_state)(0,0);
     ASSERT_NEAR(abs(test_res.real() - res.real())/ test_res.real(), 0, 0.01);
 }
 
@@ -770,7 +770,7 @@ TEST(CircuitTest, RotateDiagonalObservable){
     test_state = test_circuit * test_state;
 
     res = observable.get_expectation_value(&state);
-    test_res = (test_state.adjoint() * test_observable * test_state);
+    test_res = (test_state.adjoint() * test_observable * test_state)(0,0);
 
     // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
     ASSERT_NEAR(abs(test_res.real() - res.real())/test_res.real(), 0, 0.01);
@@ -782,13 +782,13 @@ TEST(CircuitTest, RotateDiagonalObservable){
     for (ITYPE i = 0; i < dim; ++i) test_state[i] = state.data_cpp()[i];
 
     res = observable.get_expectation_value(&state);
-    test_res = (test_state.adjoint() * test_observable * test_state);
+    test_res = (test_state.adjoint() * test_observable * test_state)(0,0);
 
     test_state = test_circuit * test_state;
     circuit.update_quantum_state(&state);
 
     res = observable.get_expectation_value(&state);
-    test_res = (test_state.adjoint() * test_observable * test_state);
+    test_res = (test_state.adjoint() * test_observable * test_state)(0,0);
 
     // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
     ASSERT_NEAR(abs(test_res.real() - res.real())/test_res.real(), 0, 0.01);
