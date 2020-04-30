@@ -287,6 +287,7 @@ TEST(GateTest, ApplyMultiQubitGate) {
         auto gate_dense = new QuantumGateMatrix(gate->target_qubit_list, small_mat, gate->control_qubit_list);
         gate_dense->update_quantum_state(&state);
 
+        std::cout << small_mat << std::endl;
         std::cout << state << std::endl;
 
         delete gate_dense;
