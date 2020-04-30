@@ -195,9 +195,9 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
 	//const ITYPE dim = 1ULL << n;
 	//const UINT max_repeat = 10;
 
-	const UINT n = 2;
+	const UINT n = 3;
 	const ITYPE dim = 1ULL << n;
-	const UINT max_repeat = 5;
+	const UINT max_repeat = 11;
 
 	Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
 	Identity << 1, 0, 0, 1;
