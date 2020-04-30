@@ -34,7 +34,7 @@ TEST(UpdateTest, SingleQubitPauliTest) {
 	auto state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+	for (ITYPE i = 0; i < dim; ++i) test_state[i] = (std::complex<double>) state[i];
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		/* single qubit Pauli gate */
@@ -61,7 +61,7 @@ TEST(UpdateTest, SingleQubitPauliRotationTest) {
 	auto state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+	for (ITYPE i = 0; i < dim; ++i) test_state[i] = (std::complex<double>) state[i];
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		target = rand_int(n);
@@ -84,7 +84,7 @@ TEST(UpdateTest, MultiQubitPauliTest) {
 	auto state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+	for (ITYPE i = 0; i < dim; ++i) test_state[i] = (std::complex<double>) state[i];
 
 	for (UINT rep = 0; rep < max_repeat; ++rep) {
 		// multi pauli whole
@@ -133,7 +133,7 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
 	auto state = allocate_quantum_state(dim);
 	initialize_Haar_random_state(state, dim);
 	Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-	for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+	for (ITYPE i = 0; i < dim; ++i) test_state[i] = (std::complex<double>) state[i];
 
 	Eigen::MatrixXcd whole_I = Eigen::MatrixXcd::Identity(dim, dim);
 
