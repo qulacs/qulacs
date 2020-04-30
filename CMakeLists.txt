@@ -1,13 +1,5 @@
 
-cmake_minimum_required(VERSION 2.8)
-
-##### Check GCC version #####
-if(${CMAKE_C_COMPILER_VERSION} VERSION_LESS 7.0.0)
-	message(FATAL_ERROR, "gcc >= 7.0.0 is required.")
-endif()
-if(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 7.0.0)
-	message(FATAL_ERROR, "g++ >= 7.0.0 is required.")
-endif()
+cmake_minimum_required(VERSION 3.0)
 
 
 ##### Set default behavior #####
@@ -18,6 +10,37 @@ set(DEFAULT_USE_PYTHON Yes)
 set(DEFAULT_USE_TEST Yes)
 set(DEFAULT_OPT_FLAGS "-mtune=native -march=native -mfpmath=both")
 
+
+##### Check compiler Version #####
+message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "CMAKE_C_COMPILER_VERSION = ${CMAKE_C_COMPILER_VERSION}")
+message(STATUS "CMAKE_CXX_COMPILER_VERSION = ${CMAKE_CXX_COMPILER_VERSION}")
+
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	if(${CMAKE_C_COMPILER_VERSION} VERSION_LESS 7.0.0)
+		message(FATAL_ERROR, "gcc >= 7.0.0 is required.")
+	endif()
+	if(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 7.0.0)
+		message(FATAL_ERROR, "g++ >= 7.0.0 is required.")
+	endif()
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
+	message(STATUS "MSVC_VERSION = ${MSVC_VERSION}")
+	if(${MSVC_VERSION} VERSION_LESS 1900)
+		message(FATAL_ERROR, "MSVC >= 2015 is required.")
+	endif()
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native")
+	set(DEFAULT_USE_OMP No)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native")
+	set(DEFAULT_USE_OMP No)
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+else()
+	message(FATAL_ERROR, "Unsupported Compiler.")
+endif()
+
+
+##### Update with given flags #####
 if(NOT DEFINED USE_SIMD)
 	set(USE_SIMD ${DEFAULT_USE_SIMD})
 endif()
@@ -43,6 +66,7 @@ message(STATUS "USE_GPU = ${USE_GPU}")
 message(STATUS "USE_TEST = ${USE_TEST}")
 message(STATUS "USE_PYTHON = ${USE_PYTHON}")
 message(STATUS "OPT_FLAGS = ${OPT_FLAGS}")
+
 
 
 ##### configure include files #####
@@ -167,7 +191,7 @@ endif()
 
 
 ##### set flags #####
-if(MSYS OR MINGW OR UNIX OR APPLE)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
@@ -209,7 +233,36 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 		set(PYBIND11_CPP_STANDARD -std=gnu++14)
 	endif()
 
-elseif(MSVC)
+
+elseif ((CMAKE_CXX_COMPILER_ID STREQUAL "Clang") OR (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang"))
+	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
+
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
+	set(PYBIND11_CPP_STANDARD -std=gnu++14)
+
+	if(USE_OMP)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
+	endif()
+
+	if(USE_GPU)
+		add_compile_options("-D _USE_GPU")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
+		add_compile_options("-fPIC")
+	endif()
+
+	if(USE_SIMD)
+		add_compile_options("-D _USE_SIMD")
+	endif()
+
+	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${OPT_FLAGS}")
+	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OPT_FLAGS}")
+
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
 	SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
 
 	# compile csim with cpp since VC not completely support C99 complex values
