@@ -100,6 +100,7 @@ TEST(DensityMatrixGateTest, ApplySingleQubitRotationGate) {
 	funclist.push_back(std::make_pair(gate::RX, X));
 	funclist.push_back(std::make_pair(gate::RY, Y));
 	funclist.push_back(std::make_pair(gate::RZ, Z));
+    std::complex<double> imag_unit(0,1);
 
 	for (UINT repeat = 0; repeat < 10; ++repeat) {
 		for (auto func_mat : funclist) {
@@ -107,7 +108,7 @@ TEST(DensityMatrixGateTest, ApplySingleQubitRotationGate) {
 			double angle = random.uniform() * 3.14159;
 
 			auto func = func_mat.first;
-			auto mat = cos(angle / 2) * Eigen::MatrixXcd::Identity(2, 2) + 1.i * sin(angle / 2)* func_mat.second;
+			auto mat = cos(angle / 2) * Eigen::MatrixXcd::Identity(2, 2) + imag_unit * sin(angle / 2)* func_mat.second;
 
 			test_state.set_Haar_random_state();
 			state.load(&test_state);
@@ -452,6 +453,7 @@ TEST(DensityMatrixGateTest, RandomUnitaryMerge) {
 	// define states
 	DensityMatrix state(n);
 	QuantumState test_state(n);
+    std::complex<double> imag_unit(0,1);
 
 	for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
 		// pick random state and copy to test
@@ -472,7 +474,7 @@ TEST(DensityMatrixGateTest, RandomUnitaryMerge) {
 			double dz = random.uniform();
 			double norm = sqrt(di * di + dx * dx + dy * dy + dz * dz);
 			di /= norm; dx /= norm; dy /= norm; dz /= norm;
-			ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + 1.i*(dx*get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
+			ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + imag_unit*(dx*get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
 
 			auto new_gate = gate::DenseMatrix(target, mat);
 
@@ -511,7 +513,8 @@ TEST(DensityMatrixGateTest, RandomUnitaryMergeLarge) {
 	// define states
 	DensityMatrix state(n),state2(n);
 	QuantumState test_state(n);
-	
+	std::complex<double> imag_unit(0,1);
+
 	for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
 		// pick random state and copy to test
 		test_state.set_Haar_random_state();
@@ -532,7 +535,7 @@ TEST(DensityMatrixGateTest, RandomUnitaryMergeLarge) {
 			double dz = random.uniform();
 			double norm = sqrt(di * di + dx * dx + dy * dy + dz * dz);
 			di /= norm; dx /= norm; dy /= norm; dz /= norm;
-			ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + 1.i*(dx*get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
+			ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + imag_unit*(dx*get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
 
 			auto new_gate = gate::DenseMatrix(target, mat);
 
@@ -555,7 +558,7 @@ TEST(DensityMatrixGateTest, RandomUnitaryMergeLarge) {
 			double dz = random.uniform();
 			double norm = sqrt(di * di + dx * dx + dy * dy + dz * dz);
 			di /= norm; dx /= norm; dy /= norm; dz /= norm;
-			ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + 1.i*(dx*get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
+			ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + imag_unit*(dx*get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
 
 			auto new_gate = gate::DenseMatrix(target, mat);
 

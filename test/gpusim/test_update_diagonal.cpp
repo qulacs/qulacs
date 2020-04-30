@@ -11,6 +11,7 @@ void test_single_diagonal_matrix_gate(std::function<void(UINT, const CPPCTYPE*, 
 	Eigen::MatrixXcd Identity(2, 2), Z(2, 2);
 	Identity << 1, 0, 0, 1;
 	Z << 1, 0, 0, -1;
+    std::complex<double> imag_unit(0,1);
 
 	Eigen::Matrix<std::complex<double>, 2, 2, Eigen::RowMajor> U;
 
@@ -33,7 +34,7 @@ void test_single_diagonal_matrix_gate(std::function<void(UINT, const CPPCTYPE*, 
 			icoef = rand_real(); zcoef = rand_real();
 			norm = sqrt(icoef * icoef + zcoef * zcoef);
 			icoef /= norm; zcoef /= norm;
-			U = icoef * Identity + 1.i * zcoef * Z;
+			U = icoef * Identity + imag_unit * zcoef * Z;
 			Eigen::VectorXcd diag = U.diagonal();
 			func(target, (CPPCTYPE*)diag.data(), state, dim, stream_ptr, idx);
 			test_state = get_expanded_eigen_matrix_with_identity(target, U, n) * test_state;
@@ -56,6 +57,7 @@ void test_single_phase_gate(std::function<void(UINT, CPPCTYPE, void*, ITYPE, voi
 	const UINT max_repeat = 10;
 
 	Eigen::Matrix<std::complex<double>, 2, 2, Eigen::RowMajor> U;
+    std::complex<double> imag_unit(0,1);
 
 	UINT target;
 	double angle;
@@ -74,8 +76,8 @@ void test_single_phase_gate(std::function<void(UINT, CPPCTYPE, void*, ITYPE, voi
 			// single qubit phase matrix gate
 			target = rand_int(n);
 			angle = rand_real();
-			U << 1, 0, 0, cos(angle) + 1.i * sin(angle);
-			func(target, cos(angle) + 1.i * sin(angle), state, dim, stream_ptr, idx);
+			U << 1, 0, 0, cos(angle) + imag_unit * sin(angle);
+			func(target, cos(angle) + imag_unit * sin(angle), state, dim, stream_ptr, idx);
 			test_state = get_expanded_eigen_matrix_with_identity(target, U, n) * test_state;
 			state_equal_gpu(state, test_state, dim, "single phase gate", stream_ptr, idx);
 		}

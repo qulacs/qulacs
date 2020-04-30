@@ -40,6 +40,7 @@ TEST(UpdateTest, SingleQubitPauliRotationTest) {
 
 	UINT target, pauli;
 	double angle;
+    std::complex<double> imag_unit(0,1);
 
 	Eigen::MatrixXcd Identity(2, 2);
 	Identity << 1, 0, 0, 1;
@@ -57,7 +58,7 @@ TEST(UpdateTest, SingleQubitPauliRotationTest) {
 			pauli = rand_int(3) + 1;
 			angle = rand_real();
 			single_qubit_Pauli_rotation_gate_host(target, pauli, angle, state, dim, stream_ptr, idx);
-			test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2) * Identity + 1.i * sin(angle / 2) * get_eigen_matrix_single_Pauli(pauli), n) * test_state;
+			test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2) * Identity + imag_unit * sin(angle / 2) * get_eigen_matrix_single_Pauli(pauli), n) * test_state;
 			state_equal_gpu(state, test_state, dim, "single rotation Pauli gate", stream_ptr, idx);
 		}
 		release_quantum_state_host(state, idx);
@@ -122,6 +123,7 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
 	const UINT n = 6;
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 10;
+    std::complex<double> imag_unit(0,1);
 
 	UINT pauli;
 	double angle;
@@ -148,7 +150,7 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
 			}
 			angle = rand_real();
 			multi_qubit_Pauli_rotation_gate_whole_list_host(pauli_whole.data(), n, angle, state, dim, stream_ptr, idx);
-			test_state = (cos(angle / 2) * whole_I + 1.i * sin(angle / 2) * get_eigen_matrix_full_qubit_pauli(pauli_whole)) * test_state;
+			test_state = (cos(angle / 2) * whole_I + imag_unit * sin(angle / 2) * get_eigen_matrix_full_qubit_pauli(pauli_whole)) * test_state;
 			state_equal_gpu(state, test_state, dim, "multi Pauli rotation whole gate", stream_ptr, idx);
 
 			// multi pauli rotation partial
@@ -169,7 +171,7 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
 			}
 			angle = rand_real();
 			multi_qubit_Pauli_rotation_gate_partial_list_host(pauli_partial_index.data(), pauli_partial.data(), (UINT)pauli_partial.size(), angle, state, dim, stream_ptr, idx);
-			test_state = (cos(angle / 2) * whole_I + 1.i * sin(angle / 2) * get_eigen_matrix_full_qubit_pauli(pauli_whole)) * test_state;
+			test_state = (cos(angle / 2) * whole_I + imag_unit * sin(angle / 2) * get_eigen_matrix_full_qubit_pauli(pauli_whole)) * test_state;
 			state_equal_gpu(state, test_state, dim, "multi Pauli rotation partial gate", stream_ptr, idx);
 		}
 		release_quantum_state_host(state, idx);

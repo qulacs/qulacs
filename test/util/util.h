@@ -36,20 +36,22 @@ static Eigen::MatrixXcd get_eigen_matrix_random_single_qubit_unitary() {
     X = get_eigen_matrix_single_Pauli(1);
     Y = get_eigen_matrix_single_Pauli(2);
     Z = get_eigen_matrix_single_Pauli(3);
+    std::complex<double> imag_unit(0,1);
 
     double icoef, xcoef, ycoef, zcoef, norm;
     icoef = rand_real(); xcoef = rand_real(); ycoef = rand_real(); zcoef = rand_real();
     norm = sqrt(icoef * icoef + xcoef + xcoef + ycoef * ycoef + zcoef * zcoef);
     icoef /= norm; xcoef /= norm; ycoef /= norm; zcoef /= norm;
-    return icoef * Identity + 1.i*xcoef * X + 1.i*ycoef * Y + 1.i*zcoef * Z;
+    return icoef * Identity + imag_unit*xcoef * X + imag_unit*ycoef * Y + imag_unit*zcoef * Z;
 }
 
 static Eigen::VectorXcd get_eigen_diagonal_matrix_random_multi_qubit_unitary(UINT qubit_count) {
 	ITYPE dim = (1ULL) << qubit_count;
 	auto vec = Eigen::VectorXcd(dim);
+    std::complex<double> imag_unit(0,1);
 	for (ITYPE i = 0; i < dim; ++i) {
 		double angle = rand_real() * 2 * 3.14159;
-		vec[i] = (std::complex<double>) (cos(angle) + 1.i*sin(angle));
+		vec[i] = (std::complex<double>) (cos(angle) + imag_unit*sin(angle));
 	}
 	return vec;
 }
