@@ -30,6 +30,7 @@ void test_single_diagonal_matrix_gate(std::function<void(UINT, const CTYPE*, CTY
 	Z << 1, 0, 0, -1;
 
 	Eigen::Matrix<std::complex<double>, 2, 2, Eigen::RowMajor> U;
+	std::complex<double> imag_unit(0,1);
 
 	UINT target;
 	double icoef, zcoef, norm;
@@ -47,7 +48,7 @@ void test_single_diagonal_matrix_gate(std::function<void(UINT, const CTYPE*, CTY
 		icoef = rand_real(); zcoef = rand_real();
 		norm = sqrt(icoef * icoef + zcoef * zcoef);
 		icoef /= norm; zcoef /= norm;
-		U = icoef * Identity + 1.i*zcoef * Z;
+		U = icoef * Identity + imag_unit*zcoef * Z;
 		Eigen::VectorXcd diag = U.diagonal();
 		func(target, (CTYPE*)diag.data(), state, dim);
 		test_state = get_expanded_eigen_matrix_with_identity(target, U, n) * test_state;
