@@ -215,7 +215,7 @@ TEST(GateTest, ApplyTwoQubitGate) {
 TEST(GateTest, ApplyMultiQubitGate) {
 
 
-    const UINT n = 1;
+    const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     double eps = 1e-15;
 
