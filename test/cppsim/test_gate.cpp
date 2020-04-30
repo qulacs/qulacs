@@ -268,13 +268,16 @@ TEST(GateTest, ApplyMultiQubitGate) {
         }
         double angle = random.uniform()*3.14159;
 
-        Eigen::MatrixXcd large_mat = cos(angle/2)*Eigen::MatrixXcd::Identity(dim,dim) + imag_unit*sin(angle/2)*get_eigen_matrix_full_qubit_pauli(pauli.get_index_list(), pauli.get_pauli_id_list(), n);
-        test_state1 = large_mat * test_state1;
-
         std::cout << angle << std::endl;
         std::cout << imag_unit*sin(angle/2) << std::endl;
         std::cout << get_eigen_matrix_full_qubit_pauli(pauli.get_index_list(), pauli.get_pauli_id_list(), n) << std::endl;
         std::cout << imag_unit*sin(angle/2)*get_eigen_matrix_full_qubit_pauli(pauli.get_index_list(), pauli.get_pauli_id_list(), n) << std::endl;
+
+        Eigen::MatrixXcd large_mat = cos(angle/2)*Eigen::MatrixXcd::Identity(dim,dim) + imag_unit*sin(angle/2)*get_eigen_matrix_full_qubit_pauli(pauli.get_index_list(), pauli.get_pauli_id_list(), n);
+        test_state1 = large_mat * test_state1;
+
+        std::cout << large_mat << std::endl;
+        std::cout << test_state1 << std::endl;
 
         auto gate = gate::PauliRotation(pauli.get_index_list(), pauli.get_pauli_id_list(),angle);
         std::vector<UINT> target_list, control_list;
@@ -282,6 +285,9 @@ TEST(GateTest, ApplyMultiQubitGate) {
         gate->set_matrix(small_mat);
         auto gate_dense = new QuantumGateMatrix(gate->target_qubit_list, small_mat, gate->control_qubit_list);
         gate_dense->update_quantum_state(&state);
+
+        std::cout << state << std::endl;
+
         delete gate_dense;
 
         for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] - test_state1[i]), 0, eps);
