@@ -49,7 +49,7 @@ static Eigen::VectorXcd get_eigen_diagonal_matrix_random_multi_qubit_unitary(UIN
 	auto vec = Eigen::VectorXcd(dim);
 	for (ITYPE i = 0; i < dim; ++i) {
 		double angle = rand_real() * 2 * 3.14159;
-		vec[i] = cos(angle) + 1.i*sin(angle);
+		vec[i] = (CPPCTYPE) (cos(angle) + 1.i*sin(angle));
 	}
 	return vec;
 }
@@ -149,7 +149,7 @@ static std::string convert_CTYPE_array_to_string(const CTYPE* state, ITYPE dim) 
 
 static Eigen::VectorXcd convert_CTYPE_array_to_eigen_vector(const CTYPE* state, ITYPE dim) {
     Eigen::VectorXcd vec(dim);
-    for (ITYPE i = 0; i < dim; ++i) vec[i] = state[i];
+    for (ITYPE i = 0; i < dim; ++i) vec[i] = (CPPCTYPE)state[i];
     return vec;
 }
 
