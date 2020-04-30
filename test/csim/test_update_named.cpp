@@ -195,7 +195,7 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
 	//const ITYPE dim = 1ULL << n;
 	//const UINT max_repeat = 10;
 
-	const UINT n = 1;
+	const UINT n = 2;
 	const ITYPE dim = 1ULL << n;
 	const UINT max_repeat = 1;
 
@@ -228,6 +228,8 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
 			func(target, angle, state, dim);
 			test_state = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2)*Identity + 1.i*sin(angle / 2)*mat, n) * test_state;
 			//state_equal(state, test_state, dim, name);
+			std::cout << angle << std::endl;
+			std::cout << target << std::endl;
 			std::cout << state << std::endl;
 			std::cout << test_state << std::endl;
 		}
