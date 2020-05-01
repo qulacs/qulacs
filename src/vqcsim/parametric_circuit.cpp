@@ -5,10 +5,6 @@
 #include "parametric_gate_factory.hpp"
 
 ParametricQuantumCircuit::ParametricQuantumCircuit(UINT qubit_count_) : QuantumCircuit(qubit_count_) {};
-ParametricQuantumCircuit::ParametricQuantumCircuit(std::string qasm_path, std::string qasm_loader_script_path) : QuantumCircuit(qasm_path, qasm_loader_script_path) {
-    // TODO: enables load of parametric gate
-};
-
 
 ParametricQuantumCircuit* ParametricQuantumCircuit::copy() const {
 	ParametricQuantumCircuit* new_circuit = new ParametricQuantumCircuit(this->qubit_count);

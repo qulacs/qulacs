@@ -63,36 +63,6 @@ QuantumCircuit::QuantumCircuit(UINT qubit_count_):
     this->_qubit_count = qubit_count_;
 }
 
-
-QuantumCircuit::QuantumCircuit(std::string qasm_path, std::string qasm_loader_script_path):
-qubit_count(_qubit_count), gate_list(_gate_list) {
-	// generate quantum circuit from qasm
-	// now we delegate compile of qasm string to quantumopencompiler in qiskit-sdk.
-	std::string exec_string = std::string("python ")+qasm_loader_script_path+" "+qasm_path;
-    const unsigned int MAX_BUF = 1024;
-    char line[MAX_BUF];
-    char* endPoint;
-    FILE* fp;
-
-    
-    fp = popen(exec_string.c_str(),"r");
-    if(fp==NULL){
-        fprintf(stderr,"Error : cannot launch python loader or cannot load QASM: %s\n", qasm_path.c_str());
-        exit(0);
-    }
-    fgets(line,MAX_BUF,fp);
-    this->_qubit_count = atoi(line);
-    while(1){
-        (void)fgets(line,MAX_BUF,fp);
-        if(feof(fp)) break;
-
-        endPoint = strchr(line,'\n');
-        if(endPoint != NULL) *endPoint = '\0';
-        this->add_gate(gate::create_quantum_gate_from_string(line));
-    }
-    pclose(fp);
-}
-
 QuantumCircuit* QuantumCircuit::copy() const{
     QuantumCircuit* new_circuit = new QuantumCircuit(this->_qubit_count);
     for(const auto& gate : this->_gate_list){
