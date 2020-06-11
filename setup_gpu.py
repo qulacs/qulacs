@@ -70,14 +70,14 @@ class CMakeBuild(build_ext):
             if env_gcc:
                 gcc_candidates = [env_gcc]
             else:
-                gcc_candidates = ['gcc', 'gcc-9', 'gcc-8', 'gcc-7']
+                gcc_candidates = ['gcc', 'gcc-9', 'gcc-8', 'gcc-7', 'x86_64-conda_cos6-linux-gnu-gcc']
             gcc = next(iter(filter(_is_valid_compiler, gcc_candidates)), None)
 
             env_gxx = os.getenv('CXX_COMPILER')
             if env_gxx:
                 gxx_candidates = [env_gxx]
             else:
-                gxx_candidates = ['g++', 'g++-9', 'g++-8', 'g++-7']
+                gxx_candidates = ['g++', 'g++-9', 'g++-8', 'g++-7', 'x86_64-conda_cos6-linux-gnu-g++']
             gxx = next(iter(filter(_is_valid_compiler, gxx_candidates)), None)
 
             if gcc is None or gxx is None:
@@ -86,6 +86,7 @@ class CMakeBuild(build_ext):
 
             cmake_args += ['-DCMAKE_C_COMPILER=' + gcc]
             cmake_args += ['-DCMAKE_CXX_COMPILER=' + gxx]
+            cmake_args += ['-DCUDA_NVCC_FLAGS=-I/usr/include']
 
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
             build_args += ['--', '-j2']
