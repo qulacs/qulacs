@@ -15,7 +15,7 @@ RUN add-apt-repository ppa:ubuntu-toolchain-r/test && \
     gcc-7 \
     g++-7
 
-RUN add-apt-repository ppa:jonathonf/python-3.6 -y && \
+RUN add-apt-repository ppa:deadsnakes/ppa -y && \
     apt-get update -y && \
     apt-get install -y --no-install-recommends \
     python3.6 \
