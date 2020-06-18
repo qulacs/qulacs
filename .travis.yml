@@ -62,9 +62,14 @@ env:
       PYTHON3='3.7.5'
       PYTHON2='2.7.17'
 
+stages:
+  - build and test
+  - build wheel
+
 jobs:
   include:
     - name: 1/ OSX GCC8 PYTHON3.7 build
+      stage: build and test
       os: osx
       osx_image: xcode11.2
       compiler: gcc
@@ -86,6 +91,7 @@ jobs:
       install: *install
       script: *script
     - name: 2/ Linux GCC8 PYTHON3.7 build
+      stage: build and test
       os: linux
       dist: bionic
       compiler: gcc
@@ -112,6 +118,7 @@ jobs:
       install: *install
       script: *script
     - name: 3/ Linux GCC7 PYTHON3.7 build
+      stage: build and test
       os: linux
       dist: bionic
       compiler: gcc
@@ -138,6 +145,7 @@ jobs:
       install: *install
       script: *script
     - name: 4/ Linux GCC8 PYTHON2.7 build
+      stage: build and test
       os: linux
       dist: bionic
       compiler: gcc
@@ -164,6 +172,7 @@ jobs:
       install: *install
       script: *script
     - name: 5/ Windows VS17 PYTHON3.7 build
+      stage: build and test
       os: windows
       env:
         - COVERAGE=ON
@@ -175,6 +184,15 @@ jobs:
       before_install: *before_install
       install: *install
       script: *script
+
+    - name: Linux wheel build
+      stage: build wheel
+      services: docker
+    - name: OSX wheel build
+      stage: build wheel
+    - name: Windows wheel build
+      stage: build wheel
+      os: windows
 
 cache:
   directories:
