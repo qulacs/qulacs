@@ -97,7 +97,7 @@ env:
       CIBW_TEST_REQUIRES='numpy scipy'
       CIBW_BUILD='cp*-macosx_x86_64 cp*-manylinux_x86_64 cp*-win_amd64'
       CIBW_BUILD_VERBOSITY='1'
-      CIBW_BEFORE_BUILD='export PIP_GLOBAL_OPTION="--opt-flags=\"-march=haswell -mtune=haswell -mfpmath=both\""'
+      QULACS_OPT_FLAGS='-march=haswell -mtune=haswell -mfpmath=both'
 
 stages:
   - build and test
@@ -208,7 +208,10 @@ jobs:
       dist: bionic
       services: docker
       env:
-        - CIBW_BEFORE_BUILD='pip install cmake && export PIP_GLOBAL_OPTION="--opt-flags=\"-march=haswell -mtune=haswell -mfpmath=both\""'
+        - PYTHON="${PYTHON3}"
+        - PYENV_ROOT="${HOME}/.pyenv"
+        - PATH="${PYENV_ROOT}/bin:$PATH"
+        - CIBW_BEFORE_BUILD='pip install cmake'
       before_install: *before_install
       install: *wheel_install
       script: *wheel_build

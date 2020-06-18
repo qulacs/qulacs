@@ -91,7 +91,13 @@ class CMakeBuild(build_ext):
             build_args += ['--', '-j2']
 
         if self.opt_flags is not None:
-            cmake_args += ['-DOPT_FLAGS=' + self.opt_flags]
+            opt_flags = self.opt_flags
+        elif os.getenv('QULACS_OPT_FLAGS'):
+            opt_flags = os.getenv('QULACS_OPT_FLAGS')
+        else:
+            opt_flags = None
+        if opt_flags:
+            cmake_args += ['-DOPT_FLAGS=' + opt_flags]
 
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
