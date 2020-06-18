@@ -1,3 +1,30 @@
+_osx_env: &osx_env
+  - CXX_COMPILER='g++-8'
+  - C_COMPILER='gcc-8'
+  - PYTHON="${PYTHON3}"
+  - COVERAGE=OFF
+  - PYENV_ROOT="${HOME}/.pyenv"
+  - PATH="${PYENV_ROOT}/bin:$PATH"
+
+_osx_settings: &osx_settings
+  osx_image: xcode11.2
+  compiler: gcc
+  addons:
+    homebrew:
+      packages:
+        - gcc@8
+        - swig
+        - openssl
+      update: true
+
+_windows_env: &windows_env
+  - COVERAGE=ON
+  - PYTHON="${PYTHON3}"
+  - MSBUILD_BIN='C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin'
+  - CMAKE_BIN='C:\Program Files\CMake'
+  - PYTHON_BIN='C:\Python37'
+  - PATH="$MSBUILD_BIN:$CMAKE_BIN:$PYTHON_BIN:$PYTHON_BIN\Scripts:$PATH"
+
 _before_install: &before_install
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
@@ -52,6 +79,11 @@ _script: &script
       make pythontest
     fi
 
+_wheel_install: &wheel_install
+  - python -m pip install cibuildwheel==1.4.2
+
+_wheel_build: &wheel_build
+  - python -m cibuildwheel --output-dir wheels
 
 language: cpp
 
@@ -61,6 +93,8 @@ env:
       BUILD_TYPE='Release'
       PYTHON3='3.7.5'
       PYTHON2='2.7.17'
+      CIBW_TEST_COMMAND='python {project}/python/test/test_qulacs.py'
+      CIBW_TEST_REQUIRES='numpy'
 
 stages:
   - build and test
@@ -71,22 +105,8 @@ jobs:
     - name: 1/ OSX GCC8 PYTHON3.7 build
       stage: build and test
       os: osx
-      osx_image: xcode11.2
-      compiler: gcc
-      env:
-        - CXX_COMPILER='g++-8'
-        - C_COMPILER='gcc-8'
-        - PYTHON="${PYTHON3}"
-        - COVERAGE=OFF
-        - PYENV_ROOT="${HOME}/.pyenv"
-        - PATH="${PYENV_ROOT}/bin:$PATH"
-      addons:
-        homebrew:
-          packages:
-            - gcc@8
-            - swig
-            - openssl
-          update: true
+      <<: *osx_settings
+      env: *osx_env
       before_install: *before_install
       install: *install
       script: *script
@@ -174,13 +194,7 @@ jobs:
     - name: 5/ Windows VS17 PYTHON3.7 build
       stage: build and test
       os: windows
-      env:
-        - COVERAGE=ON
-        - PYTHON="${PYTHON3}"
-        - MSBUILD_BIN='C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin'
-        - CMAKE_BIN='C:\Program Files\CMake'
-        - PYTHON_BIN='C:\Python37'
-        - PATH="$MSBUILD_BIN:$CMAKE_BIN:$PYTHON_BIN:$PYTHON_BIN\Scripts:$PATH"
+      env: *windows_env
       before_install: *before_install
       install: *install
       script: *script
@@ -190,9 +204,19 @@ jobs:
       services: docker
     - name: OSX wheel build
       stage: build wheel
+      os: osx
+      <<: *osx_settings
+      env: *osx_env
+      before_install: *before_install
+      install: *wheel_install
+      script: *wheel_build
     - name: Windows wheel build
       stage: build wheel
       os: windows
+      env: *windows_env
+      before_install: *before_install
+      install: *wheel_install
+      script: *wheel_build
 
 cache:
   directories:
