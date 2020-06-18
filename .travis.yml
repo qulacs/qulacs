@@ -94,7 +94,10 @@ env:
       PYTHON3='3.7.5'
       PYTHON2='2.7.17'
       CIBW_TEST_COMMAND='python {project}/python/test/test_qulacs.py'
-      CIBW_TEST_REQUIRES='numpy'
+      CIBW_TEST_REQUIRES='numpy scipy'
+      CIBW_BUILD='cp*-macosx_x86_64 cp*-manylinux_x86_64 cp*-win_amd64'
+      CIBW_BUILD_VERBOSITY='1'
+      CIBW_ENVIRONMENT='PIP_GLOBAL_OPTION="--opt-flags=\"-march=haswell -mtune=haswell -mfpmath=both\""'
 
 stages:
   - build and test
