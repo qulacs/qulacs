@@ -97,7 +97,7 @@ env:
       CIBW_TEST_REQUIRES='numpy scipy'
       CIBW_BUILD='cp*-macosx_x86_64 cp*-manylinux_x86_64 cp*-win_amd64'
       CIBW_BUILD_VERBOSITY='1'
-      CIBW_ENVIRONMENT='QULACS_OPT_FLAGS="-march=haswell -mtune=haswell -mfpmath=both"'
+      CIBW_ENVIRONMENT='QULACS_OPT_FLAGS="-mtune=haswell -mfpmath=both"'
 
 stages:
   - build and test
