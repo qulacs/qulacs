@@ -113,6 +113,7 @@ jobs:
       before_install: *before_install
       install: *install
       script: *script
+      if: false
     - name: 2/ Linux GCC8 PYTHON3.7 build
       stage: build and test
       os: linux
@@ -140,6 +141,7 @@ jobs:
       before_install: *before_install
       install: *install
       script: *script
+      if: false
     - name: 3/ Linux GCC7 PYTHON3.7 build
       stage: build and test
       os: linux
@@ -167,6 +169,7 @@ jobs:
       before_install: *before_install
       install: *install
       script: *script
+      if: false
     - name: 4/ Linux GCC8 PYTHON2.7 build
       stage: build and test
       os: linux
@@ -194,6 +197,7 @@ jobs:
       before_install: *before_install
       install: *install
       script: *script
+      if: false
     - name: 5/ Windows VS17 PYTHON3.7 build
       stage: build and test
       os: windows
@@ -201,6 +205,7 @@ jobs:
       before_install: *before_install
       install: *install
       script: *script
+      if: false
 
     - name: Linux wheel build
       stage: build wheel
