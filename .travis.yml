@@ -201,7 +201,13 @@ jobs:
 
     - name: Linux wheel build
       stage: build wheel
+      os: linux
+      dist: bionic
       services: docker
+      env:
+        - CIBW_BEFORE_BUILD='pip install cmake'
+      install: *wheel_install
+      script: *wheel_build
     - name: OSX wheel build
       stage: build wheel
       os: osx
