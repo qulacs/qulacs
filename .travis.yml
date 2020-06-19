@@ -104,6 +104,7 @@ env:
       CIBW_BUILD='cp*-macosx_x86_64 cp*-manylinux_x86_64 cp*-win_amd64'
       CIBW_BUILD_VERBOSITY='1'
       CIBW_ENVIRONMENT='QULACS_OPT_FLAGS="-mtune=haswell -mfpmath=both"'
+      CIBW_REPAIR_WHEEL_COMMAND_MACOS='delocate-listdeps {wheel} && script/fix_wheel_osx.sh {wheel} {dest_dir} && delocate-listdeps {wheel}'
       TWINE_USERNAME=__token__
 
 stages:
@@ -120,7 +121,6 @@ jobs:
       before_install: *before_install
       install: *install
       script: *script
-      if: false
     - name: 2/ Linux GCC8 PYTHON3.7 build
       stage: build and test
       os: linux
@@ -148,7 +148,6 @@ jobs:
       before_install: *before_install
       install: *install
       script: *script
-      if: false
     - name: 3/ Linux GCC7 PYTHON3.7 build
       stage: build and test
       os: linux
@@ -176,7 +175,6 @@ jobs:
       before_install: *before_install
       install: *install
       script: *script
-      if: false
     - name: 4/ Linux GCC8 PYTHON2.7 build
       stage: build and test
       os: linux
@@ -204,7 +202,6 @@ jobs:
       before_install: *before_install
       install: *install
       script: *script
-      if: false
     - name: 5/ Windows VS17 PYTHON3.7 build
       stage: build and test
       os: windows
@@ -212,7 +209,6 @@ jobs:
       before_install: *before_install
       install: *install
       script: *script
-      if: false
 
     - name: Source dist
       stage: build wheel
