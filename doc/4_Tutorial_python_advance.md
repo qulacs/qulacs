@@ -1002,7 +1002,7 @@ from qulacs import PauliOperator, QuantumState
 n = 5
 coef = 2.0
 Pauli_string = "X 0 X 1 Y 2 Z 4"
-pauli = Pauli(Pauli_string,coef)
+pauli = PauliOperator(Pauli_string,coef)
 
 # 期待値の計算 <a|H|a>
 state = QuantumState(n)
