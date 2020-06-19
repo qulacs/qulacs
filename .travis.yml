@@ -80,10 +80,16 @@ _script: &script
     fi
 
 _wheel_install: &wheel_install
-  - python -m pip install cibuildwheel==1.4.2
+  - python -m pip install cibuildwheel==1.4.2 twine
 
 _wheel_build: &wheel_build
   - python -m cibuildwheel --output-dir wheels
+
+_wheel_upload: &wheel_upload
+  - if [[ $TRAVIS_TAG ]]; then python -m twine upload wheels/*.whl; fi
+
+_sdist_upload: &sdist_upload
+  - if [[ $TRAVIS_TAG ]]; then python -m twine upload dist/*; fi
 
 language: cpp
 
@@ -98,6 +104,7 @@ env:
       CIBW_BUILD='cp*-macosx_x86_64 cp*-manylinux_x86_64 cp*-win_amd64'
       CIBW_BUILD_VERBOSITY='1'
       CIBW_ENVIRONMENT='QULACS_OPT_FLAGS="-mtune=haswell -mfpmath=both"'
+      TWINE_USERNAME=__token__
 
 stages:
   - build and test
@@ -207,6 +214,20 @@ jobs:
       script: *script
       if: false
 
+    - name: Source dist
+      stage: build wheel
+      os: linux
+      dist: bionic
+      env:
+        - PYTHON="${PYTHON3}"
+        - PYENV_ROOT="${HOME}/.pyenv"
+        - PATH="${PYENV_ROOT}/bin:$PATH"
+      before_install: *before_install
+      install:
+        - python -m pip install twine
+      script:
+        - python setup.py sdist
+      after_success: *sdist_upload
     - name: Linux wheel build
       stage: build wheel
       os: linux
@@ -220,6 +241,7 @@ jobs:
       before_install: *before_install
       install: *wheel_install
       script: *wheel_build
+      after_success: *wheel_upload
     - name: OSX wheel build
       stage: build wheel
       os: osx
@@ -228,6 +250,7 @@ jobs:
       before_install: *before_install
       install: *wheel_install
       script: *wheel_build
+      after_success: *wheel_upload
     - name: Windows wheel build
       stage: build wheel
       os: windows
@@ -235,6 +258,7 @@ jobs:
       before_install: *before_install
       install: *wheel_install
       script: *wheel_build
+      after_success: *wheel_upload
 
 cache:
   directories:
