@@ -313,4 +313,3 @@ TEST(ObservableTest, CheckSplitObservable){
     ASSERT_NEAR(non_diag_res.imag(), 0, eps);
 
 }
-

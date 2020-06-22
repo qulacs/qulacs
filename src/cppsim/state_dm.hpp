@@ -300,7 +300,7 @@ public:
         auto ptr = this->data_cpp();
         stacked_prob.push_back(0.);
         for (UINT i = 0; i < this->dim; ++i) {
-            sum += norm(ptr[i*dim+i]);
+            sum += abs(ptr[i*dim+i]);
             stacked_prob.push_back(sum);
         }
 
@@ -313,6 +313,10 @@ public:
         return result;
     }
 
+	virtual std::vector<ITYPE> sampling(UINT sampling_count, UINT random_seed) override {
+		random.set_seed(random_seed);
+		return this->sampling(sampling_count);
+	}
 	virtual std::string to_string() const {
 		std::stringstream os;
 		ComplexMatrix eigen_state(this->dim, this->dim);

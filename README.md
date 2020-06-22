@@ -27,7 +27,7 @@ pip install qulacs-gpu
 - Many utility functions for research
 
 ## Performance
-- Compared following libraries on January, 2020
+- Compared following libraries on March, 2020
 
 |       Package        | Version |
 | -------------------- | ------- |
@@ -41,8 +41,8 @@ pip install qulacs-gpu
 
 ### Test environment:
 - Azure NC6s_v3 (6vcpu / Mem112GiB)
-- Intel(R) Xeon(R) CPU E5-2690 v4 @ 2.60GHz
-- Tesla V100 PCIE (driver 440.33.01)
+  - Intel(R) Xeon(R) CPU E5-2690 v4 @ 2.60GHz
+  - Tesla V100 PCIE (driver 440.33.01)
 
 ### What is Benchmarked
    for each qubit number N:
@@ -54,21 +54,19 @@ pip install qulacs-gpu
    
    for N times.
    
-   Note that measured time include time for create quantum circuit.
+#### Note
+ - execution time include time for creating quantum circuit
+ - benchmark was done with float64 precision (qsim was done with float32)
 
 ### Single thread benchmark
-
 
 ![single thread benchmark](https://storage.googleapis.com/qunasys/singlethread_plot2.png)
 
 ### Multi thread / GPU benchmark
 
-
-
 ![multi thread benchmark](https://storage.googleapis.com/qunasys/multithread_plot2.png)
 
-
-This benchmark was done with majour quantum circuit simulator with python interface.  
+This benchmark was done with majour quantum circuit simulators with python interface.  
 [Yao](https://github.com/QuantumBFS/Yao.jl) is quantum circuit simulator using Julia that is as fast as Qulacs.  
 Benchmark inculde Yao can be found [here](https://github.com/Roger-luo/quantum-benchmarks/blob/master/RESULTS.md).  
 
@@ -77,14 +75,16 @@ Benchmark inculde Yao can be found [here](https://github.com/Roger-luo/quantum-b
 
 - C++ compiler (gcc or VisualStudio)
     - gcc/g++ >= 7.0.0 (checked in Linux, MacOS, cygwin, MinGW, and WSL)
-    - Microsoft VisualStudio C++ 2015 or 2017
+    - Microsoft VisualStudio C++ 2015 or later
 - python 2.7 or 3.x
 - cmake >= 3.0
 - git
 - (option) CUDA >= 8.0
 - (option) AVX2 support
 
-If your system supports AVX2 instructions, SIMD optimization is automatically enabled. If you want to enable GPU simulator, install qulacs through <code>qulacs-gpu</code> package or build from source.
+If your system supports AVX2 instructions, SIMD optimization is automatically enabled. 
+If you want to enable GPU simulator, install qulacs through <code>qulacs-gpu</code> package or build from source.
+Note that <code>qulacs-gpu</code> includes CPU simulator. You don't need to install both.
 
 Qulacs is tested on the following systems.
 
@@ -137,7 +137,7 @@ cd qulacs
 script/build_msvc_2017.bat
 ```
 
-When you want to build with GPU, use <code>build_msvc_2017_with_gpu.bat</code>. If you use MSVC2015, replace 2017 in file names to 2015.
+When you want to build with GPU, use <code>build_msvc_2017_with_gpu.bat</code>. If you use MSVC2015, replace "2017" in file names to "2015".
 
 ## Tutorial and API document
 

@@ -1,124 +1,31 @@
-language: cpp
+_osx_env: &osx_env
+  - CXX_COMPILER='g++-8'
+  - C_COMPILER='gcc-8'
+  - PYTHON="${PYTHON3}"
+  - COVERAGE=OFF
+  - PYENV_ROOT="${HOME}/.pyenv"
+  - PATH="${PYENV_ROOT}/bin:$PATH"
 
-sudo: false
+_osx_settings: &osx_settings
+  osx_image: xcode11.2
+  compiler: gcc
+  addons:
+    homebrew:
+      packages:
+        - gcc@8
+        - swig
+        - openssl
+      update: true
 
-env:
-  global:
-    - Fortran_COMPILER='gfortran'
-      BUILD_TYPE='Release'
-      PYTHON3='3.7.5'
-      PYTHON2='2.7.17'
+_windows_env: &windows_env
+  - COVERAGE=ON
+  - PYTHON="${PYTHON3}"
+  - MSBUILD_BIN='C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin'
+  - CMAKE_BIN='C:\Program Files\CMake'
+  - PYTHON_BIN='C:\Python37'
+  - PATH="$MSBUILD_BIN:$CMAKE_BIN:$PYTHON_BIN:$PYTHON_BIN\Scripts:$PATH"
 
-matrix:
-  include:
-    # 1/ OSX GCC8 PYTHON3.7 build
-    - os: osx
-      osx_image: xcode11.2
-      compiler: gcc
-      env:
-        - CXX_COMPILER='g++-8'
-        - C_COMPILER='gcc-8'
-        - PYTHON="${PYTHON3}"
-        - COVERAGE=OFF
-        - PYENV_ROOT="${HOME}/.pyenv"
-        - PATH="${PYENV_ROOT}/bin:$PATH"
-      addons:
-        homebrew:
-          packages:
-            - gcc@8
-            - swig
-            - openssl
-          update: true
-    # 2/ Linux GCC8 PYTHON3.7 build
-    - os: linux
-      dist: bionic
-      compiler: gcc
-      env:
-        - CXX_COMPILER='g++-8'
-        - C_COMPILER='gcc-8'
-        - PYTHON="${PYTHON3}"
-        - COVERAGE=ON
-        - PYENV_ROOT="${HOME}/.pyenv"
-        - PATH="${PYENV_ROOT}/bin:$PATH"
-      addons:
-        apt:
-          sources:
-            - sourceline: "ppa:ubuntu-toolchain-r/test"
-          packages:
-            - cmake
-            - g++-8
-            - gcc-8
-            - gfortran-7
-            - lcov
-            - swig
-            - libssl1.0-dev
-    # 3/ Linux GCC7 PYTHON3.7 build
-    - os: linux
-      dist: bionic
-      compiler: gcc
-      env:
-        - CXX_COMPILER='g++-7'
-        - C_COMPILER='gcc-7'
-        - PYTHON="${PYTHON3}"
-        - COVERAGE=ON
-        - PYENV_ROOT="${HOME}/.pyenv"
-        - PATH="${PYENV_ROOT}/bin:$PATH"
-      addons:
-        apt:
-          sources:
-            - sourceline: "ppa:ubuntu-toolchain-r/test"
-          packages:
-            - cmake
-            - g++-7
-            - gcc-7
-            - gfortran-7
-            - lcov
-            - swig
-            - libssl1.0-dev
-    # 4/ Linux GCC8 PYTHON2.7 build
-    - os: linux
-      dist: bionic
-      compiler: gcc
-      env:
-        - CXX_COMPILER='g++-8'
-        - C_COMPILER='gcc-8'
-        - PYTHON="${PYTHON2}"
-        - COVERAGE=ON
-        - PYENV_ROOT="${HOME}/.pyenv"
-        - PATH="${PYENV_ROOT}/bin:$PATH"
-      addons:
-        apt:
-          sources:
-            - sourceline: "ppa:ubuntu-toolchain-r/test"
-          packages:
-            - cmake
-            - g++-8
-            - gcc-8
-            - gfortran-7
-            - lcov
-            - swig
-            - libssl-dev
-    # 5/ Windows VS17 PYTHON3.7 build
-    - os: windows
-      env:
-        - COVERAGE=ON
-        - PYTHON="${PYTHON3}"
-        - MSBUILD_BIN='C:\Program Files (x86)\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin'
-        - CMAKE_BIN='C:\Program Files\CMake'
-        - PYTHON_BIN='C:\Python37'
-        - PATH="$MSBUILD_BIN:$CMAKE_BIN:$PYTHON_BIN:$PYTHON_BIN\Scripts:$PATH"
-
-cache:
-  directories:
-    - $HOME/.local
-    # pip
-    - $HOME/.cache/pip
-    # pyenv
-    - $HOME/.pyenv
-    # Homebrew
-    - $HOME/Library/Caches/Homebrew
-
-before_install:
+_before_install: &before_install
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
       travis_retry choco install -y cmake
@@ -149,7 +56,7 @@ before_install:
   - python -m pip install --upgrade pip
   - pip install -U --only-binary=numpy,scipy numpy scipy
 
-install:
+_install: &install
   - set -o pipefail
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
@@ -160,7 +67,7 @@ install:
   # Check if `pip install` will be done successfully or not
   - python setup.py install
 
-script:
+_script: &script
   - set -o pipefail
   - |
     if [[ "${TRAVIS_OS_NAME}" == "windows" ]]; then
@@ -171,4 +78,190 @@ script:
       make test
       make pythontest
     fi
-    
+
+_wheel_install: &wheel_install
+  - python -m pip install cibuildwheel==1.4.2 twine
+
+_wheel_build: &wheel_build
+  - python -m cibuildwheel --output-dir wheels
+
+_wheel_upload: &wheel_upload
+  - if [[ $TRAVIS_TAG ]]; then python -m twine upload wheels/*.whl; fi
+
+_sdist_upload: &sdist_upload
+  - if [[ $TRAVIS_TAG ]]; then python -m twine upload dist/*; fi
+
+language: cpp
+
+env:
+  global:
+    - Fortran_COMPILER='gfortran'
+      BUILD_TYPE='Release'
+      PYTHON3='3.7.5'
+      PYTHON2='2.7.17'
+      CIBW_TEST_COMMAND='python {project}/python/test/test_qulacs.py'
+      CIBW_TEST_REQUIRES='numpy scipy'
+      CIBW_BUILD='cp*-macosx_x86_64 cp*-manylinux_x86_64 cp*-win_amd64'
+      CIBW_BUILD_VERBOSITY='1'
+      CIBW_ENVIRONMENT='QULACS_OPT_FLAGS="-mtune=haswell -mfpmath=both"'
+      CIBW_REPAIR_WHEEL_COMMAND_MACOS='delocate-listdeps {wheel} && script/fix_wheel_osx.sh {wheel} {dest_dir} && delocate-listdeps {wheel}'
+      TWINE_USERNAME=__token__
+
+stages:
+  - build and test
+  - build wheel
+
+jobs:
+  include:
+    - name: 1/ OSX GCC8 PYTHON3.7 build
+      stage: build and test
+      os: osx
+      <<: *osx_settings
+      env: *osx_env
+      before_install: *before_install
+      install: *install
+      script: *script
+    - name: 2/ Linux GCC8 PYTHON3.7 build
+      stage: build and test
+      os: linux
+      dist: bionic
+      compiler: gcc
+      env:
+        - CXX_COMPILER='g++-8'
+        - C_COMPILER='gcc-8'
+        - PYTHON="${PYTHON3}"
+        - COVERAGE=ON
+        - PYENV_ROOT="${HOME}/.pyenv"
+        - PATH="${PYENV_ROOT}/bin:$PATH"
+      addons:
+        apt:
+          sources:
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
+          packages:
+            - cmake
+            - g++-8
+            - gcc-8
+            - gfortran-7
+            - lcov
+            - swig
+            - libssl1.0-dev
+      before_install: *before_install
+      install: *install
+      script: *script
+    - name: 3/ Linux GCC7 PYTHON3.7 build
+      stage: build and test
+      os: linux
+      dist: bionic
+      compiler: gcc
+      env:
+        - CXX_COMPILER='g++-7'
+        - C_COMPILER='gcc-7'
+        - PYTHON="${PYTHON3}"
+        - COVERAGE=ON
+        - PYENV_ROOT="${HOME}/.pyenv"
+        - PATH="${PYENV_ROOT}/bin:$PATH"
+      addons:
+        apt:
+          sources:
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
+          packages:
+            - cmake
+            - g++-7
+            - gcc-7
+            - gfortran-7
+            - lcov
+            - swig
+            - libssl1.0-dev
+      before_install: *before_install
+      install: *install
+      script: *script
+    - name: 4/ Linux GCC8 PYTHON2.7 build
+      stage: build and test
+      os: linux
+      dist: bionic
+      compiler: gcc
+      env:
+        - CXX_COMPILER='g++-8'
+        - C_COMPILER='gcc-8'
+        - PYTHON="${PYTHON2}"
+        - COVERAGE=ON
+        - PYENV_ROOT="${HOME}/.pyenv"
+        - PATH="${PYENV_ROOT}/bin:$PATH"
+      addons:
+        apt:
+          sources:
+            - sourceline: "ppa:ubuntu-toolchain-r/test"
+          packages:
+            - cmake
+            - g++-8
+            - gcc-8
+            - gfortran-7
+            - lcov
+            - swig
+            - libssl-dev
+      before_install: *before_install
+      install: *install
+      script: *script
+    - name: 5/ Windows VS17 PYTHON3.7 build
+      stage: build and test
+      os: windows
+      env: *windows_env
+      before_install: *before_install
+      install: *install
+      script: *script
+
+    - name: Source dist
+      stage: build wheel
+      os: linux
+      dist: bionic
+      env:
+        - PYTHON="${PYTHON3}"
+        - PYENV_ROOT="${HOME}/.pyenv"
+        - PATH="${PYENV_ROOT}/bin:$PATH"
+      before_install: *before_install
+      install:
+        - python -m pip install twine
+      script:
+        - python setup.py sdist
+      after_success: *sdist_upload
+    - name: Linux wheel build
+      stage: build wheel
+      os: linux
+      dist: bionic
+      services: docker
+      env:
+        - PYTHON="${PYTHON3}"
+        - PYENV_ROOT="${HOME}/.pyenv"
+        - PATH="${PYENV_ROOT}/bin:$PATH"
+        - CIBW_BEFORE_BUILD='pip install cmake'
+      before_install: *before_install
+      install: *wheel_install
+      script: *wheel_build
+      after_success: *wheel_upload
+    - name: OSX wheel build
+      stage: build wheel
+      os: osx
+      <<: *osx_settings
+      env: *osx_env
+      before_install: *before_install
+      install: *wheel_install
+      script: *wheel_build
+      after_success: *wheel_upload
+    - name: Windows wheel build
+      stage: build wheel
+      os: windows
+      env: *windows_env
+      before_install: *before_install
+      install: *wheel_install
+      script: *wheel_build
+      after_success: *wheel_upload
+
+cache:
+  directories:
+    - $HOME/.local
+    # pip
+    - $HOME/.cache/pip
+    # pyenv
+    - $HOME/.pyenv
+    # Homebrew
+    - $HOME/Library/Caches/Homebrew

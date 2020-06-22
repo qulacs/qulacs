@@ -155,7 +155,7 @@ public:
 		this->_update_func_gpu = S_gate_host;
 #endif
         this->_name = "S";
-        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
         this->_gate_property = FLAG_CLIFFORD | FLAG_GAUSSIAN;
         this->_matrix_element = ComplexMatrix::Zero(2, 2);
         this->_matrix_element << 1, 0, 0, 1.i;
@@ -179,7 +179,7 @@ public:
 		this->_update_func_gpu = Sdag_gate_host;
 #endif
         this->_name = "Sdag";
-        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
         this->_gate_property = FLAG_CLIFFORD | FLAG_GAUSSIAN;
         this->_matrix_element = ComplexMatrix::Zero(2, 2);
         this->_matrix_element << 1, 0, 0, -1.i;
@@ -203,7 +203,7 @@ public:
 		this->_update_func_gpu = T_gate_host;
 #endif
         this->_name = "T";
-        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
         this->_gate_property = FLAG_GAUSSIAN;
         this->_matrix_element = ComplexMatrix::Zero(2, 2);
         this->_matrix_element << 1, 0, 0, (1.+1.i)/sqrt(2.);
@@ -227,7 +227,7 @@ public:
 		this->_update_func_gpu = Tdag_gate_host;
 #endif
         this->_name = "Tdag";
-        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, 0));
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
         this->_gate_property = FLAG_GAUSSIAN;
         this->_matrix_element = ComplexMatrix::Zero(2, 2);
         this->_matrix_element << 1, 0, 0, (1. - 1.i) / sqrt(2.);

@@ -63,36 +63,6 @@ QuantumCircuit::QuantumCircuit(UINT qubit_count_):
     this->_qubit_count = qubit_count_;
 }
 
-
-QuantumCircuit::QuantumCircuit(std::string qasm_path, std::string qasm_loader_script_path):
-qubit_count(_qubit_count), gate_list(_gate_list) {
-	// generate quantum circuit from qasm
-	// now we delegate compile of qasm string to quantumopencompiler in qiskit-sdk.
-	std::string exec_string = std::string("python ")+qasm_loader_script_path+" "+qasm_path;
-    const unsigned int MAX_BUF = 1024;
-    char line[MAX_BUF];
-    char* endPoint;
-    FILE* fp;
-
-    
-    fp = popen(exec_string.c_str(),"r");
-    if(fp==NULL){
-        fprintf(stderr,"Error : cannot launch python loader or cannot load QASM: %s\n", qasm_path.c_str());
-        exit(0);
-    }
-    fgets(line,MAX_BUF,fp);
-    this->_qubit_count = atoi(line);
-    while(1){
-        (void)fgets(line,MAX_BUF,fp);
-        if(feof(fp)) break;
-
-        endPoint = strchr(line,'\n');
-        if(endPoint != NULL) *endPoint = '\0';
-        this->add_gate(gate::create_quantum_gate_from_string(line));
-    }
-    pclose(fp);
-}
-
 QuantumCircuit* QuantumCircuit::copy() const{
     QuantumCircuit* new_circuit = new QuantumCircuit(this->_qubit_count);
     for(const auto& gate : this->_gate_list){
@@ -290,14 +260,14 @@ void QuantumCircuit::add_RY_gate(UINT target_index, double angle) {
 void QuantumCircuit::add_RZ_gate(UINT target_index, double angle) {
     this->add_gate(gate::RZ(target_index,angle));
 }
-void QuantumCircuit::add_U1_gate(UINT target_index, double phi) {
-    this->add_gate(gate::U1(target_index,phi));
+void QuantumCircuit::add_U1_gate(UINT target_index, double lambda) {
+    this->add_gate(gate::U1(target_index,lambda));
 }
-void QuantumCircuit::add_U2_gate(UINT target_index, double phi, double psi) {
-    this->add_gate(gate::U2(target_index,phi,psi));
+void QuantumCircuit::add_U2_gate(UINT target_index, double phi, double lambda) {
+    this->add_gate(gate::U2(target_index,phi,lambda));
 }
-void QuantumCircuit::add_U3_gate(UINT target_index, double phi, double psi, double lambda) {
-    this->add_gate(gate::U3(target_index,phi,psi,lambda));
+void QuantumCircuit::add_U3_gate(UINT target_index, double theta, double phi, double lambda) {
+    this->add_gate(gate::U3(target_index,theta,phi,lambda));
 }
 void QuantumCircuit::add_multi_Pauli_gate(std::vector<UINT> target_index_list, std::vector<UINT> pauli_id_list) {
     this->add_gate(gate::Pauli(target_index_list, pauli_id_list));

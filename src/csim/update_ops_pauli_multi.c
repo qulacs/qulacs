@@ -33,6 +33,8 @@ void multi_qubit_Pauli_gate_XZ_mask(ITYPE bit_flip_mask, ITYPE phase_flip_mask, 
 	ITYPE state_index;
 
 #ifdef _OPENMP
+	UINT threshold = 14;
+	if (dim < (((ITYPE)1) << threshold)) omp_set_num_threads(1);
 #pragma omp parallel for
 #endif
 	for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -55,6 +57,9 @@ void multi_qubit_Pauli_gate_XZ_mask(ITYPE bit_flip_mask, ITYPE phase_flip_mask, 
 		state[basis_0] = cval_1 * PHASE_M90ROT[(global_phase_90rot_count + sign_0 * 2) % 4];
 		state[basis_1] = cval_0 * PHASE_M90ROT[(global_phase_90rot_count + sign_1 * 2) % 4];
 	}
+#ifdef _OPENMP
+	omp_set_num_threads(omp_get_max_threads());
+#endif
 }
 void multi_qubit_Pauli_rotation_gate_XZ_mask(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count, UINT pivot_qubit_index, double angle, CTYPE* state, ITYPE dim) {
 
@@ -69,6 +74,8 @@ void multi_qubit_Pauli_rotation_gate_XZ_mask(ITYPE bit_flip_mask, ITYPE phase_fl
 	const double cosval = cos(angle / 2);
 	const double sinval = sin(angle / 2);
 #ifdef _OPENMP
+	UINT threshold = 14;
+	if (dim < (((ITYPE)1) << threshold)) omp_set_num_threads(1);
 #pragma omp parallel for
 #endif
 	for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -91,6 +98,9 @@ void multi_qubit_Pauli_rotation_gate_XZ_mask(ITYPE bit_flip_mask, ITYPE phase_fl
 		state[basis_0] = cosval * cval_0 + 1.i * sinval * cval_1 * PHASE_M90ROT[(global_phase_90rot_count + bit_parity_0 * 2) % 4];
 		state[basis_1] = cosval * cval_1 + 1.i * sinval * cval_0 * PHASE_M90ROT[(global_phase_90rot_count + bit_parity_1 * 2) % 4];
 	}
+#ifdef _OPENMP
+	omp_set_num_threads(omp_get_max_threads());
+#endif
 }
 
 void multi_qubit_Pauli_gate_Z_mask(ITYPE phase_flip_mask, CTYPE* state, ITYPE dim) {
@@ -100,6 +110,8 @@ void multi_qubit_Pauli_gate_Z_mask(ITYPE phase_flip_mask, CTYPE* state, ITYPE di
 	ITYPE state_index;
 
 #ifdef _OPENMP
+	UINT threshold = 14;
+	if (dim < (((ITYPE)1) << threshold)) omp_set_num_threads(1);
 #pragma omp parallel for
 #endif
 	for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -111,6 +123,9 @@ void multi_qubit_Pauli_gate_Z_mask(ITYPE phase_flip_mask, CTYPE* state, ITYPE di
 			state[state_index] *= -1;
 		}
 	}
+#ifdef _OPENMP
+	omp_set_num_threads(omp_get_max_threads());
+#endif
 }
 
 
@@ -125,6 +140,8 @@ void multi_qubit_Pauli_rotation_gate_Z_mask(ITYPE phase_flip_mask, double angle,
 	const double sinval = sin(angle / 2);
 
 #ifdef _OPENMP
+	UINT threshold = 14;
+	if (dim < (((ITYPE)1) << threshold)) omp_set_num_threads(1);
 #pragma omp parallel for
 #endif
 	for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -136,6 +153,9 @@ void multi_qubit_Pauli_rotation_gate_Z_mask(ITYPE phase_flip_mask, double angle,
 		// set value
 		state[state_index] *= cosval + (CTYPE)sign * 1.i * sinval;
 	}
+#ifdef _OPENMP
+	omp_set_num_threads(omp_get_max_threads());
+#endif
 }
 
 void multi_qubit_Pauli_gate_partial_list(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, CTYPE* state, ITYPE dim) {

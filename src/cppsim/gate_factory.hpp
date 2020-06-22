@@ -305,6 +305,16 @@ namespace gate{
 	DllExport QuantumGateBase* SparseMatrix(std::vector<UINT> target_qubit_index_list, SparseComplexMatrix matrix);
 
 	/**
+	 * \f$n\f$-qubit 対角な行列を用いてn-qubitゲートを生成する。
+	 *
+	 * <code>target_qubit_index_list</code>の要素数を\f$m\f$としたとき、<code>matrix</code>は\f$2^m \times 2^m \f$の複素行列でなくてはいけない。
+	 * @param[in] target_qubit_index_list ターゲットとなる量子ビットの添え字
+	 * @param[in] matrix 作用するゲートの複素行列の対角成分。
+	 * @return 作成されたゲートのインスタンス
+	 */
+	DllExport QuantumGateBase* DiagonalMatrix(std::vector<UINT> target_qubit_index_list, ComplexVector diagonal_element);
+
+	/**
 	 * \f$n\f$-qubit のランダムユニタリゲートを作成する。
 	 *
 	 * @param[in] target_qubit_index_list ターゲットとなる量子ビットの添え字

@@ -877,8 +877,8 @@ DllExport void multi_qubit_Pauli_rotation_gate_partial_list(const UINT* target_q
  *
  */
 DllExport void double_qubit_dense_matrix_gate_c(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim);
-void double_qubit_dense_matrix_gate_single(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim);
-void double_qubit_dense_matrix_gate_parallel(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim);
+void double_qubit_dense_matrix_gate_nosimd(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim);
+void double_qubit_dense_matrix_gate_simd(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim);
 
 /**
  * \~english
@@ -1005,6 +1005,17 @@ DllExport void single_qubit_control_multi_qubit_dense_matrix_gate(UINT control_q
  * 
  */
 DllExport void multi_qubit_control_multi_qubit_dense_matrix_gate(const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
+
+
+/**
+ * Diagonal gate
+**/
+DllExport void multi_qubit_diagonal_matrix_gate(
+	const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* diagonal_element, CTYPE* state, ITYPE dim);
+
+DllExport void multi_qubit_control_multi_qubit_diagonal_matrix_gate(
+	const UINT* control_qubit_index_list, const UINT* control_value_list, UINT control_qubit_index_count, 
+	const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* diagonal_element, CTYPE* state, ITYPE dim);
 
 
 

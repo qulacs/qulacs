@@ -305,6 +305,25 @@ TEST(DensityMatrixGeneralGateTest, TwoQubitDepolarizingTest) {
 }
 
 
+TEST(DensityMatrixGeneralGateTest, NoiseSampling) {
+	const UINT n = 1;
+	const ITYPE dim = 1ULL << n;
+	double eps = 1e-15;
+	double prob = 0.2;
+
+	Random random;
+	DensityMatrix state(n);
+
+	// update density matrix
+	DensityMatrix dm(n);
+	dm.set_Haar_random_state();
+	std::vector<ITYPE> samples = dm.sampling(1000);
+	for (UINT i = 0; i < samples.size(); ++i) {
+		ASSERT_TRUE(samples[i] == 0 || samples[i] == 1);
+	}
+}
+
+
 /*
 // not implemented yet
 TEST(DensityMatrixGateTest, ReversibleBooleanGate) {

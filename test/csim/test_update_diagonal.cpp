@@ -92,10 +92,11 @@ void test_single_phase_gate(std::function<void(UINT, CTYPE, CTYPE*, ITYPE)> func
 		target = rand_int(n);
 		angle = rand_real();
 		U << 1, 0, 0, cos(angle) + 1.i*sin(angle);
-		auto s = cos(angle) + 1.i*sin(angle);
-		CTYPE t;
-		__real__ t = s.real();
-		__imag__ t = s.imag();
+#ifdef _MSC_VER
+		CTYPE t = cos(angle) + 1.i*sin(angle);
+#else
+		CTYPE t = cos(angle) + 1.j*sin(angle);
+#endif
 		func(target, t, state, dim);
 		test_state = get_expanded_eigen_matrix_with_identity(target, U, n) * test_state;
 		state_equal(state, test_state, dim, "single phase gate");

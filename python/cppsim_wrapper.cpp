@@ -43,35 +43,35 @@ PYBIND11_MODULE(qulacs, m) {
     m.doc() = "cppsim python interface";
 
     py::class_<PauliOperator>(m, "PauliOperator")
-        .def(py::init<std::complex<double>>())
-        .def(py::init<std::string, std::complex<double>>())
-        .def(py::init<std::vector<unsigned int>&, std::string, std::complex<double>>())
-        .def(py::init<std::vector<unsigned int>&, std::vector<unsigned int>&, std::complex<double>>())
-        .def(py::init<std::vector<unsigned int>&, std::complex<double>>())
-        .def("get_index_list", &PauliOperator::get_index_list)
-        .def("get_pauli_id_list", &PauliOperator::get_pauli_id_list)
-        .def("get_coef", &PauliOperator::get_coef)
-        .def("add_single_Pauli", &PauliOperator::add_single_Pauli)
-        .def("get_expectation_value", &PauliOperator::get_expectation_value)
-        .def("get_transition_amplitude", &PauliOperator::get_transition_amplitude)
-        .def("copy", &PauliOperator::copy, pybind11::return_value_policy::take_ownership)
+        .def(py::init<std::complex<double>>(), "Constructor", py::arg("coef"))
+        .def(py::init<std::string, std::complex<double>>(), "Constructor", py::arg("pauli_string"), py::arg("coef"))
+        //.def(py::init<std::vector<unsigned int>&, std::string, std::complex<double>>(), "Constructor")
+        //.def(py::init<std::vector<unsigned int>&, std::vector<unsigned int>&, std::complex<double>>(), "Constructor")
+        //.def(py::init<std::vector<unsigned int>&, std::complex<double>>(), "Constructor")
+        .def("get_index_list", &PauliOperator::get_index_list,"Get list of target qubit indices")
+        .def("get_pauli_id_list", &PauliOperator::get_pauli_id_list, "Get list of Pauli IDs (I,X,Y,Z) = (0,1,2,3)")
+        .def("get_coef", &PauliOperator::get_coef, "Get coefficient of Pauli term")
+        .def("add_single_Pauli", &PauliOperator::add_single_Pauli, "Add Pauli operator to this term", py::arg("index"), py::arg("pauli_string"))
+        .def("get_expectation_value", &PauliOperator::get_expectation_value, "Get expectation value", py::arg("state"))
+        .def("get_transition_amplitude", &PauliOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
+        .def("copy", &PauliOperator::copy, pybind11::return_value_policy::take_ownership, "Create copied instance of Pauli operator class")
         ;
 
     py::class_<GeneralQuantumOperator>(m, "GeneralQuantumOperator")
-        .def(py::init<unsigned int>())
+        .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
         // .def(py::init<std::string>())
-        .def("add_operator", (void (GeneralQuantumOperator::*)(const PauliOperator*)) &GeneralQuantumOperator::add_operator)
-        .def("add_operator", (void (GeneralQuantumOperator::*)(std::complex<double> coef, std::string))&GeneralQuantumOperator::add_operator)
-        .def("is_hermitian", &GeneralQuantumOperator::is_hermitian)
-        .def("get_qubit_count", &GeneralQuantumOperator::get_qubit_count)
-        .def("get_state_dim", &GeneralQuantumOperator::get_state_dim)
-        .def("get_term_count", &GeneralQuantumOperator::get_term_count)
+        .def("add_operator", (void (GeneralQuantumOperator::*)(const PauliOperator*)) &GeneralQuantumOperator::add_operator, "Add Pauli operator", py::arg("pauli_operator"))
+        .def("add_operator", (void (GeneralQuantumOperator::*)(std::complex<double> coef, std::string))&GeneralQuantumOperator::add_operator, "Add Pauli operator", py::arg("coef"), py::arg("pauli_string"))
+        .def("is_hermitian", &GeneralQuantumOperator::is_hermitian, "Get is Herimitian")
+        .def("get_qubit_count", &GeneralQuantumOperator::get_qubit_count, "Get qubit count")
+        .def("get_state_dim", &GeneralQuantumOperator::get_state_dim, "Get state dimension")
+        .def("get_term_count", &GeneralQuantumOperator::get_term_count, "Get count of Pauli terms")
         //.def("get_term", &GeneralQuantumOperator::get_term, pybind11::return_value_policy::take_ownership)
         .def("get_term",[](const GeneralQuantumOperator& quantum_operator, const unsigned int index) {
             return quantum_operator.get_term(index)->copy();
-        }, pybind11::return_value_policy::take_ownership)
-        .def("get_expectation_value", &GeneralQuantumOperator::get_expectation_value)
-        .def("get_transition_amplitude", &GeneralQuantumOperator::get_transition_amplitude)
+        }, pybind11::return_value_policy::take_ownership, "Get Pauli term", py::arg("index"))
+        .def("get_expectation_value", &GeneralQuantumOperator::get_expectation_value, "Get expectation value", py::arg("state"))
+        .def("get_transition_amplitude", &GeneralQuantumOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         //.def_static("get_split_GeneralQuantumOperator", &(GeneralQuantumOperator::get_split_observable));
         ;
     auto mquantum_operator = m.def_submodule("quantum_operator");
@@ -80,22 +80,22 @@ PYBIND11_MODULE(qulacs, m) {
     mquantum_operator.def("create_split_quantum_operator", &quantum_operator::create_split_general_quantum_operator, pybind11::return_value_policy::take_ownership);
 
     py::class_<HermitianQuantumOperator, GeneralQuantumOperator>(m, "Observable")
-        .def(py::init<unsigned int>())
+        .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
         // .def(py::init<std::string>())
-        .def("add_operator", (void (HermitianQuantumOperator::*)(const PauliOperator*)) &HermitianQuantumOperator::add_operator)
-        .def("add_operator", (void (HermitianQuantumOperator::*)(std::complex<double> coef, std::string))&HermitianQuantumOperator::add_operator)
-        .def("get_qubit_count", &HermitianQuantumOperator::get_qubit_count)
-        .def("get_state_dim", &HermitianQuantumOperator::get_state_dim)
-        .def("get_term_count", &HermitianQuantumOperator::get_term_count)
+        .def("add_operator", (void (HermitianQuantumOperator::*)(const PauliOperator*)) &HermitianQuantumOperator::add_operator, "Add Pauli operator", py::arg("pauli_operator"))
+        .def("add_operator", (void (HermitianQuantumOperator::*)(std::complex<double> coef, std::string))&HermitianQuantumOperator::add_operator, "Add Pauli operator", py::arg("coef"), py::arg("string"))
+        .def("get_qubit_count", &HermitianQuantumOperator::get_qubit_count, "Get qubit count")
+        .def("get_state_dim", &HermitianQuantumOperator::get_state_dim, "Get state dimension")
+        .def("get_term_count", &HermitianQuantumOperator::get_term_count, "Get count of Pauli terms")
         //.def("get_term", &HermitianQuantumOperator::get_term, pybind11::return_value_policy::take_ownership)
         .def("get_term",[](const HermitianQuantumOperator& quantum_operator, const unsigned int index) {
             return quantum_operator.get_term(index)->copy();
-        }, pybind11::return_value_policy::take_ownership)
+        }, pybind11::return_value_policy::take_ownership, "Get Pauli term", py::arg("index"))
         // .def("get_expectation_value", &HermitianQuantumOperator::get_expectation_value)
         .def("get_expectation_value", [](const HermitianQuantumOperator& observable, const QuantumStateBase* state) {
                                           double res = observable.get_expectation_value(state).real();
-                                          return res;})
-        .def("get_transition_amplitude", &HermitianQuantumOperator::get_transition_amplitude)
+                                          return res;}, "Get expectation value", py::arg("state"))
+        .def("get_transition_amplitude", &HermitianQuantumOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         //.def_static("get_split_Observable", &(HermitianQuantumOperator::get_split_observable));
         ;
     auto mobservable = m.def_submodule("observable");
@@ -106,65 +106,72 @@ PYBIND11_MODULE(qulacs, m) {
 
     py::class_<QuantumStateBase>(m, "QuantumStateBase");
     py::class_<QuantumState, QuantumStateBase>(m, "QuantumState")
-        .def(py::init<unsigned int>())
-        .def("set_zero_state", &QuantumState::set_zero_state)
-        .def("set_computational_basis", &QuantumState::set_computational_basis)
-        .def("set_Haar_random_state", (void (QuantumState::*)(void))&QuantumState::set_Haar_random_state)
-        .def("set_Haar_random_state", (void (QuantumState::*)(UINT))&QuantumState::set_Haar_random_state)
-        .def("get_zero_probability", &QuantumState::get_zero_probability)
-        .def("get_marginal_probability", &QuantumState::get_marginal_probability)
-        .def("get_entropy", &QuantumState::get_entropy)
-        .def("get_squared_norm", &QuantumState::get_squared_norm)
-        .def("normalize", &QuantumState::normalize)
-        .def("allocate_buffer", &QuantumState::allocate_buffer, pybind11::return_value_policy::automatic_reference)
-        //.def("copy", &QuantumState::copy, pybind11::return_value_policy::automatic_reference)
-        .def("copy", &QuantumState::copy)
-        .def("load", (void (QuantumState::*)(const QuantumStateBase*))&QuantumState::load)
-        .def("load", (void (QuantumState::*)(const std::vector<CPPCTYPE>&))&QuantumState::load)
-        .def("get_device_name", &QuantumState::get_device_name)
-        .def("data_cpp", &QuantumState::data_cpp)
-        .def("data_c", &QuantumState::data_c)
-        .def("add_state", &QuantumState::add_state)
-        .def("multiply_coef", &QuantumState::multiply_coef)
-        .def("multiply_elementwise_function", &QuantumState::multiply_elementwise_function)
-        .def("get_classical_value", &QuantumState::get_classical_value)
-        .def("set_classical_value", &QuantumState::set_classical_value)
-        .def("to_string",&QuantumState::to_string)
-        .def("sampling",&QuantumState::sampling)
+        .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
+        .def("set_zero_state", &QuantumState::set_zero_state, "Set state to |0>")
+        .def("set_computational_basis", &QuantumState::set_computational_basis, "Set state to computational basis", py::arg("index"))
+        .def("set_Haar_random_state", (void (QuantumState::*)(void))&QuantumState::set_Haar_random_state, "Set Haar random state")
+        .def("set_Haar_random_state", (void (QuantumState::*)(UINT))&QuantumState::set_Haar_random_state, "Set Haar random state", py::arg("seed"))
+        .def("get_zero_probability", &QuantumState::get_zero_probability, "Get probability with which we obtain 0 when we measure a qubit", py::arg("index"))
+		.def("get_marginal_probability", &QuantumState::get_marginal_probability, "Get merginal probability for measured values", py::arg("measured_value"))
+		.def("get_entropy", &QuantumState::get_entropy, "Get entropy")
+        .def("get_squared_norm", &QuantumState::get_squared_norm, "Get squared norm")
+        .def("normalize", &QuantumState::normalize, "Normalize quantum state", py::arg("squared_norm"))
+        .def("allocate_buffer", &QuantumState::allocate_buffer, pybind11::return_value_policy::automatic_reference, "Allocate buffer with the same size")
+		//.def("copy", &QuantumState::copy, pybind11::return_value_policy::automatic_reference)
+        .def("copy", &QuantumState::copy, "Create copied instance")
+        .def("load", (void (QuantumState::*)(const QuantumStateBase*))&QuantumState::load, "Load quantum state vector", py::arg("state"))
+        .def("load", (void (QuantumState::*)(const std::vector<CPPCTYPE>&))&QuantumState::load, "Load quantum state vector", py::arg("state"))
+		.def("get_device_name", &QuantumState::get_device_name, "Get allocated device name")
+        //.def("data_cpp", &QuantumState::data_cpp)
+        //.def("data_c", &QuantumState::data_c)
+        .def("add_state", &QuantumState::add_state, "Add state vector to this state", py::arg("state"))
+        .def("multiply_coef", &QuantumState::multiply_coef, "Multiply coefficient to this state", py::arg("coef"))
+        .def("multiply_elementwise_function", &QuantumState::multiply_elementwise_function, "Multiply elementwise function", py::arg("func"))
+        .def("get_classical_value", &QuantumState::get_classical_value, "Get classical value", py::arg("index"))
+        .def("set_classical_value", &QuantumState::set_classical_value, "Set classical value", py::arg("index"), py::arg("value"))
+        .def("to_string",&QuantumState::to_string, "Get string representation")
+        .def("sampling", (std::vector<ITYPE> (QuantumState::*)(UINT))&QuantumState::sampling, "Sampling measurement results", py::arg("count"))
+		.def("sampling", (std::vector<ITYPE>(QuantumState::*)(UINT, UINT))&QuantumState::sampling, "Sampling measurement results", py::arg("count"), py::arg("seed"))
 
         .def("get_vector", [](const QuantumState& state) {
         Eigen::VectorXcd vec = Eigen::Map<Eigen::VectorXcd>(state.data_cpp(), state.dim);
         return vec;
-        })
-        .def("get_qubit_count", [](const QuantumState& state) -> unsigned int {return (unsigned int) state.qubit_count; })
+        }, "Get state vector")
+        .def("get_qubit_count", [](const QuantumState& state) -> unsigned int {return (unsigned int) state.qubit_count; }, "Get qubit count")
         .def("__repr__", [](const QuantumState &p) {return p.to_string();});
         ;
 
+		m.def("StateVector", [](const unsigned int qubit_count) {
+			auto ptr = new QuantumState(qubit_count);
+			return ptr;
+		}, "StateVector");
+
 	py::class_<DensityMatrix, QuantumStateBase>(m, "DensityMatrix")
-		.def(py::init<unsigned int>())
-		.def("set_zero_state", &DensityMatrix::set_zero_state)
-		.def("set_computational_basis", &DensityMatrix::set_computational_basis)
-		.def("set_Haar_random_state", (void (DensityMatrix::*)(void))&DensityMatrix::set_Haar_random_state)
-		.def("set_Haar_random_state", (void (DensityMatrix::*)(UINT))&DensityMatrix::set_Haar_random_state)
-		.def("get_zero_probability", &DensityMatrix::get_zero_probability)
-		.def("get_marginal_probability", &DensityMatrix::get_marginal_probability)
-		.def("get_entropy", &DensityMatrix::get_entropy)
-		.def("get_squared_norm", &DensityMatrix::get_squared_norm)
-		.def("normalize", &DensityMatrix::normalize)
-		.def("allocate_buffer", &DensityMatrix::allocate_buffer, pybind11::return_value_policy::automatic_reference)
-		.def("copy", &DensityMatrix::copy)
-		.def("load", (void (DensityMatrix::*)(const QuantumStateBase*))&DensityMatrix::load)
-		.def("load", (void (DensityMatrix::*)(const std::vector<CPPCTYPE>&))&DensityMatrix::load)
-		.def("load", (void (DensityMatrix::*)(const ComplexMatrix&))&DensityMatrix::load)
-		.def("get_device_name", &DensityMatrix::get_device_name)
-		.def("data_cpp", &DensityMatrix::data_cpp)
-		.def("data_c", &DensityMatrix::data_c)
-		.def("add_state", &DensityMatrix::add_state)
-		.def("multiply_coef", &DensityMatrix::multiply_coef)
-		.def("get_classical_value", &DensityMatrix::get_classical_value)
-		.def("set_classical_value", &DensityMatrix::set_classical_value)
-		.def("to_string", &DensityMatrix::to_string)
-		.def("sampling", &DensityMatrix::sampling)
+		.def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
+		.def("set_zero_state", &DensityMatrix::set_zero_state, "Set state to |0>")
+		.def("set_computational_basis", &DensityMatrix::set_computational_basis, "Set state to computational basis", py::arg("index"))
+		.def("set_Haar_random_state", (void (DensityMatrix::*)(void))&DensityMatrix::set_Haar_random_state, "Set Haar random state")
+		.def("set_Haar_random_state", (void (DensityMatrix::*)(UINT))&DensityMatrix::set_Haar_random_state, "Set Haar random state", py::arg("seed"))
+		.def("get_zero_probability", &DensityMatrix::get_zero_probability, "Get probability with which we obtain 0 when we measure a qubit", py::arg("index"))
+		.def("get_marginal_probability", &DensityMatrix::get_marginal_probability, "Get merginal probability for measured values", py::arg("measured_value"))
+		.def("get_entropy", &DensityMatrix::get_entropy, "Get entropy")
+		.def("get_squared_norm", &DensityMatrix::get_squared_norm, "Get squared norm")
+		.def("normalize", &DensityMatrix::normalize, "Normalize quantum state", py::arg("squared_norm"))
+		.def("allocate_buffer", &DensityMatrix::allocate_buffer, pybind11::return_value_policy::automatic_reference, "Allocate buffer with the same size")
+		.def("copy", &DensityMatrix::copy, "Create copied insntace")
+		.def("load", (void (DensityMatrix::*)(const QuantumStateBase*))&DensityMatrix::load, "Load quantum state vector", py::arg("state"))
+		.def("load", (void (DensityMatrix::*)(const std::vector<CPPCTYPE>&))&DensityMatrix::load, "Load quantum state vector or density matrix", py::arg("state"))
+		.def("load", (void (DensityMatrix::*)(const ComplexMatrix&))&DensityMatrix::load, "Load density matrix", py::arg("state"))
+		.def("get_device_name", &DensityMatrix::get_device_name, "Get allocated device name")
+		//.def("data_cpp", &DensityMatrix::data_cpp)
+		//.def("data_c", &DensityMatrix::data_c)
+		.def("add_state", &DensityMatrix::add_state, "Add state vector to this state", py::arg("state"))
+		.def("multiply_coef", &DensityMatrix::multiply_coef, "Multiply coefficient to this state", py::arg("coef"))
+		.def("get_classical_value", &DensityMatrix::get_classical_value, "Get classical value", py::arg("index"))
+		.def("set_classical_value", &DensityMatrix::set_classical_value, "Set classical value", py::arg("index"), py::arg("value"))
+		.def("to_string", &QuantumState::to_string, "Get string representation")
+		.def("sampling", (std::vector<ITYPE>(DensityMatrix::*)(UINT))&DensityMatrix::sampling, "Sampling measurement results", py::arg("count"))
+		.def("sampling", (std::vector<ITYPE>(DensityMatrix::*)(UINT, UINT))&DensityMatrix::sampling, "Sampling measurement results", py::arg("count"), py::arg("seed"))
 
 		.def("get_matrix", [](const DensityMatrix& state) {
 			Eigen::MatrixXcd mat(state.dim, state.dim);
@@ -175,145 +182,168 @@ PYBIND11_MODULE(qulacs, m) {
 				}
 			}
 			return mat;
-		})
+		}, "Get density matrix")
 		.def("__repr__", [](const DensityMatrix &p) {return p.to_string(); });
 		;
 
 #ifdef _USE_GPU
     py::class_<QuantumStateGpu, QuantumStateBase>(m, "QuantumStateGpu")
-        .def(py::init<unsigned int>())
-        .def(py::init<unsigned int, unsigned int>())
-        .def("set_zero_state", &QuantumStateGpu::set_zero_state)
-        .def("set_computational_basis", &QuantumStateGpu::set_computational_basis)
-        .def("set_Haar_random_state", (void (QuantumStateGpu::*)(void))&QuantumStateGpu::set_Haar_random_state)
-        .def("set_Haar_random_state", (void (QuantumStateGpu::*)(UINT))&QuantumStateGpu::set_Haar_random_state)
-        .def("get_zero_probability", &QuantumStateGpu::get_zero_probability)
-        .def("get_marginal_probability", &QuantumStateGpu::get_marginal_probability)
-        .def("get_entropy", &QuantumStateGpu::get_entropy)
-        .def("get_squared_norm", &QuantumStateGpu::get_squared_norm)
-        .def("normalize", &QuantumStateGpu::normalize)
-        .def("allocate_buffer", &QuantumStateGpu::allocate_buffer, pybind11::return_value_policy::automatic_reference)
+        .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
+        .def(py::init<unsigned int, unsigned int>(), "Constructor", py::arg("qubit_count"), py::arg("gpu_id"))
+        .def("set_zero_state", &QuantumStateGpu::set_zero_state, "Set state to |0>")
+        .def("set_computational_basis", &QuantumStateGpu::set_computational_basis, "Set state to computational basis", py::arg("index"))
+        .def("set_Haar_random_state", (void (QuantumStateGpu::*)(void))&QuantumStateGpu::set_Haar_random_state, "Set Haar random state")
+        .def("set_Haar_random_state", (void (QuantumStateGpu::*)(UINT))&QuantumStateGpu::set_Haar_random_state, "Set Haar random state", py::arg("seed"))
+        .def("get_zero_probability", &QuantumStateGpu::get_zero_probability, "Get probability with which we obtain 0 when we measure a qubit", py::arg("index"))
+        .def("get_marginal_probability", &QuantumStateGpu::get_marginal_probability, "Get merginal probability for measured values", py::arg("measured_value"))
+        .def("get_entropy", &QuantumStateGpu::get_entropy, "Get entropy")
+        .def("get_squared_norm", &QuantumStateGpu::get_squared_norm, "Get squared norm")
+        .def("normalize", &QuantumStateGpu::normalize, "Normalize quantum state", py::arg("squared_norm"))
+        .def("allocate_buffer", &QuantumStateGpu::allocate_buffer, pybind11::return_value_policy::automatic_reference, "Allocate buffer with the same size")
         //.def("copy", &QuantumStateGpu::copy, pybind11::return_value_policy::automatic_reference)
-        .def("copy", &QuantumStateGpu::copy)
-        .def("load", (void (QuantumStateGpu::*)(const QuantumStateBase*))&QuantumStateGpu::load)
-        .def("load", (void (QuantumStateGpu::*)(const std::vector<CPPCTYPE>&))&QuantumStateGpu::load)
-        .def("get_device_name", &QuantumStateGpu::get_device_name)
+        .def("copy", &QuantumStateGpu::copy, "Create copied insntace")
+        .def("load", (void (QuantumStateGpu::*)(const QuantumStateBase*))&QuantumStateGpu::load, "Load quantum state vector", py::arg("state"))
+        .def("load", (void (QuantumStateGpu::*)(const std::vector<CPPCTYPE>&))&QuantumStateGpu::load, "Load quantum state vector", py::arg("state"))
+        .def("get_device_name", &QuantumStateGpu::get_device_name, "Get allocated device name")
         //.def("data_cpp", &QuantumStateGpu::data_cpp)
         //.def("data_c", &QuantumStateGpu::data_c)
-        .def("add_state", &QuantumStateGpu::add_state)
-        .def("multiply_coef", &QuantumStateGpu::multiply_coef)
-        .def("multiply_elementwise_function", &QuantumStateGpu::multiply_elementwise_function)
-        .def("get_classical_value", &QuantumStateGpu::get_classical_value)
-        .def("set_classical_value", &QuantumStateGpu::set_classical_value)
-        .def("to_string", &QuantumStateGpu::to_string)
-        .def("sampling", &QuantumStateGpu::sampling)
-        .def("get_vector", [](const QuantumStateGpu& state) {
+        .def("add_state", &QuantumStateGpu::add_state, "Add state vector to this state", py::arg("state"))
+        .def("multiply_coef", &QuantumStateGpu::multiply_coef, "Multiply coefficient to this state", py::arg("coef"))
+        .def("multiply_elementwise_function", &QuantumStateGpu::multiply_elementwise_function, "Multiply elementwise function", py::arg("func"))
+        .def("get_classical_value", &QuantumStateGpu::get_classical_value, "Get classical value", py::arg("index"))
+        .def("set_classical_value", &QuantumStateGpu::set_classical_value, "Set classical value", py::arg("index"), py::arg("value"))
+        .def("to_string", &QuantumStateGpu::to_string, "Get string representation")
+		.def("sampling", (std::vector<ITYPE>(QuantumStateGpu::*)(UINT))&QuantumStateGpu::sampling, "Sampling measurement results", py::arg("count"))
+		.def("sampling", (std::vector<ITYPE>(QuantumStateGpu::*)(UINT, UINT))&QuantumStateGpu::sampling, "Sampling measurement results", py::arg("count"), py::arg("seed"))
+		.def("get_vector", [](const QuantumStateGpu& state) {
             Eigen::VectorXcd vec = Eigen::Map<Eigen::VectorXcd>(state.duplicate_data_cpp(), state.dim);
             return vec;
-        }, pybind11::return_value_policy::take_ownership)
-        .def("get_qubit_count", [](const QuantumStateGpu& state) -> unsigned int {return (unsigned int) state.qubit_count; })
+        }, pybind11::return_value_policy::take_ownership, "Get state vector")
+        .def("get_qubit_count", [](const QuantumStateGpu& state) -> unsigned int {return (unsigned int) state.qubit_count; }, "Get qubit count")
         .def("__repr__", [](const QuantumStateGpu &p) {return p.to_string(); });
         ;
+		m.def("StateVectorGpu", [](const unsigned int qubit_count) {
+			auto ptr = new QuantumStateGpu(qubit_count);
+			return ptr;
+		}, "StateVectorGpu");
 
 #endif
 
     auto mstate = m.def_submodule("state");
     //using namespace state;
 #ifdef _USE_GPU
-    mstate.def("inner_product", py::overload_cast<const QuantumStateGpu*, const QuantumStateGpu*>(&state::inner_product));
+    mstate.def("inner_product", py::overload_cast<const QuantumStateGpu*, const QuantumStateGpu*>(&state::inner_product), "Get inner product", py::arg("state_bra"), py::arg("state_ket"));
 #endif
-    mstate.def("inner_product", py::overload_cast<const QuantumState*, const QuantumState*>(&state::inner_product));
+    mstate.def("inner_product", py::overload_cast<const QuantumState*, const QuantumState*>(&state::inner_product), "Get inner product", py::arg("state_bra"), py::arg("state_ket"));
     //mstate.def("inner_product", &state::inner_product);
 
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
-        .def("update_quantum_state", &QuantumGateBase::update_quantum_state)
-        .def("copy",&QuantumGateBase::copy, pybind11::return_value_policy::take_ownership)
-        .def("to_string", &QuantumGateBase::to_string)
+        .def("update_quantum_state", &QuantumGateBase::update_quantum_state, "Update quantum state", py::arg("state"))
+        .def("copy",&QuantumGateBase::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
+        .def("to_string", &QuantumGateBase::to_string, "Get string representation")
         .def("get_matrix", [](const QuantumGateBase& gate) {
             ComplexMatrix mat;
             gate.set_matrix(mat);
             return mat;
-        })
+        }, "Get gate matrix")
         .def("__repr__", [](const QuantumGateBase &p) {return p.to_string(); })
-        .def("get_target_index_list", &QuantumGateBase::get_target_index_list)
-        .def("get_control_index_list", &QuantumGateBase::get_control_index_list)
-        .def("get_name", &QuantumGateBase::get_name)
-        .def("is_commute", &QuantumGateBase::is_commute)
-        .def("is_Pauli", &QuantumGateBase::is_Pauli)
-        .def("is_Clifford", &QuantumGateBase::is_Clifford)
-        .def("is_Gaussian", &QuantumGateBase::is_Gaussian)
-        .def("is_parametric", &QuantumGateBase::is_parametric)
-        .def("is_diagonal", &QuantumGateBase::is_diagonal)
+        .def("get_target_index_list", &QuantumGateBase::get_target_index_list, "Get target qubit index list")
+        .def("get_control_index_list", &QuantumGateBase::get_control_index_list, "Get control qubit index list")
+        .def("get_name", &QuantumGateBase::get_name, "Get gate name")
+        .def("is_commute", &QuantumGateBase::is_commute, "Check this gate commutes with a given gate", py::arg("gate"))
+        .def("is_Pauli", &QuantumGateBase::is_Pauli, "Check this gate is element of Pauli group")
+        .def("is_Clifford", &QuantumGateBase::is_Clifford, "Check this gate is element of Clifford group")
+        .def("is_Gaussian", &QuantumGateBase::is_Gaussian, "Check this gate is element of Gaussian group")
+        .def("is_parametric", &QuantumGateBase::is_parametric, "Check this gate is parametric gate")
+        .def("is_diagonal", &QuantumGateBase::is_diagonal, "Check the gate matrix is diagonal")
         ;
 
     py::class_<QuantumGateMatrix,QuantumGateBase>(m, "QuantumGateMatrix")
-        .def("update_quantum_state", &QuantumGateMatrix::update_quantum_state)
-        .def("add_control_qubit", &QuantumGateMatrix::add_control_qubit)
-        .def("multiply_scalar", &QuantumGateMatrix::multiply_scalar)
-        .def("copy", &QuantumGateMatrix::copy, pybind11::return_value_policy::take_ownership)
-        .def("to_string", &QuantumGateMatrix::to_string)
+        .def("update_quantum_state", &QuantumGateMatrix::update_quantum_state, "Update quantum state", py::arg("state"))
+        .def("add_control_qubit", &QuantumGateMatrix::add_control_qubit, "Add control qubit", py::arg("index"), py::arg("control_value"))
+        .def("multiply_scalar", &QuantumGateMatrix::multiply_scalar, "Multiply scalar value to gate matrix", py::arg("value"))
+        .def("copy", &QuantumGateMatrix::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
+        .def("to_string", &QuantumGateMatrix::to_string, "Get string representation")
 
         .def("get_matrix", [](const QuantumGateMatrix& gate) {
         ComplexMatrix mat;
         gate.set_matrix(mat);
         return mat;
-        })
+        }, "Get gate matrix")
         .def("__repr__", [](const QuantumGateMatrix &p) {return p.to_string(); });
         ;
 
     auto mgate = m.def_submodule("gate");
-    mgate.def("Identity", &gate::Identity, pybind11::return_value_policy::take_ownership);
-    mgate.def("X", &gate::X, pybind11::return_value_policy::take_ownership);
-    mgate.def("Y", &gate::Y, pybind11::return_value_policy::take_ownership);
-    mgate.def("Z", &gate::Z, pybind11::return_value_policy::take_ownership);
-    mgate.def("H", &gate::H, pybind11::return_value_policy::take_ownership);
-    mgate.def("S", &gate::S, pybind11::return_value_policy::take_ownership);
-    mgate.def("Sdag", &gate::Sdag, pybind11::return_value_policy::take_ownership);
-    mgate.def("T", &gate::T, pybind11::return_value_policy::take_ownership);
-    mgate.def("Tdag", &gate::Tdag, pybind11::return_value_policy::take_ownership);
-    mgate.def("sqrtX", &gate::sqrtX, pybind11::return_value_policy::take_ownership);
-    mgate.def("sqrtXdag", &gate::sqrtXdag, pybind11::return_value_policy::take_ownership);
-    mgate.def("sqrtY", &gate::sqrtY, pybind11::return_value_policy::take_ownership);
-    mgate.def("sqrtYdag", &gate::sqrtYdag, pybind11::return_value_policy::take_ownership);
-    mgate.def("P0", &gate::P0, pybind11::return_value_policy::take_ownership);
-    mgate.def("P1", &gate::P1, pybind11::return_value_policy::take_ownership);
+    mgate.def("Identity", &gate::Identity, pybind11::return_value_policy::take_ownership, "Create identity gate", py::arg("index"));
+    mgate.def("X", &gate::X, pybind11::return_value_policy::take_ownership, "Create Pauli-X gate", py::arg("index"));
+    mgate.def("Y", &gate::Y, pybind11::return_value_policy::take_ownership, "Create Pauli-Y gate", py::arg("index"));
+    mgate.def("Z", &gate::Z, pybind11::return_value_policy::take_ownership, "Create Pauli-Z gate", py::arg("index"));
+    mgate.def("H", &gate::H, pybind11::return_value_policy::take_ownership, "Create Hadamard gate", py::arg("index"));
+    mgate.def("S", &gate::S, pybind11::return_value_policy::take_ownership, "Create pi/4-phase gate", py::arg("index"));
+    mgate.def("Sdag", &gate::Sdag, pybind11::return_value_policy::take_ownership, "Create adjoint of pi/4-phase gate", py::arg("index"));
+    mgate.def("T", &gate::T, pybind11::return_value_policy::take_ownership, "Create pi/8-phase gate", py::arg("index"));
+    mgate.def("Tdag", &gate::Tdag, pybind11::return_value_policy::take_ownership, "Create adjoint of pi/8-phase gate", py::arg("index"));
+    mgate.def("sqrtX", &gate::sqrtX, pybind11::return_value_policy::take_ownership, "Create pi/4 Pauli-X rotation gate", py::arg("index"));
+    mgate.def("sqrtXdag", &gate::sqrtXdag, pybind11::return_value_policy::take_ownership, "Create adjoint of pi/4 Pauli-X rotation gate", py::arg("index"));
+    mgate.def("sqrtY", &gate::sqrtY, pybind11::return_value_policy::take_ownership, "Create pi/4 Pauli-Y rotation gate", py::arg("index"));
+    mgate.def("sqrtYdag", &gate::sqrtYdag, pybind11::return_value_policy::take_ownership, "Create adjoint of pi/4 Pauli-Y rotation gate", py::arg("index"));
+    mgate.def("P0", &gate::P0, pybind11::return_value_policy::take_ownership, "Create projection gate to |0> subspace", py::arg("index"));
+    mgate.def("P1", &gate::P1, pybind11::return_value_policy::take_ownership, "Create projection gate to |1> subspace", py::arg("index"));
 
-    mgate.def("U1", &gate::U1, pybind11::return_value_policy::take_ownership);
-    mgate.def("U2", &gate::U2, pybind11::return_value_policy::take_ownership);
-    mgate.def("U3", &gate::U3, pybind11::return_value_policy::take_ownership);
+    mgate.def("U1", &gate::U1, pybind11::return_value_policy::take_ownership, "Create QASM U1 gate", py::arg("index"), py::arg("lambda"));
+    mgate.def("U2", &gate::U2, pybind11::return_value_policy::take_ownership, "Create QASM U2 gate", py::arg("index"), py::arg("phi"), py::arg("lambda"));
+    mgate.def("U3", &gate::U3, pybind11::return_value_policy::take_ownership, "Create QASM U3 gate", py::arg("index"), py::arg("theta"), py::arg("phi"), py::arg("lambda"));
 
-    mgate.def("RX", &gate::RX, pybind11::return_value_policy::take_ownership);
-    mgate.def("RY", &gate::RY, pybind11::return_value_policy::take_ownership);
-    mgate.def("RZ", &gate::RZ, pybind11::return_value_policy::take_ownership);
+    mgate.def("RX", &gate::RX, pybind11::return_value_policy::take_ownership, "Create Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RY", &gate::RY, pybind11::return_value_policy::take_ownership, "Create Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RZ", &gate::RZ, pybind11::return_value_policy::take_ownership, "Create Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
 
 	mgate.def("CNOT", [](UINT control_qubit_index, UINT target_qubit_index) {
 		auto ptr = gate::CNOT(control_qubit_index, target_qubit_index);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to CNOT.");
 		return ptr;
-	}, pybind11::return_value_policy::take_ownership);
+	}, pybind11::return_value_policy::take_ownership, "Create CNOT gate", py::arg("control"), py::arg("target"));
     mgate.def("CZ", [](UINT control_qubit_index, UINT target_qubit_index) {
 		auto ptr = gate::CZ(control_qubit_index, target_qubit_index);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to CZ.");
 		return ptr;
-	}, pybind11::return_value_policy::take_ownership);
-    mgate.def("SWAP", [](UINT target_index1, UINT target_index2) {
+	}, pybind11::return_value_policy::take_ownership, "Create CZ gate", py::arg("control"), py::arg("target"));
+	mgate.def("SWAP", [](UINT target_index1, UINT target_index2) {
 		auto ptr = gate::SWAP(target_index1, target_index2);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to SWAP.");
 		return ptr;
-	}, pybind11::return_value_policy::take_ownership); 
+	}, pybind11::return_value_policy::take_ownership, "Create SWAP gate", py::arg("target1"), py::arg("target2")); 
+
+	mgate.def("TOFFOLI", [](UINT control_index1, UINT control_index2, UINT target_index) {
+		auto ptr = gate::X(target_index);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to TOFFOLI.");
+		auto toffoli = gate::to_matrix_gate(ptr);
+		toffoli->add_control_qubit(control_index1, 1);
+		toffoli->add_control_qubit(control_index2, 1);
+		delete ptr;
+		return toffoli;
+	}, pybind11::return_value_policy::take_ownership, "Create TOFFOLI gate", py::arg("control1"), py::arg("control2"), py::arg("target"));
+	mgate.def("FREDKIN", [](UINT control_index, UINT target_index1, UINT target_index2) {
+		auto ptr = gate::SWAP(target_index1, target_index2);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to FREDKIN.");
+		auto fredkin = gate::to_matrix_gate(ptr);
+		fredkin->add_control_qubit(control_index, 1);
+		delete ptr;
+		return fredkin;
+	}, pybind11::return_value_policy::take_ownership, "Create FREDKIN gate", py::arg("control"), py::arg("target1"), py::arg("target2"));
 
     mgate.def("Pauli", [](std::vector<unsigned int> target_qubit_index_list, std::vector<unsigned int> pauli_ids) {
 		if (target_qubit_index_list.size() != pauli_ids.size()) throw std::invalid_argument("Size of qubit list and pauli list must be equal.");
 		auto ptr = gate::Pauli(target_qubit_index_list, pauli_ids);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to Pauli.");
 		return ptr;
-	}, pybind11::return_value_policy::take_ownership);
+	}, pybind11::return_value_policy::take_ownership, "Create multi-qubit Pauli gate", py::arg("index_list"), py::arg("pauli_ids"));
     mgate.def("PauliRotation", [](std::vector<unsigned int> target_qubit_index_list, std::vector<unsigned int> pauli_ids, double angle) {
 		if (target_qubit_index_list.size() != pauli_ids.size()) throw std::invalid_argument("Size of qubit list and pauli list must be equal.");
 		auto ptr = gate::PauliRotation(target_qubit_index_list, pauli_ids, angle);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to PauliRotation.");
 		return ptr;
-	}, pybind11::return_value_policy::take_ownership);
+	}, pybind11::return_value_policy::take_ownership, "Create multi-qubit Pauli rotation", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"));
 
     //QuantumGateMatrix*(*ptr1)(unsigned int, ComplexMatrix) = &gate::DenseMatrix;
     //QuantumGateMatrix*(*ptr2)(std::vector<unsigned int>, ComplexMatrix) = &gate::DenseMatrix;
@@ -322,91 +352,97 @@ PYBIND11_MODULE(qulacs, m) {
 		auto ptr = gate::DenseMatrix(target_qubit_index, matrix);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to DenseMatrix.");
 		return ptr;
-	}, pybind11::return_value_policy::take_ownership); 
+	}, pybind11::return_value_policy::take_ownership, "Create dense matrix gate", py::arg("index"), py::arg("matrix")); 
     mgate.def("DenseMatrix", [](std::vector<unsigned int> target_qubit_index_list, ComplexMatrix matrix) {
 		const ITYPE dim = 1ULL << target_qubit_index_list.size();
 		if (matrix.rows() != dim || matrix.cols() != dim) throw std::invalid_argument("matrix dims is not consistent.");
 		auto ptr = gate::DenseMatrix(target_qubit_index_list, matrix);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to DenseMatrix.");
 		return ptr;
-	}, pybind11::return_value_policy::take_ownership); 
+	}, pybind11::return_value_policy::take_ownership, "Create dense matrix gate", py::arg("index_list"), py::arg("matrix")); 
 	mgate.def("SparseMatrix", [](std::vector<unsigned int> target_qubit_index_list, SparseComplexMatrix matrix) {
 		const ITYPE dim = 1ULL << target_qubit_index_list.size();
 		if (matrix.rows() != dim || matrix.cols() != dim) throw std::invalid_argument("matrix dims is not consistent.");
 		auto ptr = gate::SparseMatrix(target_qubit_index_list, matrix);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to SparseMatrix.");
 		return ptr;
-	}, pybind11::return_value_policy::take_ownership); 
+	}, pybind11::return_value_policy::take_ownership, "Create sparse matrix gate", py::arg("index_list"), py::arg("matrix")); 
+	mgate.def("DiagonalMatrix", [](std::vector<unsigned int> target_qubit_index_list, ComplexVector diagonal_element) {
+		const ITYPE dim = 1ULL << target_qubit_index_list.size();
+		if (diagonal_element.size() != dim) throw std::invalid_argument("dim of diagonal elemet is not consistent.");
+		auto ptr = gate::DiagonalMatrix(target_qubit_index_list, diagonal_element);
+		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to SparseMatrix.");
+		return ptr;
+	}, pybind11::return_value_policy::take_ownership, "Create diagonal matrix gate", py::arg("index_list"), py::arg("diagonal_element"));
 
     mgate.def("RandomUnitary", [](std::vector<unsigned int> target_qubit_index_list) {
 		auto ptr = gate::RandomUnitary(target_qubit_index_list);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to RandomUnitary.");
 		return ptr;
-	}, pybind11::return_value_policy::take_ownership); 
+	}, pybind11::return_value_policy::take_ownership, "Create random unitary gate", py::arg("index_list")); 
     mgate.def("ReversibleBoolean", [](std::vector<UINT> target_qubit_list, std::function<ITYPE(ITYPE,ITYPE)> function_py) {
 		auto ptr = gate::ReversibleBoolean(target_qubit_list, function_py);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to ReversibleBoolean.");
 		return ptr;
-    }, pybind11::return_value_policy::take_ownership);
+    }, pybind11::return_value_policy::take_ownership, "Create reversible boolean gate", py::arg("index_list"), py::arg("func"));
 	mgate.def("StateReflection", [](const QuantumStateBase* reflection_state) {
 		auto ptr = gate::StateReflection(reflection_state);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to StateReflection.");
 		return ptr;
-	}, pybind11::return_value_policy::take_ownership);
+	}, pybind11::return_value_policy::take_ownership, "Create state reflection gate", py::arg("state"));
 
-    mgate.def("BitFlipNoise", &gate::BitFlipNoise);
-    mgate.def("DephasingNoise", &gate::DephasingNoise);
-    mgate.def("IndependentXZNoise", &gate::IndependentXZNoise);
-    mgate.def("DepolarizingNoise", &gate::DepolarizingNoise);
+    mgate.def("BitFlipNoise", &gate::BitFlipNoise, "Create bit-flip noise", py::arg("index"), py::arg("prob"));
+    mgate.def("DephasingNoise", &gate::DephasingNoise, "Create dephasing noise", py::arg("index"), py::arg("prob"));
+    mgate.def("IndependentXZNoise", &gate::IndependentXZNoise, "Create independent XZ noise", py::arg("index"), py::arg("prob"));
+    mgate.def("DepolarizingNoise", &gate::DepolarizingNoise, "Create depolarizing noise", py::arg("index"),py::arg("prob"));
 	mgate.def("TwoQubitDepolarizingNoise", [](UINT target_index1, UINT target_index2, double probability) {
 		auto ptr = gate::TwoQubitDepolarizingNoise(target_index1, target_index2, probability);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to TwoQubitDepolarizingNoise.");
 		return ptr;
-	}, pybind11::return_value_policy::take_ownership);
-	mgate.def("AmplitudeDampingNoise", &gate::AmplitudeDampingNoise);
-    mgate.def("Measurement", &gate::Measurement);
+	}, pybind11::return_value_policy::take_ownership, "Create two-qubit depolarizing noise", py::arg("index1"), py::arg("index2"), py::arg("prob"));
+	mgate.def("AmplitudeDampingNoise", &gate::AmplitudeDampingNoise, "Create amplitude damping noise", py::arg("index"), py::arg("prob"));
+    mgate.def("Measurement", &gate::Measurement, "Create measurement gate", py::arg("index"), py::arg("register"));
 
     QuantumGateMatrix*(*ptr3)(const QuantumGateBase*, const QuantumGateBase*) = &gate::merge;
-    mgate.def("merge", ptr3, pybind11::return_value_policy::take_ownership);
+    mgate.def("merge", ptr3, pybind11::return_value_policy::take_ownership, "Merge two quantum gate", py::arg("gate1"), py::arg("gate2"));
 
     QuantumGateMatrix*(*ptr4)(std::vector<const QuantumGateBase*>) = &gate::merge;
-    mgate.def("merge", ptr4, pybind11::return_value_policy::take_ownership);
+    mgate.def("merge", ptr4, pybind11::return_value_policy::take_ownership, "Merge quantum gate list", py::arg("gate_list"));
 
     QuantumGateMatrix*(*ptr5)(const QuantumGateBase*, const QuantumGateBase*) = &gate::add;
-    mgate.def("add", ptr5, pybind11::return_value_policy::take_ownership);
+    mgate.def("add", ptr5, pybind11::return_value_policy::take_ownership, "Add quantum gate matrices", py::arg("gate1"), py::arg("gate2"));
 
     QuantumGateMatrix*(*ptr6)(std::vector<const QuantumGateBase*>) = &gate::add;
-    mgate.def("add", ptr6, pybind11::return_value_policy::take_ownership);
+    mgate.def("add", ptr6, pybind11::return_value_policy::take_ownership, "Add quantum gate matrices", py::arg("gate_list"));
 
-    mgate.def("to_matrix_gate", &gate::to_matrix_gate, pybind11::return_value_policy::take_ownership);
-    mgate.def("Probabilistic", &gate::Probabilistic, pybind11::return_value_policy::take_ownership);
-    mgate.def("CPTP", &gate::CPTP, pybind11::return_value_policy::take_ownership);
-    mgate.def("Instrument", &gate::Instrument, pybind11::return_value_policy::take_ownership);
-    mgate.def("Adaptive", &gate::Adaptive, pybind11::return_value_policy::take_ownership);
+    mgate.def("to_matrix_gate", &gate::to_matrix_gate, pybind11::return_value_policy::take_ownership, "Convert named gate to matrix gate", py::arg("gate"));
+    mgate.def("Probabilistic", &gate::Probabilistic, pybind11::return_value_policy::take_ownership, "Create probabilistic gate", py::arg("prob_list"), py::arg("gate_list"));
+    mgate.def("CPTP", &gate::CPTP, pybind11::return_value_policy::take_ownership, "Create completely-positive trace preserving map", py::arg("kraus_list"));
+    mgate.def("Instrument", &gate::Instrument, pybind11::return_value_policy::take_ownership, "Create instruments", py::arg("kraus_list"), py::arg("register"));
+    mgate.def("Adaptive", &gate::Adaptive, pybind11::return_value_policy::take_ownership, "Create adaptive gate", py::arg("gate"), py::arg("condition"));
 
 	py::class_<QuantumGate_SingleParameter, QuantumGateBase>(m, "QuantumGate_SingleParameter")
-		.def("get_parameter_value", &QuantumGate_SingleParameter::get_parameter_value)
-		.def("set_parameter_value", &QuantumGate_SingleParameter::set_parameter_value)
+		.def("get_parameter_value", &QuantumGate_SingleParameter::get_parameter_value, "Get parameter value")
+		.def("set_parameter_value", &QuantumGate_SingleParameter::set_parameter_value, "Set parameter value", py::arg("value"))
 		;
-	mgate.def("ParametricRX", &gate::ParametricRX);
-    mgate.def("ParametricRY", &gate::ParametricRY);
-    mgate.def("ParametricRZ", &gate::ParametricRZ);
+	mgate.def("ParametricRX", &gate::ParametricRX, "Create parametric Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("ParametricRY", &gate::ParametricRY, "Create parametric Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("ParametricRZ", &gate::ParametricRZ, "Create parametric Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
     mgate.def("ParametricPauliRotation", [](std::vector<unsigned int> target_qubit_index_list, std::vector<unsigned int> pauli_ids, double angle) {
 		auto ptr = gate::ParametricPauliRotation(target_qubit_index_list, pauli_ids, angle);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to ParametricPauliRotation.");
 		return ptr;
-	}, pybind11::return_value_policy::take_ownership);
-
+	}, pybind11::return_value_policy::take_ownership, "Create parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"));
 
     py::class_<QuantumCircuit>(m, "QuantumCircuit")
-        .def(py::init<unsigned int>())
-        .def("copy", &QuantumCircuit::copy, pybind11::return_value_policy::take_ownership)
+        .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
+        .def("copy", &QuantumCircuit::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
         // In order to avoid double release, we force using add_gate_copy in python
-        .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate)
-        .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate)
-        .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase*))&QuantumCircuit::add_gate_copy)
-        .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate_copy)
-        .def("remove_gate", &QuantumCircuit::remove_gate)
+        .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate, "Add gate and take ownership", py::arg("gate"))
+        .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate, "Add gate and take ownership", py::arg("gate"), py::arg("position"))
+        .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase*))&QuantumCircuit::add_gate_copy, "Add gate with copy", py::arg("gate"))
+        .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate_copy, "Add gate with copy", py::arg("gate"), py::arg("position"))
+        .def("remove_gate", &QuantumCircuit::remove_gate, "Remove gate", py::arg("position"))
 
         .def("get_gate", [](const QuantumCircuit& circuit, unsigned int index) -> QuantumGateBase* { 
             if (index >= circuit.gate_list.size()) {
@@ -414,70 +450,71 @@ PYBIND11_MODULE(qulacs, m) {
                 return NULL;
             }
             return circuit.gate_list[index]->copy(); 
-        }, pybind11::return_value_policy::take_ownership)
-        .def("get_gate_count", [](const QuantumCircuit& circuit) -> unsigned int {return (unsigned int)circuit.gate_list.size(); })
-		.def("get_qubit_count", [](const QuantumCircuit& circuit) -> unsigned int {return circuit.qubit_count;})
+        }, pybind11::return_value_policy::take_ownership, "Get gate instance", py::arg("position"))
+        .def("get_gate_count", [](const QuantumCircuit& circuit) -> unsigned int {return (unsigned int)circuit.gate_list.size(); }, "Get gate count")
+		.def("get_qubit_count", [](const QuantumCircuit& circuit) -> unsigned int {return circuit.qubit_count;}, "Get qubit count")
 
-        .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*))&QuantumCircuit::update_quantum_state)
-        .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*, unsigned int, unsigned int))&QuantumCircuit::update_quantum_state)
-        .def("calculate_depth", &QuantumCircuit::calculate_depth)
-        .def("to_string", &QuantumCircuit::to_string)
+        .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*))&QuantumCircuit::update_quantum_state, "Update quantum state", py::arg("state"))
+        .def("update_quantum_state", (void (QuantumCircuit::*)(QuantumStateBase*, unsigned int, unsigned int))&QuantumCircuit::update_quantum_state, "Update quantum state", py::arg("state"), py::arg("start"), py::arg("end"))
+        .def("calculate_depth", &QuantumCircuit::calculate_depth, "Calculate depth of circuit")
+        .def("to_string", &QuantumCircuit::to_string, "Get string representation")
 
-        .def("add_X_gate", &QuantumCircuit::add_X_gate)
-        .def("add_Y_gate", &QuantumCircuit::add_Y_gate)
-        .def("add_Z_gate", &QuantumCircuit::add_Z_gate)
-        .def("add_H_gate", &QuantumCircuit::add_H_gate)
-        .def("add_S_gate", &QuantumCircuit::add_S_gate)
-        .def("add_Sdag_gate", &QuantumCircuit::add_Sdag_gate)
-        .def("add_T_gate", &QuantumCircuit::add_T_gate)
-        .def("add_Tdag_gate", &QuantumCircuit::add_Tdag_gate)
-        .def("add_sqrtX_gate", &QuantumCircuit::add_sqrtX_gate)
-        .def("add_sqrtXdag_gate", &QuantumCircuit::add_sqrtXdag_gate)
-        .def("add_sqrtY_gate", &QuantumCircuit::add_sqrtY_gate)
-        .def("add_sqrtYdag_gate", &QuantumCircuit::add_sqrtYdag_gate)
-        .def("add_P0_gate", &QuantumCircuit::add_P0_gate)
-        .def("add_P1_gate", &QuantumCircuit::add_P1_gate)
+        .def("add_X_gate", &QuantumCircuit::add_X_gate, "Add Pauli-X gate", py::arg("index"))
+        .def("add_Y_gate", &QuantumCircuit::add_Y_gate, "Add Pauli-Y gate", py::arg("index"))
+        .def("add_Z_gate", &QuantumCircuit::add_Z_gate, "Add Pauli-Z gate", py::arg("index"))
+        .def("add_H_gate", &QuantumCircuit::add_H_gate, "Add Hadamard gate", py::arg("index"))
+        .def("add_S_gate", &QuantumCircuit::add_S_gate, "Add pi/4 phase gate", py::arg("index"))
+        .def("add_Sdag_gate", &QuantumCircuit::add_Sdag_gate, "Add adjoint of pi/4 phsae gate", py::arg("index"))
+        .def("add_T_gate", &QuantumCircuit::add_T_gate, "Add pi/8 phase gate", py::arg("index"))
+        .def("add_Tdag_gate", &QuantumCircuit::add_Tdag_gate, "Add adjoint of pi/8 phase gate", py::arg("index"))
+        .def("add_sqrtX_gate", &QuantumCircuit::add_sqrtX_gate, "Add pi/4 Pauli-X rotation gate", py::arg("index"))
+        .def("add_sqrtXdag_gate", &QuantumCircuit::add_sqrtXdag_gate, "Add adjoint of pi/4 Pauli-X rotation gate", py::arg("index"))
+        .def("add_sqrtY_gate", &QuantumCircuit::add_sqrtY_gate, "Add pi/4 Pauli-Y rotation gate", py::arg("index"))
+        .def("add_sqrtYdag_gate", &QuantumCircuit::add_sqrtYdag_gate, "Add adjoint of pi/4 Pauli-Y rotation gate", py::arg("index"))
+        .def("add_P0_gate", &QuantumCircuit::add_P0_gate, "Add projection gate to |0> subspace", py::arg("index"))
+        .def("add_P1_gate", &QuantumCircuit::add_P1_gate, "Add projection gate to |1> subspace", py::arg("index"))
 
-        .def("add_CNOT_gate", &QuantumCircuit::add_CNOT_gate)
-        .def("add_CZ_gate", &QuantumCircuit::add_CZ_gate)
-        .def("add_SWAP_gate", &QuantumCircuit::add_SWAP_gate)
+        .def("add_CNOT_gate", &QuantumCircuit::add_CNOT_gate, "Add CNOT gate", py::arg("control"), py::arg("target"))
+        .def("add_CZ_gate", &QuantumCircuit::add_CZ_gate, "Add CNOT gate", py::arg("control"), py::arg("target"))
+        .def("add_SWAP_gate", &QuantumCircuit::add_SWAP_gate, "Add SWAP gate", py::arg("target1"), py::arg("target2"))
 
-        .def("add_RX_gate", &QuantumCircuit::add_RX_gate)
-        .def("add_RY_gate", &QuantumCircuit::add_RY_gate)
-        .def("add_RZ_gate", &QuantumCircuit::add_RZ_gate)
-        .def("add_U1_gate", &QuantumCircuit::add_U1_gate)
-        .def("add_U2_gate", &QuantumCircuit::add_U2_gate)
-        .def("add_U3_gate", &QuantumCircuit::add_U3_gate)
+        .def("add_RX_gate", &QuantumCircuit::add_RX_gate, "Add Pauli-X rotation gate", py::arg("index"), py::arg("angle"))
+        .def("add_RY_gate", &QuantumCircuit::add_RY_gate, "Add Pauli-Y rotation gate", py::arg("index"), py::arg("angle"))
+        .def("add_RZ_gate", &QuantumCircuit::add_RZ_gate, "Add Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
+        .def("add_U1_gate", &QuantumCircuit::add_U1_gate, "Add QASM U1 gate", py::arg("index"), py::arg("lambda"))
+        .def("add_U2_gate", &QuantumCircuit::add_U2_gate, "Add QASM U2 gate", py::arg("index"), py::arg("phi"), py::arg("lambda"))
+        .def("add_U3_gate", &QuantumCircuit::add_U3_gate, "Add QASM U3 gate", py::arg("index"), py::arg("theta"), py::arg("phi"), py::arg("lambda"))
 
-        .def("add_multi_Pauli_gate", (void (QuantumCircuit::*)(std::vector<unsigned int>, std::vector<unsigned int>))&QuantumCircuit::add_multi_Pauli_gate)
-        .def("add_multi_Pauli_gate", (void (QuantumCircuit::*)(const PauliOperator&)) &QuantumCircuit::add_multi_Pauli_gate)
-        .def("add_multi_Pauli_rotation_gate", (void (QuantumCircuit::*)(std::vector<unsigned int>, std::vector<unsigned int>, double))&QuantumCircuit::add_multi_Pauli_rotation_gate)
-        .def("add_multi_Pauli_rotation_gate", (void (QuantumCircuit::*)(const PauliOperator&))&QuantumCircuit::add_multi_Pauli_rotation_gate)
-        .def("add_dense_matrix_gate", (void (QuantumCircuit::*)(unsigned int, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate)
-        .def("add_dense_matrix_gate", (void (QuantumCircuit::*)(std::vector<unsigned int>, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate)
-        .def("add_random_unitary_gate", &QuantumCircuit::add_random_unitary_gate)
-        .def("add_diagonal_observable_rotation_gate", &QuantumCircuit::add_diagonal_observable_rotation_gate)
-        .def("add_observable_rotation_gate", &QuantumCircuit::add_observable_rotation_gate)
-        .def("__repr__", [](const QuantumCircuit &p) {return p.to_string(); });
+        .def("add_multi_Pauli_gate", (void (QuantumCircuit::*)(std::vector<unsigned int>, std::vector<unsigned int>))&QuantumCircuit::add_multi_Pauli_gate, "Add multi-qubit Pauli gate", py::arg("index_list"), py::arg("pauli_ids"))
+        .def("add_multi_Pauli_gate", (void (QuantumCircuit::*)(const PauliOperator&)) &QuantumCircuit::add_multi_Pauli_gate, "Add multi-qubit Pauli gate", py::arg("pauli"))
+        .def("add_multi_Pauli_rotation_gate", (void (QuantumCircuit::*)(std::vector<unsigned int>, std::vector<unsigned int>, double))&QuantumCircuit::add_multi_Pauli_rotation_gate, "Add multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"))
+        .def("add_multi_Pauli_rotation_gate", (void (QuantumCircuit::*)(const PauliOperator&))&QuantumCircuit::add_multi_Pauli_rotation_gate, "Add multi-qubit Pauli gate", py::arg("pauli"))
+        .def("add_dense_matrix_gate", (void (QuantumCircuit::*)(unsigned int, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate, "Add dense matrix gate", py::arg("index"), py::arg("matrix"))
+        .def("add_dense_matrix_gate", (void (QuantumCircuit::*)(std::vector<unsigned int>, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate, "Add dense matrix gate", py::arg("index_list"), py::arg("matrix"))
+        .def("add_random_unitary_gate", &QuantumCircuit::add_random_unitary_gate, "Add random unitary gate", py::arg("index_list"))
+        .def("add_diagonal_observable_rotation_gate", &QuantumCircuit::add_diagonal_observable_rotation_gate, "Add diagonal observable rotation gate", py::arg("observable"), py::arg("angle"))
+        .def("add_observable_rotation_gate", &QuantumCircuit::add_observable_rotation_gate, "Add observable rotation gate", py::arg("observable"), py::arg("angle"), py::arg("repeat"))
+			
+		.def("__repr__", [](const QuantumCircuit &p) {return p.to_string(); });
     ;
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(m, "ParametricQuantumCircuit")
-        .def(py::init<unsigned int>())
-        .def("copy", &ParametricQuantumCircuit::copy, pybind11::return_value_policy::take_ownership)
-        .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate))  &ParametricQuantumCircuit::add_parametric_gate)
-        .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate, UINT))  &ParametricQuantumCircuit::add_parametric_gate)
-        .def("add_gate", (void (ParametricQuantumCircuit::*)(const QuantumGateBase* gate))  &ParametricQuantumCircuit::add_gate_copy )
-        .def("add_gate", (void (ParametricQuantumCircuit::*)(const QuantumGateBase* gate, unsigned int))  &ParametricQuantumCircuit::add_gate_copy)
-        .def("get_parameter_count", &ParametricQuantumCircuit::get_parameter_count)
-        .def("get_parameter", &ParametricQuantumCircuit::get_parameter)
-        .def("set_parameter", &ParametricQuantumCircuit::set_parameter)
-        .def("get_parametric_gate_position", &ParametricQuantumCircuit::get_parametric_gate_position)
-        .def("remove_gate", &ParametricQuantumCircuit::remove_gate)
+        .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
+        .def("copy", &ParametricQuantumCircuit::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
+        .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate))  &ParametricQuantumCircuit::add_parametric_gate, "Add parametric gate", py::arg("gate"))
+        .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate, UINT))  &ParametricQuantumCircuit::add_parametric_gate, "Add parametric gate", py::arg("gate"), py::arg("position"))
+        .def("add_gate", (void (ParametricQuantumCircuit::*)(const QuantumGateBase* gate))  &ParametricQuantumCircuit::add_gate_copy, "Add gate", py::arg("gate"))
+        .def("add_gate", (void (ParametricQuantumCircuit::*)(const QuantumGateBase* gate, unsigned int))  &ParametricQuantumCircuit::add_gate_copy, "Add gate", py::arg("gate"), py::arg("position"))
+        .def("get_parameter_count", &ParametricQuantumCircuit::get_parameter_count, "Get parameter count")
+        .def("get_parameter", &ParametricQuantumCircuit::get_parameter, "Get parameter", py::arg("index"))
+        .def("set_parameter", &ParametricQuantumCircuit::set_parameter, "Set parameter", py::arg("index"), py::arg("parameter"))
+        .def("get_parametric_gate_position", &ParametricQuantumCircuit::get_parametric_gate_position, "Get parametric gate position", py::arg("index"))
+        .def("remove_gate", &ParametricQuantumCircuit::remove_gate, "Remove gate", py::arg("position"))
 
-        .def("add_parametric_RX_gate", &ParametricQuantumCircuit::add_parametric_RX_gate)
-        .def("add_parametric_RY_gate", &ParametricQuantumCircuit::add_parametric_RY_gate)
-        .def("add_parametric_RZ_gate", &ParametricQuantumCircuit::add_parametric_RZ_gate)
-        .def("add_parametric_multi_Pauli_rotation_gate", &ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate)
+        .def("add_parametric_RX_gate", &ParametricQuantumCircuit::add_parametric_RX_gate, "Add parametric Pauli-X rotation gate", py::arg("index"), py::arg("angle"))
+        .def("add_parametric_RY_gate", &ParametricQuantumCircuit::add_parametric_RY_gate, "Add parametric Pauli-Y rotation gate", py::arg("index"), py::arg("angle"))
+        .def("add_parametric_RZ_gate", &ParametricQuantumCircuit::add_parametric_RZ_gate, "Add parametric Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
+        .def("add_parametric_multi_Pauli_rotation_gate", &ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate, "Add parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"))
 
         .def("__repr__", [](const ParametricQuantumCircuit &p) {return p.to_string(); });
     ;
@@ -486,23 +523,24 @@ PYBIND11_MODULE(qulacs, m) {
 
     auto mcircuit = m.def_submodule("circuit");
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
-        .def(py::init<>())
-        .def("optimize", &QuantumCircuitOptimizer::optimize)
-        .def("merge_all", &QuantumCircuitOptimizer::merge_all, pybind11::return_value_policy::take_ownership)
+        .def(py::init<>(), "Constructor")
+        .def("optimize", &QuantumCircuitOptimizer::optimize, "Optimize quantum circuit", py::arg("circuit"), py::arg("block_size"))
+		.def("optimize_light", &QuantumCircuitOptimizer::optimize_light, "Optimize quantum circuit with light method", py::arg("circuit"))
+		.def("merge_all", &QuantumCircuitOptimizer::merge_all, pybind11::return_value_policy::take_ownership, py::arg("circuit"))
         ;
 
     py::class_<QuantumCircuitSimulator>(m, "QuantumCircuitSimulator")
-        .def(py::init<QuantumCircuit*, QuantumStateBase*>())
-        .def("initialize_state", &QuantumCircuitSimulator::initialize_state)
-        .def("initialize_random_state", &QuantumCircuitSimulator::initialize_random_state)
-        .def("simulate", &QuantumCircuitSimulator::simulate)
-        .def("simulate_range", &QuantumCircuitSimulator::simulate_range)
-        .def("get_expectation_value", &QuantumCircuitSimulator::get_expectation_value)
-        .def("get_gate_count", &QuantumCircuitSimulator::get_gate_count)
-        .def("copy_state_to_buffer", &QuantumCircuitSimulator::copy_state_to_buffer)
-        .def("copy_state_from_buffer", &QuantumCircuitSimulator::copy_state_from_buffer)
-        .def("swap_state_and_buffer", &QuantumCircuitSimulator::swap_state_and_buffer)
-        .def("get_state_ptr", &QuantumCircuitSimulator::get_state_ptr, pybind11::return_value_policy::automatic_reference)
+        .def(py::init<QuantumCircuit*, QuantumStateBase*>(), "Constructor", py::arg("circuit"), py::arg("state"))
+        .def("initialize_state", &QuantumCircuitSimulator::initialize_state, "Initialize state")
+        .def("initialize_random_state", &QuantumCircuitSimulator::initialize_random_state, "Initialize state with random pure state")
+        .def("simulate", &QuantumCircuitSimulator::simulate, "Simulate circuit")
+        .def("simulate_range", &QuantumCircuitSimulator::simulate_range, "Simulate circuit", py::arg("start"), py::arg("end"))
+        .def("get_expectation_value", &QuantumCircuitSimulator::get_expectation_value, "Get expectation value", py::arg("observable"))
+        .def("get_gate_count", &QuantumCircuitSimulator::get_gate_count, "Get gate count")
+        .def("copy_state_to_buffer", &QuantumCircuitSimulator::copy_state_to_buffer, "Copy state to buffer")
+        .def("copy_state_from_buffer", &QuantumCircuitSimulator::copy_state_from_buffer, "Copy buffer to state")
+        .def("swap_state_and_buffer", &QuantumCircuitSimulator::swap_state_and_buffer, "Swap state and buffer")
+        //.def("get_state_ptr", &QuantumCircuitSimulator::get_state_ptr, pybind11::return_value_policy::automatic_reference, "Get state ptr")
         ;
 }
 

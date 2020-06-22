@@ -14,6 +14,7 @@
 #include "gate_named_pauli.hpp"
 #include "gate_matrix.hpp"
 #include "gate_matrix_sparse.hpp"
+#include "gate_matrix_diagonal.hpp"
 #include "gate_reversible.hpp"
 #include "gate_reflect.hpp"
 #include "type.hpp"
@@ -167,6 +168,13 @@ namespace gate{
 			return NULL;
 		}
 		return new QuantumGateSparseMatrix(target_list, matrix);
+	}
+	QuantumGateBase* DiagonalMatrix(std::vector<UINT> target_list, ComplexVector diagonal_element) {
+		if (!check_is_unique_index_list(target_list)) {
+			std::cerr << "Error: gate::DiagonalMatrix(std::vector<UINT> target_list, ComplexVector diagonal_element): target list contains duplicated values." << std::endl;
+			return NULL;
+		}
+		return new QuantumGateDiagonalMatrix(target_list, diagonal_element);
 	}
 
 	QuantumGateMatrix* RandomUnitary(std::vector<UINT> target_list) {
