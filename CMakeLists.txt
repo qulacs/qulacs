@@ -64,7 +64,7 @@ set(EIGEN_INSTALL_DIR ${CMAKE_SOURCE_DIR}/include)
 set(EIGEN_INCLUDE_DIR ${EIGEN_INSTALL_DIR})
 ExternalProject_Add(
     eigen
-    URL http://bitbucket.org/eigen/eigen/get/3.3.5.tar.gz
+    URL https://gitlab.com/libeigen/eigen/-/archive/3.3.5/eigen-3.3.5.tar.gz
     PREFIX ${EIGEN_BUILD_DIR}
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
