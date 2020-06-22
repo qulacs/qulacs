@@ -8,7 +8,7 @@ from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
-_VERSION = '0.1.10'
+_VERSION = '0.1.10.1'
 
 project_name = 'Qulacs'
 
