@@ -15,7 +15,7 @@ pip install qulacs
 
 Notice: this command install the Qulacs binary which requires AVX2 features.
 If your computer doesn't support AVX2, the Python program using Qulacs installed by this command will almost certainly fail due to segmentation fault or something else.
-You should check your CPU and if it doesn't support AVX2 then you have to install Qulacs from the source code.
+You should check your CPU and if it doesn't support AVX2 (i.e. older than Haswell) then you have to install Qulacs from the source code.
 
 ```
 pip install git+https://github.com/qulacs/qulacs.git
