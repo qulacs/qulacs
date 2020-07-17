@@ -270,7 +270,7 @@ public:
 					buffer->load(state);
 				}
 			}
-			if (!(r < sum)) {
+			if (!(r * probability_sum < sum)) {
 				if (_assign_zero_if_not_matched) {
 					state->multiply_coef(CPPCTYPE(0.));
 				}
