@@ -251,6 +251,7 @@ public:
 				for (auto gate : _gate_list) {
 					gate->update_quantum_state(buffer);
 					norm = buffer->get_squared_norm() / org_norm;
+					buffer->load(state);
 					probability_sum += norm;
 				}
 			}
