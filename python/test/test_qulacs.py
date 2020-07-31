@@ -300,6 +300,48 @@ class TestPointerHandling(unittest.TestCase):
         del gate
         del state
 
+    def test_copied_parametric_gate(self):
+
+        from qulacs import ParametricQuantumCircuit, QuantumState
+        from qulacs.gate import ParametricRX
+
+        def f():
+            circuit = ParametricQuantumCircuit(1)
+            gate = ParametricRX(0, 0.1)
+            circuit.add_parametric_gate(gate)
+            circuit.add_parametric_gate(gate)
+            circuit.add_gate(gate)
+            gate.set_parameter_value(0.2)
+            circuit.add_parametric_gate(gate)
+            circuit.add_parametric_RX_gate(0, 0.3)
+            gate2 = gate.copy()
+            gate2.set_parameter_value(0.4)
+            gate.set_parameter_value(1.0)
+            del gate
+            circuit.add_parametric_gate(gate2)
+            circuit.remove_gate(1)
+            del gate2
+            return circuit
+
+        c = f()
+        for gc in range(c.get_parameter_count()):
+            val = c.get_parameter(gc)
+            c.set_parameter(gc, val + 1.0)
+            self.assertAlmostEqual(val, gc * 0.1 + 0.1, msg="check vector size")
+
+        d = c.copy()
+        del c
+        for gc in range(d.get_parameter_count()):
+            val = d.get_parameter(gc)
+            d.set_parameter(gc, val + 10)
+            val = d.get_parameter(gc)
+            self.assertAlmostEqual(val, 11.1 + gc * 0.1, msg="check vector size")
+
+        qs = QuantumState(1)
+        d.update_quantum_state(qs)
+        del d
+        del qs
+
 
 if __name__ == "__main__":
     unittest.main()
