@@ -202,6 +202,128 @@ public:
     }
 };
 
+
+
+/**
+ * \~japanese-en Kraus表現のCP-map
+ */
+class QuantumGate_CP : public QuantumGateBase {
+protected:
+	Random random;
+	std::vector<QuantumGateBase*> _gate_list;
+	const bool _state_normalize;
+	const bool _probability_normalize;
+	const bool _assign_zero_if_not_matched;
+
+public:
+	QuantumGate_CP(std::vector<QuantumGateBase*> gate_list, bool state_normalize, bool probability_normalize, bool assign_zero_if_not_matched)
+		:_state_normalize(state_normalize), _probability_normalize(probability_normalize), _assign_zero_if_not_matched(assign_zero_if_not_matched){
+		for (auto gate : gate_list) {
+			_gate_list.push_back(gate->copy());
+		}
+	};
+	virtual ~QuantumGate_CP() {
+		for (unsigned int i = 0; i < _gate_list.size(); ++i) {
+			delete _gate_list[i];
+		}
+	}
+
+	/**
+	 * \~japanese-en 量子状態を更新する
+	 *
+	 * @param state 更新する量子状態
+	 */
+	virtual void update_quantum_state(QuantumStateBase* state) override {
+		if (state->is_state_vector()) {
+			double r = random.uniform();
+
+			double sum = 0.;
+			double org_norm = state->get_squared_norm();
+
+			auto buffer = state->copy();
+			double norm;
+
+			// if probability normalize = true
+			//  compute sum of distribution and normalize it
+			double probability_sum = 1.;
+			if (_probability_normalize) {
+				probability_sum = 0.;
+				for (auto gate : _gate_list) {
+					gate->update_quantum_state(buffer);
+					norm = buffer->get_squared_norm() / org_norm;
+					buffer->load(state);
+					probability_sum += norm;
+				}
+			}
+
+			for (auto gate : _gate_list) {
+				gate->update_quantum_state(buffer);
+				norm = buffer->get_squared_norm() / org_norm;
+				sum += norm;
+				if (r * probability_sum < sum) {
+					state->load(buffer);
+					if (_state_normalize) {
+						state->normalize(norm);
+					}
+					break;
+				}
+				else {
+					buffer->load(state);
+				}
+			}
+			if (!(r * probability_sum < sum)) {
+				if (_assign_zero_if_not_matched) {
+					state->multiply_coef(CPPCTYPE(0.));
+				}
+			}
+			delete buffer;
+		}
+		else {
+			auto org_state = state->copy();
+			auto temp_state = state->copy();
+			for (UINT gate_index = 0; gate_index < _gate_list.size(); ++gate_index) {
+				if (gate_index == 0) {
+					_gate_list[gate_index]->update_quantum_state(state);
+				}
+				else if (gate_index + 1 < _gate_list.size()) {
+					temp_state->load(org_state);
+					_gate_list[gate_index]->update_quantum_state(temp_state);
+					state->add_state(temp_state);
+				}
+				else {
+					_gate_list[gate_index]->update_quantum_state(org_state);
+					state->add_state(org_state);
+				}
+			}
+			delete org_state;
+			delete temp_state;
+		}
+	};
+
+	/**
+	 * \~japanese-en 自身のディープコピーを生成する
+	 *
+	 * @return 自身のディープコピー
+	 */
+	virtual QuantumGateBase* copy() const override {
+		std::vector<QuantumGateBase*> new_gate_list;
+		for (auto item : _gate_list) {
+			new_gate_list.push_back(item->copy());
+		}
+		return new QuantumGate_CP(new_gate_list, _state_normalize, _probability_normalize, _assign_zero_if_not_matched);
+	};
+	/**
+	 * \~japanese-en 自身のゲート行列をセットする
+	 *
+	 * @param matrix 行列をセットする変数の参照
+	 */
+	virtual void set_matrix(ComplexMatrix& matrix) const override {
+		std::cerr << "* Warning : Gate-matrix of CPTP-map cannot be obtained. Identity matrix is returned." << std::endl;
+		matrix = Eigen::MatrixXcd::Ones(1, 1);
+	}
+};
+
+
 /**
  * \~japanese-en Instrument
  */

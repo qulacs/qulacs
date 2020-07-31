@@ -74,6 +74,18 @@ namespace gate {
      */
     DllExport QuantumGateBase* CPTP(std::vector<QuantumGateBase*> gate_list);
 
+	/**
+	 * \~japanese-en CP-mapを作成する
+	 *
+	 * \f$p_i = {\rm Tr}[K_i \rho K_i^{\dagger}]\f$を計算し、\f$\{p_i\}\f$の確率分布でクラウス演算子を採用する。
+	 * @param gate_list クラウス演算を行うゲートのリスト
+	 * @param state_normlize trueだったら状態を規格化する
+	 * @param probability_normalize trueだったら確率分布を規格化する
+	 * @param assign_zero_if_not_matched どのKraus演算子にもマッチしなかったら0を代入する
+	 * @return CP-map
+	 */
+	DllExport QuantumGateBase* CP(std::vector<QuantumGateBase*> gate_list, bool state_normalize, bool probability_normalize, bool assign_zero_if_not_matched);
+
     /**
      * \~japanese-en Instrumentを作成する
      *
