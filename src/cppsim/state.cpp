@@ -28,6 +28,10 @@ namespace state {
 		return qs;
 	}
 	QuantumState* permutate_qubit(const QuantumState* state, std::vector<UINT> qubit_order) {
+		if (state->qubit_count != (UINT)qubit_order.size()) {
+			std::cerr << "Error: permutate_qubit(const QuantumState*, std::vector<UINT>): invalid qubit count" << std::endl;
+			return NULL;
+		}
 		UINT qubit_count = state->qubit_count;
 		QuantumState* qs = new QuantumState(qubit_count);
 		state_permutate_qubit(qubit_order.data(), state->data_c(), qs->data_c(), state->qubit_count, state->dim);
