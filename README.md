@@ -205,7 +205,7 @@ int main(){
 
 Build command for g++:
 ```sh
-g++ -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -fopenmp -lcppsim_static.so
+g++ -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -fopenmp -lcsim_static -lcppsim_static
 ```
 
 If you want to run it on GPU, include <code>cppsim/state_gpu.hpp</code> and replace <code>QuantumState</code> with <code>QuantumStateGpu</code>.

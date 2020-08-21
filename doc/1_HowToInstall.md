@@ -83,7 +83,7 @@ int main(){
 
 Example of build command:
 ```sh
-g++ -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lcppsim.so
+g++ -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lcsim_static -lcppsim_static
 ```
 
 ### Python Libraries
