@@ -55,11 +55,19 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(const QuantumStateBase* s
 		std::cerr << "Error: GeneralQuantumOperator::get_expectation_value(const QuantumStateBase*): invalid qubit count" << std::endl;
 		return 0.;
 	}
-    CPPCTYPE sum = 0;
-    for (auto pauli : this->_operator_list) {
-        sum += pauli->get_expectation_value(state);
+    double sum_real = 0.;
+    double sum_imag = 0.;
+    CPPCTYPE tmp(0., 0.);
+    size_t n_terms = this->_operator_list.size();
+    #ifdef _OPENMP
+    #pragma omp parallel for reduction(+:sum_real, sum_imag) private(tmp)
+    #endif
+    for (int i=0; i<n_terms; ++i) {
+        tmp = _operator_list[i]->get_expectation_value_single_thread(state);
+        sum_real += tmp.real();
+        sum_imag += tmp.imag();
     }
-    return sum;
+    return CPPCTYPE(sum_real, sum_imag);
 }
 
 CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const {

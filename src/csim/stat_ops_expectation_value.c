@@ -150,4 +150,58 @@ double expectation_value_multi_qubit_Pauli_operator_whole_list(const UINT* Pauli
     return result;
 }
 
+/****
+ * Single thread version of expectation value
+**/
+// calculate expectation value of multi-qubit Pauli operator on qubits.
+// bit-flip mask : the n-bit binary string of which the i-th element is 1 iff the i-th pauli operator is X or Y
+// phase-flip mask : the n-bit binary string of which the i-th element is 1 iff the i-th pauli operator is Y or Z
+// We assume bit-flip mask is nonzero, namely, there is at least one X or Y operator.
+// the pivot qubit is any qubit index which has X or Y
+// To generate bit-flip mask and phase-flip mask, see get_masks_*_list at utility.h
+double expectation_value_multi_qubit_Pauli_operator_XZ_mask_single_thread(ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count,UINT pivot_qubit_index, const CTYPE* state, ITYPE dim){
+    const ITYPE loop_dim = dim/2;
+    const ITYPE pivot_mask = 1ULL << pivot_qubit_index;
+    ITYPE state_index;
+    double sum = 0.;
+    UINT sign_0;
+    ITYPE basis_0, basis_1;
+    for(state_index=0;state_index<loop_dim;++state_index){
+        basis_0 = insert_zero_to_basis_index(state_index, pivot_mask, pivot_qubit_index);
+        basis_1 = basis_0 ^ bit_flip_mask;
+        sign_0 = count_population(basis_0 & phase_flip_mask)%2;
+        sum += creal(state[basis_0] * conj(state[basis_1]) * PHASE_90ROT[ (global_phase_90rot_count + sign_0*2)%4 ] * 2.0);
+    }
+    return sum;
+}
+
+
+double expectation_value_multi_qubit_Pauli_operator_Z_mask_single_thread(ITYPE phase_flip_mask, const CTYPE* state, ITYPE dim){
+    const ITYPE loop_dim = dim;
+    ITYPE state_index;
+    double sum = 0.;
+    int bit_parity, sign;
+    for(state_index=0;state_index<loop_dim;++state_index){
+        bit_parity = count_population(state_index & phase_flip_mask)%2;
+        sign = 1 - 2*bit_parity;
+        sum += pow(cabs(state[state_index]),2) * sign;
+    }
+    return sum;
+}
+
+double expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, const CTYPE* state, ITYPE dim){
+    ITYPE bit_flip_mask = 0;
+    ITYPE phase_flip_mask = 0;
+    UINT global_phase_90rot_count = 0;
+    UINT pivot_qubit_index = 0;
+    get_Pauli_masks_partial_list(target_qubit_index_list, Pauli_operator_type_list, target_qubit_index_count,
+        &bit_flip_mask, &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
+    double result;
+    if(bit_flip_mask == 0){
+        result = expectation_value_multi_qubit_Pauli_operator_Z_mask_single_thread(phase_flip_mask, state,dim);
+    }else{
+        result = expectation_value_multi_qubit_Pauli_operator_XZ_mask_single_thread(bit_flip_mask, phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state, dim);
+    }
+    return result;
+}
 
