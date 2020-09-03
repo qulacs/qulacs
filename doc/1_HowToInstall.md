@@ -134,7 +134,7 @@ nvcc -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cu -lcpps
 
 #### MSVC
 ```sh
-nvcc -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp ./<qulacs_path>/cppsim_static.lib ./<qulacs_path>/csim_static.lib ./<qulacs_path>/gpusim_static.lib -D _USE_GPU -lcublas  -Xcompiler /openmp 
+nvcc -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cu ./<qulacs_path>/cppsim_static.lib ./<qulacs_path>/csim_static.lib ./<qulacs_path>/gpusim_static.lib -D _USE_GPU -lcublas  -Xcompiler /openmp 
 ```
 
 
