@@ -85,12 +85,12 @@ Example of build command:
 
 #### GCC
 ```sh
-g++ -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lcppsim_static -lcsim_static -fopenmp
+g++ -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lcppsim_static -lcsim_static -fopenmp
 ```
 
 #### MSVC
 ```sh
-cl -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp ./<qulacs_path>/cppsim_static.lib ./<qulacs_path>/csim_static.lib /openmp
+cl -O2 -I ./<qulacs_path>/include <your_code>.cpp ./<qulacs_path>/cppsim_static.lib ./<qulacs_path>/csim_static.lib /openmp
 ```
 
 ### C++ Libraries with GPU
