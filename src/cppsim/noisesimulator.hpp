@@ -12,9 +12,11 @@
  */
 
 class DllExport NoiseSimulator{
-	public: 
+	private:
 		QuantumCircuit *circuit;
 		QuantumStateBase *initial_state;
+		
+	public: 
 
 		/**
 		 * \~japanese-en
