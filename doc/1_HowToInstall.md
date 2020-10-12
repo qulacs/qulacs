@@ -41,7 +41,7 @@ Uninstall
 pip uninstall qulacs
 ```
 
-## Gettig started
+## Getting started
 
 See the following document for more detail.  
 [C++ Tutorial](http://qulacs.org/md_2__tutorial__c_p_p.html)  
@@ -82,9 +82,61 @@ int main(){
 ```
 
 Example of build command:
+
+#### GCC
 ```sh
-g++ -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lcsim_static -lcppsim_static
+g++ -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lcppsim_static -lcsim_static -fopenmp
 ```
+
+#### MSVC
+```sh
+cl -O2 -I ./<qulacs_path>/include <your_code>.cpp ./<qulacs_path>/cppsim_static.lib ./<qulacs_path>/csim_static.lib /openmp
+```
+
+### C++ Libraries with GPU
+
+qulacs uses cuBLAS library, so you need to include it.
+if you want to use QuantumStateGpu, define `_USE_GPU` to load QuantumStateGpu definitions.
+
+Example of C++ code:
+```cpp
+#include <iostream>
+#include <cppsim/state_gpu.hpp>
+#include <cppsim/circuit.hpp>
+#include <cppsim/observable.hpp>
+
+int main(){
+    QuantumStateGpu state(3);
+    state.set_Haar_random_state();
+
+    QuantumCircuit circuit(3);
+    circuit.add_X_gate(0);
+    auto merged_gate = gate::merge(gate::CNOT(0,1),gate::Y(1));
+    circuit.add_gate(merged_gate);
+    circuit.add_RX_gate(1,0.5);
+    circuit.update_quantum_state(&state);
+
+    Observable observable(3);
+    observable.add_operator(2.0, "X 2 Y 1 Z 0");
+    observable.add_operator(-3.0, "Z 2");
+    auto value = observable.get_expectation_value(&state);
+    std::cout << value << std::endl;
+    return 0;
+}
+```
+
+Example of build command:
+
+#### GCC
+```sh
+nvcc -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cu -lcppsim_static -lcsim_static -lgpusim_static -D _USE_GPU -lcublas  -Xcompiler -fopenmp 
+```
+
+#### MSVC
+```sh
+nvcc -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cu ./<qulacs_path>/cppsim_static.lib ./<qulacs_path>/csim_static.lib ./<qulacs_path>/gpusim_static.lib -D _USE_GPU -lcublas  -Xcompiler /openmp 
+```
+
 
 ### Python Libraries
 You can use features by simply importing `qulacs`.
