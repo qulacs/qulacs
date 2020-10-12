@@ -11,20 +11,21 @@
  * \~japanese-en 回路にノイズを加えてサンプリングするクラス
  */
 
-NoiseSimulator::NoiseSimulator(const QuantumCircuit *init_circuit,const double prob,QuantumState *init_state){
+NoiseSimulator::NoiseSimulator(const QuantumCircuit *init_circuit,const double prob,const QuantumState *init_state){
 
         if(init_state == NULL){
             // initialize with zero state if not provided.
-            init_state = new QuantumState(init_circuit -> qubit_count);
-            init_state -> set_zero_state();
+            initial_state = new QuantumState(init_circuit -> qubit_count);
+            initial_state -> set_zero_state();
+        }else{
+            // initialize with init_state if provided.
+            initial_state = init_state -> copy();
         }
-        initial_state = init_state -> copy();
-
         circuit = new QuantumCircuit(init_circuit -> qubit_count);
         UINT n = init_circuit -> gate_list.size();
         for(UINT i = 0;i < n;++i){
             circuit -> add_gate_copy(init_circuit -> gate_list[i]);
-            std::vector<unsigned int> qubit_indexs = init_circuit -> gate_list[i] -> get_target_index_list();
+            std::vector<UINT> qubit_indexs = init_circuit -> gate_list[i] -> get_target_index_list();
             for(auto x:init_circuit -> gate_list[i] -> get_control_index_list()){
                 qubit_indexs.push_back(x);
             }
@@ -47,10 +48,11 @@ NoiseSimulator::~NoiseSimulator(){
 
 std::vector<UINT> NoiseSimulator::execute(const UINT sample_count){
     std::vector<UINT> result;
+    QuantumState sampling_state(initial_state -> qubit_count);
     for(UINT i = 0;i < sample_count;++i){
-        QuantumStateBase *now = initial_state -> copy();
-        circuit -> update_quantum_state(now);
-        result.push_back(now -> sampling(1)[0]);
+        sampling_state.load(initial_state);
+        circuit -> update_quantum_state(&sampling_state);
+        result.push_back(sampling_state.sampling(1)[0]);
     }
     return result;
 }
