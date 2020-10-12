@@ -48,6 +48,7 @@ void GeneralQuantumOperator::add_operator(CPPCTYPE coef, std::string pauli_strin
         this->_is_hermitian = false;
     }
 	this->add_operator(_mpt);
+    delete _mpt;
 }
 
 CPPCTYPE GeneralQuantumOperator::get_expectation_value(const QuantumStateBase* state) const {
