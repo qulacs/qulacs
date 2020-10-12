@@ -6,6 +6,10 @@ DllExport double state_norm_squared(const CTYPE *state, ITYPE dim) ;
 DllExport double measurement_distribution_entropy(const CTYPE *state, ITYPE dim);
 DllExport CTYPE state_inner_product(const CTYPE *state_bra, const CTYPE *state_ket, ITYPE dim);
 
+DllExport void state_tensor_product(const CTYPE* state_left, ITYPE dim_left, const CTYPE* state_right, ITYPE dim_right, CTYPE* state_dst);
+DllExport void state_permutate_qubit(const UINT* qubit_order, const CTYPE* state_src, CTYPE* state_dst, UINT qubit_count, ITYPE dim);
+DllExport void state_drop_qubits(const UINT* target, const UINT* projection, UINT target_count, const CTYPE* state_src, CTYPE* state_dst, ITYPE dim);
+
 DllExport double M0_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim);
 DllExport double M1_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim);
 DllExport double marginal_prob(const UINT* sorted_target_qubit_index_list, const UINT* measured_value_list, UINT target_qubit_index_count, const CTYPE* state, ITYPE dim);
