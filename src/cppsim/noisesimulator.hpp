@@ -15,7 +15,10 @@ class DllExport NoiseSimulator{
 	private:
 		QuantumCircuit *circuit;
 		QuantumStateBase *initial_state;
-		
+		Random random;
+		std::vector<std::pair<UINT,UINT>> noise_info;
+
+		UINT evaluate(std::vector<int> chosen_gate,QuantumState *sampling_state);
 	public: 
 
 		/**
@@ -28,7 +31,7 @@ class DllExport NoiseSimulator{
 		 * @param[in] init_state 最初の状態。指定されなかった場合は0で初期化される。
 		 * @return NoiseSimulatorのインスタンス
 		 */
-		NoiseSimulator(const QuantumCircuit *init_circuit,const double prob,const QuantumState *init_state = NULL);
+		NoiseSimulator(const QuantumCircuit *init_circuit,const QuantumState *init_state = NULL);
 
 		/**
 		 * \~japanese-en
@@ -42,5 +45,5 @@ class DllExport NoiseSimulator{
 		 * サンプリングを行い、結果を配列で返す。
 		 * @param[in] sample_count 行うsamplingの回数
 		 */
-		virtual std::vector<UINT> execute(const UINT sample_count);
+		virtual std::vector<UINT> execute(const UINT sample_count,const double prob);
 };
