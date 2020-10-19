@@ -2,7 +2,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include "state.hpp"
+#include "state_gpu.hpp"
 #include "gate_factory.hpp"
 #include "gate_merge.hpp"
 #include "circuit.hpp"
@@ -18,7 +18,7 @@ class DllExport NoiseSimulator{
 		Random random;
 		std::vector<std::pair<UINT,UINT>> noise_info;
 
-		UINT evaluate(std::vector<int> chosen_gate,QuantumState *sampling_state);
+		UINT evaluate(std::vector<UINT> chosen_gate,QuantumState *sampling_state,int StartPos);
 	public: 
 
 		/**
