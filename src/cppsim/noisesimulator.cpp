@@ -50,14 +50,14 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
     }
     //seedsを渡せば並列可能
 
-    std::vector<UINT> result;
     QuantumState sampling_state(initial_state -> qubit_count);
     QuantumState BasicState(initial_state -> qubit_count);
     evaluate(std::vector<int>(circuit -> gate_list.size(),0),&BasicState);
+    std::vector<int> chosen_gate;
+    Random random;
+    std::vector<UINT> result(sample_count);
     for(UINT i = 0;i < sample_count;++i){
-        std::vector<int> chosen_gate;
         UINT gate_size = circuit ->gate_list.size();
-        Random random;
         random.set_seed(seeds[i]);
         int sames = 1;
         for(UINT q = 0;q < gate_size;++q){
@@ -74,10 +74,11 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
             if(next_choose != 0) sames = 0;
         }
         if(sames == 1){
-            result.push_back(BasicState.sampling(1)[0]);
+            result[i] = (BasicState.sampling(1)[0]);
         }else{
-            result.push_back(evaluate(chosen_gate,&sampling_state));
+            result[i] = (evaluate(chosen_gate,&sampling_state));
         }
+        chosen_gate.clear();
     }
     return result;
 } 
@@ -85,7 +86,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
 
 UINT NoiseSimulator::evaluate(std::vector<int> chosen_gate,QuantumState *sampling_state){
     sampling_state -> load(initial_state);
-    UINT gate_size = circuit ->gate_list.size();
+    UINT gate_size = circuit -> gate_list.size();
     for(int q = 0;q < gate_size;++q){
         circuit -> gate_list[q] -> update_quantum_state(sampling_state);
         if(chosen_gate[q] != 0){
