@@ -2,7 +2,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include "state_gpu.hpp"
+#include "state.hpp"
 #include "gate_factory.hpp"
 #include "gate_merge.hpp"
 #include "circuit.hpp"
