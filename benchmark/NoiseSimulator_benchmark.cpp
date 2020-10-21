@@ -8,7 +8,7 @@
 #include <cppsim/noisesimulator.hpp>
 
 void random_1Q_gate(int qubitID,QuantumCircuit *val){
-	int prob = rand() % 3;
+	int prob = rand() % 3LL;
 	if(prob == 0){
 		val -> add_sqrtX_gate(qubitID);
 	}else if(prob == 1){
@@ -36,12 +36,12 @@ void grid_2Q_gate(std::vector<UINT> inputs,QuantumCircuit *ans){
 void Google_random_circuit(int length,int depth,QuantumCircuit *ans){
 	int n = length*length;
 	for(int k = 0;k < depth;++k){
-		for(int i = 0;i < n;++i){
-			random_1Q_gate(i,ans);
-		}
 		const int dx[4] = {1,-1,0,0};
 		const int dy[4] = {0,0,1,-1};
 		for(int dir = 0;dir < 4;++dir){
+			for(int i = 0;i < n;++i){
+				random_1Q_gate(i,ans);
+			}
 			for(int i = 0;i < length;++i){
 				for(int j = 0;j < length;++j){
 					if((i+j) % 2 == 0){
@@ -61,13 +61,13 @@ void Google_random_circuit(int length,int depth,QuantumCircuit *ans){
 void Google_noisy_random_circuit(int length,int depth,QuantumCircuit *ans,double prob){
 	int n = length*length;
 	for(int k = 0;k < depth;++k){
-		for(int i = 0;i < n;++i){
-			random_1Q_gate(i,ans);
-			ans -> add_gate(gate::DepolarizingNoise(i,prob));
-		}
 		const int dx[4] = {1,-1,0,0};
 		const int dy[4] = {0,0,1,-1};
 		for(int dir = 0;dir < 4;++dir){
+			for(int i = 0;i < n;++i){
+				random_1Q_gate(i,ans);
+				ans -> add_gate(gate::DepolarizingNoise(i,prob));
+			}
 			for(int i = 0;i < length;++i){
 				for(int j = 0;j < length;++j){
 					if((i+j) % 2 == 0){
@@ -97,36 +97,54 @@ int main(){
 	scanf("%lf",&prob);
 	printf("Input sampling count: ");
 	scanf("%d",&sample_count);
+	
+	int seed = clock();
 	{
 		auto start = std::chrono::system_clock::now();
+		srand(seed);
 		QuantumCircuit circuit(n);
-		Google_random_circuit(sqrt(n),10,&circuit);
+		Google_random_circuit(sqrt(n),5,&circuit);
         std::cout << circuit << std::endl;
 		NoiseSimulator hoge(&circuit);
 		auto A = hoge.execute(sample_count,prob);
-		
 		auto end = std::chrono::system_clock::now();
 		auto dur = end - start;
 		auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
-		std::cout << msec << std::endl;
+		std::cout << "Faster NoiseSimulator msec: " << msec << " msec"<< std::endl;
 	}
 	{
     	auto start = std::chrono::system_clock::now();
 		QuantumState state(n);
 		state.set_zero_state();
+
 		QuantumState base_state(n);
 		base_state.set_zero_state();
+
+		srand(seed);
 		QuantumCircuit circuit(n);
-		Google_noisy_random_circuit(sqrt(n),10,&circuit,0.01);
+		Google_noisy_random_circuit(sqrt(n),5,&circuit,prob);
+
+		srand(seed);
+		QuantumCircuit Idealcircuit(n);
+		Google_random_circuit(sqrt(n),5,&Idealcircuit);
+
+		QuantumState Ideal_state(n);
+		Ideal_state.set_zero_state();
+		Idealcircuit.update_quantum_state(&Ideal_state);
+
 		std::vector<int> ans;
+		std::complex<long double> Fid = 0;
 		for(int i = 0;i < sample_count;++i){
 			state.load(&base_state);
 			circuit.update_quantum_state(&state);
+			auto x = state::inner_product(&state,&Ideal_state);
+			Fid += x * x;
 			ans.push_back(state.sampling(1)[0]);
 		}
+		std::cout << Fid << std::endl;
 		auto end = std::chrono::system_clock::now();
 		auto dur = end - start;
 		auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
-		std::cout << msec << std::endl;
+		std::cout << "Normal implemention msec: " << msec << " msec"<< std::endl;
 	}
 }
