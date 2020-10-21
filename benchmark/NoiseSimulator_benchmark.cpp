@@ -104,7 +104,6 @@ int main(){
 		srand(seed);
 		QuantumCircuit circuit(n);
 		Google_random_circuit(sqrt(n),5,&circuit);
-        std::cout << circuit << std::endl;
 		NoiseSimulator hoge(&circuit);
 		auto A = hoge.execute(sample_count,prob);
 		auto end = std::chrono::system_clock::now();
@@ -133,15 +132,15 @@ int main(){
 		Idealcircuit.update_quantum_state(&Ideal_state);
 
 		std::vector<int> ans;
-		std::complex<long double> Fid = 0;
+		//std::complex<long double> Fid = 0;
 		for(int i = 0;i < sample_count;++i){
 			state.load(&base_state);
 			circuit.update_quantum_state(&state);
-			auto x = state::inner_product(&state,&Ideal_state);
-			Fid += x * x;
+			//auto x = state::inner_product(&state,&Ideal_state);
+			//Fid += x * x;
 			ans.push_back(state.sampling(1)[0]);
 		}
-		std::cout << Fid << std::endl;
+		//std::cout << Fid << std::endl;
 		auto end = std::chrono::system_clock::now();
 		auto dur = end - start;
 		auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();

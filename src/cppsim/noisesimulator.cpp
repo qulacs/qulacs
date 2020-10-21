@@ -75,7 +75,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
     Common_state.load(initial_state);
     std::vector<UINT> result(sample_count);
     int done_itr = 0; // for gates i such that i < done_itr, gate i is already applied to Common_state.
-    std::complex<long double> Fid = 0;
+    //std::complex<long double> Fid = 0;
     for(int i = 0;i < trial_gates.size();++i){
         //if noise is not applied to gate done_itr forever, we can apply gate done_itr to Common_state.
 
@@ -97,10 +97,10 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
         }
         Calculate_state.load(&Common_state);
         result[i] = evaluate(trial_gates[i],&Calculate_state,done_itr);
-        std::complex<long double> Now = state::inner_product(&Calculate_state,&IdealState);
-        Fid += Now*Now;
+        //std::complex<long double> Now = state::inner_product(&Calculate_state,&IdealState);
+        //Fid += Now*Now;
     }
-    std::cout << Fid << std::endl;
+    //std::cout << Fid << std::endl;
     std::mt19937 Randomizer(random.int64());
     std::shuffle(begin(result),end(result),Randomizer);
     return result;
