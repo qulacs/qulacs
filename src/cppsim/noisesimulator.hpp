@@ -15,7 +15,6 @@ class DllExport NoiseSimulator{
 	private:
 		QuantumCircuit *circuit;
 		QuantumStateBase *initial_state;
-		Random random;
 		std::vector<std::pair<UINT,UINT>> noise_info;
 
 		UINT evaluate(std::vector<UINT> chosen_gate,QuantumState *sampling_state,int StartPos);
