@@ -63,45 +63,54 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
             }
         }
     }
+
     std::sort(rbegin(trial_gates),rend(trial_gates));
+
+    std::vector<std::pair<std::vector<UINT>,UINT>> sampling_required; // pair<trial_gate, number of samplings>
+    int cnter_samplings = 0;
+    for(UINT i = 0;i < sample_count;++i){
+        cnter_samplings++;
+        if(i+1 == sample_count or trial_gates[i] != trial_gates[i+1]){
+            sampling_required.push_back(std::make_pair(trial_gates[i],cnter_samplings));
+            cnter_samplings = 0;
+        }
+    }
+
     QuantumState Common_state(initial_state -> qubit_count);
     QuantumState Calculate_state(initial_state -> qubit_count);
     
-    /*
+/*
     QuantumState IdealState(initial_state -> qubit_count);
     IdealState.load(initial_state);
     for(int i = 0;i < circuit -> gate_list.size();++i){
         circuit -> gate_list[i] -> update_quantum_state(&IdealState);
     }
     std::complex<long double> Fid = 0;
-    */
+*/    
 
     Common_state.load(initial_state);
     std::vector<UINT> result(sample_count);
+    auto result_itr = result.begin();
     UINT done_itr = 0; // for gates i such that i < done_itr, gate i is already applied to Common_state.
-    for(UINT i = 0;i < trial_gates.size();++i){
-        //if noise is not applied to gate done_itr forever, we can apply gate done_itr to Common_state.
 
-        while(done_itr < trial_gates[i].size() && trial_gates[i][done_itr] == 0){
+
+    for(UINT i = 0;i < sampling_required.size();++i){
+        //if noise is not applied to gate done_itr forever, we can apply gate done_itr to Common_state.
+        std::vector<UINT> trial = sampling_required[i].first;
+        while(done_itr < trial.size() && trial[done_itr] == 0){
             circuit -> gate_list[done_itr] -> update_quantum_state(&Common_state);
             done_itr++;
         }
-
-        if(done_itr == trial_gates[i].size()){
-            //if all remaining trials are same (no noise), merge them and speed up.
-            UINT remaining = trial_gates.size() - i;
-            std::vector<ITYPE> usage = Common_state.sampling(remaining);
-            for(UINT q = 0;q < usage.size();++q){
-                result[i+q] = usage[q];
-            }
-            //std::complex<long double> Now = state::inner_product(&Common_state,&IdealState);
-            //Fid += Now*Now * (long double)(usage.size());
-            break;
-        }
+        //recalculate is required.
         Calculate_state.load(&Common_state);
-        result[i] = evaluate(trial_gates[i],&Calculate_state,done_itr);
+        evaluate_gates(trial,&Calculate_state,done_itr); 
+        std::vector<ITYPE> samples = Calculate_state.sampling(sampling_required[i].second);
         //std::complex<long double> Now = state::inner_product(&Calculate_state,&IdealState);
-        //Fid += Now*Now;
+        for(UINT q = 0;q < samples.size();++q){
+            *result_itr = samples[q];
+            result_itr++;
+            //Fid += Now*Now;
+        }
     }
     //std::cout << Fid << std::endl;
     std::mt19937 Randomizer(random.int64());
@@ -110,18 +119,19 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
 } 
 
 
-UINT NoiseSimulator::evaluate(std::vector<UINT> chosen_gate,QuantumState *sampling_state,int StartPos){
+void NoiseSimulator::evaluate_gates(const std::vector<UINT> chosen_gate,QuantumState *sampling_state,const int StartPos){
     UINT gate_size = circuit -> gate_list.size();
     for(UINT q = StartPos;q < gate_size;++q){
         circuit -> gate_list[q] -> update_quantum_state(sampling_state);
         if(chosen_gate[q] != 0){
             //apply noise.
-            if(chosen_gate[q] % 4 != 0){
-                int choice = chosen_gate[q]%4;
+            int chosen_val = chosen_gate[q];
+            if(chosen_val % 4 != 0){
+                int choice = chosen_val % 4;
                 if(choice % 4 == 1){
                     //apply X gate
                     auto Xgate= gate::X(noise_info[q].first);
-                    Xgate ->update_quantum_state(sampling_state);
+                    Xgate -> update_quantum_state(sampling_state);
                     delete Xgate;
                 }else if(choice % 4 == 2){
                     //apply Y gate
@@ -135,13 +145,13 @@ UINT NoiseSimulator::evaluate(std::vector<UINT> chosen_gate,QuantumState *sampli
                     delete Zgate;
                 }
             }
-            if(noise_info[q].second == UINT_MAX){
-                //1-qubit gate don't need to apply noise anymore
+            if(chosen_val <= 3){
+                //if noise only applies to first Qubit, nothing to do for second Qubit.
                 continue;
             }
-            chosen_gate[q] /= 4;
-            if(chosen_gate[q] % 4 != 0){
-                int choice = chosen_gate[q]%4;
+            chosen_val /= 4;
+            if(chosen_val % 4 != 0){
+                int choice = chosen_val % 4;
                 if(choice % 4 == 1){
                     //apply X gate
                     auto Xgate= gate::X(noise_info[q].second);
@@ -161,5 +171,4 @@ UINT NoiseSimulator::evaluate(std::vector<UINT> chosen_gate,QuantumState *sampli
             }
         }
     }
-    return sampling_state -> sampling(1)[0];
 } 

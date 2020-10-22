@@ -17,7 +17,7 @@ class DllExport NoiseSimulator{
 		QuantumStateBase *initial_state;
 		std::vector<std::pair<UINT,UINT>> noise_info;
 
-		UINT evaluate(std::vector<UINT> chosen_gate,QuantumState *sampling_state,int StartPos);
+		void evaluate_gates(const std::vector<UINT> chosen_gate, QuantumState *sampling_state, const int StartPos);
 	public: 
 
 		/**
