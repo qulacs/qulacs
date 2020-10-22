@@ -122,14 +122,17 @@ UINT NoiseSimulator::evaluate(std::vector<UINT> chosen_gate,QuantumState *sampli
                     //apply X gate
                     auto Xgate= gate::X(noise_info[q].first);
                     Xgate ->update_quantum_state(sampling_state);
+                    delete Xgate;
                 }else if(choice % 4 == 2){
                     //apply Y gate
                     auto Ygate= gate::Y(noise_info[q].first);
                     Ygate ->update_quantum_state(sampling_state);
+                    delete Ygate;
                 }else if(choice % 4 == 3){
                     //apply Z gate
                     auto Zgate= gate::Z(noise_info[q].first);
                     Zgate ->update_quantum_state(sampling_state);
+                    delete Zgate;
                 }
             }
             if(noise_info[q].second == UINT_MAX){
@@ -143,14 +146,17 @@ UINT NoiseSimulator::evaluate(std::vector<UINT> chosen_gate,QuantumState *sampli
                     //apply X gate
                     auto Xgate= gate::X(noise_info[q].second);
                     Xgate ->update_quantum_state(sampling_state);
+                    delete Xgate;
                 }else if(choice % 4 == 2){
                     //apply Y gate
                     auto Ygate= gate::Y(noise_info[q].second);
                     Ygate ->update_quantum_state(sampling_state);
+                    delete Ygate;
                 }else if(choice % 4 == 3){
                     //apply Z gate
                     auto Zgate= gate::Z(noise_info[q].second);
                     Zgate ->update_quantum_state(sampling_state);
+                    delete Zgate;
                 }
             }
         }

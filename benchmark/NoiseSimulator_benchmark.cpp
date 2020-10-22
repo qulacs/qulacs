@@ -111,6 +111,7 @@ int main(){
 		auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
 		std::cout << "Faster NoiseSimulator msec: " << msec << " msec"<< std::endl;
 	}
+	/*
 	{
     	auto start = std::chrono::system_clock::now();
 		QuantumState state(n);
@@ -146,4 +147,5 @@ int main(){
 		auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
 		std::cout << "Normal implemention msec: " << msec << " msec"<< std::endl;
 	}
+	*/
 }
