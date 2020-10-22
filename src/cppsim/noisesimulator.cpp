@@ -87,11 +87,11 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
         if(done_itr == trial_gates[i].size()){
             //if all remaining trials are same (no noise), merge them and speed up.
             int remaining = trial_gates.size() - i;
-            std::vector<unsigned long long> usage = Common_state.sampling(remaining);
+            std::vector<ITYPE> usage = Common_state.sampling(remaining);
             for(int q = 0;q < usage.size();++q){
                 result[i+q] = usage[q];
             }
-            std::complex<long double> Now = state::inner_product(&Common_state,&IdealState);
+            //std::complex<long double> Now = state::inner_product(&Common_state,&IdealState);
             //Fid += Now*Now * (long double)(usage.size());
             break;
         }
