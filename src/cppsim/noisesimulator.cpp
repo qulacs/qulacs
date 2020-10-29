@@ -11,7 +11,7 @@
  * \~japanese-en 回路にノイズを加えてサンプリングするクラス
  */
 
-NoiseSimulator::NoiseSimulator(const QuantumCircuit *init_circuit,const QuantumState *init_state){
+NoiseSimulator::NoiseSimulator(const QuantumCircuit *init_circuit,const QuantumState *init_state,const std::vector<UINT> *Noise_itr){
     if(init_state == NULL){
         // initialize with zero state if not provided.
         initial_state = new QuantumState(init_circuit -> qubit_count);
@@ -27,12 +27,19 @@ NoiseSimulator::NoiseSimulator(const QuantumCircuit *init_circuit,const QuantumS
         for(auto x:init_circuit -> gate_list[i] -> get_control_index_list()){
             qubit_indexs.push_back(x);
         }
-        if(qubit_indexs.size() == 1) qubit_indexs.push_back(UINT_MAX);
+        if(qubit_indexs.size() == 1) qubit_indexs.push_back(-1);
         if(qubit_indexs.size() >= 3){
             std::cerr << "Error: In NoiseSimulator gates must not over 2 qubits" << std::endl;
             return;
         }
         noise_info.push_back(std::pair<UINT,UINT>(qubit_indexs[0],qubit_indexs[1]));
+    }
+    if(Noise_itr != NULL){        
+        for(int q = 0;q < Noise_itr -> size();++q){
+            // update them so that Noise will not be applied.
+            noise_info[Noise_itr -> at(q)].first = -1;
+            noise_info[Noise_itr -> at(q)].second = -1;
+        }
     }
 }
 
@@ -48,8 +55,9 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
     for(UINT i = 0;i < sample_count;++i){
         UINT gate_size = circuit ->gate_list.size();
         for(UINT q = 0;q < gate_size;++q){
+            if(noise_info[q].first == -1) continue;
             int way_choose = 4;
-            if(noise_info[q].second != UINT_MAX){
+            if(noise_info[q].second != -1){
                 //2-qubit-gate
                 way_choose *= 4;
             }
