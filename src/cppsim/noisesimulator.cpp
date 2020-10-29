@@ -124,50 +124,52 @@ void NoiseSimulator::evaluate_gates(const std::vector<UINT> chosen_gate,QuantumS
     for(UINT q = StartPos;q < gate_size;++q){
         circuit -> gate_list[q] -> update_quantum_state(sampling_state);
         if(chosen_gate[q] != 0){
-            //apply noise.
+            //apply noise.           
             int chosen_val = chosen_gate[q];
-            if(chosen_val % 4 != 0){
-                int choice = chosen_val % 4;
-                if(choice % 4 == 1){
+            if(chosen_val <= 3){
+                //only applies to First Qubit.
+                if(chosen_val % 4 == 1){
                     //apply X gate
                     auto Xgate= gate::X(noise_info[q].first);
                     Xgate -> update_quantum_state(sampling_state);
                     delete Xgate;
-                }else if(choice % 4 == 2){
+                }else if(chosen_val % 4 == 2){
                     //apply Y gate
                     auto Ygate= gate::Y(noise_info[q].first);
                     Ygate ->update_quantum_state(sampling_state);
                     delete Ygate;
-                }else if(choice % 4 == 3){
+                }else if(chosen_val % 4 == 3){
                     //apply Z gate
                     auto Zgate= gate::Z(noise_info[q].first);
                     Zgate ->update_quantum_state(sampling_state);
                     delete Zgate;
                 }
-            }
-            if(chosen_val <= 3){
-                //if noise only applies to first Qubit, nothing to do for second Qubit.
-                continue;
-            }
-            chosen_val /= 4;
-            if(chosen_val % 4 != 0){
-                int choice = chosen_val % 4;
-                if(choice % 4 == 1){
+            }else if(chosen_val % 4 == 0){
+                //only applies to Second Qubit.
+                chosen_val /= 4;
+                if(chosen_val % 4 == 1){
                     //apply X gate
                     auto Xgate= gate::X(noise_info[q].second);
-                    Xgate ->update_quantum_state(sampling_state);
+                    Xgate -> update_quantum_state(sampling_state);
                     delete Xgate;
-                }else if(choice % 4 == 2){
+                }else if(chosen_val % 4 == 2){
                     //apply Y gate
                     auto Ygate= gate::Y(noise_info[q].second);
                     Ygate ->update_quantum_state(sampling_state);
                     delete Ygate;
-                }else if(choice % 4 == 3){
+                }else if(chosen_val % 4 == 3){
                     //apply Z gate
                     auto Zgate= gate::Z(noise_info[q].second);
                     Zgate ->update_quantum_state(sampling_state);
                     delete Zgate;
                 }
+            }else{
+                //applies to both First and Second Qubit.
+                auto gate_pauli = gate::Pauli({noise_info[q].first,noise_info[q].second},{chosen_val % 4,chosen_val / 4});
+                auto gate_dense = gate::to_matrix_gate(gate_pauli);
+                gate_dense -> update_quantum_state(sampling_state);
+                delete gate_pauli;
+                delete gate_dense;
             }
         }
     }
