@@ -17,6 +17,7 @@
 #include "gate_matrix_diagonal.hpp"
 #include "gate_reversible.hpp"
 #include "gate_reflect.hpp"
+#include "gate_merge.hpp"
 #include "type.hpp"
 #include <Eigen/QR>
 
@@ -266,8 +267,9 @@ namespace gate{
 			if (i != 0) {
 				UINT pauli_qubit1 = i % 4;
 				UINT pauli_qubit2 = i / 4;
-				auto gate = Pauli({ target_index1, target_index2 }, { pauli_qubit1, pauli_qubit2 });
-				gate_list.push_back(gate);
+				auto gate_pauli = Pauli({ target_index1, target_index2 }, { pauli_qubit1, pauli_qubit2 });
+				auto gate_dense = gate::to_matrix_gate(gate_pauli);
+                gate_list.push_back(gate_dense);
 			}
 			else {
 				gate_list.push_back(Identity(target_index1));

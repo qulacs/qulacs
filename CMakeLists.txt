@@ -13,6 +13,7 @@ endif()
 ##### Set default behavior #####
 set(DEFAULT_USE_SIMD Yes)
 set(DEFAULT_USE_OMP Yes)
+set(DEFAULT_USE_MPI No)
 set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)
 set(DEFAULT_USE_TEST Yes)
@@ -23,6 +24,9 @@ if(NOT DEFINED USE_SIMD)
 endif()
 if(NOT DEFINED USE_OMP)
 	set(USE_OMP ${DEFAULT_USE_OMP})
+endif()
+if(NOT DEFINED USE_MPI)
+	set(USE_MPI ${DEFAULT_USE_MPI})
 endif()
 if(NOT DEFINED USE_GPU)
 	set(USE_GPU ${DEFAULT_USE_GPU})
@@ -39,6 +43,7 @@ endif()
 
 message(STATUS "USE_SIMD = ${USE_SIMD}")
 message(STATUS "USE_OMP = ${USE_OMP}")
+message(STATUS "USE_MPI = ${USE_MPI}")
 message(STATUS "USE_GPU = ${USE_GPU}")
 message(STATUS "USE_TEST = ${USE_TEST}")
 message(STATUS "USE_PYTHON = ${USE_PYTHON}")
@@ -64,7 +69,7 @@ set(EIGEN_INSTALL_DIR ${CMAKE_SOURCE_DIR}/include)
 set(EIGEN_INCLUDE_DIR ${EIGEN_INSTALL_DIR})
 ExternalProject_Add(
     eigen
-    URL https://gitlab.com/libeigen/eigen/-/archive/3.3.5/eigen-3.3.5.tar.gz
+    URL https://gitlab.com/libeigen/eigen/-/archive/3.3.7/eigen-3.3.7.tar.gz
     PREFIX ${EIGEN_BUILD_DIR}
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
