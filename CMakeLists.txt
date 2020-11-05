@@ -244,6 +244,10 @@ elseif(MSVC)
 		add_compile_options("/openmp")
 	endif()
 
+	if(USE_MPI)
+		add_compile_options("/D_USE_MPI")
+	endif()
+	
 	if(USE_GPU)
 		add_compile_options("/D_USE_GPU")
 	endif()
