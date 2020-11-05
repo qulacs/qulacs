@@ -99,8 +99,9 @@ public:
      */
     virtual ~QuantumGateBase() {};
 
-	const std::vector<TargetQubitInfo>& target_qubit_list; /**< ターゲット量子ビットのリスト */
-	const std::vector<ControlQubitInfo>& control_qubit_list; /**< コントロール量子ビットのリスト */
+    //jupiro変更: setのためにconstを消す
+	std::vector<TargetQubitInfo>& target_qubit_list; /**< ターゲット量子ビットのリスト */
+	std::vector<ControlQubitInfo>& control_qubit_list; /**< コントロール量子ビットのリスト */
 
     /**
      * \~japanese-en ターゲット量子ビットの添え字のリストを取得する
@@ -232,5 +233,14 @@ public:
      * @return 受け取ったストリーム
      */
     friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumGateBase* gate);
+
+    //ここから勝手にjupiroがつくったやつ
+    void set_target_index_list(const std::vector<UINT> &target_index_list)  {
+        for (UINT i = 0; i < target_qubit_list.size(); ++i) target_qubit_list[i].set_index(target_index_list[i]);
+    }
+
+    void set_control_index_list(const std::vector<UINT> &control_index_list)  {
+        for (UINT i = 0; i < control_qubit_list.size(); ++i) control_qubit_list[i].set_index(control_index_list[i]);
+    }
 };
 
