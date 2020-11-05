@@ -197,6 +197,10 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
 	endif()
 
+	if(USE_MPI)
+		add_compile_options("-D _USE_MPI")
+	endif()
+
 	if(USE_GPU)
 		add_compile_options("-D _USE_GPU")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
