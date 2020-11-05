@@ -6,6 +6,8 @@
 #include <cppsim/observable.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_merge.hpp>
+#include <cppsim/type.hpp>
+#include <cppsim/gate.hpp>
 
 class UnionFind{
 private:
@@ -48,10 +50,11 @@ public:
 };
 
 
-std::vector<QuantumCircuit *> CausalConeGenerate(const QuantumCircuit &init_circuit, 
-    const Observable &observable)
+CPPCTYPE CausalCone(const QuantumCircuit &init_circuit, 
+    const Observable &observable, const QuantumStateBase* init_state)
 {
 	auto terms = observable.get_terms();
+	CPPCTYPE ret;
 	for(auto term : terms){
 		std::vector<UINT> observable_index_list = term->get_index_list();
 	    const UINT gate_count = init_circuit.gate_list.size();
@@ -65,7 +68,6 @@ std::vector<QuantumCircuit *> CausalConeGenerate(const QuantumCircuit &init_circ
 	    for(int i = gate_count - 1; i >= 0; i--){
 	        auto target_index_list = init_circuit.gate_list[i]->get_target_index_list();
 	        auto control_index_list = init_circuit.gate_list[i]->get_control_index_list();
-	        
 	        for(auto target_index : target_index_list){
 	            if(use_qubit[target_index]) {
 	                use_gate[i] = true;
@@ -90,6 +92,41 @@ std::vector<QuantumCircuit *> CausalConeGenerate(const QuantumCircuit &init_circ
 	            uf.connect(target_index_list[0], control_index_list[0]);
 	        }
 	    }
+
+	    //termの中では分解しない(仮)		
+	    {
+	    	std::vector<UINT> qubit_encode(qubit_count, -1);
+	    	std::vector<UINT> qubit_decode(qubit_count, -1);
+    		UINT idx = 0;
+	    	for(UINT i = 0; i < qubit_count; i++){
+	    		if(use_qubit[i]) {
+	    			qubit_encode[i] = idx;
+	    			qubit_decode[idx] = i;
+	    			idx += 1;
+	    		}
+	    	}
+	    	
+	    	QuantumCircuit* circuit = new QuantumCircuit(idx);
+	    	QuantumState* state = new QuantumState(idx);
+
+	    	for(UINT i = 0; i < gate_count; i++){
+	        	if(!use_gate[i]) continue;
+		        auto gate = init_circuit.gate_list[i]->copy();
+		        auto target_index_list = gate->get_target_index_list();
+	        	auto control_index_list = gate->get_control_index_list();
+	        	for(auto &idx : target_index_list) idx = qubit_encode[idx];
+	        	for(auto &idx : control_index_list) idx = qubit_encode[idx];
+	        	gate->set_target_index_list(target_index_list);
+	        	gate->set_control_index_list(control_index_list);
+		        circuit->add_gate(gate);
+		    }
+		    circuit->update_quantum_state(state);
+		    ret += term->get_expectation_value(state);
+	    }
+
+
+	    //分解処理(オブザーバルの処理どうしよ)
+	    /*
 	    UINT circuit_count = 0;
 	    std::vector<UINT> enc(qubit_count, -1);
 	    for(UINT i = 0; i < qubit_count; i++){
@@ -99,27 +136,27 @@ std::vector<QuantumCircuit *> CausalConeGenerate(const QuantumCircuit &init_circ
 	        }
 	    }
 	    std::vector<QuantumCircuit*> circuits(circuit_count, nullptr);
-	    std::vector<Observable*> observables(circuit_count, nullptr);
 	    for(UINT i = 0; i < circuit_count; i++) {
 	    	circuits[i] = new QuantumCircuit(qubit_count);
-	    	observables[i] = new Observable(qubit_count);
 	    }
-
 	    for(UINT i = 0; i < gate_count; i++){
 	        if(!use_gate[i]) continue;
-	        auto gate = init_circuit.gate_list[i];
+	        auto &gate = init_circuit.gate_list[i];
 	        UINT circuit_index = enc[uf.root(gate->get_target_index_list()[0])];
 	        circuits[circuit_index]->add_gate_copy(gate);
 	    }
+	    CPPCTYPE expectation = CPPCTYPE(1.0, 0.0);
 	    {
-			auto terms = observable.get_terms();
-			for(auto &term :terms){
-				for(auto single_pauli : term){
-					UINT _index = enc[uf.root(single_pauli->index())];
-
-				}
-			}
+	    	for(auto &circuit : circuits){
+	    		circuit->update_quantum_state(state);
+	    		for(auto &single : term){
+	    			expectation *= 
+	    		}
+	    		expectation *= term->get_expectation_value(state);
+	    	}
 		}
+		ret += expectation;
+		*/
 	}
-    return circuits;
+    return ret;
 }
