@@ -6,8 +6,9 @@
 
 #pragma once
 
-#include <cstdio>
+#include <cctype>
 #include <chrono>
+#include <cstdio>
 #include <random>
 #include <string>
 #include <tuple>
@@ -195,3 +196,11 @@ DllExport std::tuple<double, double, std::string> parse_openfermion_line(std::st
  * @return 重複がある場合にtrue、ない場合にfalse
  */
 bool check_is_unique_index_list(std::vector<UINT> index_list);
+
+/**
+ * \~japanese-en 与えられた文字列の末尾の空白文字を削除します。
+ *
+ * @param[in] str 文字列
+ * @return 末尾の空白文字を削除された文字列
+ */
+std::string& rtrim(std::string& str);
