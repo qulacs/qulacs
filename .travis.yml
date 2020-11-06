@@ -247,6 +247,7 @@ jobs:
       install: *wheel_install
       script: *wheel_build
       after_success: *wheel_upload
+  allow_failures:
     - name: Windows wheel build
       stage: build wheel
       os: windows
