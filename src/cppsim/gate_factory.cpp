@@ -269,7 +269,7 @@ namespace gate{
 				UINT pauli_qubit2 = i / 4;
 				auto gate_pauli = Pauli({ target_index1, target_index2 }, { pauli_qubit1, pauli_qubit2 });
 				auto gate_dense = gate::to_matrix_gate(gate_pauli);
-                gate_list.push_back(gate_dense);
+                		gate_list.push_back(gate_dense);
 			}
 			else {
 				gate_list.push_back(Identity(target_index1));
