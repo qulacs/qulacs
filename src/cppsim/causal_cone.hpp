@@ -82,15 +82,25 @@ CPPCTYPE CausalCone(const QuantumCircuit &init_circuit,
 	                }
 	            }
 	        }
-	        for(UINT i = 0; i + 1 < target_index_list.size(); i++){
-	            uf.connect(target_index_list[i], target_index_list[i + 1]);
-	        }
-	        for(UINT i = 0; i + 1 < control_index_list.size(); i++){
-	            uf.connect(control_index_list[i], control_index_list[i + 1]);
-	        }
-	        if(!target_index_list.empty() and !control_index_list.empty()){
-	            uf.connect(target_index_list[0], control_index_list[0]);
-	        }
+		    if(use_gate[i]){
+			    for(auto target_index : target_index_list){
+			    	use_qubit[target_index] = true;
+		        }
+
+	            for(auto control_index : control_index_list){
+	            	use_qubit[control_index] = true;
+	            }
+	        
+		        for(UINT i = 0; i + 1 < target_index_list.size(); i++){
+		            uf.connect(target_index_list[i], target_index_list[i + 1]);
+		        }
+		        for(UINT i = 0; i + 1 < control_index_list.size(); i++){
+		            uf.connect(control_index_list[i], control_index_list[i + 1]);
+		        }
+		        if(!target_index_list.empty() and !control_index_list.empty()){
+		            uf.connect(target_index_list[0], control_index_list[0]);
+		        }
+	    	}
 	    }
 
 	    //termの中では分解しない(仮)		
@@ -119,6 +129,7 @@ CPPCTYPE CausalCone(const QuantumCircuit &init_circuit,
 	        	auto control_index_list = gate->get_control_index_list();
 	        	for(auto &idx : target_index_list) idx = qubit_encode[idx];
 	        	for(auto &idx : control_index_list) idx = qubit_encode[idx];
+
 	        	gate->set_target_index_list(target_index_list);
 	        	gate->set_control_index_list(control_index_list);
 		        circuit->add_gate(gate);
