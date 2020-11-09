@@ -51,9 +51,9 @@ public:
 
 
 CPPCTYPE CausalCone(const QuantumCircuit &init_circuit, 
-    const Observable &observable, const QuantumStateBase* init_state)
+    const Observable &init_observable)
 {
-	auto terms = observable.get_terms();
+	auto terms = init_observable.get_terms();
 	CPPCTYPE ret;
 	for(auto term : terms){
 		std::vector<UINT> observable_index_list = term->get_index_list();
@@ -106,9 +106,12 @@ CPPCTYPE CausalCone(const QuantumCircuit &init_circuit,
 	    		}
 	    	}
 	    	
+	    	QuantumState state(idx);
+	    	state.set_zero_state();
 	    	QuantumCircuit* circuit = new QuantumCircuit(idx);
-	    	QuantumState* state = new QuantumState(idx);
+	    	PauliOperator paulioperator(term->get_coef());
 
+	    	//gateのindexを変換
 	    	for(UINT i = 0; i < gate_count; i++){
 	        	if(!use_gate[i]) continue;
 		        auto gate = init_circuit.gate_list[i]->copy();
@@ -120,8 +123,17 @@ CPPCTYPE CausalCone(const QuantumCircuit &init_circuit,
 	        	gate->set_control_index_list(control_index_list);
 		        circuit->add_gate(gate);
 		    }
-		    circuit->update_quantum_state(state);
-		    ret += term->get_expectation_value(state);
+
+		    //paulioperatorを変換
+		    {
+		    	auto index_list = term->get_index_list();
+		    	auto pauli_id_list = term->get_pauli_id_list();
+		    	for(UINT i = 0; i < index_list.size(); i++){
+		    		paulioperator.add_single_Pauli(qubit_encode[index_list[i]], pauli_id_list[i]);
+		    	}
+		    }
+		    circuit->update_quantum_state(&state);
+		    ret += paulioperator.get_expectation_value(&state);
 	    }
 
 
