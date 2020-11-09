@@ -27,7 +27,7 @@ NoiseSimulator::NoiseSimulator(const QuantumCircuit *init_circuit,const QuantumS
         for(auto x:init_circuit -> gate_list[i] -> get_control_index_list()){
             qubit_indexs.push_back(x);
         }
-        if(qubit_indexs.size() == 1) qubit_indexs.push_back(-1);
+        if(qubit_indexs.size() == 1) qubit_indexs.push_back(UINT_MAX);
         if(qubit_indexs.size() >= 3){
             std::cerr << "Error: In NoiseSimulator gates must not over 2 qubits" << std::endl;
             return;
@@ -35,10 +35,10 @@ NoiseSimulator::NoiseSimulator(const QuantumCircuit *init_circuit,const QuantumS
         noise_info.push_back(std::pair<UINT,UINT>(qubit_indexs[0],qubit_indexs[1]));
     }
     if(Noise_itr != NULL){        
-        for(int q = 0;q < Noise_itr -> size();++q){
+        for(UINT q = 0;q < Noise_itr -> size();++q){
             // update them so that Noise will not be applied.
-            noise_info[Noise_itr -> at(q)].first = -1;
-            noise_info[Noise_itr -> at(q)].second = -1;
+            noise_info[Noise_itr -> at(q)].first = UINT_MAX;
+            noise_info[Noise_itr -> at(q)].second = UINT_MAX;
         }
     }
 }
@@ -55,9 +55,9 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
     for(UINT i = 0;i < sample_count;++i){
         UINT gate_size = circuit ->gate_list.size();
         for(UINT q = 0;q < gate_size;++q){
-            if(noise_info[q].first == -1) continue;
+            if(noise_info[q].first == UINT_MAX) continue;
             int way_choose = 4;
-            if(noise_info[q].second != -1){
+            if(noise_info[q].second != UINT_MAX){
                 //2-qubit-gate
                 way_choose *= 4;
             }
@@ -173,7 +173,7 @@ void NoiseSimulator::evaluate_gates(const std::vector<UINT> chosen_gate,QuantumS
                 }
             }else{
                 //applies to both First and Second Qubit.
-                auto gate_pauli = gate::Pauli({noise_info[q].first,noise_info[q].second},{chosen_val % 4,chosen_val / 4});
+                auto gate_pauli = gate::Pauli({noise_info[q].first,noise_info[q].second},{(UINT)chosen_val % 4,(UINT)chosen_val / 4});
                 auto gate_dense = gate::to_matrix_gate(gate_pauli);
                 gate_dense -> update_quantum_state(sampling_state);
                 delete gate_pauli;
