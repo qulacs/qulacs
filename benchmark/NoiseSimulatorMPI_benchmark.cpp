@@ -6,6 +6,8 @@
 #include <cppsim/gate_matrix.hpp>
 #include <cppsim/circuit.hpp>
 #include <cppsim/noisesimulator.hpp>
+#include <mpisim/noisesimulatorMPI.hpp>
+#include <mpisim/utils.hpp>
 
 void random_1Q_gate(int qubitID,QuantumCircuit *val){
 	int prob = rand() % 3LL;
@@ -87,15 +89,17 @@ void Google_noisy_random_circuit(int length,int depth,QuantumCircuit *ans,double
 
 
 int main(int argc,char **argv){
-	MPI_Init(&argc,&argv);
-	int n = 4;
-	double prob = 0.001;
-	int sample_count = 10000;
+	omp_set_num_threads(2);
+    printf("使用可能な最大スレッド数：%d\n", omp_get_max_threads());
 
+	MPI_Init(&argc,&argv);
+	int n = 16;
+	double prob = 0.001;
+	int sample_count = 30000000;
+	printf("%d\n",sample_count);
 	int myrank;
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
 
-	printf("My rank:%d\n",myrank);
 	if(myrank == 0){
 		printf("Input sqrt(n): \n");
 		scanf("%d",&n);
@@ -113,53 +117,51 @@ int main(int argc,char **argv){
 
 	int seed = clock();
 	{
-		auto start = std::chrono::system_clock::now();
+		MPI_Barrier(MPI_COMM_WORLD);
+		auto start = MPI_Wtime();
+		srand(seed);
+		QuantumCircuit circuit(n);
+		Google_random_circuit(sqrt(n),5,&circuit);
+		NoiseSimulatorMPI hoge(&circuit);
+		auto A = hoge.execute(sample_count,prob);
+		auto end = MPI_Wtime();
+		auto dur = end - start;
+		auto msec = dur;//std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+		std::cout << " Faster NoiseSimulator msec: " << msec << " msec"<< std::endl;
+	}
+	{
+		MPI_Barrier(MPI_COMM_WORLD);
+		auto start = MPI_Wtime();
+		srand(seed);
+		QuantumCircuit circuit(n);
+		Google_random_circuit(sqrt(n),5,&circuit);
+		NoiseSimulator hoge(&circuit);
+		auto A = hoge.execute(sample_count/2,prob);
+		std::vector<UINT> final_ans;
+		if(myrank == 0){
+			Utility::receive_vector(0,1,0,final_ans);
+		}else{
+			Utility::send_vector(1,0,0,A);
+		}
+		auto end = MPI_Wtime();
+		auto dur = end - start;
+		auto msec = dur;//std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+		std::cout << A.size() << std::endl;
+		std::cout << myrank << " Faster NoiseSimulator msec: " << msec << " msec"<< std::endl;
+	}
+	{
+		MPI_Barrier(MPI_COMM_WORLD);
+		auto start = MPI_Wtime();
 		srand(seed);
 		QuantumCircuit circuit(n);
 		Google_random_circuit(sqrt(n),5,&circuit);
 		NoiseSimulator hoge(&circuit);
 		auto A = hoge.execute(sample_count,prob);
-		auto end = std::chrono::system_clock::now();
+		auto end = MPI_Wtime();
 		auto dur = end - start;
-		auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
-		std::vector<UINT> now(sample_count*2);
-		std::cout << "Faster NoiseSimulator msec: " << msec << " msec"<< std::endl;
-	}
-	
-	{
-    	auto start = std::chrono::system_clock::now();
-		QuantumState state(n);
-		state.set_zero_state();
-
-		QuantumState base_state(n);
-		base_state.set_zero_state();
-
-		srand(seed);
-		QuantumCircuit circuit(n);
-		Google_noisy_random_circuit(sqrt(n),5,&circuit,prob);
-
-		srand(seed);
-		QuantumCircuit Idealcircuit(n);
-		Google_random_circuit(sqrt(n),5,&Idealcircuit);
-
-		QuantumState Ideal_state(n);
-		Ideal_state.set_zero_state();
-		Idealcircuit.update_quantum_state(&Ideal_state);
-
-		std::vector<int> ans;
-		//std::complex<long double> Fid = 0;
-		for(int i = 0;i < sample_count;++i){
-			state.load(&base_state);
-			circuit.update_quantum_state(&state);
-			//auto x = state::inner_product(&state,&Ideal_state);
-			//Fid += x * x;
-			ans.push_back(state.sampling(1)[0]);
-		}
-		//std::cout << Fid << std::endl;
-		auto end = std::chrono::system_clock::now();
-		auto dur = end - start;
-		auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
-		std::cout << "Normal implemention msec: " << msec << " msec"<< std::endl;
+		auto msec = dur;//std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
+		std::cout << A.size() << std::endl;
+		std::cout << myrank << " Faster NoiseSimulator msec: " << msec << " msec"<< std::endl;
 	}
 	MPI_Finalize();
 }
