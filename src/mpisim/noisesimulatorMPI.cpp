@@ -63,6 +63,7 @@ std::vector<UINT> NoiseSimulatorMPI::execute(const UINT sample_count,const doubl
     int OneSampling_DataSize = (int)( circuit ->gate_list.size() + 1);
 
     std::vector<UINT> sampling_required_rec;
+
     if(myrank == 0){
         std::vector<std::vector<UINT>> trial_gates(sample_count,std::vector<UINT>(circuit -> gate_list.size(),0));
         for(UINT i = 0;i < sample_count;++i){
@@ -88,7 +89,7 @@ std::vector<UINT> NoiseSimulatorMPI::execute(const UINT sample_count,const doubl
         std::sort(begin(trial_gates),end(trial_gates));
 
         int cnter_samplings = 0;
-        std::vector<std::pair<std::vector<UINT>,int>> hoges;
+        std::vector<std::pair<std::vector<UINT>,int>> sampling_required_all;
         int cnter = 0;
         for(UINT i = 0;i < sample_count;++i){
             cnter_samplings++;
@@ -102,35 +103,36 @@ std::vector<UINT> NoiseSimulatorMPI::execute(const UINT sample_count,const doubl
                     }
                     now.push_back(trial_gates[i][q]);
                 }
-                hoges.push_back(std::make_pair(now,cnter_samplings));
+                sampling_required_all.push_back(std::make_pair(now,cnter_samplings));
                 cnter_samplings = 0;
             }
         }
-        cnter /= std::max(1,numprocs-1);
+        cnter /= numprocs;
         int now_stock = 0;
         std::vector<std::vector<std::pair<std::vector<UINT>,int>>> targets(numprocs);
         int itr = 0;
-        for(int i = 0;i < hoges.size();++i){
+        for(int i = 0;i < sampling_required_all.size();++i){
             int nows = 0;
-            for(int q = 0;q < hoges[i].first.size();++q){
-                if(hoges[i].first[q] != 0 ){
+            for(int q = 0;q < sampling_required_all[i].first.size();++q){
+                if(sampling_required_all[i].first[q] != 0 ){
                     nows =  trial_gates[i].size() - q;
                     break;
                 }
             }
             now_stock += nows;
-            targets[itr].push_back(hoges[i]);
+            targets[itr].push_back(sampling_required_all[i]);
             if(now_stock > cnter){
                 now_stock = 0;
                 itr++;
                 itr = std::min(itr,numprocs-1);
             }
         }
+        // transform vector<pair<vector<UINT>,UINT>> into vector<UINT>
         for(int i = 0;i < numprocs;++i){
             for(int q =0;q < targets[i].size();++q){
-                std::vector<UINT> jun = targets[i][q].first;
-                for(int t = 0;t < jun.size();++t){
-                    sendings[i].push_back(jun[t]);
+                std::vector<UINT> noise = targets[i][q].first;
+                for(int t = 0;t < noise.size();++t){
+                    sendings[i].push_back(noise[t]);
                 }
                 sendings[i].push_back(targets[i][q].second);
             }
@@ -140,6 +142,10 @@ std::vector<UINT> NoiseSimulatorMPI::execute(const UINT sample_count,const doubl
     }else{
         Utility::receive_vector(myrank,0,0,sampling_required_rec);
     }
+
+    //now sampling required to perform in each node is in sampling_required_rec.
+    //lets transform  vector<UINT> into vector<pair<vector<UINT>,UINT>> again.
+    
     sampling_required_thisnode.resize(sampling_required_rec.size()/OneSampling_DataSize);
     for(int i = 0;i < sampling_required_rec.size();++i){
         if(i % OneSampling_DataSize == OneSampling_DataSize-1){
@@ -148,7 +154,7 @@ std::vector<UINT> NoiseSimulatorMPI::execute(const UINT sample_count,const doubl
             sampling_required_thisnode[i / OneSampling_DataSize].first.push_back(sampling_required_rec[i]);
         }
     }
-    std::cerr << sampling_required_thisnode.size() << std::endl;
+    
     sort(rbegin(sampling_required_thisnode),rend(sampling_required_thisnode));
     QuantumState Common_state(initial_state -> qubit_count);
     QuantumState Calculate_state(initial_state -> qubit_count);
@@ -176,11 +182,14 @@ std::vector<UINT> NoiseSimulatorMPI::execute(const UINT sample_count,const doubl
     while(result_itr - result.begin() != result.size()) result.pop_back();
     std::mt19937 Randomizer(random.int64());
     std::shuffle(begin(result),end(result),Randomizer);
+
+    //send sampling result to node 0
     for(int i = 1;i < numprocs;++i){
         Utility::send_vector(i,0,0,result);
     }
     std::vector<UINT> merged_result;
     if(myrank == 0){
+        //gather data
         for(int i = 0;i < numprocs;++i){
             std::vector<UINT> now_ans;
             if(i == 0) now_ans = result;
@@ -190,9 +199,7 @@ std::vector<UINT> NoiseSimulatorMPI::execute(const UINT sample_count,const doubl
             }
         }
     }
-    for(int q = 0;q < merged_result.size();q += sample_count/10){
-        std::cerr << merged_result[q] << std::endl;
-    }
+
     return merged_result;
 } 
 

@@ -42,6 +42,9 @@ class DllExport NoiseSimulatorMPI{
 		 * \~japanese-en
 		 * 
 		 * サンプリングを行い、結果を配列で返す。
+		 * 全てのプロセスでこの関数を呼び出す必要がある。
+		 * コンストラクタで同じ引数を指定していなかった場合の動作は未定である。
+		 * 
 		 * @param[in] prob ノイズが乗る確率
 		 * @param[in] sample_count 行うsamplingの回数
 		 */

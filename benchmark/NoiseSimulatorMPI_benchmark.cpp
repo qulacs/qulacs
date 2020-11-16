@@ -90,7 +90,7 @@ void Google_noisy_random_circuit(int length,int depth,QuantumCircuit *ans,double
 
 int main(int argc,char **argv){
 	omp_set_num_threads(2);
-    printf("使用可能な最大スレッド数：%d\n", omp_get_max_threads());
+    //printf("使用可能な最大スレッド数：%d\n", omp_get_max_threads());
 
 	MPI_Init(&argc,&argv);
 	int n = 16;
@@ -115,7 +115,8 @@ int main(int argc,char **argv){
 	MPI_Bcast(&sample_count,1,MPI_INT,0,MPI_COMM_WORLD);
 
 
-	int seed = clock();
+	int seed = 0;
+	
 	{
 		MPI_Barrier(MPI_COMM_WORLD);
 		auto start = MPI_Wtime();
@@ -127,8 +128,15 @@ int main(int argc,char **argv){
 		auto end = MPI_Wtime();
 		auto dur = end - start;
 		auto msec = dur;//std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
-		std::cout << " Faster NoiseSimulator msec: " << msec << " msec"<< std::endl;
+		if(myrank == 0){
+			std::cout << "NoiseSimulatorMPI sec: " << msec << " sec"<< std::endl;
+			
+			for(int q = 0;q < A.size();++q){
+				std::cerr << A[q] << std::endl;
+			}
+		}
 	}
+	
 	{
 		MPI_Barrier(MPI_COMM_WORLD);
 		auto start = MPI_Wtime();
@@ -147,21 +155,9 @@ int main(int argc,char **argv){
 		auto dur = end - start;
 		auto msec = dur;//std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
 		std::cout << A.size() << std::endl;
-		std::cout << myrank << " Faster NoiseSimulator msec: " << msec << " msec"<< std::endl;
-	}
-	{
-		MPI_Barrier(MPI_COMM_WORLD);
-		auto start = MPI_Wtime();
-		srand(seed);
-		QuantumCircuit circuit(n);
-		Google_random_circuit(sqrt(n),5,&circuit);
-		NoiseSimulator hoge(&circuit);
-		auto A = hoge.execute(sample_count,prob);
-		auto end = MPI_Wtime();
-		auto dur = end - start;
-		auto msec = dur;//std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
-		std::cout << A.size() << std::endl;
-		std::cout << myrank << " Faster NoiseSimulator msec: " << msec << " msec"<< std::endl;
+		if(myrank == 0){
+		std::cout << "NoiseSimulator sec: " << msec << " sec"<< std::endl;
+		}
 	}
 	MPI_Finalize();
 }
