@@ -103,7 +103,8 @@ CPPCTYPE CausalCone(const QuantumCircuit &init_circuit,
 	    	}
 	    }
 
-	    //termの中では分解しない(仮)		
+	    //termの中では分解しない(仮)
+	    		
 	    {
 	    	std::vector<UINT> qubit_encode(qubit_count, -1);
 	    	std::vector<UINT> qubit_decode(qubit_count, -1);
@@ -135,6 +136,7 @@ CPPCTYPE CausalCone(const QuantumCircuit &init_circuit,
 		        circuit->add_gate(gate);
 		    }
 
+
 		    //paulioperatorを変換
 		    {
 		    	auto index_list = term->get_index_list();
@@ -146,7 +148,7 @@ CPPCTYPE CausalCone(const QuantumCircuit &init_circuit,
 		    circuit->update_quantum_state(&state);
 		    ret += paulioperator.get_expectation_value(&state);
 	    }
-
+	    
 
 	    //分解処理(オブザーバルの処理どうしよ)
 	    /*
