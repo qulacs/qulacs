@@ -37,6 +37,7 @@ extern "C" {
 #include <vqcsim/parametric_gate.hpp>
 #include <vqcsim/parametric_gate_factory.hpp>
 #include <vqcsim/parametric_circuit.hpp>
+#include <vqcsim/GradCalculator.hpp>
 
 namespace py = pybind11;
 PYBIND11_MODULE(qulacs, m) {
@@ -524,7 +525,9 @@ PYBIND11_MODULE(qulacs, m) {
         .def("__repr__", [](const ParametricQuantumCircuit &p) {return p.to_string(); });
     ;
 
-
+    py::class_<GradCalculator>(m, "GradCalculator")
+        .def(py::init<>())
+        .def("calculate_grad",(std::vector<std::complex<double>> (GradCalculator::*)(ParametricQuantumCircuit* ,Observable*,double)) &GradCalculator::calculate_grad,"Calculate Grad");
 
     auto mcircuit = m.def_submodule("circuit");
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
