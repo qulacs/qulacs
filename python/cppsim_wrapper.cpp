@@ -29,6 +29,7 @@ extern "C" {
 #include <cppsim/circuit.hpp>
 #include <cppsim/circuit_optimizer.hpp>
 #include <cppsim/simulator.hpp>
+#include <cppsim/causal_cone.hpp>
 
 #ifdef _USE_GPU
 #include <cppsim/state_gpu.hpp>
@@ -547,6 +548,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("swap_state_and_buffer", &QuantumCircuitSimulator::swap_state_and_buffer, "Swap state and buffer")
         //.def("get_state_ptr", &QuantumCircuitSimulator::get_state_ptr, pybind11::return_value_policy::automatic_reference, "Get state ptr")
         ;
+    m.def("CausalCone",&CausalCone);
 }
 
 
