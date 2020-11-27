@@ -87,6 +87,11 @@ jobs:
       - name: Run sdist
         run: python setup.py sdist
 
+      - name: Upload sdist file as build artifact
+        uses: actions/upload-artifact@v2
+        with:
+          path: dist/*
+
       - name: Uplead the source if the Git tag is set
         run: python -m twine upload dist/*
         # This condition is refered for:
