@@ -33,6 +33,11 @@ jobs:
         run: pip install -U --only-binary=numpy,scipy numpy scipy
 
       - name: Workaround for OpenMP link error on mac
+        # In GitHub Actions virtual environment macos-10.15/20201115.1,
+        # linking some functions from libgomp fails since the linker cannot find
+        # some library files from gcc-8 installed via Homebrew.
+        # The following command fixes this issue by (brew) re-linking files from gcc-8.
+        # cf. https://stackoverflow.com/a/55500164
         run: brew link --overwrite gcc@8
         if: ${{ contains(matrix.os, 'macos') }}
         
@@ -104,6 +109,11 @@ jobs:
       CIBW_TEST_COMMAND: 'python {project}/python/test/test_qulacs.py'
       CIBW_TEST_REQUIRES: 'numpy scipy'
       CIBW_BEFORE_BUILD: 'pip install cmake'
+      # In GitHub Actions virtual environment macos-10.15/20201115.1,
+      # linking some functions from libgomp fails since the linker cannot find
+      # some library files from gcc-8 installed via Homebrew.
+      # The following command fixes this issue by (brew) re-linking files from gcc-8.
+      # cf. https://stackoverflow.com/a/55500164
       CIBW_BEFORE_BUILD_MACOS: 'brew link --overwrite gcc@8 && pip install cmake'
       CIBW_BUILD: 'cp*-macosx_x86_64 cp*-manylinux_x86_64 cp*-win_amd64'
       CIBW_BUILD_VERBOSITY: '1'
