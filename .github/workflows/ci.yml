@@ -138,6 +138,11 @@ jobs:
       - name: Run cibuildwheel
         run: python -m cibuildwheel --output-dir wheels
 
+      - name: Upload wheel files as build artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          path: wheels/*.whl
+
       - name: Upload wheel data if the Git tag is set
         run: python -m twine upload wheels/*.whl
         if: ${{ contains(github.ref, '/tags/') }}
