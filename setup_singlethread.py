@@ -92,7 +92,13 @@ class CMakeBuild(build_ext):
 
 
         if self.opt_flags is not None:
-            cmake_args += ['-DOPT_FLAGS=' + self.opt_flags]
+            opt_flags = self.opt_flags
+        elif os.getenv('QULACS_OPT_FLAGS'):
+            opt_flags = os.getenv('QULACS_OPT_FLAGS')
+        else:
+            opt_flags = None
+        if opt_flags:
+            cmake_args += ['-DOPT_FLAGS=' + opt_flags]
 
         cmake_args += ['-DUSE_OMP:STR=No']
         env = os.environ.copy()
