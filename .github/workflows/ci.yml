@@ -31,6 +31,10 @@ jobs:
           
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy
+
+      - name: Workaround for OpenMP link error on mac
+        run: brew link --overwrite gcc@8
+        if: ${{ contains(matrix.os, 'macos') }}
         
       - name: Install qulacs for Windows
         run: ./script/build_msvc_2017.bat
