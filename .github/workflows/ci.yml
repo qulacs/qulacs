@@ -96,6 +96,8 @@ jobs:
         # This condition is refered for:
         #   https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions
         if: ${{ contains(github.ref, '/tags/') }}
+        env:
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS }}
 
   source-dist-gpu:
     name: Source dist (Qulacs-GPU)
@@ -131,6 +133,8 @@ jobs:
         # This condition is refered for:
         #   https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions
         if: ${{ contains(github.ref, '/tags/') }}
+        env:
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS_GPU }}
 
   wheel-build:
     name: Python wheel build
@@ -185,4 +189,6 @@ jobs:
       - name: Upload wheel data if the Git tag is set
         run: python -m twine upload wheels/*.whl
         if: ${{ contains(github.ref, '/tags/') }}
+        env:
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS }}
 
