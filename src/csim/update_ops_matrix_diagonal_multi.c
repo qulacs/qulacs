@@ -28,6 +28,7 @@ void multi_qubit_diagonal_matrix_gate(const UINT* target_qubit_index_list, UINT 
 	ITYPE state_index;
 #ifdef _OPENMP
 	UINT threshold = 14;
+	UINT default_thread_count = omp_get_max_threads();
 	if (dim < (((ITYPE)1) << threshold)) omp_set_num_threads(1);
 #pragma omp parallel for
 #endif
@@ -45,7 +46,7 @@ void multi_qubit_diagonal_matrix_gate(const UINT* target_qubit_index_list, UINT 
 		}
 	}
 #ifdef _OPENMP
-	omp_set_num_threads(omp_get_max_threads());
+	omp_set_num_threads(default_thread_count);
 #endif
 	free((UINT*)sorted_insert_index_list);
 	free((ITYPE*)matrix_mask_list);
@@ -72,6 +73,7 @@ void multi_qubit_control_multi_qubit_diagonal_matrix_gate(const UINT* control_qu
 
 #ifdef _OPENMP
 	UINT threshold = 14;
+	UINT default_thread_count = omp_get_max_threads();
 	if (dim < (((ITYPE)1) << threshold)) omp_set_num_threads(1);
 #pragma omp parallel for
 #endif
@@ -93,7 +95,7 @@ void multi_qubit_control_multi_qubit_diagonal_matrix_gate(const UINT* control_qu
 		}
 	}
 #ifdef _OPENMP
-	omp_set_num_threads(omp_get_max_threads());
+	omp_set_num_threads(default_thread_count);
 #endif
 	free(sorted_insert_index_list);
 	free(matrix_mask_list);

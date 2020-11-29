@@ -24,7 +24,8 @@ void double_qubit_dense_matrix_gate_simd_low(UINT target_qubit_index1, UINT targ
 
 void double_qubit_dense_matrix_gate_c(UINT target_qubit_index1, UINT target_qubit_index2, const CTYPE matrix[16], CTYPE *state, ITYPE dim) {
 #ifdef _OPENMP
-	UINT threshold = 12;
+	UINT threshold = 13;
+	UINT default_thread_count = omp_get_max_threads();
 	if (dim < (((ITYPE)1) << threshold)) omp_set_num_threads(1);
 #endif
 
@@ -35,7 +36,7 @@ void double_qubit_dense_matrix_gate_c(UINT target_qubit_index1, UINT target_qubi
 #endif
 
 #ifdef _OPENMP
-	omp_set_num_threads(omp_get_max_threads());
+	omp_set_num_threads(default_thread_count);
 #endif
 }
 

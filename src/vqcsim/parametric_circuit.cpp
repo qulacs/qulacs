@@ -32,6 +32,19 @@ void ParametricQuantumCircuit::add_parametric_gate(QuantumGate_SingleParameter* 
     this->add_gate(gate, index);
     _parametric_gate_list.push_back(gate);
 }
+void ParametricQuantumCircuit::add_parametric_gate_copy(QuantumGate_SingleParameter* gate) {
+	_parametric_gate_position.push_back((UINT)gate_list.size());
+	QuantumGate_SingleParameter* copied_gate = gate->copy();
+	QuantumCircuit::add_gate(copied_gate);
+	_parametric_gate_list.push_back(copied_gate);
+};
+void ParametricQuantumCircuit::add_parametric_gate_copy(QuantumGate_SingleParameter* gate, UINT index) {
+	for (auto& val : _parametric_gate_position) if (val >= index)val++;
+	_parametric_gate_position.push_back(index);
+	QuantumGate_SingleParameter* copied_gate = gate->copy();
+	QuantumCircuit::add_gate(copied_gate, index);
+	_parametric_gate_list.push_back(copied_gate);
+}
 UINT ParametricQuantumCircuit::get_parameter_count() const {
     return (UINT)_parametric_gate_list.size(); 
 }

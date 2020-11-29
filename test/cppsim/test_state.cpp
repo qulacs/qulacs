@@ -125,3 +125,57 @@ TEST(StateTest, MultiplyCoef) {
 		ASSERT_NEAR(state.data_cpp()[i].imag(), state_vector[i].imag(), eps);
 	}
 }
+
+TEST(StateTest, TensorProduct) {
+	const double eps = 1e-10;
+	const UINT n = 5;
+
+	QuantumState state1(n), state2(n);
+	state1.set_Haar_random_state();
+	state2.set_Haar_random_state();
+
+	QuantumState* state3 = state::tensor_product(&state1, &state2);
+	for (ITYPE i = 0; i < state1.dim; ++i) {
+		for (ITYPE j = 0; j < state2.dim; ++j) {
+			ASSERT_NEAR(state3->data_cpp()[i*state2.dim + j].real(), (state1.data_cpp()[i]*state2.data_cpp()[j]).real(), eps);
+			ASSERT_NEAR(state3->data_cpp()[i*state2.dim + j].imag(), (state1.data_cpp()[i]*state2.data_cpp()[j]).imag(), eps);
+		}
+	}
+	delete state3;
+}
+
+TEST(StateTest, DropQubit) {
+	const double eps = 1e-10;
+	const UINT n = 4;
+
+	QuantumState state(n);
+	state.set_Haar_random_state();
+	QuantumState* state2 = state::drop_qubit(&state, { 2, 0 }, { 0, 1 });
+
+	ASSERT_EQ(state2->dim, 4);
+	int corr[] = { 1,3,9,11 };
+	for (ITYPE i = 0; i < state2->dim; ++i) {
+		ASSERT_NEAR(state2->data_cpp()[i].real(), state.data_cpp()[corr[i]].real(), eps);
+		ASSERT_NEAR(state2->data_cpp()[i].imag(), state.data_cpp()[corr[i]].imag(), eps);
+	}
+	delete state2;
+}
+
+
+
+TEST(StateTest, PermutateQubit) {
+	const double eps = 1e-10;
+	const UINT n = 3;
+
+	QuantumState state(n);
+	state.set_Haar_random_state();
+	QuantumState* state2 = state::permutate_qubit(&state, { 1, 0, 2 });
+
+	int corr[] = {0, 2, 1, 3, 4, 6, 5, 7 };
+	for (ITYPE i = 0; i < state2->dim; ++i) {
+		ASSERT_NEAR(state2->data_cpp()[i].real(), state.data_cpp()[corr[i]].real(), eps);
+		ASSERT_NEAR(state2->data_cpp()[i].imag(), state.data_cpp()[corr[i]].imag(), eps);
+	}
+	delete state2;
+}
+

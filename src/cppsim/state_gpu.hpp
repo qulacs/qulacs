@@ -142,6 +142,7 @@ public:
 	virtual QuantumStateBase* copy() const override {
 		QuantumStateGpu* new_state = new QuantumStateGpu(this->_qubit_count, device_number);
 		copy_quantum_state_from_device_to_device(new_state->data(), _state_vector, _dim, _cuda_stream, device_number);
+		for (UINT i = 0; i<_classical_register.size(); ++i) new_state->set_classical_value(i, _classical_register[i]);
 		return new_state;
 	}
 	/**

@@ -581,5 +581,7 @@ namespace state {
      * @return 内積の値
      */
     CPPCTYPE DllExport inner_product(const QuantumState* state_bra, const QuantumState* state_ket);
-
+	DllExport QuantumState* tensor_product(const QuantumState* state_left, const QuantumState* state_right);
+	DllExport QuantumState* permutate_qubit(const QuantumState* state, std::vector<UINT> qubit_order);
+	DllExport QuantumState* drop_qubit(const QuantumState* state, std::vector<UINT> target, std::vector<UINT> projection);
 }

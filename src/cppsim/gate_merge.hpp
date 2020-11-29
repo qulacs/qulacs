@@ -65,6 +65,17 @@ namespace gate {
      */
     DllExport QuantumGateBase* Probabilistic(std::vector<double> distribution, std::vector<QuantumGateBase*> gate_list);
 
+	/**
+	 * \~japanese-en 密度行列にも確率的に作用する量子ゲートを作成する。
+	 *
+	 * 確率分布の総和が1でない場合、残った確率が採用されたときには何も作用しない。
+	 * @param distribution 確率分布
+	 * @param gate_list 作用する量子ゲート
+	 * @param classical_register_address 作用したゲートの添え字を保存するアドレス
+	 * @return 確率的に作用するゲート
+	 */
+	DllExport QuantumGateBase* ProbabilisticInstrument(std::vector<double> distribution, std::vector<QuantumGateBase*> gate_list, UINT classical_register_address);
+
     /**
      * \~japanese-en CPTP-mapを作成する
      *
@@ -73,6 +84,18 @@ namespace gate {
      * @return CPTP-map
      */
     DllExport QuantumGateBase* CPTP(std::vector<QuantumGateBase*> gate_list);
+
+	/**
+	 * \~japanese-en CP-mapを作成する
+	 *
+	 * \f$p_i = {\rm Tr}[K_i \rho K_i^{\dagger}]\f$を計算し、\f$\{p_i\}\f$の確率分布でクラウス演算子を採用する。
+	 * @param gate_list クラウス演算を行うゲートのリスト
+	 * @param state_normlize trueだったら状態を規格化する
+	 * @param probability_normalize trueだったら確率分布を規格化する
+	 * @param assign_zero_if_not_matched どのKraus演算子にもマッチしなかったら0を代入する
+	 * @return CP-map
+	 */
+	DllExport QuantumGateBase* CP(std::vector<QuantumGateBase*> gate_list, bool state_normalize, bool probability_normalize, bool assign_zero_if_not_matched);
 
     /**
      * \~japanese-en Instrumentを作成する

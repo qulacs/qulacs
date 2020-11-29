@@ -236,6 +236,9 @@ PYBIND11_MODULE(qulacs, m) {
 #endif
     mstate.def("inner_product", py::overload_cast<const QuantumState*, const QuantumState*>(&state::inner_product), "Get inner product", py::arg("state_bra"), py::arg("state_ket"));
     //mstate.def("inner_product", &state::inner_product);
+	mstate.def("tensor_product", &state::tensor_product, pybind11::return_value_policy::take_ownership, "Get tensor product of states", py::arg("state_left"), py::arg("state_right"));
+	mstate.def("permutate_qubit", &state::permutate_qubit, pybind11::return_value_policy::take_ownership, "Permutate qubits from state", py::arg("state"), py::arg("order"));
+	mstate.def("drop_qubit", &state::drop_qubit, pybind11::return_value_policy::take_ownership, "Drop qubits from state", py::arg("state"), py::arg("target"), py::arg("projection"));
 
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
         .def("update_quantum_state", &QuantumGateBase::update_quantum_state, "Update quantum state", py::arg("state"))
@@ -391,17 +394,17 @@ PYBIND11_MODULE(qulacs, m) {
 		return ptr;
 	}, pybind11::return_value_policy::take_ownership, "Create state reflection gate", py::arg("state"));
 
-    mgate.def("BitFlipNoise", &gate::BitFlipNoise, "Create bit-flip noise", py::arg("index"), py::arg("prob"));
-    mgate.def("DephasingNoise", &gate::DephasingNoise, "Create dephasing noise", py::arg("index"), py::arg("prob"));
-    mgate.def("IndependentXZNoise", &gate::IndependentXZNoise, "Create independent XZ noise", py::arg("index"), py::arg("prob"));
-    mgate.def("DepolarizingNoise", &gate::DepolarizingNoise, "Create depolarizing noise", py::arg("index"),py::arg("prob"));
+    mgate.def("BitFlipNoise", &gate::BitFlipNoise, pybind11::return_value_policy::take_ownership, "Create bit-flip noise", py::arg("index"), py::arg("prob"));
+    mgate.def("DephasingNoise", &gate::DephasingNoise, pybind11::return_value_policy::take_ownership, "Create dephasing noise", py::arg("index"), py::arg("prob"));
+    mgate.def("IndependentXZNoise", &gate::IndependentXZNoise, pybind11::return_value_policy::take_ownership, "Create independent XZ noise", py::arg("index"), py::arg("prob"));
+    mgate.def("DepolarizingNoise", &gate::DepolarizingNoise, pybind11::return_value_policy::take_ownership, "Create depolarizing noise", py::arg("index"),py::arg("prob"));
 	mgate.def("TwoQubitDepolarizingNoise", [](UINT target_index1, UINT target_index2, double probability) {
 		auto ptr = gate::TwoQubitDepolarizingNoise(target_index1, target_index2, probability);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to TwoQubitDepolarizingNoise.");
 		return ptr;
 	}, pybind11::return_value_policy::take_ownership, "Create two-qubit depolarizing noise", py::arg("index1"), py::arg("index2"), py::arg("prob"));
-	mgate.def("AmplitudeDampingNoise", &gate::AmplitudeDampingNoise, "Create amplitude damping noise", py::arg("index"), py::arg("prob"));
-    mgate.def("Measurement", &gate::Measurement, "Create measurement gate", py::arg("index"), py::arg("register"));
+	mgate.def("AmplitudeDampingNoise", &gate::AmplitudeDampingNoise, pybind11::return_value_policy::take_ownership, "Create amplitude damping noise", py::arg("index"), py::arg("prob"));
+    mgate.def("Measurement", &gate::Measurement, pybind11::return_value_policy::take_ownership, "Create measurement gate", py::arg("index"), py::arg("register"));
 
     QuantumGateMatrix*(*ptr3)(const QuantumGateBase*, const QuantumGateBase*) = &gate::merge;
     mgate.def("merge", ptr3, pybind11::return_value_policy::take_ownership, "Merge two quantum gate", py::arg("gate1"), py::arg("gate2"));
@@ -417,17 +420,20 @@ PYBIND11_MODULE(qulacs, m) {
 
     mgate.def("to_matrix_gate", &gate::to_matrix_gate, pybind11::return_value_policy::take_ownership, "Convert named gate to matrix gate", py::arg("gate"));
     mgate.def("Probabilistic", &gate::Probabilistic, pybind11::return_value_policy::take_ownership, "Create probabilistic gate", py::arg("prob_list"), py::arg("gate_list"));
-    mgate.def("CPTP", &gate::CPTP, pybind11::return_value_policy::take_ownership, "Create completely-positive trace preserving map", py::arg("kraus_list"));
-    mgate.def("Instrument", &gate::Instrument, pybind11::return_value_policy::take_ownership, "Create instruments", py::arg("kraus_list"), py::arg("register"));
+	mgate.def("ProbabilisticInstrument", &gate::ProbabilisticInstrument, pybind11::return_value_policy::take_ownership, "Create probabilistic instrument gate", py::arg("prob_list"), py::arg("gate_list"), py::arg("register"));
+	mgate.def("CPTP", &gate::CPTP, pybind11::return_value_policy::take_ownership, "Create completely-positive trace preserving map", py::arg("kraus_list"));
+	mgate.def("CP", &gate::CP, pybind11::return_value_policy::take_ownership, "Create completely-positive map", py::arg("kraus_list"), py::arg("state_normalize"), py::arg("probability_normalize"), py::arg("assign_zero_if_not_matched"));
+	mgate.def("Instrument", &gate::Instrument, pybind11::return_value_policy::take_ownership, "Create instruments", py::arg("kraus_list"), py::arg("register"));
     mgate.def("Adaptive", &gate::Adaptive, pybind11::return_value_policy::take_ownership, "Create adaptive gate", py::arg("gate"), py::arg("condition"));
 
 	py::class_<QuantumGate_SingleParameter, QuantumGateBase>(m, "QuantumGate_SingleParameter")
 		.def("get_parameter_value", &QuantumGate_SingleParameter::get_parameter_value, "Get parameter value")
 		.def("set_parameter_value", &QuantumGate_SingleParameter::set_parameter_value, "Set parameter value", py::arg("value"))
+		.def("copy", &QuantumGate_SingleParameter::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
 		;
-	mgate.def("ParametricRX", &gate::ParametricRX, "Create parametric Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("ParametricRY", &gate::ParametricRY, "Create parametric Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("ParametricRZ", &gate::ParametricRZ, "Create parametric Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
+	mgate.def("ParametricRX", &gate::ParametricRX, pybind11::return_value_policy::take_ownership, "Create parametric Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("ParametricRY", &gate::ParametricRY, pybind11::return_value_policy::take_ownership, "Create parametric Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("ParametricRZ", &gate::ParametricRZ, pybind11::return_value_policy::take_ownership, "Create parametric Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
     mgate.def("ParametricPauliRotation", [](std::vector<unsigned int> target_qubit_index_list, std::vector<unsigned int> pauli_ids, double angle) {
 		auto ptr = gate::ParametricPauliRotation(target_qubit_index_list, pauli_ids, angle);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to ParametricPauliRotation.");
@@ -438,8 +444,8 @@ PYBIND11_MODULE(qulacs, m) {
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
         .def("copy", &QuantumCircuit::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
         // In order to avoid double release, we force using add_gate_copy in python
-        .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate, "Add gate and take ownership", py::arg("gate"))
-        .def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate, "Add gate and take ownership", py::arg("gate"), py::arg("position"))
+        //.def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate, "Add gate and take ownership", py::arg("gate"))
+        //.def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate, "Add gate and take ownership", py::arg("gate"), py::arg("position"))
         .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase*))&QuantumCircuit::add_gate_copy, "Add gate with copy", py::arg("gate"))
         .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate_copy, "Add gate with copy", py::arg("gate"), py::arg("position"))
         .def("remove_gate", &QuantumCircuit::remove_gate, "Remove gate", py::arg("position"))
@@ -500,9 +506,9 @@ PYBIND11_MODULE(qulacs, m) {
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(m, "ParametricQuantumCircuit")
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
-        .def("copy", &ParametricQuantumCircuit::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
-        .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate))  &ParametricQuantumCircuit::add_parametric_gate, "Add parametric gate", py::arg("gate"))
-        .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate, UINT))  &ParametricQuantumCircuit::add_parametric_gate, "Add parametric gate", py::arg("gate"), py::arg("position"))
+        .def("copy", &ParametricQuantumCircuit::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")		
+		.def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate))  &ParametricQuantumCircuit::add_parametric_gate_copy, "Add parametric gate", py::arg("gate"))
+        .def("add_parametric_gate", (void (ParametricQuantumCircuit::*)(QuantumGate_SingleParameter* gate, UINT))  &ParametricQuantumCircuit::add_parametric_gate_copy, "Add parametric gate", py::arg("gate"), py::arg("position"))
         .def("add_gate", (void (ParametricQuantumCircuit::*)(const QuantumGateBase* gate))  &ParametricQuantumCircuit::add_gate_copy, "Add gate", py::arg("gate"))
         .def("add_gate", (void (ParametricQuantumCircuit::*)(const QuantumGateBase* gate, unsigned int))  &ParametricQuantumCircuit::add_gate_copy, "Add gate", py::arg("gate"), py::arg("position"))
         .def("get_parameter_count", &ParametricQuantumCircuit::get_parameter_count, "Get parameter count")

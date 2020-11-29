@@ -36,6 +36,7 @@ public:
     }
     virtual void set_parameter_value(double value) { _angle = value; }
     virtual double get_parameter_value() const { return _angle; }
+	virtual QuantumGate_SingleParameter* copy() const override = 0;
 };
 
 class QuantumGate_SingleParameterOneQubitRotation : public QuantumGate_SingleParameter {
@@ -85,7 +86,7 @@ public:
 		matrix = ComplexMatrix::Zero(2, 2);
 		matrix << cos(_angle/2), sin(_angle/2) * 1.i, sin(_angle/2) * 1.i, cos(_angle/2);
 	}
-	virtual QuantumGateBase* copy() const override {
+	virtual QuantumGate_SingleParameter* copy() const override {
 		return new ClsParametricRXGate(*this);
 	};
 };
@@ -105,7 +106,7 @@ public:
 		matrix = ComplexMatrix::Zero(2, 2);
 		matrix << cos(_angle/2), sin(_angle/2), -sin(_angle/2), cos(_angle/2);
 	}
-	virtual QuantumGateBase* copy() const override {
+	virtual QuantumGate_SingleParameter* copy() const override {
 		return new ClsParametricRYGate(*this);
 	};
 };
@@ -125,7 +126,7 @@ public:
 		matrix = ComplexMatrix::Zero(2, 2);
 		matrix << cos(_angle/2) + 1.i*sin(_angle/2), 0, 0, cos(_angle/2) - 1.i * sin(_angle/2);
 	}
-	virtual QuantumGateBase* copy() const override {
+	virtual QuantumGate_SingleParameter* copy() const override {
 		return new ClsParametricRZGate(*this);
 	};
 };
@@ -180,7 +181,7 @@ public:
 				_angle, state->data_c(), state->dim);
 		}
     };
-    virtual QuantumGateBase* copy() const override {
+    virtual QuantumGate_SingleParameter* copy() const override {
         return new ClsParametricPauliRotationGate(_angle, _pauli->copy());
     };
     virtual void set_matrix(ComplexMatrix& matrix) const override {

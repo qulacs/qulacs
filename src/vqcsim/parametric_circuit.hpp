@@ -15,7 +15,9 @@ public:
 	
 	virtual void add_parametric_gate(QuantumGate_SingleParameter* gate);
     virtual void add_parametric_gate(QuantumGate_SingleParameter* gate, UINT index);
-    virtual UINT get_parameter_count() const;
+    virtual void add_parametric_gate_copy(QuantumGate_SingleParameter* gate);
+    virtual void add_parametric_gate_copy(QuantumGate_SingleParameter* gate, UINT index);
+	virtual UINT get_parameter_count() const;
     virtual double get_parameter(UINT index) const;
     virtual void set_parameter(UINT index, double value);
 
