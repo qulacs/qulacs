@@ -72,6 +72,9 @@ jobs:
       matrix:
         python-version: [ '3.7.5' ]
     runs-on: ubuntu-latest
+    env:
+      TWINE_USERNAME: '__token__'
+      TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS }}
     steps:
       - uses: actions/checkout@v2
 
@@ -96,8 +99,6 @@ jobs:
         # This condition is refered for:
         #   https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions
         if: ${{ contains(github.ref, '/tags/') }}
-        env:
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS }}
 
   source-dist-gpu:
     name: Source dist (Qulacs-GPU)
@@ -106,6 +107,9 @@ jobs:
       matrix:
         python-version: [ '3.7.5' ]
     runs-on: ubuntu-latest
+    env:
+      TWINE_USERNAME: '__token__'
+      TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS_GPU }}
     steps:
       - uses: actions/checkout@v2
 
@@ -133,8 +137,6 @@ jobs:
         # This condition is refered for:
         #   https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions
         if: ${{ contains(github.ref, '/tags/') }}
-        env:
-          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS_GPU }}
 
   wheel-build:
     name: Python wheel build
