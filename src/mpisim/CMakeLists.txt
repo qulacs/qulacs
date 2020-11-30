@@ -17,7 +17,8 @@ include_directories(SYSTEM ${MPI_INCLUDE_PATH})
 
 add_library(mpisim_static STATIC ${MPISIM_SRC})
 add_library(mpisim_shared SHARED ${MPISIM_SRC})
-target_link_libraries(mpisim_static csim_static)
-target_link_libraries(mpisim_shared csim_static)
+
+target_link_libraries(mpisim_static ${MPI_CXX_LIBRARIES})
+target_link_libraries(mpisim_shared ${MPI_CXX_LIBRARIES})
 
 set_target_properties(mpisim_shared PROPERTIES EXCLUDE_FROM_ALL TRUE)
