@@ -39,6 +39,10 @@ extern "C" {
 #include <vqcsim/parametric_gate_factory.hpp>
 #include <vqcsim/parametric_circuit.hpp>
 
+#ifdef _USE_MPI
+#include <mpisim/noisesimulatorMPI.hpp>
+#endif
+
 namespace py = pybind11;
 PYBIND11_MODULE(qulacs, m) {
     m.doc() = "cppsim python interface";
@@ -551,6 +555,14 @@ PYBIND11_MODULE(qulacs, m) {
     py::class_<NoiseSimulator>(m,"NoiseSimulator")
         .def(py::init<QuantumCircuit*,QuantumState*>(),"Constructor")
         .def("execute",&NoiseSimulator::execute,"sampling & return result [array]");
+
+
+#ifdef _USE_MPI
+    py::class_<NoiseSimulatorMPI>(m,"NoiseSimulatorMPI")
+        .def(py::init<QuantumCircuit*,QuantumState*>(),"Constructor")
+        .def("execute",&NoiseSimulatorMPI::execute,"sampling & return result [array]");
+#endif
+
 }
 
 
