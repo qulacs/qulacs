@@ -533,7 +533,7 @@ PYBIND11_MODULE(qulacs, m) {
 
     py::class_<GradCalculator>(m, "GradCalculator")
         .def(py::init<>())
-        .def("calculate_grad",(std::vector<std::complex<double>> (GradCalculator::*)(ParametricQuantumCircuit* ,Observable*,double)) &GradCalculator::calculate_grad,"Calculate Grad");
+        .def("calculate_grad",&GradCalculator::calculate_grad,"Calculate Grad");
 
     auto mcircuit = m.def_submodule("circuit");
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
@@ -559,9 +559,6 @@ PYBIND11_MODULE(qulacs, m) {
     py::class_<NoiseSimulator>(m,"NoiseSimulator")
         .def(py::init<QuantumCircuit*,QuantumState*>(),"Constructor")
         .def("execute",&NoiseSimulator::execute,"sampling & return result [array]");
-    py::class_<GradCalculator>(m,"GradCalculator")
-        .def(py::init<>(),"Constructor")
-        .def("calculate_grad",&GradCalculator::calculate_grad,"sampling & return result [array]");
 
 #ifdef _USE_MPI
     py::class_<NoiseSimulatorMPI>(m,"NoiseSimulatorMPI")
