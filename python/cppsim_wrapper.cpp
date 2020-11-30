@@ -42,6 +42,7 @@ extern "C" {
 
 #ifdef _USE_MPI
 #include <mpisim/noisesimulatorMPI.hpp>
+#include <mpisim/GradCalculatorMPI.hpp>
 #endif
 
 namespace py = pybind11;
@@ -558,12 +559,17 @@ PYBIND11_MODULE(qulacs, m) {
     py::class_<NoiseSimulator>(m,"NoiseSimulator")
         .def(py::init<QuantumCircuit*,QuantumState*>(),"Constructor")
         .def("execute",&NoiseSimulator::execute,"sampling & return result [array]");
-
+    py::class_<GradCalculator>(m,"GradCalculator")
+        .def(py::init<>(),"Constructor")
+        .def("calculate_grad",&GradCalculator::calculate_grad,"sampling & return result [array]");
 
 #ifdef _USE_MPI
     py::class_<NoiseSimulatorMPI>(m,"NoiseSimulatorMPI")
         .def(py::init<QuantumCircuit*,QuantumState*>(),"Constructor")
         .def("execute",&NoiseSimulatorMPI::execute,"sampling & return result [array]");
+    py::class_<GradCalculatorMPI>(m,"GradCalculatorMPI")
+        .def(py::init<>(),"Constructor")
+        .def("calculate_grad",&GradCalculatorMPI::calculate_grad,"sampling & return result [array]");
 #endif
 
 }
