@@ -123,6 +123,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
     //std::cout << Fid << std::endl;
     std::mt19937 Randomizer(random.int64());
     std::shuffle(begin(result),end(result),Randomizer);
+    
     return result;
 } 
 
