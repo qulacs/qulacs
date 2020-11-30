@@ -2,7 +2,6 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include <mpi.h>
 #include "cppsim/state.hpp"
 #include "cppsim/gate_factory.hpp"
 #include "cppsim/gate_merge.hpp"
