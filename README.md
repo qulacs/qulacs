@@ -220,13 +220,5 @@ g++ -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -fopen
 If you want to run it on GPU, include <code>cppsim/state_gpu.hpp</code> and replace <code>QuantumState</code> with <code>QuantumStateGpu</code>.
 
 ## How to cite
-Please cite this GitHub URL: https://github.com/qulacs/qulacs
 
-in bibtex style: 
-```
-@misc{Qulacs,
-title = {{Qulacs}},
-year = {2018},
-eprint = "https://github.com/qulacs/qulacs"
-}
-```
+Please cite this arXiv paper: [Qulacs: a fast and versatile quantum circuit simulator for research purpose](https://arxiv.org/abs/2011.13524)
