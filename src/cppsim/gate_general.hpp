@@ -13,7 +13,6 @@ protected:
     std::vector<double> _distribution;
     std::vector<double> _cumulative_distribution;
     std::vector<QuantumGateBase*> _gate_list;
-
 public:
     /**
      * \~japanese-en コンストラクタ
@@ -33,6 +32,7 @@ public:
 		for (auto gate : gate_list) {
 			_gate_list.push_back(gate->copy());
 		}
+		FLAG_NOISE = true;
     };
 
 	virtual ~QuantumGate_Probabilistic() {
