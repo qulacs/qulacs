@@ -104,53 +104,6 @@ CPPCTYPE CausalCone(const QuantumCircuit &init_circuit,
 		        }
 	    	}
 	    }
-
-	    //termの中では分解しない(仮)
-	    /*
-	    {
-	    	std::vector<UINT> qubit_encode(qubit_count, -1);
-	    	std::vector<UINT> qubit_decode(qubit_count, -1);
-    		UINT idx = 0;
-	    	for(UINT i = 0; i < qubit_count; i++){
-	    		if(use_qubit[i]) {
-	    			qubit_encode[i] = idx;
-	    			qubit_decode[idx] = i;
-	    			idx += 1;
-	    		}
-	    	}
-	    	
-	    	QuantumState state(idx);
-	    	state.set_zero_state();
-	    	QuantumCircuit* circuit = new QuantumCircuit(idx);
-	    	PauliOperator paulioperator(term->get_coef());
-
-	    	//gateのindexを変換
-	    	for(UINT i = 0; i < gate_count; i++){
-	        	if(!use_gate[i]) continue;
-		        auto gate = init_circuit.gate_list[i]->copy();
-		        auto target_index_list = gate->get_target_index_list();
-	        	auto control_index_list = gate->get_control_index_list();
-	        	for(auto &idx : target_index_list) idx = qubit_encode[idx];
-	        	for(auto &idx : control_index_list) idx = qubit_encode[idx];
-
-	        	gate->set_target_index_list(target_index_list);
-	        	gate->set_control_index_list(control_index_list);
-		        circuit->add_gate(gate);
-		    }
-
-
-		    //paulioperatorを変換
-		    {
-		    	auto index_list = term->get_index_list();
-		    	auto pauli_id_list = term->get_pauli_id_list();
-		    	for(UINT i = 0; i < index_list.size(); i++){
-		    		paulioperator.add_single_Pauli(qubit_encode[index_list[i]], pauli_id_list[i]);
-		    	}
-		    }
-		    circuit->update_quantum_state(&state);
-		    ret += paulioperator.get_expectation_value(&state);
-	    }
-	    */
 	    //分解処理
 	    
 	    auto term_index_list = term->get_index_list();
@@ -162,8 +115,7 @@ CPPCTYPE CausalCone(const QuantumCircuit &init_circuit,
 	            roots.emplace_back(uf.root(i));
 	            circuit_count += 1;
 	        }
-	    }
-	    std::cout<<"circuit_count:"<<" "<<circuit_count<<"\n";
+	    
 	    std::vector<QuantumCircuit*> circuits(circuit_count, nullptr);
 	    CPPCTYPE expectation(1.0, 0);
 	    for(UINT i = 0; i < circuit_count; i++) {
@@ -209,25 +161,3 @@ CPPCTYPE CausalCone(const QuantumCircuit &init_circuit,
 
     return ret;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
