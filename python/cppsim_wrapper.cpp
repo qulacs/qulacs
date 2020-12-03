@@ -30,6 +30,7 @@ extern "C" {
 #include <cppsim/circuit_optimizer.hpp>
 #include <cppsim/simulator.hpp>
 #include <cppsim/causal_cone.hpp>
+#include <cppsim/noisesimulator.hpp>
 
 #ifdef _USE_GPU
 #include <cppsim/state_gpu.hpp>
@@ -38,6 +39,10 @@ extern "C" {
 #include <vqcsim/parametric_gate.hpp>
 #include <vqcsim/parametric_gate_factory.hpp>
 #include <vqcsim/parametric_circuit.hpp>
+
+#ifdef _USE_MPI
+#include <mpisim/noisesimulatorMPI.hpp>
+#endif
 
 namespace py = pybind11;
 PYBIND11_MODULE(qulacs, m) {
@@ -549,6 +554,17 @@ PYBIND11_MODULE(qulacs, m) {
         //.def("get_state_ptr", &QuantumCircuitSimulator::get_state_ptr, pybind11::return_value_policy::automatic_reference, "Get state ptr")
         ;
     m.def("CausalCone",&CausalCone);
+    py::class_<NoiseSimulator>(m,"NoiseSimulator")
+        .def(py::init<QuantumCircuit*,QuantumState*>(),"Constructor")
+        .def("execute",&NoiseSimulator::execute,"sampling & return result [array]");
+
+
+#ifdef _USE_MPI
+    py::class_<NoiseSimulatorMPI>(m,"NoiseSimulatorMPI")
+        .def(py::init<QuantumCircuit*,QuantumState*>(),"Constructor")
+        .def("execute",&NoiseSimulatorMPI::execute,"sampling & return result [array]");
+#endif
+
 }
 
 

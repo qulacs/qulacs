@@ -27,8 +27,8 @@ TEST(NoiseSimulatorTest, Random_with_State_Test) {
             }
         }
     }
-	NoiseSimulator hoge(&circuit,0.02,&state);
-	std::vector<unsigned int> result = hoge.execute(100);
+	NoiseSimulator hoge(&circuit,&state);
+	std::vector<unsigned int> result = hoge.execute(100,0.02);
     return;
 }
 
@@ -50,8 +50,8 @@ TEST(NoiseSimulatorTest, Random_without_State_Test) {
             }
         }
     }
-	NoiseSimulator hoge(&circuit,0.02);
-	std::vector<unsigned int> result = hoge.execute(100);
+	NoiseSimulator hoge(&circuit);
+	std::vector<unsigned int> result = hoge.execute(100,0.02);
     return;
 }
 
@@ -60,8 +60,8 @@ TEST(NoiseSimulatorTest, H_gate_twice_test) {
     QuantumCircuit circuit(n);
     circuit.add_H_gate(0);
     circuit.add_H_gate(0);
-	NoiseSimulator hoge(&circuit,0.02);
-	std::vector<unsigned int> result = hoge.execute(10000);
+	NoiseSimulator hoge(&circuit);
+	std::vector<unsigned int> result = hoge.execute(10000,0.02);
     int cnts[2] = {};
     for(int i = 0;i < result.size();++i){
         cnts[result[i]]++;

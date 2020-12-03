@@ -2,16 +2,16 @@
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
-#include "state.hpp"
-#include "gate_factory.hpp"
-#include "gate_merge.hpp"
-#include "circuit.hpp"
+#include "cppsim/state.hpp"
+#include "cppsim/gate_factory.hpp"
+#include "cppsim/gate_merge.hpp"
+#include "cppsim/circuit.hpp"
 
 /**
  * \~japanese-en 回路にDepolarizingNoiseを加えてサンプリングするクラス
  */
 
-class DllExport NoiseSimulator{
+class DllExport NoiseSimulatorMPI{
 	private:
 		QuantumCircuit *circuit;
 		QuantumStateBase *initial_state;
@@ -30,17 +30,20 @@ class DllExport NoiseSimulator{
 		 * @param[in] init_state 最初の状態。指定されなかった場合は0で初期化される。
 		 * @return NoiseSimulatorのインスタンス
 		 */
-		NoiseSimulator(const QuantumCircuit *init_circuit,const QuantumState *init_state = NULL,const std::vector<UINT> *Noise_itr = NULL);
+		NoiseSimulatorMPI(const QuantumCircuit *init_circuit,const QuantumState *init_state = NULL,const std::vector<UINT> *Noise_itr = NULL);
 		/**
 		 * \~japanese-en
 		 * デストラクタ。このとき、NoiseSimulatorが保持しているcircuitとinitial_stateは解放される。
 		 */
-		virtual ~NoiseSimulator();
+		virtual ~NoiseSimulatorMPI();
 
 		/**
 		 * \~japanese-en
 		 * 
 		 * サンプリングを行い、結果を配列で返す。
+		 * 全てのプロセスでこの関数を呼び出す必要がある。
+		 * コンストラクタで同じ引数を指定していなかった場合の動作は未定である。
+		 * 
 		 * @param[in] prob ノイズが乗る確率
 		 * @param[in] sample_count 行うsamplingの回数
 		 */
