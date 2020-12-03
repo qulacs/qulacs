@@ -41,6 +41,9 @@ public:
 		}
 	}
 
+    virtual void set_seed(int seed) override{
+		random.set_seed(seed);
+	};
     /**
      * \~japanese-en 量子状態を更新する
      *

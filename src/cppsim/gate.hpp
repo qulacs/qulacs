@@ -239,6 +239,7 @@ public:
     bool is_noise(){
         return FLAG_NOISE;
     }
+    virtual void set_seed(int seed);
     //ここから勝手にjupiroがつくったやつ
     void set_target_index_list(const std::vector<UINT> &target_index_list)  {
         for (UINT i = 0; i < target_qubit_list.size(); ++i) target_qubit_list[i].set_index(target_index_list[i]);
