@@ -7,6 +7,7 @@
 #include "gate_merge.hpp"
 #include "circuit.hpp"
 #include "noisesimulator.hpp"
+#include <algorithm>
 /**
  * \~japanese-en 回路にノイズを加えてサンプリングするクラス
  */
@@ -72,7 +73,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
         }
     }
 
-    std::sort(rbegin(trial_gates),rend(trial_gates));
+    std::sort(trial_gates.rbegin(),trial_gates.rend());
 
     std::vector<std::pair<std::vector<UINT>,UINT>> sampling_required; // pair<trial_gate, number of samplings>
     int cnter_samplings = 0;
