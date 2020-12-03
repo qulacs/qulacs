@@ -10,7 +10,7 @@ from distutils.version import LooseVersion
 
 _VERSION = '0.1.10.1'
 
-project_name = 'Qulacs-GPU'
+project_name = 'Qulacs'
 
 def _is_valid_compiler(cmd):
     try:
@@ -91,10 +91,16 @@ class CMakeBuild(build_ext):
             build_args += ['--', '-j2']
 
         if self.opt_flags is not None:
-            cmake_args += ['-DOPT_FLAGS=' + self.opt_flags]
+            opt_flags = self.opt_flags
+        elif os.getenv('QULACS_OPT_FLAGS'):
+            opt_flags = os.getenv('QULACS_OPT_FLAGS')
+        else:
+            opt_flags = None
+        if opt_flags:
+            cmake_args += ['-DOPT_FLAGS=' + opt_flags]
 
-        cmake_args += ["-DUSE_GPU:STR=Yes"]
-        cmake_args += ["-DUSE_MPI:STR=No"]
+        cmake_args += ["-DUSE_GPU:STR=No"]
+        cmake_args += ["-DUSE_MPI:STR=Yes"]
         
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
