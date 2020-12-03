@@ -7,6 +7,7 @@
 #include "gate_merge.hpp"
 #include "circuit.hpp"
 #include "noisesimulator.hpp"
+#include <algorithm>
 /**
  * \~japanese-en 回路にノイズを加えてサンプリングするクラス
  */
