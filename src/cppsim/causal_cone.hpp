@@ -115,7 +115,7 @@ CPPCTYPE CausalCone(const QuantumCircuit &init_circuit,
 	            roots.emplace_back(uf.root(i));
 	            circuit_count += 1;
 	        }
-	    
+		}
 	    std::vector<QuantumCircuit*> circuits(circuit_count, nullptr);
 	    CPPCTYPE expectation(1.0, 0);
 	    for(UINT i = 0; i < circuit_count; i++) {
