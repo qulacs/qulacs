@@ -24,6 +24,9 @@ public:
      */
     UINT index() const { return _index; }
 
+    //jupiroが勝手に作成
+    void set_index(int idx) { _index = idx; }
+
     /**
      * \~japanese-en コンストラクタ
      * 
