@@ -73,7 +73,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
         }
     }
 
-    std::sort(rbegin(trial_gates),rend(trial_gates));
+    std::sort(std::rbegin(trial_gates),std::rend(trial_gates));
 
     std::vector<std::pair<std::vector<UINT>,UINT>> sampling_required; // pair<trial_gate, number of samplings>
     int cnter_samplings = 0;
