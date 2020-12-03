@@ -1,4 +1,5 @@
 #include "GradCalculator.hpp"
+#include <cppsim/causal_cone.hpp>
 
 std::vector<std::complex<double>> GradCalculator::calculate_grad(ParametricQuantumCircuit &x,Observable &obs,double theta){
     std::vector<std::complex<double>> ans;
@@ -6,7 +7,6 @@ std::vector<std::complex<double>> GradCalculator::calculate_grad(ParametricQuant
     for(int i = 0;i < x.get_parameter_count();++i){
         std::complex<double> y,z;
         {
-            QuantumState state(x.qubit_count);
             for(int q = 0;q < x.get_parameter_count();++q){
                 float diff = 0;
                 if(i == q){
@@ -14,12 +14,9 @@ std::vector<std::complex<double>> GradCalculator::calculate_grad(ParametricQuant
                 }
                 x.set_parameter(q,theta + diff);
             }
-            state.set_zero_state();
-            x.update_quantum_state(&state);
-            y = obs.get_expectation_value(&state);
+            y = CausalCone(x,obs);
         }
         {
-            QuantumState state(x.qubit_count);
             for(int q = 0;q < x.get_parameter_count();++q){
                 float diff = 0;
                 if(i == q){
@@ -27,9 +24,7 @@ std::vector<std::complex<double>> GradCalculator::calculate_grad(ParametricQuant
                 }
                 x.set_parameter(q,theta - diff);
             }
-            state.set_zero_state();
-            x.update_quantum_state(&state);
-            z = obs.get_expectation_value(&state);
+            z = CausalCone(x,obs);
         }
         ans.push_back((y-z)/2.0);
     }
