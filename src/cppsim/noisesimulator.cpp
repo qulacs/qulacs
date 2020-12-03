@@ -12,7 +12,7 @@
  * \~japanese-en 回路にノイズを加えてサンプリングするクラス
  */
 
-NoiseSimulator::NoiseSimulator(const QuantumCircuit *init_circuit,const QuantumState *init_state,const std::vector<UINT> *Noise_itr){
+NoiseSimulator::NoiseSimulator(const QuantumCircuit *init_circuit,const QuantumState *init_state){
     if(init_state == NULL){
         // initialize with zero state if not provided.
         initial_state = new QuantumState(init_circuit -> qubit_count);
@@ -34,13 +34,6 @@ NoiseSimulator::NoiseSimulator(const QuantumCircuit *init_circuit,const QuantumS
             return;
         }
         noise_info.push_back(std::pair<UINT,UINT>(qubit_indexs[0],qubit_indexs[1]));
-    }
-    if(Noise_itr != NULL){        
-        for(UINT q = 0;q < Noise_itr -> size();++q){
-            // update them so that Noise will not be applied.
-            noise_info[Noise_itr -> at(q)].first = UINT_MAX;
-            noise_info[Noise_itr -> at(q)].second = UINT_MAX;
-        }
     }
 }
 

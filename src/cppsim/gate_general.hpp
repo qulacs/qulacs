@@ -41,9 +41,6 @@ public:
 		}
 	}
 
-    virtual void set_seed(int seed) override{
-		random.set_seed(seed);
-	};
     /**
      * \~japanese-en 量子状態を更新する
      *
@@ -106,6 +103,21 @@ public:
         std::cerr << "* Warning : Gate-matrix of probabilistic gate cannot be obtained. Identity matrix is returned." << std::endl;
         matrix = Eigen::MatrixXcd::Ones(1, 1);
     }
+
+	/*
+	added by kotamanegi.
+	*/
+
+    virtual void set_seed(int seed) override{
+		random.set_seed(seed);
+	};
+	
+    virtual std::vector<double> get_cumulative_distribution() override{
+		return _cumulative_distribution;
+	};
+	virtual std::vector<QuantumGateBase*> get_gate_list() override{
+		return _gate_list;
+	}
 };
 
 /**

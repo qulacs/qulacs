@@ -240,6 +240,9 @@ public:
         return FLAG_NOISE;
     }
     virtual void set_seed(int seed);
+    virtual std::vector<double> get_cumulative_distribution();
+    virtual std::vector<QuantumGateBase*> get_gate_list();
+
     //ここから勝手にjupiroがつくったやつ
     void set_target_index_list(const std::vector<UINT> &target_index_list)  {
         for (UINT i = 0; i < target_qubit_list.size(); ++i) target_qubit_list[i].set_index(target_index_list[i]);
