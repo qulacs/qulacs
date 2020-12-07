@@ -23,6 +23,10 @@ int main(){
 				std::vector<UINT> v = {j * 2, j * 2 + 1};
 				circuit.add_random_unitary_gate(v);
 			}
+			for(UINT j = 0; j < n; j++){
+				std::vector<UINT> v = {j * 2 + 1, (j * 2 + 2) % (n * 2)};
+				circuit.add_random_unitary_gate(v);
+			}
 		}
 		Observable observable(n * 2);
 		mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
