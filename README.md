@@ -13,7 +13,7 @@ Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob
 pip install qulacs
 ```
 
-Notice: this command install the Qulacs binary which with AVX2 instructions.
+Notice: This command installs the Qulacs binary which with AVX2 instructions.
 If your computer doesn't support AVX2, the Python program using Qulacs installed by this command will almost certainly fail due to segmentation fault or something else.
 You should check your CPU and if it doesn't support AVX2 (i.e. older than Haswell) then you have to install Qulacs from the source code as follows.
 
@@ -38,7 +38,7 @@ pip install qulacs-gpu
 
 See [the benchmark repository](https://github.com/qulacs/benchmark-qulacs) for the latest results.
 
-- Compared following libraries on March, 2020
+- Compared following libraries in March 2020
 
 |       Package        | Version |
 | -------------------- | ------- |
@@ -66,7 +66,7 @@ See [the benchmark repository](https://github.com/qulacs/benchmark-qulacs) for t
    for N times.
    
 #### Note
- - execution time include time for creating quantum circuit
+ - execution time includes time for creating a quantum circuit
  - benchmark was done with float64 precision (qsim was done with float32)
 
 ### Single thread benchmark
@@ -77,9 +77,9 @@ See [the benchmark repository](https://github.com/qulacs/benchmark-qulacs) for t
 
 ![multi thread benchmark](https://storage.googleapis.com/qunasys/multithread_plot2.png)
 
-This benchmark was done with majour quantum circuit simulators with python interface.  
-[Yao](https://github.com/QuantumBFS/Yao.jl) is quantum circuit simulator using Julia that is as fast as Qulacs.  
-Benchmark inculde Yao can be found [here](https://github.com/Roger-luo/quantum-benchmarks/blob/master/RESULTS.md).  
+This benchmark was done with major quantum circuit simulators with Python interfaces.
+[Yao](https://github.com/QuantumBFS/Yao.jl) is a quantum circuit simulator using Julia that is as fast as Qulacs.  
+Benchmark includes Yao can be found [here](https://github.com/Roger-luo/quantum-benchmarks/blob/master/RESULTS.md).  
 
 
 ## Requirement
@@ -95,7 +95,7 @@ Benchmark inculde Yao can be found [here](https://github.com/Roger-luo/quantum-b
 
 If your system supports AVX2 instructions, SIMD optimization is automatically enabled. 
 If you want to enable GPU simulator, install qulacs through `qulacs-gpu` package or build from source.
-Note that `qulacs-gpu` includes CPU simulator. You don't need to install both.
+Note that `qulacs-gpu` includes a CPU simulator. You don't need to install both.
 
 Qulacs is tested on the following systems.
 
@@ -135,7 +135,7 @@ value = observable.get_expectation_value(state)
 print(value)
 ```
 
-If you want to run it on GPU, install GPU-enabled qulacs and replace `QuantumState` in the above codes to `QuantumStateGpu`.
+If you want to run it on GPU, install GPU-enabled qulacs and replace `QuantumState` in the above codes with `QuantumStateGpu`.
 
 ### C++
 
@@ -221,13 +221,13 @@ git clone https://github.com/qulacs/qulacs.git
 cd qulacs
 script/build_msvc_2017.bat
 ```
-When you want to build with GPU, use `build_msvc_2017_with_gpu.bat`. If you use MSVC2015, replace "2017" in file names to "2015".
+When you want to build with GPU, use `build_msvc_2017_with_gpu.bat`. If you use MSVC2015, replace "2017" in file names with "2015".
 
 Your codes can be built with Qulacs with the following process:
 
-1. Create empty project and add your codes.
-2. Select "x64" as active solution platform.
-3. Right Click your project -> Select "Property"
+1. Create an empty project and add your codes.
+2. Select "x64" as an active solution platform.
+3. Right Click your project name in Solution Explorer, and select "Properties".
 4. At "VC++ Directories" tab, add the full path to "./qulacs/include" to "Include Directories"
 5. At "VC++ Directories" tab, add the full path to "./qulacs/lib" to "Library Directories"
 6. At "C/C++ -> Code Generation" tab, change "Runtime library" to "Multi-threaded (/MT)".
