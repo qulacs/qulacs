@@ -38,7 +38,10 @@ pip install qulacs-gpu
 
 The time for simulating random quantum circuits is compared with several quantum circuit simulators in November 2020.
 
-See [the benchmark repository](https://github.com/qulacs/benchmark-qulacs) for the detail of this benchmark.
+See [the benchmark repository](https://github.com/qulacs/benchmark-qulacs) and [Section VI and VII of our paper](https://arxiv.org/abs/2011.13524) for the detail of this benchmark.
+
+Note that the plots with names end with "opt" and "heavy opt" perform circuit optimization for fast simulation, where the time for optimization is included in the execution time.
+
 
 ### Single thread benchmark
 
