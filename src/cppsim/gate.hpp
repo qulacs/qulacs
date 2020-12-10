@@ -239,9 +239,15 @@ public:
     bool is_noise(){
         return FLAG_NOISE;
     }
-    virtual void set_seed(int seed);
-    virtual std::vector<double> get_cumulative_distribution();
-    virtual std::vector<QuantumGateBase*> get_gate_list();
+    virtual void set_seed(int seed) {
+        return;
+    };
+    virtual std::vector<double> get_cumulative_distribution(){
+        return {};
+    };
+    virtual std::vector<QuantumGateBase*> get_gate_list(){
+        return {};
+    };
 
     //ここから勝手にjupiroがつくったやつ
     void set_target_index_list(const std::vector<UINT> &target_index_list)  {
