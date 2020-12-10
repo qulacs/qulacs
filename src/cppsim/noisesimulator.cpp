@@ -22,6 +22,11 @@ NoiseSimulator::NoiseSimulator(const QuantumCircuit *init_circuit,const QuantumS
         initial_state = init_state -> copy();
     }
     circuit = init_circuit -> copy();
+    for(int i = 0;i < circuit -> gate_list.size();++i){
+        auto gate = circuit -> gate_list[i];
+        if(gate -> is_noise() == false) continue;
+        gate -> optimize_ProbablisticGate();
+    }
     /*
     UINT n = init_circuit -> gate_list.size();
     for(UINT i = 0;i < n;++i){
@@ -45,7 +50,7 @@ NoiseSimulator::~NoiseSimulator(){
     delete circuit;
 }
 
-std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double prob){
+std::vector<UINT> NoiseSimulator::execute(const UINT sample_count){
     Random random;
     std::vector<std::vector<UINT>> trial_gates(sample_count,std::vector<UINT>(circuit -> gate_list.size(),0));
     for(UINT i = 0;i < sample_count;++i){
@@ -53,26 +58,11 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
         for(UINT q = 0;q < gate_size;++q){
             auto gate = circuit -> gate_list[q];
             if(gate -> is_noise() == false) continue;
-            /*
-            int way_choose = 4;
-            if(noise_info[q].second != UINT_MAX){
-                //2-qubit-gate
-                way_choose *= 4;
-            }
-            way_choose -= 1;
-            double delta = prob/(double)way_choose;
-            double val = random.uniform();
-            if(val<=prob){
-                trial_gates[i][q] = (int)floor(val/delta)+1;
-            }else{
-                trial_gates[i][q] = 0;
-            }
-            */
             double val = random.uniform();
             std::vector<double> itr = gate -> get_cumulative_distribution();
             auto hoge = std::lower_bound(itr.begin(),itr.end(),val);
             assert(hoge != itr.begin());
-            trial_gates[i][q] = std::distance(hoge,itr.begin()) + 1;
+            trial_gates[i][q] = std::distance(itr.begin(),hoge) - 1;
         }
     }
 
@@ -91,15 +81,14 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
     QuantumState Common_state(initial_state -> qubit_count);
     QuantumState Calculate_state(initial_state -> qubit_count);
     
-/*
+    /*
     QuantumState IdealState(initial_state -> qubit_count);
     IdealState.load(initial_state);
     for(int i = 0;i < circuit -> gate_list.size();++i){
         circuit -> gate_list[i] -> update_quantum_state(&IdealState);
     }
     std::complex<long double> Fid = 0;
-*/    
-
+    */
     Common_state.load(initial_state);
     std::vector<UINT> result(sample_count);
     auto result_itr = result.begin();

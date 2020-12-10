@@ -118,6 +118,29 @@ public:
 	virtual std::vector<QuantumGateBase*> get_gate_list() override{
 		return _gate_list;
 	}
+	virtual void optimize_ProbablisticGate(){
+		int n = _gate_list.size();
+		std::vector<std::pair<double,int>> itr;
+		for(int i = 0;i < n;++i){
+			itr.push_back(std::make_pair(_distribution[i],i));
+		}
+		std::sort(itr.rbegin(),itr.rend());
+		std::vector<QuantumGateBase*> next_gate_list;
+		for(int i = 0;i < n;++i){
+			_distribution[i] = itr[i].first;
+			next_gate_list.push_back(_gate_list[itr[i].second]);
+		}
+		_gate_list = next_gate_list;
+		
+		_cumulative_distribution.clear();
+		double sum = 0.;
+        _cumulative_distribution.push_back(0.);
+        for (auto val : _distribution) {
+            sum += val;
+            _cumulative_distribution.push_back(sum);
+        }
+		return;
+    }
 };
 
 /**

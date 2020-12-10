@@ -248,6 +248,9 @@ public:
     virtual std::vector<QuantumGateBase*> get_gate_list(){
         return {};
     };
+    virtual void optimize_ProbablisticGate(){
+        return;
+    }
 
     //ここから勝手にjupiroがつくったやつ
     void set_target_index_list(const std::vector<UINT> &target_index_list)  {

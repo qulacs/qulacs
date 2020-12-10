@@ -103,7 +103,7 @@ int main(){
 		auto start = std::chrono::system_clock::now();
 		srand(seed);
 		QuantumCircuit circuit(n);
-		Google_random_circuit(sqrt(n),5,&circuit);
+		Google_noisy_random_circuit(sqrt(n),5,&circuit,prob);
 		NoiseSimulator hoge(&circuit);
 		auto A = hoge.execute(sample_count,prob);
 		auto end = std::chrono::system_clock::now();
