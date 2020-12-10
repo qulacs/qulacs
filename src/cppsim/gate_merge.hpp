@@ -65,6 +65,17 @@ namespace gate {
      */
     DllExport QuantumGateBase* Probabilistic(std::vector<double> distribution, std::vector<QuantumGateBase*> gate_list);
 
+	/**
+	 * \~japanese-en 密度行列にも確率的に作用する量子ゲートを作成する。
+	 *
+	 * 確率分布の総和が1でない場合、残った確率が採用されたときには何も作用しない。
+	 * @param distribution 確率分布
+	 * @param gate_list 作用する量子ゲート
+	 * @param classical_register_address 作用したゲートの添え字を保存するアドレス
+	 * @return 確率的に作用するゲート
+	 */
+	DllExport QuantumGateBase* ProbabilisticInstrument(std::vector<double> distribution, std::vector<QuantumGateBase*> gate_list, UINT classical_register_address);
+
     /**
      * \~japanese-en CPTP-mapを作成する
      *

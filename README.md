@@ -1,6 +1,7 @@
  
 # Qulacs
-[![Build Status](https://travis-ci.org/qulacs/qulacs.svg?branch=master)](https://travis-ci.org/qulacs/qulacs)
+
+![CI](https://github.com/qulacs/qulacs/workflows/CI/badge.svg)
 [![Downloads](https://pepy.tech/badge/qulacs)](https://pepy.tech/project/qulacs)
 
 Qulacs is a python/C++ library for fast simulation of large, noisy, or parametric quantum circuits.
@@ -11,6 +12,14 @@ Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob
 
 ```
 pip install qulacs
+```
+
+Notice: this command install the Qulacs binary which requires AVX2 features.
+If your computer doesn't support AVX2, the Python program using Qulacs installed by this command will almost certainly fail due to segmentation fault or something else.
+You should check your CPU and if it doesn't support AVX2 (i.e. older than Haswell) then you have to install Qulacs from the source code.
+
+```
+pip install git+https://github.com/qulacs/qulacs.git
 ```
 
 If you have NVIDIA GPU with CUDA installed try:
@@ -211,13 +220,5 @@ g++ -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -fopen
 If you want to run it on GPU, include <code>cppsim/state_gpu.hpp</code> and replace <code>QuantumState</code> with <code>QuantumStateGpu</code>.
 
 ## How to cite
-Please cite this GitHub URL: https://github.com/qulacs/qulacs
 
-in bibtex style: 
-```
-@misc{Qulacs,
-title = {{Qulacs}},
-year = {2018},
-eprint = "https://github.com/qulacs/qulacs"
-}
-```
+Please cite this arXiv paper: [Qulacs: a fast and versatile quantum circuit simulator for research purpose](https://arxiv.org/abs/2011.13524)

@@ -18,6 +18,7 @@
 //void single_qubit_dense_matrix_gate_old_single(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
 //void single_qubit_dense_matrix_gate_old_parallel(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
 //void single_qubit_dense_matrix_gate_single(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
+//void single_qubit_dense_matrix_gate_parallel(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
 
 void single_qubit_dense_matrix_gate(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim) {
 	//single_qubit_dense_matrix_gate_old_single(target_qubit_index, matrix, state, dim);
@@ -30,7 +31,7 @@ void single_qubit_dense_matrix_gate(UINT target_qubit_index, const CTYPE matrix[
 
 #ifdef _USE_SIMD
 #ifdef _OPENMP
-	UINT threshold = 12;
+	UINT threshold = 13;
 	if (dim < (((ITYPE)1) << threshold)) {
 		single_qubit_dense_matrix_gate_single_simd(target_qubit_index, matrix, state, dim);
 	}
@@ -42,18 +43,68 @@ void single_qubit_dense_matrix_gate(UINT target_qubit_index, const CTYPE matrix[
 #endif
 #else
 #ifdef _OPENMP
-	UINT threshold = 12;
+	UINT threshold = 13;
 	if (dim < (((ITYPE)1) << threshold)) {
-		single_qubit_dense_matrix_gate_single_unroll(target_qubit_index, matrix, state, dim);
+		//single_qubit_dense_matrix_gate_single_unroll(target_qubit_index, matrix, state, dim);
+		single_qubit_dense_matrix_gate_single(target_qubit_index, matrix, state, dim);
 	}
 	else {
-		single_qubit_dense_matrix_gate_parallel_unroll(target_qubit_index, matrix, state, dim);
+		//single_qubit_dense_matrix_gate_parallel_unroll(target_qubit_index, matrix, state, dim);
+		single_qubit_dense_matrix_gate_parallel(target_qubit_index, matrix, state, dim);
 	}
 #else
-	single_qubit_dense_matrix_gate_single_unroll(target_qubit_index, matrix, state, dim);
+	//single_qubit_dense_matrix_gate_single_unroll(target_qubit_index, matrix, state, dim);
+	single_qubit_dense_matrix_gate_single(target_qubit_index, matrix, state, dim);
 #endif
 #endif
 }
+
+
+
+void single_qubit_dense_matrix_gate_single(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim) {
+	const ITYPE loop_dim = dim / 2;
+	const ITYPE mask = (1ULL << target_qubit_index);
+	const ITYPE mask_low = mask - 1;
+	const ITYPE mask_high = ~mask_low;
+
+	ITYPE state_index = 0;
+	for (state_index = 0; state_index < loop_dim; ++state_index) {
+		ITYPE basis_0 = (state_index&mask_low) + ((state_index&mask_high) << 1);
+		ITYPE basis_1 = basis_0 + mask;
+
+		// fetch values
+		CTYPE cval_0 = state[basis_0];
+		CTYPE cval_1 = state[basis_1];
+
+		// set values
+		state[basis_0] = matrix[0] * cval_0 + matrix[1] * cval_1;
+		state[basis_1] = matrix[2] * cval_0 + matrix[3] * cval_1;
+	}
+}
+
+#ifdef _OPENMP
+void single_qubit_dense_matrix_gate_parallel(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim) {
+	const ITYPE loop_dim = dim / 2;
+	const ITYPE mask = (1ULL << target_qubit_index);
+	const ITYPE mask_low = mask - 1;
+	const ITYPE mask_high = ~mask_low;
+
+	ITYPE state_index = 0;
+#pragma omp parallel for
+	for (state_index = 0; state_index < loop_dim; ++state_index) {
+		ITYPE basis_0 = (state_index&mask_low) + ((state_index&mask_high) << 1);
+		ITYPE basis_1 = basis_0 + mask;
+
+		// fetch values
+		CTYPE cval_0 = state[basis_0];
+		CTYPE cval_1 = state[basis_1];
+
+		// set values
+		state[basis_0] = matrix[0] * cval_0 + matrix[1] * cval_1;
+		state[basis_1] = matrix[2] * cval_0 + matrix[3] * cval_1;
+	}
+}
+#endif
 
 
 void single_qubit_dense_matrix_gate_single_unroll(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim) {
@@ -353,26 +404,4 @@ void single_qubit_dense_matrix_gate_old_parallel(UINT target_qubit_index, const 
 	}
 }
 #endif
-
-void single_qubit_dense_matrix_gate_single(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim) {
-	const ITYPE loop_dim = dim / 2;
-	const ITYPE mask = (1ULL << target_qubit_index);
-	const ITYPE mask_low = mask - 1;
-	const ITYPE mask_high = ~mask_low;
-
-	ITYPE state_index = 0;
-	for (state_index = 0; state_index < loop_dim; ++state_index) {
-		ITYPE basis_0 = (state_index&mask_low) + ((state_index&mask_high) << 1);
-		ITYPE basis_1 = basis_0 + mask;
-
-		// fetch values
-		CTYPE cval_0 = state[basis_0];
-		CTYPE cval_1 = state[basis_1];
-
-		// set values
-		state[basis_0] = matrix[0] * cval_0 + matrix[1] * cval_1;
-		state[basis_1] = matrix[2] * cval_0 + matrix[3] * cval_1;
-	}
-}
-
 */

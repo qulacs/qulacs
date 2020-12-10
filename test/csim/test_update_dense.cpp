@@ -50,8 +50,10 @@ void test_single_dense_matrix_gate(std::function<void(UINT, const CTYPE*, CTYPE*
 
 TEST(UpdateTest, SingleDenseMatrixTest) {
 	test_single_dense_matrix_gate(single_qubit_dense_matrix_gate);
+	test_single_dense_matrix_gate(single_qubit_dense_matrix_gate_single);
 	test_single_dense_matrix_gate(single_qubit_dense_matrix_gate_single_unroll);
 #ifdef _OPENMP
+	test_single_dense_matrix_gate(single_qubit_dense_matrix_gate_parallel);
 	test_single_dense_matrix_gate(single_qubit_dense_matrix_gate_parallel_unroll);
 #endif
 #ifdef _USE_SIMD

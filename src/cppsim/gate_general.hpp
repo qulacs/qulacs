@@ -105,6 +105,88 @@ public:
     }
 };
 
+
+/**
+ * \~japanese-en 選択内容を保存する確率的な操作
+ */
+class QuantumGate_ProbabilisticInstrument : public QuantumGateBase {
+protected:
+	Random random;
+	std::vector<double> _distribution;
+	std::vector<double> _cumulative_distribution;
+	std::vector<QuantumGateBase*> _gate_list;
+	UINT _classical_register_address;
+
+public:
+	/**
+	 * \~japanese-en コンストラクタ
+	 *
+	 * @param distribution ゲートが現れる確率
+	 * @param gate_list ゲートのリスト
+	 * @param classical_register 選択結果を保存するアドレス
+	 */
+	QuantumGate_ProbabilisticInstrument(std::vector<double> distribution, std::vector<QuantumGateBase*> gate_list, UINT classical_register_address) {
+		_distribution = distribution;
+		_classical_register_address = classical_register_address;
+
+		double sum = 0.;
+		_cumulative_distribution.push_back(0.);
+		for (auto val : distribution) {
+			sum += val;
+			_cumulative_distribution.push_back(sum);
+		}
+		for (auto gate : gate_list) {
+			_gate_list.push_back(gate->copy());
+		}
+	};
+
+	virtual ~QuantumGate_ProbabilisticInstrument() {
+		for (unsigned int i = 0; i < _gate_list.size(); ++i) {
+			delete _gate_list[i];
+		}
+	}
+
+	/**
+	 * \~japanese-en 量子状態を更新する
+	 *
+	 * @param state 更新する量子状態
+	 */
+	virtual void update_quantum_state(QuantumStateBase* state) override {
+		double r = random.uniform();
+		auto ite = std::lower_bound(_cumulative_distribution.begin(), _cumulative_distribution.end(), r);
+		assert(ite != _cumulative_distribution.begin());
+		size_t gate_index = std::distance(_cumulative_distribution.begin(), ite) - 1;
+
+		if (gate_index < _gate_list.size()) {
+			_gate_list[gate_index]->update_quantum_state(state);
+		}
+		state->set_classical_value(this->_classical_register_address,gate_index);
+	};
+	/**
+	 * \~japanese-en 自身のディープコピーを生成する
+	 *
+	 * @return 自身のディープコピー
+	 */
+	virtual QuantumGateBase* copy() const override {
+		std::vector<QuantumGateBase*> new_gate_list;
+		for (auto item : _gate_list) {
+			new_gate_list.push_back(item->copy());
+		}
+		return new QuantumGate_ProbabilisticInstrument(_distribution, new_gate_list, _classical_register_address);
+	};
+
+	/**
+	 * \~japanese-en 自身のゲート行列をセットする
+	 *
+	 * @param matrix 行列をセットする変数の参照
+	 */
+	virtual void set_matrix(ComplexMatrix& matrix) const override {
+		std::cerr << "* Warning : Gate-matrix of probabilistic gate cannot be obtained. Identity matrix is returned." << std::endl;
+		matrix = Eigen::MatrixXcd::Ones(1, 1);
+	}
+};
+
+
 /**
  * \~japanese-en Kraus表現のCPTP-map
  */
