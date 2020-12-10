@@ -128,6 +128,30 @@ void QuantumCircuit::add_noise_gate(QuantumGateBase* gate,std::string noise_type
         }else{
             std::cerr << "Error: QuantumCircuit::add_noise_gate(QuantumGateBase*,string,double) : depolarizing noise can be used up to 2 qubits, but this gate has " << itr.size() << " qubits." << std::endl;
         }
+    }else if(noise_type == "BitFlip"){
+        if(itr.size() == 1){
+            this -> add_gate(gate::BitFlipNoise(itr[0],noise_prob));
+        }else{
+            std::cerr << "Error: QuantumCircuit::add_noise_gate(QuantumGateBase*,string,double) : BitFlip noise can be used by 1 qubits, but this gate has " << itr.size() << " qubits." << std::endl;
+        }
+    }else if(noise_type == "Dephasing"){
+        if(itr.size() == 1){
+            this -> add_gate(gate::DephasingNoise(itr[0],noise_prob));
+        }else{
+            std::cerr << "Error: QuantumCircuit::add_noise_gate(QuantumGateBase*,string,double) : Dephasing noise can be used by 1 qubits, but this gate has " << itr.size() << " qubits." << std::endl;
+        }
+    }else if(noise_type == "IndependentXZ"){
+        if(itr.size() == 1){
+            this -> add_gate(gate::IndependentXZNoise(itr[0],noise_prob));
+        }else{
+            std::cerr << "Error: QuantumCircuit::add_noise_gate(QuantumGateBase*,string,double) : IndependentXZ noise can be used by 1 qubits, but this gate has " << itr.size() << " qubits." << std::endl;
+        }
+    }else if(noise_type == "AmplitudeDamping"){
+        if(itr.size() == 1){
+            this -> add_gate(gate::AmplitudeDampingNoise(itr[0],noise_prob));
+        }else{
+            std::cerr << "Error: QuantumCircuit::add_noise_gate(QuantumGateBase*,string,double) : AmplitudeDamping noise can be used by 1 qubits, but this gate has " << itr.size() << " qubits." << std::endl;
+        }
     }else{
         std::cerr << "Error: QuantumCircuit::add_noise_gate(QuantumGateBase*,string,double) : noise_type is undetectable. your noise_type = '" << noise_type << "'." << std::endl;
     }
