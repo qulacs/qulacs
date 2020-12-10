@@ -7,15 +7,13 @@ Qulacs is a Python/C++ library for fast simulation of large, noisy, or parametri
 
 Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob/master/LICENSE).
 
-## Quick Install
+## Quick Install for Python
 
 ```
 pip install qulacs
 ```
 
-Notice: This command installs the Qulacs binary with Intel AVX2 instructions.
-If your computer doesn't support AVX2, the Python program using Qulacs installed by this command will almost certainly fail due to segmentation fault or something else.
-You should check your CPU and if it doesn't support AVX2 (i.e. older than Haswell) then you have to install Qulacs from the source code with the following command.
+If C++ compiler (gcc or MSVC), git, and cmake are installed, Qulacs installed with the below commands shows the performance optimized for your system. See "Install Python library from source" for detail.
 
 ```
 pip install git+https://github.com/qulacs/qulacs.git
@@ -40,14 +38,14 @@ The time for simulating random quantum circuits is compared with several quantum
 
 See [the benchmark repository](https://github.com/qulacs/benchmark-qulacs) and [Section VI and VII of our paper](https://arxiv.org/abs/2011.13524) for the detail of this benchmark.
 
-Note that the plots with names end with "opt" and "heavy opt" perform circuit optimization for fast simulation, where the time for optimization is included in the execution time.
+Note that the plots with names ending with "opt" and "heavy opt" perform circuit optimization for fast simulation, where the time for optimization is included in the execution time.
 
 
-### Single thread benchmark
+### Single-thread benchmark
 
 ![single thread benchmark](https://storage.googleapis.com/qunasys/fig_both_singlethread.png)
 
-### Multi thread benchmark
+### Multi-thread benchmark
 
 ![multi thread benchmark](https://storage.googleapis.com/qunasys/fig_both_multithread.png)
 
@@ -125,6 +123,10 @@ int main(){
 
 ## Install Python library from source
 
+To install Qulacs optimized for your system, we recommend the following install procedure for faster simulation of quantum circuits, while this requires a compiler and takes time for installation.
+
+A binary that is installed via pip command is optimized for Haswell architecture. Thus, Qulacs installed via pip command does not work with a CPU older than Haswell. If your CPU is newer than haswell, Qualcs built from source shows the better performance.
+
 ### Requirement
 
 - C++ compiler (gcc or VisualStudio)
@@ -139,12 +141,6 @@ int main(){
 If your system supports AVX2 instructions, SIMD optimization is automatically enabled. 
 If you want to enable GPU simulator, install qulacs through `qulacs-gpu` package or build from source.
 Note that `qulacs-gpu` includes a CPU simulator. You don't need to install both.
-
-Qulacs is tested on the following systems.
-
-- Ubuntu 16.04 / 18.04
-- MacOS X Sierra
-- Windows 10
 
 If you encounter some troubles, see [troubleshooting](http://qulacs.org/md_4__trouble_shooting.html).
 
@@ -187,17 +183,15 @@ cd qulacs
 ./script/build_gcc.sh
 ```
 
-To build shared libraries, execute `make shared` at `./build` folder.
+To build shared libraries, execute `make shared` at `./qulacs/build` folder.
 When you want to build with GPU, use `build_gcc_with_gpu.sh` instead of `build_gcc.sh`.
 
-Your C++ codes can be built with Qulacs with the following process:
-Build command for g++:
+Then, you can build your codes with the following gcc commands:
 ```sh
 g++ -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lvqcsim_static -lcppsim_static -lcsim_static -fopenmp
 ```
 
-If you want to run your codes with GPU, include `cppsim/state_gpu.hpp` and use `QuantumStateGpu` instead of `QuantumState` and build with the following command.
-Build command for nvcc:
+If you want to run your codes with GPU, include `cppsim/state_gpu.hpp` and use `QuantumStateGpu` instead of `QuantumState` and build with the following command:
 ```sh
 nvcc -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cu -lvqcsim_static -lcppsim_static -lcsim_static -lgpusim_static -D _USE_GPU -lcublas -Xcompiler -fopenmp
 ```
@@ -210,7 +204,7 @@ cd qulacs
 script/build_msvc_2017.bat
 ```
 When you want to build with GPU, use `build_msvc_2017_with_gpu.bat`.
-If you use MSVC2015, replace "2017" in file names with "2015".
+If you use MSVC with other versions, use `build_msvc_2015.bat` or edit the generator name in `build_msvc_2017.bat`.
 
 Your C++ codes can be built with Qulacs with the following process:
 
