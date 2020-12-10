@@ -13,13 +13,14 @@ Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob
 pip install qulacs
 ```
 
-If C++ compiler (gcc or MSVC), git, and cmake are installed, Qulacs installed with the below commands shows the performance optimized for your system. See "Install Python library from source" for detail.
+If your CPU is older than Intel Haswell architecture, the binary installed with the above command does not work. In this case, please install Qulacs with the following command.
+Even if your CPU is newer than Haswell, Qulacs installed with the below command shows better performance but takes a longer time. See "Install Python library from source" section for detail.
 
 ```
 pip install git+https://github.com/qulacs/qulacs.git
 ```
 
-If you have NVIDIA GPU with CUDA installed try:
+If you have NVIDIA GPU and CUDA is installed, GPU-version can be installed with the following command:
 ```
 pip install qulacs-gpu
 ```
@@ -123,9 +124,9 @@ int main(){
 
 ## Install Python library from source
 
-To install Qulacs optimized for your system, we recommend the following install procedure for faster simulation of quantum circuits, while this requires a compiler and takes time for installation.
+To install Qulacs optimized for your system, we recommend the following install procedure for faster simulation of quantum circuits, while this requires a compiler and takes time for installation. In addition, you can enable or disable optimization features such as SIMD optimization, OpenMP parallelization, and GPU support.
 
-A binary that is installed via pip command is optimized for Haswell architecture. Thus, Qulacs installed via pip command does not work with a CPU older than Haswell. If your CPU is newer than haswell, Qualcs built from source shows the better performance.
+A binary that is installed via pip command is optimized for Haswell architecture. Thus, Qulacs installed via pip command does not work with a CPU older than Haswell. If your CPU is newer than Haswell, Qualcs built from source shows the better performance.
 
 ### Requirement
 
