@@ -105,7 +105,7 @@ int main(){
 		QuantumCircuit circuit(n);
 		Google_noisy_random_circuit(sqrt(n),5,&circuit,prob);
 		NoiseSimulator hoge(&circuit);
-		auto A = hoge.execute(sample_count,prob);
+		auto A = hoge.execute(sample_count);
 		auto end = std::chrono::system_clock::now();
 		auto dur = end - start;
 		auto msec = std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
