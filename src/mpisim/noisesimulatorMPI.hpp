@@ -47,5 +47,5 @@ class DllExport NoiseSimulatorMPI{
 		 * @param[in] prob ノイズが乗る確率
 		 * @param[in] sample_count 行うsamplingの回数
 		 */
-		virtual std::vector<UINT> execute(const UINT sample_count,const double prob);
+		virtual std::vector<UINT> execute(const UINT sample_count);
 };
