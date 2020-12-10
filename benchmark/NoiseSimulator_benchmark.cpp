@@ -7,17 +7,22 @@
 #include <cppsim/circuit.hpp>
 #include <cppsim/noisesimulator.hpp>
 
+double prob;
+
 void random_1Q_gate(int qubitID,QuantumCircuit *val){
-	int prob = rand() % 3LL;
-	if(prob == 0){
-		val -> add_sqrtX_gate(qubitID);
-	}else if(prob == 1){
-		val -> add_sqrtY_gate(qubitID);
+	int choice = rand() % 3LL;
+	if(choice == 0){
+		val -> add_noise_gate(gate::sqrtX(qubitID),"Depolarizing",prob);
+		//val -> add_sqrtX_gate(qubitID);
+	}else if(choice == 1){
+		val -> add_noise_gate(gate::sqrtY(qubitID),"Depolarizing",prob);
+		//val -> add_sqrtY_gate(qubitID);
 	}else{
 		ComplexMatrix matrix(2,2);
 		matrix << 1.0/sqrt(2.0),-sqrt(1.0i/2.0),sqrt(-1.0i/2.0),1.0/sqrt(2.0);
 		QuantumGateMatrix* tmp = gate::DenseMatrix(qubitID,matrix);
-		val -> add_gate(tmp);
+		//val -> add_gate(tmp);
+		val -> add_noise_gate(tmp,"Depolarizing",prob);
 	}
 }
 
@@ -29,7 +34,8 @@ void grid_2Q_gate(std::vector<UINT> inputs,QuantumCircuit *ans){
 			  0,-1.0i*std::sin(theta),std::cos(theta),0,
 			  0,0,0,1;
 	QuantumGateMatrix* tmp = gate::DenseMatrix(inputs,matrix);
-	ans -> add_gate(tmp);	
+	//ans -> add_gate(tmp);
+	ans -> add_noise_gate(tmp,"Depolarizing",prob);	
 }
 
 
@@ -66,7 +72,7 @@ void Google_noisy_random_circuit(int length,int depth,QuantumCircuit *ans,double
 		for(int dir = 0;dir < 4;++dir){
 			for(int i = 0;i < n;++i){
 				random_1Q_gate(i,ans);
-				ans -> add_gate(gate::DepolarizingNoise(i,prob));
+				//ans -> add_gate(gate::DepolarizingNoise(i,prob));
 			}
 			for(int i = 0;i < length;++i){
 				for(int j = 0;j < length;++j){
@@ -75,7 +81,7 @@ void Google_noisy_random_circuit(int length,int depth,QuantumCircuit *ans,double
 						int y = j + dy[dir];
 						if(x >= 0 && x < length && y >= 0 && y < length ){
 							grid_2Q_gate({(UINT)i*length+j,(UINT)(x)*length+y},ans);
-							ans -> add_gate(gate::TwoQubitDepolarizingNoise(i*length+j,x*length+y,prob));
+							//ans -> add_gate(gate::TwoQubitDepolarizingNoise(i*length+j,x*length+y,prob));
 						}
 					}
 				}
@@ -88,7 +94,6 @@ void Google_noisy_random_circuit(int length,int depth,QuantumCircuit *ans,double
 
 int main(){
 	int n;
-	double prob;
 	int sample_count;
 	printf("Input sqrt(n): ");
 	scanf("%d",&n);
@@ -104,6 +109,7 @@ int main(){
 		srand(seed);
 		QuantumCircuit circuit(n);
 		Google_noisy_random_circuit(sqrt(n),5,&circuit,prob);
+		std::cout << circuit << std::endl;
 		NoiseSimulator hoge(&circuit);
 		auto A = hoge.execute(sample_count);
 		auto end = std::chrono::system_clock::now();
