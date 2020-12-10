@@ -133,7 +133,7 @@ A binary that is installed via pip command is optimized for Haswell architecture
 - C++ compiler (gcc or VisualStudio)
     - gcc/g++ >= 7.0.0 (checked in Linux, MacOS, cygwin, MinGW, and WSL)
     - Microsoft VisualStudio C++ 2015 or later
-- python 2.7 or 3.x
+- Python 2.7 or 3.x
 - cmake >= 3.0
 - git
 - (option) CUDA >= 8.0
