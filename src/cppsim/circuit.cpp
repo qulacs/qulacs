@@ -133,6 +133,10 @@ void QuantumCircuit::add_noise_gate(QuantumGateBase* gate,std::string noise_type
     }
 }
 
+void QuantumCircuit::add_noise_gate_copy(QuantumGateBase* gate,std::string noise_type,double noise_prob){
+    this -> add_noise_gate(gate -> copy(),noise_type,noise_prob);
+}
+
 void QuantumCircuit::remove_gate(UINT index){
 	if (index >= this->_gate_list.size()) {
 		std::cerr << "Error: QuantumCircuit::remove_gate(UINT) : index must be smaller than gate_count" << std::endl;
