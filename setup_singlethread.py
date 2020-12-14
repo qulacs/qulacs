@@ -8,7 +8,7 @@ from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
-_VERSION = '0.1.10.1'
+_VERSION = '0.2.0'
 
 project_name = 'Qulacs'
 
@@ -92,7 +92,13 @@ class CMakeBuild(build_ext):
 
 
         if self.opt_flags is not None:
-            cmake_args += ['-DOPT_FLAGS=' + self.opt_flags]
+            opt_flags = self.opt_flags
+        elif os.getenv('QULACS_OPT_FLAGS'):
+            opt_flags = os.getenv('QULACS_OPT_FLAGS')
+        else:
+            opt_flags = None
+        if opt_flags:
+            cmake_args += ['-DOPT_FLAGS=' + opt_flags]
 
         cmake_args += ['-DUSE_OMP:STR=No']
         env = os.environ.copy()

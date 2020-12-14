@@ -596,6 +596,8 @@ DllExport void single_qubit_Pauli_rotation_gate(UINT target_qubit_index, UINT Pa
 DllExport void single_qubit_dense_matrix_gate(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
 void single_qubit_dense_matrix_gate_single_unroll(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
 void single_qubit_dense_matrix_gate_parallel_unroll(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
+void single_qubit_dense_matrix_gate_single(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
+void single_qubit_dense_matrix_gate_parallel(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
 void single_qubit_dense_matrix_gate_single_simd(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
 void single_qubit_dense_matrix_gate_parallel_simd(UINT target_qubit_index, const CTYPE matrix[4], CTYPE *state, ITYPE dim);
 

@@ -344,6 +344,10 @@ namespace gate {
         return new QuantumGate_Probabilistic(distribution, gate_list);
     }
 
+	QuantumGateBase* ProbabilisticInstrument(std::vector<double> distribution, std::vector<QuantumGateBase*> gate_list, UINT classical_register_address) {
+		return new QuantumGate_ProbabilisticInstrument(distribution, gate_list, classical_register_address);
+	}
+
     QuantumGateBase* CPTP(std::vector<QuantumGateBase*> gate_list) {
         return new QuantumGate_CPTP(gate_list);
     }
