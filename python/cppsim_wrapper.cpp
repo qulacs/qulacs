@@ -39,9 +39,11 @@ extern "C" {
 #include <vqcsim/parametric_gate.hpp>
 #include <vqcsim/parametric_gate_factory.hpp>
 #include <vqcsim/parametric_circuit.hpp>
+#include <vqcsim/GradCalculator.hpp>
 
 #ifdef _USE_MPI
 #include <mpisim/noisesimulatorMPI.hpp>
+#include <mpisim/GradCalculatorMPI.hpp>
 #endif
 
 namespace py = pybind11;
@@ -531,9 +533,11 @@ PYBIND11_MODULE(qulacs, m) {
 
         .def("__repr__", [](const ParametricQuantumCircuit &p) {return p.to_string(); });
     ;
-
-
-
+    
+    py::class_<GradCalculator>(m, "GradCalculator")
+        .def(py::init<>())
+        .def("calculate_grad",&GradCalculator::calculate_grad,"Calculate Grad");
+       
     auto mcircuit = m.def_submodule("circuit");
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
         .def(py::init<>(), "Constructor")
@@ -555,8 +559,9 @@ PYBIND11_MODULE(qulacs, m) {
         .def("swap_state_and_buffer", &QuantumCircuitSimulator::swap_state_and_buffer, "Swap state and buffer")
         //.def("get_state_ptr", &QuantumCircuitSimulator::get_state_ptr, pybind11::return_value_policy::automatic_reference, "Get state ptr")
         ;
-
-    m.def("CausalCone",&CausalCone);
+    py::class_<Causal>(m, "Causal")
+        .def(py::init<>(), "Constructor")
+        .def("CausalCone", &Causal::CausalCone);
     py::class_<NoiseSimulator>(m,"NoiseSimulator")
         .def(py::init<QuantumCircuit*,QuantumState*>(),"Constructor")
         .def("execute",&NoiseSimulator::execute,"sampling & return result [array]");
@@ -565,6 +570,9 @@ PYBIND11_MODULE(qulacs, m) {
     py::class_<NoiseSimulatorMPI>(m,"NoiseSimulatorMPI")
         .def(py::init<QuantumCircuit*,QuantumState*>(),"Constructor")
         .def("execute",&NoiseSimulatorMPI::execute,"sampling & return result [array]");
+    py::class_<GradCalculatorMPI>(m,"GradCalculatorMPI")
+        .def(py::init<>(),"Constructor")
+        .def("calculate_grad",&GradCalculatorMPI::calculate_grad,"sampling & return result [array]");
 #endif
 
 }

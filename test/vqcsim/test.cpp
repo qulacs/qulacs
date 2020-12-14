@@ -5,6 +5,8 @@
 #include <vqcsim/solver.hpp>
 #include <vqcsim/problem.hpp>
 #include <vqcsim/parametric_circuit_builder.hpp>
+#include <vqcsim/GradCalculator.hpp>
+#include <cppsim/causal_cone.hpp>
 
 
 TEST(ParametricCircuit, GateApply) {
@@ -204,4 +206,76 @@ TEST(ParametricGate, DuplicateIndex) {
 	ASSERT_EQ(NULL, gate3);
 	auto gate4 = gate::ParametricPauliRotation({ 0,3,5,2,5,6,2 }, { 0,0,0,0,0,0,0 }, 0.0);
 	ASSERT_EQ(NULL, gate4);
+}
+
+TEST(GradCalculator, BasicCheck) {
+    Random rnd;
+    unsigned int n = 10;
+    Observable observable(n);
+    std::string Pauli_string = "";
+    for (int i = 0; i < n; ++i) {
+        double coef = rnd.uniform();
+        std::string Pauli_string = "Z ";
+        Pauli_string += std::to_string(i);
+        observable.add_operator(coef, Pauli_string.c_str());
+    }
+
+    ParametricQuantumCircuit circuit(n);
+    int cnter_parametric_gate = 0;
+    for (int depth = 0; depth < 5; ++depth) {
+        for (int i = 0; i < n; ++i) {
+            circuit.add_parametric_RX_gate(i, 0);
+            circuit.add_parametric_RZ_gate(i, 0);
+            cnter_parametric_gate += 2;
+        }
+
+        for (int i = 0; i + 1 < n; i += 2) {
+            circuit.add_CNOT_gate(i, i + 1);
+        }
+
+        for (int i = 1; i + 1 < n; i += 2) {
+            circuit.add_CNOT_gate(i, i + 1);
+        }
+    }
+
+    //Calculate using GradCalculator
+    GradCalculator hoge;
+    std::vector<double> theta;
+    for (int i = 0; i < cnter_parametric_gate; ++i) {
+        theta.push_back(rnd.uniform() * 5.0);
+    }
+    std::vector<std::complex<double>> GradCalculator_ans = hoge.calculate_grad(circuit, observable, theta);
+
+    //Calculate using normal Greedy.
+    std::vector<std::complex<double>> Greedy_ans;
+    {
+        Causal cone;
+        for (int i = 0; i < circuit.get_parameter_count(); ++i) {
+            std::complex<double> y, z;
+            {
+                for (int q = 0; q < circuit.get_parameter_count(); ++q) {
+                    float diff = 0;
+                    if (i == q) {
+                        diff = 0.001;
+                    }
+                    circuit.set_parameter(q, theta[q] + diff);
+                }
+                y = cone.CausalCone(circuit, observable);
+            }
+            {
+                for (int q = 0; q < circuit.get_parameter_count(); ++q) {
+                    float diff = 0;
+                    if (i == q) {
+                        diff = 0.001;
+                    }
+                    circuit.set_parameter(q, theta[q] - diff);
+                }
+                z = cone.CausalCone(circuit, observable);
+            }
+            Greedy_ans.push_back((y - z) / 0.002);
+        }
+    }
+    for (int i = 0; i < GradCalculator_ans.size(); ++i) {
+        ASSERT_LT(abs(GradCalculator_ans[i] - Greedy_ans[i]), 1e-7); //Difference should be lower than 1e-7
+    }
 }
