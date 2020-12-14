@@ -79,7 +79,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count,const double p
     int cnter_samplings = 0;
     for(UINT i = 0;i < sample_count;++i){
         cnter_samplings++;
-        if(i+1 == sample_count or trial_gates[i] != trial_gates[i+1]){
+        if(i+1 == sample_count || trial_gates[i] != trial_gates[i+1]){
             sampling_required.push_back(std::make_pair(trial_gates[i],cnter_samplings));
             cnter_samplings = 0;
         }

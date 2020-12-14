@@ -34,7 +34,7 @@ void multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list, UINT tar
 		//return;
 
 #ifdef _OPENMP
-		UINT threshold = 8;
+		UINT threshold = 10;
 		if (dim < (((ITYPE)1) << threshold)) {
 			multi_qubit_dense_matrix_gate_single(target_qubit_index_list, target_qubit_index_count, matrix, state, dim);
 		}
