@@ -99,7 +99,7 @@ CPPCTYPE CausalCone(const QuantumCircuit &init_circuit,
 		        for(UINT i = 0; i + 1 < control_index_list.size(); i++){
 		            uf.connect(control_index_list[i], control_index_list[i + 1]);
 		        }
-		        if(!target_index_list.empty() and !control_index_list.empty()){
+		        if(!target_index_list.empty() && !control_index_list.empty()){
 		            uf.connect(target_index_list[0], control_index_list[0]);
 		        }
 	    	}
@@ -111,7 +111,7 @@ CPPCTYPE CausalCone(const QuantumCircuit &init_circuit,
 	    UINT circuit_count = 0;
 	    std::vector<UINT> roots;
 	    for(UINT i = 0; i < qubit_count; i++){
-	        if(use_qubit[i] and i == uf.root(i)){
+	        if(use_qubit[i] && i == uf.root(i)){
 	            roots.emplace_back(uf.root(i));
 	            circuit_count += 1;
 	        }
