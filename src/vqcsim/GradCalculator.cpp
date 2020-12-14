@@ -2,7 +2,7 @@
 #include "GradCalculator.hpp"
 #include "../cppsim/causal_cone.hpp"
 
-std::vector<std::complex<double>> GradCalculator::calculate_grad(ParametricQuantumCircuit &x,Observable &obs,double theta){
+std::vector<std::complex<double>> GradCalculator::calculate_grad(ParametricQuantumCircuit &x,Observable &obs,std::vector<double> theta){
     std::vector<std::complex<double>> ans;
     Causal hoge;
     for(int i = 0;i < x.get_parameter_count();++i){
@@ -13,7 +13,7 @@ std::vector<std::complex<double>> GradCalculator::calculate_grad(ParametricQuant
                 if(i == q){
                     diff = M_PI / 2.0;
                 }
-                x.set_parameter(q,theta + diff);
+                x.set_parameter(q,theta[q] + diff);
             }
             y = hoge.CausalCone(x,obs);
         }
@@ -23,7 +23,7 @@ std::vector<std::complex<double>> GradCalculator::calculate_grad(ParametricQuant
                 if(i == q){
                     diff = M_PI / 2.0;
                 }
-                x.set_parameter(q,theta - diff);
+                x.set_parameter(q,theta[q] - diff);
             }
             z = hoge.CausalCone(x,obs);
         }
