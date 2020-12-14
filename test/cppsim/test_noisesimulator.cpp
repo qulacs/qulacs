@@ -8,6 +8,7 @@
 #include <cppsim/noisesimulator.hpp>
 
 TEST(NoiseSimulatorTest, Random_with_State_Test) {
+    //Just Check whether they run without Runtime Errors.
     int n = 10,depth = 10;
     QuantumState state(n);
     state.set_Haar_random_state();
@@ -28,11 +29,12 @@ TEST(NoiseSimulatorTest, Random_with_State_Test) {
         }
     }
 	NoiseSimulator hoge(&circuit,&state);
-	std::vector<unsigned int> result = hoge.execute(100,0.02);
+	std::vector<unsigned int> result = hoge.execute(100);
     return;
 }
 
 TEST(NoiseSimulatorTest, Random_without_State_Test) {
+    //Just Check whether they run without Runtime Errors.
     int n = 10,depth = 10;
     QuantumCircuit circuit(n);
     Random random;
@@ -51,17 +53,17 @@ TEST(NoiseSimulatorTest, Random_without_State_Test) {
         }
     }
 	NoiseSimulator hoge(&circuit);
-	std::vector<unsigned int> result = hoge.execute(100,0.02);
+	std::vector<unsigned int> result = hoge.execute(100);
     return;
 }
 
 TEST(NoiseSimulatorTest, H_gate_twice_test) {
     int n = 4;
     QuantumCircuit circuit(n);
-    circuit.add_H_gate(0);
-    circuit.add_H_gate(0);
+    circuit.add_noise_gate(gate::H(0), "Depolarizing", 0.02);
+    circuit.add_noise_gate(gate::H(0),"Depolarizing",0.02);
 	NoiseSimulator hoge(&circuit);
-	std::vector<unsigned int> result = hoge.execute(10000,0.02);
+	std::vector<unsigned int> result = hoge.execute(10000);
     int cnts[2] = {};
     for(int i = 0;i < result.size();++i){
         cnts[result[i]]++;
