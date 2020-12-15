@@ -210,7 +210,7 @@ TEST(ParametricGate, DuplicateIndex) {
 
 TEST(GradCalculator, BasicCheck) {
     Random rnd;
-    unsigned int n = 10;
+    unsigned int n = 5;
     Observable observable(n);
     std::string Pauli_string = "";
     for (int i = 0; i < n; ++i) {
@@ -222,7 +222,7 @@ TEST(GradCalculator, BasicCheck) {
 
     ParametricQuantumCircuit circuit(n);
     int cnter_parametric_gate = 0;
-    for (int depth = 0; depth < 5; ++depth) {
+    for (int depth = 0; depth < 2; ++depth) {
         for (int i = 0; i < n; ++i) {
             circuit.add_parametric_RX_gate(i, 0);
             circuit.add_parametric_RZ_gate(i, 0);
