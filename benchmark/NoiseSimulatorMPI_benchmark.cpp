@@ -94,12 +94,15 @@ void Google_noisy_random_circuit(int length,int depth,QuantumCircuit *ans,double
 }
 
 int main(int argc,char **argv){
-	omp_set_num_threads(10);
     //printf("使用可能な最大スレッド数：%d\n", omp_get_max_threads());
 
 	MPI_Init(&argc,&argv);
+	int numprocs;
+    MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+	omp_set_num_threads(20 / numprocs);
+	printf("使用可能な最大スレッド数：%d\n", omp_get_max_threads());
 	int n = 16;
-	int sample_count = 30000000;
+	int sample_count = 10000;
 	printf("%d\n",sample_count);
 	int myrank;
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
@@ -134,9 +137,11 @@ int main(int argc,char **argv){
 		auto msec = dur;//std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
 		if(myrank == 0){
 			std::cout << "NoiseSimulatorMPI sec: " << msec << " sec"<< std::endl;
-			for(int q = 0;q < A.size();q += std::max(1,(int)A.size())){
+			/*
+			for(int q = 0;q < A.size();q += std::max(1,(int)A.size() / 10)){
 				std::cerr << A[q] << std::endl;
 			}
+			*/
 		}
 	}
 	
@@ -147,7 +152,7 @@ int main(int argc,char **argv){
 		QuantumCircuit circuit(n);
 		Google_random_circuit(sqrt(n),5,&circuit);
 		NoiseSimulator hoge(&circuit);
-		auto A = hoge.execute(sample_count/2);
+		auto A = hoge.execute(sample_count/numprocs);
 		std::vector<UINT> final_ans;
 		if(myrank == 0){
 			Utility::receive_vector(0,1,0,final_ans);

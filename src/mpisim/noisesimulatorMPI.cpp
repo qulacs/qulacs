@@ -24,6 +24,11 @@ NoiseSimulatorMPI::NoiseSimulatorMPI(const QuantumCircuit *init_circuit,const Qu
         initial_state = init_state -> copy();
     }
     circuit = init_circuit -> copy();
+    for(int i = 0;i < circuit -> gate_list.size();++i){
+        auto gate = circuit -> gate_list[i];
+        if(gate -> is_noise() == false) continue;
+        gate -> optimize_ProbablisticGate();
+    }
 }
 
 
@@ -160,8 +165,8 @@ std::vector<UINT> NoiseSimulatorMPI::execute(const UINT sample_count){
     while(result_itr - result.begin() != result.size()) result.pop_back();
     std::mt19937 Randomizer(random.int64());
     std::shuffle(begin(result),end(result),Randomizer);
-
     //send sampling result to node 0
+    
     for(int i = 1;i < numprocs;++i){
         Utility::send_vector(i,0,0,result);
     }
@@ -177,7 +182,7 @@ std::vector<UINT> NoiseSimulatorMPI::execute(const UINT sample_count){
             }
         }
     }
-
+    
     return merged_result;
 } 
 
