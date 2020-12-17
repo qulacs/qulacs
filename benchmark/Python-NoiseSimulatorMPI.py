@@ -1,13 +1,13 @@
 #
 # Benchmark based on: https://github.com/keisukefujii/LXEB_qulacs/blob/master/LXEB_qulacs.ipynb
 #
+from mpi4py import MPI # MPI用ライブラリのmpi4pyが必要です。
 
 import numpy as np
 import time 
 import random
 
 from qulacs import NoiseSimulatorMPI
-from mpi4py import MPI
 
 from qulacs import QuantumState
 #GPU版をインストールしている場合のみ
@@ -138,6 +138,7 @@ def Google_random_circuit(length,depth,circuit):
 
 
 
+                        
 num_samp = 10000
 length = 4
 nqubits = length**2
@@ -150,9 +151,11 @@ Google_random_circuit(length,depth,circuit)
 
 start = time.time()
 
+# (コンストラクタ)NoiseSimulatorMPI(circuit,state) -> circuit: 量子回路 state: 初期状態
 hoge = NoiseSimulatorMPI(circuit,state)
 
-ans = hoge.execute(num_samp,0.001)
+# NoiseSimulatorMPI.execute(num_samp) -> num_samp: サンプル数, 返り値: rank=0のノードにすべてのサンプル結果が返ってきます。それ以外は空配列が返ってきます。
+ans = hoge.execute(num_samp)
 
 elapsed_time = time.time() - start
 print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
