@@ -9,17 +9,22 @@
 #include <mpisim/noisesimulatorMPI.hpp>
 #include <mpisim/utils.hpp>
 
+double prob;
+
 void random_1Q_gate(int qubitID,QuantumCircuit *val){
-	int prob = rand() % 3LL;
-	if(prob == 0){
-		val -> add_sqrtX_gate(qubitID);
-	}else if(prob == 1){
-		val -> add_sqrtY_gate(qubitID);
+	int choice = rand() % 3LL;
+	if(choice == 0){
+		val -> add_noise_gate(gate::sqrtX(qubitID),"Depolarizing",prob);
+		//val -> add_sqrtX_gate(qubitID);
+	}else if(choice == 1){
+		val -> add_noise_gate(gate::sqrtY(qubitID),"Depolarizing",prob);
+		//val -> add_sqrtY_gate(qubitID);
 	}else{
 		ComplexMatrix matrix(2,2);
 		matrix << 1.0/sqrt(2.0),-sqrt(1.0i/2.0),sqrt(-1.0i/2.0),1.0/sqrt(2.0);
 		QuantumGateMatrix* tmp = gate::DenseMatrix(qubitID,matrix);
-		val -> add_gate(tmp);
+		//val -> add_gate(tmp);
+		val -> add_noise_gate(tmp,"Depolarizing",prob);
 	}
 }
 
@@ -31,7 +36,8 @@ void grid_2Q_gate(std::vector<UINT> inputs,QuantumCircuit *ans){
 			  0,-1.0i*std::sin(theta),std::cos(theta),0,
 			  0,0,0,1;
 	QuantumGateMatrix* tmp = gate::DenseMatrix(inputs,matrix);
-	ans -> add_gate(tmp);	
+	//ans -> add_gate(tmp);
+	ans -> add_noise_gate(tmp,"Depolarizing",prob);	
 }
 
 
@@ -68,7 +74,7 @@ void Google_noisy_random_circuit(int length,int depth,QuantumCircuit *ans,double
 		for(int dir = 0;dir < 4;++dir){
 			for(int i = 0;i < n;++i){
 				random_1Q_gate(i,ans);
-				ans -> add_gate(gate::DepolarizingNoise(i,prob));
+				//ans -> add_gate(gate::DepolarizingNoise(i,prob));
 			}
 			for(int i = 0;i < length;++i){
 				for(int j = 0;j < length;++j){
@@ -77,7 +83,7 @@ void Google_noisy_random_circuit(int length,int depth,QuantumCircuit *ans,double
 						int y = j + dy[dir];
 						if(x >= 0 && x < length && y >= 0 && y < length ){
 							grid_2Q_gate({(UINT)i*length+j,(UINT)(x)*length+y},ans);
-							ans -> add_gate(gate::TwoQubitDepolarizingNoise(i*length+j,x*length+y,prob));
+							//ans -> add_gate(gate::TwoQubitDepolarizingNoise(i*length+j,x*length+y,prob));
 						}
 					}
 				}
@@ -87,15 +93,16 @@ void Google_noisy_random_circuit(int length,int depth,QuantumCircuit *ans,double
 	return;
 }
 
-
 int main(int argc,char **argv){
-	omp_set_num_threads(2);
     //printf("使用可能な最大スレッド数：%d\n", omp_get_max_threads());
 
 	MPI_Init(&argc,&argv);
+	int numprocs;
+    MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
+	omp_set_num_threads(20 / numprocs);
+	printf("使用可能な最大スレッド数：%d\n", omp_get_max_threads());
 	int n = 16;
-	double prob = 0.001;
-	int sample_count = 30000000;
+	int sample_count = 10000;
 	printf("%d\n",sample_count);
 	int myrank;
 	MPI_Comm_rank(MPI_COMM_WORLD,&myrank);
@@ -124,16 +131,17 @@ int main(int argc,char **argv){
 		QuantumCircuit circuit(n);
 		Google_random_circuit(sqrt(n),5,&circuit);
 		NoiseSimulatorMPI hoge(&circuit);
-		auto A = hoge.execute(sample_count,prob);
+		auto A = hoge.execute(sample_count);
 		auto end = MPI_Wtime();
 		auto dur = end - start;
 		auto msec = dur;//std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
 		if(myrank == 0){
 			std::cout << "NoiseSimulatorMPI sec: " << msec << " sec"<< std::endl;
-			
-			for(int q = 0;q < A.size();++q){
+			/*
+			for(int q = 0;q < A.size();q += std::max(1,(int)A.size() / 10)){
 				std::cerr << A[q] << std::endl;
 			}
+			*/
 		}
 	}
 	
@@ -144,7 +152,7 @@ int main(int argc,char **argv){
 		QuantumCircuit circuit(n);
 		Google_random_circuit(sqrt(n),5,&circuit);
 		NoiseSimulator hoge(&circuit);
-		auto A = hoge.execute(sample_count/2,prob);
+		auto A = hoge.execute(sample_count/numprocs);
 		std::vector<UINT> final_ans;
 		if(myrank == 0){
 			Utility::receive_vector(0,1,0,final_ans);
@@ -156,7 +164,7 @@ int main(int argc,char **argv){
 		auto msec = dur;//std::chrono::duration_cast<std::chrono::milliseconds>(dur).count();
 		std::cout << A.size() << std::endl;
 		if(myrank == 0){
-		std::cout << "NoiseSimulator sec: " << msec << " sec"<< std::endl;
+			std::cout << "NoiseSimulator sec: " << msec << " sec"<< std::endl;
 		}
 	}
 	MPI_Finalize();

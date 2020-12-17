@@ -96,6 +96,27 @@ public:
      */
     virtual void add_gate_copy(const QuantumGateBase* gate, UINT index);
 
+
+    /**
+     * \~japanese-en ノイズ付き量子ゲートを回路の末尾に追加する
+     * 
+     * ノイズ付き量子ゲートを回路に追加する。
+     * 追加したノイズ付き量子ゲートは量子回路の解放時に開放される。
+     * @param[in] gate 追加するノイズ付き量子ゲート
+     * @param[in] noise_type 追加するノイズの種類
+     * @param[in] noise_prob ノイズが発生する確率
+     */
+    virtual void add_noise_gate(QuantumGateBase* gate,std::string noise_type,double noise_prob);
+    /**
+     * \~japanese-en ノイズ付き量子ゲートのコピーを回路の末尾に追加する
+     * 
+     * ノイズ付き量子ゲートのコピーを回路に追加する。
+     * add_noise_gateに比べコピーが発生する分低速な一方、引数で与えたゲートを再利用できる。
+     * @param[in] gate 追加するノイズ付き量子ゲート
+     * @param[in] noise_type 追加するノイズの種類
+     * @param[in] noise_prob ノイズが発生する確率
+     */
+    void add_noise_gate_copy(QuantumGateBase* gate,std::string noise_type,double noise_prob);
     /**
      * \~japanese-en 量子回路からゲートを削除する。
      * 

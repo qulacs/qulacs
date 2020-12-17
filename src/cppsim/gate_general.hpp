@@ -13,7 +13,6 @@ protected:
     std::vector<double> _distribution;
     std::vector<double> _cumulative_distribution;
     std::vector<QuantumGateBase*> _gate_list;
-
 public:
     /**
      * \~japanese-en コンストラクタ
@@ -33,6 +32,7 @@ public:
 		for (auto gate : gate_list) {
 			_gate_list.push_back(gate->copy());
 		}
+		FLAG_NOISE = true;
     };
 
 	virtual ~QuantumGate_Probabilistic() {
@@ -102,6 +102,44 @@ public:
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         std::cerr << "* Warning : Gate-matrix of probabilistic gate cannot be obtained. Identity matrix is returned." << std::endl;
         matrix = Eigen::MatrixXcd::Ones(1, 1);
+    }
+
+	/*
+	added by kotamanegi.
+	*/
+
+    virtual void set_seed(int seed) override{
+		random.set_seed(seed);
+	};
+	
+    virtual std::vector<double> get_cumulative_distribution() override{
+		return _cumulative_distribution;
+	};
+	virtual std::vector<QuantumGateBase*> get_gate_list() override{
+		return _gate_list;
+	}
+	virtual void optimize_ProbablisticGate(){
+		int n = _gate_list.size();
+		std::vector<std::pair<double,int>> itr;
+		for(int i = 0;i < n;++i){
+			itr.push_back(std::make_pair(_distribution[i],i));
+		}
+		std::sort(itr.rbegin(),itr.rend());
+		std::vector<QuantumGateBase*> next_gate_list;
+		for(int i = 0;i < n;++i){
+			_distribution[i] = itr[i].first;
+			next_gate_list.push_back(_gate_list[itr[i].second]);
+		}
+		_gate_list = next_gate_list;
+		
+		_cumulative_distribution.clear();
+		double sum = 0.;
+        _cumulative_distribution.push_back(0.);
+        for (auto val : _distribution) {
+            sum += val;
+            _cumulative_distribution.push_back(sum);
+        }
+		return;
     }
 };
 

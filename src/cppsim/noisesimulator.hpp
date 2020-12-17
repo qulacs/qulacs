@@ -30,7 +30,7 @@ class DllExport NoiseSimulator{
 		 * @param[in] init_state 最初の状態。指定されなかった場合は0で初期化される。
 		 * @return NoiseSimulatorのインスタンス
 		 */
-		NoiseSimulator(const QuantumCircuit *init_circuit,const QuantumState *init_state = NULL,const std::vector<UINT> *Noise_itr = NULL);
+		NoiseSimulator(const QuantumCircuit *init_circuit,const QuantumState *init_state = NULL);
 		/**
 		 * \~japanese-en
 		 * デストラクタ。このとき、NoiseSimulatorが保持しているcircuitとinitial_stateは解放される。
@@ -44,5 +44,5 @@ class DllExport NoiseSimulator{
 		 * @param[in] prob ノイズが乗る確率
 		 * @param[in] sample_count 行うsamplingの回数
 		 */
-		virtual std::vector<UINT> execute(const UINT sample_count,const double prob);
+		virtual std::vector<UINT> execute(const UINT sample_count);
 };

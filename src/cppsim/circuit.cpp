@@ -112,6 +112,55 @@ void QuantumCircuit::add_gate_copy(const QuantumGateBase* gate, UINT index){
 	this->add_gate(gate->copy(), index);
 }
 
+void QuantumCircuit::add_noise_gate(QuantumGateBase* gate,std::string noise_type,double noise_prob){
+    this->add_gate(gate);
+	auto vec1 = gate->get_target_index_list();
+	auto vec2 = gate->get_control_index_list();
+    std::vector<UINT> itr = vec1;
+    for(auto x:vec2){
+        itr.push_back(x);
+    }
+    if(noise_type == "Depolarizing"){
+        if(itr.size() == 1){
+            this -> add_gate(gate::DepolarizingNoise(itr[0],noise_prob));
+        }else if(itr.size() == 2){
+            this -> add_gate(gate::TwoQubitDepolarizingNoise(itr[0],itr[1],noise_prob));
+        }else{
+            std::cerr << "Error: QuantumCircuit::add_noise_gate(QuantumGateBase*,string,double) : depolarizing noise can be used up to 2 qubits, but this gate has " << itr.size() << " qubits." << std::endl;
+        }
+    }else if(noise_type == "BitFlip"){
+        if(itr.size() == 1){
+            this -> add_gate(gate::BitFlipNoise(itr[0],noise_prob));
+        }else{
+            std::cerr << "Error: QuantumCircuit::add_noise_gate(QuantumGateBase*,string,double) : BitFlip noise can be used by 1 qubits, but this gate has " << itr.size() << " qubits." << std::endl;
+        }
+    }else if(noise_type == "Dephasing"){
+        if(itr.size() == 1){
+            this -> add_gate(gate::DephasingNoise(itr[0],noise_prob));
+        }else{
+            std::cerr << "Error: QuantumCircuit::add_noise_gate(QuantumGateBase*,string,double) : Dephasing noise can be used by 1 qubits, but this gate has " << itr.size() << " qubits." << std::endl;
+        }
+    }else if(noise_type == "IndependentXZ"){
+        if(itr.size() == 1){
+            this -> add_gate(gate::IndependentXZNoise(itr[0],noise_prob));
+        }else{
+            std::cerr << "Error: QuantumCircuit::add_noise_gate(QuantumGateBase*,string,double) : IndependentXZ noise can be used by 1 qubits, but this gate has " << itr.size() << " qubits." << std::endl;
+        }
+    }else if(noise_type == "AmplitudeDamping"){
+        if(itr.size() == 1){
+            this -> add_gate(gate::AmplitudeDampingNoise(itr[0],noise_prob));
+        }else{
+            std::cerr << "Error: QuantumCircuit::add_noise_gate(QuantumGateBase*,string,double) : AmplitudeDamping noise can be used by 1 qubits, but this gate has " << itr.size() << " qubits." << std::endl;
+        }
+    }else{
+        std::cerr << "Error: QuantumCircuit::add_noise_gate(QuantumGateBase*,string,double) : noise_type is undetectable. your noise_type = '" << noise_type << "'." << std::endl;
+    }
+}
+
+void QuantumCircuit::add_noise_gate_copy(QuantumGateBase* gate,std::string noise_type,double noise_prob){
+    this -> add_noise_gate(gate -> copy(),noise_type,noise_prob);
+}
+
 void QuantumCircuit::remove_gate(UINT index){
 	if (index >= this->_gate_list.size()) {
 		std::cerr << "Error: QuantumCircuit::remove_gate(UINT) : index must be smaller than gate_count" << std::endl;

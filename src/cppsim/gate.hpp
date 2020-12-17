@@ -79,6 +79,7 @@ protected:
     std::vector<ControlQubitInfo> _control_qubit_list;
     UINT _gate_property=0;                            /**< \~japanese-en property of whole gate (e.g. Clifford or Pauli)*/
     std::string _name="Generic gate";
+    bool FLAG_NOISE = false;
 
     // prohibit constructor, destructor, copy constructor, and insertion
     QuantumGateBase():
@@ -233,6 +234,23 @@ public:
      * @return 受け取ったストリーム
      */
     friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumGateBase* gate);
+
+    //ここから勝手にkotamanegiがつくったやつ
+    bool is_noise(){
+        return FLAG_NOISE;
+    }
+    virtual void set_seed(int seed) {
+        return;
+    };
+    virtual std::vector<double> get_cumulative_distribution(){
+        return {};
+    };
+    virtual std::vector<QuantumGateBase*> get_gate_list(){
+        return {};
+    };
+    virtual void optimize_ProbablisticGate(){
+        return;
+    }
 
     //ここから勝手にjupiroがつくったやつ
     void set_target_index_list(const std::vector<UINT> &target_index_list)  {
