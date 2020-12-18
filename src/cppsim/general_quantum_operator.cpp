@@ -14,6 +14,7 @@ extern "C"{
 #include "general_quantum_operator.hpp"
 #include "pauli_operator.hpp"
 #include "state.hpp"
+#include "gate_factory.hpp"
 
 GeneralQuantumOperator::GeneralQuantumOperator(UINT qubit_count){
     _qubit_count = qubit_count;
@@ -74,6 +75,30 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(const QuantumStateBase
         sum += pauli->get_transition_amplitude(state_bra, state_ket);
     }
     return sum;
+}
+
+CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(QuantumStateBase* state, const UINT iter_count) const {
+    auto multiplied_state = QuantumState(state->qubit_count);
+    for (int i = 0; i < iter_count; i++) {
+        multiplied_state.multiply_coef(0.);
+        this->multiply_hamiltonian(state, &multiplied_state);
+        state->load(&multiplied_state);
+        state->normalize(state->get_squared_norm());
+    }
+    return this->get_expectation_value(state);
+}
+
+void GeneralQuantumOperator::multiply_hamiltonian(QuantumStateBase* state_to_be_multiplied, QuantumStateBase* dst_state) const {
+    auto work_state = QuantumState(state_to_be_multiplied->qubit_count);
+    const auto term_count = this->get_term_count();
+    for (UINT i = 0; i < term_count; i++) {
+        work_state.load(state_to_be_multiplied);
+        const auto term = this->get_term(i);
+        auto pauli_operator = gate::Pauli(term->get_index_list(), term->get_pauli_id_list());
+        pauli_operator->update_quantum_state(&work_state);
+        work_state.multiply_coef(term->get_coef());
+        dst_state->add_state(&work_state);
+    }
 }
 
 namespace quantum_operator{

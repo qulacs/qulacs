@@ -121,6 +121,24 @@ public:
      */
     virtual CPPCTYPE get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const;
 
+    /**
+     * \~japanese-en
+     * GeneralQuantumOperator の絶対値最大固有値を power method により求める
+     *  @param[in] state 固有値を求めるための量子状態
+     *  @param[in] n_iter 計算の繰り返し回数
+     *  @return GeneralQuantumOperator の絶対値最大固有値
+     */
+    virtual CPPCTYPE solve_maximum_eigenvalue_by_power_method(QuantumStateBase* state, const UINT iter_count) const;
+
+private:
+    /**
+     * \~japanese-en
+     * state_to_be_multiplied に GeneralQuantumOperator を作用させる．
+     * 結果は dst_state に格納される．
+     * @param [in] state_to_be_multiplied 作用を受ける状態
+     * @param [in] dst_state 結果を格納する状態
+     */
+    void multiply_hamiltonian(QuantumStateBase* state_to_be_multiplied, QuantumStateBase* dst_state) const;
 };
 
 namespace quantum_operator{

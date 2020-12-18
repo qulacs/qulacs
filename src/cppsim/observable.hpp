@@ -61,6 +61,13 @@ public:
      * @return 入力で与えた量子状態に対応するHermitianQuantumOperatorの期待値
      */
     CPPCTYPE get_expectation_value(const QuantumStateBase* state) const ;
+
+    /**
+     * \~japanese-en
+     * GeneralQuantumOperator の最大固有値を power method により求める
+     *
+     */
+    CPPCTYPE solve_maximum_eigenvalue_by_power_method(QuantumStateBase* state, const UINT iter_count) const;
 };
 
 namespace observable{

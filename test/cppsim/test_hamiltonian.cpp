@@ -7,8 +7,8 @@
 #include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/utility.hpp>
+#include <cppsim/gate_named_pauli.hpp>
 #include <fstream>
-
 
 
 TEST(ObservableTest, CheckExpectationValue) {
@@ -312,4 +312,22 @@ TEST(ObservableTest, CheckSplitObservable){
     ASSERT_NEAR(diag_res.imag(), 0, eps);
     ASSERT_NEAR(non_diag_res.imag(), 0, eps);
 
+}
+
+TEST(ObservableTest, CheckMaximumEigenvalueByPowerMethod) {
+    constexpr UINT n = 4;
+    constexpr double eps = 1e-14;
+
+    QuantumState state(n);
+    state.set_Haar_random_state();
+    Observable observable(n);
+    observable.add_operator(1.0, "X 0 Z 1 Y 2");
+    observable.add_operator(0.5, "");
+    // observable.add_operator(1.5, "Z 0 Y 1 X 2");
+    // observable.add_operator(3.0, "Y 0 Y 1 Y 2");
+
+
+    constexpr UINT iter_count = 100;
+    const CPPCTYPE maximum_eigenvalue = observable.solve_maximum_eigenvalue_by_power_method(&state, iter_count);
+    ASSERT_NEAR(maximum_eigenvalue.real(), 1.5, eps);
 }
