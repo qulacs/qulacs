@@ -1,87 +1,88 @@
 #include <gtest/gtest.h>
-#include <vqcsim/parametric_gate_factory.hpp>
-#include <cppsim/state_dm.hpp>
-#include <cppsim/gate_factory.hpp>
-#include <vqcsim/solver.hpp>
-#include <vqcsim/problem.hpp>
-#include <vqcsim/parametric_circuit_builder.hpp>
-#include <vqcsim/GradCalculator.hpp>
-#include <cppsim/causal_cone.hpp>
 
+#include <cppsim/causal_cone.hpp>
+#include <cppsim/gate_factory.hpp>
+#include <cppsim/state_dm.hpp>
+#include <vqcsim/GradCalculator.hpp>
+#include <vqcsim/parametric_circuit_builder.hpp>
+#include <vqcsim/parametric_gate_factory.hpp>
+#include <vqcsim/problem.hpp>
+#include <vqcsim/solver.hpp>
 
 TEST(ParametricCircuit, GateApply) {
-	const UINT n = 3;
-	const UINT depth = 10;
-	ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(n);
-	Random random;
-	for (UINT d = 0; d < depth; ++d) {
-		for (UINT i = 0; i < n; ++i) {
-			circuit->add_parametric_RX_gate(i, random.uniform());
-			circuit->add_parametric_RY_gate(i, random.uniform());
-			circuit->add_parametric_RZ_gate(i, random.uniform());
-		}
-		for (UINT i = d % 2; i + 1 < n; i+=2) {
-			circuit->add_parametric_multi_Pauli_rotation_gate({ i,i + 1 }, { 3,3 }, random.uniform());
-		}
-	}
+    const UINT n = 3;
+    const UINT depth = 10;
+    ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(n);
+    Random random;
+    for (UINT d = 0; d < depth; ++d) {
+        for (UINT i = 0; i < n; ++i) {
+            circuit->add_parametric_RX_gate(i, random.uniform());
+            circuit->add_parametric_RY_gate(i, random.uniform());
+            circuit->add_parametric_RZ_gate(i, random.uniform());
+        }
+        for (UINT i = d % 2; i + 1 < n; i += 2) {
+            circuit->add_parametric_multi_Pauli_rotation_gate(
+                {i, i + 1}, {3, 3}, random.uniform());
+        }
+    }
 
-	UINT param_count = circuit->get_parameter_count();
-	for (UINT p = 0; p < param_count; ++p) {
-		double current_angle = circuit->get_parameter(p);
-		circuit->set_parameter(p, current_angle + random.uniform());
-	}
+    UINT param_count = circuit->get_parameter_count();
+    for (UINT p = 0; p < param_count; ++p) {
+        double current_angle = circuit->get_parameter(p);
+        circuit->set_parameter(p, current_angle + random.uniform());
+    }
 
-	QuantumState state(n);
-	circuit->update_quantum_state(&state);
-	//std::cout << state << std::endl;
-	//std::cout << circuit << std::endl;
-	delete circuit;
+    QuantumState state(n);
+    circuit->update_quantum_state(&state);
+    // std::cout << state << std::endl;
+    // std::cout << circuit << std::endl;
+    delete circuit;
 }
-
 
 TEST(ParametricCircuit, GateApplyDM) {
-	const UINT n = 3;
-	const UINT depth = 10;
-	ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(n);
-	Random random;
-	for (UINT d = 0; d < depth; ++d) {
-		for (UINT i = 0; i < n; ++i) {
-			circuit->add_parametric_RX_gate(i, random.uniform());
-			circuit->add_parametric_RY_gate(i, random.uniform());
-			circuit->add_parametric_RZ_gate(i, random.uniform());
-		}
-		for (UINT i = d % 2; i + 1 < n; i += 2) {
-			circuit->add_parametric_multi_Pauli_rotation_gate({ i,i + 1 }, { 3,3 }, random.uniform());
-		}
-	}
+    const UINT n = 3;
+    const UINT depth = 10;
+    ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(n);
+    Random random;
+    for (UINT d = 0; d < depth; ++d) {
+        for (UINT i = 0; i < n; ++i) {
+            circuit->add_parametric_RX_gate(i, random.uniform());
+            circuit->add_parametric_RY_gate(i, random.uniform());
+            circuit->add_parametric_RZ_gate(i, random.uniform());
+        }
+        for (UINT i = d % 2; i + 1 < n; i += 2) {
+            circuit->add_parametric_multi_Pauli_rotation_gate(
+                {i, i + 1}, {3, 3}, random.uniform());
+        }
+    }
 
-	UINT param_count = circuit->get_parameter_count();
-	for (UINT p = 0; p < param_count; ++p) {
-		double current_angle = circuit->get_parameter(p);
-		circuit->set_parameter(p, current_angle + random.uniform());
-	}
+    UINT param_count = circuit->get_parameter_count();
+    for (UINT p = 0; p < param_count; ++p) {
+        double current_angle = circuit->get_parameter(p);
+        circuit->set_parameter(p, current_angle + random.uniform());
+    }
 
-	DensityMatrix state(n);
-	circuit->update_quantum_state(&state);
-	//std::cout << state << std::endl;
-	//std::cout << circuit << std::endl;
-	delete circuit;
+    DensityMatrix state(n);
+    circuit->update_quantum_state(&state);
+    // std::cout << state << std::endl;
+    // std::cout << circuit << std::endl;
+    delete circuit;
 }
 
-
-class MyRandomCircuit : public ParametricCircuitBuilder{
-    ParametricQuantumCircuit* create_circuit(UINT output_dim, UINT param_count) const override{
-        ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(output_dim);
+class MyRandomCircuit : public ParametricCircuitBuilder {
+    ParametricQuantumCircuit* create_circuit(
+        UINT output_dim, UINT param_count) const override {
+        ParametricQuantumCircuit* circuit =
+            new ParametricQuantumCircuit(output_dim);
         UINT depth = param_count / output_dim;
-        if (param_count%output_dim > 0) depth++;
+        if (param_count % output_dim > 0) depth++;
         UINT param_index = 0;
         for (UINT d = 0; d < depth; ++d) {
             for (UINT i = 0; i < output_dim; ++i) {
                 if (param_index < param_count) {
-                    circuit->add_parametric_gate(gate::ParametricRX(i,0.));
+                    circuit->add_parametric_gate(gate::ParametricRX(i, 0.));
                     param_index++;
-                }
-                else {
+                } else {
                     circuit->add_gate(gate::RX(i, 0.0));
                 }
             }
@@ -93,13 +94,15 @@ class MyRandomCircuit : public ParametricCircuitBuilder{
     }
 };
 
-
 TEST(EnergyMinimization, SingleQubitClassical) {
     const UINT n = 1;
 
     // define quantum circuit as prediction model
-    std::function<ParametricQuantumCircuit*(UINT, UINT)> func = [](unsigned int qubit_count, unsigned int param_count) -> ParametricQuantumCircuit* {
-        ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(qubit_count);
+    std::function<ParametricQuantumCircuit*(UINT, UINT)> func =
+        [](unsigned int qubit_count,
+            unsigned int param_count) -> ParametricQuantumCircuit* {
+        ParametricQuantumCircuit* circuit =
+            new ParametricQuantumCircuit(qubit_count);
         for (unsigned int i = 0; i < qubit_count; ++i) {
             circuit->add_parametric_gate(gate::ParametricRX(i));
         }
@@ -119,15 +122,18 @@ TEST(EnergyMinimization, SingleQubitClassical) {
     dems.solve(emp);
     double diag_loss = dems.get_loss();
 
-    EXPECT_NEAR(qc_loss, diag_loss,1e-2);
+    EXPECT_NEAR(qc_loss, diag_loss, 1e-2);
 }
 
 TEST(EnergyMinimization, SingleQubitComplex) {
     const UINT n = 1;
 
     // define quantum circuit as prediction model
-    std::function<ParametricQuantumCircuit*(UINT, UINT)> func = [](unsigned int qubit_count, unsigned int param_count) -> ParametricQuantumCircuit* {
-        ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(qubit_count);
+    std::function<ParametricQuantumCircuit*(UINT, UINT)> func =
+        [](unsigned int qubit_count,
+            unsigned int param_count) -> ParametricQuantumCircuit* {
+        ParametricQuantumCircuit* circuit =
+            new ParametricQuantumCircuit(qubit_count);
         for (unsigned int i = 0; i < qubit_count; ++i) {
             circuit->add_parametric_gate(gate::ParametricRX(i));
             circuit->add_parametric_gate(gate::ParametricRY(i));
@@ -158,8 +164,11 @@ TEST(EnergyMinimization, MultiQubit) {
     const UINT n = 2;
 
     // define quantum circuit as prediction model
-    std::function<ParametricQuantumCircuit*(UINT, UINT)> func = [](unsigned int qubit_count, unsigned int param_count) -> ParametricQuantumCircuit* {
-        ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(qubit_count);
+    std::function<ParametricQuantumCircuit*(UINT, UINT)> func =
+        [](unsigned int qubit_count,
+            unsigned int param_count) -> ParametricQuantumCircuit* {
+        ParametricQuantumCircuit* circuit =
+            new ParametricQuantumCircuit(qubit_count);
         for (unsigned int i = 0; i < qubit_count; ++i) {
             circuit->add_parametric_gate(gate::ParametricRX(i));
             circuit->add_parametric_gate(gate::ParametricRY(i));
@@ -190,22 +199,26 @@ TEST(EnergyMinimization, MultiQubit) {
     DiagonalizationEnergyMinimizationSolver dems;
     dems.solve(emp);
     double diag_loss = dems.get_loss();
-	//std::cout << qc_loss << " " << diag_loss << std::endl;
-	ASSERT_GT(qc_loss, diag_loss);
+    // std::cout << qc_loss << " " << diag_loss << std::endl;
+    ASSERT_GT(qc_loss, diag_loss);
     EXPECT_NEAR(qc_loss, diag_loss, 1e-1);
 }
 
 TEST(ParametricGate, DuplicateIndex) {
-	auto gate1 = gate::ParametricPauliRotation({ 0,1,2,3,4,5,6 }, { 0,0,0,0,0,0,0 }, 0.0);
-	EXPECT_TRUE(gate1 != NULL);
-	delete gate1;
-	auto gate2 = gate::ParametricPauliRotation({ 2,1,0,3,7,9,4 }, { 0,0,0,0,0,0,0 }, 0.0);
-	EXPECT_TRUE(gate2 != NULL);
-	delete gate2;
-	auto gate3 = gate::ParametricPauliRotation({ 0,1,3,1,5,6,2 }, { 0,0,0,0,0,0,0 }, 0.0);
-	ASSERT_EQ(NULL, gate3);
-	auto gate4 = gate::ParametricPauliRotation({ 0,3,5,2,5,6,2 }, { 0,0,0,0,0,0,0 }, 0.0);
-	ASSERT_EQ(NULL, gate4);
+    auto gate1 = gate::ParametricPauliRotation(
+        {0, 1, 2, 3, 4, 5, 6}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
+    EXPECT_TRUE(gate1 != NULL);
+    delete gate1;
+    auto gate2 = gate::ParametricPauliRotation(
+        {2, 1, 0, 3, 7, 9, 4}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
+    EXPECT_TRUE(gate2 != NULL);
+    delete gate2;
+    auto gate3 = gate::ParametricPauliRotation(
+        {0, 1, 3, 1, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
+    ASSERT_EQ(NULL, gate3);
+    auto gate4 = gate::ParametricPauliRotation(
+        {0, 3, 5, 2, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
+    ASSERT_EQ(NULL, gate4);
 }
 
 TEST(GradCalculator, BasicCheck) {
@@ -238,15 +251,16 @@ TEST(GradCalculator, BasicCheck) {
         }
     }
 
-    //Calculate using GradCalculator
+    // Calculate using GradCalculator
     GradCalculator hoge;
     std::vector<double> theta;
     for (int i = 0; i < cnter_parametric_gate; ++i) {
         theta.push_back(rnd.uniform() * 5.0);
     }
-    std::vector<std::complex<double>> GradCalculator_ans = hoge.calculate_grad(circuit, observable, theta);
+    std::vector<std::complex<double>> GradCalculator_ans =
+        hoge.calculate_grad(circuit, observable, theta);
 
-    //Calculate using normal Greedy.
+    // Calculate using normal Greedy.
     std::vector<std::complex<double>> Greedy_ans;
     {
         Causal cone;
@@ -276,6 +290,7 @@ TEST(GradCalculator, BasicCheck) {
         }
     }
     for (int i = 0; i < GradCalculator_ans.size(); ++i) {
-        ASSERT_LT(abs(GradCalculator_ans[i] - Greedy_ans[i]), 1e-7); //Difference should be lower than 1e-7
+        ASSERT_LT(abs(GradCalculator_ans[i] - Greedy_ans[i]),
+            1e-7);  // Difference should be lower than 1e-7
     }
 }

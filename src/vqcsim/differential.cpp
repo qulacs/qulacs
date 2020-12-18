@@ -1,7 +1,10 @@
 
 #include "differential.hpp"
 
-double GradientByHalfPi::compute_gradient(ParametricQuantumCircuitSimulator* sim, const EnergyMinimizationProblem* instance, const std::vector<double>& parameter, std::vector<double>* gradient) {
+double GradientByHalfPi::compute_gradient(
+    ParametricQuantumCircuitSimulator* sim,
+    const EnergyMinimizationProblem* instance,
+    const std::vector<double>& parameter, std::vector<double>* gradient) {
     UINT previous_pos = 0;
     UINT current_pos = 0;
 
