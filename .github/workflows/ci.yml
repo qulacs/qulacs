@@ -19,7 +19,7 @@ jobs:
       COVERAGE: 'ON'
     steps:
       - uses: actions/checkout@v2
-       
+
       - name: Setup cmake
         uses: lukka/get-cmake@latest
   
@@ -28,7 +28,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
-          
+
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy
 
@@ -40,7 +40,7 @@ jobs:
         # cf. https://stackoverflow.com/a/55500164
         run: brew link --overwrite gcc@8
         if: ${{ contains(matrix.os, 'macos') }}
-        
+
       - name: Install qulacs for Windows
         run: ./script/build_msvc_2017.bat
         if: ${{ contains(matrix.os, 'windows') }}
@@ -57,7 +57,7 @@ jobs:
           cmake --build ./visualstudio --target test --config Release
           cmake --build ./visualstudio --target pythontest --config Release      
         if: ${{ contains(matrix.os, 'windows') }}
-        
+
       - name: Test in macOS or Ubuntu
         run: |
           cd ./build
@@ -167,10 +167,10 @@ jobs:
       TWINE_USERNAME: '__token__'
     steps:
       - uses: actions/checkout@v2
-       
+
       - name: Setup cmake
         uses: lukka/get-cmake@latest
-  
+
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
@@ -193,4 +193,20 @@ jobs:
         if: ${{ contains(github.ref, '/tags/') }}
         env:
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS }}
+
+  format:
+    name: Format with clang-format
+    strategy:
+      matrix:
+        python-version: [ '3.7.5', '2.7.17' ]
+        os: [ 'ubuntu-latest', 'macos-latest', 'windows-2016' ]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Run clang-format
+        run: find ./benchmark ./src ./test -iname '*.cpp' -o -iname '*.hpp' -o -iname '*.c' -o -iname '*.h' | xargs clang-format -i
+      
+      - name: Compare diff
+        run: test $(git diff | wc -l) -eq 0
 
