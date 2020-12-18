@@ -198,7 +198,6 @@ jobs:
     name: Format with clang-format
     strategy:
       matrix:
-        python-version: [ '3.7.5', '2.7.17' ]
         os: [ 'ubuntu-latest', 'macos-latest', 'windows-2016' ]
     runs-on: ${{ matrix.os }}
     steps:
