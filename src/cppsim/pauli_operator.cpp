@@ -95,7 +95,7 @@ CPPCTYPE PauliOperator::get_expectation_value(const QuantumStateBase* state) con
     if (state->qubit_count < this->get_qubit_count()) {
         std::cerr << "Error: PauliOperator::get_expectation_value(QuantumStateBase*) : The number of qubit in PauliOperator is greater than QuantumState. PauliOperator: " 
                << this -> get_qubit_count() << " QuantumState: " << state -> qubit_count << std::endl;
-        return std::nan("");
+        return CPPCTYPE(std::nan(""), std::nan(""));
     }
 	if(state->is_state_vector()){
 #ifdef _USE_GPU
