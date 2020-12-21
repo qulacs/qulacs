@@ -82,6 +82,11 @@ public:
         return res;
     }
 
+    UINT get_qubit_count() const{
+        std::vector<UINT> index_list = get_index_list();
+        if (index_list.size() == 0) return 0;
+        return *std::max_element(index_list.begin(), index_list.end()) + 1;
+    }
     /**
      * \~japanese-en
      * 自身が保持するパウリ演算子を返す。
