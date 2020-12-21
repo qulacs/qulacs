@@ -92,6 +92,11 @@ void PauliOperator::add_single_Pauli(UINT qubit_index, UINT pauli_type){
 }
 
 CPPCTYPE PauliOperator::get_expectation_value(const QuantumStateBase* state) const {
+    if (state->qubit_count < this->get_qubit_count()) {
+        std::cerr << "Error: PauliOperator::get_expectation_value(QuantumStateBase*) : The number of qubit in PauliOperator is greater than QuantumState. PauliOperator: " 
+               << this -> get_qubit_count() << " QuantumState: " << state -> qubit_count << std::endl;
+        return std::nan("");
+    }
 	if(state->is_state_vector()){
 #ifdef _USE_GPU
 		if (state->get_device_name() == "gpu") {
