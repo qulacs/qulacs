@@ -33,7 +33,7 @@ class DllExport Utility{
             if(myrank == sender){
                 UINT data_size = data.size();
                 MPI_Send(&data_size,1,MPI_UNSIGNED,receiver,tag,MPI_COMM_WORLD);
-                MPI_Send(data.data(),data_size,MPI::DOUBLE_COMPLEX,receiver,tag + 1,MPI_COMM_WORLD);
+                MPI_Send(data.data(),data_size,MPI_DOUBLE_COMPLEX,receiver,tag + 1,MPI_COMM_WORLD);
             }
         }
         void static receive_vector(int receiver,int sender,int tag,std::vector<std::complex<double>> &data){
@@ -44,7 +44,7 @@ class DllExport Utility{
                 MPI_Status stat;
                 MPI_Recv(&data_size,1,MPI_UNSIGNED,sender,tag,MPI_COMM_WORLD,&stat);
                 data.resize(data_size);
-                MPI_Recv(data.data(),data_size,MPI::DOUBLE_COMPLEX,sender,tag+1,MPI_COMM_WORLD,&stat); 
+                MPI_Recv(data.data(),data_size,MPI_DOUBLE_COMPLEX,sender,tag+1,MPI_COMM_WORLD,&stat); 
             }
         }
 };
