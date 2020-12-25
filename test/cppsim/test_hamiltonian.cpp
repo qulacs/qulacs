@@ -7,8 +7,10 @@
 #include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/utility.hpp>
+#include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_named_pauli.hpp>
 #include <fstream>
+#include <Eigen/Eigenvalues>
 
 
 TEST(ObservableTest, CheckExpectationValue) {
@@ -32,7 +34,7 @@ TEST(ObservableTest, CheckExpectationValue) {
     Observable observable(n);
     observable.add_operator(coef, "X 0");
     Eigen::MatrixXcd test_observable = Eigen::MatrixXcd::Zero(dim, dim);
-    test_observable += coef*get_expanded_eigen_matrix_with_identity(0, X, n);
+    test_observable += coef * get_expanded_eigen_matrix_with_identity(0, X, n);
 
     res = observable.get_expectation_value(&state);
     test_res = (test_state.adjoint() * test_observable * test_state);
@@ -55,17 +57,17 @@ TEST(ObservableTest, CheckExpectationValue) {
         Observable rand_observable(n);
         Eigen::MatrixXcd test_rand_observable = Eigen::MatrixXcd::Zero(dim, dim);
 
-        UINT term_count = random.int32() % 10+1;
+        UINT term_count = random.int32() % 10 + 1;
         for (UINT term = 0; term < term_count; ++term) {
-            std::vector<UINT> paulis(n,0);
+            std::vector<UINT> paulis(n, 0);
             Eigen::MatrixXcd test_rand_observable_term = Eigen::MatrixXcd::Identity(dim, dim);
             coef = random.uniform();
             for (UINT i = 0; i < paulis.size(); ++i) {
                 paulis[i] = random.int32() % 4;
 
-                test_rand_observable_term *= get_expanded_eigen_matrix_with_identity(i, get_eigen_matrix_single_Pauli(paulis[i]) , n);
+                test_rand_observable_term *= get_expanded_eigen_matrix_with_identity(i, get_eigen_matrix_single_Pauli(paulis[i]), n);
             }
-            test_rand_observable += coef* test_rand_observable_term;
+            test_rand_observable += coef * test_rand_observable_term;
 
             std::string str = "";
             for (UINT ind = 0; ind < paulis.size(); ind++) {
@@ -92,43 +94,43 @@ TEST(ObservableTest, CheckExpectationValue) {
     }
 }
 
-TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile){
+TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile) {
     auto func = [](const std::string path, const QuantumStateBase* state) -> CPPCTYPE {
-            std::ifstream ifs;
-            ifs.open(path);
-            if (!ifs){
-                std::cerr << "ERROR: Cannot open file" << std::endl;
-				return -1.;
-            }
+        std::ifstream ifs;
+        ifs.open(path);
+        if (!ifs) {
+            std::cerr << "ERROR: Cannot open file" << std::endl;
+            return -1.;
+        }
 
-            CPPCTYPE energy = 0;
+        CPPCTYPE energy = 0;
 
-            std::string str;
-            while (getline(ifs, str)) {
-                // std::cout << state->get_norm() << std::endl;
+        std::string str;
+        while (getline(ifs, str)) {
+            // std::cout << state->get_norm() << std::endl;
 
-                std::vector<std::string> elems;
-                elems = split(str, "()j[]+");
+            std::vector<std::string> elems;
+            elems = split(str, "()j[]+");
 
-                chfmt(elems[3]);
+            chfmt(elems[3]);
 
-                CPPCTYPE coef(std::stod(elems[0]), std::stod(elems[1]));
-                // std::cout << elems[3].c_str() << std::endl;
+            CPPCTYPE coef(std::stod(elems[0]), std::stod(elems[1]));
+            // std::cout << elems[3].c_str() << std::endl;
 
-                PauliOperator mpt(elems[3].c_str(), coef.real());
+            PauliOperator mpt(elems[3].c_str(), coef.real());
 
-                // std::cout << mpt.get_coef() << " ";
-                // std::cout << elems[3].c_str() << std::endl;
-                energy += mpt.get_expectation_value(state);
-                // mpt.get_expectation_value(state);
+            // std::cout << mpt.get_coef() << " ";
+            // std::cout << elems[3].c_str() << std::endl;
+            energy += mpt.get_expectation_value(state);
+            // mpt.get_expectation_value(state);
 
-            }
-            if (!ifs.eof()) {
-                std::cerr << "ERROR: Invalid format" << std::endl;
-				return -1.;
-            }
-            ifs.close();
-            return energy;
+        }
+        if (!ifs.eof()) {
+            std::cerr << "ERROR: Invalid format" << std::endl;
+            return -1.;
+        }
+        ifs.close();
+        return energy;
     };
 
     const double eps = 1e-14;
@@ -139,7 +141,7 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile){
 
     Observable* observable;
     observable = observable::create_observable_from_openfermion_file(filename);
-	ASSERT_NE(observable, (Observable*)NULL);
+    ASSERT_NE(observable, (Observable*)NULL);
     UINT qubit_count = observable->get_qubit_count();
 
     QuantumState state(qubit_count);
@@ -162,32 +164,32 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile){
 
 }
 
-TEST(ObservableTest, CheckParsedObservableFromOpenFermionText){
+TEST(ObservableTest, CheckParsedObservableFromOpenFermionText) {
     auto func = [](const std::string str, const QuantumStateBase* state) -> CPPCTYPE {
-            CPPCTYPE energy = 0;
+        CPPCTYPE energy = 0;
 
-            std::vector<std::string> lines = split(str, "\n");
+        std::vector<std::string> lines = split(str, "\n");
 
-            for (std::string line: lines) {
-                // std::cout << state->get_norm() << std::endl;
+        for (std::string line : lines) {
+            // std::cout << state->get_norm() << std::endl;
 
-                std::vector<std::string> elems;
-                elems = split(line, "()j[]+");
+            std::vector<std::string> elems;
+            elems = split(line, "()j[]+");
 
-                chfmt(elems[3]);
+            chfmt(elems[3]);
 
-                CPPCTYPE coef(std::stod(elems[0]), std::stod(elems[1]));
-                // std::cout << elems[3].c_str() << std::endl;
+            CPPCTYPE coef(std::stod(elems[0]), std::stod(elems[1]));
+            // std::cout << elems[3].c_str() << std::endl;
 
-                PauliOperator mpt(elems[3].c_str(), coef.real());
+            PauliOperator mpt(elems[3].c_str(), coef.real());
 
-                // std::cout << mpt.get_coef() << " ";
-                // std::cout << elems[3].c_str() << std::endl;
-                energy += mpt.get_expectation_value(state);
-                // mpt.get_expectation_value(state);
+            // std::cout << mpt.get_coef() << " ";
+            // std::cout << elems[3].c_str() << std::endl;
+            energy += mpt.get_expectation_value(state);
+            // mpt.get_expectation_value(state);
 
-            }
-            return energy;
+        }
+        return energy;
     };
 
     const double eps = 1e-14;
@@ -212,8 +214,8 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText){
 
     Observable* observable;
     observable = observable::create_observable_from_openfermion_text(text);
-	ASSERT_NE(observable, (Observable*)NULL);
-	UINT qubit_count = observable->get_qubit_count();
+    ASSERT_NE(observable, (Observable*)NULL);
+    UINT qubit_count = observable->get_qubit_count();
 
     QuantumState state(qubit_count);
     state.set_computational_basis(0);
@@ -236,55 +238,55 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText){
 
 }
 
-TEST(ObservableTest, CheckSplitObservable){
+TEST(ObservableTest, CheckSplitObservable) {
     auto func = [](const std::string path, const QuantumStateBase* state) -> CPPCTYPE {
-            std::ifstream ifs;
-            CPPCTYPE coef;
-            ifs.open(path);
-            if (!ifs){
-                std::cerr << "ERROR: Cannot open file" << std::endl;
-				return -1.;
-            }
+        std::ifstream ifs;
+        CPPCTYPE coef;
+        ifs.open(path);
+        if (!ifs) {
+            std::cerr << "ERROR: Cannot open file" << std::endl;
+            return -1.;
+        }
 
-            CPPCTYPE energy = 0;
+        CPPCTYPE energy = 0;
 
-            std::string str;
-            while (getline(ifs, str)) {
-                // std::cout << state->get_norm() << std::endl;
+        std::string str;
+        while (getline(ifs, str)) {
+            // std::cout << state->get_norm() << std::endl;
 
-                std::vector<std::string> elems;
-                elems = split(str, "()j[]+");
+            std::vector<std::string> elems;
+            elems = split(str, "()j[]+");
 
-                chfmt(elems[3]);
+            chfmt(elems[3]);
 
-                CPPCTYPE coef(std::stod(elems[0]), std::stod(elems[1]));
-                // std::cout << elems[3].c_str() << std::endl;
+            CPPCTYPE coef(std::stod(elems[0]), std::stod(elems[1]));
+            // std::cout << elems[3].c_str() << std::endl;
 
-                PauliOperator mpt(elems[3].c_str(), coef.real());
+            PauliOperator mpt(elems[3].c_str(), coef.real());
 
-                // std::cout << mpt.get_coef() << " ";
-                // std::cout << elems[3].c_str() << std::endl;
-                energy += mpt.get_expectation_value(state);
-                // mpt.get_expectation_value(state);
+            // std::cout << mpt.get_coef() << " ";
+            // std::cout << elems[3].c_str() << std::endl;
+            energy += mpt.get_expectation_value(state);
+            // mpt.get_expectation_value(state);
 
-            }
-            if (!ifs.eof()) {
-                std::cerr << "ERROR: Invalid format" << std::endl;
-				return -1.;
-            }
-            ifs.close();
-            return energy;
+        }
+        if (!ifs.eof()) {
+            std::cerr << "ERROR: Invalid format" << std::endl;
+            return -1.;
+        }
+        ifs.close();
+        return energy;
     };
 
     const double eps = 1e-14;
-    const char* filename  = "../test/cppsim/H2.txt";
+    const char* filename = "../test/cppsim/H2.txt";
 
     CPPCTYPE diag_res, test_res, non_diag_res;
 
     std::pair<Observable*, Observable*> observables;
     observables = observable::create_split_observable(filename);
-	ASSERT_NE(observables.first, (Observable*)NULL);
-	ASSERT_NE(observables.second, (Observable*)NULL);
+    ASSERT_NE(observables.first, (Observable*)NULL);
+    ASSERT_NE(observables.second, (Observable*)NULL);
 
     UINT qubit_count = observables.first->get_qubit_count();
     QuantumState state(qubit_count);
@@ -316,18 +318,34 @@ TEST(ObservableTest, CheckSplitObservable){
 
 TEST(ObservableTest, CheckMaximumEigenvalueByPowerMethod) {
     constexpr UINT n = 4;
-    constexpr double eps = 1e-14;
+    constexpr double eps = 1e-4;
+    constexpr UINT dim = 1ULL << n;
+    Random random;
+    constexpr size_t test_count = 10;
 
-    QuantumState state(n);
-    state.set_Haar_random_state();
-    Observable observable(n);
-    observable.add_operator(1.0, "X 0 Z 1 Y 2");
-    observable.add_operator(0.5, "");
-    // observable.add_operator(1.5, "Z 0 Y 1 X 2");
-    // observable.add_operator(3.0, "Y 0 Y 1 Y 2");
+    for (auto i = 0; i < test_count; i++) {
+        const UINT operator_count = random.int32() % 10 + 2;
+        auto observable = generate_random_observable(n, operator_count);
+        observable->add_operator(1.0, "");
 
+        // observable に対応する行列を求める
+        auto observable_matrix = convert_observable_to_matrix(observable);
+        // 絶対値最大固有値を求める
+        const auto eigenvalues = observable_matrix.eigenvalues();
+        CPPCTYPE test_maximum_eigenvalue = 0;
+        for (auto i = 0; i < eigenvalues.size(); i++) {
+            // std::cout << eigenvalues[i] << std::endl;
+            if (std::abs(test_maximum_eigenvalue) < std::abs(eigenvalues[i].real())) {
+                test_maximum_eigenvalue = eigenvalues[i];
+            }
+        }
 
-    constexpr UINT iter_count = 100;
-    const CPPCTYPE maximum_eigenvalue = observable.solve_maximum_eigenvalue_by_power_method(&state, iter_count);
-    ASSERT_NEAR(maximum_eigenvalue.real(), 1.5, eps);
+        constexpr UINT iter_count = 100;
+        QuantumState state(n);
+        state.set_Haar_random_state();
+        auto maximum_eigenvalue = observable->solve_maximum_eigenvalue_by_power_method(&state, iter_count).real();
+
+        // const auto maximum_eigenvalue = observable.solve_maximum_eigenvalue_by_power_method(&state, iter_count);
+        ASSERT_NEAR(maximum_eigenvalue, test_maximum_eigenvalue.real(), eps);
+    }
 }

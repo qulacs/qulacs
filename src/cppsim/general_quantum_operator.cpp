@@ -79,7 +79,7 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(const QuantumStateBase
 
 CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(QuantumStateBase* state, const UINT iter_count) const {
     auto multiplied_state = QuantumState(state->qubit_count);
-    for (int i = 0; i < iter_count; i++) {
+    for (UINT i = 0; i < iter_count; i++) {
         multiplied_state.multiply_coef(0.);
         this->multiply_hamiltonian(state, &multiplied_state);
         state->load(&multiplied_state);
