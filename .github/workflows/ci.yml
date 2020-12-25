@@ -20,8 +20,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup CMake
-        uses: lukka/get-CMake@latest
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
 
       - name: Setup Python
         uses: actions/setup-python@v2
@@ -45,8 +45,8 @@ jobs:
 
       - name: Test in Windows
         run: |
-          CMake --build ./visualstudio --target test --config Release
-          CMake --build ./visualstudio --target pythontest --config Release
+          cmake --build ./visualstudio --target test --config Release
+          cmake --build ./visualstudio --target pythontest --config Release
         if: ${{ contains(matrix.os, 'windows') }}
 
       - name: Test in Ubuntu
@@ -144,13 +144,13 @@ jobs:
       COVERAGE: "ON"
       CIBW_TEST_COMMAND: "python {project}/python/test/test_qulacs.py"
       CIBW_TEST_REQUIRES: "numpy scipy"
-      CIBW_BEFORE_BUILD: "pip install CMake"
+      CIBW_BEFORE_BUILD: "pip install cmake"
       # In GitHub Actions virtual environment macos-10.15/20201115.1,
       # linking some functions from libgomp fails since the linker cannot find
       # some library files from gcc-8 installed via Homebrew.
       # The following command fixes this issue by (brew) re-linking files from gcc-8.
       # cf. https://stackoverflow.com/a/55500164
-      CIBW_BEFORE_BUILD_MACOS: "brew link --overwrite gcc@8 && pip install CMake"
+      CIBW_BEFORE_BUILD_MACOS: "brew link --overwrite gcc@8 && pip install cmake"
       CIBW_BUILD: "cp*-macosx_x86_64 cp*-manylinux_x86_64 cp*-win_amd64"
       CIBW_BUILD_VERBOSITY: "1"
       CIBW_ENVIRONMENT: 'QULACS_OPT_FLAGS="-mtune=haswell -mfpmath=both"'
@@ -159,8 +159,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup CMake
-        uses: lukka/get-CMake@latest
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
 
       - name: Setup Python
         uses: actions/setup-python@v2
