@@ -2,7 +2,8 @@ name: CI
 
 on:
   pull_request:
-  push:
+    branches:
+      - dev
 
 jobs:
   gcc8-build:
@@ -10,7 +11,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5", "2.7.17"]
-        os: ["ubuntu-latest", "windows-2016"]
+        os: ["macos-latest"]
     runs-on: ${{ matrix.os }}
     env:
       CXX_COMPILER: "g++-8"
@@ -32,102 +33,28 @@ jobs:
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy
 
-      - name: Install qulacs for Windows
-        run: ./script/build_msvc_2017.bat
-        if: ${{ contains(matrix.os, 'windows') }}
+      - name: Workaround for OpenMP link error on mac
+        # In GitHub Actions virtual environment macos-10.15/20201115.1,
+        # linking some functions from libgomp fails since the linker cannot find
+        # some library files from gcc-8 installed via Homebrew.
+        # The following command fixes this issue by (brew) re-linking files from gcc-8.
+        # cf. https://stackoverflow.com/a/55500164
+        run: brew link --overwrite gcc@8
+        if: ${{ contains(matrix.os, 'macos') }}
 
-      - name: Install qulacs for Ubuntu
+      - name: Install qulacs for macOS
         run: ./script/build_gcc.sh
-        if: ${{ contains(matrix.os, 'ubuntu') }}
+        if: ${{ contains(matrix.os, 'macos') }}
 
       - name: Install qulacs Python module
         run: python setup.py install
 
-      - name: Test in Windows
-        run: |
-          CMake --build ./visualstudio --target test --config Release
-          CMake --build ./visualstudio --target pythontest --config Release
-        if: ${{ contains(matrix.os, 'windows') }}
-
-      - name: Test in Ubuntu
+      - name: Test in macOS
         run: |
           cd ./build
           make test
           make pythontest
-        if: ${{ contains(matrix.os, 'ubuntu') }}
-
-  source-dist:
-    name: Source dist
-    needs: gcc8-build
-    strategy:
-      matrix:
-        python-version: ["3.7.5"]
-    runs-on: ubuntu-latest
-    env:
-      TWINE_USERNAME: "__token__"
-      TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS }}
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
-
-      - name: Run sdist
-        run: python setup.py sdist
-
-      - name: Upload sdist file as build artifact
-        uses: actions/upload-artifact@v2
-        with:
-          path: dist/*
-
-      - name: Uplead the source if the Git tag is set
-        run: |
-          python -m pip install twine
-          python -m twine upload dist/*
-        # This condition is refered for:
-        #   https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions
-        if: ${{ contains(github.ref, '/tags/') }}
-
-  source-dist-gpu:
-    name: Source dist (Qulacs-GPU)
-    needs: gcc8-build
-    strategy:
-      matrix:
-        python-version: ["3.7.5"]
-    runs-on: ubuntu-latest
-    env:
-      TWINE_USERNAME: "__token__"
-      TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS_GPU }}
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
-
-      - name: Switch setup.py to GPU enabled version
-        run: cp setup_gpu.py setup.py
-
-      - name: Run sdist
-        run: python setup.py sdist
-
-      - name: Upload sdist file as build artifact
-        uses: actions/upload-artifact@v2
-        with:
-          path: dist/*
-
-      - name: Uplead the source if the Git tag is set
-        run: |
-          python -m pip install twine
-          python -m twine upload dist/*
-        # This condition is refered for:
-        #   https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions
-        if: ${{ contains(github.ref, '/tags/') }}
+        if: ${{ contains(matrix.os, 'macos') }}
 
   wheel-build:
     name: Python wheel build
@@ -135,7 +62,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-        os: ["ubuntu-latest", "windows-2016"]
+        os: ["macos-latest"]
     runs-on: ${{ matrix.os }}
     env:
       CXX_COMPILER: "g++-8"
