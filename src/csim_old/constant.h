@@ -7,6 +7,7 @@
 
 #define _USE_MATH_DEFINES
 #include <math.h>
+
 #include "type.h"
 
 //! PI value
@@ -14,7 +15,7 @@
 #ifdef M_PI
 #define PI M_PI
 #else
-#define PI      3.141592653589793
+#define PI 3.141592653589793
 #endif
 #endif
 
@@ -55,4 +56,3 @@ extern const CTYPE PROJ_1_MATRIX[4];
 extern const CTYPE PHASE_90ROT[4];
 //! complex values for exp(-j * i*pi/4 )
 extern const CTYPE PHASE_M90ROT[4];
-

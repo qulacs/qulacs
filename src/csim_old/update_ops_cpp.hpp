@@ -4,24 +4,36 @@
 #include <Eigen/Sparse>
 #include <functional>
 #ifndef _MSC_VER
-extern "C"{
+extern "C" {
 #include "type.h"
 }
 #else
 #include "type.h"
 #endif
 
-DllExport void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
-DllExport void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const Eigen::MatrixXcd& eigen_matrix, CTYPE* state, ITYPE dim);
-DllExport void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const Eigen::Matrix<std::complex<double>,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor>& eigen_matrix, CTYPE* state, ITYPE dim);
+DllExport void multi_qubit_dense_matrix_gate_eigen(
+    const UINT* target_qubit_index_list, UINT target_qubit_index_count,
+    const CTYPE* matrix, CTYPE* state, ITYPE dim);
+DllExport void multi_qubit_dense_matrix_gate_eigen(
+    const UINT* target_qubit_index_list, UINT target_qubit_index_count,
+    const Eigen::MatrixXcd& eigen_matrix, CTYPE* state, ITYPE dim);
+DllExport void multi_qubit_dense_matrix_gate_eigen(
+    const UINT* target_qubit_index_list, UINT target_qubit_index_count,
+    const Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic,
+        Eigen::RowMajor>& eigen_matrix,
+    CTYPE* state, ITYPE dim);
 
-DllExport void multi_qubit_sparse_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const Eigen::SparseMatrix<std::complex<double>>& eigen_matrix, CTYPE* state, ITYPE dim);
+DllExport void multi_qubit_sparse_matrix_gate_eigen(
+    const UINT* target_qubit_index_list, UINT target_qubit_index_count,
+    const Eigen::SparseMatrix<std::complex<double>>& eigen_matrix, CTYPE* state,
+    ITYPE dim);
 
 /**
  * \~english
  * Apply reversible boolean function as a unitary gate.
  *
- * Apply reversible boolean function as a unitary gate. Boolean function is given as a pointer of int -> int function.
+ * Apply reversible boolean function as a unitary gate. Boolean function is
+ * given as a pointer of int -> int function.
  *
  * @param[in] target_qubit_index_list ターゲット量子ビットのリスト
  * @param[in] target_qubit_index_count ターゲット量子ビットの数
@@ -42,5 +54,6 @@ DllExport void multi_qubit_sparse_matrix_gate_eigen(const UINT* target_qubit_ind
  * @param[in] dim 次元
  *
  */
-DllExport void reversible_boolean_gate(const UINT* target_qubit_index_list, UINT target_qubit_index_count, std::function<ITYPE(ITYPE,ITYPE)> function_ptr, CTYPE* state, ITYPE dim);
-
+DllExport void reversible_boolean_gate(const UINT* target_qubit_index_list,
+    UINT target_qubit_index_count,
+    std::function<ITYPE(ITYPE, ITYPE)> function_ptr, CTYPE* state, ITYPE dim);
