@@ -106,8 +106,7 @@ void PauliOperator::add_single_Pauli(UINT qubit_index, UINT pauli_type) {
     this->_pauli_list.push_back(SinglePauliOperator(qubit_index, pauli_type));
 }
 
-CPPCTYPE
-PauliOperator::get_expectation_value(const QuantumStateBase* state) const {
+CPPCTYPE PauliOperator::get_expectation_value(const QuantumStateBase* state) const {
     if (state->is_state_vector()) {
 #ifdef _USE_GPU
         if (state->get_device_name() == "gpu") {
@@ -144,8 +143,7 @@ PauliOperator::get_expectation_value(const QuantumStateBase* state) const {
     }
 }
 
-CPPCTYPE
-PauliOperator::get_transition_amplitude(const QuantumStateBase* state_bra,
+CPPCTYPE PauliOperator::get_transition_amplitude(const QuantumStateBase* state_bra,
     const QuantumStateBase* state_ket) const {
     if ((!state_bra->is_state_vector()) || (!state_ket->is_state_vector())) {
         std::cerr
@@ -173,9 +171,7 @@ PauliOperator::get_transition_amplitude(const QuantumStateBase* state_bra,
                        state_ket->data_c(), state_bra->dim);
     }
 #else
-    return _coef *
-           (CPPCTYPE)
-               transition_amplitude_multi_qubit_Pauli_operator_partial_list(
+    return _coef * (CPPCTYPE)transition_amplitude_multi_qubit_Pauli_operator_partial_list(
                    this->get_index_list().data(),
                    this->get_pauli_id_list().data(),
                    (UINT)this->get_index_list().size(), state_bra->data_c(),
