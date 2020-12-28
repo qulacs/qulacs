@@ -318,7 +318,7 @@ TEST(ObservableTest, CheckSplitObservable) {
 
 TEST(ObservableTest, CheckMaximumEigenvalueByPowerMethod) {
     constexpr UINT n = 4;
-    constexpr double eps = 1e-4;
+    constexpr double eps = 1e-2;
     constexpr UINT dim = 1ULL << n;
     Random random;
     constexpr size_t test_count = 10;
@@ -326,16 +326,15 @@ TEST(ObservableTest, CheckMaximumEigenvalueByPowerMethod) {
     for (auto i = 0; i < test_count; i++) {
         const UINT operator_count = random.int32() % 10 + 2;
         auto observable = generate_random_observable(n, operator_count);
-        observable->add_operator(1.0, "");
 
         // observable に対応する行列を求める
         auto observable_matrix = convert_observable_to_matrix(observable);
-        // 絶対値最大固有値を求める
+        // 基底状態の固有値を求める
         const auto eigenvalues = observable_matrix.eigenvalues();
-        CPPCTYPE test_maximum_eigenvalue = 0;
+        CPPCTYPE test_maximum_eigenvalue = eigenvalues[0];
         for (auto i = 0; i < eigenvalues.size(); i++) {
             // std::cout << eigenvalues[i] << std::endl;
-            if (std::abs(test_maximum_eigenvalue) < std::abs(eigenvalues[i].real())) {
+            if (eigenvalues[i].real() < test_maximum_eigenvalue.real()) {
                 test_maximum_eigenvalue = eigenvalues[i];
             }
         }
@@ -344,6 +343,7 @@ TEST(ObservableTest, CheckMaximumEigenvalueByPowerMethod) {
         QuantumState state(n);
         state.set_Haar_random_state();
         auto maximum_eigenvalue = observable->solve_maximum_eigenvalue_by_power_method(&state, iter_count).real();
+        std::cout << test_maximum_eigenvalue.real() << ", " <<  maximum_eigenvalue << std::endl;
 
         // const auto maximum_eigenvalue = observable.solve_maximum_eigenvalue_by_power_method(&state, iter_count);
         ASSERT_NEAR(maximum_eigenvalue, test_maximum_eigenvalue.real(), eps);

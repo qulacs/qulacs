@@ -77,12 +77,28 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(const QuantumStateBase
     return sum;
 }
 
-CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(QuantumStateBase* state, const UINT iter_count) const {
+CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
+    CPPCTYPE mu_;
+    if (mu == 0.0) {
+        mu_ = this->calculate_default_mu();
+    }
+    else {
+        mu_ = mu;
+    }
+    std::cout << mu_ << std::endl;
+
+    // Stores a result of A|a>
     auto multiplied_state = QuantumState(state->qubit_count);
+    // Stores a result of -\mu|a>
+    auto mu_timed_state = QuantumState(state->qubit_count);
     for (UINT i = 0; i < iter_count; i++) {
+        mu_timed_state.load(state);
+        mu_timed_state.multiply_coef(-mu_);
+
         multiplied_state.multiply_coef(0.);
         this->multiply_hamiltonian(state, &multiplied_state);
         state->load(&multiplied_state);
+        state->add_state(&mu_timed_state);
         state->normalize(state->get_squared_norm());
     }
     return this->get_expectation_value(state);
@@ -100,6 +116,17 @@ void GeneralQuantumOperator::multiply_hamiltonian(QuantumStateBase* state_to_be_
         dst_state->add_state(&work_state);
     }
 }
+
+CPPCTYPE GeneralQuantumOperator::calculate_default_mu() const {
+    CPPCTYPE mu = 0.0;
+    const auto term_count = this->get_term_count();
+    for (UINT i = 0; i < term_count; i++) {
+        const auto term = this->get_term(i);
+        mu += term->get_coef();
+    }
+    return mu;
+}
+
 
 namespace quantum_operator{
     GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(std::string file_path){

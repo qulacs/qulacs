@@ -123,12 +123,14 @@ public:
 
     /**
      * \~japanese-en
-     * GeneralQuantumOperator の絶対値最大固有値を power method により求める
-     *  @param[in] state 固有値を求めるための量子状態
-     *  @param[in] n_iter 計算の繰り返し回数
-     *  @return GeneralQuantumOperator の絶対値最大固有値
+     * GeneralQuantumOperator の基底状態の固有値を power method により求める
+     * (A - \mu I) の絶対値最大固有値を求めることで基底状態の固有値を求める．
+     * @param[in] state 固有値を求めるための量子状態
+     * @param[in] n_iter 計算の繰り返し回数
+     * @param [in] mu 固有値をシフトするための係数
+     *  @return GeneralQuantumOperator の基底状態の固有値
      */
-    virtual CPPCTYPE solve_maximum_eigenvalue_by_power_method(QuantumStateBase* state, const UINT iter_count) const;
+    virtual CPPCTYPE solve_maximum_eigenvalue_by_power_method(QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu = 0.0) const;
 
 private:
     /**
@@ -139,6 +141,12 @@ private:
      * @param [in] dst_state 結果を格納する状態
      */
     void multiply_hamiltonian(QuantumStateBase* state_to_be_multiplied, QuantumStateBase* dst_state) const;
+
+    /**
+     * \~japanese-en
+     * solve_maximum_eigenvalue_by_power_method の mu のデフォルト値を計算する．
+     */
+    CPPCTYPE calculate_default_mu() const;
 };
 
 namespace quantum_operator{

@@ -64,10 +64,14 @@ public:
 
     /**
      * \~japanese-en
-     * GeneralQuantumOperator の最大固有値を power method により求める
-     *
+     * GeneralQuantumOperator の基底状態の固有値を power method により求める
+     * (A - \mu I) の絶対値最大固有値を求めることで基底状態の固有値を求める．
+     * @param[in] state 固有値を求めるための量子状態
+     * @param[in] n_iter 計算の繰り返し回数
+     * @param [in] mu 固有値をシフトするための係数
+     *  @return GeneralQuantumOperator の基底状態の固有値
      */
-    CPPCTYPE solve_maximum_eigenvalue_by_power_method(QuantumStateBase* state, const UINT iter_count) const;
+    CPPCTYPE solve_maximum_eigenvalue_by_power_method(QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu = 0.0) const;
 };
 
 namespace observable{
