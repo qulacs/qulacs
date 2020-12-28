@@ -85,7 +85,6 @@ CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(Quantu
     else {
         mu_ = mu;
     }
-    std::cout << mu_ << std::endl;
 
     // Stores a result of A|a>
     auto multiplied_state = QuantumState(state->qubit_count);

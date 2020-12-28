@@ -333,19 +333,16 @@ TEST(ObservableTest, CheckMaximumEigenvalueByPowerMethod) {
         const auto eigenvalues = observable_matrix.eigenvalues();
         CPPCTYPE test_maximum_eigenvalue = eigenvalues[0];
         for (auto i = 0; i < eigenvalues.size(); i++) {
-            // std::cout << eigenvalues[i] << std::endl;
             if (eigenvalues[i].real() < test_maximum_eigenvalue.real()) {
                 test_maximum_eigenvalue = eigenvalues[i];
             }
         }
 
-        constexpr UINT iter_count = 100;
+        constexpr UINT iter_count = 500;
         QuantumState state(n);
         state.set_Haar_random_state();
         auto maximum_eigenvalue = observable->solve_maximum_eigenvalue_by_power_method(&state, iter_count).real();
-        std::cout << test_maximum_eigenvalue.real() << ", " <<  maximum_eigenvalue << std::endl;
 
-        // const auto maximum_eigenvalue = observable.solve_maximum_eigenvalue_by_power_method(&state, iter_count);
         ASSERT_NEAR(maximum_eigenvalue, test_maximum_eigenvalue.real(), eps);
     }
 }
