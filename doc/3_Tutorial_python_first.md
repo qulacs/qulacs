@@ -1,5 +1,13 @@
 # Python Tutorial
 
+## Jupyter Notebook環境でのエラー表示方法
+QulacsはJupyter Notebook環境で動作させるとエラー時のメッセージが出力欄に表示されません。
+エラー時のメッセージを出力欄に表示させるためには、最初に以下のプログラムを実行してください。
+```python
+!pip3 install wurlitzer
+%load_ext wurlitzer
+```
+
 ## 量子状態
 ### 量子状態の生成
 量子状態は<code>QuantumState</code>クラスを用いて生成します。生成した量子状態は \f$|0\rangle^{\otimes n}\f$ に初期化されています。量子状態を<code>print</code>することで量子状態の情報を表示できます。
