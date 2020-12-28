@@ -324,6 +324,25 @@ add_custom_target(bench
 	#COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_benchmark
 )
 
+# format
+find_program(CLANG_FORMAT "clang-format")
+if(CLANG_FORMAT)
+    file(GLOB_RECURSE ALL_CXX_SOURCE_FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/bench/*.[ch]pp
+		${CMAKE_CURRENT_SOURCE_DIR}/bench/*.[ch]
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*.[ch]pp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*.[ch]
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/*.[ch]pp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/*.[ch]
+    )
+    add_custom_target(
+        format
+        COMMAND clang-format
+        -i
+        ${ALL_CXX_SOURCE_FILES}
+    )
+endif()
+
 # shared libs
 add_custom_target(shared
 	DEPENDS csim_shared
