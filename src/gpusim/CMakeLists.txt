@@ -1,37 +1,31 @@
 cmake_minimum_required(VERSION 2.8)
 
-    find_package(CUDA REQUIRED) if (MSVC) list(APPEND CUDA_NVCC_FLAGS
-        "-Xcompiler \"/wd 4819\"") list(APPEND CUDA_NVCC_FLAGS
-        "-Xcompiler \"/wd 4244\"") if (USE_OMP) list(APPEND CUDA_NVCC_FLAGS
-        "-Xcompiler \"/openmp\"") list(APPEND CUDA_NVCC_FLAGS
-        "--default-stream per-thread") endif() endif()
+file(GLOB CSIM_SRC
+    "*.cpp"
+    "*.c"
+    "*.hpp"
+    "*.h"
+)
 
-        file(GLOB GPUSIM_SRC
-            "*.cu"
-            "*.cuh"
-            "*.h")
+if(MSVC)
+    # We compile .c files in csim with MSVS C++ compiler, since there is no double _Complex in MSVC
+    project( csim_static CXX )
+    project( csim_shared CXX )
+    file(GLOB CSIM_C_SRC "*.c")
+    set_source_files_properties(${CSIM_C_SRC} PROPERTIES LANGUAGE CXX)
+endif()
 
-            message("-- CUDA --") message("Version: " ${CUDA_VERSION}) message(
-                "Library: " ${CUDA_CUDA_LIBRARY}) message("Runtime: " ${
-                CUDA_CUDART_LIBRARY})
+add_library(csim_static STATIC ${CSIM_SRC})
+add_library(csim_shared SHARED ${CSIM_SRC})
 
-#CUDA_GENERATED_OUTPUT_DIR(CMAKE_CURRENT_BINARY_DIR / build)
-#CUDA_curand_LIBRARY
-#cmake-- help - module FindCUDA
+#target_link_libraries(csim_static eigen)
+#target_link_libraries(csim_shared eigen)
+add_dependencies(csim_static eigen)
+add_dependencies(csim_shared eigen)
 
-                CUDA_COMPILE(gpusim_static ${GPUSIM_SRC}) CUDA_COMPILE(
-                    gpusim_shared ${GPUSIM_SRC})
+if(MSVC)
+    set_target_properties ( csim_static PROPERTIES LINKER_LANGUAGE CXX )
+    set_target_properties ( csim_shared PROPERTIES LINKER_LANGUAGE CXX )
+endif()
 
-                    CUDA_ADD_LIBRARY(gpusim_static ${GPUSIM_SRC} STATIC)
-                        CUDA_ADD_LIBRARY(gpusim_shared ${GPUSIM_SRC} SHARED)
-
-                            target_link_libraries(gpusim_static ${
-                                CUDA_curand_LIBRARY} ${CUDA_cublas_LIBRARY})
-                                target_link_libraries(gpusim_shared ${
-                                    CUDA_curand_LIBRARY} ${CUDA_cublas_LIBRARY})
-
-                                    message("Flag: " ${CUDA_NVCC_FLAGS})
-
-                                        set_target_properties(
-                                            gpusim_shared PROPERTIES
-                                                EXCLUDE_FROM_ALL TRUE)
+set_target_properties(csim_shared PROPERTIES EXCLUDE_FROM_ALL TRUE)
