@@ -2,7 +2,7 @@
 
 ## Jupyter Notebook環境でのエラー表示方法
 QulacsはJupyter Notebook環境で動作させるとエラー時のメッセージが出力欄に表示されません。
-エラー時のメッセージを出力欄に表示させるためには、最初に以下のプログラムを実行してください。
+エラー時のメッセージを出力欄に表示させるためには、最初に以下のコマンドを実行してください。
 ```python
 !pip3 install wurlitzer
 %load_ext wurlitzer
