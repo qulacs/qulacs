@@ -6,14 +6,13 @@ file(GLOB MPISIM_SRC
     "*.cpp"
     "*.c"
     "*.hpp"
-    "*.h"
-)
+    "*.h")
 
-message("-- MPI --") message("Version: " ${MPI_VERSION})
+message("-- MPI --")
+message("Version: " ${MPI_VERSION})
 message("Compiler: " ${MPI_CXX_COMPILER})
 
 include_directories(SYSTEM ${MPI_INCLUDE_PATH})
-
 add_library(mpisim_static STATIC ${MPISIM_SRC})
 add_library(mpisim_shared SHARED ${MPISIM_SRC})
 
