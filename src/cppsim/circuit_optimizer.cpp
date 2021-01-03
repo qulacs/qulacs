@@ -135,7 +135,8 @@ void QuantumCircuitOptimizer::optimize(
 }
 
 
-void QuantumCircuitOptimizer::optimize_light(QuantumCircuit* circuit) {
+void QuantumCircuitOptimizer::optimize_light(QuantumCircuit* circuit_) {
+    circuit = circuit_;
     UINT qubit_count = circuit->qubit_count;
     std::vector<std::pair<int, std::vector<UINT>>> current_step(
         qubit_count, std::make_pair(-1, std::vector<UINT>()));

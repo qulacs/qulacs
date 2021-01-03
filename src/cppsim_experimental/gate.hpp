@@ -83,6 +83,7 @@ protected:
     QuantumGateBase(MapType map_type) : _map_type(map_type) {};
 
 public:
+    virtual ~QuantumGateBase() {};
     virtual MapType get_map_type() const { return _map_type; }
     virtual UINT get_qubit_count() const = 0;
     virtual const std::vector<QuantumGateBase*>& get_kraus_list() const = 0;
@@ -391,13 +392,13 @@ public:
                 state->data_c(), state->dim);
         } else if (_matrix_type == PauliMatrix) {
             if (_target_qubit_index.size() == 1) {
-                if (_rotation_angle == 0.0)
+                if (fabs(_rotation_angle) < 1e-16)
                     single_qubit_Pauli_gate(_target_qubit_index[0], _pauli_id[0], state->data_c(), state->dim);
                 else
                     single_qubit_Pauli_rotation_gate(_target_qubit_index[0],
                         _pauli_id[0], _rotation_angle, state->data_c(), state->dim);
             } else {
-                if (_rotation_angle == 0.0)
+                if (fabs(_rotation_angle) < 1e-16)
                     multi_qubit_Pauli_gate_partial_list(_target_qubit_index.data(), _pauli_id.data(), (UINT)_target_qubit_index.size(), state->data_c(), state->dim);
                 else
                     multi_qubit_Pauli_rotation_gate_partial_list(
@@ -691,7 +692,7 @@ public:
     virtual const std::vector<UINT> get_target_index_list() const override { return get_qubit_index_list(); }
     virtual const std::vector<UINT> get_control_index_list() const override { return {}; }
     virtual const std::vector<QuantumGateBase*>& get_kraus_list() const override { return _gate_list; }
-    virtual void get_matrix(ComplexMatrix& matrix) const { throw std::invalid_argument("Get matrix is not supported in wrapper gate"); }
+    virtual void get_matrix(ComplexMatrix&) const { throw std::invalid_argument("Get matrix is not supported in wrapper gate"); }
     virtual std::vector<double> get_cumulative_distribution() const override { return _prob_cum_list; }
 
     static QuantumGateWrapped* ProbabilisticGate(std::vector<QuantumGateBase*> gates, const std::vector<double>& prob, bool take_ownership=false) {

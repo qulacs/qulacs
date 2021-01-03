@@ -265,7 +265,7 @@ public:
      * \~japanese-en
      * 量子状態が配置されているメモリを保持するデバイス名を取得する。
      */
-    virtual const DeviceType get_device_type() const override { return DEVICE_CPU; }
+    virtual DeviceType get_device_type() const override { return DEVICE_CPU; }
 
     /**
      * \~japanese-en 量子状態のポインタをvoid*型として返す
