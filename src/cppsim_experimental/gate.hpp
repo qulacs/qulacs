@@ -184,7 +184,7 @@ private:
           _diagonal_matrix_element(obj._diagonal_matrix_element){};
     */
 
-    virtual void _expand_control_qubit(ComplexMatrix& matrix) const {
+    virtual void _expand_control_qubit(ComplexMatrix&) const {
         if (_control_qubit_index.size() > 0)
             throw std::invalid_argument("Expand control part is not implemented");
     };
@@ -205,8 +205,8 @@ public:
         for (UINT index = 0; index < src_list.size(); ++index) {
             UINT src = src_list[index];
             UINT dst = dst_list[index];
-            auto replace_func = [](std::vector<UINT>& vec, UINT src, UINT dst) ->void {
-                for (auto& v : vec) if (v == src) v = dst;
+            auto replace_func = [](std::vector<UINT>& vec, UINT src_ind, UINT dst_ind) ->void {
+                for (auto& v : vec) if (v == src_ind) v = dst_ind;
             };
             replace_func(_target_qubit_index, src, dst);
             replace_func(_control_qubit_index, src, dst);
@@ -224,9 +224,9 @@ public:
         const ComplexMatrix& matrix,
         const std::vector<UINT>& target_commute = {}) {
         ITYPE dim = 1ULL << target_qubit.size();
-        if (matrix.cols() != dim)
+        if ((unsigned)matrix.cols() != dim)
             throw std::invalid_argument("matrix.cols() != dim");
-        if (matrix.rows() != dim)
+        if ((unsigned)matrix.rows() != dim)
             throw std::invalid_argument("matrix.rows() != dim");
         auto ptr = new QuantumGateBasic(
             DenseMatrix, None, 0, target_qubit, target_commute, {}, {});
@@ -236,7 +236,7 @@ public:
     static QuantumGateBasic* DiagonalMatrixGate(const std::vector<UINT> target_qubit,
         const ComplexVector& diagonal_vector) {
         ITYPE dim = 1ULL << target_qubit.size();
-        if (diagonal_vector.size() != dim)
+        if ((unsigned)diagonal_vector.size() != dim)
             throw std::invalid_argument("diagonal_vector.size() != dim");
         auto ptr = new QuantumGateBasic(DiagonalMatrix, None, 0, target_qubit,
             std::vector<UINT>(FLAG_COMMUTE_Z, (UINT)target_qubit.size()), {}, {});
@@ -246,10 +246,10 @@ public:
     static QuantumGateBasic* SparseMatrixGate(const std::vector<UINT>& target_qubit,
         const SparseComplexMatrix& sparse_matrix,
         const std::vector<UINT>& target_commute = {}) {
-        ITYPE dim = 1ULL << target_qubit.size();
-        if (sparse_matrix.cols() != dim)
+        ITYPE dim = 1UL << target_qubit.size();
+        if ((unsigned)sparse_matrix.cols() != dim)
             throw std::invalid_argument("sparse_matrix.cols() != dim");
-        if (sparse_matrix.rows() != dim)
+        if ((unsigned)sparse_matrix.rows() != dim)
             throw std::invalid_argument("sparse_matrix.rows() != dim");
         auto ptr = new QuantumGateBasic(
             SparseMatrix, None, 0, target_qubit, target_commute, {}, {});

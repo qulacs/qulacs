@@ -179,7 +179,7 @@ public:
      * \~japanese-en
      * 量子状態が配置されているメモリを保持するデバイス名を取得する。
      */
-    virtual const DeviceType get_device_type() const = 0;
+    virtual DeviceType get_device_type() const = 0;
 
     virtual void* data() const = 0;
 
