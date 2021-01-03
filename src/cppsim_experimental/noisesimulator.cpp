@@ -57,7 +57,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count) {
     std::vector<std::vector<UINT>> trial_gates(
         sample_count, std::vector<UINT>(circuit->get_gate_list().size(), 0));
     for (UINT i = 0; i < sample_count; ++i) {
-        UINT gate_size = circuit->get_gate_list().size();
+        UINT gate_size = (UINT)circuit->get_gate_list().size();
         for (UINT q = 0; q < gate_size; ++q) {
             auto gate = circuit->get_gate_list()[q];
             if (gate->get_map_type() != Probabilistic) continue;
@@ -65,7 +65,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count) {
             std::vector<double> itr = gate->get_cumulative_distribution();
             auto hoge = std::lower_bound(itr.begin(), itr.end(), val);
             assert(hoge != itr.begin());
-            trial_gates[i][q] = std::distance(itr.begin(), hoge) - 1;
+            trial_gates[i][q] = (UINT)(std::distance(itr.begin(), hoge) - 1);
         }
     }
 
@@ -122,13 +122,13 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count) {
         // std::complex<long double> Now =
         // state::inner_product(&Calculate_state,&IdealState);
         for (UINT q = 0; q < samples.size(); ++q) {
-            *result_itr = samples[q];
+            *result_itr = (UINT)samples[q];
             result_itr++;
             // Fid += Now*Now;
         }
     }
     // std::cout << Fid << std::endl;
-    std::mt19937 Randomizer(random.int64());
+    std::mt19937 Randomizer(random.int32());
     std::shuffle(begin(result), end(result), Randomizer);
 
     return result;
@@ -136,7 +136,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count) {
 
 void NoiseSimulator::evaluate_gates(const std::vector<UINT> chosen_gate,
     QuantumState* sampling_state, const int StartPos) {
-    UINT gate_size = circuit->get_gate_list().size();
+    UINT gate_size = (UINT)circuit->get_gate_list().size();
     for (UINT q = StartPos; q < gate_size; ++q) {
         auto gate = circuit->get_gate_list()[q];
         if (gate->get_map_type() != Probabilistic) {

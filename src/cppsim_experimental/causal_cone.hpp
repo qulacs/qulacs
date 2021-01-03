@@ -62,9 +62,9 @@ public:
             CPPCTYPE coef = obj.first;
             MultiQubitPauliOperator& term = obj.second;
             std::vector<UINT> observable_index_list = term.get_index_list();
-            const UINT gate_count = init_circuit.get_gate_list().size();
-            const UINT qubit_count = init_circuit.get_qubit_count();
-            const UINT observable_count = observable_index_list.size();
+            const UINT gate_count = (UINT)init_circuit.get_gate_list().size();
+            const UINT qubit_count = (UINT)init_circuit.get_qubit_count();
+            const UINT observable_count = (UINT)observable_index_list.size();
             UnionFind uf(qubit_count + observable_count);
             std::vector<bool> use_qubit(qubit_count);
             std::vector<bool> use_gate(gate_count);

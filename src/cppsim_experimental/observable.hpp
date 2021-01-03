@@ -47,7 +47,7 @@ public:
         const std::vector<UINT>& target_qubit_pauli_list);
 
     MultiQubitPauliOperator(std::string pauli_string) {
-        std::string pattern = "([IXYZ])\s*([0-9]+)";
+        std::string pattern = "([IXYZ])\\s*([0-9]+)";
         std::string pattern_rep = "(" + pattern + ")+";
         std::regex re_rep(pattern_rep);
         std::regex re(pattern);
@@ -155,6 +155,9 @@ public:
             throw std::invalid_argument("GPU is not supported in this build");
 #endif
         }
+        else {
+            throw std::invalid_argument("Unsupported device");
+        }
     }
 };
 
@@ -164,7 +167,7 @@ private:
     std::vector<CPPCTYPE> _coef_list;
 public:
     Observable() {};
-    virtual UINT get_term_count() const { return _pauli_terms.size(); }
+    virtual UINT get_term_count() const { return (UINT)_pauli_terms.size(); }
     virtual std::pair<CPPCTYPE, MultiQubitPauliOperator> get_term(UINT index) const {
         return std::make_pair(_coef_list.at(index), _pauli_terms.at(index));
     }

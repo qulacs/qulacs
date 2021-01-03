@@ -53,7 +53,7 @@ public:
 
     ////////////////////// BASIC CONTROL OF QUANTUM CIRCUIT
     virtual void add_gate(const QuantumGateBase* gate) { 
-        add_gate(gate, _gate_list.size());
+        add_gate(gate, (UINT)_gate_list.size());
     };
     virtual void add_gate(const QuantumGateBase* gate, UINT index) {
         _gate_list.insert(_gate_list.begin() + index, gate->copy());
@@ -162,7 +162,7 @@ public:
 
     /// PARAMETER MANGE
     virtual void add_parametric_gate(const QuantumGateBase* gate) { 
-        add_parametric_gate(gate, _gate_list.size());
+        add_parametric_gate(gate, (UINT)_gate_list.size());
     }
     virtual void add_parametric_gate(const QuantumGateBase* gate, UINT index) {
         for (auto& val : _parametric_gate_position)
@@ -173,7 +173,7 @@ public:
     }
 
     virtual UINT get_parameter_count() const { 
-        return _parametric_gate_list.size(); 
+        return (UINT)_parametric_gate_list.size(); 
     }
     virtual double get_parameter(UINT index) const { 
         return _parametric_gate_list.at(index)->get_parameter(""); 
@@ -187,7 +187,7 @@ public:
 
     /////////////////////////////// UPDATE QUANTUM STATE
     void update_quantum_state(QuantumStateBase* state) { 
-        update_quantum_state(state, 0, _gate_list.size());
+        update_quantum_state(state, 0, (UINT)_gate_list.size());
     };
     void update_quantum_state(
         QuantumStateBase* state, UINT start_index, UINT end_index) {
