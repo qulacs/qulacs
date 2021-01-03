@@ -17,10 +17,10 @@ extern "C" {
 
 #include "../util/util.h"
 
-
 TEST(GateTest, ApplySingleQubitGate) {
     Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2), H(2, 2),
-        S(2, 2), T(2, 2), sqrtX(2, 2), sqrtY(2, 2), P0(2, 2), P1(2, 2), HS(2,2);
+        S(2, 2), T(2, 2), sqrtX(2, 2), sqrtY(2, 2), P0(2, 2), P1(2, 2),
+        HS(2, 2);
 
     Identity << 1, 0, 0, 1;
     X << 0, 1, 1, 0;
@@ -95,7 +95,6 @@ TEST(GateTest, ApplySingleQubitGate) {
         }
     }
 }
-
 
 TEST(GateTest, ApplySingleQubitRotationGate) {
     Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
@@ -195,8 +194,10 @@ TEST(GateTest, ApplyTwoQubitGate) {
             // update dense state
             ComplexMatrix small_mat;
             gate->get_target_matrix(small_mat);
-            auto gate_dense = QuantumGateBasic::DenseMatrixGate(gate->get_target_index_list(), small_mat);
-            for (auto index : gate->get_control_index_list()) gate_dense->add_control_qubit(index, 1);
+            auto gate_dense = QuantumGateBasic::DenseMatrixGate(
+                gate->get_target_index_list(), small_mat);
+            for (auto index : gate->get_control_index_list())
+                gate_dense->add_control_qubit(index, 1);
             gate_dense->update_quantum_state(&test_state);
             delete gate_dense;
 
@@ -209,7 +210,8 @@ TEST(GateTest, ApplyTwoQubitGate) {
     }
 
     funclist.clear();
-    funclist.push_back(std::make_pair(gate::SWAP, get_eigen_matrix_full_qubit_SWAP));
+    funclist.push_back(
+        std::make_pair(gate::SWAP, get_eigen_matrix_full_qubit_SWAP));
     for (UINT repeat = 0; repeat < 10; ++repeat) {
         for (auto func_mat : funclist) {
             UINT control = random.int32() % n;
@@ -233,8 +235,10 @@ TEST(GateTest, ApplyTwoQubitGate) {
             // update dense state
             ComplexMatrix small_mat;
             gate->get_target_matrix(small_mat);
-            auto gate_dense = QuantumGateBasic::DenseMatrixGate(gate->get_target_index_list(), small_mat);
-            for (auto index : gate->get_control_index_list()) gate_dense->add_control_qubit(index, 1);
+            auto gate_dense = QuantumGateBasic::DenseMatrixGate(
+                gate->get_target_index_list(), small_mat);
+            for (auto index : gate->get_control_index_list())
+                gate_dense->add_control_qubit(index, 1);
             gate_dense->update_quantum_state(&test_state);
             delete gate_dense;
 
@@ -272,7 +276,8 @@ TEST(GateTest, ApplyMultiQubitGate) {
         for (UINT i = 0; i < n; ++i) {
             pauli.add_single_Pauli(i, random.int32() % 4);
         }
-        auto gate = QuantumGateBasic::PauliMatrixGate(pauli.get_index_list(), pauli.get_pauli_id_list(), PI);
+        auto gate = QuantumGateBasic::PauliMatrixGate(
+            pauli.get_index_list(), pauli.get_pauli_id_list(), PI);
         Eigen::MatrixXcd large_mat = get_eigen_matrix_full_qubit_pauli(
             pauli.get_index_list(), pauli.get_pauli_id_list(), n);
         test_state1 = large_mat * test_state1 * (-1.i);
@@ -280,7 +285,8 @@ TEST(GateTest, ApplyMultiQubitGate) {
         std::vector<UINT> target_list, control_list;
         ComplexMatrix small_mat;
         gate->get_matrix(small_mat);
-        auto gate_dense = QuantumGateBasic::DenseMatrixGate(gate->get_target_index_list(), small_mat);
+        auto gate_dense = QuantumGateBasic::DenseMatrixGate(
+            gate->get_target_index_list(), small_mat);
         gate_dense->update_quantum_state(&state);
         delete gate_dense;
 
@@ -310,11 +316,13 @@ TEST(GateTest, ApplyMultiQubitGate) {
                     pauli.get_index_list(), pauli.get_pauli_id_list(), n);
         test_state1 = large_mat * test_state1;
 
-        auto gate = QuantumGateBasic::PauliMatrixGate(pauli.get_index_list(), pauli.get_pauli_id_list(), angle);
+        auto gate = QuantumGateBasic::PauliMatrixGate(
+            pauli.get_index_list(), pauli.get_pauli_id_list(), angle);
         std::vector<UINT> target_list, control_list;
         ComplexMatrix small_mat;
         gate->get_matrix(small_mat);
-        auto gate_dense = QuantumGateBasic::DenseMatrixGate(gate->get_target_index_list(), small_mat);
+        auto gate_dense = QuantumGateBasic::DenseMatrixGate(
+            gate->get_target_index_list(), small_mat);
         gate_dense->update_quantum_state(&state);
         delete gate_dense;
 

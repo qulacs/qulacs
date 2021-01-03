@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-
 #ifndef _MSC_VER
 extern "C" {
 #endif
@@ -9,7 +8,6 @@ extern "C" {
 }
 #endif
 
-#include <cppsim/type.hpp>
 #include <cppsim/circuit.hpp>
 #include <cppsim/circuit_optimizer.hpp>
 #include <cppsim/gate_factory.hpp>
@@ -18,6 +16,7 @@ extern "C" {
 #include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/state.hpp>
+#include <cppsim/type.hpp>
 #include <cppsim/utility.hpp>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <utility>

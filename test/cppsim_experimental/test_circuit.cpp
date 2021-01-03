@@ -8,11 +8,11 @@ extern "C" {
 }
 #endif
 
-#include <cppsim_experimental/type.hpp>
-#include <cppsim_experimental/gate.hpp>
 #include <cppsim_experimental/circuit.hpp>
+#include <cppsim_experimental/gate.hpp>
 #include <cppsim_experimental/observable.hpp>
 #include <cppsim_experimental/state.hpp>
+#include <cppsim_experimental/type.hpp>
 #include <cppsim_experimental/utility.hpp>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <utility>
@@ -44,7 +44,7 @@ TEST(CircuitTest, CircuitBasic) {
     StateVector state(n);
     ComplexVector state_eigen(dim);
 
-    //state.set_Haar_random_state();
+    // state.set_Haar_random_state();
     for (ITYPE i = 0; i < dim; ++i) state_eigen[i] = state.data_cpp()[i];
 
     QuantumCircuit circuit(n);

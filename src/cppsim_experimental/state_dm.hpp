@@ -174,7 +174,8 @@ public:
         DensityMatrixCpu* new_state = new DensityMatrixCpu(this->_qubit_count);
         memcpy(new_state->data_cpp(), _density_matrix,
             (size_t)(sizeof(CPPCTYPE) * _dim * _dim));
-        for (auto ite = _classical_register.begin(); ite != _classical_register.end(); ++ite)
+        for (auto ite = _classical_register.begin();
+             ite != _classical_register.end(); ++ite)
             new_state->set_classical_value((*ite).first, (*ite).second);
         return new_state;
     }

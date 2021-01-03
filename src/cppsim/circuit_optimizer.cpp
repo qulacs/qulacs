@@ -134,7 +134,6 @@ void QuantumCircuitOptimizer::optimize(
     }
 }
 
-
 void QuantumCircuitOptimizer::optimize_light(QuantumCircuit* circuit_) {
     circuit = circuit_;
     UINT qubit_count = circuit->qubit_count;

@@ -1,13 +1,13 @@
 #pragma once
 
+#include <iostream>
+#include <utility>
+#include <vector>
 #include "circuit.hpp"
 #include "gate.hpp"
 #include "observable.hpp"
 #include "state.hpp"
 #include "type.hpp"
-#include <iostream>
-#include <utility>
-#include <vector>
 
 class UnionFind {
 private:
@@ -47,9 +47,10 @@ class DllExport Causal {
 public:
     CPPCTYPE CausalCone(
         const QuantumCircuit& init_circuit, const Observable& init_observable) {
-        //auto terms = init_observable.get_terms();
+        // auto terms = init_observable.get_terms();
         CPPCTYPE ret;
-        for(UINT index=0;index<init_observable.get_term_count();++index){
+        for (UINT index = 0; index < init_observable.get_term_count();
+             ++index) {
             auto obj = init_observable.get_term(index);
             CPPCTYPE coef = obj.first;
             MultiQubitPauliOperator& term = obj.second;
@@ -144,10 +145,12 @@ public:
                     for (auto& idx : control_index_list)
                         idx = qubit_encode[idx];
 
-                    //gate->set_target_index_list(target_index_list);
-                    //gate->set_control_index_list(control_index_list);
-                    gate->reset_qubit_index_list(gate->get_target_index_list(), target_index_list);
-                    gate->reset_qubit_index_list(gate->get_control_index_list(), control_index_list);
+                    // gate->set_target_index_list(target_index_list);
+                    // gate->set_control_index_list(control_index_list);
+                    gate->reset_qubit_index_list(
+                        gate->get_target_index_list(), target_index_list);
+                    gate->reset_qubit_index_list(
+                        gate->get_control_index_list(), control_index_list);
                     circuit->add_gate(gate);
                 }
                 MultiQubitPauliOperator paulioperator;

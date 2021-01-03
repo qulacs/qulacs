@@ -16,9 +16,9 @@ extern "C" {
 #endif
 
 #include <iostream>
-#include <vector>
 #include <map>
 #include <string>
+#include <vector>
 
 #include "type.hpp"
 #include "utility.hpp"
@@ -263,7 +263,8 @@ public:
      * @return サンプルされた値のリスト
      */
     virtual std::vector<ITYPE> sampling(UINT sampling_count) = 0;
-    virtual std::vector<ITYPE> sampling(UINT sampling_count, UINT random_seed) = 0;
+    virtual std::vector<ITYPE> sampling(
+        UINT sampling_count, UINT random_seed) = 0;
 
     /**
      * \~japanese-en 量子回路のデバッグ情報の文字列を生成する
@@ -448,7 +449,8 @@ public:
         StateVectorCpu* new_state = new StateVectorCpu(this->_qubit_count);
         memcpy(new_state->data_cpp(), _state_vector,
             (size_t)(sizeof(CPPCTYPE) * _dim));
-        for (auto ite = _classical_register.begin(); ite != _classical_register.end(); ++ite)
+        for (auto ite = _classical_register.begin();
+             ite != _classical_register.end(); ++ite)
             new_state->set_classical_value((*ite).first, (*ite).second);
         return new_state;
     }
@@ -533,7 +535,8 @@ public:
      */
     virtual void add_state(const QuantumStateBase* state) override {
         if (state->get_device_type() == DEVICE_GPU) {
-            throw std::invalid_argument("add state is not supported in gpu device");
+            throw std::invalid_argument(
+                "add state is not supported in gpu device");
         }
         state_add(state->data_c(), this->data_c(), this->dim);
     }

@@ -1,9 +1,9 @@
 #pragma once
 
-#include <stdexcept>
-#include <string>
 #include <map>
 #include <set>
+#include <stdexcept>
+#include <string>
 
 #ifndef _MSC_VER
 extern "C" {
@@ -21,8 +21,8 @@ extern "C" {
 #include <gpusim/update_ops_cuda.h>
 #endif
 
-#include "state.hpp"
 #include "observable.hpp"
+#include "state.hpp"
 #include "type.hpp"
 
 enum MapType {
@@ -80,10 +80,10 @@ class DllExport QuantumGateBase {
 protected:
     MapType _map_type;
     std::map<std::string, double*> _parameter;
-    QuantumGateBase(MapType map_type) : _map_type(map_type) {};
+    QuantumGateBase(MapType map_type) : _map_type(map_type){};
 
 public:
-    virtual ~QuantumGateBase() {};
+    virtual ~QuantumGateBase(){};
     virtual MapType get_map_type() const { return _map_type; }
     virtual UINT get_qubit_count() const = 0;
     virtual const std::vector<QuantumGateBase*>& get_kraus_list() const = 0;
@@ -92,22 +92,30 @@ public:
     virtual const std::vector<UINT> get_control_index_list() const = 0;
     virtual void get_matrix(ComplexMatrix& matrix) const = 0;
     virtual std::vector<double> get_cumulative_distribution() const = 0;
-    virtual void optimize_ProbabilisticGate()const {};
-    virtual void reset_qubit_index_list(const std::vector<UINT>& src, const std::vector<UINT>& dst) = 0;
+    virtual void optimize_ProbabilisticGate() const {};
+    virtual void reset_qubit_index_list(
+        const std::vector<UINT>& src, const std::vector<UINT>& dst) = 0;
     virtual QuantumGateBase* copy() const = 0;
     virtual std::string to_string() const = 0;
     virtual void update_quantum_state(QuantumStateBase*) = 0;
     virtual UINT get_parameter_count() const { return (UINT)_parameter.size(); }
-    virtual bool has_parameter(std::string name) const { return _parameter.count(name); }
-    virtual double get_parameter(std::string name) const { return *(_parameter.at(name)); }
-    virtual void set_parameter(std::string name, double value) { (*(_parameter[name])) = value; }
-    friend DllExport std::ostream& operator<<(std::ostream& os, const QuantumGateBase& gate) {
+    virtual bool has_parameter(std::string name) const {
+        return _parameter.count(name);
+    }
+    virtual double get_parameter(std::string name) const {
+        return *(_parameter.at(name));
+    }
+    virtual void set_parameter(std::string name, double value) {
+        (*(_parameter[name])) = value;
+    }
+    friend DllExport std::ostream& operator<<(
+        std::ostream& os, const QuantumGateBase& gate) {
         os << gate.to_string();
         return os;
     }
 };
 
-class DllExport QuantumGateBasic: public QuantumGateBase {
+class DllExport QuantumGateBasic : public QuantumGateBase {
 private:
     GateMatrixType _matrix_type;
     SpecialFuncType _special_func_type;
@@ -124,15 +132,16 @@ private:
     double _rotation_angle;
     // PermutationFunction* permutation_function;
 
-    QuantumGateBasic(GateMatrixType matrix_type, SpecialFuncType special_func_type,
-        UINT gate_property, const std::vector<UINT>& target_qubit_index,
+    QuantumGateBasic(GateMatrixType matrix_type,
+        SpecialFuncType special_func_type, UINT gate_property,
+        const std::vector<UINT>& target_qubit_index,
         const std::vector<UINT>& target_qubit_commutation,
         const std::vector<UINT>& control_qubit_index,
         const std::vector<UINT>& control_qubit_value)
         : QuantumGateBase(Basic),
           _matrix_type(matrix_type),
           _special_func_type(special_func_type),
-          _gate_property(gate_property){
+          _gate_property(gate_property) {
         // set target_qubit_index
         if (target_qubit_index.size() == 0) {
             throw std::invalid_argument("target_qubit_index.size() == 0");
@@ -187,42 +196,52 @@ private:
 
     virtual void _expand_control_qubit(ComplexMatrix&) const {
         if (_control_qubit_index.size() > 0)
-            throw std::invalid_argument("Expand control part is not implemented");
+            throw std::invalid_argument(
+                "Expand control part is not implemented");
     };
 
 public:
-    virtual ~QuantumGateBasic() {};
-    virtual UINT get_qubit_count() const override { 
-        return (UINT)(_target_qubit_index.size() + _control_qubit_index.size()); 
+    virtual ~QuantumGateBasic(){};
+    virtual UINT get_qubit_count() const override {
+        return (UINT)(_target_qubit_index.size() + _control_qubit_index.size());
     }
-    virtual const std::vector<QuantumGateBase*>& get_kraus_list() const override{
+    virtual const std::vector<QuantumGateBase*>& get_kraus_list()
+        const override {
         throw std::invalid_argument("Basic gate does not have Kraus list");
     }
     virtual std::vector<double> get_cumulative_distribution() const override {
-        return{1.0};
+        return {1.0};
     }
-    virtual void reset_qubit_index_list(const std::vector<UINT>& src_list, const std::vector<UINT>& dst_list) {
-        if (src_list.size() != dst_list.size()) throw std::invalid_argument("src.size() != dst.size()");
+    virtual void reset_qubit_index_list(
+        const std::vector<UINT>& src_list, const std::vector<UINT>& dst_list) {
+        if (src_list.size() != dst_list.size())
+            throw std::invalid_argument("src.size() != dst.size()");
         for (UINT index = 0; index < src_list.size(); ++index) {
             UINT src = src_list[index];
             UINT dst = dst_list[index];
-            auto replace_func = [](std::vector<UINT>& vec, UINT src_ind, UINT dst_ind) ->void {
-                for (auto& v : vec) if (v == src_ind) v = dst_ind;
+            auto replace_func = [](std::vector<UINT>& vec, UINT src_ind,
+                                    UINT dst_ind) -> void {
+                for (auto& v : vec)
+                    if (v == src_ind) v = dst_ind;
             };
             replace_func(_target_qubit_index, src, dst);
             replace_func(_control_qubit_index, src, dst);
         }
     };
-    virtual const std::vector<UINT> get_target_index_list() const override { return _target_qubit_index; };
-    virtual const std::vector<UINT> get_control_index_list() const override { return _control_qubit_index; };
+    virtual const std::vector<UINT> get_target_index_list() const override {
+        return _target_qubit_index;
+    };
+    virtual const std::vector<UINT> get_control_index_list() const override {
+        return _control_qubit_index;
+    };
     virtual const std::vector<UINT> get_qubit_index_list() const override {
         std::vector<UINT> res = _target_qubit_index;
         for (auto val : _control_qubit_index) res.push_back(val);
         return res;
     }
 
-    static QuantumGateBasic* DenseMatrixGate(const std::vector<UINT>& target_qubit,
-        const ComplexMatrix& matrix,
+    static QuantumGateBasic* DenseMatrixGate(
+        const std::vector<UINT>& target_qubit, const ComplexMatrix& matrix,
         const std::vector<UINT>& target_commute = {}) {
         ITYPE dim = 1ULL << target_qubit.size();
         if ((unsigned)matrix.cols() != dim)
@@ -234,17 +253,20 @@ public:
         ptr->_dense_matrix_element = matrix;
         return ptr;
     }
-    static QuantumGateBasic* DiagonalMatrixGate(const std::vector<UINT> target_qubit,
+    static QuantumGateBasic* DiagonalMatrixGate(
+        const std::vector<UINT> target_qubit,
         const ComplexVector& diagonal_vector) {
         ITYPE dim = 1ULL << target_qubit.size();
         if ((unsigned)diagonal_vector.size() != dim)
             throw std::invalid_argument("diagonal_vector.size() != dim");
         auto ptr = new QuantumGateBasic(DiagonalMatrix, None, 0, target_qubit,
-            std::vector<UINT>(FLAG_COMMUTE_Z, (UINT)target_qubit.size()), {}, {});
+            std::vector<UINT>(FLAG_COMMUTE_Z, (UINT)target_qubit.size()), {},
+            {});
         ptr->_diagonal_matrix_element = diagonal_vector;
         return ptr;
     }
-    static QuantumGateBasic* SparseMatrixGate(const std::vector<UINT>& target_qubit,
+    static QuantumGateBasic* SparseMatrixGate(
+        const std::vector<UINT>& target_qubit,
         const SparseComplexMatrix& sparse_matrix,
         const std::vector<UINT>& target_commute = {}) {
         ITYPE dim = 1UL << target_qubit.size();
@@ -258,7 +280,8 @@ public:
         return ptr;
     }
 
-    static QuantumGateBasic* PauliMatrixGate(const std::vector<UINT>& target_qubit,
+    static QuantumGateBasic* PauliMatrixGate(
+        const std::vector<UINT>& target_qubit,
         const std::vector<UINT>& pauli_id, const double rotation_angle) {
         if (pauli_id.size() != target_qubit.size())
             throw std::invalid_argument(
@@ -323,7 +346,6 @@ public:
     void _update_state_vector_cpu_special(QuantumStateBase* state) const;
 
     void _update_state_vector_cpu_general(QuantumStateBase* state) const {
-
         if (_matrix_type == DenseMatrix) {
             const CTYPE* matrix_ptr = reinterpret_cast<const CTYPE*>(
                 this->_dense_matrix_element.data());
@@ -363,15 +385,18 @@ public:
                 // single control qubit
                 else if (_control_qubit_index.size() == 1) {
                     single_qubit_control_multi_qubit_dense_matrix_gate(
-                        _control_qubit_index[0], _control_qubit_value[0], _target_qubit_index.data(),
+                        _control_qubit_index[0], _control_qubit_value[0],
+                        _target_qubit_index.data(),
                         (UINT)(_target_qubit_index.size()), matrix_ptr,
                         state->data_c(), state->dim);
                 }
                 // multiple control qubit
                 else {
                     multi_qubit_control_multi_qubit_dense_matrix_gate(
-                        _control_qubit_index.data(), _control_qubit_value.data(),
-                        (UINT)(_control_qubit_index.size()), _target_qubit_index.data(),
+                        _control_qubit_index.data(),
+                        _control_qubit_value.data(),
+                        (UINT)(_control_qubit_index.size()),
+                        _target_qubit_index.data(),
                         (UINT)(_target_qubit_index.size()), matrix_ptr,
                         state->data_c(), state->dim);
                 }
@@ -380,41 +405,42 @@ public:
             const CTYPE* matrix_ptr = reinterpret_cast<const CTYPE*>(
                 this->_diagonal_matrix_element.data());
             if (_target_qubit_index.size() == 1)
-                single_qubit_diagonal_matrix_gate(
-                    _target_qubit_index[0], matrix_ptr, state->data_c(), state->dim);
+                single_qubit_diagonal_matrix_gate(_target_qubit_index[0],
+                    matrix_ptr, state->data_c(), state->dim);
             else
                 multi_qubit_diagonal_matrix_gate(_target_qubit_index.data(),
-                    (UINT)_target_qubit_index.size(), matrix_ptr, state->data_c(),
-                    state->dim);
+                    (UINT)_target_qubit_index.size(), matrix_ptr,
+                    state->data_c(), state->dim);
         } else if (_matrix_type == SparseMatrix) {
             multi_qubit_sparse_matrix_gate_eigen(_target_qubit_index.data(),
-                (UINT)(_target_qubit_index.size()), this->_sparse_matrix_element,
-                state->data_c(), state->dim);
+                (UINT)(_target_qubit_index.size()),
+                this->_sparse_matrix_element, state->data_c(), state->dim);
         } else if (_matrix_type == PauliMatrix) {
             if (_target_qubit_index.size() == 1) {
                 if (fabs(_rotation_angle) < 1e-16) {
-                    single_qubit_Pauli_gate(_target_qubit_index[0], _pauli_id[0], state->data_c(), state->dim);
-                }
-                else {
+                    single_qubit_Pauli_gate(_target_qubit_index[0],
+                        _pauli_id[0], state->data_c(), state->dim);
+                } else {
                     // invert
                     single_qubit_Pauli_rotation_gate(_target_qubit_index[0],
-                        _pauli_id[0], -_rotation_angle, state->data_c(), state->dim);
+                        _pauli_id[0], -_rotation_angle, state->data_c(),
+                        state->dim);
                 }
-            }
-            else {
+            } else {
                 if (fabs(_rotation_angle) < 1e-16) {
-                    multi_qubit_Pauli_gate_partial_list(_target_qubit_index.data(), _pauli_id.data(), (UINT)_target_qubit_index.size(), state->data_c(), state->dim);
-                }
-                else {
+                    multi_qubit_Pauli_gate_partial_list(
+                        _target_qubit_index.data(), _pauli_id.data(),
+                        (UINT)_target_qubit_index.size(), state->data_c(),
+                        state->dim);
+                } else {
                     // invert
                     multi_qubit_Pauli_rotation_gate_partial_list(
                         _target_qubit_index.data(), _pauli_id.data(),
-                        (UINT)_target_qubit_index.size(), - _rotation_angle, state->data_c(),
-                        state->dim);
+                        (UINT)_target_qubit_index.size(), -_rotation_angle,
+                        state->data_c(), state->dim);
                 }
             }
         }
-
     }
 
     void _update_density_matrix_cpu_general(QuantumStateBase* state) const {
@@ -423,33 +449,34 @@ public:
                 this->_dense_matrix_element.data());
             if (_control_qubit_index.size() == 0) {
                 if (_target_qubit_index.size() == 1) {
-                    dm_single_qubit_dense_matrix_gate(
-                        _target_qubit_index[0], matrix_ptr, state->data_c(), state->dim);
-                }
-                else {
+                    dm_single_qubit_dense_matrix_gate(_target_qubit_index[0],
+                        matrix_ptr, state->data_c(), state->dim);
+                } else {
                     dm_multi_qubit_dense_matrix_gate(_target_qubit_index.data(),
-                        (UINT)_target_qubit_index.size(), matrix_ptr, state->data_c(),
-                        state->dim);
-                }
-            }
-            else {
-                if (_target_qubit_index.size() == 1) {
-                    dm_multi_qubit_control_single_qubit_dense_matrix_gate(
-                        _control_qubit_index.data(), _control_qubit_value.data(),
-                        (UINT)_control_qubit_index.size(), _target_qubit_index[0], matrix_ptr,
+                        (UINT)_target_qubit_index.size(), matrix_ptr,
                         state->data_c(), state->dim);
                 }
-                else {
-                    dm_multi_qubit_control_multi_qubit_dense_matrix_gate(
-                        _control_qubit_index.data(), _control_qubit_value.data(),
-                        (UINT)_control_qubit_index.size(), _target_qubit_index.data(),
-                        (UINT)_target_qubit_index.size(), matrix_ptr, state->data_c(),
+            } else {
+                if (_target_qubit_index.size() == 1) {
+                    dm_multi_qubit_control_single_qubit_dense_matrix_gate(
+                        _control_qubit_index.data(),
+                        _control_qubit_value.data(),
+                        (UINT)_control_qubit_index.size(),
+                        _target_qubit_index[0], matrix_ptr, state->data_c(),
                         state->dim);
+                } else {
+                    dm_multi_qubit_control_multi_qubit_dense_matrix_gate(
+                        _control_qubit_index.data(),
+                        _control_qubit_value.data(),
+                        (UINT)_control_qubit_index.size(),
+                        _target_qubit_index.data(),
+                        (UINT)_target_qubit_index.size(), matrix_ptr,
+                        state->data_c(), state->dim);
                 }
             }
-        }
-        else {
-            throw std::invalid_argument("Only DenseMatrix gate type is supported for density matrix");
+        } else {
+            throw std::invalid_argument(
+                "Only DenseMatrix gate type is supported for density matrix");
         }
     }
 
@@ -469,18 +496,21 @@ public:
                 // single control qubit
                 else if (_control_qubit_index.size() == 1) {
                     single_qubit_control_single_qubit_dense_matrix_gate_host(
-                        _control_qubit_index[0], _control_qubit_value[0], _target_qubit_index[0],
-                        (const CPPCTYPE*)matrix_ptr, state->data(), state->dim,
-                        state->get_cuda_stream(), state->device_number);
+                        _control_qubit_index[0], _control_qubit_value[0],
+                        _target_qubit_index[0], (const CPPCTYPE*)matrix_ptr,
+                        state->data(), state->dim, state->get_cuda_stream(),
+                        state->device_number);
                 }
                 // multiple control qubits
                 else {
                     multi_qubit_control_multi_qubit_dense_matrix_gate_host(
-                        _control_qubit_index.data(), _control_qubit_value.data(),
-                        (UINT)(_control_qubit_index.size()), _target_qubit_index.data(),
-                        (UINT)(_target_qubit_index.size()), (const CPPCTYPE*)matrix_ptr,
-                        state->data(), state->dim, state->get_cuda_stream(),
-                        state->device_number);
+                        _control_qubit_index.data(),
+                        _control_qubit_value.data(),
+                        (UINT)(_control_qubit_index.size()),
+                        _target_qubit_index.data(),
+                        (UINT)(_target_qubit_index.size()),
+                        (const CPPCTYPE*)matrix_ptr, state->data(), state->dim,
+                        state->get_cuda_stream(), state->device_number);
                 }
             }
 
@@ -488,32 +518,36 @@ public:
             else {
                 // no control qubit
                 if (_control_qubit_index.size() == 0) {
-                    multi_qubit_dense_matrix_gate_host(_target_qubit_index.data(),
-                        (UINT)(_target_qubit_index.size()), (const CPPCTYPE*)matrix_ptr,
-                        state->data(), state->dim, state->get_cuda_stream(),
-                        state->device_number);
+                    multi_qubit_dense_matrix_gate_host(
+                        _target_qubit_index.data(),
+                        (UINT)(_target_qubit_index.size()),
+                        (const CPPCTYPE*)matrix_ptr, state->data(), state->dim,
+                        state->get_cuda_stream(), state->device_number);
                 }
                 // single control qubit
                 else if (_control_qubit_index.size() == 1) {
                     single_qubit_control_multi_qubit_dense_matrix_gate_host(
-                        _control_qubit_index[0], _control_qubit_value[0], _target_qubit_index.data(),
-                        (UINT)(_target_qubit_index.size()), (const CPPCTYPE*)matrix_ptr,
-                        state->data(), state->dim, state->get_cuda_stream(),
-                        state->device_number);
+                        _control_qubit_index[0], _control_qubit_value[0],
+                        _target_qubit_index.data(),
+                        (UINT)(_target_qubit_index.size()),
+                        (const CPPCTYPE*)matrix_ptr, state->data(), state->dim,
+                        state->get_cuda_stream(), state->device_number);
                 }
                 // multiple control qubit
                 else {
                     multi_qubit_control_multi_qubit_dense_matrix_gate_host(
-                        _control_qubit_index.data(), _control_qubit_value.data(),
-                        (UINT)(_control_qubit_index.size()), _target_qubit_index.data(),
-                        (UINT)(_target_qubit_index.size()), (const CPPCTYPE*)matrix_ptr,
-                        state->data(), state->dim, state->get_cuda_stream(),
-                        state->device_number);
+                        _control_qubit_index.data(),
+                        _control_qubit_value.data(),
+                        (UINT)(_control_qubit_index.size()),
+                        _target_qubit_index.data(),
+                        (UINT)(_target_qubit_index.size()),
+                        (const CPPCTYPE*)matrix_ptr, state->data(), state->dim,
+                        state->get_cuda_stream(), state->device_number);
                 }
             }
-        }
-        else {
-            throw std::invalid_argument("Only DenseMatrix gate type is supported for density matrix");
+        } else {
+            throw std::invalid_argument(
+                "Only DenseMatrix gate type is supported for density matrix");
         }
     }
 #endif
@@ -521,7 +555,7 @@ public:
     void update_quantum_state(QuantumStateBase* state) override {
         if (state->get_device_type() == DEVICE_CPU) {
             if (state->is_state_vector()) {
-                if(_special_func_type == None)
+                if (_special_func_type == None)
                     this->_update_state_vector_cpu_general(state);
                 else
                     this->_update_state_vector_cpu_special(state);
@@ -541,7 +575,7 @@ public:
         }
     }
 
-    virtual QuantumGateBase* copy() const override { 
+    virtual QuantumGateBase* copy() const override {
         return new QuantumGateBasic(*this);
     };
 
@@ -554,27 +588,27 @@ public:
     virtual void get_target_matrix(ComplexMatrix& matrix) const {
         if (_matrix_type == DenseMatrix) {
             matrix = this->_dense_matrix_element;
-        }
-        else if (_matrix_type == SparseMatrix) {
+        } else if (_matrix_type == SparseMatrix) {
             matrix = this->_sparse_matrix_element.toDense();
-        }
-        else if (_matrix_type == DiagonalMatrix) {
+        } else if (_matrix_type == DiagonalMatrix) {
             matrix = this->_diagonal_matrix_element.asDiagonal();
-        }
-        else if (_matrix_type == PauliMatrix) {
+        } else if (_matrix_type == PauliMatrix) {
             ComplexMatrix pauli_matrix;
             get_Pauli_matrix(pauli_matrix, this->_pauli_id);
             ITYPE dim = 1ULL << this->_pauli_id.size();
-            matrix = cos(this->_rotation_angle/2) * ComplexMatrix::Identity(dim, dim) - 1.i * sin(this->_rotation_angle/2) * pauli_matrix;
-        }
-        else throw std::invalid_argument("Cannot obtain gate matrix for this type");
+            matrix = cos(this->_rotation_angle / 2) *
+                         ComplexMatrix::Identity(dim, dim) -
+                     1.i * sin(this->_rotation_angle / 2) * pauli_matrix;
+        } else
+            throw std::invalid_argument(
+                "Cannot obtain gate matrix for this type");
     }
     virtual void get_matrix(ComplexMatrix& matrix) const {
         this->get_target_matrix(matrix);
         this->_expand_control_qubit(matrix);
     }
 
-    virtual std::string to_string() const override{
+    virtual std::string to_string() const override {
         std::stringstream ss;
         ss << "*** Gate Info ***" << std::endl;
         ss << "target index" << std::endl;
@@ -599,8 +633,7 @@ public:
             case PauliMatrix:
                 ss << "Pauli Matrix" << std::endl;
                 ss << "pauli string" << std::endl;
-                for (auto item : _pauli_id)
-                    ss << item << "," << std::endl;
+                for (auto item : _pauli_id) ss << item << "," << std::endl;
                 ss << "rotation angle: " << _rotation_angle << std::endl;
                 break;
             case PermutationMatrix:
@@ -614,65 +647,60 @@ public:
     }
 };
 
-
-
-
-
-
-
-
 namespace gate {
-    DllExport QuantumGateBasic* Identity(UINT target_qubit);
-    DllExport QuantumGateBasic* X(UINT target_qubit);
-    DllExport QuantumGateBasic* Y(UINT target_qubit);
-    DllExport QuantumGateBasic* Z(UINT target_qubit);
-    DllExport QuantumGateBasic* sqrtX(UINT target_qubit);
-    DllExport QuantumGateBasic* sqrtXdag(UINT target_qubit);
-    DllExport QuantumGateBasic* sqrtY(UINT target_qubit);
-    DllExport QuantumGateBasic* sqrtYdag(UINT target_qubit);
-    DllExport QuantumGateBasic* S(UINT target_qubit);
-    DllExport QuantumGateBasic* Sdag(UINT target_qubit);
-    DllExport QuantumGateBasic* T(UINT target_qubit);
-    DllExport QuantumGateBasic* Tdag(UINT target_qubit);
-    DllExport QuantumGateBasic* H(UINT target_qubit);
-    DllExport QuantumGateBasic* HS(UINT target_qubit);
-    DllExport QuantumGateBasic* P0(UINT target_qubit);
-    DllExport QuantumGateBasic* P1(UINT target_qubit);
-    DllExport QuantumGateBasic* RX(UINT target_qubit, double rotation_angle);
-    DllExport QuantumGateBasic* RY(UINT target_qubit, double rotation_angle);
-    DllExport QuantumGateBasic* RZ(UINT target_qubit, double rotation_angle);
-    DllExport QuantumGateBasic* CX(UINT control_qubit, UINT target_qubit);
-    DllExport QuantumGateBasic* CNOT(UINT control_qubit, UINT target_qubit);
-    DllExport QuantumGateBasic* CY(UINT control_qubit, UINT target_qubit);
-    DllExport QuantumGateBasic* CZ(UINT control_qubit, UINT target_qubit);
-    DllExport QuantumGateBasic* SWAP(UINT target_qubit1, UINT target_qubit2);
-    DllExport QuantumGateBasic* ISWAP(UINT target_qubit1, UINT target_qubit2);
-    DllExport QuantumGateBasic* Toffoli(UINT control_qubit1, UINT control_qubit2, UINT target_qubit);
-    DllExport QuantumGateBasic* Fredkin(UINT control_qubit, UINT target_qubit1, UINT target_qubit2);    
-};
+DllExport QuantumGateBasic* Identity(UINT target_qubit);
+DllExport QuantumGateBasic* X(UINT target_qubit);
+DllExport QuantumGateBasic* Y(UINT target_qubit);
+DllExport QuantumGateBasic* Z(UINT target_qubit);
+DllExport QuantumGateBasic* sqrtX(UINT target_qubit);
+DllExport QuantumGateBasic* sqrtXdag(UINT target_qubit);
+DllExport QuantumGateBasic* sqrtY(UINT target_qubit);
+DllExport QuantumGateBasic* sqrtYdag(UINT target_qubit);
+DllExport QuantumGateBasic* S(UINT target_qubit);
+DllExport QuantumGateBasic* Sdag(UINT target_qubit);
+DllExport QuantumGateBasic* T(UINT target_qubit);
+DllExport QuantumGateBasic* Tdag(UINT target_qubit);
+DllExport QuantumGateBasic* H(UINT target_qubit);
+DllExport QuantumGateBasic* HS(UINT target_qubit);
+DllExport QuantumGateBasic* P0(UINT target_qubit);
+DllExport QuantumGateBasic* P1(UINT target_qubit);
+DllExport QuantumGateBasic* RX(UINT target_qubit, double rotation_angle);
+DllExport QuantumGateBasic* RY(UINT target_qubit, double rotation_angle);
+DllExport QuantumGateBasic* RZ(UINT target_qubit, double rotation_angle);
+DllExport QuantumGateBasic* CX(UINT control_qubit, UINT target_qubit);
+DllExport QuantumGateBasic* CNOT(UINT control_qubit, UINT target_qubit);
+DllExport QuantumGateBasic* CY(UINT control_qubit, UINT target_qubit);
+DllExport QuantumGateBasic* CZ(UINT control_qubit, UINT target_qubit);
+DllExport QuantumGateBasic* SWAP(UINT target_qubit1, UINT target_qubit2);
+DllExport QuantumGateBasic* ISWAP(UINT target_qubit1, UINT target_qubit2);
+DllExport QuantumGateBasic* Toffoli(
+    UINT control_qubit1, UINT control_qubit2, UINT target_qubit);
+DllExport QuantumGateBasic* Fredkin(
+    UINT control_qubit, UINT target_qubit1, UINT target_qubit2);
+};  // namespace gate
 
-
-class QuantumGateWrapped: public QuantumGateBase {
+class QuantumGateWrapped : public QuantumGateBase {
 private:
     std::vector<QuantumGateBase*> _gate_list;
     std::vector<double> _prob_list;
     std::vector<double> _prob_cum_list;
     std::vector<UINT> _qubit_index_list;
     Random random_state;
-    bool _flag_is_unital=false;
-    bool _flag_save_log=false;
+    bool _flag_is_unital = false;
+    bool _flag_save_log = false;
     std::string _reg_name = "";
 
+    QuantumGateWrapped(MapType map_type) : QuantumGateBase(map_type){};
 
-    QuantumGateWrapped(MapType map_type) : 
-        QuantumGateBase(map_type) {};
-
-    void add_probabilistic_map(QuantumGateBase* gate, double prob, double eps = 1e-14) {
-        if (prob < 0) throw std::invalid_argument("negative probability is assigned");
+    void add_probabilistic_map(
+        QuantumGateBase* gate, double prob, double eps = 1e-14) {
+        if (prob < 0)
+            throw std::invalid_argument("negative probability is assigned");
         _gate_list.push_back(gate);
         _prob_list.push_back(prob);
         double next_sum = _prob_cum_list.back() + prob;
-        if (next_sum > 1.0+eps) throw std::invalid_argument("sum of probability exceeds 1.0");
+        if (next_sum > 1.0 + eps)
+            throw std::invalid_argument("sum of probability exceeds 1.0");
         _prob_cum_list.push_back(next_sum);
     }
     void update_qubit_index_list() {
@@ -694,21 +722,39 @@ public:
             delete gate;
         }
     }
-    virtual UINT get_qubit_count() const override { return (UINT)_qubit_index_list.size(); }
-    virtual const std::vector<UINT> get_qubit_index_list() const override { return _qubit_index_list; }
-    virtual const std::vector<UINT> get_target_index_list() const override { return get_qubit_index_list(); }
-    virtual const std::vector<UINT> get_control_index_list() const override { return {}; }
-    virtual const std::vector<QuantumGateBase*>& get_kraus_list() const override { return _gate_list; }
-    virtual void get_matrix(ComplexMatrix&) const { throw std::invalid_argument("Get matrix is not supported in wrapper gate"); }
-    virtual std::vector<double> get_cumulative_distribution() const override { return _prob_cum_list; }
+    virtual UINT get_qubit_count() const override {
+        return (UINT)_qubit_index_list.size();
+    }
+    virtual const std::vector<UINT> get_qubit_index_list() const override {
+        return _qubit_index_list;
+    }
+    virtual const std::vector<UINT> get_target_index_list() const override {
+        return get_qubit_index_list();
+    }
+    virtual const std::vector<UINT> get_control_index_list() const override {
+        return {};
+    }
+    virtual const std::vector<QuantumGateBase*>& get_kraus_list()
+        const override {
+        return _gate_list;
+    }
+    virtual void get_matrix(ComplexMatrix&) const {
+        throw std::invalid_argument(
+            "Get matrix is not supported in wrapper gate");
+    }
+    virtual std::vector<double> get_cumulative_distribution() const override {
+        return _prob_cum_list;
+    }
 
-    static QuantumGateWrapped* ProbabilisticGate(std::vector<QuantumGateBase*> gates, const std::vector<double>& prob, bool take_ownership=false) {
+    static QuantumGateWrapped* ProbabilisticGate(
+        std::vector<QuantumGateBase*> gates, const std::vector<double>& prob,
+        bool take_ownership = false) {
         auto ptr = new QuantumGateWrapped(Probabilistic);
         ptr->_prob_list.clear();
         ptr->_prob_cum_list.clear();
         ptr->_prob_cum_list.push_back(0.);
         for (UINT index = 0; index < gates.size(); ++index) {
-            if(take_ownership)
+            if (take_ownership)
                 ptr->add_probabilistic_map(gates[index], prob[index]);
             else
                 ptr->add_probabilistic_map(gates[index]->copy(), prob[index]);
@@ -717,14 +763,15 @@ public:
         return ptr;
     }
 
-    virtual void reset_qubit_index_list(const std::vector<UINT>& src, const std::vector<UINT>& dst) {
+    virtual void reset_qubit_index_list(
+        const std::vector<UINT>& src, const std::vector<UINT>& dst) {
         for (auto gate : _gate_list) {
             gate->reset_qubit_index_list(src, dst);
         }
         this->update_qubit_index_list();
     }
 
-    virtual QuantumGateBase* copy() const override{
+    virtual QuantumGateBase* copy() const override {
         auto ptr = new QuantumGateWrapped(this->_map_type);
         for (auto gate : _gate_list) {
             ptr->_gate_list.push_back(gate->copy());
@@ -740,12 +787,12 @@ public:
     virtual std::string to_string() const override {
         return "WrappedGate (TODO)";
     }
-    virtual void update_quantum_state(QuantumStateBase* state) override{
+    virtual void update_quantum_state(QuantumStateBase* state) override {
         if (_map_type == Probabilistic) {
             if (state->is_state_vector()) {
                 double r = random_state.uniform();
-                auto ite = std::lower_bound(_prob_cum_list.begin(),
-                    _prob_cum_list.end(), r);
+                auto ite = std::lower_bound(
+                    _prob_cum_list.begin(), _prob_cum_list.end(), r);
                 assert(ite != _prob_cum_list.begin());
                 size_t gate_index =
                     std::distance(_prob_cum_list.begin(), ite) - 1;
@@ -753,23 +800,21 @@ public:
                 if (gate_index < _gate_list.size()) {
                     _gate_list[gate_index]->update_quantum_state(state);
                 }
-            }
-            else {
+            } else {
                 auto org_state = state->copy();
                 auto temp_state = state->copy();
                 for (UINT gate_index = 0; gate_index < _gate_list.size();
-                    ++gate_index) {
+                     ++gate_index) {
                     if (gate_index == 0) {
                         _gate_list[gate_index]->update_quantum_state(state);
                         state->multiply_coef(_prob_list[gate_index]);
-                    }
-                    else if (gate_index + 1 < _gate_list.size()) {
+                    } else if (gate_index + 1 < _gate_list.size()) {
                         temp_state->load(org_state);
-                        _gate_list[gate_index]->update_quantum_state(temp_state);
+                        _gate_list[gate_index]->update_quantum_state(
+                            temp_state);
                         temp_state->multiply_coef(_prob_list[gate_index]);
                         state->add_state(temp_state);
-                    }
-                    else {
+                    } else {
                         _gate_list[gate_index]->update_quantum_state(org_state);
                         org_state->multiply_coef(_prob_list[gate_index]);
                         state->add_state(org_state);
@@ -778,18 +823,17 @@ public:
                 delete org_state;
                 delete temp_state;
             }
-        }
-        else {
+        } else {
             throw std::invalid_argument("Not implemented");
         }
     }
 };
 
-
 namespace gate {
-    DllExport QuantumGateWrapped* DepolarizingNoise(UINT index, double prob);
-    DllExport QuantumGateWrapped* TwoQubitDepolarizingNoise(UINT index1, UINT index2, double prob);
-    DllExport QuantumGateWrapped* BitFlipNoise(UINT index, double prob);
-    DllExport QuantumGateWrapped* DephasingNoise(UINT index, double prob);
-    DllExport QuantumGateWrapped* IndependentXZNoise(UINT index, double prob);
-};
+DllExport QuantumGateWrapped* DepolarizingNoise(UINT index, double prob);
+DllExport QuantumGateWrapped* TwoQubitDepolarizingNoise(
+    UINT index1, UINT index2, double prob);
+DllExport QuantumGateWrapped* BitFlipNoise(UINT index, double prob);
+DllExport QuantumGateWrapped* DephasingNoise(UINT index, double prob);
+DllExport QuantumGateWrapped* IndependentXZNoise(UINT index, double prob);
+};  // namespace gate

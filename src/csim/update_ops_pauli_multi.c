@@ -78,7 +78,6 @@ void multi_qubit_Pauli_gate_XZ_mask(ITYPE bit_flip_mask, ITYPE phase_flip_mask,
 void multi_qubit_Pauli_rotation_gate_XZ_mask(ITYPE bit_flip_mask,
     ITYPE phase_flip_mask, UINT global_phase_90rot_count,
     UINT pivot_qubit_index, double angle, CTYPE* state, ITYPE dim) {
-
     // loop varaibles
     const ITYPE loop_dim = dim / 2;
     ITYPE state_index;

@@ -10,9 +10,9 @@
 #include <string>
 #include <vector>
 
+#include "gate.hpp"
 #include "state.hpp"
 #include "type.hpp"
-#include "gate.hpp"
 
 /**
  * \~japanese-en 量子回路のクラス
@@ -40,9 +40,11 @@ protected:
 
 public:
     virtual UINT get_qubit_count() const { return this->_qubit_count; }
-    virtual const std::vector<QuantumGateBase*>& get_gate_list() const { return this->_gate_list; }
+    virtual const std::vector<QuantumGateBase*>& get_gate_list() const {
+        return this->_gate_list;
+    }
 
-    QuantumCircuit(UINT qubit_count): _qubit_count(qubit_count) {}
+    QuantumCircuit(UINT qubit_count) : _qubit_count(qubit_count) {}
     virtual ~QuantumCircuit() {
         for (auto ptr : _gate_list) {
             delete ptr;
@@ -57,9 +59,8 @@ public:
         return new_circuit;
     }
 
-
     ////////////////////// BASIC CONTROL OF QUANTUM CIRCUIT
-    virtual void add_gate(const QuantumGateBase* gate) { 
+    virtual void add_gate(const QuantumGateBase* gate) {
         _add_gate_core(gate->copy(), (UINT)_gate_list.size());
     };
     virtual void add_gate(const QuantumGateBase* gate, UINT index) {
@@ -76,73 +77,73 @@ public:
         delete _gate_list.at(index);
         _gate_list.erase(_gate_list.begin() + index);
 
-        auto ite = std::find(_parametric_gate_position.begin(), _parametric_gate_position.end(), index);
+        auto ite = std::find(_parametric_gate_position.begin(),
+            _parametric_gate_position.end(), index);
         if (ite != _parametric_gate_position.end()) {
-            UINT dist = (UINT)std::distance(_parametric_gate_position.begin(), ite);
-            _parametric_gate_position.erase(_parametric_gate_position.begin() + dist);
+            UINT dist =
+                (UINT)std::distance(_parametric_gate_position.begin(), ite);
+            _parametric_gate_position.erase(
+                _parametric_gate_position.begin() + dist);
             _parametric_gate_list.erase(_parametric_gate_list.begin() + dist);
         }
         for (auto& val : _parametric_gate_position)
             if (val >= index) val--;
     }
 
-    virtual void add_noise_gate(const QuantumGateBase* org_gate, std::string noise_type, double noise_prob) {
+    virtual void add_noise_gate(const QuantumGateBase* org_gate,
+        std::string noise_type, double noise_prob) {
         QuantumGateBase* gate = org_gate->copy();
         this->add_gate(gate);
         auto itr = gate->get_qubit_index_list();
         if (noise_type == "Depolarizing") {
             if (itr.size() == 1) {
                 this->add_gate(gate::DepolarizingNoise(itr[0], noise_prob));
-            }
-            else if (itr.size() == 2) {
-                this->add_gate(gate::TwoQubitDepolarizingNoise(itr[0], itr[1], noise_prob));
-            }
-            else {
-                std::cerr << "Error: "
-                    "QuantumCircuit::add_noise_gate(QuantumGateBase*,"
-                    "string,double) : "
-                    "depolarizing noise can be used up to 2 qubits, but "
-                    "this gate has "
+            } else if (itr.size() == 2) {
+                this->add_gate(gate::TwoQubitDepolarizingNoise(
+                    itr[0], itr[1], noise_prob));
+            } else {
+                std::cerr
+                    << "Error: "
+                       "QuantumCircuit::add_noise_gate(QuantumGateBase*,"
+                       "string,double) : "
+                       "depolarizing noise can be used up to 2 qubits, but "
+                       "this gate has "
                     << itr.size() << " qubits." << std::endl;
             }
-        }
-        else if (noise_type == "BitFlip") {
+        } else if (noise_type == "BitFlip") {
             if (itr.size() == 1) {
                 this->add_gate(gate::BitFlipNoise(itr[0], noise_prob));
-            }
-            else {
+            } else {
                 std::cerr
                     << "Error: "
-                    "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
-                    "double) : "
-                    "BitFlip noise can be used by 1 qubits, but this gate has "
+                       "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
+                       "double) : "
+                       "BitFlip noise can be used by 1 qubits, but this gate "
+                       "has "
                     << itr.size() << " qubits." << std::endl;
             }
-        }
-        else if (noise_type == "Dephasing") {
+        } else if (noise_type == "Dephasing") {
             if (itr.size() == 1) {
                 this->add_gate(gate::DephasingNoise(itr[0], noise_prob));
-            }
-            else {
+            } else {
                 std::cerr
                     << "Error: "
-                    "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
-                    "double) : "
-                    "Dephasing noise can be used by 1 qubits, but this gate has "
+                       "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
+                       "double) : "
+                       "Dephasing noise can be used by 1 qubits, but this gate "
+                       "has "
                     << itr.size() << " qubits." << std::endl;
             }
-        }
-        else if (noise_type == "IndependentXZ") {
+        } else if (noise_type == "IndependentXZ") {
             if (itr.size() == 1) {
                 this->add_gate(gate::IndependentXZNoise(itr[0], noise_prob));
-            }
-            else {
+            } else {
                 std::cerr << "Error: "
-                    "QuantumCircuit::add_noise_gate(QuantumGateBase*,"
-                    "string,double) : "
-                    "IndependentXZ noise can be used by 1 qubits, but "
-                    "this gate has "
-                    << itr.size() << " qubits." << std::endl;
+                             "QuantumCircuit::add_noise_gate(QuantumGateBase*,"
+                             "string,double) : "
+                             "IndependentXZ noise can be used by 1 qubits, but "
+                             "this gate has "
+                          << itr.size() << " qubits." << std::endl;
             }
         }
         /*
@@ -161,15 +162,16 @@ public:
         }
         */
         else {
-            std::cerr << "Error: "
-                "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
-                "double) : noise_type is undetectable. your noise_type = '"
+            std::cerr
+                << "Error: "
+                   "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
+                   "double) : noise_type is undetectable. your noise_type = '"
                 << noise_type << "'." << std::endl;
         }
     }
 
     /// PARAMETER MANGE
-    virtual void add_parametric_gate(const QuantumGateBase* gate) { 
+    virtual void add_parametric_gate(const QuantumGateBase* gate) {
         add_parametric_gate(gate, (UINT)_gate_list.size());
     }
     virtual void add_parametric_gate(const QuantumGateBase* gate, UINT index) {
@@ -180,21 +182,21 @@ public:
         _parametric_gate_list.push_back(_gate_list.at(index));
     }
 
-    virtual UINT get_parameter_count() const { 
-        return (UINT)_parametric_gate_list.size(); 
+    virtual UINT get_parameter_count() const {
+        return (UINT)_parametric_gate_list.size();
     }
-    virtual double get_parameter(UINT index) const { 
-        return _parametric_gate_list.at(index)->get_parameter(""); 
+    virtual double get_parameter(UINT index) const {
+        return _parametric_gate_list.at(index)->get_parameter("");
     }
     virtual void set_parameter(UINT index, double value) {
         _parametric_gate_list.at(index)->set_parameter("", value);
     }
-    virtual UINT get_parametric_gate_position(UINT index) const { 
-        return _parametric_gate_position.at(index); 
+    virtual UINT get_parametric_gate_position(UINT index) const {
+        return _parametric_gate_position.at(index);
     }
 
     /////////////////////////////// UPDATE QUANTUM STATE
-    void update_quantum_state(QuantumStateBase* state) { 
+    void update_quantum_state(QuantumStateBase* state) {
         update_quantum_state(state, 0, (UINT)_gate_list.size());
     };
     void update_quantum_state(
@@ -214,12 +216,10 @@ public:
 
             for (auto index : whole_qubit) {
                 max_step_among_target_qubits =
-                    std::max(max_step_among_target_qubits,
-                        filled_step[index]);
+                    std::max(max_step_among_target_qubits, filled_step[index]);
             }
             for (auto index : whole_qubit) {
-                filled_step[index] =
-                    max_step_among_target_qubits + 1;
+                filled_step[index] = max_step_among_target_qubits + 1;
             }
             total_max_step =
                 std::max(total_max_step, max_step_among_target_qubits + 1);
@@ -244,7 +244,7 @@ public:
         stream << "# of gate : " << this->_gate_list.size() << std::endl;
         for (UINT i = 0; i < max_block_size; ++i) {
             stream << "# of " << i + 1 << " qubit gate: " << gate_size_count[i]
-                << std::endl;
+                   << std::endl;
         }
         stream << std::endl;
         return stream.str();
