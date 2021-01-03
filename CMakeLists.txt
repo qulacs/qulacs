@@ -145,8 +145,8 @@ if(NOT USE_GPU)
 	 -Wnested-externs -fdiagnostics-color=auto")
 	set(WARNING_CPP "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
 	 -Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
-	 -Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=missing-declarations -Werror=return-type \
-	 -Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
+	 -Werror=missing-declarations -Werror=return-type \
+	 -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
 	 -Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
 	 -fdiagnostics-color=auto")
 endif()
