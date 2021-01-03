@@ -4,10 +4,16 @@
 #include <string>
 #include <map>
 #include <set>
+
+#ifndef _MSC_VER
 extern "C" {
+#endif
 #include <csim/update_ops.h>
 #include <csim/update_ops_dm.h>
+#ifndef _MSC_VER
 }
+#endif
+
 #include <csim/update_ops_cpp.hpp>
 
 #ifdef _USE_GPU

@@ -58,6 +58,6 @@ else()
 	target_link_libraries(qulacs vqcsim_static)
 
 	pybind11_add_module(qulacs_osaka SHARED EXCLUDE_FROM_ALL qulacs_osaka_wrapper.cpp)
-	target_link_libraries(qulacs_osaka cppcsim_exp_static)
+	target_link_libraries(qulacs_osaka cppsim_exp_static)
 endif()
 

@@ -11,15 +11,20 @@
 #include <vector>
 #include <regex>
 
+#ifndef _MSC_VER
 extern "C" {
+#endif
 #include <csim/stat_ops.h>
 #include <csim/stat_ops_dm.h>
+#ifndef _MSC_VER
 }
+#endif
+
 #ifdef _USE_GPU
 #include <gpusim/stat_ops.h>
 #endif
-#include "state.hpp"
 
+#include "state.hpp"
 #include "type.hpp"
 
 
@@ -40,11 +45,8 @@ public:
     virtual const std::vector<UINT>& get_index_list() const { return _target_index; }
 
     MultiQubitPauliOperator() {};
-    MultiQubitPauliOperator(const std::vector<UINT>& target_qubit_index_list,
-        std::vector<UINT>& pauli_id_list) : _target_index(target_qubit_index_list), _pauli_id(pauli_id_list) {};
-
-    MultiQubitPauliOperator(const std::vector<UINT>& target_qubit_index_list,
-        const std::vector<UINT>& target_qubit_pauli_list);
+    MultiQubitPauliOperator(const std::vector<UINT>& target_qubit_index_list, const std::vector<UINT>& pauli_id_list) 
+        : _target_index(target_qubit_index_list), _pauli_id(pauli_id_list) {};
 
     MultiQubitPauliOperator(std::string pauli_string) {
         std::string pattern = "([IXYZ])\\s*([0-9]+)";

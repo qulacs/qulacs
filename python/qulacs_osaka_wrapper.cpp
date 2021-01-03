@@ -8,14 +8,15 @@
 
 #ifndef _MSC_VER
 extern "C" {
+#endif
 #include <csim/update_ops.h>
+#include <csim/update_ops_dm.h>
 #include <csim/memory_ops.h>
+#include <csim/memory_ops_dm.h>
 #include <csim/stat_ops.h>
+#include <csim/stat_ops_dm.h>
+#ifndef _MSC_VER
 }
-#else
-#include <csim/update_ops.h>
-#include <csim/memory_ops.h>
-#include <csim/stat_ops.h>
 #endif
 
 #include <cppsim_experimental/observable.hpp>
@@ -36,12 +37,12 @@ extern "C" {
 #endif
 
 namespace py = pybind11;
-PYBIND11_MODULE(qulacs, m) {
+PYBIND11_MODULE(qulacs_osaka, m) {
     m.doc() = "cppsim python interface";
 
     py::class_<MultiQubitPauliOperator>(m, "MultiQubitPauliOperator")
         .def(py::init<>(), "Constructor")
-        .def(py::init<std::vector<unsigned int>, std::vector<unsigned int>>(), "Constructor", py::arg("qubit_index"), py::arg("pauli_id"))
+        .def(py::init<const std::vector<unsigned int>&, const std::vector<unsigned int>&>(), "Constructor", py::arg("qubit_index"), py::arg("pauli_id"))
         .def(py::init<std::string>(), "Constructor", py::arg("pauli_string"))
         //.def(py::init<std::complex<double>>(), "Constructor", py::arg("coef"))
         //.def(py::init<std::string, std::complex<double>>(), "Constructor", py::arg("pauli_string"), py::arg("coef"))
@@ -184,7 +185,6 @@ PYBIND11_MODULE(qulacs, m) {
 		}, "Get density matrix")
 		.def("__repr__", [](const DensityMatrix &p) {return p.to_string(); });
 		;
-
 #ifdef _USE_GPU
     py::class_<QuantumStateGpu, QuantumStateBase>(m, "QuantumStateGpu")
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
