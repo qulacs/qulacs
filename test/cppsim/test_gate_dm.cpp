@@ -1,5 +1,12 @@
-#include <csim/update_ops.h>
 #include <gtest/gtest.h>
+
+#ifndef _MSC_VER
+extern "C" {
+#endif
+#include <csim/update_ops.h>
+#ifndef _MSC_VER
+}
+#endif
 
 #include <cmath>
 #include <cppsim/gate.hpp>

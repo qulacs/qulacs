@@ -1,11 +1,15 @@
-#include <csim/constant.h>
+
 #include <gtest/gtest.h>
 
-#include <cppsim/type.hpp>
+#ifndef _MSC_VER
+extern "C" {
+#endif
+#include <csim/constant.h>
+#ifndef _MSC_VER
+}
+#endif
 
-#include "../util/util.h"
-//#define _USE_MATH_DEFINES
-//#include <cmath>
+#include <cppsim/type.hpp>
 #include <cppsim/circuit.hpp>
 #include <cppsim/circuit_optimizer.hpp>
 #include <cppsim/gate_factory.hpp>
@@ -17,6 +21,8 @@
 #include <cppsim/utility.hpp>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <utility>
+
+#include "../util/util.h"
 
 TEST(CircuitTest, CircuitBasic) {
     Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2), H(2, 2),
