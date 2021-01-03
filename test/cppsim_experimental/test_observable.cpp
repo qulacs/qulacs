@@ -1,5 +1,13 @@
-#include <csim/constant.h>
+
 #include <gtest/gtest.h>
+
+#ifndef _MSC_VER
+extern "C" {
+#endif
+#include <csim/constant.h>
+#ifndef _MSC_VER
+}
+#endif
 
 #include <cppsim_experimental/circuit.hpp>
 #include <cppsim_experimental/observable.hpp>

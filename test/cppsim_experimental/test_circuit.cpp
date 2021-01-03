@@ -1,5 +1,12 @@
-#include <csim/constant.h>
 #include <gtest/gtest.h>
+
+#ifndef _MSC_VER
+extern "C" {
+#endif
+#include <csim/constant.h>
+#ifndef _MSC_VER
+}
+#endif
 
 #include <cppsim_experimental/type.hpp>
 #include <cppsim_experimental/gate.hpp>
@@ -9,6 +16,7 @@
 #include <cppsim_experimental/utility.hpp>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <utility>
+
 #include "../util/util.h"
 
 TEST(CircuitTest, CircuitBasic) {

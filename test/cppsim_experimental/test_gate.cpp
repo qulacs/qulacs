@@ -1,3 +1,4 @@
+#include <gtest/gtest.h>
 
 #ifndef _MSC_VER
 extern "C" {
@@ -6,9 +7,6 @@ extern "C" {
 #ifndef _MSC_VER
 }
 #endif
-
-
-#include <gtest/gtest.h>
 
 #include <cmath>
 #include <cppsim_experimental/gate.hpp>
