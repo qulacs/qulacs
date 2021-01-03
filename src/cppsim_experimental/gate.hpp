@@ -392,19 +392,26 @@ public:
                 state->data_c(), state->dim);
         } else if (_matrix_type == PauliMatrix) {
             if (_target_qubit_index.size() == 1) {
-                if (fabs(_rotation_angle) < 1e-16)
+                if (fabs(_rotation_angle) < 1e-16) {
                     single_qubit_Pauli_gate(_target_qubit_index[0], _pauli_id[0], state->data_c(), state->dim);
-                else
+                }
+                else {
+                    // invert
                     single_qubit_Pauli_rotation_gate(_target_qubit_index[0],
-                        _pauli_id[0], _rotation_angle, state->data_c(), state->dim);
-            } else {
-                if (fabs(_rotation_angle) < 1e-16)
+                        _pauli_id[0], -_rotation_angle, state->data_c(), state->dim);
+                }
+            }
+            else {
+                if (fabs(_rotation_angle) < 1e-16) {
                     multi_qubit_Pauli_gate_partial_list(_target_qubit_index.data(), _pauli_id.data(), (UINT)_target_qubit_index.size(), state->data_c(), state->dim);
-                else
+                }
+                else {
+                    // invert
                     multi_qubit_Pauli_rotation_gate_partial_list(
                         _target_qubit_index.data(), _pauli_id.data(),
-                        (UINT)_target_qubit_index.size(), _rotation_angle, state->data_c(),
+                        (UINT)_target_qubit_index.size(), - _rotation_angle, state->data_c(),
                         state->dim);
+                }
             }
         }
 

@@ -47,13 +47,16 @@ void QuantumGateBasic::_update_state_vector_cpu_special(QuantumStateBase* state)
         P1_gate(_target_qubit_index[0], state->data_c(), state->dim);
     }
     else if (_special_func_type == GateRX) {
-        RX_gate(_target_qubit_index[0], _rotation_angle, state->data_c(), state->dim);
+        // invert
+        RX_gate(_target_qubit_index[0], - _rotation_angle, state->data_c(), state->dim);
     }
     else if (_special_func_type == GateRY) {
-        RY_gate(_target_qubit_index[0], _rotation_angle, state->data_c(), state->dim);
+        // invert
+        RY_gate(_target_qubit_index[0], - _rotation_angle, state->data_c(), state->dim);
     }
     else if (_special_func_type == GateRZ) {
-        RZ_gate(_target_qubit_index[0], _rotation_angle, state->data_c(), state->dim);
+        // invert
+        RZ_gate(_target_qubit_index[0], - _rotation_angle, state->data_c(), state->dim);
     }
     else if (_special_func_type == GateCX) {
         CNOT_gate(_control_qubit_index[0], _target_qubit_index[0], state->data_c(), state->dim);

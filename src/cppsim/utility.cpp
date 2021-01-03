@@ -1,4 +1,8 @@
 
+#ifdef _MSC_VER
+#define _CRT_SECURE_NO_WARNINGS
+#endif
+
 #include "utility.hpp"
 
 void get_Pauli_matrix(
