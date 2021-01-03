@@ -307,7 +307,7 @@ public:
     virtual void* get_cuda_stream() const { return this->_cuda_stream; }
 };
 
-class QuantumStateCpu : public QuantumStateBase {
+class StateVectorCpu : public QuantumStateBase {
 private:
     CPPCTYPE* _state_vector;
     Random random;
@@ -318,7 +318,7 @@ public:
      *
      * @param qubit_count_ 量子ビット数
      */
-    QuantumStateCpu(UINT qubit_count_) : QuantumStateBase(qubit_count_, true) {
+    StateVectorCpu(UINT qubit_count_) : QuantumStateBase(qubit_count_, true) {
         this->_state_vector =
             reinterpret_cast<CPPCTYPE*>(allocate_quantum_state(this->_dim));
         initialize_quantum_state(this->data_c(), _dim);
@@ -326,7 +326,7 @@ public:
     /**
      * \~japanese-en デストラクタ
      */
-    virtual ~QuantumStateCpu() { release_quantum_state(this->data_c()); }
+    virtual ~StateVectorCpu() { release_quantum_state(this->data_c()); }
     /**
      * \~japanese-en 量子状態を計算基底の0状態に初期化する
      */
@@ -436,7 +436,7 @@ public:
      * @return 生成された量子状態
      */
     virtual QuantumStateBase* allocate_buffer() const override {
-        QuantumStateCpu* new_state = new QuantumStateCpu(this->_qubit_count);
+        StateVectorCpu* new_state = new StateVectorCpu(this->_qubit_count);
         return new_state;
     }
     /**
@@ -445,7 +445,7 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumStateBase* copy() const override {
-        QuantumStateCpu* new_state = new QuantumStateCpu(this->_qubit_count);
+        StateVectorCpu* new_state = new StateVectorCpu(this->_qubit_count);
         memcpy(new_state->data_cpp(), _state_vector,
             (size_t)(sizeof(CPPCTYPE) * _dim));
         for (auto ite = _classical_register.begin(); ite != _classical_register.end(); ++ite)
@@ -590,8 +590,8 @@ public:
     }
 };
 
-typedef QuantumStateCpu
-    QuantumState; /**< QuantumState is an alias of QuantumStateCPU */
+typedef StateVectorCpu
+    StateVector; /**< StateVector is an alias of StateVectorCpu */
 
 namespace state {
 /**
@@ -602,11 +602,11 @@ namespace state {
  * @return 内積の値
  */
 CPPCTYPE DllExport inner_product(
-    const QuantumState* state_bra, const QuantumState* state_ket);
-DllExport QuantumState* tensor_product(
-    const QuantumState* state_left, const QuantumState* state_right);
-DllExport QuantumState* permutate_qubit(
-    const QuantumState* state, std::vector<UINT> qubit_order);
-DllExport QuantumState* drop_qubit(const QuantumState* state,
+    const StateVector* state_bra, const StateVector* state_ket);
+DllExport StateVector* tensor_product(
+    const StateVector* state_left, const StateVector* state_right);
+DllExport StateVector* permutate_qubit(
+    const StateVector* state, std::vector<UINT> qubit_order);
+DllExport StateVector* drop_qubit(const StateVector* state,
     std::vector<UINT> target, std::vector<UINT> projection);
 }  // namespace state

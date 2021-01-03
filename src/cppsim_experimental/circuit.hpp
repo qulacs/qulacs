@@ -12,7 +12,7 @@
 
 #include "state.hpp"
 #include "type.hpp"
-#include "gate_basic.hpp"
+#include "gate.hpp"
 
 /**
  * \~japanese-en 量子回路のクラス
@@ -30,6 +30,13 @@ protected:
     // prohibit shallow copy
     QuantumCircuit(const QuantumCircuit& obj);
     QuantumCircuit& operator=(const QuantumCircuit&) = delete;
+
+    virtual void _add_gate_core(QuantumGateBase* gate, UINT index) {
+        _gate_list.insert(_gate_list.begin() + index, gate);
+
+        for (auto& val : _parametric_gate_position)
+            if (val >= index) val++;
+    }
 
 public:
     virtual UINT get_qubit_count() const { return this->_qubit_count; }
@@ -53,14 +60,18 @@ public:
 
     ////////////////////// BASIC CONTROL OF QUANTUM CIRCUIT
     virtual void add_gate(const QuantumGateBase* gate) { 
-        add_gate(gate, (UINT)_gate_list.size());
+        _add_gate_core(gate->copy(), (UINT)_gate_list.size());
     };
     virtual void add_gate(const QuantumGateBase* gate, UINT index) {
-        _gate_list.insert(_gate_list.begin() + index, gate->copy());
-
-        for (auto& val : _parametric_gate_position)
-            if (val >= index) val++;
+        _add_gate_core(gate->copy(), index);
     };
+    virtual void add_gate_take(QuantumGateBase* gate) {
+        _add_gate_core(gate, (UINT)_gate_list.size());
+    };
+    virtual void add_gate_take(QuantumGateBase* gate, UINT index) {
+        _add_gate_core(gate, index);
+    };
+
     virtual void remove_gate(UINT index) {
         delete _gate_list.at(index);
         _gate_list.erase(_gate_list.begin() + index);
@@ -75,14 +86,10 @@ public:
             if (val >= index) val--;
     }
 
-    /*
     virtual void add_noise_gate(const QuantumGateBase* org_gate, std::string noise_type, double noise_prob) {
         QuantumGateBase* gate = org_gate->copy();
         this->add_gate(gate);
-        auto vec1 = gate->get_target_qubit_index();
-        auto vec2 = gate->get_control_qubit_index();
-        std::vector<UINT> itr = vec1;
-        for (auto x : vec2) itr.push_back(x);
+        auto itr = gate->get_qubit_index_list();
         if (noise_type == "Depolarizing") {
             if (itr.size() == 1) {
                 this->add_gate(gate::DepolarizingNoise(itr[0], noise_prob));
@@ -138,6 +145,7 @@ public:
                     << itr.size() << " qubits." << std::endl;
             }
         }
+        /*
         else if (noise_type == "AmplitudeDamping") {
             if (itr.size() == 1) {
                 this->add_gate(gate::AmplitudeDampingNoise(itr[0], noise_prob));
@@ -151,6 +159,7 @@ public:
                     << itr.size() << " qubits." << std::endl;
             }
         }
+        */
         else {
             std::cerr << "Error: "
                 "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
@@ -158,7 +167,6 @@ public:
                 << noise_type << "'." << std::endl;
         }
     }
-    */
 
     /// PARAMETER MANGE
     virtual void add_parametric_gate(const QuantumGateBase* gate) { 

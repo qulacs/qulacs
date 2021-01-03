@@ -1,15 +1,7 @@
+#pragma once
 
-/*
-#include <cppsim/circuit.hpp>
-#include <cppsim/gate.hpp>
-#include <cppsim/gate_factory.hpp>
-#include <cppsim/gate_merge.hpp>
-#include <cppsim/observable.hpp>
-#include <cppsim/state.hpp>
-#include <cppsim/type.hpp>
-*/
 #include "circuit.hpp"
-#include "gate_basic.hpp"
+#include "gate.hpp"
 #include "observable.hpp"
 #include "state.hpp"
 #include "type.hpp"
@@ -163,7 +155,7 @@ public:
                     paulioperator.add_single_Pauli(
                         qubit_encode[term_index_list[i]], pauli_id_list[i]);
                 }
-                QuantumState state(idx);
+                StateVector state(idx);
                 state.set_zero_state();
                 circuit->update_quantum_state(&state);
                 expectation *= paulioperator.get_expectation_value(&state);

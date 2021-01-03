@@ -1,10 +1,10 @@
+#pragma once
+
 #ifdef _MSC_VER
 #define _CRT_SECURE_NO_WARNINGS
 #endif
 
 #include "circuit.hpp"
-//#include "gate_factory.hpp"
-//#include "gate_merge.hpp"
 #include "state.hpp"
 
 /**
@@ -18,7 +18,7 @@ private:
     std::vector<std::pair<UINT, UINT>> noise_info;
 
     void evaluate_gates(const std::vector<UINT> chosen_gate,
-        QuantumState* sampling_state, const int StartPos);
+        StateVector* sampling_state, const int StartPos);
 
 public:
     /**
@@ -33,7 +33,7 @@ public:
      * @return NoiseSimulatorのインスタンス
      */
     NoiseSimulator(const QuantumCircuit* init_circuit,
-        const QuantumState* init_state = NULL);
+        const StateVector* init_state = NULL);
     /**
      * \~japanese-en
      * デストラクタ。このとき、NoiseSimulatorが保持しているcircuitとinitial_stateは解放される。

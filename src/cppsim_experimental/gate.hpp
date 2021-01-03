@@ -8,6 +8,7 @@
 #ifndef _MSC_VER
 extern "C" {
 #endif
+#include <csim/constant.h>
 #include <csim/update_ops.h>
 #include <csim/update_ops_dm.h>
 #ifndef _MSC_VER
@@ -46,19 +47,24 @@ enum SpecialFuncType {
     GateX,
     GateY,
     GateZ,
-    GateCX,
-    GateCY,
-    GateCZ,
+    GateSqrtX,
+    GateSqrtY,
+    GateSqrtXdag,
+    GateSqrtYdag,
     GateRX,
     GateRY,
     GateRZ,
     GateH,
     GateS,
+    GateSdag,
     GateT,
+    GateTdag,
+    GateP0,
+    GateP1,
+    GateCX,
+    GateCY,
+    GateCZ,
     GateSWAP,
-    GateISWAP,
-    GateToffoli,
-    GateFredkin
 };
 
 #define FLAG_CLIFFORD 0x01
@@ -162,6 +168,8 @@ private:
         _control_qubit_value = control_qubit_value;
     };
     QuantumGateBasic& operator=(const QuantumGateBasic& rhs) = delete;
+
+    /*
     QuantumGateBasic(const QuantumGateBasic& obj)
         : QuantumGateBase(Basic),
           _matrix_type(obj._matrix_type),
@@ -174,8 +182,12 @@ private:
           _dense_matrix_element(obj._dense_matrix_element),
           _sparse_matrix_element(obj._sparse_matrix_element),
           _diagonal_matrix_element(obj._diagonal_matrix_element){};
+    */
 
-    virtual void _expand_control_qubit(ComplexMatrix& matrix) const {};
+    virtual void _expand_control_qubit(ComplexMatrix& matrix) const {
+        if (_control_qubit_index.size() > 0)
+            throw std::invalid_argument("Expand control part is not implemented");
+    };
 
 public:
     virtual ~QuantumGateBasic() {};
@@ -251,7 +263,7 @@ public:
             throw std::invalid_argument(
                 "pauli_id.size() != target_qubit.size()");
 
-        std::vector<UINT> target_commute(0, (UINT)target_qubit.size());
+        std::vector<UINT> target_commute((UINT)target_qubit.size(), 0);
         for (UINT ind = 0; ind < target_qubit.size(); ++ind) {
             UINT value = pauli_id[ind];
             if (value == PAULI_ID_I)
@@ -272,49 +284,9 @@ public:
         return ptr;
     }
 
-    static QuantumGateBasic* Identity(UINT target_qubit) {
-        auto ptr = PauliMatrixGate({ target_qubit }, { PAULI_ID_I }, 0.);
-        ptr->_special_func_type = GateI;
-        return ptr;
+    virtual void set_special_func_type(SpecialFuncType special_func_type) {
+        this->_special_func_type = special_func_type;
     }
-    static QuantumGateBasic* X(UINT target_qubit) {
-        auto ptr = PauliMatrixGate({target_qubit}, {PAULI_ID_X}, 0.);
-        ptr->_special_func_type = GateX;
-        return ptr;
-    }
-    static QuantumGateBasic* Y(UINT target_qubit) {
-        auto ptr = PauliMatrixGate({ target_qubit }, { PAULI_ID_Y }, 0.);
-        ptr->_special_func_type = GateY;
-        return ptr;
-    }
-    static QuantumGateBasic* Z(UINT target_qubit) {
-        auto ptr = PauliMatrixGate({ target_qubit }, { PAULI_ID_Z }, 0.);
-        ptr->_special_func_type = GateZ;
-        return ptr;
-    }
-    static QuantumGateBasic* RX(UINT target_qubit, double rotation_angle) {
-        auto ptr = PauliMatrixGate({target_qubit}, {PAULI_ID_X}, rotation_angle);
-        ptr->_special_func_type = GateRX;
-        return ptr;
-    }
-    static QuantumGateBasic* CX(UINT control_qubit, UINT target_qubit) {
-        ComplexMatrix mat;
-        get_Pauli_matrix(mat, { PAULI_ID_X });
-        auto ptr = DenseMatrixGate({target_qubit}, mat, {FLAG_COMMUTE_X});
-        ptr->add_control_qubit(control_qubit, 1);
-        ptr->_special_func_type = GateCX;
-        return ptr;
-    }
-    static QuantumGateBasic* H(UINT target_qubit) {
-        double invsqrt2 = 1. / sqrt(2.);
-        ComplexMatrix mat(2,2);
-        mat << invsqrt2, invsqrt2, invsqrt2, -invsqrt2;
-        auto ptr = DenseMatrixGate(
-            {target_qubit}, mat, {});
-        ptr->_special_func_type = GateH;
-        return ptr;
-    }
-
     virtual void add_control_qubit(UINT control_index, UINT control_value) {
         if (_matrix_type != DenseMatrix) {
             throw std::invalid_argument(
@@ -322,11 +294,11 @@ public:
                 "DenseMatrixGate");
         }
         if (std::find(_target_qubit_index.begin(), _target_qubit_index.end(),
-                control_index) == _target_qubit_index.end())
+                control_index) != _target_qubit_index.end())
             throw std::invalid_argument(
                 "control_index is already in target_qubit_index");
         if (std::find(_control_qubit_index.begin(), _control_qubit_index.end(),
-                control_index) == _control_qubit_index.end())
+                control_index) != _control_qubit_index.end())
             throw std::invalid_argument(
                 "control_index is already in control_qubit_index");
         if (control_value >= 2)
@@ -347,16 +319,7 @@ public:
             throw std::invalid_argument("This gate cannot multiply scalar");
     }
 
-    void _update_state_vector_cpu_special(QuantumStateBase* state) const {
-        if (_matrix_type == GateX) {
-            X_gate(_target_qubit_index[0], state->data_c(), state->dim);
-        } else if (_matrix_type == GateY) {
-            Y_gate(_target_qubit_index[0], state->data_c(), state->dim);
-        }
-        else {
-            throw std::invalid_argument("Unsupported special gate");
-        }
-    }
+    void _update_state_vector_cpu_special(QuantumStateBase* state) const;
 
     void _update_state_vector_cpu_general(QuantumStateBase* state) const {
 
@@ -570,7 +533,9 @@ public:
         }
     }
 
-    virtual QuantumGateBase* copy() const override { return new QuantumGateBasic(*this); };
+    virtual QuantumGateBase* copy() const override { 
+        return new QuantumGateBasic(*this);
+    };
 
     virtual void to_dense_matrix() {
         this->_matrix_type = DenseMatrix;
@@ -579,7 +544,22 @@ public:
     }
 
     virtual void get_target_matrix(ComplexMatrix& matrix) const {
-        if (_matrix_type == DenseMatrix) matrix = this->_dense_matrix_element;
+        if (_matrix_type == DenseMatrix) {
+            matrix = this->_dense_matrix_element;
+        }
+        else if (_matrix_type == SparseMatrix) {
+            matrix = this->_sparse_matrix_element.toDense();
+        }
+        else if (_matrix_type == DiagonalMatrix) {
+            matrix = this->_diagonal_matrix_element.asDiagonal();
+        }
+        else if (_matrix_type == PauliMatrix) {
+            ComplexMatrix pauli_matrix;
+            get_Pauli_matrix(pauli_matrix, this->_pauli_id);
+            ITYPE dim = 1ULL << this->_pauli_id.size();
+            matrix = cos(this->_rotation_angle/2) * ComplexMatrix::Identity(dim, dim) - 1.i * sin(this->_rotation_angle/2) * pauli_matrix;
+        }
+        else throw std::invalid_argument("Cannot obtain gate matrix for this type");
     }
     virtual void get_matrix(ComplexMatrix& matrix) const {
         this->get_target_matrix(matrix);
@@ -627,6 +607,43 @@ public:
 };
 
 
+
+
+
+
+
+
+namespace gate {
+    DllExport QuantumGateBasic* Identity(UINT target_qubit);
+    DllExport QuantumGateBasic* X(UINT target_qubit);
+    DllExport QuantumGateBasic* Y(UINT target_qubit);
+    DllExport QuantumGateBasic* Z(UINT target_qubit);
+    DllExport QuantumGateBasic* sqrtX(UINT target_qubit);
+    DllExport QuantumGateBasic* sqrtXdag(UINT target_qubit);
+    DllExport QuantumGateBasic* sqrtY(UINT target_qubit);
+    DllExport QuantumGateBasic* sqrtYdag(UINT target_qubit);
+    DllExport QuantumGateBasic* S(UINT target_qubit);
+    DllExport QuantumGateBasic* Sdag(UINT target_qubit);
+    DllExport QuantumGateBasic* T(UINT target_qubit);
+    DllExport QuantumGateBasic* Tdag(UINT target_qubit);
+    DllExport QuantumGateBasic* H(UINT target_qubit);
+    DllExport QuantumGateBasic* HS(UINT target_qubit);
+    DllExport QuantumGateBasic* P0(UINT target_qubit);
+    DllExport QuantumGateBasic* P1(UINT target_qubit);
+    DllExport QuantumGateBasic* RX(UINT target_qubit, double rotation_angle);
+    DllExport QuantumGateBasic* RY(UINT target_qubit, double rotation_angle);
+    DllExport QuantumGateBasic* RZ(UINT target_qubit, double rotation_angle);
+    DllExport QuantumGateBasic* CX(UINT control_qubit, UINT target_qubit);
+    DllExport QuantumGateBasic* CNOT(UINT control_qubit, UINT target_qubit);
+    DllExport QuantumGateBasic* CY(UINT control_qubit, UINT target_qubit);
+    DllExport QuantumGateBasic* CZ(UINT control_qubit, UINT target_qubit);
+    DllExport QuantumGateBasic* SWAP(UINT target_qubit1, UINT target_qubit2);
+    DllExport QuantumGateBasic* ISWAP(UINT target_qubit1, UINT target_qubit2);
+    DllExport QuantumGateBasic* Toffoli(UINT control_qubit1, UINT control_qubit2, UINT target_qubit);
+    DllExport QuantumGateBasic* Fredkin(UINT control_qubit, UINT target_qubit1, UINT target_qubit2);    
+};
+
+
 class QuantumGateWrapped: public QuantumGateBase {
 private:
     std::vector<QuantumGateBase*> _gate_list;
@@ -637,6 +654,8 @@ private:
     bool _flag_is_unital=false;
     bool _flag_save_log=false;
     std::string _reg_name = "";
+
+
     QuantumGateWrapped(MapType map_type) : 
         QuantumGateBase(map_type) {};
 
@@ -662,6 +681,11 @@ private:
     }
 
 public:
+    virtual ~QuantumGateWrapped() {
+        for (auto& gate : _gate_list) {
+            delete gate;
+        }
+    }
     virtual UINT get_qubit_count() const override { return (UINT)_qubit_index_list.size(); }
     virtual const std::vector<UINT> get_qubit_index_list() const override { return _qubit_index_list; }
     virtual const std::vector<UINT> get_target_index_list() const override { return get_qubit_index_list(); }
@@ -669,6 +693,22 @@ public:
     virtual const std::vector<QuantumGateBase*>& get_kraus_list() const override { return _gate_list; }
     virtual void get_matrix(ComplexMatrix& matrix) const { throw std::invalid_argument("Get matrix is not supported in wrapper gate"); }
     virtual std::vector<double> get_cumulative_distribution() const override { return _prob_cum_list; }
+
+    static QuantumGateWrapped* ProbabilisticGate(std::vector<QuantumGateBase*> gates, const std::vector<double>& prob, bool take_ownership=false) {
+        auto ptr = new QuantumGateWrapped(Probabilistic);
+        ptr->_prob_list.clear();
+        ptr->_prob_cum_list.clear();
+        ptr->_prob_cum_list.push_back(0.);
+        for (UINT index = 0; index < gates.size(); ++index) {
+            if(take_ownership)
+                ptr->add_probabilistic_map(gates[index], prob[index]);
+            else
+                ptr->add_probabilistic_map(gates[index]->copy(), prob[index]);
+        }
+        ptr->update_qubit_index_list();
+        return ptr;
+    }
+
     virtual void reset_qubit_index_list(const std::vector<UINT>& src, const std::vector<UINT>& dst) {
         for (auto gate : _gate_list) {
             gate->reset_qubit_index_list(src, dst);
@@ -676,51 +716,21 @@ public:
         this->update_qubit_index_list();
     }
 
-    static QuantumGateWrapped* DepolarizingNoise(UINT index, double prob) {
-        auto ptr = new QuantumGateWrapped(Probabilistic);
-        ptr->add_probabilistic_map(QuantumGateBasic::Identity(index), 1-prob);
-        ptr->add_probabilistic_map(QuantumGateBasic::X(index), prob/3);
-        ptr->add_probabilistic_map(QuantumGateBasic::Y(index), prob/3);
-        ptr->add_probabilistic_map(QuantumGateBasic::Z(index), prob/3);
-        ptr->update_qubit_index_list();
-        return ptr;
-    }
-    static QuantumGateWrapped* BitFlipNoise(UINT index, double prob) {
-        auto ptr = new QuantumGateWrapped(Probabilistic);
-        ptr->add_probabilistic_map(QuantumGateBasic::Identity(index), 1 - prob);
-        ptr->add_probabilistic_map(QuantumGateBasic::X(index), prob);
-        ptr->update_qubit_index_list();
-        return ptr;
-    }
-    static QuantumGateWrapped* DephasingNoise(UINT index, double prob) {
-        auto ptr = new QuantumGateWrapped(Probabilistic);
-        ptr->add_probabilistic_map(QuantumGateBasic::Identity(index), 1 - prob);
-        ptr->add_probabilistic_map(QuantumGateBasic::Z(index), prob);
-        ptr->update_qubit_index_list();
-        return ptr;
-    }
-    static QuantumGateWrapped* TwoQubitDepolarizingNoise(UINT index1, UINT index2, double prob) {
-        auto ptr = new QuantumGateWrapped(Probabilistic);
-        ptr->add_probabilistic_map(QuantumGateBasic::PauliMatrixGate({ index1, index2 }, { 0, 0 }, 0.), 1 - prob);
-        for (UINT i = 1; i < 16; ++i) {
-            ptr->add_probabilistic_map(QuantumGateBasic::PauliMatrixGate({ index1, index2 }, { i%4, i/4 }, 0.), prob/15);
-        }
-        ptr->update_qubit_index_list();
-        return ptr;
-    }
-
-
     virtual QuantumGateBase* copy() const override{
         auto ptr = new QuantumGateWrapped(this->_map_type);
         for (auto gate : _gate_list) {
             ptr->_gate_list.push_back(gate->copy());
         }
         ptr->_prob_list = _prob_list;
+        ptr->_prob_cum_list = _prob_cum_list;
+        ptr->_qubit_index_list = _qubit_index_list;
         ptr->_flag_is_unital = _flag_is_unital;
+        ptr->_flag_save_log = _flag_save_log;
+        ptr->_reg_name = _reg_name;
         return ptr;
     }
     virtual std::string to_string() const override {
-        return "WrappedGate";
+        return "WrappedGate (TODO)";
     }
     virtual void update_quantum_state(QuantumStateBase* state) override{
         if (_map_type == Probabilistic) {
@@ -765,4 +775,13 @@ public:
             throw std::invalid_argument("Not implemented");
         }
     }
+};
+
+
+namespace gate {
+    DllExport QuantumGateWrapped* DepolarizingNoise(UINT index, double prob);
+    DllExport QuantumGateWrapped* TwoQubitDepolarizingNoise(UINT index1, UINT index2, double prob);
+    DllExport QuantumGateWrapped* BitFlipNoise(UINT index, double prob);
+    DllExport QuantumGateWrapped* DephasingNoise(UINT index, double prob);
+    DllExport QuantumGateWrapped* IndependentXZNoise(UINT index, double prob);
 };

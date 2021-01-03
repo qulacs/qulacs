@@ -72,7 +72,7 @@ public:
      * randomにサンプリングされた量子状態に初期化する
      */
     virtual void set_Haar_random_state(UINT seed) override {
-        QuantumStateCpu* pure_state = new QuantumStateCpu(qubit_count);
+        StateVectorCpu* pure_state = new StateVectorCpu(qubit_count);
         pure_state->set_Haar_random_state(seed);
         dm_initialize_with_pure_state(
             this->data_c(), pure_state->data_c(), _dim);
@@ -386,4 +386,4 @@ public:
 };
 
 typedef DensityMatrixCpu
-    DensityMatrix; /**< QuantumState is an alias of QuantumStateCPU */
+    DensityMatrix; /**< QuantumState is an alias of StateVectorCpu */

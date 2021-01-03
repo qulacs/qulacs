@@ -58,7 +58,8 @@ foreach(path IN LISTS header_files)
 	string(REPLACE ${CMAKE_CURRENT_SOURCE_DIR}/src/ ${CMAKE_CURRENT_SOURCE_DIR}/include/ path_dst ${path})
 	configure_file(${path} ${path_dst} COPYONLY)
 endforeach()
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 
 ##### set external projects #####
@@ -228,10 +229,6 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 	# add optimization flags
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${OPT_FLAGS}")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OPT_FLAGS}")
-
-	# add warning flags
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_C}")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_CPP}")
 
 	# set pybind11 flags
 	if(8.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})

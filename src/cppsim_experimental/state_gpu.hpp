@@ -9,7 +9,7 @@
 #include <gpusim/update_ops_cuda.h>
 #include <gpusim/util_func.h>
 
-class QuantumStateGpu : public QuantumStateBase {
+class StateVectorGpu : public QuantumStateBase {
 private:
     void* _state_vector;  // void* is assumed as GTYPE*
     Random random;
@@ -20,7 +20,7 @@ public:
      *
      * @param qubit_count_ 量子ビット数
      */
-    QuantumStateGpu(UINT qubit_count_)
+    StateVectorGpu(UINT qubit_count_)
         : QuantumStateBase(qubit_count_, true, 0) {
         set_device(0);
         this->_cuda_stream = allocate_cuda_stream_host(1, 0);
@@ -30,7 +30,7 @@ public:
             this->data(), _dim, _cuda_stream, device_number);
     }
 
-    QuantumStateGpu(UINT qubit_count_, UINT device_number_)
+    StateVectorGpu(UINT qubit_count_, UINT device_number_)
         : QuantumStateBase(qubit_count_, true, device_number_) {
         int num_device = get_num_device();
         assert(device_number_ < num_device);
@@ -45,7 +45,7 @@ public:
     /**
      * \~japanese-en デストラクタ
      */
-    virtual ~QuantumStateGpu() {
+    virtual ~StateVectorGpu() {
         release_quantum_state_host(this->data(), device_number);
         release_cuda_stream_host(this->_cuda_stream, 1, device_number);
     }
@@ -154,8 +154,8 @@ public:
      * @return 生成された量子状態
      */
     virtual QuantumStateBase* allocate_buffer() const override {
-        QuantumStateGpu* new_state =
-            new QuantumStateGpu(this->_qubit_count, device_number);
+        StateVectorGpu* new_state =
+            new StateVectorGpu(this->_qubit_count, device_number);
         return new_state;
     }
     /**
@@ -164,8 +164,8 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumStateBase* copy() const override {
-        QuantumStateGpu* new_state =
-            new QuantumStateGpu(this->_qubit_count, device_number);
+        StateVectorGpu* new_state =
+            new StateVectorGpu(this->_qubit_count, device_number);
         copy_quantum_state_from_device_to_device(new_state->data(),
             _state_vector, _dim, _cuda_stream, device_number);
         for (UINT i = 0; i < _classical_register.size(); ++i)
@@ -338,7 +338,7 @@ namespace state {
  * @return 内積の値
  */
 CPPCTYPE DllExport inner_product(
-    const QuantumStateGpu* state_bra, const QuantumStateGpu* state_ket);
+    const StateVectorGpu* state_bra, const StateVectorGpu* state_ket);
 }  // namespace state
 
 #endif  // _USE_GPU

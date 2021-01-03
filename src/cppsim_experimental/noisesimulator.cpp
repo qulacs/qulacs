@@ -7,18 +7,16 @@
 #include <algorithm>
 
 #include "circuit.hpp"
-//#include "gate_factory.hpp"
-//#include "gate_merge.hpp"
 #include "state.hpp"
 /**
  * \~japanese-en 回路にノイズを加えてサンプリングするクラス
  */
 
 NoiseSimulator::NoiseSimulator(
-    const QuantumCircuit* init_circuit, const QuantumState* init_state) {
+    const QuantumCircuit* init_circuit, const StateVector* init_state) {
     if (init_state == NULL) {
         // initialize with zero state if not provided.
-        initial_state = new QuantumState(init_circuit->get_qubit_count());
+        initial_state = new StateVector(init_circuit->get_qubit_count());
         initial_state->set_zero_state();
     } else {
         // initialize with init_state if provided.
@@ -83,11 +81,11 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count) {
         }
     }
 
-    QuantumState Common_state(initial_state->qubit_count);
-    QuantumState Calculate_state(initial_state->qubit_count);
+    StateVector Common_state(initial_state->qubit_count);
+    StateVector Calculate_state(initial_state->qubit_count);
 
     /*
-    QuantumState IdealState(initial_state -> qubit_count);
+    StateVector IdealState(initial_state -> qubit_count);
     IdealState.load(initial_state);
     for(int i = 0;i < circuit -> get_gate_list().size();++i){
         circuit -> get_gate_list()[i] -> update_quantum_state(&IdealState);
@@ -135,7 +133,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count) {
 }
 
 void NoiseSimulator::evaluate_gates(const std::vector<UINT> chosen_gate,
-    QuantumState* sampling_state, const int StartPos) {
+    StateVector* sampling_state, const int StartPos) {
     UINT gate_size = (UINT)circuit->get_gate_list().size();
     for (UINT q = StartPos; q < gate_size; ++q) {
         auto gate = circuit->get_gate_list()[q];

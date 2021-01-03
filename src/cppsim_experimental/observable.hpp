@@ -49,23 +49,19 @@ public:
         : _target_index(target_qubit_index_list), _pauli_id(pauli_id_list) {};
 
     MultiQubitPauliOperator(std::string pauli_string) {
-        std::string pattern = "([IXYZ])\\s*([0-9]+)";
-        std::string pattern_rep = "(" + pattern + ")+";
-        std::regex re_rep(pattern_rep);
+        std::string pattern = "([IXYZ])\\s*([0-9]+)\\s*";
         std::regex re(pattern);
-        std::cmatch result_rep;
         std::cmatch result;
-        while (std::regex_search(pauli_string.c_str(), result_rep, re_rep)) {
-            bool check = std::regex_search(result_rep.str().c_str(), result, re);
-            assert(!check && "Error in regex");
-            std::string pauli = result[0].str();
-            UINT index = (UINT)std::stoul(result[1].str());
+        while (std::regex_search(pauli_string.c_str(), result, re)) {
+            std::string pauli = result[1].str();
+            UINT index = (UINT)std::stoul(result[2].str());
             _target_index.push_back(index);
             if (pauli == "I") _pauli_id.push_back(PAULI_ID_I);
             else if (pauli == "X") _pauli_id.push_back(PAULI_ID_X);
             else if (pauli == "Y") _pauli_id.push_back(PAULI_ID_Y);
             else if (pauli == "Z") _pauli_id.push_back(PAULI_ID_Z);
             else assert(false && "Error in regex");
+            pauli_string = result.suffix();
         }
         assert(_target_index.size() == _pauli_id.size());
     }
@@ -163,6 +159,9 @@ public:
     }
 };
 
+using PauliOperator = MultiQubitPauliOperator;
+
+
 class DllExport Observable {
 private:
     std::vector<MultiQubitPauliOperator> _pauli_terms;
@@ -176,6 +175,10 @@ public:
     virtual void add_term(CPPCTYPE coef, MultiQubitPauliOperator op) {
         _coef_list.push_back(coef);
         _pauli_terms.push_back(op);
+    }
+    virtual void add_term(CPPCTYPE coef, std::string s) {
+        _coef_list.push_back(coef);
+        _pauli_terms.push_back(MultiQubitPauliOperator(s));
     }
     virtual void remove_term(UINT index) {
         _coef_list.erase(_coef_list.begin() + index);
