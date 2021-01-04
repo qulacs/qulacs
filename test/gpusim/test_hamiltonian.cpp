@@ -1,15 +1,16 @@
-#include <gtest/gtest.h>
 #include <csim/constant.h>
-#include <cppsim/type.hpp>
-#include "../util/util.h"
-#include <cppsim/state.hpp>
+#include <gtest/gtest.h>
+
 #include <cppsim/circuit.hpp>
 #include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
+#include <cppsim/state.hpp>
+#include <cppsim/state_gpu.hpp>
+#include <cppsim/type.hpp>
 #include <cppsim/utility.hpp>
 #include <fstream>
-#include <cppsim/state_gpu.hpp>
 
+#include "../util/util.h"
 
 /*
 TEST(ObservableTest, CheckExpectationValue) {
@@ -52,17 +53,19 @@ TEST(ObservableTest, CheckExpectationValue) {
     for (UINT repeat = 0; repeat < 10; ++repeat) {
 
         Observable rand_observable(n);
-        Eigen::MatrixXcd test_rand_observable = Eigen::MatrixXcd::Zero(dim, dim);
+        Eigen::MatrixXcd test_rand_observable = Eigen::MatrixXcd::Zero(dim,
+dim);
 
         UINT term_count = random.int32() % 10+1;
         for (UINT term = 0; term < term_count; ++term) {
             std::vector<UINT> paulis(n,0);
-            Eigen::MatrixXcd test_rand_observable_term = Eigen::MatrixXcd::Identity(dim, dim);
-            coef = random.uniform();
-            for (UINT i = 0; i < paulis.size(); ++i) {
-                paulis[i] = random.int32() % 4;
+            Eigen::MatrixXcd test_rand_observable_term =
+Eigen::MatrixXcd::Identity(dim, dim); coef = random.uniform(); for (UINT i = 0;
+i < paulis.size(); ++i) { paulis[i] = random.int32() % 4;
 
-                test_rand_observable_term *= get_expanded_eigen_matrix_with_identity(i, get_eigen_matrix_single_Pauli(paulis[i]) , n);
+                test_rand_observable_term *=
+get_expanded_eigen_matrix_with_identity(i,
+get_eigen_matrix_single_Pauli(paulis[i]) , n);
             }
             test_rand_observable += coef* test_rand_observable_term;
 
@@ -91,12 +94,9 @@ TEST(ObservableTest, CheckExpectationValue) {
 }
 
 TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile){
-    auto func = [](const std::string path, const QuantumStateBase* state) -> double {
-            std::ifstream ifs;
-            ifs.open(path);
-            if (!ifs){
-                std::cerr << "ERROR: Cannot open file" << std::endl;
-				return -1.;
+    auto func = [](const std::string path, const QuantumStateBase* state) ->
+double { std::ifstream ifs; ifs.open(path); if (!ifs){ std::cerr << "ERROR:
+Cannot open file" << std::endl; return -1.;
             }
 
             double energy = 0;
@@ -123,7 +123,7 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile){
             }
             if (!ifs.eof()) {
                 std::cerr << "ERROR: Invalid format" << std::endl;
-				return -1.;
+                                return -1.;
             }
             ifs.close();
             return energy;
@@ -137,7 +137,7 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile){
 
     Observable* observable;
     observable = observable::create_observable_from_openfermion_file(filename);
-	ASSERT_NE(observable, (Observable*)NULL);
+        ASSERT_NE(observable, (Observable*)NULL);
     UINT qubit_count = observable->get_qubit_count();
 
     QuantumStateGpu state(qubit_count);
@@ -158,8 +158,8 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile){
 }
 
 TEST(ObservableTest, CheckParsedObservableFromOpenFermionText){
-    auto func = [](const std::string str, const QuantumStateBase* state) -> double {
-            double energy = 0;
+    auto func = [](const std::string str, const QuantumStateBase* state) ->
+double { double energy = 0;
 
             std::vector<std::string> lines = split(str, "\n");
 
@@ -207,8 +207,8 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText){
 
     Observable* observable;
     observable = observable::create_observable_from_openfermion_text(text);
-	ASSERT_NE(observable, (Observable*)NULL);
-	UINT qubit_count = observable->get_qubit_count();
+        ASSERT_NE(observable, (Observable*)NULL);
+        UINT qubit_count = observable->get_qubit_count();
 
     QuantumStateGpu state(qubit_count);
     state.set_computational_basis(0);
@@ -228,13 +228,9 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText){
 }
 
 TEST(ObservableTest, CheckSplitObservable){
-    auto func = [](const std::string path, const QuantumStateBase* state) -> double {
-            std::ifstream ifs;
-            CPPCTYPE coef;
-            ifs.open(path);
-            if (!ifs){
-                std::cerr << "ERROR: Cannot open file" << std::endl;
-				return -1.;
+    auto func = [](const std::string path, const QuantumStateBase* state) ->
+double { std::ifstream ifs; CPPCTYPE coef; ifs.open(path); if (!ifs){ std::cerr
+<< "ERROR: Cannot open file" << std::endl; return -1.;
             }
 
             double energy = 0;
@@ -261,7 +257,7 @@ TEST(ObservableTest, CheckSplitObservable){
             }
             if (!ifs.eof()) {
                 std::cerr << "ERROR: Invalid format" << std::endl;
-				return -1.;
+                                return -1.;
             }
             ifs.close();
             return energy;
@@ -274,8 +270,8 @@ TEST(ObservableTest, CheckSplitObservable){
 
     std::pair<Observable*, Observable*> observables;
     observables = observable::create_split_observable(filename);
-	ASSERT_NE(observables.first, (Observable*)NULL);
-	ASSERT_NE(observables.second, (Observable*)NULL);
+        ASSERT_NE(observables.first, (Observable*)NULL);
+        ASSERT_NE(observables.second, (Observable*)NULL);
 
     UINT qubit_count = observables.first->get_qubit_count();
     QuantumStateGpu state(qubit_count);

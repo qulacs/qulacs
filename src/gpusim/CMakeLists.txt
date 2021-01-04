@@ -1,29 +1,28 @@
 cmake_minimum_required(VERSION 2.8)
 
 find_package(CUDA REQUIRED)
-if(MSVC)
-	list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/wd 4819\"")
-	list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/wd 4244\"")
-	if(USE_OMP)
-		list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/openmp\"")
-		list(APPEND CUDA_NVCC_FLAGS "--default-stream per-thread")
-	endif()
+if (MSVC)
+    list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/wd 4819\"")
+    list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/wd 4244\"")
+    if (USE_OMP)
+        list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/openmp\"")
+        list(APPEND CUDA_NVCC_FLAGS "--default-stream per-thread")
+    endif()
 endif()
 
 file(GLOB GPUSIM_SRC
     "*.cu"
     "*.cuh"
-    "*.h"
-)
+    "*.h")
 
 message("-- CUDA --")
 message("Version: " ${CUDA_VERSION})
 message("Library: " ${CUDA_CUDA_LIBRARY})
 message("Runtime: " ${CUDA_CUDART_LIBRARY})
 
-#CUDA_GENERATED_OUTPUT_DIR(CMAKE_CURRENT_BINARY_DIR/build)
+#CUDA_GENERATED_OUTPUT_DIR(CMAKE_CURRENT_BINARY_DIR / build)
 #CUDA_curand_LIBRARY
-#cmake --help-module FindCUDA
+#cmake-- help - module FindCUDA
 
 CUDA_COMPILE(gpusim_static ${GPUSIM_SRC})
 CUDA_COMPILE(gpusim_shared ${GPUSIM_SRC})

@@ -4,10 +4,10 @@
  * @brief basic definitins of types and macros
  */
 
-
 #pragma once
 
-// When csim is compiled with C++, std::complex<double> is used instead of double _Complex
+// When csim is compiled with C++, std::complex<double> is used instead of
+// double _Complex
 #ifdef _MSC_VER
 #include <complex>
 #else
@@ -54,5 +54,5 @@ typedef unsigned long long ITYPE;
 #if defined(__MINGW32__) || defined(_MSC_VER)
 #define DllExport __declspec(dllexport)
 #else
-#define DllExport __attribute__((visibility ("default")))
+#define DllExport __attribute__((visibility("default")))
 #endif

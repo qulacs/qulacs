@@ -10,7 +10,7 @@
 #include "state.hpp"
 #include "utility.hpp"
 
-void HermitianQuantumOperator::add_operator(const PauliOperator *mpt) {
+void HermitianQuantumOperator::add_operator(const PauliOperator* mpt) {
     if (std::abs(mpt->get_coef().imag()) > 0) {
         std::cerr << "Error: HermitianQuantumOperator::add_operator(const "
                      "PauliOperator* mpt): PauliOperator must be Hermitian."
@@ -32,19 +32,19 @@ void HermitianQuantumOperator::add_operator(
 }
 
 CPPCTYPE HermitianQuantumOperator::get_expectation_value(
-    const QuantumStateBase *state) const {
+const QuantumStateBase* state) const {
     return GeneralQuantumOperator::get_expectation_value(state).real();
 }
 
 CPPCTYPE HermitianQuantumOperator::solve_maximum_eigenvalue_by_power_method(
-    QuantumStateBase *state, const UINT iter_count, const CPPCTYPE mu) const {
+    QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
     return GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(
         state, iter_count, mu)
         .real();
 }
 
 namespace observable {
-HermitianQuantumOperator *create_observable_from_openfermion_file(
+HermitianQuantumOperator* create_observable_from_openfermion_file(
     std::string file_path) {
     UINT qubit_count = 0;
     std::vector<CPPCTYPE> coefs;
@@ -87,7 +87,7 @@ HermitianQuantumOperator *create_observable_from_openfermion_file(
     }
     ifs.close();
 
-    HermitianQuantumOperator *observable =
+    HermitianQuantumOperator* observable =
         new HermitianQuantumOperator(qubit_count);
 
     for (UINT i = 0; i < ops.size(); ++i) {
@@ -97,7 +97,7 @@ HermitianQuantumOperator *create_observable_from_openfermion_file(
     return observable;
 }
 
-HermitianQuantumOperator *create_observable_from_openfermion_text(
+HermitianQuantumOperator* create_observable_from_openfermion_text(
     std::string text) {
     UINT qubit_count = 0;
     std::vector<CPPCTYPE> coefs;
@@ -126,8 +126,7 @@ HermitianQuantumOperator *create_observable_from_openfermion_text(
             if (qubit_count < n) qubit_count = n;
         }
     }
-
-    HermitianQuantumOperator *hermitian_quantum_operator =
+    HermitianQuantumOperator* hermitian_quantum_operator =
         new HermitianQuantumOperator(qubit_count);
 
     for (UINT i = 0; i < ops.size(); ++i) {
@@ -138,7 +137,7 @@ HermitianQuantumOperator *create_observable_from_openfermion_text(
     return hermitian_quantum_operator;
 }
 
-std::pair<HermitianQuantumOperator *, HermitianQuantumOperator *>
+std::pair<HermitianQuantumOperator*, HermitianQuantumOperator*>
 create_split_observable(std::string file_path) {
     UINT qubit_count = 0;
     std::vector<CPPCTYPE> coefs;
@@ -150,7 +149,7 @@ create_split_observable(std::string file_path) {
     if (!ifs) {
         std::cerr << "ERROR: Cannot open file" << std::endl;
         return std::make_pair(
-            (HermitianQuantumOperator *)NULL, (HermitianQuantumOperator *)NULL);
+            (HermitianQuantumOperator*)NULL, (HermitianQuantumOperator*)NULL);
     }
 
     // loading lines and check qubit_count
@@ -179,13 +178,13 @@ create_split_observable(std::string file_path) {
     if (!ifs.eof()) {
         std::cerr << "ERROR: Invalid format" << std::endl;
         return std::make_pair(
-            (HermitianQuantumOperator *)NULL, (HermitianQuantumOperator *)NULL);
+            (HermitianQuantumOperator*)NULL, (HermitianQuantumOperator*)NULL);
     }
     ifs.close();
 
-    HermitianQuantumOperator *observable_diag =
+    HermitianQuantumOperator* observable_diag =
         new HermitianQuantumOperator(qubit_count);
-    HermitianQuantumOperator *observable_non_diag =
+    HermitianQuantumOperator* observable_non_diag =
         new HermitianQuantumOperator(qubit_count);
 
     for (UINT i = 0; i < ops.size(); ++i) {

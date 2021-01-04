@@ -4,4 +4,4 @@
 #include <cuComplex.h>
 typedef cuDoubleComplex GTYPE;
 
-#endif // #ifndef _UTIL_COMMON_CU_H_
+#endif  // #ifndef _UTIL_COMMON_CU_H_

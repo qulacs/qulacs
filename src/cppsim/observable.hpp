@@ -62,7 +62,7 @@ public:
      * @param[in] state 期待値をとるときの量子状態
      * @return 入力で与えた量子状態に対応するHermitianQuantumOperatorの期待値
      */
-    CPPCTYPE get_expectation_value(const QuantumStateBase *state) const;
+    CPPCTYPE get_expectation_value(const QuantumStateBase* state) const;
 
     /**
      * \~japanese-en
@@ -87,7 +87,7 @@ namespace observable {
  * @param[in] filename OpenFermion形式のオブザーバブルのファイル名
  * @return Observableのインスタンス
  **/
-DllExport HermitianQuantumOperator *create_observable_from_openfermion_file(
+DllExport HermitianQuantumOperator* create_observable_from_openfermion_file(
     std::string file_path);
 
 /**
@@ -98,7 +98,7 @@ DllExport HermitianQuantumOperator *create_observable_from_openfermion_file(
  * @param[in] filename OpenFermion形式のテキスト
  * @return Observableのインスタンス
  **/
-DllExport HermitianQuantumOperator *create_observable_from_openfermion_text(
+DllExport HermitianQuantumOperator* create_observable_from_openfermion_text(
     std::string text);
 
 /**
@@ -107,7 +107,7 @@ DllExport HermitianQuantumOperator *create_observable_from_openfermion_text(
  *
  * @param[in] filename OpenFermion形式のオブザーバブルのファイル名
  */
-DllExport std::pair<HermitianQuantumOperator *, HermitianQuantumOperator *>
+DllExport std::pair<HermitianQuantumOperator*, HermitianQuantumOperator*>
 create_split_observable(std::string file_path);
 
 }  // namespace observable

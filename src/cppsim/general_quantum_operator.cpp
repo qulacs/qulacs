@@ -20,13 +20,13 @@ GeneralQuantumOperator::GeneralQuantumOperator(const UINT qubit_count)
     : _qubit_count(qubit_count), _is_hermitian(true) {}
 
 GeneralQuantumOperator::~GeneralQuantumOperator() {
-    for (auto &term : this->_operator_list) {
+    for (auto& term : this->_operator_list) {
         delete term;
     }
 }
 
-void GeneralQuantumOperator::add_operator(const PauliOperator *mpt) {
-    PauliOperator *_mpt = mpt->copy();
+void GeneralQuantumOperator::add_operator(const PauliOperator* mpt) {
+    PauliOperator* _mpt = mpt->copy();
     if (!check_Pauli_operator(this, _mpt)) {
         std::cerr << "Error: GeneralQuantumOperator::add_operator(const "
                      "PauliOperator*): pauli_operator applies target qubit of "
@@ -41,16 +41,14 @@ void GeneralQuantumOperator::add_operator(const PauliOperator *mpt) {
 }
 
 void GeneralQuantumOperator::add_operator(
-    const CPPCTYPE coef,  std::string pauli_string) {
-    PauliOperator *_mpt = new PauliOperator(pauli_string, coef);
+    CPPCTYPE coef, std::string pauli_string) {
+    PauliOperator* _mpt = new PauliOperator(pauli_string, coef);
     if (!check_Pauli_operator(this, _mpt)) {
-        std::cerr
-            << "Error: "
-               "GeneralQuantumOperator::add_operator(double,std::string): "
-               "pauli_operator applies target qubit of which the index is "
-               "larger "
-               "than qubit_count"
-            << std::endl;
+        std::cerr << "Error: "
+                     "GeneralQuantumOperator::add_operator(double,std::string):"
+                     " pauli_operator applies target qubit of which the index "
+                     "is larger than qubit_count"
+                  << std::endl;
         return;
     }
     if (this->_is_hermitian && std::abs(coef.imag()) > 0) {
@@ -61,7 +59,7 @@ void GeneralQuantumOperator::add_operator(
 }
 
 CPPCTYPE GeneralQuantumOperator::get_expectation_value(
-    const QuantumStateBase *state) const {
+    const QuantumStateBase* state) const {
     if (this->_qubit_count != state->qubit_count) {
         std::cerr
             << "Error: GeneralQuantumOperator::get_expectation_value(const "
@@ -77,8 +75,8 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
 }
 
 CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
-    const QuantumStateBase *state_bra,
-    const QuantumStateBase *state_ket) const {
+    const QuantumStateBase* state_bra,
+    const QuantumStateBase* state_ket) const {
     if (this->_qubit_count != state_bra->qubit_count ||
         this->_qubit_count != state_ket->qubit_count) {
         std::cerr
@@ -95,7 +93,6 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
     }
     return sum;
 }
-
 CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(
     QuantumStateBase *state, const UINT iter_count, const CPPCTYPE mu) const {
     CPPCTYPE mu_;
@@ -198,7 +195,7 @@ GeneralQuantumOperator *create_general_quantum_operator_from_openfermion_file(
     return general_quantum_operator;
 }
 
-GeneralQuantumOperator *create_general_quantum_operator_from_openfermion_text(
+GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_text(
     std::string text) {
     UINT qubit_count = 0;
     std::vector<CPPCTYPE> coefs;
@@ -227,7 +224,7 @@ GeneralQuantumOperator *create_general_quantum_operator_from_openfermion_text(
             if (qubit_count < n) qubit_count = n;
         }
     }
-    GeneralQuantumOperator *general_quantum_operator =
+    GeneralQuantumOperator* general_quantum_operator =
         new GeneralQuantumOperator(qubit_count);
 
     for (UINT i = 0; i < ops.size(); ++i) {
@@ -238,7 +235,7 @@ GeneralQuantumOperator *create_general_quantum_operator_from_openfermion_text(
     return general_quantum_operator;
 }
 
-std::pair<GeneralQuantumOperator *, GeneralQuantumOperator *>
+std::pair<GeneralQuantumOperator*, GeneralQuantumOperator*>
 create_split_general_quantum_operator(std::string file_path) {
     UINT qubit_count = 0;
     std::vector<CPPCTYPE> coefs;
@@ -250,7 +247,7 @@ create_split_general_quantum_operator(std::string file_path) {
     if (!ifs) {
         std::cerr << "ERROR: Cannot open file" << std::endl;
         return std::make_pair(
-            (GeneralQuantumOperator *)NULL, (GeneralQuantumOperator *)NULL);
+            (GeneralQuantumOperator*)NULL, (GeneralQuantumOperator*)NULL);
     }
 
     // loading lines and check qubit_count
@@ -281,13 +278,13 @@ create_split_general_quantum_operator(std::string file_path) {
     if (!ifs.eof()) {
         std::cerr << "ERROR: Invalid format" << std::endl;
         return std::make_pair(
-            (GeneralQuantumOperator *)NULL, (GeneralQuantumOperator *)NULL);
+            (GeneralQuantumOperator*)NULL, (GeneralQuantumOperator*)NULL);
     }
     ifs.close();
 
-    GeneralQuantumOperator *general_quantum_operator_diag =
+    GeneralQuantumOperator* general_quantum_operator_diag =
         new GeneralQuantumOperator(qubit_count);
-    GeneralQuantumOperator *general_quantum_operator_non_diag =
+    GeneralQuantumOperator* general_quantum_operator_non_diag =
         new GeneralQuantumOperator(qubit_count);
 
     for (UINT i = 0; i < ops.size(); ++i) {
@@ -306,8 +303,8 @@ create_split_general_quantum_operator(std::string file_path) {
 }
 }  // namespace quantum_operator
 
-bool check_Pauli_operator(const GeneralQuantumOperator *quantum_operator,
-    const PauliOperator *pauli_operator) {
+bool check_Pauli_operator(const GeneralQuantumOperator* quantum_operator,
+    const PauliOperator* pauli_operator) {
     auto vec = pauli_operator->get_index_list();
     UINT val = 0;
     if (vec.size() > 0) {

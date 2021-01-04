@@ -1,17 +1,19 @@
 cmake_minimum_required(VERSION 2.8)
 
-if(MSVC)
-else()
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_C}")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_CPP}")    
+# add warning flags
+if(NOT MSVC)
+    set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${WARNING_C}")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${WARNING_CPP}")
 endif()
 
-add_subdirectory(csim)
-if(USE_GPU)
-	add_subdirectory(gpusim)
+add_subdirectory(csim) 
+if (USE_GPU)
+    add_subdirectory(gpusim)
 endif()
-if(USE_MPI)
-	add_subdirectory(mpisim)
+if (USE_MPI)
+    add_subdirectory(mpisim)
 endif()
+
 add_subdirectory(cppsim)
+add_subdirectory(cppsim_experimental)
 add_subdirectory(vqcsim)
