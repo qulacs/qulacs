@@ -1,5 +1,7 @@
 
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.2)
+
+project(qulacs)
 
 ##### Check GCC version #####
 if(${CMAKE_C_COMPILER_VERSION} VERSION_LESS 7.0.0)
@@ -56,12 +58,13 @@ foreach(path IN LISTS header_files)
 	string(REPLACE ${CMAKE_CURRENT_SOURCE_DIR}/src/ ${CMAKE_CURRENT_SOURCE_DIR}/include/ path_dst ${path})
 	configure_file(${path} ${path_dst} COPYONLY)
 endforeach()
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 
 ##### set external projects #####
 include(ExternalProject)
-include(${CMAKE_SOURCE_DIR}/FetchContent.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake_script/FetchContent.cmake)
 
 # Eigen
 set(EIGEN_BUILD_DIR   ${CMAKE_BINARY_DIR}/eigen)
@@ -142,11 +145,12 @@ if(NOT USE_GPU)
 	 -Wnested-externs -fdiagnostics-color=auto")
 	set(WARNING_CPP "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
 	 -Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
-	 -Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=missing-declarations -Werror=return-type \
-	 -Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
+	 -Werror=missing-declarations -Werror=return-type \
+	 -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
 	 -Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
 	 -fdiagnostics-color=auto")
 endif()
+
 
 
 ##### set output directory #####
@@ -192,46 +196,60 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
 	endif()
 
+	# enable openmp
 	if(USE_OMP)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
 	endif()
 
+	# enable mpi
 	if(USE_MPI)
 		add_compile_options("-D _USE_MPI")
 	endif()
 
+	# enable gpu
 	if(USE_GPU)
 		add_compile_options("-D _USE_GPU")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 		add_compile_options("-fPIC")
 	endif()
 
-	if(USE_SIMD)
+	# enable simd
+	## Check if AVX2 is supported
+	include(${CMAKE_SOURCE_DIR}/cmake_script/FindAVX2.cmake)
+	CHECK_AVX2_LINUX()
+	message(STATUS "AVX2_FOUND = ${AVX2_FOUND}")
+	if(USE_SIMD AND AVX2_FOUND)
+		message(STATUS "AVX2 Enabled")
 		add_compile_options("-D _USE_SIMD")
+	else()
+		message(STATUS "AVX2 Disabled")
 	endif()
 
+	# add optimization flags
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${OPT_FLAGS}")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OPT_FLAGS}")
 
+	# set pybind11 flags
 	if(8.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
 		set(PYBIND11_CPP_STANDARD -std=gnu++14)
 	endif()
 
 elseif(MSVC)
-	SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
-
 	# compile csim with cpp since VC not completely support C99 complex values
+	SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
 	add_compile_options("/TP")
-	# ignore warning about template export
+
+	# ignore warning
+	## ignore warning about template export
 	add_compile_options(/wd4251)
-	# ignore warning on non-Unicode files
+	## ignore warning on non-Unicode files
 	add_compile_options(/wd4819)
 
-	# Check if AVX2 is supported
-	include(${CMAKE_SOURCE_DIR}/FindAVX2.cmake)
+	# enable simd
+	## Check if AVX2 is supported
+	include(${CMAKE_SOURCE_DIR}/cmake_script/FindAVX2.cmake)
 	CHECK_AVX2_WINDOWS()
-	#CHECK_AVX2_LINUX()
 	message(STATUS "AVX2_FOUND = ${AVX2_FOUND}")
 	if(USE_SIMD AND AVX2_FOUND)
 		message(STATUS "AVX2 Enabled")
@@ -240,14 +258,17 @@ elseif(MSVC)
 		message(STATUS "AVX2 Disabled")
 	endif()
 
+	# enable openmp
 	if(USE_OMP)
 		add_compile_options("/openmp")
 	endif()
 
+	# enable mpi
 	if(USE_MPI)
 		add_compile_options("/D_USE_MPI")
 	endif()
 	
+	# enable gpu
 	if(USE_GPU)
 		add_compile_options("/D_USE_GPU")
 	endif()
@@ -264,6 +285,8 @@ elseif(MSVC)
 			string(REGEX REPLACE "/MD" "/MT" ${variable} "${${variable}}")
 		endif()
 	endforeach()
+else()
+	message(FATAL "Unsupported environment")
 endif()
 
 

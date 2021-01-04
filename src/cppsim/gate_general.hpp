@@ -204,7 +204,7 @@ public:
             _gate_list[gate_index]->update_quantum_state(state);
         }
         state->set_classical_value(
-            this->_classical_register_address, gate_index);
+            this->_classical_register_address, (UINT)gate_index);
     };
     /**
      * \~japanese-en 自身のディープコピーを生成する

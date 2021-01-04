@@ -1,11 +1,13 @@
-#include <csim/constant.h>
 #include <gtest/gtest.h>
 
-#include <cppsim/type.hpp>
+#ifndef _MSC_VER
+extern "C" {
+#endif
+#include <csim/constant.h>
+#ifndef _MSC_VER
+}
+#endif
 
-#include "../util/util.h"
-//#define _USE_MATH_DEFINES
-//#include <cmath>
 #include <cppsim/circuit.hpp>
 #include <cppsim/circuit_optimizer.hpp>
 #include <cppsim/gate_factory.hpp>
@@ -14,9 +16,12 @@
 #include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/state.hpp>
+#include <cppsim/type.hpp>
 #include <cppsim/utility.hpp>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <utility>
+
+#include "../util/util.h"
 
 TEST(CircuitTest, CircuitOptimizeLight) {
     const UINT n = 4;

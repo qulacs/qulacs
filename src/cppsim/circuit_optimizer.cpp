@@ -133,42 +133,9 @@ void QuantumCircuitOptimizer::optimize(
         }
     }
 }
-/*
-void QuantumCircuitOptimizer::optimize_light(QuantumCircuit* circuit) {
-        UINT qubit_count = circuit->qubit_count;
-        std::vector<std::pair<int, std::vector<UINT>>> current_step(qubit_count,
-std::make_pair(-1,std::vector<UINT>())); for (UINT ind1 = 0; ind1 <
-circuit->gate_list.size(); ++ind1) { QuantumGateBase* gate =
-circuit->gate_list[ind1]; std::vector<UINT> target_qubits; for (auto val :
-gate->get_target_index_list()) target_qubits.push_back(val); for (auto val :
-gate->get_control_index_list()) target_qubits.push_back(val);
-                std::sort(target_qubits.begin(), target_qubits.end());
-                if (target_qubits.size() == 1) {
-                        // merge
-                        UINT target_qubit_index = target_qubits[0];
-                        UINT target_gate_index =
-current_step[target_qubit_index].first; if (target_gate_index != -1) { auto
-merged_gate = gate::merge(circuit->gate_list[target_gate_index], gate);
-                                circuit->remove_gate(ind1);
-                                circuit->add_gate(merged_gate,
-target_gate_index+1); circuit->remove_gate(target_gate_index); ind1--;
-                        }
-                        else {
-                                current_step[target_qubit_index] =
-std::make_pair(ind1, target_qubits);
-                        }
-                }
-                else {
-                        for (auto target_qubit : target_qubits) {
-                                current_step[target_qubit] = make_pair(ind1,
-target_qubits);
-                        }
-                }
-        }
-}
-*/
 
-void QuantumCircuitOptimizer::optimize_light(QuantumCircuit* circuit) {
+void QuantumCircuitOptimizer::optimize_light(QuantumCircuit* circuit_) {
+    circuit = circuit_;
     UINT qubit_count = circuit->qubit_count;
     std::vector<std::pair<int, std::vector<UINT>>> current_step(
         qubit_count, std::make_pair(-1, std::vector<UINT>()));

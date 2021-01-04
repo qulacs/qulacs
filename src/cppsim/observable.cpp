@@ -31,8 +31,7 @@ void HermitianQuantumOperator::add_operator(
     GeneralQuantumOperator::add_operator(coef, pauli_string);
 }
 
-CPPCTYPE
-HermitianQuantumOperator::get_expectation_value(
+CPPCTYPE HermitianQuantumOperator::get_expectation_value(
     const QuantumStateBase* state) const {
     return GeneralQuantumOperator::get_expectation_value(state).real();
 }

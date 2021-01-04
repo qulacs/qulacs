@@ -59,8 +59,7 @@ void GeneralQuantumOperator::add_operator(
     delete _mpt;
 }
 
-CPPCTYPE
-GeneralQuantumOperator::get_expectation_value(
+CPPCTYPE GeneralQuantumOperator::get_expectation_value(
     const QuantumStateBase* state) const {
     if (this->_qubit_count != state->qubit_count) {
         std::cerr
@@ -76,8 +75,7 @@ GeneralQuantumOperator::get_expectation_value(
     return sum;
 }
 
-CPPCTYPE
-GeneralQuantumOperator::get_transition_amplitude(
+CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
     const QuantumStateBase* state_bra,
     const QuantumStateBase* state_ket) const {
     if (this->_qubit_count != state_bra->qubit_count ||
