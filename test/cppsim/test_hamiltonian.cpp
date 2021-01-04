@@ -8,7 +8,10 @@ extern "C" {
 }
 #endif
 
+#include <Eigen/Eigenvalues>
 #include <cppsim/circuit.hpp>
+#include <cppsim/gate_factory.hpp>
+#include <cppsim/gate_named_pauli.hpp>
 #include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/state.hpp>
@@ -173,8 +176,6 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText) {
     ASSERT_NEAR(res.imag(), 0, eps);
 }
 
-
-
 /*
 
 TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile) {
@@ -243,7 +244,6 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile) {
     ASSERT_NEAR(test_res.imag(), 0, eps);
     ASSERT_NEAR(res.imag(), 0, eps);
 }
-
 
 TEST(ObservableTest, CheckSplitObservable) {
     auto func = [](const std::string path,

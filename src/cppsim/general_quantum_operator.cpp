@@ -11,14 +11,13 @@ extern "C" {
 #else
 #include <csim/stat_ops.h>
 #endif
+#include "gate_factory.hpp"
 #include "general_quantum_operator.hpp"
 #include "pauli_operator.hpp"
 #include "state.hpp"
 
-GeneralQuantumOperator::GeneralQuantumOperator(UINT qubit_count) {
-    _qubit_count = qubit_count;
-    _is_hermitian = true;
-}
+GeneralQuantumOperator::GeneralQuantumOperator(const UINT qubit_count)
+    : _qubit_count(qubit_count), _is_hermitian(true) {}
 
 GeneralQuantumOperator::~GeneralQuantumOperator() {
     for (auto& term : this->_operator_list) {
@@ -94,9 +93,60 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
     }
     return sum;
 }
+CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(
+    QuantumStateBase *state, const UINT iter_count, const CPPCTYPE mu) const {
+    CPPCTYPE mu_;
+    if (mu == 0.0) {
+        mu_ = this->calculate_default_mu();
+    } else {
+        mu_ = mu;
+    }
+
+    // Stores a result of A|a>
+    auto multiplied_state = QuantumState(state->qubit_count);
+    // Stores a result of -\mu|a>
+    auto mu_timed_state = QuantumState(state->qubit_count);
+    for (UINT i = 0; i < iter_count; i++) {
+        mu_timed_state.load(state);
+        mu_timed_state.multiply_coef(-mu_);
+
+        multiplied_state.multiply_coef(0.);
+        this->multiply_hamiltonian(state, &multiplied_state);
+        state->load(&multiplied_state);
+        state->add_state(&mu_timed_state);
+        state->normalize(state->get_squared_norm());
+    }
+    return this->get_expectation_value(state) + mu;
+}
+
+void GeneralQuantumOperator::multiply_hamiltonian(
+    QuantumStateBase *state_to_be_multiplied,
+    QuantumStateBase *dst_state) const {
+    auto work_state = QuantumState(state_to_be_multiplied->qubit_count);
+    const auto term_count = this->get_term_count();
+    for (UINT i = 0; i < term_count; i++) {
+        work_state.load(state_to_be_multiplied);
+        const auto term = this->get_term(i);
+        auto pauli_operator =
+            gate::Pauli(term->get_index_list(), term->get_pauli_id_list());
+        pauli_operator->update_quantum_state(&work_state);
+        work_state.multiply_coef(term->get_coef());
+        dst_state->add_state(&work_state);
+    }
+}
+
+CPPCTYPE GeneralQuantumOperator::calculate_default_mu() const {
+    CPPCTYPE mu = 0.0;
+    const auto term_count = this->get_term_count();
+    for (UINT i = 0; i < term_count; i++) {
+        const auto term = this->get_term(i);
+        mu += term->get_coef();
+    }
+    return mu;
+}
 
 namespace quantum_operator {
-GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(
+GeneralQuantumOperator *create_general_quantum_operator_from_openfermion_file(
     std::string file_path) {
     UINT qubit_count = 0;
     std::vector<CPPCTYPE> coefs;
@@ -130,11 +180,11 @@ GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(
     }
     if (!ifs.eof()) {
         std::cerr << "ERROR: Invalid format" << std::endl;
-        return (GeneralQuantumOperator*)NULL;
+        return (GeneralQuantumOperator *)NULL;
     }
     ifs.close();
 
-    GeneralQuantumOperator* general_quantum_operator =
+    GeneralQuantumOperator *general_quantum_operator =
         new GeneralQuantumOperator(qubit_count);
 
     for (UINT i = 0; i < ops.size(); ++i) {

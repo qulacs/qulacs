@@ -43,7 +43,7 @@ public:
      *
      * @param[in] mpt 追加するPauliOperatorのインスタンス
      */
-    void add_operator(const PauliOperator* mpt);
+    void add_operator(const PauliOperator *mpt);
 
     /**
      * \~japanese-en
@@ -63,6 +63,19 @@ public:
      * @return 入力で与えた量子状態に対応するHermitianQuantumOperatorの期待値
      */
     CPPCTYPE get_expectation_value(const QuantumStateBase* state) const;
+
+    /**
+     * \~japanese-en
+     * GeneralQuantumOperator の基底状態の固有値を power method により求める
+     * (A - \mu I) の絶対値最大固有値を求めることで基底状態の固有値を求める．
+     * @param[in] state 固有値を求めるための量子状態
+     * @param[in] n_iter 計算の繰り返し回数
+     * @param [in] mu 固有値をシフトするための係数
+     *  @return GeneralQuantumOperator の基底状態の固有値
+     */
+    CPPCTYPE
+    solve_maximum_eigenvalue_by_power_method(QuantumStateBase *state,
+        const UINT iter_count, const CPPCTYPE mu = 0.0) const;
 };
 
 namespace observable {

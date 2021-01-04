@@ -14,7 +14,7 @@ class QuantumStateBase;
 class DllExport GeneralQuantumOperator {
 private:
     //! list of multi pauli term
-    std::vector<PauliOperator*> _operator_list;
+    std::vector<PauliOperator *> _operator_list;
     //! the number of qubits
     UINT _qubit_count;
     bool _is_hermitian;
@@ -28,7 +28,7 @@ public:
      * @param[in] qubit_count qubit数
      * @return Observableのインスタンス
      */
-    GeneralQuantumOperator(UINT qubit_count);
+    GeneralQuantumOperator(const UINT qubit_count);
 
     /**
      * \~japanese-en
@@ -50,7 +50,7 @@ public:
      *
      * @param[in] mpt 追加するPauliOperatorのインスタンス
      */
-    virtual void add_operator(const PauliOperator* mpt);
+    virtual void add_operator(const PauliOperator *mpt);
 
     /**
      * \~japanese-en
@@ -60,7 +60,7 @@ public:
      * @param[in] pauli_string
      * パウリ演算子と掛かるindexの組からなる文字列。(example: "X 1 Y 2 Z 5")
      */
-    virtual void add_operator(CPPCTYPE coef, std::string pauli_string);
+    virtual void add_operator(const CPPCTYPE coef, std::string pauli_string);
 
     /**
      * \~japanese-en
@@ -126,8 +126,38 @@ public:
      * @param[in] state_ket 遷移前の量子状態
      * @return 入力で与えた量子状態に対応するGeneralQuantumOperatorの遷移振幅
      */
-    virtual CPPCTYPE get_transition_amplitude(const QuantumStateBase* state_bra,
-        const QuantumStateBase* state_ket) const;
+    virtual CPPCTYPE get_transition_amplitude(const QuantumStateBase *state_bra,
+        const QuantumStateBase *state_ket) const;
+
+    /**
+     * \~japanese-en
+     * GeneralQuantumOperator の基底状態の固有値を power method により求める
+     * (A - \mu I) の絶対値最大固有値を求めることで基底状態の固有値を求める．
+     * @param[in] state 固有値を求めるための量子状態
+     * @param[in] n_iter 計算の繰り返し回数
+     * @param [in] mu 固有値をシフトするための係数
+     *  @return GeneralQuantumOperator の基底状態の固有値
+     */
+    virtual CPPCTYPE solve_maximum_eigenvalue_by_power_method(
+        QuantumStateBase *state, const UINT iter_count,
+        const CPPCTYPE mu = 0.0) const;
+
+private:
+    /**
+     * \~japanese-en
+     * state_to_be_multiplied に GeneralQuantumOperator を作用させる．
+     * 結果は dst_state に格納される．
+     * @param [in] state_to_be_multiplied 作用を受ける状態
+     * @param [in] dst_state 結果を格納する状態
+     */
+    void multiply_hamiltonian(QuantumStateBase *state_to_be_multiplied,
+        QuantumStateBase *dst_state) const;
+
+    /**
+     * \~japanese-en
+     * solve_maximum_eigenvalue_by_power_method の mu のデフォルト値を計算する．
+     */
+    CPPCTYPE calculate_default_mu() const;
 };
 
 namespace quantum_operator {
