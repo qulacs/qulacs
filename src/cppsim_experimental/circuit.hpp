@@ -102,6 +102,14 @@ public:
                 this->add_gate(gate::TwoQubitDepolarizingNoise(
                     itr[0], itr[1], noise_prob));
             } else {
+                throw std::invalid_argument(
+                    "Error: "
+                    "QuantumCircuit::add_noise_gate(QuantumGateBase*,"
+                    "string,double) : "
+                    "depolarizing noise can be used up to 2 qubits, but "
+                    "this gate has " +
+                    std::to_string(itr.size()) + " qubits.");
+                /*
                 std::cerr
                     << "Error: "
                        "QuantumCircuit::add_noise_gate(QuantumGateBase*,"
@@ -109,11 +117,20 @@ public:
                        "depolarizing noise can be used up to 2 qubits, but "
                        "this gate has "
                     << itr.size() << " qubits." << std::endl;
+               */
             }
         } else if (noise_type == "BitFlip") {
             if (itr.size() == 1) {
                 this->add_gate(gate::BitFlipNoise(itr[0], noise_prob));
             } else {
+                throw std::invalid_argument(
+                    "Error: "
+                    "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
+                    "double) : "
+                    "BitFlip noise can be used by 1 qubits, but this gate "
+                    "has " +
+                    std::to_string(itr.size()) + " qubits.");
+                /*
                 std::cerr
                     << "Error: "
                        "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
@@ -121,11 +138,20 @@ public:
                        "BitFlip noise can be used by 1 qubits, but this gate "
                        "has "
                     << itr.size() << " qubits." << std::endl;
+                */
             }
         } else if (noise_type == "Dephasing") {
             if (itr.size() == 1) {
                 this->add_gate(gate::DephasingNoise(itr[0], noise_prob));
             } else {
+                throw std::invalid_argument(
+                    "Error: "
+                    "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
+                    "double) : "
+                    "Dephasing noise can be used by 1 qubits, but this gate "
+                    "has " +
+                    std::to_string(itr.size()) + " qubits.");
+                /*
                 std::cerr
                     << "Error: "
                        "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
@@ -133,17 +159,27 @@ public:
                        "Dephasing noise can be used by 1 qubits, but this gate "
                        "has "
                     << itr.size() << " qubits." << std::endl;
+                */
             }
         } else if (noise_type == "IndependentXZ") {
             if (itr.size() == 1) {
                 this->add_gate(gate::IndependentXZNoise(itr[0], noise_prob));
             } else {
+                throw std::invalid_argument(
+                    "Error: "
+                    "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
+                    "double) : "
+                    "IndependentXZ noise can be used by 1 qubits, but this gate "
+                    "has " +
+                    std::to_string(itr.size()) + " qubits.");
+                /*
                 std::cerr << "Error: "
                              "QuantumCircuit::add_noise_gate(QuantumGateBase*,"
                              "string,double) : "
                              "IndependentXZ noise can be used by 1 qubits, but "
                              "this gate has "
                           << itr.size() << " qubits." << std::endl;
+                */
             }
         }
         /*
@@ -162,11 +198,18 @@ public:
         }
         */
         else {
+            throw std::invalid_argument(
+                "Error: "
+                "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
+                "double) : noise_type is undetectable. your noise_type = '" +
+                noise_type);
+            /*
             std::cerr
                 << "Error: "
                    "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
                    "double) : noise_type is undetectable. your noise_type = '"
                 << noise_type << "'." << std::endl;
+            */
         }
     }
 
