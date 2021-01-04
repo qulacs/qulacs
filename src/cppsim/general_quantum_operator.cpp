@@ -94,7 +94,7 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
     return sum;
 }
 CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(
-    QuantumStateBase *state, const UINT iter_count, const CPPCTYPE mu) const {
+    QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
     CPPCTYPE mu_;
     if (mu == 0.0) {
         mu_ = this->calculate_default_mu();
@@ -120,8 +120,8 @@ CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(
 }
 
 void GeneralQuantumOperator::multiply_hamiltonian(
-    QuantumStateBase *state_to_be_multiplied,
-    QuantumStateBase *dst_state) const {
+    QuantumStateBase* state_to_be_multiplied,
+    QuantumStateBase* dst_state) const {
     auto work_state = QuantumState(state_to_be_multiplied->qubit_count);
     const auto term_count = this->get_term_count();
     for (UINT i = 0; i < term_count; i++) {
@@ -146,7 +146,7 @@ CPPCTYPE GeneralQuantumOperator::calculate_default_mu() const {
 }
 
 namespace quantum_operator {
-GeneralQuantumOperator *create_general_quantum_operator_from_openfermion_file(
+GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(
     std::string file_path) {
     UINT qubit_count = 0;
     std::vector<CPPCTYPE> coefs;
@@ -180,11 +180,11 @@ GeneralQuantumOperator *create_general_quantum_operator_from_openfermion_file(
     }
     if (!ifs.eof()) {
         std::cerr << "ERROR: Invalid format" << std::endl;
-        return (GeneralQuantumOperator *)NULL;
+        return (GeneralQuantumOperator*)NULL;
     }
     ifs.close();
 
-    GeneralQuantumOperator *general_quantum_operator =
+    GeneralQuantumOperator* general_quantum_operator =
         new GeneralQuantumOperator(qubit_count);
 
     for (UINT i = 0; i < ops.size(); ++i) {

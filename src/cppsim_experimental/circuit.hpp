@@ -169,7 +169,8 @@ public:
                     "Error: "
                     "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
                     "double) : "
-                    "IndependentXZ noise can be used by 1 qubits, but this gate "
+                    "IndependentXZ noise can be used by 1 qubits, but this "
+                    "gate "
                     "has " +
                     std::to_string(itr.size()) + " qubits.");
                 /*

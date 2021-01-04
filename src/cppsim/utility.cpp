@@ -31,10 +31,12 @@ void get_Pauli_matrix(
     }
 }
 
-Observable* generate_random_observable(const UINT qubit_count, const UINT operator_count) {
+Observable* generate_random_observable(
+    const UINT qubit_count, const UINT operator_count) {
     Observable* observable = new Observable(qubit_count);
     Random random;
-    for (auto operator_index = 0; operator_index < operator_count; operator_index++) {
+    for (auto operator_index = 0; operator_index < operator_count;
+         operator_index++) {
         auto target_qubit_index_list = std::vector<UINT>(qubit_count, 0);
         auto target_qubit_pauli_list = std::vector<UINT>(qubit_count, 0);
         for (auto qubit_index = 0; qubit_index < qubit_count; qubit_index++) {
@@ -43,7 +45,8 @@ Observable* generate_random_observable(const UINT qubit_count, const UINT operat
             target_qubit_pauli_list[qubit_index] = pauli_id;
         }
         CPPCTYPE coef = random.uniform();
-        auto pauli_operator = PauliOperator(target_qubit_index_list, target_qubit_pauli_list, coef);
+        auto pauli_operator = PauliOperator(
+            target_qubit_index_list, target_qubit_pauli_list, coef);
         observable->add_operator(&pauli_operator);
     }
     return observable;
@@ -53,7 +56,8 @@ ComplexMatrix convert_observable_to_matrix(const Observable* observable) {
     const auto dim = observable->get_state_dim();
     const auto qubit_count = observable->get_qubit_count();
     ComplexMatrix observable_matrix = ComplexMatrix::Zero(dim, dim);
-    for (UINT term_index = 0; term_index < observable->get_term_count(); ++term_index) {
+    for (UINT term_index = 0; term_index < observable->get_term_count();
+         ++term_index) {
         const auto pauli_operator = observable->get_term(term_index);
         auto coef = pauli_operator->get_coef();
         auto target_index_list = pauli_operator->get_index_list();

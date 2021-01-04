@@ -12,6 +12,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+
 #include "observable.hpp"
 #include "type.hpp"
 
@@ -47,9 +48,11 @@ void DllExport get_Pauli_matrix(
  * ランダムなパウリ演算子をもつ observable を生成する
  * @param [in] qubit_count observable の qubit 数
  * @param [in] operator_count observable の operator 数
- * @return ランダムなパウリ演算子をもつ operator を operator_count 個もつ observable
+ * @return ランダムなパウリ演算子をもつ operator を operator_count 個もつ
+ * observable
  */
-Observable* DllExport generate_random_observable(const UINT qubit_count, const UINT operator_count);
+Observable* DllExport generate_random_observable(
+    const UINT qubit_count, const UINT operator_count);
 
 /**
  * \~japanese-en
@@ -57,7 +60,8 @@ Observable* DllExport generate_random_observable(const UINT qubit_count, const U
  * @param [in] observable 行列に変換する observable
  * @return observable に対応する行列
  */
-ComplexMatrix DllExport convert_observable_to_matrix(const Observable* observable);
+ComplexMatrix DllExport convert_observable_to_matrix(
+    const Observable* observable);
 
 /**
  * \~japanese-en 乱数を管理するクラス

@@ -43,7 +43,7 @@ public:
      *
      * @param[in] mpt 追加するPauliOperatorのインスタンス
      */
-    void add_operator(const PauliOperator *mpt);
+    void add_operator(const PauliOperator* mpt);
 
     /**
      * \~japanese-en
@@ -74,7 +74,7 @@ public:
      *  @return GeneralQuantumOperator の基底状態の固有値
      */
     CPPCTYPE
-    solve_maximum_eigenvalue_by_power_method(QuantumStateBase *state,
+    solve_maximum_eigenvalue_by_power_method(QuantumStateBase* state,
         const UINT iter_count, const CPPCTYPE mu = 0.0) const;
 };
 

@@ -32,7 +32,7 @@ void HermitianQuantumOperator::add_operator(
 }
 
 CPPCTYPE HermitianQuantumOperator::get_expectation_value(
-const QuantumStateBase* state) const {
+    const QuantumStateBase* state) const {
     return GeneralQuantumOperator::get_expectation_value(state).real();
 }
 
