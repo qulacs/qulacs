@@ -14,10 +14,15 @@ extern "C" {
 namespace state {
 CPPCTYPE inner_product(const StateVector* state1, const StateVector* state2) {
     if (state1->qubit_count != state2->qubit_count) {
+        throw std::invalid_argument(
+            "Error: inner_product(const StateVector*, const StateVector*): "
+            "invalid qubit count");
+        /*
         std::cerr << "Error: inner_product(const StateVector*, const "
                      "StateVector*): invalid qubit count"
                   << std::endl;
         return 0.;
+        */
     }
 
     return state_inner_product(state1->data_c(), state2->data_c(), state1->dim);
@@ -33,10 +38,15 @@ StateVector* tensor_product(
 StateVector* permutate_qubit(
     const StateVector* state, std::vector<UINT> qubit_order) {
     if (state->qubit_count != (UINT)qubit_order.size()) {
+        throw std::invalid_argument(
+            "Error: permutate_qubit(const StateVector*, "
+            "std::vector<UINT>): invalid qubit count");
+        /*
         std::cerr << "Error: permutate_qubit(const StateVector*, "
                      "std::vector<UINT>): invalid qubit count"
                   << std::endl;
         return NULL;
+        */
     }
     UINT qubit_count = state->qubit_count;
     StateVector* qs = new StateVector(qubit_count);
@@ -48,11 +58,16 @@ StateVector* drop_qubit(const StateVector* state, std::vector<UINT> target,
     std::vector<UINT> projection) {
     if (state->qubit_count <= target.size() ||
         target.size() != projection.size()) {
+        throw std::invalid_argument(
+            "Error: drop_qubit(const StateVector*, std::vector<UINT>): "
+            "invalid qubit count");
+        /*
         std::cerr
             << "Error: drop_qubit(const StateVector*, std::vector<UINT>): "
                "invalid qubit count"
             << std::endl;
         return NULL;
+        */
     }
     UINT qubit_count = state->qubit_count - (UINT)target.size();
     StateVector* qs = new StateVector(qubit_count);
