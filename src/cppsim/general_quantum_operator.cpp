@@ -119,7 +119,7 @@ CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(
         state->add_state(&mu_timed_state);
         state->normalize(state->get_squared_norm());
     }
-    return this->get_expectation_value(state);
+    return this->get_expectation_value(state) + mu;
 }
 
 void GeneralQuantumOperator::multiply_hamiltonian(

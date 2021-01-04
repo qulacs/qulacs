@@ -333,14 +333,13 @@ TEST(ObservableTest, CheckMaximumEigenvalueByPowerMethod) {
             }
         }
 
-        constexpr UINT iter_count = 500;
+        constexpr UINT iter_count = 1000;
         QuantumState state(n);
         state.set_Haar_random_state();
         auto maximum_eigenvalue =
             observable
                 ->solve_maximum_eigenvalue_by_power_method(&state, iter_count)
                 .real();
-
         ASSERT_NEAR(maximum_eigenvalue, test_maximum_eigenvalue.real(), eps);
     }
 }
