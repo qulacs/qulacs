@@ -377,7 +377,7 @@ public:
             // multi qubit dense matrix gate
             else {
                 // no control qubit
-                if (_target_qubit_index.size() == 0) {
+                if (_control_qubit_index.size() == 0) {
                     multi_qubit_dense_matrix_gate(_target_qubit_index.data(),
                         (UINT)(_target_qubit_index.size()), matrix_ptr,
                         state->data_c(), state->dim);
