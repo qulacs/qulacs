@@ -26,23 +26,35 @@ NoiseSimulator::NoiseSimulator(
     for (int i = 0; i < circuit->get_gate_list().size(); ++i) {
         auto gate = circuit->get_gate_list()[i];
         if (gate->get_map_type() != Probabilistic) continue;
-        gate->optimize_ProbabilisticGate();
-    }
-    /*
-    UINT n = init_circuit -> get_gate_list().size();
-    for(UINT i = 0;i < n;++i){
-        std::vector<UINT> qubit_indexs = init_circuit -> get_gate_list()[i] ->
-    get_target_index_list(); for(auto x:init_circuit -> get_gate_list()[i] ->
-    get_control_index_list()){ qubit_indexs.push_back(x);
+
+        // generate new gate & output it.
+        std::vector<double> cumulative_distribution =
+            gate->get_cumulative_distribution();
+        std::vector<double> distribution;
+        for (int i = 1; i < cumulative_distribution.size(); ++i) {
+            distribution.push_back(
+                cumulative_distribution[i] - cumulative_distribution[i - 1]);
         }
-        if(qubit_indexs.size() == 1) qubit_indexs.push_back(UINT_MAX);
-        if(qubit_indexs.size() >= 3){
-            std::cerr << "Error: In NoiseSimulator gates must not over 2 qubits"
-    << std::endl; return;
+        std::vector<QuantumGateBase*> Kraus_list = gate->get_kraus_list();
+        std::vector<std::tuple<double, int, QuantumGateBase*>> dist_Kraus;
+        for (int i = 0; i < distribution.size(); ++i) {
+            dist_Kraus.push_back(std::make_tuple(distribution[i], i,
+                Kraus_list[i]));  // determine 2 same
+                                  // distribution gate order using i.
         }
-        noise_info.push_back(std::pair<UINT,UINT>(qubit_indexs[0],qubit_indexs[1]));
+        sort(dist_Kraus.rbegin(), dist_Kraus.rend());
+        for (int i = 0; i < dist_Kraus.size(); ++i) {
+            distribution[i] = std::get<0>(dist_Kraus[i]);
+            Kraus_list[i] = std::get<2>(dist_Kraus[i]);
+        }
+        QuantumGateWrapped* probgate =
+            QuantumGateWrapped::ProbabilisticGate(Kraus_list, distribution);
+        circuit->replace_gate(probgate, i);
+        int itr = 0;
+        for (auto x : gate->get_kraus_list()) {
+            itr++;
+        }
     }
-    */
 }
 
 NoiseSimulator::~NoiseSimulator() {
