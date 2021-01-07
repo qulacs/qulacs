@@ -73,6 +73,15 @@ public:
         _add_gate_core(gate, index);
     };
 
+    virtual void replace_gate(const QuantumGateBase* gate, UINT index) {
+        remove_gate(index);
+        add_gate(gate, index);
+    }
+    virtual void replace_gate_take(QuantumGateBase* gate, UINT index) {
+        remove_gate(index);
+        add_gate_take(gate, index);
+    }
+
     virtual void remove_gate(UINT index) {
         delete _gate_list.at(index);
         _gate_list.erase(_gate_list.begin() + index);
