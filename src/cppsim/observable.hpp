@@ -66,6 +66,17 @@ public:
 
     /**
      * \~japanese-en
+     * GeneralQuantumOperator の基底状態の固有値を arnordi method により求める
+     * (A - \mu I) の絶対値最大固有値を求めることで基底状態の固有値を求める．
+     * @param[in] state 固有値を求めるための量子状態
+     * @param[in] n_iter 計算の繰り返し回数
+     *  @return GeneralQuantumOperator の基底状態の固有値
+     */
+    CPPCTYPE solve_maximum_eigenvalue_by_arnoldi_method(
+        QuantumStateBase* state, const UINT iter_count) const;
+
+    /**
+     * \~japanese-en
      * GeneralQuantumOperator の基底状態の固有値を power method により求める
      * (A - \mu I) の絶対値最大固有値を求めることで基底状態の固有値を求める．
      * @param[in] state 固有値を求めるための量子状態

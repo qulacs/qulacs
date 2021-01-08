@@ -93,6 +93,50 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
     }
     return sum;
 }
+
+CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_arnoldi_method(
+    QuantumStateBase* state, const UINT iter_count) const {
+    const auto qubit_count = state->qubit_count;
+    auto present_state = QuantumState(qubit_count);
+    auto tmp_state = QuantumState(qubit_count);
+    auto multiplied_state = QuantumState(qubit_count);
+
+    std::vector<QuantumStateBase*> state_list;
+    state_list.push_back(present_state.copy());
+    for (UINT i = 0; i < iter_count; i++) {
+        multiplied_state.multiply_coef(0.0);
+        this->multiply_hamiltonian(&present_state, &multiplied_state);
+        multiplied_state.normalize(multiplied_state.get_squared_norm());
+        present_state.load(&multiplied_state);
+
+        for (auto state : state_list) {
+            tmp_state.load(state);
+            auto coef = state::inner_product(&tmp_state, &present_state);
+            tmp_state.multiply_coef(-1.0 * coef);
+            present_state.add_state(&tmp_state);
+        }
+
+        present_state.normalize(present_state.get_squared_norm());
+        state_list.push_back(present_state.copy());
+    }
+
+    ComplexMatrix hamiltonian_matrix =
+        ComplexMatrix::Zero(iter_count, iter_count);
+    for (UINT i = 0; i < iter_count; i++) {
+        for (UINT j = 0; j < i + 1; j++) {
+            hamiltonian_matrix(i, j) =
+                this->get_transition_amplitude(state_list[i], state_list[j]);
+            hamiltonian_matrix(j, i) = std::conj(hamiltonian_matrix(i, j));
+        }
+    }
+
+    const auto eigenvalues = hamiltonian_matrix.eigenvalues();
+
+    present_state.multiply_coef(0.0);
+
+    return 0.0;
+}
+
 CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(
     QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
     CPPCTYPE mu_;
@@ -108,9 +152,9 @@ CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(
     auto mu_timed_state = QuantumState(state->qubit_count);
     for (UINT i = 0; i < iter_count; i++) {
         mu_timed_state.load(state);
-        mu_timed_state.multiply_coef(-mu_);
+        mu_timed_state.multiply_coef(-1.0 * mu_);
 
-        multiplied_state.multiply_coef(0.);
+        multiplied_state.multiply_coef(0.0);
         this->multiply_hamiltonian(state, &multiplied_state);
         state->load(&multiplied_state);
         state->add_state(&mu_timed_state);

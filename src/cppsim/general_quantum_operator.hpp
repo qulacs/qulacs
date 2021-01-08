@@ -14,7 +14,7 @@ class QuantumStateBase;
 class DllExport GeneralQuantumOperator {
 private:
     //! list of multi pauli term
-    std::vector<PauliOperator *> _operator_list;
+    std::vector<PauliOperator*> _operator_list;
     //! the number of qubits
     UINT _qubit_count;
     bool _is_hermitian;
@@ -50,7 +50,7 @@ public:
      *
      * @param[in] mpt 追加するPauliOperatorのインスタンス
      */
-    virtual void add_operator(const PauliOperator *mpt);
+    virtual void add_operator(const PauliOperator* mpt);
 
     /**
      * \~japanese-en
@@ -126,8 +126,19 @@ public:
      * @param[in] state_ket 遷移前の量子状態
      * @return 入力で与えた量子状態に対応するGeneralQuantumOperatorの遷移振幅
      */
-    virtual CPPCTYPE get_transition_amplitude(const QuantumStateBase *state_bra,
-        const QuantumStateBase *state_ket) const;
+    virtual CPPCTYPE get_transition_amplitude(const QuantumStateBase* state_bra,
+        const QuantumStateBase* state_ket) const;
+
+    /**
+     * \~japanese-en
+     * GeneralQuantumOperator の基底状態の固有値を arnordi method により求める
+     * (A - \mu I) の絶対値最大固有値を求めることで基底状態の固有値を求める．
+     * @param[in] state 固有値を求めるための量子状態
+     * @param[in] n_iter 計算の繰り返し回数
+     *  @return GeneralQuantumOperator の基底状態の固有値
+     */
+    virtual CPPCTYPE solve_maximum_eigenvalue_by_arnoldi_method(
+        QuantumStateBase* state, const UINT iter_count) const;
 
     /**
      * \~japanese-en
@@ -139,7 +150,7 @@ public:
      *  @return GeneralQuantumOperator の基底状態の固有値
      */
     virtual CPPCTYPE solve_maximum_eigenvalue_by_power_method(
-        QuantumStateBase *state, const UINT iter_count,
+        QuantumStateBase* state, const UINT iter_count,
         const CPPCTYPE mu = 0.0) const;
 
 private:
@@ -150,8 +161,8 @@ private:
      * @param [in] state_to_be_multiplied 作用を受ける状態
      * @param [in] dst_state 結果を格納する状態
      */
-    void multiply_hamiltonian(QuantumStateBase *state_to_be_multiplied,
-        QuantumStateBase *dst_state) const;
+    void multiply_hamiltonian(QuantumStateBase* state_to_be_multiplied,
+        QuantumStateBase* dst_state) const;
 
     /**
      * \~japanese-en
