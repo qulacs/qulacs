@@ -33,7 +33,7 @@ jobs:
         run: pip install -U --only-binary=numpy,scipy numpy scipy
 
       - name: Install qulacs for Windows
-        run: ./script/build_msvc_2017.bat
+        run: ./script/build_msvc_2019.bat
         if: ${{ contains(matrix.os, 'windows') }}
 
       - name: Install qulacs for Ubuntu
