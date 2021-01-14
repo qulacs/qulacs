@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5", "2.7.17"]
-        os: ["windows-self-hosted"]
+        os: ["windows-self-hosted","ubuntu-self-hosted"]
     runs-on: ${{ matrix.os }}
     env:
       CXX_COMPILER: "g++-8"
