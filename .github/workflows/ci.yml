@@ -62,7 +62,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-    runs-on: ubuntu-latest
+    runs-on: "ubuntu-self-hosted"
     env:
       TWINE_USERNAME: "__token__"
       TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS }}
@@ -97,7 +97,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-    runs-on: ubuntu-latest
+    runs-on: "ubuntu-self-hosted"
     env:
       TWINE_USERNAME: "__token__"
       TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS_GPU }}
@@ -135,7 +135,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-        os: ["ubuntu-latest", "windows-2016"]
+        os: ["ubuntu-self-hosted", "windows-self-hosted"]
     runs-on: ${{ matrix.os }}
     env:
       CXX_COMPILER: "g++-8"
@@ -189,7 +189,7 @@ jobs:
     name: Format with clang-format
     strategy:
       matrix:
-        os: ["ubuntu-latest"]
+        os: ["ubuntu-self-hosted"]
     runs-on: ${{ matrix.os }}
     steps:
       - uses: actions/checkout@v2
