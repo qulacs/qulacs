@@ -30,7 +30,7 @@ void get_Pauli_matrix(
         matrix(index, index ^ flip_mask) = rot[rot90_count % 4] * sign;
     }
 }
-
+/*
 Observable* generate_random_observable(
     const UINT qubit_count, const UINT operator_count) {
     Observable* observable = new Observable(qubit_count);
@@ -51,7 +51,7 @@ Observable* generate_random_observable(
     }
     return observable;
 }
-
+*/
 ComplexMatrix convert_observable_to_matrix(const Observable* observable) {
     const auto dim = observable->get_state_dim();
     const auto qubit_count = observable->get_qubit_count();
