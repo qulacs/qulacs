@@ -291,6 +291,6 @@ TEST(GradCalculator, BasicCheck) {
     }
     for (int i = 0; i < GradCalculator_ans.size(); ++i) {
         ASSERT_LT(abs(GradCalculator_ans[i] - Greedy_ans[i]),
-            1e-7);  // Difference should be lower than 1e-7
+            1e-6);  // Difference should be lower than 1e-7
     }
 }

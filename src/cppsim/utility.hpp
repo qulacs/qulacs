@@ -51,9 +51,10 @@ void DllExport get_Pauli_matrix(
  * @return ランダムなパウリ演算子をもつ operator を operator_count 個もつ
  * observable
  */
+/*
 Observable* DllExport generate_random_observable(
     const UINT qubit_count, const UINT operator_count);
-
+*/
 /**
  * \~japanese-en
  * observable を対応する行列に変換する
