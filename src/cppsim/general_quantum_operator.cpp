@@ -102,56 +102,45 @@ CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_arnoldi_method(
     auto present_state = QuantumState(qubit_count);
     auto tmp_state = QuantumState(qubit_count);
     auto multiplied_state = QuantumState(qubit_count);
-    auto mu_timed_state = QuantumState(qubit_count);
 
     std::vector<QuantumStateBase*> state_list;
+    state->normalize(state->get_squared_norm());
     state_list.push_back(state);
-
-    const auto mu = this->calculate_default_mu();
-    std::cout << "mu: " << mu << std::endl;
-    for (UINT i = 0; i < iter_count; i++) {
-        multiplied_state.multiply_coef(0.0);
-        // A|v>
-        this->multiply_hamiltonian(&present_state, &multiplied_state);
-        mu_timed_state.load(&present_state);
-        // -\mu |v>
-        mu_timed_state.multiply_coef(-1.0 * mu);
-        // (A - \mu)|v>
-        multiplied_state.add_state(&mu_timed_state);
-        multiplied_state.normalize(multiplied_state.get_squared_norm());
-        present_state.load(&multiplied_state);
-
-        for (auto _state : state_list) {
-            tmp_state.load(_state);
-            auto coef = state::inner_product(&tmp_state, &present_state);
-            tmp_state.multiply_coef(-1.0 * coef);
-            present_state.add_state(&tmp_state);
-        }
-
-        present_state.normalize(present_state.get_squared_norm());
-        state_list.push_back(present_state.copy());
-    }
 
     ComplexMatrix hamiltonian_matrix =
         ComplexMatrix::Zero(iter_count, iter_count);
     for (UINT i = 0; i < iter_count; i++) {
+        multiplied_state.multiply_coef(0.0);
+        this->multiply_hamiltonian(state_list[i], &multiplied_state);
+
         for (UINT j = 0; j < i + 1; j++) {
-            hamiltonian_matrix(i, j) =
-                this->get_transition_amplitude(state_list[i], state_list[j]);
-            hamiltonian_matrix(j, i) = std::conj(hamiltonian_matrix(i, j));
+            const auto coef = state::inner_product(
+                static_cast<QuantumState*>(state_list[j]), &multiplied_state);
+            hamiltonian_matrix(j, i) = coef;
+            tmp_state.load(state_list[j]);
+            tmp_state.multiply_coef(-coef);
+            multiplied_state.add_state(&tmp_state);
         }
+
+        const auto norm = multiplied_state.get_squared_norm();
+        if (i != iter_count - 1) {
+            hamiltonian_matrix(i + 1, i) = std::sqrt(norm);
+        }
+        multiplied_state.normalize(norm);
+        state_list.push_back(multiplied_state.copy());
     }
 
-    Eigen::SelfAdjointEigenSolver<ComplexMatrix> eigen_solver(hamiltonian_matrix);
+    Eigen::ComplexEigenSolver<ComplexMatrix> eigen_solver(
+        hamiltonian_matrix);
     const auto eigenvalues = eigen_solver.eigenvalues();
     const auto eigenvectors = eigen_solver.eigenvectors();
 
     UINT minimum_eigenvalue_index = 0;
-    double minimum_eigen_value = eigenvalues[0];
+    auto minimum_eigenvalue = eigenvalues[0];
     for (UINT i = 0; i < eigenvalues.size(); i++) {
-        if (eigenvalues[i] < eigenvalues[minimum_eigenvalue_index]) {
+        if (eigenvalues[i].real() < minimum_eigenvalue.real()) {
             minimum_eigenvalue_index = i;
-            minimum_eigen_value = eigenvalues[i];
+            minimum_eigenvalue = eigenvalues[i];
         }
     }
 
@@ -164,7 +153,7 @@ CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_arnoldi_method(
 
     // std::cout << eigenvalues << std::endl;
     // std::cout << eigenvalues.size() << std::endl;
-    return minimum_eigen_value;
+    return minimum_eigenvalue;
 }
 
 CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(
