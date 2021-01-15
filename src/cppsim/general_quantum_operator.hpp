@@ -90,7 +90,7 @@ public:
      * GeneralQuantumOperatorが保持するPauliOperatorのリストの添字
      * @return 指定したindexにあるPauliOperator
      */
-    virtual const PauliOperator *get_term(UINT index) const {
+    virtual const PauliOperator* get_term(UINT index) const {
         if (index >= _operator_list.size()) {
             std::cerr
                 << "Error: PauliOperator::get_term(UINT): index out of range"
@@ -105,7 +105,7 @@ public:
      * GeneralQuantumOperatorが保持するPauliOperatorのリストを返す
      * @return GeneralQuantumOperatorが持つPauliOperatorのリスト
      */
-    virtual std::vector<PauliOperator *> get_terms() const {
+    virtual std::vector<PauliOperator*> get_terms() const {
         return _operator_list;
     }
 
@@ -116,7 +116,7 @@ public:
      * @param[in] state 期待値をとるときの量子状態
      * @return 入力で与えた量子状態に対応するGeneralQuantumOperatorの期待値
      */
-    virtual CPPCTYPE get_expectation_value(const QuantumStateBase *state) const;
+    virtual CPPCTYPE get_expectation_value(const QuantumStateBase* state) const;
 
     /**
      * \~japanese-en
@@ -180,7 +180,7 @@ namespace quantum_operator {
  * @param[in] filename OpenFermion形式のGeneralQuantumOperatorのファイル名
  * @return Observableのインスタンス
  **/
-DllExport GeneralQuantumOperator *
+DllExport GeneralQuantumOperator*
 create_general_quantum_operator_from_openfermion_file(std::string file_path);
 
 /**
@@ -191,7 +191,7 @@ create_general_quantum_operator_from_openfermion_file(std::string file_path);
  * @param[in] filename OpenFermion形式のテキスト
  * @return General_Quantum_Operatorのインスタンス
  **/
-DllExport GeneralQuantumOperator *
+DllExport GeneralQuantumOperator*
 create_general_quantum_operator_from_openfermion_text(std::string text);
 
 /**
@@ -200,9 +200,9 @@ create_general_quantum_operator_from_openfermion_text(std::string text);
  *
  * @param[in] filename OpenFermion形式のGeneralQuantumOperatorのファイル名
  */
-DllExport std::pair<GeneralQuantumOperator *, GeneralQuantumOperator *>
+DllExport std::pair<GeneralQuantumOperator*, GeneralQuantumOperator*>
 create_split_general_quantum_operator(std::string file_path);
 }  // namespace quantum_operator
 
-bool check_Pauli_operator(const GeneralQuantumOperator *quantum_operator,
-    const PauliOperator *pauli_operator);
+bool check_Pauli_operator(const GeneralQuantumOperator* quantum_operator,
+    const PauliOperator* pauli_operator);

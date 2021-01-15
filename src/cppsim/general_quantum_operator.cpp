@@ -11,6 +11,8 @@ extern "C" {
 #else
 #include <csim/stat_ops.h>
 #endif
+#include <Eigen/Dense>
+
 #include "gate_factory.hpp"
 #include "general_quantum_operator.hpp"
 #include "pauli_operator.hpp"
@@ -96,21 +98,31 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
 
 CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_arnoldi_method(
     QuantumStateBase* state, const UINT iter_count) const {
-    const auto qubit_count = state->qubit_count;
+    const auto qubit_count = this->get_qubit_count();
     auto present_state = QuantumState(qubit_count);
     auto tmp_state = QuantumState(qubit_count);
     auto multiplied_state = QuantumState(qubit_count);
+    auto mu_timed_state = QuantumState(qubit_count);
 
     std::vector<QuantumStateBase*> state_list;
-    state_list.push_back(present_state.copy());
+    state_list.push_back(state);
+
+    const auto mu = this->calculate_default_mu();
+    std::cout << "mu: " << mu << std::endl;
     for (UINT i = 0; i < iter_count; i++) {
         multiplied_state.multiply_coef(0.0);
+        // A|v>
         this->multiply_hamiltonian(&present_state, &multiplied_state);
+        mu_timed_state.load(&present_state);
+        // -\mu |v>
+        mu_timed_state.multiply_coef(-1.0 * mu);
+        // (A - \mu)|v>
+        multiplied_state.add_state(&mu_timed_state);
         multiplied_state.normalize(multiplied_state.get_squared_norm());
         present_state.load(&multiplied_state);
 
-        for (auto state : state_list) {
-            tmp_state.load(state);
+        for (auto _state : state_list) {
+            tmp_state.load(_state);
             auto coef = state::inner_product(&tmp_state, &present_state);
             tmp_state.multiply_coef(-1.0 * coef);
             present_state.add_state(&tmp_state);
@@ -130,11 +142,29 @@ CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_arnoldi_method(
         }
     }
 
-    const auto eigenvalues = hamiltonian_matrix.eigenvalues();
+    Eigen::SelfAdjointEigenSolver<ComplexMatrix> eigen_solver(hamiltonian_matrix);
+    const auto eigenvalues = eigen_solver.eigenvalues();
+    const auto eigenvectors = eigen_solver.eigenvectors();
 
-    present_state.multiply_coef(0.0);
+    UINT minimum_eigenvalue_index = 0;
+    double minimum_eigen_value = eigenvalues[0];
+    for (UINT i = 0; i < eigenvalues.size(); i++) {
+        if (eigenvalues[i] < eigenvalues[minimum_eigenvalue_index]) {
+            minimum_eigenvalue_index = i;
+            minimum_eigen_value = eigenvalues[i];
+        }
+    }
 
-    return 0.0;
+    // present_state.multiply_coef(0.0);
+    // for (UINT i = 0; i < state_list.size(); i++) {
+    //     tmp_state.load(state_list[i]);
+    //     tmp_state.multiply_coef(eigenvectors(minimum_eigenvalue_index, i));
+    //     present_state.add_state(&tmp_state);
+    // }
+
+    // std::cout << eigenvalues << std::endl;
+    // std::cout << eigenvalues.size() << std::endl;
+    return minimum_eigen_value;
 }
 
 CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(

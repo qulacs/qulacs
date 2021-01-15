@@ -372,12 +372,13 @@ TEST(ObservableTest, CheckMaximumEigenvalueByArnoldiMethod) {
         const auto eigenvalues = observable_matrix.eigenvalues();
         CPPCTYPE test_maximum_eigenvalue = eigenvalues[0];
         for (auto i = 0; i < eigenvalues.size(); i++) {
+            std::cout << eigenvalues[i] << std::endl;
             if (eigenvalues[i].real() < test_maximum_eigenvalue.real()) {
                 test_maximum_eigenvalue = eigenvalues[i];
             }
         }
 
-        constexpr UINT iter_count = 1000;
+        constexpr UINT iter_count = 100;
         QuantumState state(n);
         state.set_Haar_random_state();
         auto maximum_eigenvalue =
