@@ -62,6 +62,27 @@ TEST(StateTest, SetState) {
     }
 }
 
+TEST(StateTest, SetPartialState) {
+    const double eps = 1e-10;
+    const UINT n = 2;
+    QuantumState state(n);
+    std::vector<std::complex<double>> state_vector((1 << n));
+    for (ITYPE i = 0; i < (1 << n); ++i) {
+        state_vector[i] = std::complex<double>(0.5, 0);
+    }
+    state.load(state_vector);
+    state.partially_set_computational_basis({{0, true}});
+
+    std::vector<std::complex<double>> expected_state_vector(
+        {{0.0, 0.0}, {1.0 / sqrt(2), 0.0}, {0.0, 0.0}, {1.0 / sqrt(2), 0.0}});
+    for (ITYPE i = 0; i < (1 << n); ++i) {
+        ASSERT_NEAR(
+            state.data_cpp()[i].real(), expected_state_vector[i].real(), eps);
+        ASSERT_NEAR(
+            state.data_cpp()[i].imag(), expected_state_vector[i].imag(), eps);
+    }
+}
+
 TEST(StateTest, GetMarginalProbability) {
     const double eps = 1e-10;
     const UINT n = 2;

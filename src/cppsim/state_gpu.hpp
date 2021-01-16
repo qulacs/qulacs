@@ -65,6 +65,21 @@ public:
         set_computational_basis_host(
             comp_basis, _state_vector, _dim, _cuda_stream, device_number);
     }
+
+    /**
+     * \~japanese-en 各量子状態について、指定された量子ビットの値を書き換える。
+     *
+     * @param setting (置き換える量子ビットの番号,書き換える値)を表す配列
+     */
+    virtual void partially_set_computational_basis(
+        std::vector<std::pair<UINT, bool>> setting) override {
+        // TODO
+        std::cout << "Error: partially_set_computational_basis is unavailable "
+                     "for GPU. Sorry."
+                  << std::endl;
+        return;
+    }
+
     /**
      * \~japanese-en 量子状態をHaar
      * randomにサンプリングされた量子状態に初期化する
