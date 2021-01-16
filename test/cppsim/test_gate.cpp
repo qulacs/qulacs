@@ -1191,7 +1191,7 @@ TEST(GateTest, InstrumentGate) {
     delete Inst;
 }
 
-TEST(GateTest, AdaptiveGate) {
+TEST(GateTest, AdaptiveGateWithoutID) {
     auto x = gate::X(0);
     auto adaptive = gate::Adaptive(
         x, [](const std::vector<UINT>& vec) { return vec[2] == 1; });
@@ -1199,8 +1199,26 @@ TEST(GateTest, AdaptiveGate) {
     s.set_computational_basis(0);
     s.set_classical_value(2, 1);
     adaptive->update_quantum_state(&s);
+    ASSERT_EQ(s.data_cpp()[1], 1.0);
     s.set_classical_value(2, 0);
     adaptive->update_quantum_state(&s);
+    ASSERT_EQ(s.data_cpp()[1], 1.0);
+    delete adaptive;
+}
+
+TEST(GateTest, AdaptiveGateWithID) {
+    auto x = gate::X(0);
+    auto adaptive = gate::Adaptive(
+        x, [](const std::vector<UINT>& vec, UINT id) { return vec[id] == 1; },
+        2);
+    QuantumState s(1);
+    s.set_computational_basis(0);
+    s.set_classical_value(2, 1);
+    adaptive->update_quantum_state(&s);
+    ASSERT_EQ(s.data_cpp()[1], 1.0);
+    s.set_classical_value(2, 0);
+    adaptive->update_quantum_state(&s);
+    ASSERT_EQ(s.data_cpp()[1], 1.0);
     delete adaptive;
 }
 

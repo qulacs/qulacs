@@ -480,4 +480,9 @@ QuantumGateBase* Adaptive(
     QuantumGateBase* gate, std::function<bool(const std::vector<UINT>&)> func) {
     return new QuantumGate_Adaptive(gate, func);
 }
+
+QuantumGateBase* Adaptive(QuantumGateBase* gate,
+    std::function<bool(const std::vector<UINT>&, const UINT)> func, UINT id) {
+    return new QuantumGate_Adaptive(gate, func, id);
+}
 }  // namespace gate
