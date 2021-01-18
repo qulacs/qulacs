@@ -546,14 +546,18 @@ public:
 class QuantumGate_Adaptive : public QuantumGateBase {
 protected:
     QuantumGateBase* _gate;
-    std::function<bool(const std::vector<UINT>&)> _func;
+    std::function<bool(const std::vector<UINT>&)> _func_without_id;
+    std::function<bool(const std::vector<UINT>&, UINT)> _func_with_id;
+    const int _id;
 
 public:
     QuantumGate_Adaptive(QuantumGateBase* gate,
-        std::function<bool(const std::vector<UINT>&)> func) {
-        _gate = gate->copy();
-        _func = func;
-    };
+        std::function<bool(const std::vector<UINT>&)> func_without_id)
+        : _gate(gate->copy()), _func_without_id(func_without_id), _id(-1){};
+    QuantumGate_Adaptive(QuantumGateBase* gate,
+        std::function<bool(const std::vector<UINT>&, UINT)> func_with_id,
+        UINT id)
+        : _gate(gate->copy()), _func_with_id(func_with_id), _id((int)id){};
     virtual ~QuantumGate_Adaptive() { delete _gate; }
 
     /**
@@ -562,7 +566,12 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
-        bool result = _func(state->get_classical_register());
+        bool result;
+        if (_id == -1) {
+            result = _func_without_id(state->get_classical_register());
+        } else {
+            result = _func_with_id(state->get_classical_register(), _id);
+        }
         if (result) {
             _gate->update_quantum_state(state);
         }
@@ -573,7 +582,11 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        return new QuantumGate_Adaptive(_gate->copy(), _func);
+        if (_id == -1) {
+            return new QuantumGate_Adaptive(_gate->copy(), _func_without_id);
+        } else {
+            return new QuantumGate_Adaptive(_gate->copy(), _func_with_id, _id);
+        }
     };
     /**
      * \~japanese-en 自身のゲート行列をセットする
