@@ -31,9 +31,9 @@ void get_Pauli_matrix(
     }
 }
 
-Observable* generate_random_observable(
+Observable generate_random_observable(
     const UINT qubit_count, const UINT operator_count) {
-    Observable* observable = new Observable(qubit_count);
+    auto observable = Observable(qubit_count);
     Random random;
     for (auto operator_index = 0; operator_index < operator_count;
          operator_index++) {
@@ -47,7 +47,7 @@ Observable* generate_random_observable(
         CPPCTYPE coef = random.uniform();
         auto pauli_operator = PauliOperator(
             target_qubit_index_list, target_qubit_pauli_list, coef);
-        observable->add_operator(&pauli_operator);
+        observable.add_operator(&pauli_operator);
     }
     return observable;
 }

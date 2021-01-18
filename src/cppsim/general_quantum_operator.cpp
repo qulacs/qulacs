@@ -99,7 +99,8 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
 CPPCTYPE
 GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     QuantumStateBase* state, const UINT iter_count) const {
-    // Implemented based on https://files.transtutors.com/cdn/uploadassignments/472339_1_-numerical-linear-aljebra.pdf
+    // Implemented based on
+    // https://files.transtutors.com/cdn/uploadassignments/472339_1_-numerical-linear-aljebra.pdf
     const auto qubit_count = this->get_qubit_count();
     auto present_state = QuantumState(qubit_count);
     auto tmp_state = QuantumState(qubit_count);
@@ -113,8 +114,7 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     ComplexMatrix hessenberg_matrix =
         ComplexMatrix::Zero(iter_count, iter_count);
     for (UINT i = 0; i < iter_count; i++) {
-        multiplied_state.multiply_coef(0.0);
-        this->multiply_hamiltonian(state_list[i], &multiplied_state);
+        this->apply_to_state(state_list[i], &multiplied_state);
 
         for (UINT j = 0; j < i + 1; j++) {
             const auto coef = state::inner_product(
@@ -151,7 +151,7 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     present_state.multiply_coef(0.0);
     for (UINT i = 0; i < state_list.size(); i++) {
         tmp_state.load(state_list[i]);
-        tmp_state.multiply_coef(eigenvectors(minimum_eigenvalue_index, i));
+        tmp_state.multiply_coef(eigenvectors(i, minimum_eigenvalue_index));
         present_state.add_state(&tmp_state);
     }
     state->load(&present_state);
@@ -175,10 +175,10 @@ CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
     auto mu_timed_state = QuantumState(state->qubit_count);
     for (UINT i = 0; i < iter_count; i++) {
         mu_timed_state.load(state);
-        mu_timed_state.multiply_coef(-1.0 * mu_);
+        mu_timed_state.multiply_coef(-mu_);
 
         multiplied_state.multiply_coef(0.0);
-        this->multiply_hamiltonian(state, &multiplied_state);
+        this->apply_to_state(state, &multiplied_state);
         state->load(&multiplied_state);
         state->add_state(&mu_timed_state);
         state->normalize(state->get_squared_norm());
@@ -186,9 +186,10 @@ CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
     return this->get_expectation_value(state) + mu;
 }
 
-void GeneralQuantumOperator::multiply_hamiltonian(
+void GeneralQuantumOperator::apply_to_state(
     QuantumStateBase* state_to_be_multiplied,
     QuantumStateBase* dst_state) const {
+    dst_state->multiply_coef(0.0);
     auto work_state = QuantumState(state_to_be_multiplied->qubit_count);
     const auto term_count = this->get_term_count();
     for (UINT i = 0; i < term_count; i++) {

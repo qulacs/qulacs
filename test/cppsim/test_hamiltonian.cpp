@@ -336,13 +336,13 @@ TEST(ObservableTest, CheckMaximumEigenvalueByPowerMethod) {
             generate_random_observable(qubit_count, operator_count);
 
         // observable に対応する行列を求める
-        auto observable_matrix = convert_observable_to_matrix(observable);
+        auto observable_matrix = convert_observable_to_matrix(&observable);
         // 基底状態の固有値を求める
         const auto eigenvalues = observable_matrix.eigenvalues();
-        CPPCTYPE test_maximum_eigenvalue = eigenvalues[0];
+        CPPCTYPE test_ground_state_eigenvalue = eigenvalues[0];
         for (auto i = 0; i < eigenvalues.size(); i++) {
-            if (eigenvalues[i].real() < test_maximum_eigenvalue.real()) {
-                test_maximum_eigenvalue = eigenvalues[i];
+            if (eigenvalues[i].real() < test_ground_state_eigenvalue.real()) {
+                test_ground_state_eigenvalue = eigenvalues[i];
             }
         }
 
@@ -350,10 +350,10 @@ TEST(ObservableTest, CheckMaximumEigenvalueByPowerMethod) {
         QuantumState state(qubit_count);
         state.set_Haar_random_state();
         auto ground_state_eigenvalue =
-            observable->solve_ground_state_eigenvalue_by_power_method(
+            observable.solve_ground_state_eigenvalue_by_power_method(
                 &state, iter_count);
         ASSERT_NEAR(ground_state_eigenvalue.real(),
-            test_maximum_eigenvalue.real(), eps);
+            test_ground_state_eigenvalue.real(), eps);
     }
 }
 
@@ -370,13 +370,13 @@ TEST(ObservableTest, CheckMaximumEigenvalueByArnoldiMethod) {
             generate_random_observable(qubit_count, operator_count);
 
         // observable に対応する行列を求める
-        auto observable_matrix = convert_observable_to_matrix(observable);
+        auto observable_matrix = convert_observable_to_matrix(&observable);
         // 基底状態の固有値を求める
         const auto eigenvalues = observable_matrix.eigenvalues();
-        CPPCTYPE test_maximum_eigenvalue = eigenvalues[0];
+        CPPCTYPE test_ground_state_eigenvalue = eigenvalues[0];
         for (auto i = 0; i < eigenvalues.size(); i++) {
-            if (eigenvalues[i].real() < test_maximum_eigenvalue.real()) {
-                test_maximum_eigenvalue = eigenvalues[i];
+            if (eigenvalues[i].real() < test_ground_state_eigenvalue.real()) {
+                test_ground_state_eigenvalue = eigenvalues[i];
             }
         }
 
@@ -384,14 +384,16 @@ TEST(ObservableTest, CheckMaximumEigenvalueByArnoldiMethod) {
         QuantumState state(qubit_count);
         state.set_Haar_random_state();
         auto ground_state_eigenvalue =
-            observable->solve_ground_state_eigenvalue_by_arnoldi_method(
+            observable.solve_ground_state_eigenvalue_by_arnoldi_method(
                 &state, iter_count);
+        // Test eigenvalue
         ASSERT_NEAR(ground_state_eigenvalue.real(),
-            test_maximum_eigenvalue.real(), eps);
+            test_ground_state_eigenvalue.real(), eps);
 
+        // Test eigenvector
         QuantumState multiplied_state(qubit_count);
         // A|q>
-        observable->multiply_hamiltonian(&state, &multiplied_state);
+        observable.apply_to_state(&state, &multiplied_state);
         // λ|q>
         state.multiply_coef(ground_state_eigenvalue);
         for (UINT i = 0; i < dim; i++) {

@@ -131,11 +131,10 @@ public:
 
     /**
      * \~japanese-en
-     * GeneralQuantumOperator の基底状態の固有値を arnordi method により求める
-     * (A - \mu I) の絶対値最大固有値を求めることで基底状態の固有値を求める．
+     * GeneralQuantumOperator の基底状態の固有値を arnordi method により求める．
      * @param[in] state 固有値を求めるための量子状態
-     * @param[in] n_iter 計算の繰り返し回数
-     *  @return GeneralQuantumOperator の基底状態の固有値
+     * @param[in] iter_count 計算の繰り返し回数
+     * @return GeneralQuantumOperator の基底状態の固有値
      */
     virtual CPPCTYPE solve_ground_state_eigenvalue_by_arnoldi_method(
         QuantumStateBase* state, const UINT iter_count) const;
@@ -145,9 +144,9 @@ public:
      * GeneralQuantumOperator の基底状態の固有値を power method により求める
      * (A - \mu I) の絶対値最大固有値を求めることで基底状態の固有値を求める．
      * @param[in] state 固有値を求めるための量子状態
-     * @param[in] n_iter 計算の繰り返し回数
+     * @param[in] iter_count 計算の繰り返し回数
      * @param [in] mu 固有値をシフトするための係数
-     *  @return GeneralQuantumOperator の基底状態の固有値
+     * @return GeneralQuantumOperator の基底状態の固有値
      */
     virtual CPPCTYPE solve_ground_state_eigenvalue_by_power_method(
         QuantumStateBase* state, const UINT iter_count,
@@ -156,11 +155,12 @@ public:
     /**
      * \~japanese-en
      * state_to_be_multiplied に GeneralQuantumOperator を作用させる．
-     * 結果は dst_state に格納される．
+     * 結果は dst_state に格納される．dst_state
+     * はすべての要素を0に初期化してから計算するため， 任意の状態を渡してよい．
      * @param [in] state_to_be_multiplied 作用を受ける状態
      * @param [in] dst_state 結果を格納する状態
      */
-    void multiply_hamiltonian(QuantumStateBase* state_to_be_multiplied,
+    void apply_to_state(QuantumStateBase* state_to_be_multiplied,
         QuantumStateBase* dst_state) const;
 
 private:
