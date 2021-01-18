@@ -8,7 +8,7 @@
 #include <cppsim/gate_merge.hpp>
 #include <cppsim/type.hpp>
 #include <cppsim/gate.hpp>
-
+#include <cppsim/observable.hpp>
 class UnionFind {
 private:
 	std::vector<int> Parent;
@@ -49,16 +49,26 @@ public:
 
 };
 
-class DllExport Causal {
-public: CPPCTYPE CausalCone(const QuantumCircuit& init_circuit,
-		const Observable& init_observable)
+class DllExport CausalConeSimulator {
+public:
+QuantumCircuit* init_circuit;
+Observable* init_observable;
+
+CausalConeSimulator(const QuantumCircuit& _init_circuit, const Observable& _init_observable)
+{
+	init_observable = new Observable(_init_circuit.qubit_count);
+	*init_observable = _init_observable;
+	init_circuit = _init_circuit.copy();
+}
+
+CPPCTYPE run()
 	{
-		auto terms = init_observable.get_terms();
+		auto terms = init_observable->get_terms();
 		CPPCTYPE ret;
 		for (auto term : terms) {
 			std::vector<UINT> observable_index_list = term->get_index_list();
-			const UINT gate_count = init_circuit.gate_list.size();
-			const UINT qubit_count = init_circuit.qubit_count;
+			const UINT gate_count = init_circuit->gate_list.size();
+			const UINT qubit_count = init_circuit->qubit_count;
 			const UINT observable_count = observable_index_list.size();
 			UnionFind uf(qubit_count + observable_count);
 			std::vector<bool> use_qubit(qubit_count);
@@ -68,8 +78,8 @@ public: CPPCTYPE CausalCone(const QuantumCircuit& init_circuit,
 				use_qubit[observable_index] = true;
 			}
 			for (int i = gate_count - 1; i >= 0; i--) {
-				auto target_index_list = init_circuit.gate_list[i]->get_target_index_list();
-				auto control_index_list = init_circuit.gate_list[i]->get_control_index_list();
+				auto target_index_list = init_circuit->gate_list[i]->get_target_index_list();
+				auto control_index_list = init_circuit->gate_list[i]->get_control_index_list();
 				for (auto target_index : target_index_list) {
 					if (use_qubit[target_index]) {
 						use_gate[i] = true;
@@ -134,7 +144,7 @@ public: CPPCTYPE CausalCone(const QuantumCircuit& init_circuit,
 				for (UINT i = 0; i < gate_count; i++) {
 					if (!use_gate[i]) continue;
 
-					auto gate = init_circuit.gate_list[i]->copy();
+					auto gate = init_circuit->gate_list[i]->copy();
 					auto target_index_list = gate->get_target_index_list();
 					auto control_index_list = gate->get_control_index_list();
 					if (uf.root(target_index_list[0]) != root) continue;
@@ -161,4 +171,5 @@ public: CPPCTYPE CausalCone(const QuantumCircuit& init_circuit,
 
 		return ret;
 	}
+	
 };
