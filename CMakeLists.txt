@@ -331,9 +331,11 @@ if(USE_TEST)
 		add_custom_target(test
 			DEPENDS csim_test
 			DEPENDS cppsim_test
+			DEPENDS cppsim_exp_test
 			DEPENDS vqcsim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/csim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_test
+			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_exp_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
 		)
 	endif()
