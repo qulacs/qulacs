@@ -36,18 +36,20 @@ CPPCTYPE HermitianQuantumOperator::get_expectation_value(
     return GeneralQuantumOperator::get_expectation_value(state).real();
 }
 
-CPPCTYPE HermitianQuantumOperator::solve_maximum_eigenvalue_by_arnoldi_method(
+CPPCTYPE
+HermitianQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     QuantumStateBase* state, const UINT iter_count) const {
-    return GeneralQuantumOperator::solve_maximum_eigenvalue_by_arnoldi_method(
-        state, iter_count)
-        .real();
+    return GeneralQuantumOperator::
+        solve_ground_state_eigenvalue_by_arnoldi_method(state, iter_count)
+            .real();
 }
 
-CPPCTYPE HermitianQuantumOperator::solve_maximum_eigenvalue_by_power_method(
+CPPCTYPE
+HermitianQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
     QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
-    return GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(
-        state, iter_count, mu)
-        .real();
+    return GeneralQuantumOperator::
+        solve_ground_state_eigenvalue_by_power_method(state, iter_count, mu)
+            .real();
 }
 
 namespace observable {

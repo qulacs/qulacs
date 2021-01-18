@@ -323,15 +323,17 @@ TEST(ObservableTest, CheckSplitObservable) {
 */
 
 TEST(ObservableTest, CheckMaximumEigenvalueByPowerMethod) {
-    constexpr UINT n = 4;
+    constexpr UINT qubit_count = 4;
     constexpr double eps = 1e-2;
-    constexpr UINT dim = 1ULL << n;
+    constexpr UINT dim = 1ULL << qubit_count;
     Random random;
-    constexpr size_t test_count = 10;
+    constexpr size_t test_count = 5;
 
     for (auto i = 0; i < test_count; i++) {
+        // 2 <= operator_count <= 11
         const UINT operator_count = random.int32() % 10 + 2;
-        auto observable = generate_random_observable(n, operator_count);
+        auto observable =
+            generate_random_observable(qubit_count, operator_count);
 
         // observable に対応する行列を求める
         auto observable_matrix = convert_observable_to_matrix(observable);
@@ -344,14 +346,14 @@ TEST(ObservableTest, CheckMaximumEigenvalueByPowerMethod) {
             }
         }
 
-        constexpr UINT iter_count = 1000;
-        QuantumState state(n);
+        constexpr UINT iter_count = 500;
+        QuantumState state(qubit_count);
         state.set_Haar_random_state();
-        auto maximum_eigenvalue =
-            observable
-                ->solve_maximum_eigenvalue_by_power_method(&state, iter_count)
-                .real();
-        ASSERT_NEAR(maximum_eigenvalue, test_maximum_eigenvalue.real(), eps);
+        auto ground_state_eigenvalue =
+            observable->solve_ground_state_eigenvalue_by_power_method(
+                &state, iter_count);
+        ASSERT_NEAR(ground_state_eigenvalue.real(),
+            test_maximum_eigenvalue.real(), eps);
     }
 }
 
@@ -381,10 +383,22 @@ TEST(ObservableTest, CheckMaximumEigenvalueByArnoldiMethod) {
         constexpr UINT iter_count = 50;
         QuantumState state(qubit_count);
         state.set_Haar_random_state();
-        auto maximum_eigenvalue =
-            observable
-                ->solve_maximum_eigenvalue_by_arnoldi_method(&state, iter_count)
-                .real();
-        ASSERT_NEAR(maximum_eigenvalue, test_maximum_eigenvalue.real(), eps);
+        auto ground_state_eigenvalue =
+            observable->solve_ground_state_eigenvalue_by_arnoldi_method(
+                &state, iter_count);
+        ASSERT_NEAR(ground_state_eigenvalue.real(),
+            test_maximum_eigenvalue.real(), eps);
+
+        QuantumState multiplied_state(qubit_count);
+        // A|q>
+        observable->multiply_hamiltonian(&state, &multiplied_state);
+        // λ|q>
+        state.multiply_coef(ground_state_eigenvalue);
+        for (UINT i = 0; i < dim; i++) {
+            ASSERT_NEAR(multiplied_state.data_cpp()[i].real(),
+                state.data_cpp()[i].real(), eps);
+            ASSERT_NEAR(multiplied_state.data_cpp()[i].imag(),
+                state.data_cpp()[i].imag(), eps);
+        }
     }
 }

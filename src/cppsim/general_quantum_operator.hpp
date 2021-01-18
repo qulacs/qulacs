@@ -137,7 +137,7 @@ public:
      * @param[in] n_iter 計算の繰り返し回数
      *  @return GeneralQuantumOperator の基底状態の固有値
      */
-    virtual CPPCTYPE solve_maximum_eigenvalue_by_arnoldi_method(
+    virtual CPPCTYPE solve_ground_state_eigenvalue_by_arnoldi_method(
         QuantumStateBase* state, const UINT iter_count) const;
 
     /**
@@ -149,11 +149,10 @@ public:
      * @param [in] mu 固有値をシフトするための係数
      *  @return GeneralQuantumOperator の基底状態の固有値
      */
-    virtual CPPCTYPE solve_maximum_eigenvalue_by_power_method(
+    virtual CPPCTYPE solve_ground_state_eigenvalue_by_power_method(
         QuantumStateBase* state, const UINT iter_count,
         const CPPCTYPE mu = 0.0) const;
 
-private:
     /**
      * \~japanese-en
      * state_to_be_multiplied に GeneralQuantumOperator を作用させる．
@@ -164,9 +163,11 @@ private:
     void multiply_hamiltonian(QuantumStateBase* state_to_be_multiplied,
         QuantumStateBase* dst_state) const;
 
+private:
     /**
      * \~japanese-en
-     * solve_maximum_eigenvalue_by_power_method の mu のデフォルト値を計算する．
+     * solve_ground_state_eigenvalue_by_power_method の mu
+     * のデフォルト値を計算する．
      */
     CPPCTYPE calculate_default_mu() const;
 };

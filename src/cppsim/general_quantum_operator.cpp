@@ -96,18 +96,21 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
     return sum;
 }
 
-CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_arnoldi_method(
+CPPCTYPE
+GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     QuantumStateBase* state, const UINT iter_count) const {
+    // Implemented based on https://files.transtutors.com/cdn/uploadassignments/472339_1_-numerical-linear-aljebra.pdf
     const auto qubit_count = this->get_qubit_count();
     auto present_state = QuantumState(qubit_count);
     auto tmp_state = QuantumState(qubit_count);
     auto multiplied_state = QuantumState(qubit_count);
 
+    // Vectors composing Krylov subspace.
     std::vector<QuantumStateBase*> state_list;
     state->normalize(state->get_squared_norm());
     state_list.push_back(state);
 
-    ComplexMatrix hamiltonian_matrix =
+    ComplexMatrix hessenberg_matrix =
         ComplexMatrix::Zero(iter_count, iter_count);
     for (UINT i = 0; i < iter_count; i++) {
         multiplied_state.multiply_coef(0.0);
@@ -116,7 +119,7 @@ CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_arnoldi_method(
         for (UINT j = 0; j < i + 1; j++) {
             const auto coef = state::inner_product(
                 static_cast<QuantumState*>(state_list[j]), &multiplied_state);
-            hamiltonian_matrix(j, i) = coef;
+            hessenberg_matrix(j, i) = coef;
             tmp_state.load(state_list[j]);
             tmp_state.multiply_coef(-coef);
             multiplied_state.add_state(&tmp_state);
@@ -124,17 +127,17 @@ CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_arnoldi_method(
 
         const auto norm = multiplied_state.get_squared_norm();
         if (i != iter_count - 1) {
-            hamiltonian_matrix(i + 1, i) = std::sqrt(norm);
+            hessenberg_matrix(i + 1, i) = std::sqrt(norm);
         }
         multiplied_state.normalize(norm);
         state_list.push_back(multiplied_state.copy());
     }
 
-    Eigen::ComplexEigenSolver<ComplexMatrix> eigen_solver(
-        hamiltonian_matrix);
+    Eigen::ComplexEigenSolver<ComplexMatrix> eigen_solver(hessenberg_matrix);
     const auto eigenvalues = eigen_solver.eigenvalues();
     const auto eigenvectors = eigen_solver.eigenvectors();
 
+    // Find ground state vector.
     UINT minimum_eigenvalue_index = 0;
     auto minimum_eigenvalue = eigenvalues[0];
     for (UINT i = 0; i < eigenvalues.size(); i++) {
@@ -144,22 +147,23 @@ CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_arnoldi_method(
         }
     }
 
-    // present_state.multiply_coef(0.0);
-    // for (UINT i = 0; i < state_list.size(); i++) {
-    //     tmp_state.load(state_list[i]);
-    //     tmp_state.multiply_coef(eigenvectors(minimum_eigenvalue_index, i));
-    //     present_state.add_state(&tmp_state);
-    // }
+    // Compose ground state vector.
+    present_state.multiply_coef(0.0);
+    for (UINT i = 0; i < state_list.size(); i++) {
+        tmp_state.load(state_list[i]);
+        tmp_state.multiply_coef(eigenvectors(minimum_eigenvalue_index, i));
+        present_state.add_state(&tmp_state);
+    }
+    state->load(&present_state);
 
-    // std::cout << eigenvalues << std::endl;
-    // std::cout << eigenvalues.size() << std::endl;
     return minimum_eigenvalue;
 }
 
-CPPCTYPE GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(
+CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
     QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
     CPPCTYPE mu_;
     if (mu == 0.0) {
+        // mu is not changed from default value.
         mu_ = this->calculate_default_mu();
     } else {
         mu_ = mu;

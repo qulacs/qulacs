@@ -72,7 +72,7 @@ public:
      * @param[in] n_iter 計算の繰り返し回数
      *  @return GeneralQuantumOperator の基底状態の固有値
      */
-    CPPCTYPE solve_maximum_eigenvalue_by_arnoldi_method(
+    CPPCTYPE solve_ground_state_eigenvalue_by_arnoldi_method(
         QuantumStateBase* state, const UINT iter_count) const;
 
     /**
@@ -85,7 +85,7 @@ public:
      *  @return GeneralQuantumOperator の基底状態の固有値
      */
     CPPCTYPE
-    solve_maximum_eigenvalue_by_power_method(QuantumStateBase* state,
+    solve_ground_state_eigenvalue_by_power_method(QuantumStateBase* state,
         const UINT iter_count, const CPPCTYPE mu = 0.0) const;
 };
 
