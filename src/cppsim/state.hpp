@@ -88,14 +88,6 @@ public:
     virtual void set_computational_basis(ITYPE comp_basis) = 0;
 
     /**
-     * \~japanese-en 各量子状態について、指定された量子ビットの値を書き換える。
-     *
-     * @param setting (置き換える量子ビットの番号,書き換える値)を表す配列
-     */
-    virtual void partially_set_computational_basis(
-        std::vector<std::pair<UINT, bool>> setting) = 0;
-
-    /**
      * \~japanese-en 量子状態をHaar
      * randomにサンプリングされた量子状態に初期化する
      */
@@ -106,6 +98,7 @@ public:
      * randomにサンプリングされた量子状態に初期化する
      */
     virtual void set_Haar_random_state(UINT seed) = 0;
+
     /**
      * \~japanese-en
      * <code>target_qubit_index</code>の添え字の量子ビットを測定した時、0が観測される確率を計算する。
@@ -361,52 +354,6 @@ public:
         _state_vector[0] = 0.;
         _state_vector[comp_basis] = 1.;
     }
-
-    /**
-     * \~japanese-en 各量子状態について、指定された量子ビットの値を書き換える。
-     *
-     * @param setting (置き換える量子ビットの番号,書き換える値)を表す配列
-     */
-    virtual void partially_set_computational_basis(
-        std::vector<std::pair<UINT, bool>> setting) override {
-        //構成する
-        ITYPE Prefix = (1LL << this->_qubit_count) - 1LL;
-        ITYPE Set = 0;
-        for (UINT i = 0; i < setting.size(); i++) {
-            if (setting[i].first >= this->_qubit_count) {
-                std::cerr << "Error: specified Quantum Bit is larger than "
-                             "qubit count."
-                          << std::endl;
-                return;
-            }
-            Prefix ^= (1LL << setting[i].first);
-            if (Prefix & (1LL << setting[i].first)) {
-                std::cerr << "Error: same quantum bit is specified twice."
-                          << std::endl;
-                return;
-            }
-            if (setting[i].second == true) {
-                Set |= (1LL << setting[i].first);
-            }
-        }
-        // pow by 2
-        for (ITYPE i = 0; i < (1ULL << this->_qubit_count); ++i) {
-            _state_vector[i] *= _state_vector[i];
-        }
-        // gather
-        for (ITYPE i = 0; i < (1ULL << this->_qubit_count); ++i) {
-            ITYPE next = ((i & Prefix) | Set);
-            if (next == i) continue;
-            _state_vector[next] += _state_vector[i];
-            _state_vector[i] = 0.;
-        }
-        // sqrt
-        for (ITYPE i = 0; i < (1ULL << this->_qubit_count); ++i) {
-            _state_vector[i] = sqrt(_state_vector[i]);
-        }
-        return;
-    }
-
     /**
      * \~japanese-en 量子状態をHaar
      * randomにサンプリングされた量子状態に初期化する

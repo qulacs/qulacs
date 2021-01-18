@@ -60,16 +60,6 @@ public:
         _density_matrix[0] = 0.;
         _density_matrix[comp_basis * dim + comp_basis] = 1.;
     }
-
-    virtual void partially_set_computational_basis(
-        std::vector<std::pair<UINT, bool>> setting) override {
-        // TODO
-        std::cout << "Error: partially_set_computational_basis is unavailable "
-                     "for Density Matrix. Sorry."
-                  << std::endl;
-        return;
-    }
-
     /**
      * \~japanese-en 量子状態をHaar
      * randomにサンプリングされた量子状態に初期化する
