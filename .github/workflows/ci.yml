@@ -56,6 +56,47 @@ jobs:
           make pythontest
         if: ${{ contains(matrix.os, 'ubuntu') }}
 
+  nvcc-gcc8-GPUbuild:
+    name: nvcc + gcc8 build
+    strategy:
+      matrix:
+        python-version: ["3.7.5", "2.7.17"]
+        os: ["ubuntu-self-hosted"]
+    runs-on: ${{ matrix.os }}
+    env:
+      CXX_COMPILER: "g++-8"
+      C_COMPILER: "gcc-8"
+      PYTHON: ${{ matrix.python-version }}
+      COVERAGE: "ON"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Install Python dependencies
+        run: pip install -U --only-binary=numpy,scipy numpy scipy
+
+      - name: Install qulacs for Ubuntu
+        run: ./script/build_gcc_with_gpu.sh
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+
+      - name: Install qulacs Python module
+        run: python setup.py install
+
+      - name: Test in Ubuntu
+        run: |
+          cd ./build
+          make test
+          make pythontest
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+
   source-dist:
     name: Source dist
     needs: gcc8-build
