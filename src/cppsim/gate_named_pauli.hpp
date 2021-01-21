@@ -14,7 +14,9 @@ extern "C" {
 #include "pauli_operator.hpp"
 #include "state.hpp"
 #include "utility.hpp"
-
+#ifdef _USE_GPU
+#include <gpusim/update_ops_cuda.h>
+#endif
 /**
  * \~japanese-en 複数の量子ビットに作用するPauli演算子を作用させるゲート
  */
