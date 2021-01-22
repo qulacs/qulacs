@@ -31,7 +31,7 @@ public:
      *
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
-    ClsIGate(UINT target_qubit_index) {
+    explicit ClsIGate(UINT target_qubit_index) {
         this->_update_func = ClsIGate::idling;
         this->_update_func_dm = ClsIGate::idling;
         this->_update_func_gpu = ClsIGate::idling_gpu;
