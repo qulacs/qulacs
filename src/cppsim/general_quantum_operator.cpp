@@ -1,5 +1,6 @@
 #include <cstring>
 #include <fstream>
+#include <numeric>
 
 #include "type.hpp"
 #include "utility.hpp"
