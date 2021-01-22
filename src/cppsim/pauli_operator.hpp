@@ -161,7 +161,8 @@ public:
      * @return
      * pauli_listの添字に対応するqubitに作用するパウリ演算子と係数をもつインスタンス
      */
-    explicit PauliOperator(const std::vector<UINT>& pauli_list, CPPCTYPE coef = 1.);
+    explicit PauliOperator(
+        const std::vector<UINT>& pauli_list, CPPCTYPE coef = 1.);
 
     /**
      * \~japanese-en

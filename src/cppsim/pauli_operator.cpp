@@ -29,9 +29,7 @@ extern "C" {
 #include "pauli_operator.hpp"
 #include "state.hpp"
 
-PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef)
-    :_coef(coef)
-{
+PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef) : _coef(coef) {
     std::stringstream ss(strings);
     std::string pauli_str;
     UINT index, pauli_type = 0;
@@ -56,9 +54,8 @@ PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef)
 }
 
 PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list,
-    std::string Pauli_operator_type_list, CPPCTYPE coef) 
-    :_coef(coef)
-{
+    std::string Pauli_operator_type_list, CPPCTYPE coef)
+    : _coef(coef) {
     UINT term_count = (UINT)(strlen(Pauli_operator_type_list.c_str()));
     UINT pauli_type = 0;
     for (UINT term_index = 0; term_index < term_count; ++term_index) {
@@ -84,9 +81,8 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list,
     }
 }
 
-PauliOperator::PauliOperator(
-    const std::vector<UINT>& pauli_list, CPPCTYPE coef) :_coef(coef)
-{
+PauliOperator::PauliOperator(const std::vector<UINT>& pauli_list, CPPCTYPE coef)
+    : _coef(coef) {
     for (UINT term_index = 0; term_index < pauli_list.size(); ++term_index) {
         if (pauli_list[term_index] != 0)
             this->add_single_Pauli(term_index, pauli_list[term_index]);
@@ -94,8 +90,8 @@ PauliOperator::PauliOperator(
 }
 
 PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_index_list,
-    const std::vector<UINT>& target_qubit_pauli_list, CPPCTYPE coef) :_coef(coef)
-{
+    const std::vector<UINT>& target_qubit_pauli_list, CPPCTYPE coef)
+    : _coef(coef) {
     assert(target_qubit_index_list.size() == target_qubit_pauli_list.size());
     for (UINT term_index = 0; term_index < target_qubit_index_list.size();
          ++term_index) {

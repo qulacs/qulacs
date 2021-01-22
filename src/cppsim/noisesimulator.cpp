@@ -25,7 +25,7 @@ NoiseSimulator::NoiseSimulator(
         initial_state = init_state->copy();
     }
     circuit = init_circuit->copy();
-    for (int i = 0; i < circuit->gate_list.size(); ++i) {
+    for (size_t i = 0; i < circuit->gate_list.size(); ++i) {
         auto gate = circuit->gate_list[i];
         if (gate->is_noise() == false) continue;
         gate->optimize_ProbablisticGate();

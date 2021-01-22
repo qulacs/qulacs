@@ -62,7 +62,8 @@ public:
      * @param[in] state 期待値をとるときの量子状態
      * @return 入力で与えた量子状態に対応するHermitianQuantumOperatorの期待値
      */
-    CPPCTYPE get_expectation_value(const QuantumStateBase* state) const override;
+    CPPCTYPE get_expectation_value(
+        const QuantumStateBase* state) const override;
 
     /**
      * \~japanese-en

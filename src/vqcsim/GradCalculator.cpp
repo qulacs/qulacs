@@ -7,10 +7,10 @@ std::vector<std::complex<double>> GradCalculator::calculate_grad(
     ParametricQuantumCircuit& x, Observable& obs, std::vector<double> theta) {
     std::vector<std::complex<double>> ans;
     Causal hoge;
-    for (int i = 0; i < x.get_parameter_count(); ++i) {
+    for (UINT i = 0; i < x.get_parameter_count(); ++i) {
         std::complex<double> y, z;
         {
-            for (int q = 0; q < x.get_parameter_count(); ++q) {
+            for (UINT q = 0; q < x.get_parameter_count(); ++q) {
                 float diff = 0;
                 if (i == q) {
                     diff = M_PI / 2.0;

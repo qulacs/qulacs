@@ -59,7 +59,8 @@ public:
      *
      * @param index_ この量子ビットの添え字
      */
-    explicit ControlQubitInfo(UINT index_) : QubitInfo(index_), _control_value(1){};
+    explicit ControlQubitInfo(UINT index_)
+        : QubitInfo(index_), _control_value(1){};
     /**
      * \~japanese-en コンストラクタ
      *

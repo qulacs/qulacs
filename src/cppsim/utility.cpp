@@ -35,11 +35,11 @@ Observable generate_random_observable(
     const UINT qubit_count, const UINT operator_count) {
     auto observable = Observable(qubit_count);
     Random random;
-    for (auto operator_index = 0; operator_index < operator_count;
+    for (UINT operator_index = 0; operator_index < operator_count;
          operator_index++) {
         auto target_qubit_index_list = std::vector<UINT>(qubit_count, 0);
         auto target_qubit_pauli_list = std::vector<UINT>(qubit_count, 0);
-        for (auto qubit_index = 0; qubit_index < qubit_count; qubit_index++) {
+        for (UINT qubit_index = 0; qubit_index < qubit_count; qubit_index++) {
             UINT pauli_id = random.int32() % 4;
             target_qubit_index_list[qubit_index] = qubit_index;
             target_qubit_pauli_list[qubit_index] = pauli_id;
