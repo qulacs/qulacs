@@ -101,9 +101,9 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
     std::vector<UINT> target_index;
     std::vector<UINT> control_index;
     std::vector<UINT> control_value;
-    for (auto val : this->_target_qubit_list) {
-        target_index.push_back(val.index());
-    }
+    std::transform(this->_target_qubit_list.cbegin(),
+        this->_target_qubit_list.cend(), std::back_inserter(target_index),
+        [](auto value) { return value.index(); });
     for (auto val : this->_control_qubit_list) {
         control_index.push_back(val.index());
         control_value.push_back(val.control_value());

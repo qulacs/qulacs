@@ -108,8 +108,8 @@ public:
             auto term_index_list = term->get_index_list();
             auto pauli_id_list = term->get_pauli_id_list();
             UINT circuit_count = 0;
-            std::vector<UINT> roots;
-            for (UINT i = 0; i < qubit_count; i++) {
+            std::vector<int> roots;
+            for (int i = 0; i < qubit_count; i++) {
                 if (use_qubit[i] && i == uf.root(i)) {
                     roots.emplace_back(uf.root(i));
                     circuit_count += 1;
@@ -118,7 +118,7 @@ public:
             std::vector<QuantumCircuit*> circuits(circuit_count, nullptr);
             CPPCTYPE expectation(1.0, 0);
             for (UINT i = 0; i < circuit_count; i++) {
-                UINT root = roots[i];
+                const auto root = roots[i];
                 circuits[i] = new QuantumCircuit(uf.size(root));
                 auto& circuit = circuits[i];
                 std::vector<int> qubit_encode(qubit_count, -1);

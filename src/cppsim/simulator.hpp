@@ -26,7 +26,7 @@ public:
      * @param initial_state
      * 初期量子状態。デフォルト値はNULLで、NULLの場合は0状態に初期化される。
      */
-    QuantumCircuitSimulator(
+    explicit QuantumCircuitSimulator(
         QuantumCircuit* circuit, QuantumStateBase* initial_state = NULL);
 
     /**

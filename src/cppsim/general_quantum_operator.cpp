@@ -1,5 +1,6 @@
 #include <cstring>
 #include <fstream>
+#include <numeric>
 
 #include "type.hpp"
 #include "utility.hpp"
@@ -69,10 +70,11 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
             << std::endl;
         return 0.;
     }
-    CPPCTYPE sum = 0;
-    for (auto pauli : this->_operator_list) {
-        sum += pauli->get_expectation_value(state);
-    }
+    auto sum = std::accumulate(this->_operator_list.cbegin(),
+        this->_operator_list.cend(), (CPPCTYPE)0.0,
+        [&](CPPCTYPE acc, PauliOperator* pauli) {
+            return acc + pauli->get_expectation_value(state);
+        });
     return sum;
 }
 
@@ -89,10 +91,11 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
         return 0.;
     }
 
-    CPPCTYPE sum = 0;
-    for (auto pauli : this->_operator_list) {
-        sum += pauli->get_transition_amplitude(state_bra, state_ket);
-    }
+    auto sum = std::accumulate(this->_operator_list.cbegin(),
+        this->_operator_list.cend(), (CPPCTYPE)0.0,
+        [&](CPPCTYPE acc, PauliOperator* pauli) {
+            return acc + pauli->get_transition_amplitude(state_bra, state_ket);
+        });
     return sum;
 }
 
@@ -221,7 +224,6 @@ GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(
     std::vector<std::string> ops;
 
     // loading lines and check qubit_count
-    double coef_real, coef_imag;
     std::string str_buf;
     std::vector<std::string> index_list;
 
@@ -232,8 +234,8 @@ GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(
     while (getline(ifs, line)) {
         std::tuple<double, double, std::string> parsed_items =
             parse_openfermion_line(line);
-        coef_real = std::get<0>(parsed_items);
-        coef_imag = std::get<1>(parsed_items);
+        const auto coef_real = std::get<0>(parsed_items);
+        const auto coef_imag = std::get<1>(parsed_items);
         str_buf = std::get<2>(parsed_items);
 
         CPPCTYPE coef(coef_real, coef_imag);
@@ -269,7 +271,6 @@ GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_text(
     std::vector<CPPCTYPE> coefs;
     std::vector<std::string> ops;
 
-    double coef_real, coef_imag;
     std::string str_buf;
     std::vector<std::string> index_list;
 
@@ -278,8 +279,8 @@ GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_text(
     for (std::string line : lines) {
         std::tuple<double, double, std::string> parsed_items =
             parse_openfermion_line(line);
-        coef_real = std::get<0>(parsed_items);
-        coef_imag = std::get<1>(parsed_items);
+        const auto coef_real = std::get<0>(parsed_items);
+        const auto coef_imag = std::get<1>(parsed_items);
         str_buf = std::get<2>(parsed_items);
 
         CPPCTYPE coef(coef_real, coef_imag);
@@ -319,7 +320,6 @@ create_split_general_quantum_operator(std::string file_path) {
     }
 
     // loading lines and check qubit_count
-    double coef_real, coef_imag;
     std::string str_buf;
     std::vector<std::string> index_list;
 
@@ -327,8 +327,8 @@ create_split_general_quantum_operator(std::string file_path) {
     while (getline(ifs, line)) {
         std::tuple<double, double, std::string> parsed_items =
             parse_openfermion_line(line);
-        coef_real = std::get<0>(parsed_items);
-        coef_imag = std::get<1>(parsed_items);
+        const auto coef_real = std::get<0>(parsed_items);
+        const auto coef_imag = std::get<1>(parsed_items);
         str_buf = std::get<2>(parsed_items);
         if (str_buf == (std::string)NULL) {
             continue;
