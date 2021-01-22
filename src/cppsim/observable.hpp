@@ -111,7 +111,7 @@ DllExport HermitianQuantumOperator* create_observable_from_openfermion_file(
  * @return Observableのインスタンス
  **/
 DllExport HermitianQuantumOperator* create_observable_from_openfermion_text(
-    std::string text);
+    const std::string& text);
 
 /**
  * \~japanese-en

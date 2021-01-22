@@ -134,7 +134,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count) {
     return result;
 }
 
-void NoiseSimulator::evaluate_gates(const std::vector<UINT> chosen_gate,
+void NoiseSimulator::evaluate_gates(const std::vector<UINT>& chosen_gate,
     QuantumState* sampling_state, const int StartPos) {
     UINT gate_size = circuit->gate_list.size();
     for (UINT q = StartPos; q < gate_size; ++q) {

@@ -69,10 +69,11 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
             << std::endl;
         return 0.;
     }
-    CPPCTYPE sum = 0;
-    for (auto pauli : this->_operator_list) {
-        sum += pauli->get_expectation_value(state);
-    }
+    auto sum = std::accumulate(this->_operator_list.cbegin(),
+        this->_operator_list.cend(), (CPPCTYPE)0.0,
+        [&](CPPCTYPE acc, PauliOperator* pauli) {
+            return acc + pauli->get_expectation_value(state);
+        });
     return sum;
 }
 
@@ -89,10 +90,11 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
         return 0.;
     }
 
-    CPPCTYPE sum = 0;
-    for (auto pauli : this->_operator_list) {
-        sum += pauli->get_transition_amplitude(state_bra, state_ket);
-    }
+    auto sum = std::accumulate(this->_operator_list.cbegin(),
+        this->_operator_list.cend(), (CPPCTYPE)0.0,
+        [&](CPPCTYPE acc, PauliOperator* pauli) {
+            return acc + pauli->get_transition_amplitude(state_bra, state_ket);
+        });
     return sum;
 }
 

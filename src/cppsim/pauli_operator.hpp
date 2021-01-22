@@ -87,9 +87,11 @@ public:
      * @return 自身の保持するパウリ演算子が作用する添字のリスト。
      */
     std::vector<UINT> get_index_list() const {
-        std::vector<UINT> res;
-        for (auto val : _pauli_list) res.push_back(val.index());
-        return res;
+        std::vector<UINT> index_list;
+        std::transform(_pauli_list.cbegin(), _pauli_list.cend(),
+            std::back_inserter(index_list),
+            [](auto val) { return val.index(); });
+        return index_list;
     }
 
     /**
@@ -103,9 +105,11 @@ public:
      * 自身の保持するパウリ演算子のリスト。(I,X,Y,Z)が(0,1,2,3)に対応する。
      */
     std::vector<UINT> get_pauli_id_list() const {
-        std::vector<UINT> res;
-        for (auto val : _pauli_list) res.push_back(val.pauli_id());
-        return res;
+        std::vector<UINT> pauli_id_list;
+        std::transform(_pauli_list.cbegin(), _pauli_list.cend(),
+            std::back_inserter(pauli_id_list),
+            [](auto val) { return val.pauli_id(); });
+        return pauli_id_list;
     }
 
     /**

@@ -332,8 +332,6 @@ QuantumGateBase* Measurement(
 QuantumGateBase* create_quantum_gate_from_string(std::string gate_string) {
     const char* gateString = gate_string.c_str();
     char* sbuf;
-    // ITYPE elementCount;
-    std::vector<CPPCTYPE> element;
     const char delim[] = " ";
     std::vector<UINT> targets;
     QuantumGateBase* gate = NULL;

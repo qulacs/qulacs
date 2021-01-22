@@ -17,7 +17,7 @@ private:
     QuantumStateBase* initial_state;
     std::vector<std::pair<UINT, UINT>> noise_info;
 
-    void evaluate_gates(const std::vector<UINT> chosen_gate,
+    void evaluate_gates(const std::vector<UINT>& chosen_gate,
         QuantumState* sampling_state, const int StartPos);
 
 public:
@@ -32,7 +32,7 @@ public:
      * @param[in] init_state 最初の状態。指定されなかった場合は0で初期化される。
      * @return NoiseSimulatorのインスタンス
      */
-    NoiseSimulator(const QuantumCircuit* init_circuit,
+    explicit NoiseSimulator(const QuantumCircuit* init_circuit,
         const QuantumState* init_state = NULL);
     /**
      * \~japanese-en

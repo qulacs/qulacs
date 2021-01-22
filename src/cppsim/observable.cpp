@@ -106,7 +106,7 @@ HermitianQuantumOperator* create_observable_from_openfermion_file(
 }
 
 HermitianQuantumOperator* create_observable_from_openfermion_text(
-    std::string text) {
+    const std::string& text) {
     UINT qubit_count = 0;
     std::vector<CPPCTYPE> coefs;
     std::vector<std::string> ops;

@@ -107,7 +107,6 @@ std::tuple<double, double, std::string> parse_openfermion_line(
     double coef_real, coef_imag;
 
     char buf[256];
-    char symbol_j[1];
     UINT matches;
 
     if (line[0] == '(') {
@@ -122,6 +121,7 @@ std::tuple<double, double, std::string> parse_openfermion_line(
             std::strcpy(buf, "I0");
         }
     } else {
+        char symbol_j[1];
         matches = std::sscanf(
             line.c_str(), "%lf%[j] [%[^]]]", &coef_imag, symbol_j, buf);
         coef_real = 0.;

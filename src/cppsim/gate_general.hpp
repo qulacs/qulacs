@@ -30,9 +30,9 @@ public:
             sum += val;
             _cumulative_distribution.push_back(sum);
         }
-        for (auto gate : gate_list) {
-            _gate_list.push_back(gate->copy());
-        }
+        std::transform(gate_list.cbegin(), gate_list.cend(),
+            std::back_inserter(_gate_list),
+            [](auto gate) { return gate->copy(); });
         FLAG_NOISE = true;
     };
 
@@ -89,9 +89,9 @@ public:
      */
     virtual QuantumGateBase* copy() const override {
         std::vector<QuantumGateBase*> new_gate_list;
-        for (auto item : _gate_list) {
-            new_gate_list.push_back(item->copy());
-        }
+        std::transform(_gate_list.cbegin(), _gate_list.cend(),
+            std::back_inserter(new_gate_list),
+            [](auto gate) { return gate->copy(); });
         return new QuantumGate_Probabilistic(_distribution, new_gate_list);
     };
 
@@ -174,9 +174,9 @@ public:
             sum += val;
             _cumulative_distribution.push_back(sum);
         }
-        for (auto gate : gate_list) {
-            _gate_list.push_back(gate->copy());
-        }
+        std::transform(gate_list.cbegin(), gate_list.cend(),
+            std::back_inserter(_gate_list),
+            [](auto gate) { return gate->copy(); });
     };
 
     virtual ~QuantumGate_ProbabilisticInstrument() {
@@ -211,9 +211,9 @@ public:
      */
     virtual QuantumGateBase* copy() const override {
         std::vector<QuantumGateBase*> new_gate_list;
-        for (auto item : _gate_list) {
-            new_gate_list.push_back(item->copy());
-        }
+        std::transform(_gate_list.cbegin(), _gate_list.cend(),
+            std::back_inserter(new_gate_list),
+            [](auto gate) { return gate->copy(); });
         return new QuantumGate_ProbabilisticInstrument(
             _distribution, new_gate_list, _classical_register_address);
     };
@@ -241,9 +241,9 @@ protected:
 
 public:
     explicit QuantumGate_CPTP(std::vector<QuantumGateBase*> gate_list) {
-        for (auto gate : gate_list) {
-            _gate_list.push_back(gate->copy());
-        }
+        std::transform(gate_list.cbegin(), gate_list.cend(),
+            std::back_inserter(_gate_list),
+            [](auto gate) { return gate->copy(); });
     };
     virtual ~QuantumGate_CPTP() {
         for (unsigned int i = 0; i < _gate_list.size(); ++i) {
@@ -310,9 +310,9 @@ public:
      */
     virtual QuantumGateBase* copy() const override {
         std::vector<QuantumGateBase*> new_gate_list;
-        for (auto item : _gate_list) {
-            new_gate_list.push_back(item->copy());
-        }
+        std::transform(_gate_list.cbegin(), _gate_list.cend(),
+            std::back_inserter(new_gate_list),
+            [](auto gate) { return gate->copy(); });
         return new QuantumGate_CPTP(new_gate_list);
     };
     /**
@@ -346,9 +346,9 @@ public:
         : _state_normalize(state_normalize),
           _probability_normalize(probability_normalize),
           _assign_zero_if_not_matched(assign_zero_if_not_matched) {
-        for (auto gate : gate_list) {
-            _gate_list.push_back(gate->copy());
-        }
+        std::transform(gate_list.cbegin(), gate_list.cend(),
+            std::back_inserter(_gate_list),
+            [](auto gate) { return gate->copy(); });
     };
     virtual ~QuantumGate_CP() {
         for (unsigned int i = 0; i < _gate_list.size(); ++i) {
@@ -432,9 +432,9 @@ public:
      */
     virtual QuantumGateBase* copy() const override {
         std::vector<QuantumGateBase*> new_gate_list;
-        for (auto item : _gate_list) {
-            new_gate_list.push_back(item->copy());
-        }
+        std::transform(_gate_list.cbegin(), _gate_list.cend(),
+            std::back_inserter(new_gate_list),
+            [](auto gate) { return gate->copy(); });
         return new QuantumGate_CP(new_gate_list, _state_normalize,
             _probability_normalize, _assign_zero_if_not_matched);
     };
@@ -464,9 +464,9 @@ public:
     QuantumGate_Instrument(std::vector<QuantumGateBase*> gate_list,
         UINT classical_register_address)
         : _classical_register_address(classical_register_address) {
-        for (auto gate : gate_list) {
-            _gate_list.push_back(gate->copy());
-        }
+        std::transform(gate_list.cbegin(), gate_list.cend(),
+            std::back_inserter(_gate_list),
+            [](auto gate) { return gate->copy(); });
     };
     virtual ~QuantumGate_Instrument() {
         for (unsigned int i = 0; i < _gate_list.size(); ++i) {
@@ -516,9 +516,9 @@ public:
      */
     virtual QuantumGateBase* copy() const override {
         std::vector<QuantumGateBase*> new_gate_list;
-        for (auto item : _gate_list) {
-            new_gate_list.push_back(item->copy());
-        }
+        std::transform(_gate_list.cbegin(), _gate_list.cend(),
+            std::back_inserter(new_gate_list),
+            [](auto gate) { return gate->copy(); });
         return new QuantumGate_Instrument(
             new_gate_list, _classical_register_address);
     };

@@ -18,7 +18,7 @@ extern "C" {
 #include <iostream>
 
 /**
- * \~japanese-en ‰Â‹tŒÃ“T‰ñ˜H‚Ì‚ğ•\‚·ƒNƒ‰ƒX
+ * \~japanese-en ï¿½Â‹tï¿½Ã“Tï¿½ï¿½Hï¿½Ì‚ï¿½\ï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½X
  */
 class ClsReversibleBooleanGate : public QuantumGateBase {
 private:
@@ -35,15 +35,15 @@ public:
     };
 
     /**
-     * \~japanese-en —Êqó‘Ô‚ğXV‚·‚é
+     * \~japanese-en ï¿½Êqï¿½ï¿½Ô‚ï¿½ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½
      *
-     * @param state XV‚·‚é—Êqó‘Ô
+     * @param state ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½Êqï¿½ï¿½ï¿½
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
         std::vector<UINT> target_index;
-        for (auto val : this->_target_qubit_list) {
-            target_index.push_back(val.index());
-        }
+        std::transform(this->_target_qubit_list.cbegin(),
+            this->_target_qubit_list.cend(), std::back_inserter(target_index),
+            [](auto value) { return value.index(); });
         if (state->is_state_vector()) {
 #ifdef _USE_GPU
             if (state->get_device_name() == "gpu") {
@@ -67,17 +67,18 @@ public:
         }
     };
     /**
-     * \~japanese-en ©g‚ÌƒfƒB[ƒvƒRƒs[‚ğ¶¬‚·‚é
+     * \~japanese-en
+     * ï¿½ï¿½ï¿½gï¿½Ìƒfï¿½Bï¿½[ï¿½vï¿½Rï¿½sï¿½[ï¿½ğ¶ï¿½ï¿½ï¿½ï¿½ï¿½
      *
-     * @return ©g‚ÌƒfƒB[ƒvƒRƒs[
+     * @return ï¿½ï¿½ï¿½gï¿½Ìƒfï¿½Bï¿½[ï¿½vï¿½Rï¿½sï¿½[
      */
     virtual QuantumGateBase* copy() const override {
         return new ClsReversibleBooleanGate(*this);
     };
     /**
-     * \~japanese-en ©g‚ÌƒQ[ƒgs—ñ‚ğƒZƒbƒg‚·‚é
+     * \~japanese-en ï¿½ï¿½ï¿½gï¿½ÌƒQï¿½[ï¿½gï¿½sï¿½ï¿½ï¿½ï¿½Zï¿½bï¿½gï¿½ï¿½ï¿½ï¿½
      *
-     * @param matrix s—ñ‚ğƒZƒbƒg‚·‚é•Ï”‚ÌQÆ
+     * @param matrix ï¿½sï¿½ï¿½ï¿½ï¿½Zï¿½bï¿½gï¿½ï¿½ï¿½ï¿½Ïï¿½ï¿½ÌQï¿½ï¿½
      */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         ITYPE matrix_dim = 1ULL << this->_target_qubit_list.size();
