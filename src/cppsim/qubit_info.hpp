@@ -32,7 +32,7 @@ public:
      *
      * @param index_ 量子ビットの添え字
      */
-    QubitInfo(UINT index_) : _index(index_){};
+    explicit QubitInfo(UINT index_) : _index(index_){};
 };
 
 class TargetQubitInfo;
@@ -59,7 +59,7 @@ public:
      *
      * @param index_ この量子ビットの添え字
      */
-    ControlQubitInfo(UINT index_) : QubitInfo(index_), _control_value(1){};
+    explicit ControlQubitInfo(UINT index_) : QubitInfo(index_), _control_value(1){};
     /**
      * \~japanese-en コンストラクタ
      *
@@ -104,7 +104,7 @@ public:
      *
      * @param index_ この量子ビットの添え字
      */
-    TargetQubitInfo(UINT index_)
+    explicit TargetQubitInfo(UINT index_)
         : QubitInfo(index_), _commutation_property(0){};
     /**
      * \~japanese-en コンストラクタ

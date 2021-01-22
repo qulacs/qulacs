@@ -22,9 +22,8 @@ public:
      * @param gate_list ゲートのリスト
      */
     QuantumGate_Probabilistic(std::vector<double> distribution,
-        std::vector<QuantumGateBase*> gate_list) {
-        _distribution = distribution;
-
+        std::vector<QuantumGateBase*> gate_list)
+        : _distribution(distribution) {
         double sum = 0.;
         _cumulative_distribution.push_back(0.);
         for (auto val : distribution) {
@@ -120,7 +119,7 @@ public:
     virtual std::vector<QuantumGateBase*> get_gate_list() override {
         return _gate_list;
     }
-    virtual void optimize_ProbablisticGate() {
+    virtual void optimize_ProbablisticGate() override {
         int n = _gate_list.size();
         std::vector<std::pair<double, int>> itr;
         for (int i = 0; i < n; ++i) {
@@ -166,10 +165,9 @@ public:
      */
     QuantumGate_ProbabilisticInstrument(std::vector<double> distribution,
         std::vector<QuantumGateBase*> gate_list,
-        UINT classical_register_address) {
-        _distribution = distribution;
-        _classical_register_address = classical_register_address;
-
+        UINT classical_register_address)
+        : _distribution(distribution),
+          _classical_register_address(classical_register_address) {
         double sum = 0.;
         _cumulative_distribution.push_back(0.);
         for (auto val : distribution) {
@@ -242,7 +240,7 @@ protected:
     std::vector<QuantumGateBase*> _gate_list;
 
 public:
-    QuantumGate_CPTP(std::vector<QuantumGateBase*> gate_list) {
+    explicit QuantumGate_CPTP(std::vector<QuantumGateBase*> gate_list) {
         for (auto gate : gate_list) {
             _gate_list.push_back(gate->copy());
         }
@@ -266,10 +264,9 @@ public:
             double org_norm = state->get_squared_norm();
 
             auto buffer = state->copy();
-            double norm;
             for (auto gate : _gate_list) {
                 gate->update_quantum_state(buffer);
-                norm = buffer->get_squared_norm() / org_norm;
+                auto norm = buffer->get_squared_norm() / org_norm;
                 sum += norm;
                 if (r < sum) {
                     state->load(buffer);
@@ -465,8 +462,8 @@ protected:
 
 public:
     QuantumGate_Instrument(std::vector<QuantumGateBase*> gate_list,
-        UINT classical_register_address) {
-        _classical_register_address = classical_register_address;
+        UINT classical_register_address)
+        : _classical_register_address(classical_register_address) {
         for (auto gate : gate_list) {
             _gate_list.push_back(gate->copy());
         }
@@ -489,11 +486,10 @@ public:
         double org_norm = state->get_squared_norm();
 
         auto buffer = state->copy();
-        double norm;
         UINT index = 0;
         for (auto gate : _gate_list) {
             gate->update_quantum_state(buffer);
-            norm = buffer->get_squared_norm() / org_norm;
+            auto norm = buffer->get_squared_norm() / org_norm;
             sum += norm;
             if (r < sum) {
                 state->load(buffer);

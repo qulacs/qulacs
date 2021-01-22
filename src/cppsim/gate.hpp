@@ -94,12 +94,11 @@ protected:
           control_qubit_list(_control_qubit_list){};
     QuantumGateBase(const QuantumGateBase& obj)
         : target_qubit_list(_target_qubit_list),
-          control_qubit_list(_control_qubit_list) {
-        _gate_property = obj._gate_property;
-        _name = obj._name;
-        _target_qubit_list = obj.target_qubit_list;
-        _control_qubit_list = obj.control_qubit_list;
-    };
+          control_qubit_list(_control_qubit_list),
+          _gate_property(obj._gate_property),
+          _name(obj._name),
+          _target_qubit_list(obj.target_qubit_list),
+          _control_qubit_list(obj.control_qubit_list){};
     QuantumGateBase& operator=(const QuantumGateBase& rhs) = delete;
 
 public:

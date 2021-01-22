@@ -28,7 +28,7 @@ public:
      * @param[in] qubit_count qubit数
      * @return Observableのインスタンス
      */
-    GeneralQuantumOperator(const UINT qubit_count);
+    explicit GeneralQuantumOperator(const UINT qubit_count);
 
     /**
      * \~japanese-en

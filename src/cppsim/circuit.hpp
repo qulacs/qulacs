@@ -44,7 +44,7 @@ public:
      * @param[in] qubit_count 量子ビットの数
      * @return 生成された量子回路のインスタンス
      */
-    QuantumCircuit(UINT qubit_count);
+    explicit QuantumCircuit(UINT qubit_count);
 
     /**
      * \~japanese-en 量子回路のディープコピーを生成する

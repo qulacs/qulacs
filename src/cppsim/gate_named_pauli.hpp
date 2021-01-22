@@ -31,7 +31,7 @@ public:
      * 使用したパウリ演算子はクラスにて解放される
      * @param pauli 作用させるパウリ演算子
      */
-    ClsPauliGate(PauliOperator* pauli) {
+    explicit ClsPauliGate(PauliOperator* pauli) {
         _pauli = pauli;
         this->_name = "Pauli";
         auto target_index_list = _pauli->get_index_list();

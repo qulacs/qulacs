@@ -130,7 +130,7 @@ public:
      * @param[in] coef 演算子の係数
      * @return 入力のパウリ演算子と係数をもつPauliOpetatorのインスタンス
      */
-    PauliOperator(std::string strings, CPPCTYPE coef = 1.);
+    explicit PauliOperator(std::string strings, CPPCTYPE coef = 1.);
 
     /**
      * \~japanese-en
@@ -161,7 +161,7 @@ public:
      * @return
      * pauli_listの添字に対応するqubitに作用するパウリ演算子と係数をもつインスタンス
      */
-    PauliOperator(const std::vector<UINT>& pauli_list, CPPCTYPE coef = 1.);
+    explicit PauliOperator(const std::vector<UINT>& pauli_list, CPPCTYPE coef = 1.);
 
     /**
      * \~japanese-en

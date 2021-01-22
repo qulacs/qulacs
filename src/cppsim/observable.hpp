@@ -43,7 +43,7 @@ public:
      *
      * @param[in] mpt 追加するPauliOperatorのインスタンス
      */
-    void add_operator(const PauliOperator* mpt);
+    void add_operator(const PauliOperator* mpt) override;
 
     /**
      * \~japanese-en
@@ -62,7 +62,7 @@ public:
      * @param[in] state 期待値をとるときの量子状態
      * @return 入力で与えた量子状態に対応するHermitianQuantumOperatorの期待値
      */
-    CPPCTYPE get_expectation_value(const QuantumStateBase* state) const;
+    CPPCTYPE get_expectation_value(const QuantumStateBase* state) const override;
 
     /**
      * \~japanese-en
@@ -73,7 +73,7 @@ public:
      *  @return GeneralQuantumOperator の基底状態の固有値
      */
     CPPCTYPE solve_ground_state_eigenvalue_by_arnoldi_method(
-        QuantumStateBase* state, const UINT iter_count) const;
+        QuantumStateBase* state, const UINT iter_count) const override;
 
     /**
      * \~japanese-en
@@ -86,7 +86,7 @@ public:
      */
     CPPCTYPE
     solve_ground_state_eigenvalue_by_power_method(QuantumStateBase* state,
-        const UINT iter_count, const CPPCTYPE mu = 0.0) const;
+        const UINT iter_count, const CPPCTYPE mu = 0.0) const override;
 };
 
 namespace observable {

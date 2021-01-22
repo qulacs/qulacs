@@ -315,7 +315,7 @@ public:
         return this->sampling(sampling_count);
     }
 
-    virtual std::string to_string() const {
+    virtual std::string to_string() const override {
         std::stringstream os;
         ComplexVector eigen_state(this->dim);
         auto data = this->duplicate_data_cpp();

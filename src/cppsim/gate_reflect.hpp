@@ -18,14 +18,14 @@ extern "C" {
 #include <iostream>
 
 /**
- * \~japanese-en —Êqó‘Ô‚ğA•Ê‚Ì—Êqó‘Ô‚É‘Î‚µ‚Ä”½Ë‚·‚éƒQ[ƒg‚ÌƒNƒ‰ƒX
+ * \~japanese-en ï¿½Êqï¿½ï¿½Ô‚ï¿½ï¿½Aï¿½Ê‚Ì—Êqï¿½ï¿½Ô‚É‘Î‚ï¿½ï¿½Ä”ï¿½ï¿½Ë‚ï¿½ï¿½ï¿½Qï¿½[ï¿½gï¿½ÌƒNï¿½ï¿½ï¿½X
  */
 class ClsStateReflectionGate : public QuantumGateBase {
 private:
     QuantumStateBase* reflection_state;
 
 public:
-    ClsStateReflectionGate(const QuantumStateBase* _reflection_state) {
+    explicit ClsStateReflectionGate(const QuantumStateBase* _reflection_state) {
         reflection_state = _reflection_state->copy();
         UINT qubit_count = _reflection_state->qubit_count;
         for (UINT qubit_index = 0; qubit_index < qubit_count; ++qubit_index) {
@@ -36,9 +36,9 @@ public:
     virtual ~ClsStateReflectionGate() { delete reflection_state; }
 
     /**
-     * \~japanese-en —Êqó‘Ô‚ğXV‚·‚é
+     * \~japanese-en ï¿½Êqï¿½ï¿½Ô‚ï¿½ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½
      *
-     * @param state XV‚·‚é—Êqó‘Ô
+     * @param state ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½Êqï¿½ï¿½ï¿½
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
         if (state->is_state_vector()) {
@@ -70,17 +70,17 @@ public:
         }
     };
     /**
-     * \~japanese-en ©g‚ÌƒfƒB[ƒvƒRƒs[‚ğ¶¬‚·‚é
+     * \~japanese-en ï¿½ï¿½ï¿½gï¿½Ìƒfï¿½Bï¿½[ï¿½vï¿½Rï¿½sï¿½[ï¿½ğ¶ï¿½ï¿½ï¿½ï¿½ï¿½
      *
-     * @return ©g‚ÌƒfƒB[ƒvƒRƒs[
+     * @return ï¿½ï¿½ï¿½gï¿½Ìƒfï¿½Bï¿½[ï¿½vï¿½Rï¿½sï¿½[
      */
     virtual QuantumGateBase* copy() const override {
         return new ClsStateReflectionGate(this->reflection_state);
     };
     /**
-     * \~japanese-en ©g‚ÌƒQ[ƒgs—ñ‚ğƒZƒbƒg‚·‚é
+     * \~japanese-en ï¿½ï¿½ï¿½gï¿½ÌƒQï¿½[ï¿½gï¿½sï¿½ï¿½ï¿½ï¿½Zï¿½bï¿½gï¿½ï¿½ï¿½ï¿½
      *
-     * @param matrix s—ñ‚ğƒZƒbƒg‚·‚é•Ï”‚ÌQÆ
+     * @param matrix ï¿½sï¿½ï¿½ï¿½ï¿½Zï¿½bï¿½gï¿½ï¿½ï¿½ï¿½Ïï¿½ï¿½ÌQï¿½ï¿½
      */
     virtual void set_matrix(ComplexMatrix&) const override {
         std::cerr << "ReflectionGate::set_matrix is not implemented"

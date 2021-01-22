@@ -54,7 +54,7 @@ public:
      *
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
-    ClsXGate(UINT target_qubit_index) {
+    explicit ClsXGate(UINT target_qubit_index) {
         this->_update_func = X_gate;
         this->_update_func_dm = dm_X_gate;
 #ifdef _USE_GPU
@@ -79,7 +79,7 @@ public:
      *
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
-    ClsYGate(UINT target_qubit_index) {
+    explicit ClsYGate(UINT target_qubit_index) {
         this->_update_func = Y_gate;
         this->_update_func_dm = dm_Y_gate;
 #ifdef _USE_GPU
@@ -104,7 +104,7 @@ public:
      *
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
-    ClsZGate(UINT target_qubit_index) {
+    explicit ClsZGate(UINT target_qubit_index) {
         this->_update_func = Z_gate;
         this->_update_func_dm = dm_Z_gate;
 #ifdef _USE_GPU
@@ -129,7 +129,7 @@ public:
      *
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
-    ClsHGate(UINT target_qubit_index) {
+    explicit ClsHGate(UINT target_qubit_index) {
         this->_update_func = H_gate;
         this->_update_func_dm = dm_H_gate;
 #ifdef _USE_GPU
@@ -155,7 +155,7 @@ public:
      *
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
-    ClsSGate(UINT target_qubit_index) {
+    explicit ClsSGate(UINT target_qubit_index) {
         this->_update_func = S_gate;
         this->_update_func_dm = dm_S_gate;
 #ifdef _USE_GPU
@@ -180,7 +180,7 @@ public:
      *
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
-    ClsSdagGate(UINT target_qubit_index) {
+    explicit ClsSdagGate(UINT target_qubit_index) {
         this->_update_func = Sdag_gate;
         this->_update_func_dm = dm_Sdag_gate;
 #ifdef _USE_GPU
@@ -205,7 +205,7 @@ public:
      *
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
-    ClsTGate(UINT target_qubit_index) {
+    explicit ClsTGate(UINT target_qubit_index) {
         this->_update_func = T_gate;
         this->_update_func_dm = dm_T_gate;
 #ifdef _USE_GPU
@@ -230,7 +230,7 @@ public:
      *
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
-    ClsTdagGate(UINT target_qubit_index) {
+    explicit ClsTdagGate(UINT target_qubit_index) {
         this->_update_func = Tdag_gate;
         this->_update_func_dm = dm_Tdag_gate;
 #ifdef _USE_GPU
@@ -255,7 +255,7 @@ public:
      *
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
-    ClsSqrtXGate(UINT target_qubit_index) {
+    explicit ClsSqrtXGate(UINT target_qubit_index) {
         this->_update_func = sqrtX_gate;
         this->_update_func_dm = dm_sqrtX_gate;
 #ifdef _USE_GPU
@@ -280,7 +280,7 @@ public:
      *
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
-    ClsSqrtXdagGate(UINT target_qubit_index) {
+    explicit ClsSqrtXdagGate(UINT target_qubit_index) {
         this->_update_func = sqrtXdag_gate;
         this->_update_func_dm = dm_sqrtXdag_gate;
 #ifdef _USE_GPU
@@ -305,7 +305,7 @@ public:
      *
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
-    ClsSqrtYGate(UINT target_qubit_index) {
+    explicit ClsSqrtYGate(UINT target_qubit_index) {
         this->_update_func = sqrtY_gate;
         this->_update_func_dm = dm_sqrtY_gate;
 #ifdef _USE_GPU
@@ -331,7 +331,7 @@ public:
      *
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
-    ClsSqrtYdagGate(UINT target_qubit_index) {
+    explicit ClsSqrtYdagGate(UINT target_qubit_index) {
         this->_update_func = sqrtYdag_gate;
         this->_update_func_dm = dm_sqrtYdag_gate;
 #ifdef _USE_GPU
@@ -357,7 +357,7 @@ public:
      *
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
-    ClsP0Gate(UINT target_qubit_index) {
+    explicit ClsP0Gate(UINT target_qubit_index) {
         this->_update_func = P0_gate;
         this->_update_func_dm = dm_P0_gate;
 #ifdef _USE_GPU
@@ -382,7 +382,7 @@ public:
      *
      * @param target_qubit_index ターゲットの量子ビットの添え字
      */
-    ClsP1Gate(UINT target_qubit_index) {
+    explicit ClsP1Gate(UINT target_qubit_index) {
         this->_update_func = P1_gate;
         this->_update_func_dm = dm_P1_gate;
 #ifdef _USE_GPU
