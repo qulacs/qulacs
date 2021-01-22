@@ -20,7 +20,7 @@ std::vector<std::complex<double>> GradCalculator::calculate_grad(
             y = hoge.CausalCone(x, obs);
         }
         {
-            for (int q = 0; q < x.get_parameter_count(); ++q) {
+            for (UINT q = 0; q < x.get_parameter_count(); ++q) {
                 float diff = 0;
                 if (i == q) {
                     diff = M_PI / 2.0;
