@@ -105,6 +105,10 @@ PYBIND11_MODULE(qulacs, m) {
                                           return res;}, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &HermitianQuantumOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         //.def_static("get_split_Observable", &(HermitianQuantumOperator::get_split_observable));
+        .def("solve_ground_state_eigenvalue_by_arnoldi_method", &Observable::solve_ground_state_eigenvalue_by_arnoldi_method,
+            "Compute ground state eigenvalue by arnoldi method", py::arg("state"), py::arg("iter_count"))
+        .def("solve_ground_state_eigenvalue_by_power_method", &Observable::solve_ground_state_eigenvalue_by_arnoldi_method,
+            "Compute ground state eigenvalue by power method", py::arg("state"), py::arg("iter_count"))
         ;
     auto mobservable = m.def_submodule("observable");
     mobservable.def("create_observable_from_openfermion_file", &observable::create_observable_from_openfermion_file, pybind11::return_value_policy::take_ownership);

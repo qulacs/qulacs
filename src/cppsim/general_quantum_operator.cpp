@@ -130,6 +130,7 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
 
         const auto norm = multiplied_state.get_squared_norm();
         if (i != iter_count - 1) {
+            assert(i < hessenberg_matrix.cols() && i + 1 < hessenberg_matrix.rows());
             hessenberg_matrix(i + 1, i) = std::sqrt(norm);
         }
         multiplied_state.normalize(norm);

@@ -330,8 +330,7 @@ TEST(ObservableTest, CheckMaximumEigenvalueByPowerMethod) {
     constexpr size_t test_count = 5;
 
     for (auto i = 0; i < test_count; i++) {
-        // 2 <= operator_count <= 11
-        const UINT operator_count = random.int32() % 10 + 2;
+        const UINT operator_count = random.int32() % 10 + 2; // 2 <= operator_count <= 11
         auto observable =
             generate_random_observable(qubit_count, operator_count);
 
@@ -358,16 +357,35 @@ TEST(ObservableTest, CheckMaximumEigenvalueByPowerMethod) {
 }
 
 TEST(ObservableTest, CheckMaximumEigenvalueByArnoldiMethod) {
-    constexpr UINT qubit_count = 4;
-    constexpr double eps = 1e-9;
-    constexpr UINT dim = 1ULL << qubit_count;
-    constexpr size_t test_count = 10;
+    constexpr double eps = 1e-5;
+    constexpr UINT test_count = 300;
     Random random;
 
+    // const UINT qubit_count = 4;
     for (auto i = 0; i < test_count; i++) {
-        const UINT operator_count = random.int32() % 10 + 2;
+        const auto qubit_count = random.int32() % 4 + 3; // 3 <= qubit_count <= 5
+        const UINT dim = 1U << qubit_count;
+        const auto operator_count = random.int32() % 10 + 2; // 2 <= operator_count <= 11
         auto observable =
             generate_random_observable(qubit_count, operator_count);
+        std::vector<UINT> qil;
+        std::vector<UINT> qpl;
+        for (UINT i = 0; i < qubit_count; i++) {
+            qil.push_back(i);
+            qpl.push_back(0);
+        }
+        auto op = PauliOperator(qil, qpl, random.uniform());
+        observable.add_operator(&op);
+
+        std::cout << "Pauli operators:" << std::endl;
+        for (auto op : observable.get_terms()) {
+            std::cout << op->get_coef().real() << "; ";
+            for (auto id : op->get_pauli_id_list()) {
+                std::cout << id << ", ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << qubit_count << ", " << operator_count << std::endl;
 
         // observable に対応する行列を求める
         auto observable_matrix = convert_observable_to_matrix(&observable);
@@ -386,6 +404,7 @@ TEST(ObservableTest, CheckMaximumEigenvalueByArnoldiMethod) {
         auto ground_state_eigenvalue =
             observable.solve_ground_state_eigenvalue_by_arnoldi_method(
                 &state, iter_count);
+        std::cout << ground_state_eigenvalue << std::endl;
         // Test eigenvalue
         ASSERT_NEAR(ground_state_eigenvalue.real(),
             test_ground_state_eigenvalue.real(), eps);
@@ -402,5 +421,75 @@ TEST(ObservableTest, CheckMaximumEigenvalueByArnoldiMethod) {
             ASSERT_NEAR(multiplied_state.data_cpp()[i].imag(),
                 state.data_cpp()[i].imag(), eps);
         }
+    }
+}
+
+TEST(ObservableTest, CheckMaximumEigenvalueByArnoldiMethodBisect) {
+    constexpr double eps = 1e-5;
+    constexpr UINT test_count = 300;
+    Random random;
+
+    auto test_func = [&](const double coef) {
+        const auto qubit_count = random.int32() % 4 + 3; // 3 <= qubit_count <= 5
+        const UINT dim = 1U << qubit_count;
+        const auto operator_count = random.int32() % 10 + 2; // 2 <= operator_count <= 11
+        auto observable =
+            generate_random_observable(qubit_count, operator_count);
+
+        std::vector<UINT> qil;
+        std::vector<UINT> qpl;
+        for (UINT i = 0; i < qubit_count; i++) {
+            qil.push_back(i);
+            qpl.push_back(0);
+        }
+        auto op = PauliOperator(qil, qpl, random.uniform());
+        observable.add_operator(&op);
+
+        std::cout << "Pauli operators:" << std::endl;
+        for (auto op : observable.get_terms()) {
+            std::cout << op->get_coef().real() << "; ";
+            for (auto id : op->get_pauli_id_list()) {
+                std::cout << id << ", ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << qubit_count << ", " << operator_count << std::endl;
+
+        // observable に対応する行列を求める
+        auto observable_matrix = convert_observable_to_matrix(&observable);
+        // 基底状態の固有値を求める
+        const auto eigenvalues = observable_matrix.eigenvalues();
+        CPPCTYPE test_ground_state_eigenvalue = eigenvalues[0];
+        for (auto i = 0; i < eigenvalues.size(); i++) {
+            if (eigenvalues[i].real() < test_ground_state_eigenvalue.real()) {
+                test_ground_state_eigenvalue = eigenvalues[i];
+            }
+        }
+
+        constexpr UINT iter_count = 50;
+        QuantumState state(qubit_count);
+        state.set_Haar_random_state();
+        auto ground_state_eigenvalue =
+            observable.solve_ground_state_eigenvalue_by_arnoldi_method(
+                &state, iter_count);
+        std::cout << ground_state_eigenvalue << std::endl;
+        // Test eigenvalue
+        if (std::abs(ground_state_eigenvalue.real() -
+            test_ground_state_eigenvalue.real()) > eps) {
+            std::cout << "------------FAIL--------------" << std::endl;
+            for (auto op : observable.get_terms()) {
+                std::cerr << op->get_coef().real() << "; ";
+                for (auto id : op->get_pauli_id_list()) {
+                    std::cerr << id << ", ";
+                }
+                std::cerr << std::endl;
+            }
+            std::cerr << std::endl;
+        }
+    };
+
+    for (auto i = 0; i < test_count; i++) {
+        auto coef = random.uniform();
+        test_func(coef);
     }
 }
