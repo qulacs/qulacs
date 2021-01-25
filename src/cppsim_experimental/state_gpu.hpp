@@ -168,15 +168,16 @@ public:
             new StateVectorGpu(this->_qubit_count, device_number);
         copy_quantum_state_from_device_to_device(new_state->data(),
             _state_vector, _dim, _cuda_stream, device_number);
-        for (UINT i = 0; i < _classical_register.size(); ++i)
-            new_state->set_classical_value(i, _classical_register[i]);
+        for (auto ite = _classical_register.begin();
+             ite != _classical_register.end(); ++ite)
+            new_state->set_classical_value((*ite).first, (*ite).second);
         return new_state;
     }
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
     virtual void load(const QuantumStateBase* _state) override {
-        if (_state->get_device_name() == "gpu") {
+        if (_state->get_device_type() == DEVICE_GPU) {
             copy_quantum_state_from_device_to_device(
                 this->data(), _state->data(), dim, _cuda_stream, device_number);
         } else {
@@ -204,7 +205,7 @@ public:
      * \~japanese-en
      * 量子状態が配置されているメモリを保持するデバイス名を取得する。
      */
-    virtual const std::string get_device_name() const override { return "gpu"; }
+    virtual DeviceType get_device_type() const override { return DEVICE_GPU; }
 
     /**
      * \~japanese-en

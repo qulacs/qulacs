@@ -138,7 +138,7 @@ public:
             }
         } else if (state_bra->get_device_type() == DEVICE_GPU) {
 #ifdef _USE_GPU
-            if (state->is_state_vector()) {
+            if (state_bra->is_state_vector()) {
                 return transition_amplitude_multi_qubit_Pauli_operator_partial_list_host(
                     this->get_index_list().data(),
                     this->get_pauli_id_list().data(),

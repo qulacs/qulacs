@@ -178,22 +178,7 @@ private:
         _control_qubit_value = control_qubit_value;
     };
     QuantumGateBasic& operator=(const QuantumGateBasic& rhs) = delete;
-
-    /*
-    QuantumGateBasic(const QuantumGateBasic& obj)
-        : QuantumGateBase(Basic),
-          _matrix_type(obj._matrix_type),
-          _special_func_type(obj._special_func_type),
-          _target_qubit_index(obj._target_qubit_index),
-          _target_qubit_commutation(obj._target_qubit_commutation),
-          _control_qubit_index(obj._control_qubit_index),
-          _control_qubit_value(obj._control_qubit_value),
-          _gate_property(obj._gate_property),
-          _dense_matrix_element(obj._dense_matrix_element),
-          _sparse_matrix_element(obj._sparse_matrix_element),
-          _diagonal_matrix_element(obj._diagonal_matrix_element){};
-    */
-
+    
     virtual void _expand_control_qubit(ComplexMatrix&) const {
         if (_control_qubit_index.size() > 0)
             throw std::invalid_argument(
@@ -269,7 +254,7 @@ public:
         const std::vector<UINT>& target_qubit,
         const SparseComplexMatrix& sparse_matrix,
         const std::vector<UINT>& target_commute = {}) {
-        ITYPE dim = 1UL << target_qubit.size();
+        ITYPE dim = 1ULL << target_qubit.size();
         if ((unsigned)sparse_matrix.cols() != dim)
             throw std::invalid_argument("sparse_matrix.cols() != dim");
         if ((unsigned)sparse_matrix.rows() != dim)
@@ -549,6 +534,9 @@ public:
             throw std::invalid_argument(
                 "Only DenseMatrix gate type is supported for density matrix");
         }
+    }
+    void _update_density_matrix_gpu(QuantumStateBase* state) {
+        throw std::runtime_error("Density matrix simulation is not supported on GPU.");
     }
 #endif
 

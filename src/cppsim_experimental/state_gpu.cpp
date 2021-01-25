@@ -7,7 +7,7 @@
 
 namespace state {
 CPPCTYPE inner_product(
-    const QuantumStateGpu* state_bra, const QuantumStateGpu* state_ket) {
+    const StateVectorGpu* state_bra, const StateVectorGpu* state_ket) {
     ITYPE dim = state_ket->dim;
     unsigned int device_number = state_ket->device_number;
     assert(dim == state_bra->dim);

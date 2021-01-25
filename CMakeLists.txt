@@ -1,5 +1,5 @@
 
-cmake_minimum_required(VERSION 3.2)
+cmake_minimum_required(VERSION 2.8)
 
 project(qulacs)
 
@@ -65,6 +65,17 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 ##### set external projects #####
 include(ExternalProject)
 include(${CMAKE_SOURCE_DIR}/cmake_script/FetchContent.cmake)
+
+# Boost
+set(Boost_USE_STATIC_LIBS    ON)
+set(Boost_USE_MULTITHREADED  ON)
+set(Boost_USE_STATIC_RUNTIME ON)
+find_package(Boost 1.36.0 REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+if(NOT Boost_FOUND)
+        message(FATAL_ERROR "Boost not found. Please install boost.")
+endif()
+message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
 
 # Eigen
 set(EIGEN_BUILD_DIR   ${CMAKE_BINARY_DIR}/eigen)
@@ -143,12 +154,13 @@ if(NOT USE_GPU)
 	 -Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
 	 -Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
 	 -Wnested-externs -fdiagnostics-color=auto")
-	set(WARNING_CPP "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
+	set(WARNING_CPP "-Wall -Wextra -Wlogical-op -Wmissing-include-dirs \
 	 -Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
 	 -Werror=missing-declarations -Werror=return-type \
 	 -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
 	 -Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
 	 -fdiagnostics-color=auto")
+	 # -Werror=undef is eliminated due to conflict with boost
 endif()
 
 
@@ -179,42 +191,39 @@ endif()
 if(MSYS OR MINGW OR UNIX OR APPLE)
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+	# Set C++ standard
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+	set(PYBIND11_CPP_STANDARD -std=c++14)
+	
+	# Enable pthread
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
-
-
-	# GCC>=8.0.0 requires C++14 for building python
-	if(8.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14")
-	else()
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
-	endif()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
-	# set for literals of imaginary number
+	# Enable imaginary literals for C++
 	if(NOT MINGW)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
 	endif()
 
-	# enable openmp
+	# Enable openmp
 	if(USE_OMP)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
 	endif()
 
-	# enable mpi
+	# Enable mpi
 	if(USE_MPI)
 		add_compile_options("-D _USE_MPI")
 	endif()
 
-	# enable gpu
+	# Enable gpu
 	if(USE_GPU)
 		add_compile_options("-D _USE_GPU")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 		add_compile_options("-fPIC")
 	endif()
 
-	# enable simd
+	# Enable simd
 	## Check if AVX2 is supported
 	include(${CMAKE_SOURCE_DIR}/cmake_script/FindAVX2.cmake)
 	CHECK_AVX2_LINUX()
@@ -226,27 +235,23 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 		message(STATUS "AVX2 Disabled")
 	endif()
 
-	# add optimization flags
+	# Add optimization flags
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${OPT_FLAGS}")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OPT_FLAGS}")
 
-	# set pybind11 flags
-	if(8.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
-		set(PYBIND11_CPP_STANDARD -std=gnu++14)
-	endif()
 
 elseif(MSVC)
-	# compile csim with cpp since VC not completely support C99 complex values
+	# Compile csim with cpp compiler since VC does not completely support C99 complex values
 	SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
 	add_compile_options("/TP")
 
-	# ignore warning
+	# Ignore warning
 	## ignore warning about template export
 	add_compile_options(/wd4251)
 	## ignore warning on non-Unicode files
 	add_compile_options(/wd4819)
 
-	# enable simd
+	# Enable simd
 	## Check if AVX2 is supported
 	include(${CMAKE_SOURCE_DIR}/cmake_script/FindAVX2.cmake)
 	CHECK_AVX2_WINDOWS()
@@ -273,7 +278,7 @@ elseif(MSVC)
 		add_compile_options("/D_USE_GPU")
 	endif()
 
-	# static link to multithread runtimes
+	# Static link to multithread runtimes
 	set(variables 
 		CMAKE_CXX_FLAGS_DEBUG
 		CMAKE_CXX_FLAGS_RELEASE
@@ -379,6 +384,7 @@ add_custom_target(shared
 if(USE_PYTHON)
 	add_custom_target(python
 		DEPENDS qulacs
+		DEPENDS qulacs_osaka
 	)
 	add_custom_target(pythontest
 		DEPENDS qulacs
