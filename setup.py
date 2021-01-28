@@ -62,7 +62,6 @@ class CMakeBuild(build_ext):
         if platform.system() == "Windows":
             cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
             cmake_args += ['-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
-            cmake_args += ["-DBOOST_ROOT:STR=C:\boost_1_75_0"]
             if sys.maxsize > 2**32:
                 cmake_args += ['-A', 'x64']
             build_args += ['--', '/m']
@@ -102,7 +101,7 @@ class CMakeBuild(build_ext):
 
         cmake_args += ["-DUSE_GPU:STR=No"]
         cmake_args += ["-DUSE_MPI:STR=No"]
-
+        cmake_args += ["-DBOOST_ROOT:STR=C:\boost_1_75_0"]
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
                                                               self.distribution.get_version())
