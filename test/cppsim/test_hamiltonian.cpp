@@ -322,7 +322,18 @@ TEST(ObservableTest, CheckSplitObservable) {
 
 */
 
-TEST(ObservableTest, CheckMaximumEigenvalueByPowerMethod) {
+void add_identity(Observable* observable, Random random) {
+    std::vector<UINT> qil;
+    std::vector<UINT> qpl;
+    for (UINT i = 0; i < observable->get_qubit_count(); i++) {
+        qil.push_back(i);
+        qpl.push_back(0);
+    }
+    auto op = PauliOperator(qil, qpl, random.uniform());
+    observable->add_operator(&op);
+}
+
+TEST(ObservableTest, MaximumEigenvalueByPowerMethod) {
     constexpr UINT qubit_count = 4;
     constexpr double eps = 1e-2;
     constexpr UINT dim = 1ULL << qubit_count;
@@ -354,10 +365,26 @@ TEST(ObservableTest, CheckMaximumEigenvalueByPowerMethod) {
                 &state, iter_count);
         ASSERT_NEAR(ground_state_eigenvalue.real(),
             test_ground_state_eigenvalue.real(), eps);
+
+        QuantumState multiplied_state(qubit_count);
+        // A|q>
+        observable.apply_to_state(state, &multiplied_state);
+        // λ|q>
+        state.multiply_coef(test_ground_state_eigenvalue);
+
+        multiplied_state.normalize(multiplied_state.get_squared_norm());
+        state.normalize(state.get_squared_norm());
+
+        for (UINT i = 0; i < dim; i++) {
+            ASSERT_NEAR(multiplied_state.data_cpp()[i].real(),
+                state.data_cpp()[i].real(), eps);
+            ASSERT_NEAR(multiplied_state.data_cpp()[i].imag(),
+                state.data_cpp()[i].imag(), eps);
+        }
     }
 }
 
-TEST(ObservableTest, CheckMaximumEigenvalueByArnoldiMethod) {
+TEST(ObservableTest, MaximumEigenvalueByArnoldiMethod) {
     constexpr double eps = 1e-6;
     constexpr UINT test_count = 10;
     Random random;
