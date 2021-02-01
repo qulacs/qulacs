@@ -467,6 +467,7 @@ PYBIND11_MODULE(qulacs, m) {
             }
             return circuit.gate_list[index]->copy(); 
         }, pybind11::return_value_policy::take_ownership, "Get gate instance", py::arg("position"))
+        .def("merge_circuit",&QuantumCircuit::merge_circuit,py::arg("circuit"))
         .def("get_gate_count", [](const QuantumCircuit& circuit) -> unsigned int {return (unsigned int)circuit.gate_list.size(); }, "Get gate count")
 		.def("get_qubit_count", [](const QuantumCircuit& circuit) -> unsigned int {return circuit.qubit_count;}, "Get qubit count")
 
