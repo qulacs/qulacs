@@ -331,8 +331,8 @@ enum class CalculationMethod {
 
 // Test calculating eigenvalue.
 // Actual test code calls this function with prepared observable.
-void test_eigenvalue(
-    const Observable& observable, const UINT iter_count, const double eps, const CalculationMethod method) {
+void test_eigenvalue(const Observable& observable, const UINT iter_count,
+    const double eps, const CalculationMethod method) {
     // observable に対応する行列を求める
     auto observable_matrix = convert_observable_to_matrix(observable);
     // 基底状態の固有値を求める
@@ -349,11 +349,13 @@ void test_eigenvalue(
     state.set_Haar_random_state();
     CPPCTYPE ground_state_eigenvalue;
     if (method == CalculationMethod::PowerMethod) {
-        ground_state_eigenvalue = observable.solve_ground_state_eigenvalue_by_power_method(
-            &state, iter_count);
+        ground_state_eigenvalue =
+            observable.solve_ground_state_eigenvalue_by_power_method(
+                &state, iter_count);
     } else if (method == CalculationMethod::ArnoldiMethod) {
-        ground_state_eigenvalue = observable.solve_ground_state_eigenvalue_by_arnoldi_method(
-            &state, iter_count);
+        ground_state_eigenvalue =
+            observable.solve_ground_state_eigenvalue_by_arnoldi_method(
+                &state, iter_count);
     }
     ASSERT_NEAR(ground_state_eigenvalue.real(),
         test_ground_state_eigenvalue.real(), eps);

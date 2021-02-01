@@ -204,6 +204,12 @@ CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
 void GeneralQuantumOperator::apply_to_state(
     const QuantumStateBase& state_to_be_multiplied,
     QuantumStateBase* dst_state) const {
+    if (state_to_be_multiplied.qubit_count != dst_state->qubit_count) {
+        throw std::invalid_argument(
+            "Qubit count of state_to_be_multiplied and dst_state must be the "
+            "same");
+    }
+
     dst_state->multiply_coef(0.0);
     auto work_state = QuantumState(state_to_be_multiplied.qubit_count);
     const auto term_count = this->get_term_count();
