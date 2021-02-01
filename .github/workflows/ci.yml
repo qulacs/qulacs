@@ -4,7 +4,7 @@ on:
   pull_request:
   push:
 
-jobs: 
+jobs:   
   gcc8-build:
     name: GCC8 build
     strategy:
@@ -48,6 +48,47 @@ jobs:
           cmake --build ./visualstudio --target test --config Release
           cmake --build ./visualstudio --target pythontest --config Release
         if: ${{ contains(matrix.os, 'windows') }}
+
+      - name: Test in Ubuntu
+        run: |
+          cd ./build
+          make test
+          make pythontest
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+
+  nvcc-gcc8-GPUbuild:
+    name: nvcc + gcc8 build
+    strategy:
+      matrix:
+        python-version: ["3.7.5", "2.7.17"]
+        os: ["ubuntu-self-hosted"]
+    runs-on: ${{ matrix.os }}
+    env:
+      CXX_COMPILER: "g++-8"
+      C_COMPILER: "gcc-8"
+      PYTHON: ${{ matrix.python-version }}
+      COVERAGE: "ON"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Install Python dependencies
+        run: pip install -U --only-binary=numpy,scipy numpy scipy
+
+      - name: Install qulacs for Ubuntu
+        run: ./script/build_gcc_with_gpu.sh
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+
+      - name: Install qulacs Python module
+        run: python setup.py install
 
       - name: Test in Ubuntu
         run: |
@@ -145,6 +186,7 @@ jobs:
       CIBW_TEST_COMMAND: "python {project}/python/test/test_qulacs.py"
       CIBW_TEST_REQUIRES: "numpy scipy"
       CIBW_BEFORE_BUILD: "pip install cmake"
+      CIBW_BEFORE_BUILD_LINUX: "pip install cmake && yum install boost boost-devel -y" #install boost and cmake
       # In GitHub Actions virtual environment macos-10.15/20201115.1,
       # linking some functions from libgomp fails since the linker cannot find
       # some library files from gcc-8 installed via Homebrew.
