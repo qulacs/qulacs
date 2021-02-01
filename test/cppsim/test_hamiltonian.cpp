@@ -322,6 +322,58 @@ TEST(ObservableTest, CheckSplitObservable) {
 
 */
 
+// Kind of eigenvalue calculation method.
+// Only used to specify method in `test_eigenvalue()`.
+enum class CalculationMethod {
+    PowerMethod,
+    ArnoldiMethod,
+};
+
+// Test calculating eigenvalue.
+// Actual test code calls this function with prepared observable.
+void test_eigenvalue(
+    const Observable& observable, const UINT iter_count, const double eps, const CalculationMethod method) {
+    // observable に対応する行列を求める
+    auto observable_matrix = convert_observable_to_matrix(observable);
+    // 基底状態の固有値を求める
+    const auto eigenvalues = observable_matrix.eigenvalues();
+    CPPCTYPE test_ground_state_eigenvalue = eigenvalues[0];
+    for (auto i = 0; i < eigenvalues.size(); i++) {
+        if (eigenvalues[i].real() < test_ground_state_eigenvalue.real()) {
+            test_ground_state_eigenvalue = eigenvalues[i];
+        }
+    }
+
+    const auto qubit_count = observable.get_qubit_count();
+    QuantumState state(qubit_count);
+    state.set_Haar_random_state();
+    CPPCTYPE ground_state_eigenvalue;
+    if (method == CalculationMethod::PowerMethod) {
+        ground_state_eigenvalue = observable.solve_ground_state_eigenvalue_by_power_method(
+            &state, iter_count);
+    } else if (method == CalculationMethod::ArnoldiMethod) {
+        ground_state_eigenvalue = observable.solve_ground_state_eigenvalue_by_arnoldi_method(
+            &state, iter_count);
+    }
+    ASSERT_NEAR(ground_state_eigenvalue.real(),
+        test_ground_state_eigenvalue.real(), eps);
+
+    QuantumState multiplied_state(qubit_count);
+    // A|q>
+    observable.apply_to_state(state, &multiplied_state);
+    // λ|q>
+    state.multiply_coef(test_ground_state_eigenvalue);
+    multiplied_state.normalize(multiplied_state.get_squared_norm());
+    state.normalize(state.get_squared_norm());
+
+    for (UINT i = 0; i < observable.get_state_dim(); i++) {
+        ASSERT_NEAR(multiplied_state.data_cpp()[i].real(),
+            state.data_cpp()[i].real(), eps);
+        ASSERT_NEAR(multiplied_state.data_cpp()[i].imag(),
+            state.data_cpp()[i].imag(), eps);
+    }
+}
+
 TEST(ObservableTest, MaximumEigenvalueByPowerMethod) {
     constexpr UINT qubit_count = 4;
     constexpr double eps = 1e-2;
@@ -334,42 +386,7 @@ TEST(ObservableTest, MaximumEigenvalueByPowerMethod) {
             random.int32() % 10 + 2;  // 2 <= operator_count <= 11
         auto observable =
             generate_random_observable(qubit_count, operator_count);
-
-        // observable に対応する行列を求める
-        auto observable_matrix = convert_observable_to_matrix(&observable);
-        // 基底状態の固有値を求める
-        const auto eigenvalues = observable_matrix.eigenvalues();
-        CPPCTYPE test_ground_state_eigenvalue = eigenvalues[0];
-        for (auto i = 0; i < eigenvalues.size(); i++) {
-            if (eigenvalues[i].real() < test_ground_state_eigenvalue.real()) {
-                test_ground_state_eigenvalue = eigenvalues[i];
-            }
-        }
-
-        constexpr UINT iter_count = 500;
-        QuantumState state(qubit_count);
-        state.set_Haar_random_state();
-        auto ground_state_eigenvalue =
-            observable.solve_ground_state_eigenvalue_by_power_method(
-                &state, iter_count);
-        ASSERT_NEAR(ground_state_eigenvalue.real(),
-            test_ground_state_eigenvalue.real(), eps);
-
-        QuantumState multiplied_state(qubit_count);
-        // A|q>
-        observable.apply_to_state(state, &multiplied_state);
-        // λ|q>
-        state.multiply_coef(test_ground_state_eigenvalue);
-
-        multiplied_state.normalize(multiplied_state.get_squared_norm());
-        state.normalize(state.get_squared_norm());
-
-        for (UINT i = 0; i < dim; i++) {
-            ASSERT_NEAR(multiplied_state.data_cpp()[i].real(),
-                state.data_cpp()[i].real(), eps);
-            ASSERT_NEAR(multiplied_state.data_cpp()[i].imag(),
-                state.data_cpp()[i].imag(), eps);
-        }
+        test_eigenvalue(observable, 500, eps, CalculationMethod::PowerMethod);
     }
 }
 
@@ -386,45 +403,7 @@ TEST(ObservableTest, MaximumEigenvalueByArnoldiMethod) {
         const auto operator_count = random.int32() % 10 + 2;
         auto observable =
             generate_random_observable(qubit_count, operator_count);
-
-        // observable に対応する行列を求める
-        auto observable_matrix = convert_observable_to_matrix(&observable);
-        // 基底状態の固有値を求める
-        const auto eigenvalues = observable_matrix.eigenvalues();
-        CPPCTYPE test_ground_state_eigenvalue = eigenvalues[0];
-        for (auto i = 0; i < eigenvalues.size(); i++) {
-            if (eigenvalues[i].real() < test_ground_state_eigenvalue.real()) {
-                test_ground_state_eigenvalue = eigenvalues[i];
-            }
-        }
-
-        constexpr UINT iter_count = 60;
-        QuantumState state(qubit_count);
-        state.set_Haar_random_state();
-        auto ground_state_eigenvalue =
-            observable.solve_ground_state_eigenvalue_by_arnoldi_method(
-                &state, iter_count);
-
-        // Test eigenvalue
-        ASSERT_NEAR(ground_state_eigenvalue.real(),
-            test_ground_state_eigenvalue.real(), eps);
-
-        // Test eigenvector
-        QuantumState multiplied_state(qubit_count);
-        // A|q>
-        observable.apply_to_state(state, &multiplied_state);
-        // λ|q>
-        state.multiply_coef(ground_state_eigenvalue);
-
-        multiplied_state.normalize(multiplied_state.get_squared_norm());
-        state.normalize(state.get_squared_norm());
-
-        for (UINT i = 0; i < dim; i++) {
-            ASSERT_NEAR(multiplied_state.data_cpp()[i].real(),
-                state.data_cpp()[i].real(), eps);
-            ASSERT_NEAR(multiplied_state.data_cpp()[i].imag(),
-                state.data_cpp()[i].imag(), eps);
-        }
+        test_eigenvalue(observable, 60, eps, CalculationMethod::ArnoldiMethod);
     }
 }
 
@@ -454,46 +433,7 @@ TEST(ObservableTest, MaximumEigenvalueByArnoldiMethodWithIdentity) {
         const auto operator_count = random.int32() % 10 + 2;
         auto observable =
             generate_random_observable(qubit_count, operator_count);
-
         add_identity(&observable, random);
-
-        // observable に対応する行列を求める
-        auto observable_matrix = convert_observable_to_matrix(&observable);
-        // 基底状態の固有値を求める
-        const auto eigenvalues = observable_matrix.eigenvalues();
-        CPPCTYPE test_ground_state_eigenvalue = eigenvalues[0];
-        for (auto i = 0; i < eigenvalues.size(); i++) {
-            if (eigenvalues[i].real() < test_ground_state_eigenvalue.real()) {
-                test_ground_state_eigenvalue = eigenvalues[i];
-            }
-        }
-
-        constexpr UINT iter_count = 60;
-        QuantumState state(qubit_count);
-        state.set_Haar_random_state();
-        auto ground_state_eigenvalue =
-            observable.solve_ground_state_eigenvalue_by_arnoldi_method(
-                &state, iter_count);
-
-        // Test eigenvalue
-        ASSERT_NEAR(ground_state_eigenvalue.real(),
-            test_ground_state_eigenvalue.real(), eps);
-
-        // Test eigenvector
-        QuantumState multiplied_state(qubit_count);
-        // A|q>
-        observable.apply_to_state(state, &multiplied_state);
-        // λ|q>
-        state.multiply_coef(ground_state_eigenvalue);
-
-        multiplied_state.normalize(multiplied_state.get_squared_norm());
-        state.normalize(state.get_squared_norm());
-
-        for (UINT i = 0; i < dim; i++) {
-            ASSERT_NEAR(multiplied_state.data_cpp()[i].real(),
-                state.data_cpp()[i].real(), eps);
-            ASSERT_NEAR(multiplied_state.data_cpp()[i].imag(),
-                state.data_cpp()[i].imag(), eps);
-        }
+        test_eigenvalue(observable, 70, eps, CalculationMethod::ArnoldiMethod);
     }
 }

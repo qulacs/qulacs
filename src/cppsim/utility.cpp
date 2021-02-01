@@ -52,13 +52,13 @@ Observable generate_random_observable(
     return observable;
 }
 
-ComplexMatrix convert_observable_to_matrix(const Observable* observable) {
-    const auto dim = observable->get_state_dim();
-    const auto qubit_count = observable->get_qubit_count();
+ComplexMatrix convert_observable_to_matrix(const Observable& observable) {
+    const auto dim = observable.get_state_dim();
+    const auto qubit_count = observable.get_qubit_count();
     ComplexMatrix observable_matrix = ComplexMatrix::Zero(dim, dim);
-    for (UINT term_index = 0; term_index < observable->get_term_count();
+    for (UINT term_index = 0; term_index < observable.get_term_count();
          ++term_index) {
-        const auto pauli_operator = observable->get_term(term_index);
+        const auto pauli_operator = observable.get_term(term_index);
         auto coef = pauli_operator->get_coef();
         auto target_index_list = pauli_operator->get_index_list();
         auto pauli_id_list = pauli_operator->get_pauli_id_list();
