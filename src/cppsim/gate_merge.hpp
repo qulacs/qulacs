@@ -131,4 +131,17 @@ DllExport QuantumGateBase* Instrument(
  */
 DllExport QuantumGateBase* Adaptive(
     QuantumGateBase* gate, std::function<bool(const std::vector<UINT>&)> func);
+/**
+ * \~japanese-en 適応操作のゲートを作成する
+ *
+ * <code>func</code>が<code>true</code>を返すときのみ<code>gate</code>を作用する量子ゲートを作成する。
+ * @param gate ゲート
+ * @param func <code>std::vector<unsigned
+ * int>&,UINT</code>を受け取り、<code>bool</code>を返す関数
+ * @param id funcに引数として与えるUINTの値
+ * @return Adaptive gate
+ */
+DllExport QuantumGateBase* Adaptive(QuantumGateBase* gate,
+    std::function<bool(const std::vector<UINT>&, UINT)> func, UINT id);
 }  // namespace gate
+// namespace gate

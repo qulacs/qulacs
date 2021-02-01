@@ -432,7 +432,8 @@ PYBIND11_MODULE(qulacs, m) {
 	mgate.def("CPTP", &gate::CPTP, pybind11::return_value_policy::take_ownership, "Create completely-positive trace preserving map", py::arg("kraus_list"));
 	mgate.def("CP", &gate::CP, pybind11::return_value_policy::take_ownership, "Create completely-positive map", py::arg("kraus_list"), py::arg("state_normalize"), py::arg("probability_normalize"), py::arg("assign_zero_if_not_matched"));
 	mgate.def("Instrument", &gate::Instrument, pybind11::return_value_policy::take_ownership, "Create instruments", py::arg("kraus_list"), py::arg("register"));
-    mgate.def("Adaptive", &gate::Adaptive, pybind11::return_value_policy::take_ownership, "Create adaptive gate", py::arg("gate"), py::arg("condition"));
+    mgate.def("Adaptive", py::overload_cast<QuantumGateBase *, std::function<bool(const std::vector<unsigned int>&)>> (&gate::Adaptive), pybind11::return_value_policy::take_ownership, "Create adaptive gate", py::arg("gate"), py::arg("condition"));
+    mgate.def("Adaptive",  py::overload_cast<QuantumGateBase *, std::function<bool(const std::vector<unsigned int>&, unsigned int)>, unsigned int> (&gate::Adaptive), pybind11::return_value_policy::take_ownership, "Create adaptive gate", py::arg("gate"), py::arg("condition"),py::arg("id"));
 
 	py::class_<QuantumGate_SingleParameter, QuantumGateBase>(m, "QuantumGate_SingleParameter")
 		.def("get_parameter_value", &QuantumGate_SingleParameter::get_parameter_value, "Get parameter value")
