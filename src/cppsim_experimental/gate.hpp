@@ -178,7 +178,7 @@ private:
         _control_qubit_value = control_qubit_value;
     };
     QuantumGateBasic& operator=(const QuantumGateBasic& rhs) = delete;
-    
+
     virtual void _expand_control_qubit(ComplexMatrix&) const {
         if (_control_qubit_index.size() > 0)
             throw std::invalid_argument(
@@ -536,7 +536,8 @@ public:
         }
     }
     void _update_density_matrix_gpu(QuantumStateBase* state) {
-        throw std::runtime_error("Density matrix simulation is not supported on GPU.");
+        throw std::runtime_error(
+            "Density matrix simulation is not supported on GPU.");
     }
 #endif
 
