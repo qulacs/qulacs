@@ -322,17 +322,6 @@ TEST(ObservableTest, CheckSplitObservable) {
 
 */
 
-void add_identity(Observable* observable, Random random) {
-    std::vector<UINT> qil;
-    std::vector<UINT> qpl;
-    for (UINT i = 0; i < observable->get_qubit_count(); i++) {
-        qil.push_back(i);
-        qpl.push_back(0);
-    }
-    auto op = PauliOperator(qil, qpl, random.uniform());
-    observable->add_operator(&op);
-}
-
 TEST(ObservableTest, MaximumEigenvalueByPowerMethod) {
     constexpr UINT qubit_count = 4;
     constexpr double eps = 1e-2;
@@ -397,24 +386,6 @@ TEST(ObservableTest, MaximumEigenvalueByArnoldiMethod) {
         const auto operator_count = random.int32() % 10 + 2;
         auto observable =
             generate_random_observable(qubit_count, operator_count);
-        // std::vector<UINT> qil;
-        // std::vector<UINT> qpl;
-        // for (UINT i = 0; i < qubit_count; i++) {
-        //     qil.push_back(i);
-        //     qpl.push_back(0);
-        // }
-        // auto op = PauliOperator(qil, qpl, random.uniform());
-        // observable.add_operator(&op);
-
-        // std::cout << "Pauli operators:" << std::endl;
-        // for (auto op : observable.get_terms()) {
-        //     std::cout << op->get_coef().real() << "; ";
-        //     for (auto id : op->get_pauli_id_list()) {
-        //         std::cout << id << ", ";
-        //     }
-        //     std::cout << std::endl;
-        // }
-        std::cout << qubit_count << ", " << operator_count << std::endl;
 
         // observable に対応する行列を求める
         auto observable_matrix = convert_observable_to_matrix(&observable);
@@ -427,12 +398,13 @@ TEST(ObservableTest, MaximumEigenvalueByArnoldiMethod) {
             }
         }
 
-        constexpr UINT iter_count = 50;
+        constexpr UINT iter_count = 60;
         QuantumState state(qubit_count);
         state.set_Haar_random_state();
         auto ground_state_eigenvalue =
             observable.solve_ground_state_eigenvalue_by_arnoldi_method(
                 &state, iter_count);
+
         // Test eigenvalue
         ASSERT_NEAR(ground_state_eigenvalue.real(),
             test_ground_state_eigenvalue.real(), eps);
@@ -443,8 +415,80 @@ TEST(ObservableTest, MaximumEigenvalueByArnoldiMethod) {
         observable.apply_to_state(state, &multiplied_state);
         // λ|q>
         state.multiply_coef(ground_state_eigenvalue);
+
         multiplied_state.normalize(multiplied_state.get_squared_norm());
-        state.normalize(multiplied_state.get_squared_norm());
+        state.normalize(state.get_squared_norm());
+
+        for (UINT i = 0; i < dim; i++) {
+            ASSERT_NEAR(multiplied_state.data_cpp()[i].real(),
+                state.data_cpp()[i].real(), eps);
+            ASSERT_NEAR(multiplied_state.data_cpp()[i].imag(),
+                state.data_cpp()[i].imag(), eps);
+        }
+    }
+}
+
+void add_identity(Observable* observable, Random random) {
+    std::vector<UINT> qil;
+    std::vector<UINT> qpl;
+    for (UINT i = 0; i < observable->get_qubit_count(); i++) {
+        qil.push_back(i);
+        qpl.push_back(0);
+    }
+    auto op = PauliOperator(qil, qpl, random.uniform());
+    observable->add_operator(&op);
+}
+
+// Test observable with identity pauli operator because calculation was unstable
+// in this situation.
+TEST(ObservableTest, MaximumEigenvalueByArnoldiMethodWithIdentity) {
+    constexpr double eps = 1e-6;
+    constexpr UINT test_count = 10;
+    Random random;
+
+    for (auto i = 0; i < test_count; i++) {
+        // 3 <= qubit_count <= 5
+        const auto qubit_count = random.int32() % 4 + 3;
+        const UINT dim = 1U << qubit_count;
+        // 2 <= operator_count <= 11
+        const auto operator_count = random.int32() % 10 + 2;
+        auto observable =
+            generate_random_observable(qubit_count, operator_count);
+
+        add_identity(&observable, random);
+
+        // observable に対応する行列を求める
+        auto observable_matrix = convert_observable_to_matrix(&observable);
+        // 基底状態の固有値を求める
+        const auto eigenvalues = observable_matrix.eigenvalues();
+        CPPCTYPE test_ground_state_eigenvalue = eigenvalues[0];
+        for (auto i = 0; i < eigenvalues.size(); i++) {
+            if (eigenvalues[i].real() < test_ground_state_eigenvalue.real()) {
+                test_ground_state_eigenvalue = eigenvalues[i];
+            }
+        }
+
+        constexpr UINT iter_count = 60;
+        QuantumState state(qubit_count);
+        state.set_Haar_random_state();
+        auto ground_state_eigenvalue =
+            observable.solve_ground_state_eigenvalue_by_arnoldi_method(
+                &state, iter_count);
+
+        // Test eigenvalue
+        ASSERT_NEAR(ground_state_eigenvalue.real(),
+            test_ground_state_eigenvalue.real(), eps);
+
+        // Test eigenvector
+        QuantumState multiplied_state(qubit_count);
+        // A|q>
+        observable.apply_to_state(state, &multiplied_state);
+        // λ|q>
+        state.multiply_coef(ground_state_eigenvalue);
+
+        multiplied_state.normalize(multiplied_state.get_squared_norm());
+        state.normalize(state.get_squared_norm());
+
         for (UINT i = 0; i < dim; i++) {
             ASSERT_NEAR(multiplied_state.data_cpp()[i].real(),
                 state.data_cpp()[i].real(), eps);

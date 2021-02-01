@@ -126,10 +126,10 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     ComplexMatrix hessenberg_matrix =
         ComplexMatrix::Zero(iter_count, iter_count);
     for (UINT i = 0; i < iter_count; i++) {
-        // mu_timed_state.load(state_list[i]);
-        // mu_timed_state.multiply_coef(-mu_);
+        mu_timed_state.load(state_list[i]);
+        mu_timed_state.multiply_coef(-mu_);
         this->apply_to_state(*state_list[i], &multiplied_state);
-        // multiplied_state.add_state(&mu_timed_state);
+        multiplied_state.add_state(&mu_timed_state);
 
         for (UINT j = 0; j < i + 1; j++) {
             const auto coef = state::inner_product(
@@ -164,19 +164,14 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
 
     // Compose ground state vector.
     present_state.multiply_coef(0.0);
-    // std::cout << hessenberg_matrix.rows() << "x" << hessenberg_matrix.cols()
-    // << std::endl; std::cout << eigenvectors.rows() << "x" <<
-    // eigenvectors.cols() << std::endl; std::cout << state_list.size() <<
-    // std::endl;
     for (UINT i = 0; i < state_list.size() - 1; i++) {
         tmp_state.load(state_list[i]);
-        // std::cout << i << ", " << minimum_eigenvalue_index << std::endl;
         tmp_state.multiply_coef(eigenvectors(i, minimum_eigenvalue_index));
         present_state.add_state(&tmp_state);
     }
     state->load(&present_state);
 
-    return minimum_eigenvalue + mu;
+    return minimum_eigenvalue + mu_;
 }
 
 CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
