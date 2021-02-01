@@ -36,11 +36,20 @@ CPPCTYPE HermitianQuantumOperator::get_expectation_value(
     return GeneralQuantumOperator::get_expectation_value(state).real();
 }
 
-CPPCTYPE HermitianQuantumOperator::solve_maximum_eigenvalue_by_power_method(
+CPPCTYPE
+HermitianQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
+    QuantumStateBase* state, const UINT iter_count) const {
+    return GeneralQuantumOperator::
+        solve_ground_state_eigenvalue_by_arnoldi_method(state, iter_count)
+            .real();
+}
+
+CPPCTYPE
+HermitianQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
     QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
-    return GeneralQuantumOperator::solve_maximum_eigenvalue_by_power_method(
-        state, iter_count, mu)
-        .real();
+    return GeneralQuantumOperator::
+        solve_ground_state_eigenvalue_by_power_method(state, iter_count, mu)
+            .real();
 }
 
 namespace observable {
@@ -59,7 +68,6 @@ HermitianQuantumOperator* create_observable_from_openfermion_file(
     }
 
     // loading lines and check qubit_count
-    double coef_real, coef_imag;
     std::string str_buf;
     std::vector<std::string> index_list;
 
@@ -67,8 +75,8 @@ HermitianQuantumOperator* create_observable_from_openfermion_file(
     while (getline(ifs, line)) {
         std::tuple<double, double, std::string> parsed_items =
             parse_openfermion_line(line);
-        coef_real = std::get<0>(parsed_items);
-        coef_imag = std::get<1>(parsed_items);
+        const auto coef_real = std::get<0>(parsed_items);
+        const auto coef_imag = std::get<1>(parsed_items);
         str_buf = std::get<2>(parsed_items);
 
         CPPCTYPE coef(coef_real, coef_imag);
@@ -98,13 +106,12 @@ HermitianQuantumOperator* create_observable_from_openfermion_file(
 }
 
 HermitianQuantumOperator* create_observable_from_openfermion_text(
-    std::string text) {
+    const std::string& text) {
     UINT qubit_count = 0;
     std::vector<CPPCTYPE> coefs;
     std::vector<std::string> ops;
 
     std::vector<std::string> lines;
-    double coef_real, coef_imag;
     std::string str_buf;
     std::vector<std::string> index_list;
 
@@ -112,8 +119,8 @@ HermitianQuantumOperator* create_observable_from_openfermion_text(
     for (std::string line : lines) {
         std::tuple<double, double, std::string> parsed_items =
             parse_openfermion_line(line);
-        coef_real = std::get<0>(parsed_items);
-        coef_imag = std::get<1>(parsed_items);
+        const auto coef_real = std::get<0>(parsed_items);
+        const auto coef_imag = std::get<1>(parsed_items);
         str_buf = std::get<2>(parsed_items);
 
         CPPCTYPE coef(coef_real, coef_imag);
@@ -153,7 +160,6 @@ create_split_observable(std::string file_path) {
     }
 
     // loading lines and check qubit_count
-    double coef_real, coef_imag;
     std::string str_buf;
     std::vector<std::string> index_list;
 
@@ -161,8 +167,8 @@ create_split_observable(std::string file_path) {
     while (getline(ifs, line)) {
         std::tuple<double, double, std::string> parsed_items =
             parse_openfermion_line(line);
-        coef_real = std::get<0>(parsed_items);
-        coef_imag = std::get<1>(parsed_items);
+        const auto coef_real = std::get<0>(parsed_items);
+        const auto coef_imag = std::get<1>(parsed_items);
         str_buf = std::get<2>(parsed_items);
 
         CPPCTYPE coef(coef_real, coef_imag);

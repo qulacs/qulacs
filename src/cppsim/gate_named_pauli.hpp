@@ -14,7 +14,9 @@ extern "C" {
 #include "pauli_operator.hpp"
 #include "state.hpp"
 #include "utility.hpp"
-
+#ifdef _USE_GPU
+#include <gpusim/update_ops_cuda.h>
+#endif
 /**
  * \~japanese-en 複数の量子ビットに作用するPauli演算子を作用させるゲート
  */
@@ -29,7 +31,7 @@ public:
      * 使用したパウリ演算子はクラスにて解放される
      * @param pauli 作用させるパウリ演算子
      */
-    ClsPauliGate(PauliOperator* pauli) {
+    explicit ClsPauliGate(PauliOperator* pauli) {
         _pauli = pauli;
         this->_name = "Pauli";
         auto target_index_list = _pauli->get_index_list();

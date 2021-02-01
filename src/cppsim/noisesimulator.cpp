@@ -25,7 +25,7 @@ NoiseSimulator::NoiseSimulator(
         initial_state = init_state->copy();
     }
     circuit = init_circuit->copy();
-    for (int i = 0; i < circuit->gate_list.size(); ++i) {
+    for (size_t i = 0; i < circuit->gate_list.size(); ++i) {
         auto gate = circuit->gate_list[i];
         if (gate->is_noise() == false) continue;
         gate->optimize_ProbablisticGate();
@@ -134,7 +134,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count) {
     return result;
 }
 
-void NoiseSimulator::evaluate_gates(const std::vector<UINT> chosen_gate,
+void NoiseSimulator::evaluate_gates(const std::vector<UINT>& chosen_gate,
     QuantumState* sampling_state, const int StartPos) {
     UINT gate_size = circuit->gate_list.size();
     for (UINT q = StartPos; q < gate_size; ++q) {

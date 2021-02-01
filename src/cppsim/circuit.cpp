@@ -236,19 +236,13 @@ QuantumCircuit::~QuantumCircuit() {
 }
 
 bool QuantumCircuit::is_Clifford() const {
-    bool flag = true;
-    for (const auto& gate : this->_gate_list) {
-        flag = flag & gate->is_Clifford();
-    }
-    return flag;
+    return std::all_of(this->_gate_list.cbegin(), this->_gate_list.cend(),
+        [](auto gate) { return gate->is_Clifford(); });
 }
 
 bool QuantumCircuit::is_Gaussian() const {
-    bool flag = true;
-    for (const auto& gate : this->_gate_list) {
-        flag = flag & gate->is_Gaussian();
-    }
-    return flag;
+    return std::all_of(this->_gate_list.cbegin(), this->_gate_list.cend(),
+        [](auto gate) { return gate->is_Gaussian(); });
 }
 
 UINT QuantumCircuit::calculate_depth() const {
