@@ -770,7 +770,8 @@ void double_qubit_dense_matrix_gate_simd_middle(UINT target_qubit_index1,
     const ITYPE mid_mask = (max_qubit_mask - 1) ^ low_mask;
     const ITYPE high_mask = ~(max_qubit_mask - 1);
 
-    const ITYPE target_mask1_shift = 1ULL << (target_qubit_index1 + 1);
+    // const ITYPE target_mask1_shift = 1ULL << (target_qubit_index1 + 1); //
+    // not used
     const ITYPE target_mask2_shift = 1ULL << (target_qubit_index2 + 1);
 
     // loop variables

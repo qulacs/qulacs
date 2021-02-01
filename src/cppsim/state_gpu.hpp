@@ -20,7 +20,7 @@ public:
      *
      * @param qubit_count_ 量子ビット数
      */
-    QuantumStateGpu(UINT qubit_count_)
+    explicit QuantumStateGpu(UINT qubit_count_)
         : QuantumStateBase(qubit_count_, true, 0) {
         set_device(0);
         this->_cuda_stream = allocate_cuda_stream_host(1, 0);
@@ -315,7 +315,7 @@ public:
         return this->sampling(sampling_count);
     }
 
-    virtual std::string to_string() const {
+    virtual std::string to_string() const override {
         std::stringstream os;
         ComplexVector eigen_state(this->dim);
         auto data = this->duplicate_data_cpp();

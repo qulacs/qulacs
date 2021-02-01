@@ -44,12 +44,15 @@ bool QuantumGateBase::is_parametric() const {
 bool QuantumGateBase::is_diagonal() const {
     // if all the qubits commute with Z Pauli, the matrix of a gate is diagonal
     // in Z basis
-    for (auto val : this->_target_qubit_list) {
-        if (val.is_commute_Z() == false) {
-            return false;
-        }
-    }
-    return true;
+    return std::all_of(this->_target_qubit_list.cbegin(),
+        this->_target_qubit_list.cend(),
+        [](auto target_qubit) { return target_qubit.is_commute_Z(); });
+    // for (auto val : this->_target_qubit_list) {
+    //     if (val.is_commute_Z() == false) {
+    //         return false;
+    //     }
+    // }
+    // return true;
 }
 
 UINT QuantumGateBase::get_property_value() const {
