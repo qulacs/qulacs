@@ -20,7 +20,7 @@ jobs:
       CIBW_TEST_COMMAND: "python {project}/python/test/test_qulacs.py"
       CIBW_TEST_REQUIRES: "numpy scipy"
       CIBW_BEFORE_BUILD: "pip install cmake"
-      CIBW_BEFORE_BUILD_LINUX: "yum install libboost-all-dev"
+      CIBW_BEFORE_BUILD_LINUX: "yum install boost boost-devel" #install boost
       # In GitHub Actions virtual environment macos-10.15/20201115.1,
       # linking some functions from libgomp fails since the linker cannot find
       # some library files from gcc-8 installed via Homebrew.
