@@ -871,3 +871,14 @@ TEST(CircuitTest, SpecialGatesToString) {
     c.update_quantum_state(&state);
     std::string s = c.to_string();
 }
+
+TEST(CircuitTest, MergeCircuits) {
+    QuantumState state(2);
+    QuantumCircuit circuit1(2),circuit2(2);
+    circuit1.add_X_gate(0);
+    circuit2.add_X_gate(1);
+    state.set_zero_state();
+    circuit1.merge_circuit(&circuit2);
+    circuit1.update_quantum_state(&state);
+    ASSERT_NEAR(abs(state.data_cpp()[3]),1.0,0.0001);
+}
