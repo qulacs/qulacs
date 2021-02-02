@@ -1,6 +1,7 @@
 name: CI
 
 on:
+  push:
   pull_request:
     branches:
       - dev
@@ -41,7 +42,12 @@ jobs:
         # cf. https://stackoverflow.com/a/55500164
         run: brew link --overwrite gcc@8
         if: ${{ contains(matrix.os, 'macos') }}
-
+      
+      - name: Install Boost for macOS
+        run: |
+          "brew install boost"
+          "brew link boost"
+        if: ${{ contains(matrix.os, 'macos') }}
       - name: Install qulacs for macOS
         run: ./script/build_gcc.sh
         if: ${{ contains(matrix.os, 'macos') }}
