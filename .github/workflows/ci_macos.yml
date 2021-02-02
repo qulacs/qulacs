@@ -45,9 +45,10 @@ jobs:
       
       - name: Install Boost for macOS
         run: |
-          "brew install boost"
-          "brew link boost"
+          brew install boost
+          brew link boost
         if: ${{ contains(matrix.os, 'macos') }}
+
       - name: Install qulacs for macOS
         run: ./script/build_gcc.sh
         if: ${{ contains(matrix.os, 'macos') }}
