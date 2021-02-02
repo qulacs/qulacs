@@ -1,7 +1,7 @@
 name: CI
 
 on:
-  pull_request:
+  push:
     branches:
       - dev
 
@@ -41,6 +41,12 @@ jobs:
         # cf. https://stackoverflow.com/a/55500164
         run: brew link --overwrite gcc@8
         if: ${{ contains(matrix.os, 'macos') }}
+      
+      - name: Install Boost for macOS
+        run: |
+          brew install boost
+          brew link boost
+        if: ${{ contains(matrix.os, 'macos') }}
 
       - name: Install qulacs for macOS
         run: ./script/build_gcc.sh
@@ -77,7 +83,7 @@ jobs:
       # some library files from gcc-8 installed via Homebrew.
       # The following command fixes this issue by (brew) re-linking files from gcc-8.
       # cf. https://stackoverflow.com/a/55500164
-      CIBW_BEFORE_BUILD_MACOS: "brew link --overwrite gcc@8 && pip install cmake"
+      CIBW_BEFORE_BUILD_MACOS: "brew link --overwrite gcc@8 && pip install cmake && brew install boost && brew link boost"
       CIBW_BUILD: "cp*-macosx_x86_64 cp*-manylinux_x86_64 cp*-win_amd64"
       CIBW_BUILD_VERBOSITY: "1"
       CIBW_ENVIRONMENT: 'QULACS_OPT_FLAGS="-mtune=haswell -mfpmath=both"'
