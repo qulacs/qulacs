@@ -1,5 +1,9 @@
 #pragma once
 
+#include <cereal/cereal.hpp>
+#include <cereal/types/vector.hpp>
+
+
 #include <map>
 #include <set>
 #include <stdexcept>
@@ -116,7 +120,7 @@ public:
 };
 
 class DllExport QuantumGateBasic : public QuantumGateBase {
-private:
+public:
     GateMatrixType _matrix_type;
     SpecialFuncType _special_func_type;
     std::vector<UINT> _target_qubit_index;
@@ -186,6 +190,34 @@ private:
     };
 
 public:
+
+    template <class Archive>
+    void serialize( Archive & ar )
+    { 
+        //TODO!
+        //Documentize SparseMatrix serializer
+
+        //use every serializer
+        /*
+            GateMatrixType _matrix_type;
+            SpecialFuncType _special_func_type;
+            std::vector<UINT> _target_qubit_index;
+            std::vector<UINT> _target_qubit_commutation;
+            std::vector<UINT> _control_qubit_index;
+            std::vector<UINT> _control_qubit_value;
+            UINT _gate_property;
+
+            ComplexMatrix _dense_matrix_element;
+            ComplexVector _diagonal_matrix_element;
+            SparseComplexMatrix _sparse_matrix_element;
+            std::vector<UINT> _pauli_id;
+            double _rotation_angle;
+        */
+        ar( CEREAL_NVP(_matrix_type),CEREAL_NVP(_special_func_type),CEREAL_NVP(_target_qubit_index),CEREAL_NVP(_target_qubit_commutation),CEREAL_NVP(_control_qubit_index),CEREAL_NVP(_control_qubit_value),
+            CEREAL_NVP(_gate_property),CEREAL_NVP(_dense_matrix_element),CEREAL_NVP(_diagonal_matrix_element)/*,CEREAL_NVP(_sparse_matrix_element)*/,CEREAL_NVP(_pauli_id),CEREAL_NVP(_rotation_angle));
+    }
+
+
     virtual ~QuantumGateBasic(){};
     virtual UINT get_qubit_count() const override {
         return (UINT)(_target_qubit_index.size() + _control_qubit_index.size());
