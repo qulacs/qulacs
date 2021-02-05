@@ -40,14 +40,14 @@ Observable generate_random_observable(
         auto target_qubit_index_list = std::vector<UINT>(qubit_count, 0);
         auto target_qubit_pauli_list = std::vector<UINT>(qubit_count, 0);
         for (UINT qubit_index = 0; qubit_index < qubit_count; qubit_index++) {
-            UINT pauli_id = random.int32() % 4;
-            target_qubit_index_list[qubit_index] = qubit_index;
-            target_qubit_pauli_list[qubit_index] = pauli_id;
+            const UINT pauli_id = random.int32() % 4;
+            target_qubit_index_list.at(qubit_index) = qubit_index;
+            target_qubit_pauli_list.at(qubit_index) = pauli_id;
         }
-        CPPCTYPE coef = random.uniform();
-        auto pauli_operator = PauliOperator(
-            target_qubit_index_list, target_qubit_pauli_list, coef);
-        observable.add_operator(&pauli_operator);
+        const CPPCTYPE coef = random.uniform();
+        // auto pauli_operator = PauliOperator(
+        //     target_qubit_index_list, target_qubit_pauli_list, coef);
+        // observable.add_operator(&pauli_operator);
     }
     return observable;
 }

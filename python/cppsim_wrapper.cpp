@@ -1,4 +1,3 @@
-
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
@@ -31,6 +30,7 @@ extern "C" {
 #include <cppsim/simulator.hpp>
 #include <cppsim/causal_cone.hpp>
 #include <cppsim/noisesimulator.hpp>
+#include <cppsim/utility.hpp>
 
 #ifdef _USE_GPU
 #include <cppsim/state_gpu.hpp>
@@ -583,7 +583,14 @@ PYBIND11_MODULE(qulacs, m) {
         .def("calculate_grad",&GradCalculatorMPI::calculate_grad,"sampling & return result [array]");
 #endif
 
+    // Functions in utility.hpp
+    m
+        .def("generate_random_observable", [](const UINT qubit_count, const UINT operator_count) {
+            const auto observable = generate_random_observable(qubit_count, operator_count);
+            return observable;
+        },
+        "Generate observable with random pauli operator",
+        py::return_value_policy::take_ownership)
+    .def("convert_observable_to_matrix", &convert_observable_to_matrix,
+        "Convert observable to corresponding matrix", py::return_value_policy::move);
 }
-
-
-
