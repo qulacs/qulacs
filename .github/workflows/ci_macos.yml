@@ -67,7 +67,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-        os: ["macos-latest"]
+        os: ["macos-self-hosted"]
     runs-on: ${{ matrix.os }}
     env:
       CXX_COMPILER: "g++-8"
