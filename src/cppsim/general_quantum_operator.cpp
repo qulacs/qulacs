@@ -112,8 +112,9 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
 
     // Vectors composing Krylov subspace.
     std::vector<QuantumStateBase*> state_list;
+    state_list.reserve(iter_count + 1);
     state->normalize(state->get_squared_norm());
-    state_list.push_back(state);
+    state_list.push_back(state->copy());
 
     CPPCTYPE mu_;
     if (mu == 0.0) {
@@ -171,6 +172,10 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     }
     state->load(&present_state);
 
+    // Free states allocated by `QuantumState::copy()`.
+    for (auto& used_state : state_list) {
+        delete used_state;
+    }
     return minimum_eigenvalue + mu_;
 }
 
