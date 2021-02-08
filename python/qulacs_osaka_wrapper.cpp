@@ -440,6 +440,7 @@ PYBIND11_MODULE(qulacs_osaka, m) {
         .def("add_gate", (void (QuantumCircuit::*)(const QuantumGateBase*, unsigned int))&QuantumCircuit::add_gate, "Add gate with copy", py::arg("gate"), py::arg("position"))
         //.def("add_noise_gate",&QuantumCircuit::add_noise_gate_copy,"Add noise gate with copy", py::arg("gate"),py::arg("NoiseType"),py::arg("NoiseProbability"))
         .def("remove_gate", &QuantumCircuit::remove_gate, "Remove gate", py::arg("position"))
+        .def("merge_circuit",&QuantumCircuit::merge_circuit,py::arg("circuit"))
 
         .def("get_gate", [](const QuantumCircuit& circuit, unsigned int index) -> QuantumGateBase* { 
             if (index >= circuit.get_gate_list().size()) {
