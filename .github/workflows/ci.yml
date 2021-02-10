@@ -17,6 +17,7 @@ jobs:
       C_COMPILER: "gcc-8"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
+      BOOST_ROOT: "C:/boost_1_75_0"
     steps:
       - uses: actions/checkout@v2
 
