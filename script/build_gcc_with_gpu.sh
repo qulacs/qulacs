@@ -13,13 +13,6 @@ if [ "$GXX_VERSION" -lt 70000 ]; then
   GXX_COMMAND=g++-7
 fi
 
-BOOST_ROOTDIR="$BOOST_ROOT"
-
-if [ -n "$BOOST_ROOTDIR" ]; then
-  BOOST_ROOTDIR="-D BOOST_ROOT=$BOOST_ROOTDIR"
-fi
-
-
 mkdir ./build
 cd ./build
 cmake -G "Unix Makefiles" -D CMAKE_C_COMPILER=$GCC_COMMAND -D CMAKE_CXX_COMPILER=$GXX_COMMAND -D CMAKE_BUILD_TYPE=Release -D USE_GPU:STR=Yes -D USE_MPI:STR=No  ..

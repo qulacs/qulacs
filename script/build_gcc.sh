@@ -26,15 +26,9 @@ elif [ "$GXX_VERSION" -lt 90000 ]; then
   GXX_COMMAND=g++-8
 fi
 
-BOOST_ROOTDIR="$BOOST_ROOT"
-
-if [ -n "$BOOST_ROOTDIR" ]; then
-  BOOST_ROOTDIR="-D BOOST_ROOT=$BOOST_ROOTDIR"
-fi
-
 mkdir ./build
 cd ./build
-cmake -G "Unix Makefiles" $BOOST_ROOTDIR -D CMAKE_C_COMPILER=$GCC_COMMAND -D CMAKE_CXX_COMPILER=$GXX_COMMAND -D CMAKE_BUILD_TYPE=Release -D USE_GPU:STR=No -D USE_MPI:STR=No ..
+cmake -G "Unix Makefiles" -D CMAKE_C_COMPILER=$GCC_COMMAND -D CMAKE_CXX_COMPILER=$GXX_COMMAND -D CMAKE_BUILD_TYPE=Release -D USE_GPU:STR=No -D USE_MPI:STR=No ..
 make -j
 make python
 cd ../
