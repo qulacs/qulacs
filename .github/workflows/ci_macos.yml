@@ -2,8 +2,7 @@ name: CI
 
 on:
   push:
-    branches:
-      - dev
+  pull_request:
 
 jobs:
   gcc8-build:
@@ -11,7 +10,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5", "2.7.17"]
-        os: ["macos-latest"]
+        os: ["macos-self-hosted"]
     runs-on: ${{ matrix.os }}
     env:
       CXX_COMPILER: "g++-8"
@@ -68,7 +67,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-        os: ["macos-latest"]
+        os: ["macos-self-hosted"]
     runs-on: ${{ matrix.os }}
     env:
       CXX_COMPILER: "g++-8"
