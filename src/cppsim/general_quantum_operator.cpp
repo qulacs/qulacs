@@ -101,7 +101,7 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
 
 CPPCTYPE
 GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
-    QuantumStateBase* state, const UINT iter_count, CPPCTYPE mu) const {
+    QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
     // Implemented based on
     // https://files.transtutors.com/cdn/uploadassignments/472339_1_-numerical-linear-aljebra.pdf
     const auto qubit_count = this->get_qubit_count();
@@ -116,16 +116,19 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     state->normalize(state->get_squared_norm());
     state_list.push_back(state->copy());
 
+    CPPCTYPE mu_;
     if (mu == 0.0) {
         // mu is not changed from default value.
-        mu = this->calculate_default_mu();
+        mu_ = this->calculate_default_mu();
+    } else {
+        mu_ = mu;
     }
 
     ComplexMatrix hessenberg_matrix =
         ComplexMatrix::Zero(iter_count, iter_count);
     for (UINT i = 0; i < iter_count; i++) {
         mu_timed_state.load(state_list[i]);
-        mu_timed_state.multiply_coef(-mu);
+        mu_timed_state.multiply_coef(-mu_);
         this->apply_to_state(*state_list[i], &multiplied_state);
         multiplied_state.add_state(&mu_timed_state);
 
@@ -173,13 +176,17 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     for (auto used_state : state_list) {
         delete used_state;
     }
-    return minimum_eigenvalue + mu;
+    return minimum_eigenvalue + mu_;
 }
 
 CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
-    QuantumStateBase* state, const UINT iter_count, CPPCTYPE mu) const {
+    QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
+    CPPCTYPE mu_;
     if (mu == 0.0) {
-        mu = this->calculate_default_mu();
+        // mu is not changed from default value.
+        mu_ = this->calculate_default_mu();
+    } else {
+        mu_ = mu;
     }
 
     // Stores a result of A|a>
@@ -188,7 +195,7 @@ CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
     auto mu_timed_state = QuantumState(state->qubit_count);
     for (UINT i = 0; i < iter_count; i++) {
         mu_timed_state.load(state);
-        mu_timed_state.multiply_coef(-mu);
+        mu_timed_state.multiply_coef(-mu_);
 
         multiplied_state.multiply_coef(0.0);
         this->apply_to_state(*state, &multiplied_state);
