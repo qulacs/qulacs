@@ -75,7 +75,7 @@ public:
      */
     CPPCTYPE solve_ground_state_eigenvalue_by_arnoldi_method(
         QuantumStateBase* state, const UINT iter_count,
-        const CPPCTYPE mu = 0.0) const override;
+        CPPCTYPE mu = 0.0) const override;
 
     /**
      * \~japanese-en
@@ -88,7 +88,7 @@ public:
      */
     CPPCTYPE
     solve_ground_state_eigenvalue_by_power_method(QuantumStateBase* state,
-        const UINT iter_count, const CPPCTYPE mu = 0.0) const override;
+        const UINT iter_count, CPPCTYPE mu = 0.0) const override;
 };
 
 namespace observable {

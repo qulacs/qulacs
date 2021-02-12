@@ -140,7 +140,7 @@ public:
      */
     virtual CPPCTYPE solve_ground_state_eigenvalue_by_arnoldi_method(
         QuantumStateBase* state, const UINT iter_count,
-        const CPPCTYPE mu = 0.0) const;
+        CPPCTYPE mu = 0.0) const;
 
     /**
      * \~japanese-en
@@ -153,7 +153,7 @@ public:
      */
     virtual CPPCTYPE solve_ground_state_eigenvalue_by_power_method(
         QuantumStateBase* state, const UINT iter_count,
-        const CPPCTYPE mu = 0.0) const;
+        CPPCTYPE mu = 0.0) const;
 
     /**
      * \~japanese-en
