@@ -173,7 +173,7 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     state->load(&present_state);
 
     // Free states allocated by `QuantumState::copy()`.
-    for (auto& used_state : state_list) {
+    for (auto used_state : state_list) {
         delete used_state;
     }
     return minimum_eigenvalue + mu_;
@@ -226,6 +226,7 @@ void GeneralQuantumOperator::apply_to_state(
         pauli_operator->update_quantum_state(&work_state);
         work_state.multiply_coef(term->get_coef());
         dst_state->add_state(&work_state);
+        delete pauli_operator;
     }
 }
 
