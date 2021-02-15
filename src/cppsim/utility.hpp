@@ -61,7 +61,7 @@ Observable DllExport generate_random_observable(
  * @return observable に対応する行列
  */
 ComplexMatrix DllExport convert_observable_to_matrix(
-    const Observable* observable);
+    const Observable& observable);
 
 /**
  * \~japanese-en 乱数を管理するクラス

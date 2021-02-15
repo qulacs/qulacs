@@ -17,6 +17,7 @@ jobs:
       C_COMPILER: "gcc-8"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
+      BOOST_ROOT: "C:/boost_1_75_0"
     steps:
       - uses: actions/checkout@v2
 
@@ -183,6 +184,7 @@ jobs:
       C_COMPILER: "gcc-8"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
+      BOOST_ROOT: "C:/boost_1_75_0"
       CIBW_TEST_COMMAND: "python {project}/python/test/test_qulacs.py"
       CIBW_TEST_REQUIRES: "numpy scipy"
       CIBW_BEFORE_BUILD: "pip install cmake"

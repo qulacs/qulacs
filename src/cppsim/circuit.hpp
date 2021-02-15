@@ -126,7 +126,28 @@ public:
      * @param[in] index 削除するゲートの位置
      */
     virtual void remove_gate(UINT index);
-
+    /**
+     *  \~japanese-en 量子回路をマージする。
+     *
+     * 引数で与えた量子回路のゲートを後ろに追加していく。
+     * マージされた側の量子回路に変更を加えてもマージした側の量子回路には変更は加わらないことに注意する。
+     * circuit1.add_circuit(circuit2)
+     * circuit2.add_gate(gate) # これをしても、circuit1にgateは追加されない
+     *
+     * @param[in] circuit マージする量子回路
+     */
+    virtual void merge_circuit(const QuantumCircuit* circuit) {
+        if (this->qubit_count != circuit->qubit_count) {
+            throw std::invalid_argument(
+                "Error: "
+                "QuantumCircuit::add_circuit(QuantumCircuit*):"
+                "Qubit count doesn't match!");
+        }
+        for (auto gate : circuit->gate_list) {
+            this->add_gate_copy(gate);
+        }
+        return;
+    }
     /////////////////////////////// UPDATE QUANTUM STATE
 
     /**

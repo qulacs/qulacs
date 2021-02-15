@@ -81,7 +81,18 @@ public:
         remove_gate(index);
         add_gate_take(gate, index);
     }
-
+    virtual void merge_circuit(const QuantumCircuit* circuit) {
+        if (this->get_qubit_count() != circuit->get_qubit_count()) {
+            throw std::invalid_argument(
+                "Error: "
+                "QuantumCircuit::add_circuit(QuantumCircuit*):"
+                "Qubit count doesn't match!");
+        }
+        for (auto gate : circuit->get_gate_list()) {
+            this->add_gate(gate);
+        }
+        return;
+    }
     virtual void remove_gate(UINT index) {
         delete _gate_list.at(index);
         _gate_list.erase(_gate_list.begin() + index);

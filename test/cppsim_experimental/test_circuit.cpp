@@ -175,6 +175,17 @@ TEST(CircuitTest, CircuitBasic) {
         ASSERT_NEAR(abs(state_eigen[i] - state.data_cpp()[i]), 0, eps);
 }
 
+TEST(CircuitTest, MergeCircuits) {
+    StateVector state(2);
+    QuantumCircuit circuit1(2), circuit2(2);
+    circuit1.add_gate(gate::X(0));
+    circuit2.add_gate(gate::X(1));
+    state.set_zero_state();
+    circuit1.merge_circuit(&circuit2);
+    circuit1.update_quantum_state(&state);
+    ASSERT_NEAR(abs(state.data_cpp()[3]), 1.0, 0.0001);
+}
+
 /*
 TEST(CircuitTest, CircuitOptimize) {
     const UINT n = 4;

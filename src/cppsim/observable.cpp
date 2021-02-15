@@ -38,9 +38,9 @@ CPPCTYPE HermitianQuantumOperator::get_expectation_value(
 
 CPPCTYPE
 HermitianQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
-    QuantumStateBase* state, const UINT iter_count) const {
+    QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
     return GeneralQuantumOperator::
-        solve_ground_state_eigenvalue_by_arnoldi_method(state, iter_count)
+        solve_ground_state_eigenvalue_by_arnoldi_method(state, iter_count, mu)
             .real();
 }
 
