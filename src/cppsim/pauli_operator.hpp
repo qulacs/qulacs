@@ -121,7 +121,7 @@ public:
      * @param[in] coef 係数。デフォルトは1.0
      * @return 係数がcoefの空のインスタンス
      */
-    PauliOperator(CPPCTYPE coef = 1.) : _coef(coef){};
+    explicit PauliOperator(CPPCTYPE coef = 1.) : _coef(coef){};
 
     /**
      * \~japanese-en
