@@ -52,7 +52,7 @@ public:
         const std::vector<UINT>& pauli_id_list)
         : _target_index(target_qubit_index_list), _pauli_id(pauli_id_list){};
 
-    MultiQubitPauliOperator(std::string pauli_string) {
+    explicit MultiQubitPauliOperator(std::string pauli_string) {
         std::string pattern = "([IXYZ])\\s*([0-9]+)\\s*";
         std::regex re(pattern);
         std::cmatch result;

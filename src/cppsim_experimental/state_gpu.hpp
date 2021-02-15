@@ -20,7 +20,7 @@ public:
      *
      * @param qubit_count_ 量子ビット数
      */
-    StateVectorGpu(UINT qubit_count_)
+    explicit StateVectorGpu(UINT qubit_count_)
         : QuantumStateBase(qubit_count_, true, 0) {
         set_device(0);
         this->_cuda_stream = allocate_cuda_stream_host(1, 0);

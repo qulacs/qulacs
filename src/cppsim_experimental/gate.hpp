@@ -80,7 +80,7 @@ class DllExport QuantumGateBase {
 protected:
     MapType _map_type;
     std::map<std::string, double*> _parameter;
-    QuantumGateBase(MapType map_type) : _map_type(map_type){};
+    explicit QuantumGateBase(MapType map_type) : _map_type(map_type){};
 
 public:
     virtual ~QuantumGateBase(){};
