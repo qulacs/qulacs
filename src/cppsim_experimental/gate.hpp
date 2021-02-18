@@ -21,9 +21,17 @@ extern "C" {
 #include <gpusim/update_ops_cuda.h>
 #endif
 
-#include "observable.hpp"
-#include "state.hpp"
-#include "type.hpp"
+#include <cppsim_experimental/type.hpp>
+#include <cppsim_experimental/observable.hpp>
+#include <cppsim_experimental/state.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/access.hpp>
+#include <cereal/types/vector.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/complex.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/base_class.hpp>
 
 enum MapType {
     Basic,
