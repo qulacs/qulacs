@@ -233,7 +233,7 @@ public:
             CEREAL_NVP(_gate_property),CEREAL_NVP(_dense_matrix_element),
             //CEREAL_NVP(
             //    _diagonal_matrix_element) //,CEREAL_NVP(_sparse_matrix_element)
-        ,
+        
         CEREAL_NVP(_pauli_id), CEREAL_NVP(_rotation_angle));
 
     }
