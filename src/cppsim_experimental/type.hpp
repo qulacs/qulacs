@@ -8,17 +8,16 @@ extern "C" {
 #include <csim/type.h>
 #endif
 
-#include <cereal/cereal.hpp>
-#include <cereal/access.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/complex.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/polymorphic.hpp>
-#include <cereal/types/base_class.hpp>
-
 #include <Eigen/Core>
 #include <Eigen/Sparse>
+#include <cereal/access.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/complex.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/vector.hpp>
 #include <complex>
 typedef std::complex<double> CPPCTYPE;
 typedef Eigen::VectorXcd ComplexVector;
@@ -35,19 +34,16 @@ typedef Eigen::SparseMatrix<CPPCTYPE> SparseComplexMatrix;
 namespace cereal {
 template <class Archive>
 void save(Archive& ar, const ComplexMatrix& m) {
-    /*
     int32_t rows = m.rows();
     int32_t cols = m.cols();
     ar(rows);
     ar(cols);
     ar(binary_data(
-        m.data(), static_cast<std::size_t>(rows * cols * sizeof(_Scalar))));
-    */
+        m.data(), static_cast<std::size_t>(rows * cols * sizeof(CPPCTYPE))));
 }
 
 template <class Archive>
 void load(Archive& ar, ComplexMatrix& m) {
-    /*
     int32_t rows;
     int32_t cols;
     ar(rows);
@@ -55,9 +51,31 @@ void load(Archive& ar, ComplexMatrix& m) {
 
     m.resize(rows, cols);
     ar(binary_data(
-        m.data(), static_cast<std::size_t>(rows * cols * sizeof(_Scalar))));
-    */
+        m.data(), static_cast<std::size_t>(rows * cols * sizeof(CPPCTYPE))));
 }
+
+template <class Archive>
+void save(Archive& ar, const ComplexVector& m) {
+    int32_t rows = m.rows();
+    int32_t cols = m.cols();
+    ar(rows);
+    ar(cols);
+    ar(binary_data(
+        m.data(), static_cast<std::size_t>(rows * cols * sizeof(CPPCTYPE))));
+}
+
+template <class Archive>
+void load(Archive& ar, ComplexVector& m) {
+    int32_t rows;
+    int32_t cols;
+    ar(rows);
+    ar(cols);
+
+    m.resize(rows, cols);
+    ar(binary_data(
+        m.data(), static_cast<std::size_t>(rows * cols * sizeof(CPPCTYPE))));
+}
+
 }  // namespace cereal
 
 #ifdef __GNUC__

@@ -21,17 +21,17 @@ extern "C" {
 #include <gpusim/update_ops_cuda.h>
 #endif
 
-#include <cppsim_experimental/type.hpp>
+#include <cereal/access.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/complex.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/vector.hpp>
 #include <cppsim_experimental/observable.hpp>
 #include <cppsim_experimental/state.hpp>
-#include <cereal/cereal.hpp>
-#include <cereal/access.hpp>
-#include <cereal/types/vector.hpp>
-#include <cereal/types/memory.hpp>
-#include <cereal/types/complex.hpp>
-#include <cereal/archives/binary.hpp>
-#include <cereal/types/polymorphic.hpp>
-#include <cereal/types/base_class.hpp>
+#include <cppsim_experimental/type.hpp>
 
 enum MapType {
     Basic,
@@ -94,23 +94,21 @@ public:
     QuantumGateBase(){};
     template <class Archive>
     void save(Archive& ar) const {
-        
-        std::vector<std::pair<std::string,double>> parameter_copy;
-        for(auto x:_parameter){
-            parameter_copy.push_back(std::pair<std::string,double>(x.first,*(x.second)));
+        std::vector<std::pair<std::string, double>> parameter_copy;
+        for (auto x : _parameter) {
+            parameter_copy.push_back(
+                std::pair<std::string, double>(x.first, *(x.second)));
         }
-        ar(CEREAL_NVP(parameter_copy),CEREAL_NVP(_map_type));
-        
+        ar(CEREAL_NVP(parameter_copy), CEREAL_NVP(_map_type));
     }
 
     template <class Archive>
     void load(Archive& ar) {
-        std::vector<std::pair<std::string,double>> parameter_copy;
-        ar(CEREAL_NVP(parameter_copy),CEREAL_NVP(_map_type));
-        for(auto x:parameter_copy){
+        std::vector<std::pair<std::string, double>> parameter_copy;
+        ar(CEREAL_NVP(parameter_copy), CEREAL_NVP(_map_type));
+        for (auto x : parameter_copy) {
             (*(_parameter[x.first])) = x.second;
         }
-        
     }
     virtual ~QuantumGateBase(){};
     virtual MapType get_map_type() const { return _map_type; }
@@ -222,12 +220,11 @@ public:
             CEREAL_NVP(_target_qubit_index),
             CEREAL_NVP(_target_qubit_commutation),
             CEREAL_NVP(_control_qubit_index), CEREAL_NVP(_control_qubit_value),
-            CEREAL_NVP(_gate_property),CEREAL_NVP(_dense_matrix_element),
-            //CEREAL_NVP(
-            //   _diagonal_matrix_element),//CEREAL_NVP(_sparse_matrix_element)
-        
-        CEREAL_NVP(_pauli_id), CEREAL_NVP(_rotation_angle));
-        
+            CEREAL_NVP(_gate_property), CEREAL_NVP(_dense_matrix_element),
+            CEREAL_NVP(
+                _diagonal_matrix_element),  // CEREAL_NVP(_sparse_matrix_element)
+
+            CEREAL_NVP(_pauli_id), CEREAL_NVP(_rotation_angle));
     }
 
     template <class Archive>
@@ -238,12 +235,12 @@ public:
             CEREAL_NVP(_target_qubit_index),
             CEREAL_NVP(_target_qubit_commutation),
             CEREAL_NVP(_control_qubit_index), CEREAL_NVP(_control_qubit_value),
-            CEREAL_NVP(_gate_property),CEREAL_NVP(_dense_matrix_element),
-            //CEREAL_NVP(
-            //    _diagonal_matrix_element) //,CEREAL_NVP(_sparse_matrix_element)
-        
-        CEREAL_NVP(_pauli_id), CEREAL_NVP(_rotation_angle));
+            CEREAL_NVP(_gate_property), CEREAL_NVP(_dense_matrix_element),
+            CEREAL_NVP(_diagonal_matrix_element),
+            //,CEREAL_NVP(_sparse_matrix_element)
 
+            CEREAL_NVP(_pauli_id),
+            CEREAL_NVP(_rotation_angle));
     }
     virtual ~QuantumGateBasic(){};
     virtual UINT get_qubit_count() const override {
@@ -767,35 +764,32 @@ private:
 public:
     template <class Archive>
     void save(Archive& ar) const {
-        /*
         int size_gate_list = _gate_list.size();
         ar(CEREAL_NVP(size_gate_list));
-        
-        for(UINT i = 0;i < _gate_list.size();++i){
+
+        for (UINT i = 0; i < _gate_list.size(); ++i) {
             std::unique_ptr<QuantumGateBase> inputs;
-            inputs.reset(_gate_list[i] -> copy());
+            inputs.reset(_gate_list[i]->copy());
             ar(CEREAL_NVP(inputs));
-            
         }
-        ar(CEREAL_NVP(_prob_list),CEREAL_NVP(_prob_cum_list),CEREAL_NVP(_qubit_index_list),CEREAL_NVP(_flag_is_unital),CEREAL_NVP(_flag_save_log),CEREAL_NVP(_reg_name));
-       */ 
+        ar(CEREAL_NVP(_prob_list), CEREAL_NVP(_prob_cum_list),
+            CEREAL_NVP(_qubit_index_list), CEREAL_NVP(_flag_is_unital),
+            CEREAL_NVP(_flag_save_log), CEREAL_NVP(_reg_name));
     }
 
     template <class Archive>
     void load(Archive& ar) {
-        /*
         int size_gate_list;
         ar(CEREAL_NVP(size_gate_list));
         _gate_list.clear();
-        for(int i = 0;i < size_gate_list;++i){
-            /*
+        for (int i = 0; i < size_gate_list; ++i) {
             std::unique_ptr<QuantumGateBase> outputs;
             ar(CEREAL_NVP(outputs));
-            _gate_list.push_back(outputs -> copy());
-            */
-        //}
-        //ar(CEREAL_NVP(_prob_list),CEREAL_NVP(_prob_cum_list),CEREAL_NVP(_qubit_index_list),CEREAL_NVP(_flag_is_unital),CEREAL_NVP(_flag_save_log),CEREAL_NVP(_reg_name));
-        
+            _gate_list.push_back(outputs->copy());
+        }
+        ar(CEREAL_NVP(_prob_list), CEREAL_NVP(_prob_cum_list),
+            CEREAL_NVP(_qubit_index_list), CEREAL_NVP(_flag_is_unital),
+            CEREAL_NVP(_flag_save_log), CEREAL_NVP(_reg_name));
     }
     QuantumGateWrapped(){};
     virtual ~QuantumGateWrapped() {
@@ -919,7 +913,7 @@ DllExport QuantumGateWrapped* DephasingNoise(UINT index, double prob);
 DllExport QuantumGateWrapped* IndependentXZNoise(UINT index, double prob);
 };  // namespace gate
 
-//Cereal Type Registration
+// Cereal Type Registration
 CEREAL_REGISTER_POLYMORPHIC_RELATION(QuantumGateBase, QuantumGateBasic);
 CEREAL_REGISTER_POLYMORPHIC_RELATION(QuantumGateBase, QuantumGateWrapped);
 CEREAL_REGISTER_TYPE(QuantumGateBasic);
