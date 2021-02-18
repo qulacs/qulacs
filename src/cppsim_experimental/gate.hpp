@@ -214,7 +214,7 @@ public:
             CEREAL_NVP(_target_qubit_index),
             CEREAL_NVP(_target_qubit_commutation),
             CEREAL_NVP(_control_qubit_index), CEREAL_NVP(_control_qubit_value),
-            CEREAL_NVP(_gate_property), //CEREAL_NVP(_dense_matrix_element),
+            CEREAL_NVP(_gate_property),CEREAL_NVP(_dense_matrix_element),
             //CEREAL_NVP(
             //   _diagonal_matrix_element),//CEREAL_NVP(_sparse_matrix_element)
         
@@ -230,7 +230,7 @@ public:
             CEREAL_NVP(_target_qubit_index),
             CEREAL_NVP(_target_qubit_commutation),
             CEREAL_NVP(_control_qubit_index), CEREAL_NVP(_control_qubit_value),
-            CEREAL_NVP(_gate_property) //CEREAL_NVP(_dense_matrix_element),
+            CEREAL_NVP(_gate_property),CEREAL_NVP(_dense_matrix_element),
             //CEREAL_NVP(
             //    _diagonal_matrix_element) //,CEREAL_NVP(_sparse_matrix_element)
         ,
