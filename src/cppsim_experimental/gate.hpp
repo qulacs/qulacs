@@ -1,8 +1,10 @@
 #pragma once
-
 #include <cereal/cereal.hpp>
+#include <cereal/access.hpp>
+#include <cereal/archives/binary.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/base_class.hpp>
 #include <cereal/types/vector.hpp>
-
 
 #include <map>
 #include <set>
@@ -87,6 +89,27 @@ protected:
     QuantumGateBase(MapType map_type) : _map_type(map_type){};
 
 public:
+    QuantumGateBase(){};
+    template <class Archive>
+    void save(Archive& ar) const {
+        
+        std::vector<std::pair<std::string,double>> parameter_copy;
+        for(auto x:_parameter){
+            parameter_copy.push_back(std::pair<std::string,double>(x.first,*(x.second)));
+        }
+        ar(CEREAL_NVP(parameter_copy),CEREAL_NVP(_map_type));
+        
+    }
+
+    template <class Archive>
+    void load(Archive& ar) {
+        std::vector<std::pair<std::string,double>> parameter_copy;
+        ar(CEREAL_NVP(parameter_copy),CEREAL_NVP(_map_type));
+        for(auto x:parameter_copy){
+            (*(_parameter[x.first])) = x.second;
+        }
+        
+    }
     virtual ~QuantumGateBase(){};
     virtual MapType get_map_type() const { return _map_type; }
     virtual UINT get_qubit_count() const = 0;
@@ -135,7 +158,7 @@ public:
     std::vector<UINT> _pauli_id;
     double _rotation_angle;
     // PermutationFunction* permutation_function;
-
+    QuantumGateBasic(){};
     QuantumGateBasic(GateMatrixType matrix_type,
         SpecialFuncType special_func_type, UINT gate_property,
         const std::vector<UINT>& target_qubit_index,
@@ -189,35 +212,36 @@ public:
                 "Expand control part is not implemented");
     };
 
-public:
-
     template <class Archive>
-    void serialize( Archive & ar )
-    { 
-        //TODO!
-        //Documentize SparseMatrix serializer
+    void save(Archive& ar) const {
+        // TODO!
+        // Documentize SparseMatrix serializer
 
-        //use every serializer
-        /*
-            GateMatrixType _matrix_type;
-            SpecialFuncType _special_func_type;
-            std::vector<UINT> _target_qubit_index;
-            std::vector<UINT> _target_qubit_commutation;
-            std::vector<UINT> _control_qubit_index;
-            std::vector<UINT> _control_qubit_value;
-            UINT _gate_property;
-
-            ComplexMatrix _dense_matrix_element;
-            ComplexVector _diagonal_matrix_element;
-            SparseComplexMatrix _sparse_matrix_element;
-            std::vector<UINT> _pauli_id;
-            double _rotation_angle;
-        */
-        ar( CEREAL_NVP(_matrix_type),CEREAL_NVP(_special_func_type),CEREAL_NVP(_target_qubit_index),CEREAL_NVP(_target_qubit_commutation),CEREAL_NVP(_control_qubit_index),CEREAL_NVP(_control_qubit_value),
-            CEREAL_NVP(_gate_property),CEREAL_NVP(_dense_matrix_element),CEREAL_NVP(_diagonal_matrix_element)/*,CEREAL_NVP(_sparse_matrix_element)*/,CEREAL_NVP(_pauli_id),CEREAL_NVP(_rotation_angle));
+        ar(CEREAL_NVP(_matrix_type), CEREAL_NVP(_special_func_type),
+            CEREAL_NVP(_target_qubit_index),
+            CEREAL_NVP(_target_qubit_commutation),
+            CEREAL_NVP(_control_qubit_index), CEREAL_NVP(_control_qubit_value),
+            CEREAL_NVP(_gate_property), CEREAL_NVP(_dense_matrix_element),
+            CEREAL_NVP(
+                _diagonal_matrix_element) /*,CEREAL_NVP(_sparse_matrix_element)*/
+            ,
+            CEREAL_NVP(_pauli_id), CEREAL_NVP(_rotation_angle));
     }
 
-
+    template <class Archive>
+    void load(Archive& ar) {
+        // TODO!
+        // Documentize SparseMatrix serializer
+        ar(CEREAL_NVP(_matrix_type), CEREAL_NVP(_special_func_type),
+            CEREAL_NVP(_target_qubit_index),
+            CEREAL_NVP(_target_qubit_commutation),
+            CEREAL_NVP(_control_qubit_index), CEREAL_NVP(_control_qubit_value),
+            CEREAL_NVP(_gate_property), CEREAL_NVP(_dense_matrix_element),
+            CEREAL_NVP(
+                _diagonal_matrix_element) /*,CEREAL_NVP(_sparse_matrix_element)*/
+            ,
+            CEREAL_NVP(_pauli_id), CEREAL_NVP(_rotation_angle));
+    }
     virtual ~QuantumGateBasic(){};
     virtual UINT get_qubit_count() const override {
         return (UINT)(_target_qubit_index.size() + _control_qubit_index.size());
@@ -738,6 +762,35 @@ private:
     }
 
 public:
+    template <class Archive>
+    void save(Archive& ar) const {
+        int size_gate_list = _gate_list.size();
+        ar(CEREAL_NVP(size_gate_list));
+        
+        for(UINT i = 0;i < _gate_list.size();++i){
+            std::unique_ptr<QuantumGateBase> inputs;
+            inputs.reset(_gate_list[i] -> copy());
+            ar(CEREAL_NVP(inputs));
+        }
+        ar(CEREAL_NVP(_prob_list),CEREAL_NVP(_prob_cum_list),CEREAL_NVP(_qubit_index_list),CEREAL_NVP(_flag_is_unital),CEREAL_NVP(_flag_save_log),CEREAL_NVP(_reg_name));
+        
+    }
+
+    template <class Archive>
+    void load(Archive& ar) {
+        
+        int size_gate_list;
+        ar(CEREAL_NVP(size_gate_list));
+        _gate_list.clear();
+        for(int i = 0;i < size_gate_list;++i){
+            std::unique_ptr<QuantumGateBase> outputs;
+            ar(CEREAL_NVP(outputs));
+            _gate_list.push_back(outputs -> copy());
+        }
+        ar(CEREAL_NVP(_prob_list),CEREAL_NVP(_prob_cum_list),CEREAL_NVP(_qubit_index_list),CEREAL_NVP(_flag_is_unital),CEREAL_NVP(_flag_save_log),CEREAL_NVP(_reg_name));
+        
+    }
+    QuantumGateWrapped(){};
     virtual ~QuantumGateWrapped() {
         for (auto& gate : _gate_list) {
             delete gate;
@@ -858,3 +911,9 @@ DllExport QuantumGateWrapped* BitFlipNoise(UINT index, double prob);
 DllExport QuantumGateWrapped* DephasingNoise(UINT index, double prob);
 DllExport QuantumGateWrapped* IndependentXZNoise(UINT index, double prob);
 };  // namespace gate
+
+//Cereal Type Registration
+CEREAL_REGISTER_POLYMORPHIC_RELATION(QuantumGateBase, QuantumGateBasic);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(QuantumGateBase, QuantumGateWrapped);
+CEREAL_REGISTER_TYPE(QuantumGateBasic);
+CEREAL_REGISTER_TYPE(QuantumGateWrapped);
