@@ -4,14 +4,19 @@
  * @brief basic definitins of types and macros
  */
 
-
 #pragma once
 
-// When csim is compiled with C++, std::complex<double> is used instead of double _Complex
+// When csim is compiled with C++, std::complex<double> is used instead of
+// double _Complex
 #ifdef _MSC_VER
 #include <complex>
 #else
 #include <complex.h>
+#ifdef __cplusplus
+#ifdef I
+#undef I
+#endif
+#endif
 #endif
 
 //! size_t for gcc
@@ -29,6 +34,17 @@ inline static double creal(CTYPE val) { return std::real(val); }
 inline static double cimag(CTYPE val) { return std::imag(val); }
 #else
 typedef double _Complex CTYPE;
+#if __GNUC__ >= 8
+#ifdef __cplusplus
+inline static double creal(CTYPE val) { return __real__ val; }
+inline static double cimag(CTYPE val) { return __imag__ val; }
+inline static double cabs(CTYPE val) {
+    double re = __real__ val;
+    double im = __imag__ val;
+    return re * re + im * im;
+}
+#endif
+#endif
 #endif
 
 //! dimension index
@@ -54,5 +70,5 @@ typedef unsigned long long ITYPE;
 #if defined(__MINGW32__) || defined(_MSC_VER)
 #define DllExport __declspec(dllexport)
 #else
-#define DllExport __attribute__((visibility ("default")))
+#define DllExport __attribute__((visibility("default")))
 #endif

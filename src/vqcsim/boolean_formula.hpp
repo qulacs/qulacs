@@ -1,14 +1,14 @@
 #pragma once
 
-
+#include <algorithm>
 #include <cppsim/type.hpp>
 #include <vector>
-#include <algorithm>
 
 class BooleanFormula {
 private:
     std::vector<std::pair<double, std::vector<UINT>>> _formula;
     UINT _variable_count = 0;
+
 public:
     virtual double evaluate(std::vector<UINT> binary_string) {
         double sum = 0.;
@@ -23,9 +23,5 @@ public:
         }
         return sum;
     }
-    virtual UINT get_variable_count() const {
-        return _variable_count;
-    }
+    virtual UINT get_variable_count() const { return _variable_count; }
 };
-
-

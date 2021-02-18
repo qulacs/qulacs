@@ -1,6 +1,8 @@
 
 cmake_minimum_required(VERSION 2.8)
 
+project(qulacs)
+
 ##### Check GCC version #####
 if(${CMAKE_C_COMPILER_VERSION} VERSION_LESS 7.0.0)
 	message(FATAL_ERROR, "gcc >= 7.0.0 is required.")
@@ -56,12 +58,24 @@ foreach(path IN LISTS header_files)
 	string(REPLACE ${CMAKE_CURRENT_SOURCE_DIR}/src/ ${CMAKE_CURRENT_SOURCE_DIR}/include/ path_dst ${path})
 	configure_file(${path} ${path_dst} COPYONLY)
 endforeach()
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+# include_directories(${CMAKE_CURRENT_SOURCE_DIR}/include)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 
 ##### set external projects #####
 include(ExternalProject)
-include(${CMAKE_SOURCE_DIR}/FetchContent.cmake)
+include(${CMAKE_SOURCE_DIR}/cmake_script/FetchContent.cmake)
+
+# Boost
+set(Boost_USE_STATIC_LIBS    ON)
+set(Boost_USE_MULTITHREADED  ON)
+set(Boost_USE_STATIC_RUNTIME ON)
+find_package(Boost 1.36.0 REQUIRED)
+include_directories(${Boost_INCLUDE_DIRS})
+if(NOT Boost_FOUND)
+        message(FATAL_ERROR "Boost not found. Please install boost.")
+endif()
+message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
 
 # Eigen
 set(EIGEN_BUILD_DIR   ${CMAKE_BINARY_DIR}/eigen)
@@ -105,7 +119,7 @@ if(USE_PYTHON)
 		set(PYBIND11_INCLUDE_DIR ${PYBIND11_INSTALL_DIR}/include)
 		ExternalProject_Add(
 			pybind11_pop
-			URL http://github.com/pybind/pybind11/archive/v2.2.4.tar.gz
+			URL http://github.com/pybind/pybind11/archive/v2.5.0.tar.gz
 			PREFIX ${PYBIND11_BUILD_DIR}
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND ""
@@ -118,7 +132,7 @@ if(USE_PYTHON)
 		FetchContent_Declare(
 			pybind11_fetch
 			GIT_REPOSITORY https://github.com/pybind/pybind11
-			GIT_TAG v2.2.4
+			GIT_TAG v2.5.0
 		)
 		FetchContent_GetProperties(pybind11_fetch)
 		if(NOT pybind11_fetch_POPULATED)
@@ -140,13 +154,15 @@ if(NOT USE_GPU)
 	 -Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
 	 -Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
 	 -Wnested-externs -fdiagnostics-color=auto")
-	set(WARNING_CPP "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
+	set(WARNING_CPP "-Wall -Wextra -Wlogical-op -Wmissing-include-dirs \
 	 -Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
-	 -Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=missing-declarations -Werror=return-type \
-	 -Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
+	 -Werror=missing-declarations -Werror=return-type \
+	 -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
 	 -Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
 	 -fdiagnostics-color=auto")
+	 # -Werror=undef is eliminated due to conflict with boost
 endif()
+
 
 
 ##### set output directory #####
@@ -175,63 +191,70 @@ endif()
 if(MSYS OR MINGW OR UNIX OR APPLE)
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
+	# Set C++ standard
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+	set(PYBIND11_CPP_STANDARD -std=c++14)
+	
+	# Enable pthread
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
-
-
-	# GCC>=8.0.0 requires C++14 for building python
-	if(8.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++14")
-	else()
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
-	endif()
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
 
-	# set for literals of imaginary number
+	# Enable imaginary literals for C++
 	if(NOT MINGW)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
 	endif()
 
+	# Enable openmp
 	if(USE_OMP)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
 	endif()
 
+	# Enable mpi
 	if(USE_MPI)
 		add_compile_options("-D _USE_MPI")
 	endif()
 
+	# Enable gpu
 	if(USE_GPU)
 		add_compile_options("-D _USE_GPU")
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fPIC")
 		add_compile_options("-fPIC")
 	endif()
 
-	if(USE_SIMD)
+	# Enable simd
+	## Check if AVX2 is supported
+	include(${CMAKE_SOURCE_DIR}/cmake_script/FindAVX2.cmake)
+	CHECK_AVX2_LINUX()
+	message(STATUS "AVX2_FOUND = ${AVX2_FOUND}")
+	if(USE_SIMD AND AVX2_FOUND)
+		message(STATUS "AVX2 Enabled")
 		add_compile_options("-D _USE_SIMD")
+	else()
+		message(STATUS "AVX2 Disabled")
 	endif()
 
+	# Add optimization flags
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${OPT_FLAGS}")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OPT_FLAGS}")
 
-	if(8.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
-		set(PYBIND11_CPP_STANDARD -std=gnu++14)
-	endif()
 
 elseif(MSVC)
+	# Compile csim with cpp compiler since VC does not completely support C99 complex values
 	SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
-
-	# compile csim with cpp since VC not completely support C99 complex values
 	add_compile_options("/TP")
-	# ignore warning about template export
+
+	# Ignore warning
+	## ignore warning about template export
 	add_compile_options(/wd4251)
-	# ignore warning on non-Unicode files
+	## ignore warning on non-Unicode files
 	add_compile_options(/wd4819)
 
-	# Check if AVX2 is supported
-	include(${CMAKE_SOURCE_DIR}/FindAVX2.cmake)
+	# Enable simd
+	## Check if AVX2 is supported
+	include(${CMAKE_SOURCE_DIR}/cmake_script/FindAVX2.cmake)
 	CHECK_AVX2_WINDOWS()
-	#CHECK_AVX2_LINUX()
 	message(STATUS "AVX2_FOUND = ${AVX2_FOUND}")
 	if(USE_SIMD AND AVX2_FOUND)
 		message(STATUS "AVX2 Enabled")
@@ -240,19 +263,22 @@ elseif(MSVC)
 		message(STATUS "AVX2 Disabled")
 	endif()
 
+	# enable openmp
 	if(USE_OMP)
 		add_compile_options("/openmp")
 	endif()
 
+	# enable mpi
 	if(USE_MPI)
 		add_compile_options("/D_USE_MPI")
 	endif()
 	
+	# enable gpu
 	if(USE_GPU)
 		add_compile_options("/D_USE_GPU")
 	endif()
 
-	# static link to multithread runtimes
+	# Static link to multithread runtimes
 	set(variables 
 		CMAKE_CXX_FLAGS_DEBUG
 		CMAKE_CXX_FLAGS_RELEASE
@@ -264,6 +290,8 @@ elseif(MSVC)
 			string(REGEX REPLACE "/MD" "/MT" ${variable} "${${variable}}")
 		endif()
 	endforeach()
+else()
+	message(FATAL "Unsupported environment")
 endif()
 
 
@@ -308,9 +336,11 @@ if(USE_TEST)
 		add_custom_target(test
 			DEPENDS csim_test
 			DEPENDS cppsim_test
+			DEPENDS cppsim_exp_test
 			DEPENDS vqcsim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/csim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_test
+			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_exp_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
 		)
 	endif()
@@ -324,6 +354,25 @@ add_custom_target(bench
 	#COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_benchmark
 )
 
+# format
+find_program(CLANG_FORMAT "clang-format")
+if(CLANG_FORMAT)
+    file(GLOB_RECURSE ALL_CXX_SOURCE_FILES
+        ${CMAKE_CURRENT_SOURCE_DIR}/bench/*.[ch]pp
+		${CMAKE_CURRENT_SOURCE_DIR}/bench/*.[ch]
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*.[ch]pp
+        ${CMAKE_CURRENT_SOURCE_DIR}/src/*.[ch]
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/*.[ch]pp
+        ${CMAKE_CURRENT_SOURCE_DIR}/test/*.[ch]
+    )
+    add_custom_target(
+        format
+        COMMAND clang-format
+        -i
+        ${ALL_CXX_SOURCE_FILES}
+    )
+endif()
+
 # shared libs
 add_custom_target(shared
 	DEPENDS csim_shared
@@ -335,6 +384,7 @@ add_custom_target(shared
 if(USE_PYTHON)
 	add_custom_target(python
 		DEPENDS qulacs
+		DEPENDS qulacs_osaka
 	)
 	add_custom_target(pythontest
 		DEPENDS qulacs

@@ -9,9 +9,8 @@ extern "C" {
 #else
 #include <csim/update_ops.h>
 #endif
-#include <csim/update_ops_cpp.hpp>
-
 #include <cmath>
+#include <csim/update_ops_cpp.hpp>
 
 #ifdef _USE_GPU
 #include <gpusim/update_ops_cuda.h>
@@ -19,69 +18,75 @@ extern "C" {
 #include <iostream>
 
 /**
- * \~japanese-en —Êqó‘Ô‚ğA•Ê‚Ì—Êqó‘Ô‚É‘Î‚µ‚Ä”½Ë‚·‚éƒQ[ƒg‚ÌƒNƒ‰ƒX
+ * \~japanese-en
+ * ï¿½Êqï¿½ï¿½Ô‚ï¿½ï¿½Aï¿½Ê‚Ì—Êqï¿½ï¿½Ô‚É‘Î‚ï¿½ï¿½Ä”ï¿½ï¿½Ë‚ï¿½ï¿½ï¿½Qï¿½[ï¿½gï¿½ÌƒNï¿½ï¿½ï¿½X
  */
 class ClsStateReflectionGate : public QuantumGateBase {
 private:
-	QuantumStateBase* reflection_state;
+    QuantumStateBase* reflection_state;
+
 public:
-	ClsStateReflectionGate(const QuantumStateBase* _reflection_state) {
-		reflection_state = _reflection_state->copy();
-		UINT qubit_count = _reflection_state->qubit_count;
-		for (UINT qubit_index = 0; qubit_index < qubit_count; ++qubit_index) {
-			this->_target_qubit_list.push_back(TargetQubitInfo(qubit_index, 0));
-		}
-		this->_name = "Reflection";
-	};
-	virtual ~ClsStateReflectionGate() {
-		delete reflection_state;
-	}
+    explicit ClsStateReflectionGate(const QuantumStateBase* _reflection_state) {
+        reflection_state = _reflection_state->copy();
+        UINT qubit_count = _reflection_state->qubit_count;
+        for (UINT qubit_index = 0; qubit_index < qubit_count; ++qubit_index) {
+            this->_target_qubit_list.push_back(TargetQubitInfo(qubit_index, 0));
+        }
+        this->_name = "Reflection";
+    };
+    virtual ~ClsStateReflectionGate() { delete reflection_state; }
 
-	/**
-	 * \~japanese-en —Êqó‘Ô‚ğXV‚·‚é
-	 *
-	 * @param state XV‚·‚é—Êqó‘Ô
-	 */
-	virtual void update_quantum_state(QuantumStateBase* state) override {
-		if (state->is_state_vector()) {
+    /**
+     * \~japanese-en ï¿½Êqï¿½ï¿½Ô‚ï¿½ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½
+     *
+     * @param state ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½Êqï¿½ï¿½ï¿½
+     */
+    virtual void update_quantum_state(QuantumStateBase* state) override {
+        if (state->is_state_vector()) {
 #ifdef _USE_GPU
-			if (state->get_device_name() != reflection_state->get_device_name()) {
-				std::cerr << "Quantum state on CPU (GPU) cannot be reflected using quantum state on GPU (CPU)" << std::endl;
-				return;
-			}
-			if (state->get_device_name() == "gpu") {
-				std::cerr << "Not Implemented" << std::endl;
-				exit(0);
-				//reversible_boolean_gate_gpu(target_index.data(), target_index.size(), function_ptr, state->data_c(), state->dim);
-			}
-			else {
-				reflection_gate(reflection_state->data_c(), state->data_c(), state->dim);
-			}
+            if (state->get_device_name() !=
+                reflection_state->get_device_name()) {
+                std::cerr
+                    << "Quantum state on CPU (GPU) cannot be reflected using "
+                       "quantum state on GPU (CPU)"
+                    << std::endl;
+                return;
+            }
+            if (state->get_device_name() == "gpu") {
+                std::cerr << "Not Implemented" << std::endl;
+                exit(0);
+                // reversible_boolean_gate_gpu(target_index.data(),
+                // target_index.size(), function_ptr, state->data_c(),
+                // state->dim);
+            } else {
+                reflection_gate(
+                    reflection_state->data_c(), state->data_c(), state->dim);
+            }
 #else
-			reflection_gate(reflection_state->data_c(), state->data_c(), state->dim);
+            reflection_gate(
+                reflection_state->data_c(), state->data_c(), state->dim);
 #endif
-		}
-		else {
-			std::cerr << "not implemented" << std::endl;
-		}
-	};
-	/**
-	 * \~japanese-en ©g‚ÌƒfƒB[ƒvƒRƒs[‚ğ¶¬‚·‚é
-	 *
-	 * @return ©g‚ÌƒfƒB[ƒvƒRƒs[
-	 */
-	virtual QuantumGateBase* copy() const override {
-		return new ClsStateReflectionGate(this->reflection_state);
-	};
-	/**
-	 * \~japanese-en ©g‚ÌƒQ[ƒgs—ñ‚ğƒZƒbƒg‚·‚é
-	 *
-	 * @param matrix s—ñ‚ğƒZƒbƒg‚·‚é•Ï”‚ÌQÆ
-	 */
-	virtual void set_matrix(ComplexMatrix&) const override {
-		std::cerr << "ReflectionGate::set_matrix is not implemented" << std::endl;
-		exit(0);
-	}
+        } else {
+            std::cerr << "not implemented" << std::endl;
+        }
+    };
+    /**
+     * \~japanese-en
+     * ï¿½ï¿½ï¿½gï¿½Ìƒfï¿½Bï¿½[ï¿½vï¿½Rï¿½sï¿½[ï¿½ğ¶ï¿½ï¿½ï¿½ï¿½ï¿½
+     *
+     * @return ï¿½ï¿½ï¿½gï¿½Ìƒfï¿½Bï¿½[ï¿½vï¿½Rï¿½sï¿½[
+     */
+    virtual QuantumGateBase* copy() const override {
+        return new ClsStateReflectionGate(this->reflection_state);
+    };
+    /**
+     * \~japanese-en ï¿½ï¿½ï¿½gï¿½ÌƒQï¿½[ï¿½gï¿½sï¿½ï¿½ï¿½ï¿½Zï¿½bï¿½gï¿½ï¿½ï¿½ï¿½
+     *
+     * @param matrix ï¿½sï¿½ï¿½ï¿½ï¿½Zï¿½bï¿½gï¿½ï¿½ï¿½ï¿½Ïï¿½ï¿½ÌQï¿½ï¿½
+     */
+    virtual void set_matrix(ComplexMatrix&) const override {
+        std::cerr << "ReflectionGate::set_matrix is not implemented"
+                  << std::endl;
+        exit(0);
+    }
 };
-
-

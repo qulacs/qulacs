@@ -8,7 +8,7 @@ from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
 from distutils.version import LooseVersion
 
-_VERSION = '0.1.10.1'
+_VERSION = '0.2.0'
 
 project_name = 'Qulacs'
 
@@ -101,7 +101,7 @@ class CMakeBuild(build_ext):
 
         cmake_args += ["-DUSE_GPU:STR=No"]
         cmake_args += ["-DUSE_MPI:STR=No"]
-        
+
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
                                                               self.distribution.get_version())
