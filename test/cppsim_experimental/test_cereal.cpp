@@ -53,6 +53,8 @@ TEST(CerealTest, Serialize_QuantumGateWrapped) {
         cereal::BinaryOutputArchive archive(os);
         archive(hoge);
         hoge->update_quantum_state(&a);
+        hoge.release();
+        delete tmp;
     }
     {
         QuantumGateBase* tmp = gate::X(0);
