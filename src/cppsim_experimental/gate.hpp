@@ -759,23 +759,23 @@ private:
 public:
     template <class Archive>
     void save(Archive& ar) const {
+        /*
         int size_gate_list = _gate_list.size();
         ar(CEREAL_NVP(size_gate_list));
         
         for(UINT i = 0;i < _gate_list.size();++i){
-            /*
             std::unique_ptr<QuantumGateBase> inputs;
             inputs.reset(_gate_list[i] -> copy());
             ar(CEREAL_NVP(inputs));
-            */
+            
         }
         ar(CEREAL_NVP(_prob_list),CEREAL_NVP(_prob_cum_list),CEREAL_NVP(_qubit_index_list),CEREAL_NVP(_flag_is_unital),CEREAL_NVP(_flag_save_log),CEREAL_NVP(_reg_name));
-        
+       */ 
     }
 
     template <class Archive>
     void load(Archive& ar) {
-        
+        /*
         int size_gate_list;
         ar(CEREAL_NVP(size_gate_list));
         _gate_list.clear();
@@ -785,8 +785,8 @@ public:
             ar(CEREAL_NVP(outputs));
             _gate_list.push_back(outputs -> copy());
             */
-        }
-        ar(CEREAL_NVP(_prob_list),CEREAL_NVP(_prob_cum_list),CEREAL_NVP(_qubit_index_list),CEREAL_NVP(_flag_is_unital),CEREAL_NVP(_flag_save_log),CEREAL_NVP(_reg_name));
+        //}
+        //ar(CEREAL_NVP(_prob_list),CEREAL_NVP(_prob_cum_list),CEREAL_NVP(_qubit_index_list),CEREAL_NVP(_flag_is_unital),CEREAL_NVP(_flag_save_log),CEREAL_NVP(_reg_name));
         
     }
     QuantumGateWrapped(){};
