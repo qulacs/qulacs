@@ -33,8 +33,8 @@ typedef Eigen::SparseMatrix<CPPCTYPE> SparseComplexMatrix;
 // https://stackoverflow.com/questions/22884216/serializing-eigenmatrix-using-cereal-library
 
 namespace cereal {
-template <class Archive, class _Scalar, int _Rows, int _Cols, int _Options>
-void save(Archive& ar, Eigen::Matrix<_Scalar, _Rows, _Cols, _Options> const& m) {
+template <class Archive, class _Scalar, int _Rows, int _Cols>
+void save(Archive& ar, Eigen::Matrix<_Scalar, _Rows, _Cols> const& m) {
     /*
     int32_t rows = m.rows();
     int32_t cols = m.cols();
@@ -45,8 +45,8 @@ void save(Archive& ar, Eigen::Matrix<_Scalar, _Rows, _Cols, _Options> const& m) 
     */
 }
 
-template <class Archive, class _Scalar, int _Rows, int _Cols, int _Options>
-void load(Archive& ar, Eigen::Matrix<_Scalar, _Rows, _Cols, _Options>& m) {
+template <class Archive, class _Scalar, int _Rows, int _Cols>
+void load(Archive& ar, Eigen::Matrix<_Scalar, _Rows, _Cols>& m) {
     /*
     int32_t rows;
     int32_t cols;
