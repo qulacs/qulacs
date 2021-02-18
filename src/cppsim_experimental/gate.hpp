@@ -216,7 +216,7 @@ public:
     void save(Archive& ar) const {
         // TODO!
         // Documentize SparseMatrix serializer
-
+        /*
         ar(CEREAL_NVP(_matrix_type), CEREAL_NVP(_special_func_type),
             CEREAL_NVP(_target_qubit_index),
             CEREAL_NVP(_target_qubit_commutation),
@@ -224,14 +224,16 @@ public:
             CEREAL_NVP(_gate_property), CEREAL_NVP(_dense_matrix_element),
             CEREAL_NVP(
                 _diagonal_matrix_element) /*,CEREAL_NVP(_sparse_matrix_element)*/
-            ,
-            CEREAL_NVP(_pauli_id), CEREAL_NVP(_rotation_angle));
+        //    ,
+        //    CEREAL_NVP(_pauli_id), CEREAL_NVP(_rotation_angle));
+        
     }
 
     template <class Archive>
     void load(Archive& ar) {
         // TODO!
         // Documentize SparseMatrix serializer
+        /*
         ar(CEREAL_NVP(_matrix_type), CEREAL_NVP(_special_func_type),
             CEREAL_NVP(_target_qubit_index),
             CEREAL_NVP(_target_qubit_commutation),
@@ -239,8 +241,9 @@ public:
             CEREAL_NVP(_gate_property), CEREAL_NVP(_dense_matrix_element),
             CEREAL_NVP(
                 _diagonal_matrix_element) /*,CEREAL_NVP(_sparse_matrix_element)*/
-            ,
-            CEREAL_NVP(_pauli_id), CEREAL_NVP(_rotation_angle));
+        //    ,
+         //   CEREAL_NVP(_pauli_id), CEREAL_NVP(_rotation_angle));
+
     }
     virtual ~QuantumGateBasic(){};
     virtual UINT get_qubit_count() const override {
