@@ -39,7 +39,7 @@ protected:
     }
 
 public:
-/*
+
     template <class Archive>
     void save(Archive& ar) const {
         
@@ -83,7 +83,7 @@ public:
 
         ar(CEREAL_NVP(_parametric_gate_position),CEREAL_NVP(_qubit_count));
     }
-*/
+    
     virtual UINT get_qubit_count() const { return this->_qubit_count; }
     virtual const std::vector<QuantumGateBase*>& get_gate_list() const {
         return this->_gate_list;

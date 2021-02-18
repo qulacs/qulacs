@@ -9,7 +9,7 @@
 #include <iostream>
 
 #include "../util/util.h"
-/*
+
 TEST(CerealTest, Serialize_ComplexMatrix) {
     // Just Check whether they run without Runtime Errors.
     StateVector a(6),b(6);
@@ -58,7 +58,6 @@ TEST(CerealTest, Serialize_QuantumGateWrapped) {
         std::ifstream is("out.cereal", std::ios::binary);
         cereal::BinaryInputArchive archive(is);
         archive(hoge);
-        std::cout << hoge -> _map_type << std::endl;
         hoge -> update_quantum_state(&b);
         
     }
@@ -93,4 +92,3 @@ TEST(CerealTest, serealize_QuantumCircuit) {
         ASSERT_NEAR(abs(a.data_cpp()[i] - b.data_cpp()[i]),0,1e-7);
     }
 }
-*/
