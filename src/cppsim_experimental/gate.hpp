@@ -914,7 +914,7 @@ DllExport QuantumGateWrapped* IndependentXZNoise(UINT index, double prob);
 };  // namespace gate
 
 // Cereal Type Registration
-CEREAL_REGISTER_POLYMORPHIC_RELATION(QuantumGateBase, QuantumGateBasic);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(QuantumGateBase, QuantumGateWrapped);
 CEREAL_REGISTER_TYPE(QuantumGateBasic);
 CEREAL_REGISTER_TYPE(QuantumGateWrapped);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(QuantumGateBase, QuantumGateBasic);
+CEREAL_REGISTER_POLYMORPHIC_RELATION(QuantumGateBase, QuantumGateWrapped);

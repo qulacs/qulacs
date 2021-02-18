@@ -27,7 +27,9 @@ TEST(CerealTest, Serialize_ComplexMatrix) {
         cereal::BinaryOutputArchive archive(os);
         archive(*hoge);
         hoge->update_quantum_state(&a);
+        os.close();
     }
+    sleep(3);
     {
         QuantumGateBasic* hoge = gate::X(2);
         std::ifstream is("out1.cereal", std::ios::binary);
@@ -55,14 +57,16 @@ TEST(CerealTest, Serialize_QuantumGateWrapped) {
         hoge->update_quantum_state(&a);
         hoge.release();
         delete tmp;
+        os.close();
     }
+    sleep(3);
     {
         QuantumGateBase* tmp = gate::X(0);
         std::unique_ptr<QuantumGateBase> hoge(tmp);
         std::ifstream is("out2.cereal", std::ios::binary);
         cereal::BinaryInputArchive archive(is);
         archive(hoge);
-        hoge->update_quantum_state(&b);
+        //hoge->update_quantum_state(&b);
     }
 }
 
@@ -80,7 +84,9 @@ TEST(CerealTest, serealize_QuantumCircuit) {
         std::ofstream os("out3.cereal", std::ios::binary);
         cereal::BinaryOutputArchive archive(os);
         archive(inputs);
+        os.close();
     }
+    sleep(3);
     {
         // deserialize QuantumCircuit
         std::ifstream is("out3.cereal", std::ios::binary);
