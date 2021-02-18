@@ -66,7 +66,7 @@ TEST(CerealTest, Serialize_QuantumGateWrapped) {
         std::ifstream is("out2.cereal", std::ios::binary);
         cereal::BinaryInputArchive archive(is);
         archive(hoge);
-        //hoge->update_quantum_state(&b);
+        // hoge->update_quantum_state(&b);
     }
 }
 

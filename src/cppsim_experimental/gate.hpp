@@ -239,8 +239,7 @@ public:
             CEREAL_NVP(_diagonal_matrix_element),
             //,CEREAL_NVP(_sparse_matrix_element)
 
-            CEREAL_NVP(_pauli_id),
-            CEREAL_NVP(_rotation_angle));
+            CEREAL_NVP(_pauli_id), CEREAL_NVP(_rotation_angle));
     }
     virtual ~QuantumGateBasic(){};
     virtual UINT get_qubit_count() const override {
