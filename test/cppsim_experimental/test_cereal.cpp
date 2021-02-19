@@ -103,8 +103,6 @@ TEST(CerealTest, Serialize_QuantumGateWrapped) {
     }
 }
 
-
-
 TEST(CerealTest, serealize_QuantumCircuit) {
     // Just Check whether they run without Runtime Errors.
     StateVectorCpu a(10), b(10);
