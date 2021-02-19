@@ -22,7 +22,7 @@ extern "C" {
 #endif
 
 #include <cereal/access.hpp>
-#include <cereal/archives/binary.hpp>
+#include <cereal/archives/portable_binary.hpp>
 #include <cereal/cereal.hpp>
 #include <cereal/types/base_class.hpp>
 #include <cereal/types/complex.hpp>
@@ -33,7 +33,7 @@ extern "C" {
 #include <cppsim_experimental/state.hpp>
 #include <cppsim_experimental/type.hpp>
 
-enum MapType {
+enum MapType{
     Basic,
     Sequence,
     Probabilistic,
@@ -85,7 +85,7 @@ enum SpecialFuncType {
 #define FLAG_COMMUTE_Z 0x04
 
 class DllExport QuantumGateBase {
-protected:
+public:
     MapType _map_type;
     std::map<std::string, double*> _parameter;
     QuantumGateBase(MapType map_type) : _map_type(map_type){};
@@ -765,12 +765,13 @@ public:
     void save(Archive& ar) const {
         int size_gate_list = _gate_list.size();
         ar(CEREAL_NVP(size_gate_list));
-
+        /*
         for (UINT i = 0; i < _gate_list.size(); ++i) {
             std::unique_ptr<QuantumGateBase> inputs;
             inputs.reset(_gate_list[i]->copy());
             ar(CEREAL_NVP(inputs));
         }
+        */
         ar(CEREAL_NVP(_prob_list), CEREAL_NVP(_prob_cum_list),
             CEREAL_NVP(_qubit_index_list), CEREAL_NVP(_flag_is_unital),
             CEREAL_NVP(_flag_save_log), CEREAL_NVP(_reg_name));
@@ -781,11 +782,13 @@ public:
         int size_gate_list;
         ar(CEREAL_NVP(size_gate_list));
         _gate_list.clear();
+        /*
         for (int i = 0; i < size_gate_list; ++i) {
             std::unique_ptr<QuantumGateBase> outputs;
             ar(CEREAL_NVP(outputs));
             _gate_list.push_back(outputs->copy());
         }
+        */
         ar(CEREAL_NVP(_prob_list), CEREAL_NVP(_prob_cum_list),
             CEREAL_NVP(_qubit_index_list), CEREAL_NVP(_flag_is_unital),
             CEREAL_NVP(_flag_save_log), CEREAL_NVP(_reg_name));

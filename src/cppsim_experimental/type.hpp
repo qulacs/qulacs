@@ -11,7 +11,7 @@ extern "C" {
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include <cereal/access.hpp>
-#include <cereal/archives/binary.hpp>
+#include <cereal/archives/portable_binary.hpp>
 #include <cereal/cereal.hpp>
 #include <cereal/types/base_class.hpp>
 #include <cereal/types/complex.hpp>
