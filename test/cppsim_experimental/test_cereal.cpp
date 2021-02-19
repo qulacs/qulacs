@@ -43,6 +43,39 @@ TEST(CerealTest, Serialize_ComplexMatrix) {
     }
 }
 
+TEST(CerealTest, Serialize_SparseComplexMatrix) {
+    // Just Check whether they run without Runtime Errors.
+    StateVector a(6), b(6);
+    a.set_zero_state();
+    b.set_zero_state();
+    {
+        ComplexMatrix mat(8, 8);
+
+        mat << 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
+            0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
+            0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0;
+        QuantumGateBasic* hoge =
+            QuantumGateBasic::DenseMatrixGate({0, 1, 2}, mat, {});
+        std::ofstream os("out1.cereal", std::ios::binary);
+        cereal::BinaryOutputArchive archive(os);
+        archive(*hoge);
+        hoge->update_quantum_state(&a);
+        os.close();
+    }
+    sleep(3);
+    {
+        QuantumGateBasic* hoge = gate::X(2);
+        std::ifstream is("out1.cereal", std::ios::binary);
+        cereal::BinaryInputArchive archive(is);
+        archive(*hoge);
+        hoge->update_quantum_state(&b);
+    }
+    // StateVector applied by QuantumGate should be same.
+    for (int i = 0; i < (1 << 6); ++i) {
+        ASSERT_NEAR(abs(a.data_cpp()[i] - b.data_cpp()[i]), 0, 1e-7);
+    }
+}
+
 TEST(CerealTest, Serialize_QuantumGateWrapped) {
     // Just Check whether they run without Runtime Errors.
     StateVector a(6), b(6);
@@ -69,6 +102,8 @@ TEST(CerealTest, Serialize_QuantumGateWrapped) {
         // hoge->update_quantum_state(&b);
     }
 }
+
+
 
 TEST(CerealTest, serealize_QuantumCircuit) {
     // Just Check whether they run without Runtime Errors.

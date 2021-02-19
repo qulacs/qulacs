@@ -76,6 +76,51 @@ void load(Archive& ar, ComplexVector& m) {
         m.data(), static_cast<std::size_t>(rows * cols * sizeof(CPPCTYPE))));
 }
 
+
+template <class Archive>
+void save(Archive& ar, const SparseComplexMatrix& m) {
+    int32_t rows = m.rows();
+    int32_t cols = m.cols();
+    ar(rows);
+    ar(cols);
+    std::vector<Eigen::Triplet<CPPCTYPE>> TripletList;
+    for (int k=0; k<m.outerSize(); ++k){
+        for (Eigen::SparseMatrix<CPPCTYPE>::InnerIterator it(m,k); it; ++it)
+        {
+            TripletList.push_back(Eigen::Triplet<CPPCTYPE>(it.row(),it.col(),it.value()));
+        }
+    }
+    ar(TripletList);
+}
+
+template <class Archive>
+void load(Archive& ar, SparseComplexMatrix& m) {
+    int32_t rows;
+    int32_t cols;
+    ar(rows);
+    ar(cols);
+
+    m.resize(rows, cols);
+    std::vector<Eigen::Triplet<CPPCTYPE>> TripletList;
+    ar(TripletList);
+    m.setFromTriplets(TripletList.begin(), TripletList.end());
+}
+
+
+template <class Archive>
+void save(Archive& ar, const Eigen::Triplet<CPPCTYPE>& m) {
+    ar(m.row());
+    ar(m.col());
+    ar(m.value());
+}
+
+template <class Archive>
+void load(Archive& ar, Eigen::Triplet<CPPCTYPE>& m) {
+    int row,col,value;
+    ar(row,col,value);
+    m = Eigen::Triplet<CPPCTYPE>(row,col,value);
+}
+
 }  // namespace cereal
 
 #ifdef __GNUC__
