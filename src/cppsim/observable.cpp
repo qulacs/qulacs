@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <Eigen/Dense>
 #include <fstream>
 #include <iostream>
 
@@ -50,6 +51,67 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
     return GeneralQuantumOperator::
         solve_ground_state_eigenvalue_by_power_method(state, iter_count, mu)
             .real();
+}
+
+CPPCTYPE
+HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
+    QuantumStateBase* state) const {
+    const auto qubit_count = this->get_qubit_count();
+    Eigen::VectorXd alpha_v(qubit_count);
+    Eigen::VectorXd beta_v(qubit_count - 1);
+    auto tmp_state = QuantumState(qubit_count);
+    auto multiplied_state = QuantumState(qubit_count);
+
+    std::vector<QuantumStateBase*> state_list;
+    state->normalize(state->get_squared_norm());
+    state_list.push_back(state->copy());
+    for (UINT i = 0; i < qubit_count; i++) {
+        // v = A * q_i
+        this->apply_to_state(&tmp_state, *state_list[i], &multiplied_state);
+        const auto alpha = state::inner_product(
+            static_cast<QuantumState*>(state_list[i]), &multiplied_state);
+        alpha_v(i) = alpha.real();
+        // In the last iteration, no need to calculate β.
+        if (i == qubit_count - 1) {
+            break;
+        }
+
+        tmp_state.load(state_list[i]);
+        tmp_state.multiply_coef(-alpha);
+        // v -= α_i * q_i
+        multiplied_state.add_state(&tmp_state);
+        if (i != 0) {
+            tmp_state.load(state_list[i - 1]);
+            tmp_state.multiply_coef(-beta_v(i - 1));
+            // v -= β_{i-1} * q_{i-1}
+            multiplied_state.add_state(&tmp_state);
+        }
+
+        if (i < qubit_count - 1) {
+            const auto beta = std::sqrt(multiplied_state.get_squared_norm());
+            beta_v(i) = beta;
+            multiplied_state.multiply_coef(1 / beta);
+            state_list.push_back(multiplied_state.copy());
+        }
+    }
+
+    Eigen::SelfAdjointEigenSolver<ComplexMatrix> solver;
+    solver.computeFromTridiagonal(alpha_v, beta_v);
+    const auto eigenvalues = solver.eigenvalues();
+    // Find ground state vector.
+    auto minimum_eigenvalue = eigenvalues[0];
+    for (UINT i = 0; i < eigenvalues.size(); i++) {
+        if (eigenvalues[i] < minimum_eigenvalue) {
+            minimum_eigenvalue = eigenvalues[i];
+        }
+    }
+
+    // Free states allocated by `QuantumState::copy()`.
+    for (auto used_state : state_list) {
+        delete used_state;
+    }
+
+    return minimum_eigenvalue;
 }
 
 namespace observable {

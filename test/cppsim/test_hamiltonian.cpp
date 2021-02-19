@@ -377,7 +377,7 @@ void test_eigenvalue(const Observable& observable, const UINT iter_count,
     }
 }
 
-TEST(ObservableTest, MaximumEigenvalueByPowerMethod) {
+TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
     constexpr UINT qubit_count = 4;
     constexpr double eps = 1e-2;
     constexpr UINT dim = 1ULL << qubit_count;
@@ -393,7 +393,7 @@ TEST(ObservableTest, MaximumEigenvalueByPowerMethod) {
     }
 }
 
-TEST(ObservableTest, MaximumEigenvalueByArnoldiMethod) {
+TEST(ObservableTest, MinimumEigenvalueByArnoldiMethod) {
     constexpr double eps = 1e-6;
     constexpr UINT test_count = 10;
     Random random;
@@ -423,7 +423,7 @@ void add_identity(Observable* observable, Random random) {
 
 // Test observable with identity pauli operator because calculation was unstable
 // in this situation.
-TEST(ObservableTest, MaximumEigenvalueByArnoldiMethodWithIdentity) {
+TEST(ObservableTest, MinimumEigenvalueByArnoldiMethodWithIdentity) {
     constexpr double eps = 1e-6;
     constexpr UINT test_count = 10;
     Random random;
@@ -438,5 +438,39 @@ TEST(ObservableTest, MaximumEigenvalueByArnoldiMethodWithIdentity) {
             generate_random_observable(qubit_count, operator_count);
         add_identity(&observable, random);
         test_eigenvalue(observable, 70, eps, CalculationMethod::ArnoldiMethod);
+    }
+}
+
+TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
+    constexpr UINT test_count = 10;
+    Random random;
+
+    for (auto i = 0; i < test_count; i++) {
+        // 3 <= qubit_count <= 5
+        const auto qubit_count = random.int32() % 4 + 3;
+        const UINT dim = 1U << qubit_count;
+        // 2 <= operator_count <= 11
+        const auto operator_count = random.int32() % 10 + 2;
+        auto observable =
+            generate_random_observable(qubit_count, operator_count);
+
+        // observable に対応する行列を求める
+        auto observable_matrix = convert_observable_to_matrix(observable);
+        // 基底状態の固有値を求める
+        const auto eigenvalues = observable_matrix.eigenvalues();
+        CPPCTYPE test_ground_state_eigenvalue = eigenvalues[0];
+        for (auto i = 0; i < eigenvalues.size(); i++) {
+            if (eigenvalues[i].real() < test_ground_state_eigenvalue.real()) {
+                test_ground_state_eigenvalue = eigenvalues[i];
+            }
+        }
+
+        auto state = QuantumState(qubit_count);
+        state.set_Haar_random_state();
+        const auto ground_state_eigenvalue =
+            observable.solve_ground_state_eigenvalue_by_lanczos_method(&state);
+        constexpr double eps = 1e-6;
+        ASSERT_NEAR(ground_state_eigenvalue.real(),
+            test_ground_state_eigenvalue.real(), eps);
     }
 }
