@@ -17,6 +17,7 @@ extern "C" {
 #include <cereal/types/complex.hpp>
 #include <cereal/types/memory.hpp>
 #include <cereal/types/polymorphic.hpp>
+#include <cereal/types/tuple.hpp>
 #include <cereal/types/vector.hpp>
 #include <complex>
 typedef std::complex<double> CPPCTYPE;
@@ -82,11 +83,11 @@ void save(Archive& ar, const SparseComplexMatrix& m) {
     int32_t cols = m.cols();
     ar(rows);
     ar(cols);
-    std::vector<Eigen::Triplet<CPPCTYPE>> TripletList;
+    std::vector<std::tuple<int, int, CPPCTYPE>> TripletList;
     for (int k = 0; k < m.outerSize(); ++k) {
         for (Eigen::SparseMatrix<CPPCTYPE>::InnerIterator it(m, k); it; ++it) {
             TripletList.push_back(
-                Eigen::Triplet<CPPCTYPE>(it.row(), it.col(), it.value()));
+                std::tuple<int, int, CPPCTYPE>(it.row(), it.col(), it.value()));
         }
     }
     ar(TripletList);
@@ -100,9 +101,14 @@ void load(Archive& ar, SparseComplexMatrix& m) {
     ar(cols);
 
     m.resize(rows, cols);
-    std::vector<Eigen::Triplet<CPPCTYPE>> TripletList;
+    std::vector<std::tuple<int, int, CPPCTYPE>> TripletList;
     ar(TripletList);
-    m.setFromTriplets(TripletList.begin(), TripletList.end());
+    std::vector<Eigen::Triplet<CPPCTYPE>> Triplets;
+    for (UINT i = 0; i < TripletList.size(); ++i) {
+        Triplets.push_back(Eigen::Triplet<CPPCTYPE>(std::get<0>(TripletList[i]),
+            std::get<1>(TripletList[i]), std::get<2>(TripletList[i])));
+    }
+    m.setFromTriplets(Triplets.begin(), Triplets.end());
 }
 
 template <class Archive>

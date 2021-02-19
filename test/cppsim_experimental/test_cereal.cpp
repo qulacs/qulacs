@@ -49,19 +49,24 @@ TEST(CerealTest, Serialize_SparseComplexMatrix) {
     a.set_zero_state();
     b.set_zero_state();
     {
-        ComplexMatrix mat(8, 8);
+        SparseComplexMatrix mat((1 << 5), (1 << 5));
+        std::vector<Eigen::Triplet<CPPCTYPE>> TripletList;
+        for (int i = 0; i < (1 << 5); ++i) {
+            TripletList.push_back(
+                Eigen::Triplet<CPPCTYPE>((1 << 5) - i - 1, i, i + 1));
+            TripletList.push_back(Eigen::Triplet<CPPCTYPE>(i, i, i + 1));
+        }
+        mat.setFromTriplets(TripletList.begin(), TripletList.end());
 
-        mat << 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0,
-            0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0,
-            0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0;
         QuantumGateBasic* hoge =
-            QuantumGateBasic::DenseMatrixGate({0, 1, 2}, mat, {});
+            QuantumGateBasic::SparseMatrixGate({0, 1, 2, 3, 4}, mat, {});
         std::ofstream os("out1.cereal", std::ios::binary);
         cereal::BinaryOutputArchive archive(os);
         archive(*hoge);
         hoge->update_quantum_state(&a);
         os.close();
     }
+
     sleep(3);
     {
         QuantumGateBasic* hoge = gate::X(2);
@@ -70,6 +75,7 @@ TEST(CerealTest, Serialize_SparseComplexMatrix) {
         archive(*hoge);
         hoge->update_quantum_state(&b);
     }
+
     // StateVector applied by QuantumGate should be same.
     for (int i = 0; i < (1 << 6); ++i) {
         ASSERT_NEAR(abs(a.data_cpp()[i] - b.data_cpp()[i]), 0, 1e-7);
