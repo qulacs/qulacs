@@ -44,7 +44,7 @@ public:
         return this->_gate_list;
     }
 
-    QuantumCircuit(UINT qubit_count) : _qubit_count(qubit_count) {}
+    explicit QuantumCircuit(UINT qubit_count) : _qubit_count(qubit_count) {}
     virtual ~QuantumCircuit() {
         for (auto ptr : _gate_list) {
             delete ptr;

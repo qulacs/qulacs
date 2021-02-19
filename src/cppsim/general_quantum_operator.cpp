@@ -112,8 +112,9 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
 
     // Vectors composing Krylov subspace.
     std::vector<QuantumStateBase*> state_list;
+    state_list.reserve(iter_count + 1);
     state->normalize(state->get_squared_norm());
-    state_list.push_back(state);
+    state_list.push_back(state->copy());
 
     CPPCTYPE mu_;
     if (mu == 0.0) {
@@ -128,7 +129,7 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     for (UINT i = 0; i < iter_count; i++) {
         mu_timed_state.load(state_list[i]);
         mu_timed_state.multiply_coef(-mu_);
-        this->apply_to_state(*state_list[i], &multiplied_state);
+        this->apply_to_state(&tmp_state, *state_list[i], &multiplied_state);
         multiplied_state.add_state(&mu_timed_state);
 
         for (UINT j = 0; j < i + 1; j++) {
@@ -171,6 +172,10 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     }
     state->load(&present_state);
 
+    // Free states allocated by `QuantumState::copy()`.
+    for (auto used_state : state_list) {
+        delete used_state;
+    }
     return minimum_eigenvalue + mu_;
 }
 
@@ -188,12 +193,13 @@ CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
     auto multiplied_state = QuantumState(state->qubit_count);
     // Stores a result of -\mu|a>
     auto mu_timed_state = QuantumState(state->qubit_count);
+    auto work_state = QuantumState(state->qubit_count);
     for (UINT i = 0; i < iter_count; i++) {
         mu_timed_state.load(state);
         mu_timed_state.multiply_coef(-mu_);
 
         multiplied_state.multiply_coef(0.0);
-        this->apply_to_state(*state, &multiplied_state);
+        this->apply_to_state(&work_state, *state, &multiplied_state);
         state->load(&multiplied_state);
         state->add_state(&mu_timed_state);
         state->normalize(state->get_squared_norm());
@@ -201,7 +207,7 @@ CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
     return this->get_expectation_value(state) + mu;
 }
 
-void GeneralQuantumOperator::apply_to_state(
+void GeneralQuantumOperator::apply_to_state(QuantumStateBase* work_state,
     const QuantumStateBase& state_to_be_multiplied,
     QuantumStateBase* dst_state) const {
     if (state_to_be_multiplied.qubit_count != dst_state->qubit_count) {
@@ -211,16 +217,16 @@ void GeneralQuantumOperator::apply_to_state(
     }
 
     dst_state->multiply_coef(0.0);
-    auto work_state = QuantumState(state_to_be_multiplied.qubit_count);
     const auto term_count = this->get_term_count();
     for (UINT i = 0; i < term_count; i++) {
-        work_state.load(&state_to_be_multiplied);
+        work_state->load(&state_to_be_multiplied);
         const auto term = this->get_term(i);
         auto pauli_operator =
             gate::Pauli(term->get_index_list(), term->get_pauli_id_list());
-        pauli_operator->update_quantum_state(&work_state);
-        work_state.multiply_coef(term->get_coef());
-        dst_state->add_state(&work_state);
+        pauli_operator->update_quantum_state(work_state);
+        work_state->multiply_coef(term->get_coef());
+        dst_state->add_state(work_state);
+        delete pauli_operator;
     }
 }
 

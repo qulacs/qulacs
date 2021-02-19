@@ -59,7 +59,7 @@ TEST(DensityMatrixTest, SetState) {
     std::vector<std::complex<double>> state_vector(dim * dim);
     for (ITYPE i = 0; i < dim; ++i) {
         for (ITYPE j = 0; j < dim; ++j) {
-            double d = (double)(i * dim + j);
+            const auto d = static_cast<double>(i * dim + j);
             state_vector[j * dim + i] =
                 d + std::complex<double>(0, 1) * (d + 0.1);
         }

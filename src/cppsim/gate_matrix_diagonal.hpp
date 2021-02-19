@@ -4,47 +4,48 @@
 #include "type.hpp"
 
 /**
- * \~japanese-en s—ñ—v‘f‚Å©g‚ªì—p‚·‚é“à—e‚ğ•Û‚·‚éƒNƒ‰ƒX
+ * \~japanese-en ï¿½sï¿½ï¿½vï¿½fï¿½Åï¿½ï¿½gï¿½ï¿½ï¿½ï¿½pï¿½ï¿½ï¿½ï¿½ï¿½ï¿½eï¿½ï¿½Ûï¿½ï¿½ï¿½ï¿½ï¿½Nï¿½ï¿½ï¿½X
  */
 class DllExport QuantumGateDiagonalMatrix : public QuantumGateBase {
 private:
-    ComplexVector _diagonal_element; /**< list of elements of unitary matrix as
-                                        1D array with length dim */
+    // list of elements of unitary matrix as 1D array with length dim
+    ComplexVector _diagonal_element;
+
 public:
     /**
-     * \~japanese-en ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+     * \~japanese-en ï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
      *
-     * s—ñ—v‘f‚ÍƒRƒs[‚³‚ê‚é‚½‚ßAmatrix‚ÍÄ—˜—p‚Å‚«‚é‚ª’á‘¬‚Å‚ ‚é
-     * @param target_qubit_index_list ƒ^[ƒQƒbƒg‚Æ‚È‚é—Êqƒrƒbƒg‚Ì“Y‚¦š‚ÌƒŠƒXƒg
-     * @param matrix_element s—ñ—v‘f
-     * @param control_qubit_index_list ƒRƒ“ƒgƒ[ƒ‹‚Æ‚È‚é—Êqƒrƒbƒg‚ÌƒŠƒXƒg
-     * <code>control_value</code>‚Í‚·‚×‚Ä1‚É‚È‚éB
+     * ï¿½sï¿½ï¿½vï¿½fï¿½ÍƒRï¿½sï¿½[ï¿½ï¿½ï¿½ï¿½é‚½ï¿½ßAmatrixï¿½ÍÄ—ï¿½ï¿½pï¿½Å‚ï¿½ï¿½é‚ªï¿½á‘¬ï¿½Å‚ï¿½ï¿½ï¿½
+     * @param target_qubit_index_list ï¿½^ï¿½[ï¿½Qï¿½bï¿½gï¿½Æ‚È‚ï¿½Êqï¿½rï¿½bï¿½gï¿½Ì“Yï¿½ï¿½ï¿½ï¿½ï¿½Ìƒï¿½ï¿½Xï¿½g
+     * @param matrix_element ï¿½sï¿½ï¿½vï¿½f
+     * @param control_qubit_index_list ï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Æ‚È‚ï¿½Êqï¿½rï¿½bï¿½gï¿½Ìƒï¿½ï¿½Xï¿½g
+     * <code>control_value</code>ï¿½Í‚ï¿½ï¿½×‚ï¿½1ï¿½É‚È‚ï¿½B
      */
     QuantumGateDiagonalMatrix(const std::vector<UINT>& target_qubit_index_list,
         const ComplexVector& matrix_element,
         const std::vector<UINT>& control_qubit_index_list = {});
 
     /**
-     * \~japanese-en ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+     * \~japanese-en ï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
      *
-     * s—ñ—v‘f‚Íswap‚³‚ê‚é‚½‚ßAmatrix‚ÍÄ—˜—p‚Å‚«‚È‚¢‚ª‚‘¬‚Å‚ ‚éB
-     * @param target_qubit_index_list ƒ^[ƒQƒbƒg‚Æ‚È‚é—Êqƒrƒbƒg‚Ì“Y‚¦š‚ÌƒŠƒXƒg
-     * @param matrix_element s—ñ—v‘f
-     * @param control_qubit_index_list ƒRƒ“ƒgƒ[ƒ‹‚Æ‚È‚é—Êqƒrƒbƒg‚ÌƒŠƒXƒg
-     * <code>control_value</code>‚Í‚·‚×‚Ä1‚É‚È‚éB
+     * ï¿½sï¿½ï¿½vï¿½fï¿½ï¿½swapï¿½ï¿½ï¿½ï¿½é‚½ï¿½ßAmatrixï¿½ÍÄ—ï¿½ï¿½pï¿½Å‚ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½B
+     * @param target_qubit_index_list ï¿½^ï¿½[ï¿½Qï¿½bï¿½gï¿½Æ‚È‚ï¿½Êqï¿½rï¿½bï¿½gï¿½Ì“Yï¿½ï¿½ï¿½ï¿½ï¿½Ìƒï¿½ï¿½Xï¿½g
+     * @param matrix_element ï¿½sï¿½ï¿½vï¿½f
+     * @param control_qubit_index_list ï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Æ‚È‚ï¿½Êqï¿½rï¿½bï¿½gï¿½Ìƒï¿½ï¿½Xï¿½g
+     * <code>control_value</code>ï¿½Í‚ï¿½ï¿½×‚ï¿½1ï¿½É‚È‚ï¿½B
      */
     QuantumGateDiagonalMatrix(const std::vector<UINT>& target_qubit_index_list,
         ComplexVector* matrix_element,
         const std::vector<UINT>& control_qubit_index_list = {});
 
     /**
-     * \~japanese-en ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+     * \~japanese-en ï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
      *
-     * s—ñ—v‘f‚ÍƒRƒs[‚³‚ê‚é‚½‚ßAmatrix‚ÍÄ—˜—p‚Å‚«‚é‚ª’á‘¬‚Å‚ ‚é
-     * @param target_qubit_index_list ƒ^[ƒQƒbƒg‚Æ‚È‚é—Êqƒrƒbƒg‚Ìî•ñ‚ÌƒŠƒXƒg
-     * @param matrix_element s—ñ—v‘f
+     * ï¿½sï¿½ï¿½vï¿½fï¿½ÍƒRï¿½sï¿½[ï¿½ï¿½ï¿½ï¿½é‚½ï¿½ßAmatrixï¿½ÍÄ—ï¿½ï¿½pï¿½Å‚ï¿½ï¿½é‚ªï¿½á‘¬ï¿½Å‚ï¿½ï¿½ï¿½
+     * @param target_qubit_index_list ï¿½^ï¿½[ï¿½Qï¿½bï¿½gï¿½Æ‚È‚ï¿½Êqï¿½rï¿½bï¿½gï¿½Ìï¿½ï¿½Ìƒï¿½ï¿½Xï¿½g
+     * @param matrix_element ï¿½sï¿½ï¿½vï¿½f
      * @param control_qubit_index_list
-     * ƒRƒ“ƒgƒ[ƒ‹‚Æ‚È‚é—Êqƒrƒbƒg‚Ìî•ñ‚ÌƒŠƒXƒg
+     * ï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Æ‚È‚ï¿½Êqï¿½rï¿½bï¿½gï¿½Ìï¿½ï¿½Ìƒï¿½ï¿½Xï¿½g
      */
     QuantumGateDiagonalMatrix(
         const std::vector<TargetQubitInfo>& target_qubit_index_list,
@@ -52,13 +53,13 @@ public:
         const std::vector<ControlQubitInfo>& control_qubit_index_list = {});
 
     /**
-     * \~japanese-en ƒRƒ“ƒXƒgƒ‰ƒNƒ^
+     * \~japanese-en ï¿½Rï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
      *
-     * s—ñ—v‘f‚Íswap‚³‚ê‚é‚½‚ßAmatrix‚ÍÄ—˜—p‚Å‚«‚È‚¢‚ª‚‘¬‚Å‚ ‚éB
-     * @param target_qubit_index_list ƒ^[ƒQƒbƒg‚Æ‚È‚é—Êqƒrƒbƒg‚Ìî•ñ‚ÌƒŠƒXƒg
-     * @param matrix_element s—ñ—v‘f
+     * ï¿½sï¿½ï¿½vï¿½fï¿½ï¿½swapï¿½ï¿½ï¿½ï¿½é‚½ï¿½ßAmatrixï¿½ÍÄ—ï¿½ï¿½pï¿½Å‚ï¿½ï¿½È‚ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Å‚ï¿½ï¿½ï¿½B
+     * @param target_qubit_index_list ï¿½^ï¿½[ï¿½Qï¿½bï¿½gï¿½Æ‚È‚ï¿½Êqï¿½rï¿½bï¿½gï¿½Ìï¿½ï¿½Ìƒï¿½ï¿½Xï¿½g
+     * @param matrix_element ï¿½sï¿½ï¿½vï¿½f
      * @param control_qubit_index_list
-     * ƒRƒ“ƒgƒ[ƒ‹‚Æ‚È‚é—Êqƒrƒbƒg‚Ìî•ñ‚ÌƒŠƒXƒg
+     * ï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Æ‚È‚ï¿½Êqï¿½rï¿½bï¿½gï¿½Ìï¿½ï¿½Ìƒï¿½ï¿½Xï¿½g
      */
     QuantumGateDiagonalMatrix(
         const std::vector<TargetQubitInfo>& target_qubit_index_list,
@@ -66,56 +67,56 @@ public:
         const std::vector<ControlQubitInfo>& control_qubit_index_list = {});
 
     /**
-     * \~japanese-en ƒfƒXƒgƒ‰ƒNƒ^
+     * \~japanese-en ï¿½fï¿½Xï¿½gï¿½ï¿½ï¿½Nï¿½^
      */
     virtual ~QuantumGateDiagonalMatrix(){};
 
     /**
-     * \~japanese-en ƒRƒ“ƒgƒ[ƒ‹‚Ì—Êqƒrƒbƒg‚ğ’Ç‰Á‚·‚é
+     * \~japanese-en ï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Ì—Êqï¿½rï¿½bï¿½gï¿½ï¿½Ç‰ï¿½ï¿½ï¿½ï¿½ï¿½
      *
-     * <code>qubit_index</code>‚ÍƒQ[ƒg‚Ìƒ^[ƒQƒbƒg‚âƒRƒ“ƒgƒ[ƒ‹‚Ì’l‚ÉŠÜ‚Ü‚ê‚Ä‚Í‚¢‚¯‚È‚¢B
-     * @param[in] qubit_index ƒRƒ“ƒgƒ[ƒ‹‚Ì—Êqƒrƒbƒg‚Ì“Y‚¦š
+     * <code>qubit_index</code>ï¿½ÍƒQï¿½[ï¿½gï¿½Ìƒ^ï¿½[ï¿½Qï¿½bï¿½gï¿½ï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Ì’lï¿½ÉŠÜ‚Ü‚ï¿½Ä‚Í‚ï¿½ï¿½ï¿½ï¿½È‚ï¿½ï¿½B
+     * @param[in] qubit_index ï¿½Rï¿½ï¿½ï¿½gï¿½ï¿½ï¿½[ï¿½ï¿½ï¿½Ì—Êqï¿½rï¿½bï¿½gï¿½Ì“Yï¿½ï¿½ï¿½ï¿½
      * @param[in] control_value
-     * Šî’ê‚Ì<code>qubit_index</code>‚ª<code>control_value</code>‚Å‚ ‚éê‡‚É‚Ì‚İƒQ[ƒg‚ªì—p‚·‚éB
+     * ï¿½ï¿½ï¿½ï¿½<code>qubit_index</code>ï¿½ï¿½<code>control_value</code>ï¿½Å‚ï¿½ï¿½ï¿½ê‡ï¿½É‚Ì‚İƒQï¿½[ï¿½gï¿½ï¿½ï¿½ï¿½pï¿½ï¿½ï¿½ï¿½B
      */
     virtual void add_control_qubit(UINT qubit_index, UINT control_value);
 
     /**
-     * \~japanese-en ƒQ[ƒgs—ñ‚ÉƒXƒJƒ‰[’l‚ğ‚©‚¯‚é
+     * \~japanese-en ï¿½Qï¿½[ï¿½gï¿½sï¿½ï¿½ÉƒXï¿½Jï¿½ï¿½ï¿½[ï¿½lï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      *
-     * @param[in] value ‚©‚¯‚é’l
+     * @param[in] value ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½l
      */
     virtual void multiply_scalar(CPPCTYPE value) { _diagonal_element *= value; }
 
     /**
-     * \~japanese-en ƒQ[ƒg‚ÌƒvƒƒpƒeƒB‚ğİ’è‚·‚é
+     * \~japanese-en ï¿½Qï¿½[ï¿½gï¿½Ìƒvï¿½ï¿½ï¿½pï¿½eï¿½Bï¿½ï¿½İ’è‚·ï¿½ï¿½
      *
-     * @param[in] gate_property_ ƒQ[ƒg‚ÌƒvƒƒpƒeƒB’l
+     * @param[in] gate_property_ ï¿½Qï¿½[ï¿½gï¿½Ìƒvï¿½ï¿½ï¿½pï¿½eï¿½Bï¿½l
      */
     virtual void set_gate_property(UINT gate_property_) {
         _gate_property = gate_property_;
     }
 
     /**
-     * \~japanese-en —Êqó‘Ô‚Éì—p‚·‚é
+     * \~japanese-en ï¿½Êqï¿½ï¿½Ô‚Éï¿½pï¿½ï¿½ï¿½ï¿½
      *
-     * @param[in,out] state XV‚·‚é—Êqó‘Ô
+     * @param[in,out] state ï¿½Xï¿½Vï¿½ï¿½ï¿½ï¿½Êqï¿½ï¿½ï¿½
      */
     virtual void update_quantum_state(QuantumStateBase* state) override;
 
     /**
-     * \~japanese-en ©g‚ÌƒRƒs[‚ğì¬‚·‚é
+     * \~japanese-en ï¿½ï¿½ï¿½gï¿½ÌƒRï¿½sï¿½[ï¿½ï¿½ï¿½ì¬ï¿½ï¿½ï¿½ï¿½
      *
-     * @return ƒRƒs[‚³‚ê‚½ƒQ[ƒg‚ÌƒCƒ“ƒXƒ^ƒ“ƒX
+     * @return ï¿½Rï¿½sï¿½[ï¿½ï¿½ï¿½ê‚½ï¿½Qï¿½[ï¿½gï¿½ÌƒCï¿½ï¿½ï¿½Xï¿½^ï¿½ï¿½ï¿½X
      */
     virtual QuantumGateBase* copy() const override {
         return new QuantumGateDiagonalMatrix(*this);
     };
 
     /**
-     * \~japanese-en ©g‚Ìs—ñ—v‘f‚ğƒZƒbƒg‚·‚é
+     * \~japanese-en ï¿½ï¿½ï¿½gï¿½Ìsï¿½ï¿½vï¿½fï¿½ï¿½ï¿½Zï¿½bï¿½gï¿½ï¿½ï¿½ï¿½
      *
-     * @param[out] matrix s—ñ—v‘f‚ğƒZƒbƒg‚·‚és—ñ‚ÌQÆ
+     * @param[out] matrix ï¿½sï¿½ï¿½vï¿½fï¿½ï¿½ï¿½Zï¿½bï¿½gï¿½ï¿½ï¿½ï¿½sï¿½ï¿½ÌQï¿½ï¿½
      */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         ITYPE dim = this->_diagonal_element.size();
@@ -126,28 +127,29 @@ public:
     }
 
     /**
-     * \~japanese-en —Êq‰ñ˜H‚ÌƒfƒoƒbƒOî•ñ‚Ì•¶š—ñ‚ğ¶¬‚·‚é
+     * \~japanese-en
+     * ï¿½Êqï¿½ï¿½Hï¿½Ìƒfï¿½oï¿½bï¿½Oï¿½ï¿½ï¿½Ì•ï¿½ï¿½ï¿½ï¿½ï¿½ğ¶ï¿½ï¿½ï¿½ï¿½ï¿½
      *
-     * @return ¶¬‚µ‚½•¶š—ñ
+     * @return ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
      */
     virtual std::string to_string() const override;
 
     /**
-     * \~japanese-en ƒQ[ƒg‚Ìî•ñ‚ğ•¶š—ñ‚Åo—Í‚·‚é
+     * \~japanese-en ï¿½Qï¿½[ï¿½gï¿½Ìï¿½ï¿½ğ•¶ï¿½ï¿½ï¿½Åoï¿½Í‚ï¿½ï¿½ï¿½
      *
-     * @param os o—Í‚·‚éƒXƒgƒŠ[ƒ€
-     * @param gate î•ñ‚Ìo—Í‚ğs‚¤ƒQ[ƒg
-     * @return ó‚¯æ‚Á‚½ƒXƒgƒŠ[ƒ€
+     * @param os ï¿½oï¿½Í‚ï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½[ï¿½ï¿½
+     * @param gate ï¿½ï¿½ï¿½Ìoï¿½Í‚ï¿½ï¿½sï¿½ï¿½ï¿½Qï¿½[ï¿½g
+     * @return ï¿½ó‚¯ï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½[ï¿½ï¿½
      */
     friend DllExport std::ostream& operator<<(
         std::ostream& os, const QuantumGateDiagonalMatrix& gate);
 
     /**
-     * \~japanese-en ƒQ[ƒg‚Ìî•ñ‚ğ•¶š—ñ‚Åo—Í‚·‚é
+     * \~japanese-en ï¿½Qï¿½[ï¿½gï¿½Ìï¿½ï¿½ğ•¶ï¿½ï¿½ï¿½Åoï¿½Í‚ï¿½ï¿½ï¿½
      *
-     * @param os o—Í‚·‚éƒXƒgƒŠ[ƒ€
-     * @param gate î•ñ‚Ìo—Í‚ğs‚¤ƒQ[ƒg
-     * @return ó‚¯æ‚Á‚½ƒXƒgƒŠ[ƒ€
+     * @param os ï¿½oï¿½Í‚ï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½[ï¿½ï¿½
+     * @param gate ï¿½ï¿½ï¿½Ìoï¿½Í‚ï¿½ï¿½sï¿½ï¿½ï¿½Qï¿½[ï¿½g
+     * @return ï¿½ó‚¯ï¿½ï¿½ï¿½ï¿½ï¿½Xï¿½gï¿½ï¿½ï¿½[ï¿½ï¿½
      */
     friend DllExport std::ostream& operator<<(
         std::ostream& os, QuantumGateDiagonalMatrix* gate);

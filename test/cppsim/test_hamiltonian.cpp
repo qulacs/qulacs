@@ -361,8 +361,9 @@ void test_eigenvalue(const Observable& observable, const UINT iter_count,
         test_ground_state_eigenvalue.real(), eps);
 
     QuantumState multiplied_state(qubit_count);
+    QuantumState work_state(qubit_count);
     // A|q>
-    observable.apply_to_state(state, &multiplied_state);
+    observable.apply_to_state(&work_state, state, &multiplied_state);
     // λ|q>
     state.multiply_coef(test_ground_state_eigenvalue);
     multiplied_state.normalize(multiplied_state.get_squared_norm());

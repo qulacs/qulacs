@@ -14,7 +14,7 @@ private:
     std::vector<int> Parent;
 
 public:
-    UnionFind(int N) { Parent = std::vector<int>(N, -1); }
+    explicit UnionFind(int N) { Parent = std::vector<int>(N, -1); }
     int root(int A) {
         if (Parent[A] < 0) {
             return A;

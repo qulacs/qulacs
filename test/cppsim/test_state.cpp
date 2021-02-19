@@ -52,7 +52,7 @@ TEST(StateTest, SetState) {
     const ITYPE dim = 1ULL << n;
     std::vector<std::complex<double>> state_vector(dim);
     for (ITYPE i = 0; i < dim; ++i) {
-        double d = (double)i;
+        const auto d = static_cast<double>(i);
         state_vector[i] = d + std::complex<double>(0, 1) * (d + 0.1);
     }
     state.load(state_vector);

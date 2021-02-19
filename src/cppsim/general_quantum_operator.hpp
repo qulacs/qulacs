@@ -163,7 +163,8 @@ public:
      * @param [in] state_to_be_multiplied 作用を受ける状態
      * @param [in] dst_state 結果を格納する状態
      */
-    void apply_to_state(const QuantumStateBase& state_to_be_multiplied,
+    void apply_to_state(QuantumStateBase* work_state,
+        const QuantumStateBase& state_to_be_multiplied,
         QuantumStateBase* dst_state) const;
 
 private:
