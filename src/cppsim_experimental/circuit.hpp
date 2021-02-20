@@ -55,7 +55,7 @@ public:
         for (int i = 0; i < size_gate_list; ++i) {
             std::unique_ptr<QuantumGateBase> pointer;
             pointer.reset(_gate_list[i]->copy());
-            ar(CEREAL_NVP(pointer));
+            ar(cereal::make_nvp("Gate "+std::to_string(i),pointer));
         }
 
         int size_parametric_gate_list = _parametric_gate_list.size();
@@ -63,7 +63,7 @@ public:
         for (int i = 0; i < size_parametric_gate_list; ++i) {
             std::unique_ptr<QuantumGateBase> pointer;
             pointer.reset(_parametric_gate_list[i]->copy());
-            ar(CEREAL_NVP(pointer));
+            ar(cereal::make_nvp("Parametric Gate "+std::to_string(i),pointer));
         }
         ar(CEREAL_NVP(_parametric_gate_position), CEREAL_NVP(_qubit_count));
     }
@@ -75,7 +75,7 @@ public:
         _gate_list.clear();
         for (int i = 0; i < size_gate_list; ++i) {
             std::unique_ptr<QuantumGateBase> pointer;
-            ar(CEREAL_NVP(pointer));
+            ar(cereal::make_nvp("Gate "+std::to_string(i),pointer));
             _gate_list.push_back(pointer->copy());
         }
 
@@ -84,7 +84,7 @@ public:
         _parametric_gate_list.clear();
         for (int i = 0; i < size_parametric_gate_list; ++i) {
             std::unique_ptr<QuantumGateBase> pointer;
-            ar(CEREAL_NVP(pointer));
+            ar(cereal::make_nvp("Parametric Gate " + std::to_string(i),pointer));
             _parametric_gate_list.push_back(pointer->copy());
         }
 
