@@ -29,6 +29,8 @@ extern "C" {
 #include <cereal/types/memory.hpp>
 #include <cereal/types/polymorphic.hpp>
 #include <cereal/types/vector.hpp>
+#include <cereal/types/string.hpp>
+#include <cereal/types/utility.hpp>
 #include <cppsim_experimental/observable.hpp>
 #include <cppsim_experimental/state.hpp>
 #include <cppsim_experimental/type.hpp>
@@ -91,7 +93,7 @@ public:
     QuantumGateBase(MapType map_type) : _map_type(map_type){};
 
 public:
-    QuantumGateBase(){};
+    QuantumGateBase() = default;
     template <class Archive>
     void save(Archive& ar) const {
         std::vector<std::pair<std::string, double>> parameter_copy;
@@ -104,11 +106,13 @@ public:
 
     template <class Archive>
     void load(Archive& ar) {
+        
         std::vector<std::pair<std::string, double>> parameter_copy;
         ar(CEREAL_NVP(parameter_copy), CEREAL_NVP(_map_type));
         for (auto x : parameter_copy) {
             (*(_parameter[x.first])) = x.second;
         }
+        
     }
     virtual ~QuantumGateBase(){};
     virtual MapType get_map_type() const { return _map_type; }
@@ -158,7 +162,7 @@ public:
     std::vector<UINT> _pauli_id;
     double _rotation_angle;
     // PermutationFunction* permutation_function;
-    QuantumGateBasic(){};
+    QuantumGateBasic() = default;
     QuantumGateBasic(GateMatrixType matrix_type,
         SpecialFuncType special_func_type, UINT gate_property,
         const std::vector<UINT>& target_qubit_index,
@@ -214,6 +218,7 @@ public:
 
     template <class Archive>
     void save(Archive& ar) const {
+        ar(cereal::base_class<QuantumGateBase>(this));
         // TODO!
         // Documentize SparseMatrix serializer
         ar(CEREAL_NVP(_matrix_type), CEREAL_NVP(_special_func_type),
@@ -229,6 +234,7 @@ public:
 
     template <class Archive>
     void load(Archive& ar) {
+        ar(cereal::base_class<QuantumGateBase>(this));
         // TODO!
         // Documentize SparseMatrix serializer
         ar(CEREAL_NVP(_matrix_type), CEREAL_NVP(_special_func_type),
@@ -763,6 +769,7 @@ private:
 public:
     template <class Archive>
     void save(Archive& ar) const {
+        ar(cereal::base_class<QuantumGateBase>(this));
         int size_gate_list = _gate_list.size();
         ar(CEREAL_NVP(size_gate_list));
         /*
@@ -779,6 +786,7 @@ public:
 
     template <class Archive>
     void load(Archive& ar) {
+        ar(cereal::base_class<QuantumGateBase>(this));
         int size_gate_list;
         ar(CEREAL_NVP(size_gate_list));
         _gate_list.clear();
@@ -793,7 +801,7 @@ public:
             CEREAL_NVP(_qubit_index_list), CEREAL_NVP(_flag_is_unital),
             CEREAL_NVP(_flag_save_log), CEREAL_NVP(_reg_name));
     }
-    QuantumGateWrapped(){};
+    QuantumGateWrapped() = default;
     virtual ~QuantumGateWrapped() {
         for (auto& gate : _gate_list) {
             delete gate;
@@ -918,5 +926,3 @@ DllExport QuantumGateWrapped* IndependentXZNoise(UINT index, double prob);
 // Cereal Type Registration
 CEREAL_REGISTER_TYPE(QuantumGateBasic);
 CEREAL_REGISTER_TYPE(QuantumGateWrapped);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(QuantumGateBase, QuantumGateBasic);
-CEREAL_REGISTER_POLYMORPHIC_RELATION(QuantumGateBase, QuantumGateWrapped);
