@@ -7,6 +7,14 @@
 
 #pragma once
 
+#include <cereal/access.hpp>
+#include <cereal/archives/portable_binary.hpp>
+#include <cereal/cereal.hpp>
+#include <cereal/types/base_class.hpp>
+#include <cereal/types/complex.hpp>
+#include <cereal/types/memory.hpp>
+#include <cereal/types/polymorphic.hpp>
+#include <cereal/types/vector.hpp>
 #include <string>
 #include <vector>
 
@@ -39,6 +47,51 @@ protected:
     }
 
 public:
+    template <class Archive>
+    void save(Archive& ar) const {
+        int size_gate_list = _gate_list.size();
+        ar(CEREAL_NVP(size_gate_list));
+        for (int i = 0; i < size_gate_list; ++i) {
+            std::unique_ptr<QuantumGateBase> pointer;
+            pointer.reset(_gate_list[i]->copy());
+            ar(cereal::make_nvp("Gate " + std::to_string(i), pointer));
+        }
+
+        int size_parametric_gate_list = _parametric_gate_list.size();
+        ar(CEREAL_NVP(size_parametric_gate_list));
+        for (int i = 0; i < size_parametric_gate_list; ++i) {
+            std::unique_ptr<QuantumGateBase> pointer;
+            pointer.reset(_parametric_gate_list[i]->copy());
+            ar(cereal::make_nvp(
+                "Parametric Gate " + std::to_string(i), pointer));
+        }
+        ar(CEREAL_NVP(_parametric_gate_position), CEREAL_NVP(_qubit_count));
+    }
+
+    template <class Archive>
+    void load(Archive& ar) {
+        int size_gate_list;
+        ar(CEREAL_NVP(size_gate_list));
+        _gate_list.clear();
+        for (int i = 0; i < size_gate_list; ++i) {
+            std::unique_ptr<QuantumGateBase> pointer;
+            ar(cereal::make_nvp("Gate " + std::to_string(i), pointer));
+            _gate_list.push_back(pointer->copy());
+        }
+
+        int size_parametric_gate_list;
+        ar(CEREAL_NVP(size_parametric_gate_list));
+        _parametric_gate_list.clear();
+        for (int i = 0; i < size_parametric_gate_list; ++i) {
+            std::unique_ptr<QuantumGateBase> pointer;
+            ar(cereal::make_nvp(
+                "Parametric Gate " + std::to_string(i), pointer));
+            _parametric_gate_list.push_back(pointer->copy());
+        }
+
+        ar(CEREAL_NVP(_parametric_gate_position), CEREAL_NVP(_qubit_count));
+    }
+
     virtual UINT get_qubit_count() const { return this->_qubit_count; }
     virtual const std::vector<QuantumGateBase*>& get_gate_list() const {
         return this->_gate_list;
