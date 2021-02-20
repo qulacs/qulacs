@@ -84,8 +84,8 @@ TEST(CerealTest, Serialize_QuantumGateWrapped) {
     StateVector a(6), b(6);
     a.set_zero_state();
     b.set_zero_state();
-    
-    std::unique_ptr<QuantumGateBase> gate_A,gate_B;
+
+    std::unique_ptr<QuantumGateBase> gate_A, gate_B;
     {
         gate_A.reset(gate::TwoQubitDepolarizingNoise(0, 1, 0.5));
         std::ofstream os("out2.cereal", std::ios::binary);
@@ -102,16 +102,17 @@ TEST(CerealTest, Serialize_QuantumGateWrapped) {
     }
     // gate_A should be equal to gate_B.
     // we'll check this.
-    ASSERT_EQ(gate_A -> get_cumulative_distribution(),gate_B -> get_cumulative_distribution());
-    std::vector<QuantumGateBase*> A_kraus_list,B_kraus_list;
-    A_kraus_list = gate_A -> get_kraus_list();
-    B_kraus_list = gate_B -> get_kraus_list();
-    ASSERT_EQ(A_kraus_list.size(),B_kraus_list.size());
-    for(UINT i = 0;i < A_kraus_list.size();++i){
+    ASSERT_EQ(gate_A->get_cumulative_distribution(),
+        gate_B->get_cumulative_distribution());
+    std::vector<QuantumGateBase*> A_kraus_list, B_kraus_list;
+    A_kraus_list = gate_A->get_kraus_list();
+    B_kraus_list = gate_B->get_kraus_list();
+    ASSERT_EQ(A_kraus_list.size(), B_kraus_list.size());
+    for (UINT i = 0; i < A_kraus_list.size(); ++i) {
         a.set_zero_state();
         b.set_zero_state();
-        A_kraus_list[i] -> update_quantum_state(&a);
-        B_kraus_list[i] -> update_quantum_state(&b);
+        A_kraus_list[i]->update_quantum_state(&a);
+        B_kraus_list[i]->update_quantum_state(&b);
         for (int i = 0; i < (1 << 6); ++i) {
             ASSERT_NEAR(abs(a.data_cpp()[i] - b.data_cpp()[i]), 0, 1e-7);
         }
