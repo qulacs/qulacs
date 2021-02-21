@@ -150,8 +150,10 @@ TEST(CerealTest, serealize_QuantumCircuit) {
 
 TEST(CerealTest, serealize_quantum_gate_basic_for_python) {
     // Just Check whether they run without Runtime Errors.
-    QuantumGateBase* gate1 = QuantumGateBasic::DenseMatrixGate({ 0,1 }, Eigen::MatrixXcd::Identity(4, 4));
-    QuantumGateBase* gate2 = QuantumGateBasic::DenseMatrixGate({ 2 }, Eigen::MatrixXcd::Zero(2, 2));
+    QuantumGateBase* gate1 = QuantumGateBasic::DenseMatrixGate(
+        {0, 1}, Eigen::MatrixXcd::Identity(4, 4));
+    QuantumGateBase* gate2 =
+        QuantumGateBasic::DenseMatrixGate({2}, Eigen::MatrixXcd::Zero(2, 2));
     std::string ss = gate1->dump_as_byte();
     gate2->load_from_byte(ss);
 
@@ -165,7 +167,6 @@ TEST(CerealTest, serealize_quantum_gate_basic_for_python) {
         ASSERT_NEAR(abs(a.data_cpp()[i] - b.data_cpp()[i]), 0, 1e-7);
     }
 }
-
 
 TEST(CerealTest, serealize_QuantumCircuit_for_python) {
     // Just Check whether they run without Runtime Errors.

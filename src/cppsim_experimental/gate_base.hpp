@@ -90,11 +90,11 @@ class DllExport QuantumGateBase {
 protected:
     MapType _map_type;
     std::map<std::string, double*> _parameter;
-    explicit QuantumGateBase(MapType map_type) : _map_type(map_type) {};
+    explicit QuantumGateBase(MapType map_type) : _map_type(map_type){};
 
 public:
     QuantumGateBase() = default;
-    virtual ~QuantumGateBase() {};
+    virtual ~QuantumGateBase(){};
 
     // qubit function
     virtual UINT get_qubit_count() const = 0;
@@ -134,7 +134,6 @@ public:
     virtual std::string dump_as_byte() const = 0;
     virtual void load_from_byte(std::string obj) = 0;
 
-
     virtual std::string to_string() const = 0;
     friend DllExport std::ostream& operator<<(
         std::ostream& os, const QuantumGateBase& gate) {
@@ -143,9 +142,7 @@ public:
     }
 
     // parameters
-    virtual UINT get_parameter_count() const {
-        return (UINT)_parameter.size();
-    }
+    virtual UINT get_parameter_count() const { return (UINT)_parameter.size(); }
     virtual bool has_parameter(std::string name) const {
         return _parameter.count(name);
     }

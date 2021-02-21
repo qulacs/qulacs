@@ -59,10 +59,11 @@ void QuantumGateBasic::_update_state_vector_cpu_special(
     }
 }
 
-void QuantumGateBasic::_update_state_vector_cpu_general(QuantumStateBase* state) const {
+void QuantumGateBasic::_update_state_vector_cpu_general(
+    QuantumStateBase* state) const {
     if (_matrix_type == DenseMatrix) {
-        const CTYPE* matrix_ptr = reinterpret_cast<const CTYPE*>(
-            this->_dense_matrix_element.data());
+        const CTYPE* matrix_ptr =
+            reinterpret_cast<const CTYPE*>(this->_dense_matrix_element.data());
         // single qubit dense matrix gate
         if (_target_qubit_index.size() == 1) {
             // no control qubit
@@ -80,11 +81,9 @@ void QuantumGateBasic::_update_state_vector_cpu_general(QuantumStateBase* state)
             // multiple control qubits
             else {
                 multi_qubit_control_single_qubit_dense_matrix_gate(
-                    _control_qubit_index.data(),
-                    _control_qubit_value.data(),
-                    (UINT)(_control_qubit_index.size()),
-                    _target_qubit_index[0], matrix_ptr, state->data_c(),
-                    state->dim);
+                    _control_qubit_index.data(), _control_qubit_value.data(),
+                    (UINT)(_control_qubit_index.size()), _target_qubit_index[0],
+                    matrix_ptr, state->data_c(), state->dim);
             }
         }
 
@@ -107,16 +106,14 @@ void QuantumGateBasic::_update_state_vector_cpu_general(QuantumStateBase* state)
             // multiple control qubit
             else {
                 multi_qubit_control_multi_qubit_dense_matrix_gate(
-                    _control_qubit_index.data(),
-                    _control_qubit_value.data(),
+                    _control_qubit_index.data(), _control_qubit_value.data(),
                     (UINT)(_control_qubit_index.size()),
                     _target_qubit_index.data(),
                     (UINT)(_target_qubit_index.size()), matrix_ptr,
                     state->data_c(), state->dim);
             }
         }
-    }
-    else if (_matrix_type == DiagonalMatrix) {
+    } else if (_matrix_type == DiagonalMatrix) {
         const CTYPE* matrix_ptr = reinterpret_cast<const CTYPE*>(
             this->_diagonal_matrix_element.data());
         if (_target_qubit_index.size() == 1)
@@ -124,35 +121,29 @@ void QuantumGateBasic::_update_state_vector_cpu_general(QuantumStateBase* state)
                 matrix_ptr, state->data_c(), state->dim);
         else
             multi_qubit_diagonal_matrix_gate(_target_qubit_index.data(),
-            (UINT)_target_qubit_index.size(), matrix_ptr,
-                state->data_c(), state->dim);
-    }
-    else if (_matrix_type == SparseMatrix) {
+                (UINT)_target_qubit_index.size(), matrix_ptr, state->data_c(),
+                state->dim);
+    } else if (_matrix_type == SparseMatrix) {
         multi_qubit_sparse_matrix_gate_eigen(_target_qubit_index.data(),
-            (UINT)(_target_qubit_index.size()),
-            this->_sparse_matrix_element, state->data_c(), state->dim);
-    }
-    else if (_matrix_type == PauliMatrix) {
+            (UINT)(_target_qubit_index.size()), this->_sparse_matrix_element,
+            state->data_c(), state->dim);
+    } else if (_matrix_type == PauliMatrix) {
         if (_target_qubit_index.size() == 1) {
             if (fabs(_rotation_angle) < 1e-16) {
-                single_qubit_Pauli_gate(_target_qubit_index[0],
-                    _pauli_id[0], state->data_c(), state->dim);
-            }
-            else {
+                single_qubit_Pauli_gate(_target_qubit_index[0], _pauli_id[0],
+                    state->data_c(), state->dim);
+            } else {
                 // invert
                 single_qubit_Pauli_rotation_gate(_target_qubit_index[0],
                     _pauli_id[0], -_rotation_angle, state->data_c(),
                     state->dim);
             }
-        }
-        else {
+        } else {
             if (fabs(_rotation_angle) < 1e-16) {
-                multi_qubit_Pauli_gate_partial_list(
-                    _target_qubit_index.data(), _pauli_id.data(),
-                    (UINT)_target_qubit_index.size(), state->data_c(),
-                    state->dim);
-            }
-            else {
+                multi_qubit_Pauli_gate_partial_list(_target_qubit_index.data(),
+                    _pauli_id.data(), (UINT)_target_qubit_index.size(),
+                    state->data_c(), state->dim);
+            } else {
                 // invert
                 multi_qubit_Pauli_rotation_gate_partial_list(
                     _target_qubit_index.data(), _pauli_id.data(),
@@ -163,42 +154,36 @@ void QuantumGateBasic::_update_state_vector_cpu_general(QuantumStateBase* state)
     }
 }
 
-void QuantumGateBasic::_update_density_matrix_cpu_general(QuantumStateBase* state) const {
+void QuantumGateBasic::_update_density_matrix_cpu_general(
+    QuantumStateBase* state) const {
     if (_matrix_type == DenseMatrix) {
-        const CTYPE* matrix_ptr = reinterpret_cast<const CTYPE*>(
-            this->_dense_matrix_element.data());
+        const CTYPE* matrix_ptr =
+            reinterpret_cast<const CTYPE*>(this->_dense_matrix_element.data());
         if (_control_qubit_index.size() == 0) {
             if (_target_qubit_index.size() == 1) {
                 dm_single_qubit_dense_matrix_gate(_target_qubit_index[0],
                     matrix_ptr, state->data_c(), state->dim);
-            }
-            else {
+            } else {
                 dm_multi_qubit_dense_matrix_gate(_target_qubit_index.data(),
                     (UINT)_target_qubit_index.size(), matrix_ptr,
                     state->data_c(), state->dim);
             }
-        }
-        else {
+        } else {
             if (_target_qubit_index.size() == 1) {
                 dm_multi_qubit_control_single_qubit_dense_matrix_gate(
-                    _control_qubit_index.data(),
-                    _control_qubit_value.data(),
-                    (UINT)_control_qubit_index.size(),
-                    _target_qubit_index[0], matrix_ptr, state->data_c(),
-                    state->dim);
-            }
-            else {
+                    _control_qubit_index.data(), _control_qubit_value.data(),
+                    (UINT)_control_qubit_index.size(), _target_qubit_index[0],
+                    matrix_ptr, state->data_c(), state->dim);
+            } else {
                 dm_multi_qubit_control_multi_qubit_dense_matrix_gate(
-                    _control_qubit_index.data(),
-                    _control_qubit_value.data(),
+                    _control_qubit_index.data(), _control_qubit_value.data(),
                     (UINT)_control_qubit_index.size(),
                     _target_qubit_index.data(),
                     (UINT)_target_qubit_index.size(), matrix_ptr,
                     state->data_c(), state->dim);
             }
         }
-    }
-    else {
+    } else {
         throw std::invalid_argument(
             "Only DenseMatrix gate type is supported for density matrix");
     }
@@ -207,8 +192,8 @@ void QuantumGateBasic::_update_density_matrix_cpu_general(QuantumStateBase* stat
 #ifdef _USE_GPU
 void QuantumGateBasic::_update_state_vector_gpu(QuantumStateBase* state) {
     if (_matrix_type == DenseMatrix) {
-        const CTYPE* matrix_ptr = reinterpret_cast<const CTYPE*>(
-            this->_dense_matrix_element.data());
+        const CTYPE* matrix_ptr =
+            reinterpret_cast<const CTYPE*>(this->_dense_matrix_element.data());
         // single qubit dense matrix gate
         if (_target_qubit_index.size() == 1) {
             // no control qubit
@@ -228,8 +213,7 @@ void QuantumGateBasic::_update_state_vector_gpu(QuantumStateBase* state) {
             // multiple control qubits
             else {
                 multi_qubit_control_multi_qubit_dense_matrix_gate_host(
-                    _control_qubit_index.data(),
-                    _control_qubit_value.data(),
+                    _control_qubit_index.data(), _control_qubit_value.data(),
                     (UINT)(_control_qubit_index.size()),
                     _target_qubit_index.data(),
                     (UINT)(_target_qubit_index.size()),
@@ -242,8 +226,7 @@ void QuantumGateBasic::_update_state_vector_gpu(QuantumStateBase* state) {
         else {
             // no control qubit
             if (_control_qubit_index.size() == 0) {
-                multi_qubit_dense_matrix_gate_host(
-                    _target_qubit_index.data(),
+                multi_qubit_dense_matrix_gate_host(_target_qubit_index.data(),
                     (UINT)(_target_qubit_index.size()),
                     (const CPPCTYPE*)matrix_ptr, state->data(), state->dim,
                     state->get_cuda_stream(), state->device_number);
@@ -260,8 +243,7 @@ void QuantumGateBasic::_update_state_vector_gpu(QuantumStateBase* state) {
             // multiple control qubit
             else {
                 multi_qubit_control_multi_qubit_dense_matrix_gate_host(
-                    _control_qubit_index.data(),
-                    _control_qubit_value.data(),
+                    _control_qubit_index.data(), _control_qubit_value.data(),
                     (UINT)(_control_qubit_index.size()),
                     _target_qubit_index.data(),
                     (UINT)(_target_qubit_index.size()),
@@ -269,8 +251,7 @@ void QuantumGateBasic::_update_state_vector_gpu(QuantumStateBase* state) {
                     state->get_cuda_stream(), state->device_number);
             }
         }
-    }
-    else {
+    } else {
         throw std::invalid_argument(
             "Only DenseMatrix gate type is supported for density matrix");
     }

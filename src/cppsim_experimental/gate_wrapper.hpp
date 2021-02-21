@@ -13,7 +13,7 @@ private:
     bool _flag_save_log = false;
     std::string _reg_name = "";
 
-    QuantumGateWrapped(MapType map_type) : QuantumGateBase(map_type) {};
+    QuantumGateWrapped(MapType map_type) : QuantumGateBase(map_type){};
 
     void add_probabilistic_map(
         QuantumGateBase* gate, double prob, double eps = 1e-14) {
@@ -91,8 +91,6 @@ public:
             archive(*this);
         }
     }
-
-
 
     QuantumGateWrapped() = default;
     virtual ~QuantumGateWrapped() {
@@ -178,24 +176,21 @@ public:
                 if (gate_index < _gate_list.size()) {
                     _gate_list[gate_index]->update_quantum_state(state);
                 }
-            }
-            else {
+            } else {
                 auto org_state = state->copy();
                 auto temp_state = state->copy();
                 for (UINT gate_index = 0; gate_index < _gate_list.size();
-                    ++gate_index) {
+                     ++gate_index) {
                     if (gate_index == 0) {
                         _gate_list[gate_index]->update_quantum_state(state);
                         state->multiply_coef(_prob_list[gate_index]);
-                    }
-                    else if (gate_index + 1 < _gate_list.size()) {
+                    } else if (gate_index + 1 < _gate_list.size()) {
                         temp_state->load(org_state);
                         _gate_list[gate_index]->update_quantum_state(
                             temp_state);
                         temp_state->multiply_coef(_prob_list[gate_index]);
                         state->add_state(temp_state);
-                    }
-                    else {
+                    } else {
                         _gate_list[gate_index]->update_quantum_state(org_state);
                         org_state->multiply_coef(_prob_list[gate_index]);
                         state->add_state(org_state);
@@ -204,20 +199,19 @@ public:
                 delete org_state;
                 delete temp_state;
             }
-        }
-        else {
+        } else {
             throw std::invalid_argument("Not implemented");
         }
     }
 };
 
 namespace gate {
-    DllExport QuantumGateWrapped* DepolarizingNoise(UINT index, double prob);
-    DllExport QuantumGateWrapped* TwoQubitDepolarizingNoise(
-        UINT index1, UINT index2, double prob);
-    DllExport QuantumGateWrapped* BitFlipNoise(UINT index, double prob);
-    DllExport QuantumGateWrapped* DephasingNoise(UINT index, double prob);
-    DllExport QuantumGateWrapped* IndependentXZNoise(UINT index, double prob);
+DllExport QuantumGateWrapped* DepolarizingNoise(UINT index, double prob);
+DllExport QuantumGateWrapped* TwoQubitDepolarizingNoise(
+    UINT index1, UINT index2, double prob);
+DllExport QuantumGateWrapped* BitFlipNoise(UINT index, double prob);
+DllExport QuantumGateWrapped* DephasingNoise(UINT index, double prob);
+DllExport QuantumGateWrapped* IndependentXZNoise(UINT index, double prob);
 };  // namespace gate
 
 // Cereal Type Registration

@@ -87,7 +87,8 @@ void save(Archive& ar, const SparseComplexMatrix& m) {
     for (Eigen::Index k = 0; k < m.outerSize(); ++k) {
         for (Eigen::SparseMatrix<CPPCTYPE>::InnerIterator it(m, k); it; ++it) {
             TripletList.push_back(
-                std::tuple<Eigen::Index, Eigen::Index, CPPCTYPE>(it.row(), it.col(), it.value()));
+                std::tuple<Eigen::Index, Eigen::Index, CPPCTYPE>(
+                    it.row(), it.col(), it.value()));
         }
     }
     ar(TripletList);
@@ -105,10 +106,9 @@ void load(Archive& ar, SparseComplexMatrix& m) {
     ar(TripletList);
     std::vector<Eigen::Triplet<CPPCTYPE>> Triplets;
     for (size_t i = 0; i < TripletList.size(); ++i) {
-        Triplets.push_back(Eigen::Triplet<CPPCTYPE>(
-            (int)std::get<0>(TripletList[i]),
-            (int)std::get<1>(TripletList[i]),
-            std::get<2>(TripletList[i])));
+        Triplets.push_back(
+            Eigen::Triplet<CPPCTYPE>((int)std::get<0>(TripletList[i]),
+                (int)std::get<1>(TripletList[i]), std::get<2>(TripletList[i])));
     }
     m.setFromTriplets(Triplets.begin(), Triplets.end());
 }

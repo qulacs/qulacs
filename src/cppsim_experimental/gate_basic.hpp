@@ -30,10 +30,9 @@ public:
         const std::vector<UINT>& control_qubit_index,
         const std::vector<UINT>& control_qubit_value)
         : QuantumGateBase(Basic),
-        _matrix_type(matrix_type),
-        _special_func_type(special_func_type),
-        _gate_property(gate_property) {
-
+          _matrix_type(matrix_type),
+          _special_func_type(special_func_type),
+          _gate_property(gate_property) {
         // set target_qubit_index
         if (target_qubit_index.size() == 0) {
             throw std::invalid_argument("target_qubit_index.size() == 0");
@@ -44,8 +43,7 @@ public:
         if (target_qubit_commutation.size() == 0) {
             _target_qubit_commutation =
                 std::vector<UINT>(target_qubit_index.size(), 0);
-        }
-        else {
+        } else {
             if (target_qubit_commutation.size() != target_qubit_index.size()) {
                 throw std::invalid_argument(
                     "target_qubit_index.size() != "
@@ -82,20 +80,14 @@ public:
         ar(cereal::base_class<QuantumGateBase>(this));
         // TODO!
         // Documentize SparseMatrix serializer
-        ar(
-            CEREAL_NVP(_matrix_type), 
-            CEREAL_NVP(_special_func_type),
+        ar(CEREAL_NVP(_matrix_type), CEREAL_NVP(_special_func_type),
             CEREAL_NVP(_target_qubit_index),
             CEREAL_NVP(_target_qubit_commutation),
-            CEREAL_NVP(_control_qubit_index), 
-            CEREAL_NVP(_control_qubit_value),
-            CEREAL_NVP(_gate_property),
-            CEREAL_NVP(_dense_matrix_element),
+            CEREAL_NVP(_control_qubit_index), CEREAL_NVP(_control_qubit_value),
+            CEREAL_NVP(_gate_property), CEREAL_NVP(_dense_matrix_element),
             CEREAL_NVP(_diagonal_matrix_element),
-            CEREAL_NVP(_sparse_matrix_element),
-            CEREAL_NVP(_pauli_id),
-            CEREAL_NVP(_rotation_angle)
-        );
+            CEREAL_NVP(_sparse_matrix_element), CEREAL_NVP(_pauli_id),
+            CEREAL_NVP(_rotation_angle));
     }
 
     template <class Archive>
@@ -103,21 +95,16 @@ public:
         ar(cereal::base_class<QuantumGateBase>(this));
         // TODO!
         // Documentize SparseMatrix serializer
-        ar(
-            CEREAL_NVP(_matrix_type), 
-            CEREAL_NVP(_special_func_type),
+        ar(CEREAL_NVP(_matrix_type), CEREAL_NVP(_special_func_type),
             CEREAL_NVP(_target_qubit_index),
             CEREAL_NVP(_target_qubit_commutation),
-            CEREAL_NVP(_control_qubit_index), 
-            CEREAL_NVP(_control_qubit_value),
-            CEREAL_NVP(_gate_property), 
-            CEREAL_NVP(_dense_matrix_element),
+            CEREAL_NVP(_control_qubit_index), CEREAL_NVP(_control_qubit_value),
+            CEREAL_NVP(_gate_property), CEREAL_NVP(_dense_matrix_element),
             CEREAL_NVP(_diagonal_matrix_element),
-            CEREAL_NVP(_sparse_matrix_element),
-            CEREAL_NVP(_pauli_id), 
+            CEREAL_NVP(_sparse_matrix_element), CEREAL_NVP(_pauli_id),
             CEREAL_NVP(_rotation_angle));
     }
-    virtual std::string dump_as_byte() const override{
+    virtual std::string dump_as_byte() const override {
         // serialize quantum gate
         std::ostringstream ss;
         {
@@ -126,7 +113,7 @@ public:
         }
         return ss.str();
     }
-    virtual void load_from_byte(std::string obj) override{
+    virtual void load_from_byte(std::string obj) override {
         // deserialize quantum gate
         std::istringstream ss(obj);
         {
@@ -135,8 +122,7 @@ public:
         }
     }
 
-
-    virtual ~QuantumGateBasic() {};
+    virtual ~QuantumGateBasic(){};
     virtual UINT get_qubit_count() const override {
         return (UINT)(_target_qubit_index.size() + _control_qubit_index.size());
     }
@@ -155,7 +141,7 @@ public:
             UINT src = src_list[index];
             UINT dst = dst_list[index];
             auto replace_func = [](std::vector<UINT>& vec, UINT src_ind,
-                UINT dst_ind) -> void {
+                                    UINT dst_ind) -> void {
                 for (auto& v : vec)
                     if (v == src_ind) v = dst_ind;
             };
@@ -227,7 +213,7 @@ public:
             UINT value = pauli_id[ind];
             if (value == PAULI_ID_I)
                 target_commute[ind] =
-                FLAG_COMMUTE_X | FLAG_COMMUTE_Y | FLAG_COMMUTE_Z;
+                    FLAG_COMMUTE_X | FLAG_COMMUTE_Y | FLAG_COMMUTE_Z;
             if (value == PAULI_ID_X) target_commute[ind] = FLAG_COMMUTE_X;
             if (value == PAULI_ID_Y) target_commute[ind] = FLAG_COMMUTE_Y;
             if (value == PAULI_ID_Z) target_commute[ind] = FLAG_COMMUTE_Z;
@@ -253,11 +239,11 @@ public:
                 "DenseMatrixGate");
         }
         if (std::find(_target_qubit_index.begin(), _target_qubit_index.end(),
-            control_index) != _target_qubit_index.end())
+                control_index) != _target_qubit_index.end())
             throw std::invalid_argument(
                 "control_index is already in target_qubit_index");
         if (std::find(_control_qubit_index.begin(), _control_qubit_index.end(),
-            control_index) != _control_qubit_index.end())
+                control_index) != _control_qubit_index.end())
             throw std::invalid_argument(
                 "control_index is already in control_qubit_index");
         if (control_value >= 2)
@@ -295,17 +281,14 @@ public:
                     this->_update_state_vector_cpu_general(state);
                 else
                     this->_update_state_vector_cpu_special(state);
-            }
-            else {
+            } else {
                 this->_update_density_matrix_cpu_general(state);
             }
-        }
-        else if (state->get_device_type() == DEVICE_GPU) {
+        } else if (state->get_device_type() == DEVICE_GPU) {
 #ifdef _USE_GPU
             if (state->is_state_vector()) {
                 this->_update_state_vector_gpu(state);
-            }
-            else {
+            } else {
                 this->_update_density_matrix_gpu(state);
             }
 #else
@@ -327,22 +310,18 @@ public:
     virtual void get_target_matrix(ComplexMatrix& matrix) const {
         if (_matrix_type == DenseMatrix) {
             matrix = this->_dense_matrix_element;
-        }
-        else if (_matrix_type == SparseMatrix) {
+        } else if (_matrix_type == SparseMatrix) {
             matrix = this->_sparse_matrix_element.toDense();
-        }
-        else if (_matrix_type == DiagonalMatrix) {
+        } else if (_matrix_type == DiagonalMatrix) {
             matrix = this->_diagonal_matrix_element.asDiagonal();
-        }
-        else if (_matrix_type == PauliMatrix) {
+        } else if (_matrix_type == PauliMatrix) {
             ComplexMatrix pauli_matrix;
             get_Pauli_matrix(pauli_matrix, this->_pauli_id);
             ITYPE dim = 1ULL << this->_pauli_id.size();
             matrix = cos(this->_rotation_angle / 2) *
-                ComplexMatrix::Identity(dim, dim) -
-                1.i * sin(this->_rotation_angle / 2) * pauli_matrix;
-        }
-        else
+                         ComplexMatrix::Identity(dim, dim) -
+                     1.i * sin(this->_rotation_angle / 2) * pauli_matrix;
+        } else
             throw std::invalid_argument(
                 "Cannot obtain gate matrix for this type");
     }
@@ -361,65 +340,65 @@ public:
         ss << "parameter list" << std::endl;
         for (auto item : _parameter) ss << item.first << "," << std::endl;
         switch (_matrix_type) {
-        case DenseMatrix:
-            ss << "Dense Matrix" << std::endl;
-            ss << _dense_matrix_element << std::endl;
-            break;
-        case SparseMatrix:
-            ss << "Sparse Matrix" << std::endl;
-            ss << _sparse_matrix_element << std::endl;
-            break;
-        case DiagonalMatrix:
-            ss << "Diagonal Matrix" << std::endl;
-            ss << _diagonal_matrix_element << std::endl;
-            break;
-        case PauliMatrix:
-            ss << "Pauli Matrix" << std::endl;
-            ss << "pauli string" << std::endl;
-            for (auto item : _pauli_id) ss << item << "," << std::endl;
-            ss << "rotation angle: " << _rotation_angle << std::endl;
-            break;
-        case PermutationMatrix:
-            ss << "Permutation Matrix" << std::endl;
-            break;
-        default:
-            assert(false && "Unknown gate type");
-            break;
+            case DenseMatrix:
+                ss << "Dense Matrix" << std::endl;
+                ss << _dense_matrix_element << std::endl;
+                break;
+            case SparseMatrix:
+                ss << "Sparse Matrix" << std::endl;
+                ss << _sparse_matrix_element << std::endl;
+                break;
+            case DiagonalMatrix:
+                ss << "Diagonal Matrix" << std::endl;
+                ss << _diagonal_matrix_element << std::endl;
+                break;
+            case PauliMatrix:
+                ss << "Pauli Matrix" << std::endl;
+                ss << "pauli string" << std::endl;
+                for (auto item : _pauli_id) ss << item << "," << std::endl;
+                ss << "rotation angle: " << _rotation_angle << std::endl;
+                break;
+            case PermutationMatrix:
+                ss << "Permutation Matrix" << std::endl;
+                break;
+            default:
+                assert(false && "Unknown gate type");
+                break;
         }
         return ss.str();
     }
 };
 
 namespace gate {
-    DllExport QuantumGateBasic* Identity(UINT target_qubit);
-    DllExport QuantumGateBasic* X(UINT target_qubit);
-    DllExport QuantumGateBasic* Y(UINT target_qubit);
-    DllExport QuantumGateBasic* Z(UINT target_qubit);
-    DllExport QuantumGateBasic* sqrtX(UINT target_qubit);
-    DllExport QuantumGateBasic* sqrtXdag(UINT target_qubit);
-    DllExport QuantumGateBasic* sqrtY(UINT target_qubit);
-    DllExport QuantumGateBasic* sqrtYdag(UINT target_qubit);
-    DllExport QuantumGateBasic* S(UINT target_qubit);
-    DllExport QuantumGateBasic* Sdag(UINT target_qubit);
-    DllExport QuantumGateBasic* T(UINT target_qubit);
-    DllExport QuantumGateBasic* Tdag(UINT target_qubit);
-    DllExport QuantumGateBasic* H(UINT target_qubit);
-    DllExport QuantumGateBasic* HS(UINT target_qubit);
-    DllExport QuantumGateBasic* P0(UINT target_qubit);
-    DllExport QuantumGateBasic* P1(UINT target_qubit);
-    DllExport QuantumGateBasic* RX(UINT target_qubit, double rotation_angle);
-    DllExport QuantumGateBasic* RY(UINT target_qubit, double rotation_angle);
-    DllExport QuantumGateBasic* RZ(UINT target_qubit, double rotation_angle);
-    DllExport QuantumGateBasic* CX(UINT control_qubit, UINT target_qubit);
-    DllExport QuantumGateBasic* CNOT(UINT control_qubit, UINT target_qubit);
-    DllExport QuantumGateBasic* CY(UINT control_qubit, UINT target_qubit);
-    DllExport QuantumGateBasic* CZ(UINT control_qubit, UINT target_qubit);
-    DllExport QuantumGateBasic* SWAP(UINT target_qubit1, UINT target_qubit2);
-    DllExport QuantumGateBasic* ISWAP(UINT target_qubit1, UINT target_qubit2);
-    DllExport QuantumGateBasic* Toffoli(
-        UINT control_qubit1, UINT control_qubit2, UINT target_qubit);
-    DllExport QuantumGateBasic* Fredkin(
-        UINT control_qubit, UINT target_qubit1, UINT target_qubit2);
+DllExport QuantumGateBasic* Identity(UINT target_qubit);
+DllExport QuantumGateBasic* X(UINT target_qubit);
+DllExport QuantumGateBasic* Y(UINT target_qubit);
+DllExport QuantumGateBasic* Z(UINT target_qubit);
+DllExport QuantumGateBasic* sqrtX(UINT target_qubit);
+DllExport QuantumGateBasic* sqrtXdag(UINT target_qubit);
+DllExport QuantumGateBasic* sqrtY(UINT target_qubit);
+DllExport QuantumGateBasic* sqrtYdag(UINT target_qubit);
+DllExport QuantumGateBasic* S(UINT target_qubit);
+DllExport QuantumGateBasic* Sdag(UINT target_qubit);
+DllExport QuantumGateBasic* T(UINT target_qubit);
+DllExport QuantumGateBasic* Tdag(UINT target_qubit);
+DllExport QuantumGateBasic* H(UINT target_qubit);
+DllExport QuantumGateBasic* HS(UINT target_qubit);
+DllExport QuantumGateBasic* P0(UINT target_qubit);
+DllExport QuantumGateBasic* P1(UINT target_qubit);
+DllExport QuantumGateBasic* RX(UINT target_qubit, double rotation_angle);
+DllExport QuantumGateBasic* RY(UINT target_qubit, double rotation_angle);
+DllExport QuantumGateBasic* RZ(UINT target_qubit, double rotation_angle);
+DllExport QuantumGateBasic* CX(UINT control_qubit, UINT target_qubit);
+DllExport QuantumGateBasic* CNOT(UINT control_qubit, UINT target_qubit);
+DllExport QuantumGateBasic* CY(UINT control_qubit, UINT target_qubit);
+DllExport QuantumGateBasic* CZ(UINT control_qubit, UINT target_qubit);
+DllExport QuantumGateBasic* SWAP(UINT target_qubit1, UINT target_qubit2);
+DllExport QuantumGateBasic* ISWAP(UINT target_qubit1, UINT target_qubit2);
+DllExport QuantumGateBasic* Toffoli(
+    UINT control_qubit1, UINT control_qubit2, UINT target_qubit);
+DllExport QuantumGateBasic* Fredkin(
+    UINT control_qubit, UINT target_qubit1, UINT target_qubit2);
 };  // namespace gate
 
 // Cereal Type Registration
