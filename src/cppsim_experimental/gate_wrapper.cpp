@@ -1,5 +1,6 @@
 
 #include "gate_wrapper.hpp"
+
 #include "gate_basic.hpp"
 
 namespace gate {

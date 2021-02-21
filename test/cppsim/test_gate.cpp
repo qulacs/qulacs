@@ -1208,8 +1208,9 @@ TEST(GateTest, AdaptiveGateWithoutID) {
 
 TEST(GateTest, AdaptiveGateWithID) {
     auto x = gate::X(0);
-    auto adaptive = gate::Adaptive(x,
-        [](const std::vector<UINT>& vec, UINT id) { return vec[id] == 1; }, 2);
+    auto adaptive = gate::Adaptive(
+        x, [](const std::vector<UINT>& vec, UINT id) { return vec[id] == 1; },
+        2);
     QuantumState s(1);
     s.set_computational_basis(0);
     s.set_classical_value(2, 1);
