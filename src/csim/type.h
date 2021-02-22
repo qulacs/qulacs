@@ -35,6 +35,7 @@ inline static double cimag(CTYPE val) { return std::imag(val); }
 #else
 typedef double _Complex CTYPE;
 #if __GNUC__ >= 8
+#ifndef __APPLE__
 #ifdef __cplusplus
 inline static double creal(CTYPE val) { return __real__ val; }
 inline static double cimag(CTYPE val) { return __imag__ val; }
@@ -46,7 +47,7 @@ inline static double cabs(CTYPE val) {
 #endif
 #endif
 #endif
-
+#endif
 //! dimension index
 #ifdef _MSC_VER
 // In MSVC, OpenMP only supports signed index
