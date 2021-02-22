@@ -55,19 +55,34 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
 
 CPPCTYPE
 HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
-    QuantumStateBase* state, const UINT iter_count) const {
+    QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
     const auto qubit_count = this->get_qubit_count();
     Eigen::VectorXd alpha_v(iter_count);
     Eigen::VectorXd beta_v(iter_count - 1);
     auto tmp_state = QuantumState(qubit_count);
     auto multiplied_state = QuantumState(qubit_count);
+    auto mu_timed_state = QuantumState(qubit_count);
 
     std::vector<QuantumStateBase*> state_list;
     state->normalize(state->get_squared_norm());
     state_list.push_back(state->copy());
+
+    CPPCTYPE mu_;
+    if (mu == 0.0) {
+        // mu is not changed from default value.
+        mu_ = this->calculate_default_mu();
+    }
+    else {
+        mu_ = mu;
+    }
+
     for (UINT i = 0; i < iter_count; i++) {
-        // v = A * q_i
+        // v = (A - μI) * q_i
+        mu_timed_state.load(state_list[i]);
+        mu_timed_state.multiply_coef(-mu_);
         this->apply_to_state(&tmp_state, *state_list[i], &multiplied_state);
+        multiplied_state.add_state(&mu_timed_state);
+        // α = q_i^T * v
         const auto alpha = state::inner_product(
             static_cast<QuantumState*>(state_list[i]), &multiplied_state);
         alpha_v(i) = alpha.real();
@@ -111,7 +126,7 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
         delete used_state;
     }
 
-    return minimum_eigenvalue;
+    return minimum_eigenvalue + mu_;
 }
 
 namespace observable {

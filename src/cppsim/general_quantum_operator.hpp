@@ -168,7 +168,7 @@ public:
         const QuantumStateBase& state_to_be_multiplied,
         QuantumStateBase* dst_state) const;
 
-private:
+protected:
     /**
      * \~japanese-en
      * solve_ground_state_eigenvalue_by_power_method の mu
