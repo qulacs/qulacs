@@ -285,7 +285,7 @@ TEST(GradCalculator, BasicCheck) {
                     circuit.set_parameter(q, theta[q] - diff);
                 }
                 CausalConeSimulator cone(cirucit, observable);
-                z = cone.CausalCone(circuit, observable);
+                z = cone.get_expectation_value();
             }
             Greedy_ans.push_back((y - z) / 0.002);
         }
