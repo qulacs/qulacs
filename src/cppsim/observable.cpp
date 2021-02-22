@@ -5,6 +5,7 @@
 #include <stdlib.h>
 
 #include <Eigen/Dense>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 
@@ -71,8 +72,7 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     if (mu == 0.0) {
         // mu is not changed from default value.
         mu_ = this->calculate_default_mu();
-    }
-    else {
+    } else {
         mu_ = mu;
     }
 
@@ -102,23 +102,46 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
             multiplied_state.add_state(&tmp_state);
         }
 
-        if (i < iter_count - 1) {
-            const auto beta = std::sqrt(multiplied_state.get_squared_norm());
-            beta_v(i) = beta;
-            multiplied_state.multiply_coef(1 / beta);
-            state_list.push_back(multiplied_state.copy());
-        }
+        const auto beta = std::sqrt(multiplied_state.get_squared_norm());
+        beta_v(i) = beta;
+        multiplied_state.multiply_coef(1 / beta);
+        state_list.push_back(multiplied_state.copy());
     }
 
     Eigen::SelfAdjointEigenSolver<ComplexMatrix> solver;
     solver.computeFromTridiagonal(alpha_v, beta_v);
     const auto eigenvalues = solver.eigenvalues();
-    // Find ground state vector.
+    // Find ground state eigenvalue and eigenvector.
+    UINT minimum_eigenvalue_index = 0;
     auto minimum_eigenvalue = eigenvalues[0];
     for (UINT i = 0; i < eigenvalues.size(); i++) {
         if (eigenvalues[i] < minimum_eigenvalue) {
+            minimum_eigenvalue_index = i;
             minimum_eigenvalue = eigenvalues[i];
         }
+    }
+
+    // Compose ground state vector.
+    auto eigenvectors = solver.eigenvectors();
+    auto eigenvector_in_krylov = eigenvectors.col(minimum_eigenvalue_index);
+    // Let the tridiagonal matrix be A, solve (A - λE) * x = 0.
+    for (UINT i = 1; i < state_list.size(); i++) {
+        eigenvector_in_krylov(i) = -(alpha_v[i - 1] - minimum_eigenvalue) *
+                                   eigenvector_in_krylov(i - 1);
+        if (i > 1) {
+            eigenvector_in_krylov(i) +=
+                -beta_v[i - 2] * eigenvector_in_krylov(i - 2);
+        }
+        eigenvector_in_krylov(i) /= -beta_v[i - 1];
+    }
+    // std::cout << beta_v << std::endl;
+    // Store ground state eigenvector to `state`.
+    assert(state_list.size() == eigenvector_in_krylov.rows());
+    state->multiply_coef(0.0);
+    for (UINT i = 0; i < state_list.size(); i++) {
+        tmp_state.load(state_list[i]);
+        tmp_state.multiply_coef(eigenvector_in_krylov(i));
+        state->add_state(&tmp_state);
     }
 
     // Free states allocated by `QuantumState::copy()`.

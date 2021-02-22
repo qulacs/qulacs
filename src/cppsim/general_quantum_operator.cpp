@@ -153,7 +153,7 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     const auto eigenvalues = eigen_solver.eigenvalues();
     const auto eigenvectors = eigen_solver.eigenvectors();
 
-    // Find ground state vector.
+    // Find ground state eigenvalue and eigenvector.
     UINT minimum_eigenvalue_index = 0;
     auto minimum_eigenvalue = eigenvalues[0];
     for (UINT i = 0; i < eigenvalues.size(); i++) {
@@ -163,7 +163,7 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
         }
     }
 
-    // Compose ground state vector.
+    // Compose ground state vector and store it to `state`.
     present_state.multiply_coef(0.0);
     for (UINT i = 0; i < state_list.size() - 1; i++) {
         tmp_state.load(state_list[i]);
