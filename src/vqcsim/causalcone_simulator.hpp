@@ -69,7 +69,6 @@ void build()
     {
         build_run = true;
         auto terms = init_observable->get_terms();
-        //CPPCTYPE ret;
         for (auto term : terms) {
             std::vector<UINT> observable_index_list = term->get_index_list();
             const UINT gate_count = init_circuit->gate_list.size();
@@ -166,17 +165,10 @@ void build()
                 for (UINT i = 0; i < (UINT)term_index_list.size(); i++) {
                     paulioperator.add_single_Pauli(qubit_encode[term_index_list[i]], pauli_id_list[i]);
                 }
-                /*
-                QuantumState state(idx);
-                state.set_zero_state();
-                circuit->update_quantum_state(&state);
-                expectation *= paulioperator.get_expectation_value(&state);
-                */
             }
             circuit_list.emplace_back(circuits);
             pauli_operator_list.emplace_back(pauli_operators);
             coef_list.emplace_back(term->get_coef());
-            //ret += expectation * term->get_coef();
         }
     }
 
@@ -203,5 +195,18 @@ void build()
             ret += expectation * coef;
         }
         return ret;
+    }
+
+    std::vector<std::vector<ParametricQuantumCircuit*>> get_circuit_list()
+    {
+        return circuit_list;
+    }
+    std::vector<std::vector<PauliOperator>> get_pauli_operator_list()
+    {
+        return pauli_operator_list;
+    }
+    std::vector<CPPCTYPE> get_coef_list()
+    {
+        return coef_list;
     }
 };

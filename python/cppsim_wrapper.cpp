@@ -29,7 +29,7 @@ extern "C" {
 #include <cppsim/circuit.hpp>
 #include <cppsim/circuit_optimizer.hpp>
 #include <cppsim/simulator.hpp>
-#include <cppsim/causal_cone.hpp>
+#include <vqcsim/causalcone_simulator.hpp>
 #include <cppsim/noisesimulator.hpp>
 
 #ifdef _USE_GPU
@@ -567,9 +567,14 @@ PYBIND11_MODULE(qulacs, m) {
         .def("swap_state_and_buffer", &QuantumCircuitSimulator::swap_state_and_buffer, "Swap state and buffer")
         //.def("get_state_ptr", &QuantumCircuitSimulator::get_state_ptr, pybind11::return_value_policy::automatic_reference, "Get state ptr")
         ;
-    py::class_<Causal>(m, "Causal")
-        .def(py::init<>(), "Constructor")
-        .def("CausalCone", &Causal::CausalCone);
+    py::class_<CausalConeSimulator>(m, "CausalConeSimulator")
+        .def(py::init<ParametricQuantumCircuit&, Observable&>(), "Constructor")
+        .def("build", &CausalConeSimulator::build, "build")
+        .def("get_expectation_value", &CausalConeSimulator::get_expectation_value, "return expectation_value")
+        .def("get_circuit_list", &CausalConeSimulator::get_circuit_list, "return circuit_list")
+        .def("get_pauli_operator_list", &CausalConeSimulator::get_pauli_operator_list, "return pauli_operator_list")
+        .def("get_coef_list",&CausalConeSimulator::get_coef_list, "return coef_list")
+        ;
     py::class_<NoiseSimulator>(m,"NoiseSimulator")
         .def(py::init<QuantumCircuit*,QuantumState*>(),"Constructor")
         .def("execute",&NoiseSimulator::execute,"sampling & return result [array]");
