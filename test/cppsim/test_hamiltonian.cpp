@@ -467,8 +467,9 @@ TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
 
         auto state = QuantumState(qubit_count);
         state.set_Haar_random_state();
+        const UINT iter_count = 70;
         const auto ground_state_eigenvalue =
-            observable.solve_ground_state_eigenvalue_by_lanczos_method(&state);
+            observable.solve_ground_state_eigenvalue_by_lanczos_method(&state, iter_count);
         constexpr double eps = 1e-6;
         ASSERT_NEAR(ground_state_eigenvalue.real(),
             test_ground_state_eigenvalue.real(), eps);

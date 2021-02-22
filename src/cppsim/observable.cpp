@@ -55,24 +55,24 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
 
 CPPCTYPE
 HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
-    QuantumStateBase* state) const {
+    QuantumStateBase* state, const UINT iter_count) const {
     const auto qubit_count = this->get_qubit_count();
-    Eigen::VectorXd alpha_v(qubit_count);
-    Eigen::VectorXd beta_v(qubit_count - 1);
+    Eigen::VectorXd alpha_v(iter_count);
+    Eigen::VectorXd beta_v(iter_count - 1);
     auto tmp_state = QuantumState(qubit_count);
     auto multiplied_state = QuantumState(qubit_count);
 
     std::vector<QuantumStateBase*> state_list;
     state->normalize(state->get_squared_norm());
     state_list.push_back(state->copy());
-    for (UINT i = 0; i < qubit_count; i++) {
+    for (UINT i = 0; i < iter_count; i++) {
         // v = A * q_i
         this->apply_to_state(&tmp_state, *state_list[i], &multiplied_state);
         const auto alpha = state::inner_product(
             static_cast<QuantumState*>(state_list[i]), &multiplied_state);
         alpha_v(i) = alpha.real();
         // In the last iteration, no need to calculate β.
-        if (i == qubit_count - 1) {
+        if (i == iter_count - 1) {
             break;
         }
 
@@ -87,7 +87,7 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
             multiplied_state.add_state(&tmp_state);
         }
 
-        if (i < qubit_count - 1) {
+        if (i < iter_count - 1) {
             const auto beta = std::sqrt(multiplied_state.get_squared_norm());
             beta_v(i) = beta;
             multiplied_state.multiply_coef(1 / beta);

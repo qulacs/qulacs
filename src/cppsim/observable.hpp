@@ -98,7 +98,7 @@ public:
      * @return GeneralQuantumOperator の基底状態の固有値
      */
     CPPCTYPE solve_ground_state_eigenvalue_by_lanczos_method(
-        QuantumStateBase* state) const;
+        QuantumStateBase* state, const UINT iter_count) const;
 };
 
 namespace observable {
