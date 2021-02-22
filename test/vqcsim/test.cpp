@@ -1,8 +1,8 @@
 #include <gtest/gtest.h>
 
-#include <cppsim/causal_cone.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/state_dm.hpp>
+#include <vqcsim/causalcone_simulator.hpp>
 #include <vqcsim/GradCalculator.hpp>
 #include <vqcsim/parametric_circuit_builder.hpp>
 #include <vqcsim/parametric_gate_factory.hpp>
@@ -263,7 +263,6 @@ TEST(GradCalculator, BasicCheck) {
     // Calculate using normal Greedy.
     std::vector<std::complex<double>> Greedy_ans;
     {
-        Causal cone;
         for (int i = 0; i < circuit.get_parameter_count(); ++i) {
             std::complex<double> y, z;
             {
@@ -274,7 +273,8 @@ TEST(GradCalculator, BasicCheck) {
                     }
                     circuit.set_parameter(q, theta[q] + diff);
                 }
-                y = cone.CausalCone(circuit, observable);
+                CausalConeSimulator cone(cirucit, observable);
+                y = cone.get_expectation_value();
             }
             {
                 for (int q = 0; q < circuit.get_parameter_count(); ++q) {
@@ -284,6 +284,7 @@ TEST(GradCalculator, BasicCheck) {
                     }
                     circuit.set_parameter(q, theta[q] - diff);
                 }
+                CausalConeSimulator cone(cirucit, observable);
                 z = cone.CausalCone(circuit, observable);
             }
             Greedy_ans.push_back((y - z) / 0.002);
