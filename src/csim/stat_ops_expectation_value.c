@@ -118,8 +118,8 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
         UINT sign_0 = count_population(basis_0 & phase_flip_mask) % 2;
 
         sum += _creal(state[basis_0] * conj(state[basis_1]) *
-                     PHASE_90ROT[(global_phase_90rot_count + sign_0 * 2) % 4] *
-                     2.0);
+                      PHASE_90ROT[(global_phase_90rot_count + sign_0 * 2) % 4] *
+                      2.0);
     }
     return sum;
 }
