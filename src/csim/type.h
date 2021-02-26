@@ -12,6 +12,7 @@
 #include <complex>
 #else
 #include <complex.h>
+#include <math.h>
 #ifdef __cplusplus
 #ifdef I
 #undef I
