@@ -59,10 +59,10 @@ transition_amplitude_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
                      PHASE_90ROT[(global_phase_90rot_count + sign_0 * 2) % 4];
         CTYPE val2 = state_ket[basis_1] * conj(state_bra[basis_0]) *
                      PHASE_90ROT[(global_phase_90rot_count + sign_1 * 2) % 4];
-        sum_real += creal(val1);
-        sum_imag += cimag(val1);
-        sum_real += creal(val2);
-        sum_imag += cimag(val2);
+        sum_real += _creal(val1);
+        sum_imag += _cimag(val1);
+        sum_real += _creal(val2);
+        sum_imag += _cimag(val2);
     }
     CTYPE sum(sum_real, sum_imag);
 #endif
@@ -99,8 +99,8 @@ transition_amplitude_multi_qubit_Pauli_operator_Z_mask(ITYPE phase_flip_mask,
         double sign = 1 - 2 * bit_parity;
         CTYPE val =
             sign * state_ket[state_index] * conj(state_bra[state_index]);
-        sum_real += creal(val);
-        sum_imag += cimag(val);
+        sum_real += _creal(val);
+        sum_imag += _cimag(val);
     }
     CTYPE sum(sum_real, sum_imag);
 #endif

@@ -16,7 +16,7 @@ double dm_state_norm_squared(const CTYPE* state, ITYPE dim) {
 #pragma omp parallel for reduction(+ : norm)
 #endif
     for (index = 0; index < dim; ++index) {
-        norm += creal(state[index * dim + index]);
+        norm += _creal(state[index * dim + index]);
     }
     return norm;
 }
@@ -30,7 +30,7 @@ double dm_measurement_distribution_entropy(const CTYPE* state, ITYPE dim) {
 #pragma omp parallel for reduction(+ : ent)
 #endif
     for (index = 0; index < dim; ++index) {
-        double prob = creal(state[index * dim + index]);
+        double prob = _creal(state[index * dim + index]);
         if (prob > eps) {
             ent += -1.0 * prob * log(prob);
         }
@@ -50,7 +50,7 @@ double dm_M0_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim) {
     for (state_index = 0; state_index < loop_dim; ++state_index) {
         ITYPE basis_0 =
             insert_zero_to_basis_index(state_index, mask, target_qubit_index);
-        sum += creal(state[basis_0 * dim + basis_0]);
+        sum += _creal(state[basis_0 * dim + basis_0]);
     }
     return sum;
 }
@@ -68,7 +68,7 @@ double dm_M1_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim) {
         ITYPE basis_1 =
             insert_zero_to_basis_index(state_index, mask, target_qubit_index) ^
             mask;
-        sum += creal(state[basis_1 * dim + basis_1]);
+        sum += _creal(state[basis_1 * dim + basis_1]);
     }
     return sum;
 }
@@ -93,7 +93,7 @@ double dm_marginal_prob(const UINT* sorted_target_qubit_index_list,
             basis = insert_zero_to_basis_index(basis, mask, insert_index);
             basis ^= mask * measured_value_list[cursor];
         }
-        sum += creal(state[basis * dim + basis]);
+        sum += _creal(state[basis * dim + basis]);
     }
     return sum;
 }
@@ -156,5 +156,5 @@ double dm_expectation_value_multi_qubit_Pauli_operator_partial_list(
 
     free(matrix);
     free((ITYPE*)matrix_mask_list);
-    return creal(sum);
+    return _creal(sum);
 }

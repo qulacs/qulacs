@@ -33,7 +33,7 @@ double expectation_value_X_Pauli_operator(
         ITYPE basis_0 =
             insert_zero_to_basis_index(state_index, mask, target_qubit_index);
         ITYPE basis_1 = basis_0 ^ mask;
-        sum += creal(conj(state[basis_0]) * state[basis_1]) * 2;
+        sum += _creal(conj(state[basis_0]) * state[basis_1]) * 2;
     }
     return sum;
 }
@@ -52,7 +52,7 @@ double expectation_value_Y_Pauli_operator(
         ITYPE basis_0 =
             insert_zero_to_basis_index(state_index, mask, target_qubit_index);
         ITYPE basis_1 = basis_0 ^ mask;
-        sum += cimag(conj(state[basis_0]) * state[basis_1]) * 2;
+        sum += _cimag(conj(state[basis_0]) * state[basis_1]) * 2;
     }
     return sum;
 }
@@ -68,7 +68,7 @@ double expectation_value_Z_Pauli_operator(
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
         int sign = 1 - 2 * ((state_index >> target_qubit_index) % 2);
-        sum += creal(conj(state[state_index]) * state[state_index]) * sign;
+        sum += _creal(conj(state[state_index]) * state[state_index]) * sign;
     }
     return sum;
 }
@@ -117,7 +117,7 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
         ITYPE basis_1 = basis_0 ^ bit_flip_mask;
         UINT sign_0 = count_population(basis_0 & phase_flip_mask) % 2;
 
-        sum += creal(state[basis_0] * conj(state[basis_1]) *
+        sum += _creal(state[basis_0] * conj(state[basis_1]) *
                      PHASE_90ROT[(global_phase_90rot_count + sign_0 * 2) % 4] *
                      2.0);
     }
@@ -135,7 +135,7 @@ double expectation_value_multi_qubit_Pauli_operator_Z_mask(
     for (state_index = 0; state_index < loop_dim; ++state_index) {
         int bit_parity = count_population(state_index & phase_flip_mask) % 2;
         int sign = 1 - 2 * bit_parity;
-        sum += pow(cabs(state[state_index]), 2) * sign;
+        sum += pow(_cabs(state[state_index]), 2) * sign;
     }
     return sum;
 }

@@ -29,22 +29,18 @@ typedef unsigned int UINT;
 #ifdef _MSC_VER
 typedef std::complex<double> CTYPE;
 using namespace std::complex_literals;
-inline static double cabs(CTYPE val) { return std::abs(val); }
-inline static double creal(CTYPE val) { return std::real(val); }
-inline static double cimag(CTYPE val) { return std::imag(val); }
+inline static double _cabs(CTYPE val) { return std::abs(val); }
+inline static double _creal(CTYPE val) { return std::real(val); }
+inline static double _cimag(CTYPE val) { return std::imag(val); }
 #else
 typedef double _Complex CTYPE;
-#if __GNUC__ >= 8
-#ifdef __cplusplus
-inline static double creal(CTYPE val) { return __real__ val; }
-inline static double cimag(CTYPE val) { return __imag__ val; }
-inline static double cabs(CTYPE val) {
+inline static double _creal(CTYPE val) { return __real__ val; }
+inline static double _cimag(CTYPE val) { return __imag__ val; }
+inline static double _cabs(CTYPE val) {
     double re = __real__ val;
     double im = __imag__ val;
     return re * re + im * im;
 }
-#endif
-#endif
 #endif
 
 //! dimension index

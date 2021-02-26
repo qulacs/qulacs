@@ -136,9 +136,9 @@ void single_qubit_phase_gate_single_simd(
     } else {
         ITYPE state_index;
         __m256d mv0 = _mm256_set_pd(
-            -cimag(phase), creal(phase), -cimag(phase), creal(phase));
+            -_cimag(phase), _creal(phase), -_cimag(phase), _creal(phase));
         __m256d mv1 = _mm256_set_pd(
-            creal(phase), cimag(phase), creal(phase), cimag(phase));
+            _creal(phase), _cimag(phase), _creal(phase), _cimag(phase));
         for (state_index = 0; state_index < loop_dim; state_index += 2) {
             ITYPE basis = (state_index & low_mask) +
                           ((state_index & high_mask) << 1) + mask;
@@ -171,9 +171,9 @@ void single_qubit_phase_gate_parallel_simd(
     } else {
         ITYPE state_index;
         __m256d mv0 = _mm256_set_pd(
-            -cimag(phase), creal(phase), -cimag(phase), creal(phase));
+            -_cimag(phase), _creal(phase), -_cimag(phase), _creal(phase));
         __m256d mv1 = _mm256_set_pd(
-            creal(phase), cimag(phase), creal(phase), cimag(phase));
+            _creal(phase), _cimag(phase), _creal(phase), _cimag(phase));
 #pragma omp parallel for
         for (state_index = 0; state_index < loop_dim; state_index += 2) {
             ITYPE basis = (state_index & low_mask) +

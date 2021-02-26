@@ -118,11 +118,11 @@ void single_qubit_diagonal_matrix_gate_single_simd(UINT target_qubit_index,
     ITYPE state_index;
     if (target_qubit_index == 0) {
         __m256d mv0 =
-            _mm256_set_pd(-cimag(diagonal_matrix[1]), creal(diagonal_matrix[1]),
-                -cimag(diagonal_matrix[0]), creal(diagonal_matrix[0]));
+            _mm256_set_pd(-_cimag(diagonal_matrix[1]), _creal(diagonal_matrix[1]),
+                -_cimag(diagonal_matrix[0]), _creal(diagonal_matrix[0]));
         __m256d mv1 =
-            _mm256_set_pd(creal(diagonal_matrix[1]), cimag(diagonal_matrix[1]),
-                creal(diagonal_matrix[0]), cimag(diagonal_matrix[0]));
+            _mm256_set_pd(_creal(diagonal_matrix[1]), _cimag(diagonal_matrix[1]),
+                _creal(diagonal_matrix[0]), _cimag(diagonal_matrix[0]));
         for (state_index = 0; state_index < loop_dim; state_index += 2) {
             double* ptr = (double*)(state + state_index);
             __m256d data = _mm256_loadu_pd(ptr);
@@ -133,17 +133,17 @@ void single_qubit_diagonal_matrix_gate_single_simd(UINT target_qubit_index,
         }
     } else {
         __m256d mv0 =
-            _mm256_set_pd(-cimag(diagonal_matrix[0]), creal(diagonal_matrix[0]),
-                -cimag(diagonal_matrix[0]), creal(diagonal_matrix[0]));
+            _mm256_set_pd(-_cimag(diagonal_matrix[0]), _creal(diagonal_matrix[0]),
+                -_cimag(diagonal_matrix[0]), _creal(diagonal_matrix[0]));
         __m256d mv1 =
-            _mm256_set_pd(creal(diagonal_matrix[0]), cimag(diagonal_matrix[0]),
-                creal(diagonal_matrix[0]), cimag(diagonal_matrix[0]));
+            _mm256_set_pd(_creal(diagonal_matrix[0]), _cimag(diagonal_matrix[0]),
+                _creal(diagonal_matrix[0]), _cimag(diagonal_matrix[0]));
         __m256d mv2 =
-            _mm256_set_pd(-cimag(diagonal_matrix[1]), creal(diagonal_matrix[1]),
-                -cimag(diagonal_matrix[1]), creal(diagonal_matrix[1]));
+            _mm256_set_pd(-_cimag(diagonal_matrix[1]), _creal(diagonal_matrix[1]),
+                -_cimag(diagonal_matrix[1]), _creal(diagonal_matrix[1]));
         __m256d mv3 =
-            _mm256_set_pd(creal(diagonal_matrix[1]), cimag(diagonal_matrix[1]),
-                creal(diagonal_matrix[1]), cimag(diagonal_matrix[1]));
+            _mm256_set_pd(_creal(diagonal_matrix[1]), _cimag(diagonal_matrix[1]),
+                _creal(diagonal_matrix[1]), _cimag(diagonal_matrix[1]));
         //__m256i mask = _mm256_set1_epi64x(1LL<<target_qubit_index);
         ITYPE mask = 1LL << target_qubit_index;
         for (state_index = 0; state_index < loop_dim; state_index += 2) {
@@ -168,11 +168,11 @@ void single_qubit_diagonal_matrix_gate_parallel_simd(UINT target_qubit_index,
     ITYPE state_index;
     if (target_qubit_index == 0) {
         __m256d mv0 =
-            _mm256_set_pd(-cimag(diagonal_matrix[1]), creal(diagonal_matrix[1]),
-                -cimag(diagonal_matrix[0]), creal(diagonal_matrix[0]));
+            _mm256_set_pd(-_cimag(diagonal_matrix[1]), _creal(diagonal_matrix[1]),
+                -_cimag(diagonal_matrix[0]), _creal(diagonal_matrix[0]));
         __m256d mv1 =
-            _mm256_set_pd(creal(diagonal_matrix[1]), cimag(diagonal_matrix[1]),
-                creal(diagonal_matrix[0]), cimag(diagonal_matrix[0]));
+            _mm256_set_pd(_creal(diagonal_matrix[1]), _cimag(diagonal_matrix[1]),
+                _creal(diagonal_matrix[0]), _cimag(diagonal_matrix[0]));
 #pragma omp parallel for
         for (state_index = 0; state_index < loop_dim; state_index += 2) {
             double* ptr = (double*)(state + state_index);
@@ -184,17 +184,17 @@ void single_qubit_diagonal_matrix_gate_parallel_simd(UINT target_qubit_index,
         }
     } else {
         __m256d mv0 =
-            _mm256_set_pd(-cimag(diagonal_matrix[0]), creal(diagonal_matrix[0]),
-                -cimag(diagonal_matrix[0]), creal(diagonal_matrix[0]));
+            _mm256_set_pd(-_cimag(diagonal_matrix[0]), _creal(diagonal_matrix[0]),
+                -_cimag(diagonal_matrix[0]), _creal(diagonal_matrix[0]));
         __m256d mv1 =
-            _mm256_set_pd(creal(diagonal_matrix[0]), cimag(diagonal_matrix[0]),
-                creal(diagonal_matrix[0]), cimag(diagonal_matrix[0]));
+            _mm256_set_pd(_creal(diagonal_matrix[0]), _cimag(diagonal_matrix[0]),
+                _creal(diagonal_matrix[0]), _cimag(diagonal_matrix[0]));
         __m256d mv2 =
-            _mm256_set_pd(-cimag(diagonal_matrix[1]), creal(diagonal_matrix[1]),
-                -cimag(diagonal_matrix[1]), creal(diagonal_matrix[1]));
+            _mm256_set_pd(-_cimag(diagonal_matrix[1]), _creal(diagonal_matrix[1]),
+                -_cimag(diagonal_matrix[1]), _creal(diagonal_matrix[1]));
         __m256d mv3 =
-            _mm256_set_pd(creal(diagonal_matrix[1]), cimag(diagonal_matrix[1]),
-                creal(diagonal_matrix[1]), cimag(diagonal_matrix[1]));
+            _mm256_set_pd(_creal(diagonal_matrix[1]), _cimag(diagonal_matrix[1]),
+                _creal(diagonal_matrix[1]), _cimag(diagonal_matrix[1]));
         //__m256i mask = _mm256_set1_epi64x(1LL<<target_qubit_index);
         ITYPE mask = 1LL << target_qubit_index;
 #pragma omp parallel for
