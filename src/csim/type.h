@@ -39,7 +39,7 @@ inline static double _cimag(CTYPE val) { return __imag__ val; }
 inline static double _cabs(CTYPE val) {
     double re = __real__ val;
     double im = __imag__ val;
-    return re * re + im * im;
+    return sqrt(re * re + im * im);
 }
 #endif
 
