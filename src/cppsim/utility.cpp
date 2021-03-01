@@ -31,28 +31,7 @@ void get_Pauli_matrix(
     }
 }
 
-Observable generate_random_observable(
-    const UINT qubit_count, const UINT operator_count) {
-    auto observable = Observable(qubit_count);
-    Random random;
-    for (UINT operator_index = 0; operator_index < operator_count;
-         operator_index++) {
-        auto target_qubit_index_list = std::vector<UINT>(qubit_count, 0);
-        auto target_qubit_pauli_list = std::vector<UINT>(qubit_count, 0);
-        for (UINT qubit_index = 0; qubit_index < qubit_count; qubit_index++) {
-            const UINT pauli_id = random.int32() % 4;
-            target_qubit_index_list.at(qubit_index) = qubit_index;
-            target_qubit_pauli_list.at(qubit_index) = pauli_id;
-        }
-        const CPPCTYPE coef = random.uniform();
-        // auto pauli_operator = PauliOperator(
-        //     target_qubit_index_list, target_qubit_pauli_list, coef);
-        // observable.add_operator(&pauli_operator);
-    }
-    return observable;
-}
-
-ComplexMatrix convert_observable_to_matrix(const Observable& observable) {
+ComplexMatrix convert_observable_to_matrix(Observable& observable) {
     const auto dim = observable.get_state_dim();
     const auto qubit_count = observable.get_qubit_count();
     ComplexMatrix observable_matrix = ComplexMatrix::Zero(dim, dim);
