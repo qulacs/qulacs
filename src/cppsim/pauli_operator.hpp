@@ -236,8 +236,6 @@ public:
     /**
      * \~japanese-en
      * パウリ演算子に対応する文字列を返す
-     *
-     * @return 自身のディープコピー
      */
     virtual std::string get_pauli_string() const;
 };

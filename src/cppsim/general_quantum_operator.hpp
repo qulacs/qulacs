@@ -111,7 +111,7 @@ public:
 
     /**
      * \~japanese-en
-     * 読みやすい文字列を返す
+     * 文字列に変換する。
      */
     virtual std::string to_string() const;
 
