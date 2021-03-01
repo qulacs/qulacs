@@ -29,7 +29,7 @@
  * 管理する量子ゲートは量子回路の解放時にすべて解放される。
  */
 class DllExport QuantumCircuit {
-protected:
+private:
     std::vector<QuantumGateBase*> _gate_list;
     std::vector<QuantumGateBase*> _parametric_gate_list;
     std::vector<UINT> _parametric_gate_position;
@@ -49,17 +49,17 @@ protected:
 public:
     template <class Archive>
     void save(Archive& ar) const {
-        int size_gate_list = _gate_list.size();
+        size_t size_gate_list = _gate_list.size();
         ar(CEREAL_NVP(size_gate_list));
-        for (int i = 0; i < size_gate_list; ++i) {
+        for (size_t i = 0; i < size_gate_list; ++i) {
             std::unique_ptr<QuantumGateBase> pointer;
             pointer.reset(_gate_list[i]->copy());
             ar(cereal::make_nvp("Gate " + std::to_string(i), pointer));
         }
 
-        int size_parametric_gate_list = _parametric_gate_list.size();
+        size_t size_parametric_gate_list = _parametric_gate_list.size();
         ar(CEREAL_NVP(size_parametric_gate_list));
-        for (int i = 0; i < size_parametric_gate_list; ++i) {
+        for (size_t i = 0; i < size_parametric_gate_list; ++i) {
             std::unique_ptr<QuantumGateBase> pointer;
             pointer.reset(_parametric_gate_list[i]->copy());
             ar(cereal::make_nvp(
@@ -70,19 +70,19 @@ public:
 
     template <class Archive>
     void load(Archive& ar) {
-        int size_gate_list;
+        size_t size_gate_list;
         ar(CEREAL_NVP(size_gate_list));
         _gate_list.clear();
-        for (int i = 0; i < size_gate_list; ++i) {
+        for (size_t i = 0; i < size_gate_list; ++i) {
             std::unique_ptr<QuantumGateBase> pointer;
             ar(cereal::make_nvp("Gate " + std::to_string(i), pointer));
             _gate_list.push_back(pointer->copy());
         }
 
-        int size_parametric_gate_list;
+        size_t size_parametric_gate_list;
         ar(CEREAL_NVP(size_parametric_gate_list));
         _parametric_gate_list.clear();
-        for (int i = 0; i < size_parametric_gate_list; ++i) {
+        for (size_t i = 0; i < size_parametric_gate_list; ++i) {
             std::unique_ptr<QuantumGateBase> pointer;
             ar(cereal::make_nvp(
                 "Parametric Gate " + std::to_string(i), pointer));
@@ -90,6 +90,24 @@ public:
         }
 
         ar(CEREAL_NVP(_parametric_gate_position), CEREAL_NVP(_qubit_count));
+    }
+
+    std::string dump_as_byte() const {
+        // serialize QuantumCircuit
+        std::ostringstream ss;
+        {
+            cereal::PortableBinaryOutputArchive archive(ss);
+            archive(*this);
+        }
+        return ss.str();
+    }
+    void load_from_byte(std::string obj) {
+        // deserialize QuantumCircuit
+        std::istringstream ss(obj);
+        {
+            cereal::PortableBinaryInputArchive archive(ss);
+            archive(*this);
+        }
     }
 
     virtual UINT get_qubit_count() const { return this->_qubit_count; }

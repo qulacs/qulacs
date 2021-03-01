@@ -238,8 +238,17 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
+
+      - name: Install qulacs for Ubuntu
+        run: ./script/build_gcc.sh
+
       - name: Run clang-format
-        run: find ./benchmark ./src ./test -iname '*.cpp' -o -iname '*.hpp' -o -iname '*.c' -o -iname '*.h' | xargs clang-format -i
+        run: cmake --build build --target format
 
       - name: Compare diff
-        run: test $(git diff | wc -l) -eq 0
+        run: |
+          diff=$(git diff)
+          echo $diff
+          test $(echo -n $diff | wc -l) -eq 0
