@@ -196,14 +196,18 @@ std::string PauliOperator::get_pauli_string() const {
     if (size == 0) {
         return "I";
     }
-    for (UINT index=0; index<size; index++) {
+    for (UINT index = 0; index < size; index++) {
         target_index = _pauli_list[index].index();
         pauli_id = _pauli_list[index].pauli_id();
-        if (pauli_id == 0) continue;
-        else if (pauli_id == 1) res += "X";
-        else if (pauli_id == 2) res += "Y";
-        else if (pauli_id == 3) res += "Z";
-        res += " "+ std::to_string(target_index)+" ";
+        if (pauli_id == 0)
+            continue;
+        else if (pauli_id == 1)
+            res += "X";
+        else if (pauli_id == 2)
+            res += "Y";
+        else if (pauli_id == 3)
+            res += "Z";
+        res += " " + std::to_string(target_index) + " ";
     }
     res.pop_back();
     return res;
