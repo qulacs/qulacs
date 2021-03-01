@@ -481,18 +481,18 @@ TEST(CircuitTest, RandomCircuitOptimizeLight2) {
         QuantumCircuitOptimizer qco;
         QuantumCircuit* copy_circuit = circuit.copy();
         // for (auto gate : copy_circuit->gate_list) {
-        //	std::cout << "(";
-        //	for (auto val : gate->get_target_index_list()) std::cout << val
-        //<< " "; 	for (auto val : gate->get_control_index_list())
-        // std::cout << val << " "; 	std::cout << ")  ";
+        // std::cout << "(";
+        // for (auto val : gate->get_target_index_list()) std::cout << val
+        //<< " ";  for (auto val : gate->get_control_index_list())
+        // std::cout << val << " "; std::cout << ")  ";
         //}
         // std::cout << std::endl;
         qco.optimize_light(copy_circuit);
         // for (auto gate : copy_circuit->gate_list) {
-        //	std::cout << "(";
-        //	for (auto val : gate->get_target_index_list()) std::cout << val
-        //<< " "; 	for (auto val : gate->get_control_index_list())
-        // std::cout << val << " "; 	std::cout << ")  ";
+        // std::cout << "(";
+        // for (auto val : gate->get_target_index_list()) std::cout << val
+        //<< " "; for (auto val : gate->get_control_index_list())
+        // std::cout << val << " "; std::cout << ")  ";
         //}
         state.load(&org_state);
         copy_circuit->update_quantum_state(&state);

@@ -8,9 +8,10 @@
  */
 class DllExport QuantumGateMatrix : public QuantumGateBase {
 private:
-    ComplexMatrix
-        _matrix_element; /**< list of elements of unitary matrix as 1D array
-                          with length dim*dim (only for dense gate))*/
+    // list of elements of unitary matrix as 1D array with length dim*dim (only
+    // for dense gate))
+    ComplexMatrix _matrix_element;
+
 public:
     /**
      * \~japanese-en コンストラクタ

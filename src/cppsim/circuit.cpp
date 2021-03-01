@@ -442,9 +442,10 @@ void QuantumCircuit::add_observable_rotation_gate(
     UINT qubit_count_ = observable.get_qubit_count();
     std::vector<PauliOperator*> operator_list = observable.get_terms();
     if (num_repeats == 0)
-        num_repeats = (UINT)std::ceil(angle * (double)qubit_count_ * 100.);
+        num_repeats =
+            static_cast<UINT>(std::ceil(angle * (double)qubit_count_ * 100.));
     // std::cout << num_repeats << std::endl;
-    for (UINT repeat = 0; repeat < (UINT)num_repeats; ++repeat) {
+    for (UINT repeat = 0; repeat < num_repeats; ++repeat) {
         for (auto pauli : operator_list) {
             this->add_gate(gate::PauliRotation(pauli->get_index_list(),
                 pauli->get_pauli_id_list(),

@@ -711,7 +711,6 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
     Z << 1, 0, 0, -1;
 
     const UINT n = 2;
-    UINT num_repeats;
     const UINT dim = 1ULL << n;
     const double eps = 1e-14;
 
@@ -756,7 +755,8 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
     test_observable +=
         coef[5] * get_expanded_eigen_matrix_with_identity(1, Z, n);
 
-    num_repeats = (UINT)std::ceil(angle * (double)n * 100.);
+    const auto num_repeats =
+        static_cast<UINT>(std::ceil(angle * (double)n * 100.));
     // circuit.add_diagonal_observable_rotation_gate(diag_observable, angle);
     circuit.add_observable_rotation_gate(observable, angle, num_repeats);
 

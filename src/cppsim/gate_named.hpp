@@ -199,7 +199,7 @@ protected:
     ComplexMatrix _matrix_element;
     double _angle;
 
-    QuantumGate_OneQubitRotation(double angle) : _angle(angle){};
+    explicit QuantumGate_OneQubitRotation(double angle) : _angle(angle){};
 
 public:
     /**

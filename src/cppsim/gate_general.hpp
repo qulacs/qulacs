@@ -553,7 +553,9 @@ public:
     QuantumGate_Adaptive(QuantumGateBase* gate,
         std::function<bool(const std::vector<UINT>&, UINT)> func_with_id,
         UINT id)
-        : _gate(gate->copy()), _func_with_id(func_with_id), _id((int)id){};
+        : _gate(gate->copy()),
+          _func_with_id(func_with_id),
+          _id(static_cast<int>(id)){};
     virtual ~QuantumGate_Adaptive() { delete _gate; }
 
     /**

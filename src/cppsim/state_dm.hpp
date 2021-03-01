@@ -26,7 +26,7 @@ public:
      *
      * @param qubit_count_ 量子ビット数
      */
-    DensityMatrixCpu(UINT qubit_count_)
+    explicit DensityMatrixCpu(UINT qubit_count_)
         : QuantumStateBase(qubit_count_, false) {
         this->_density_matrix =
             reinterpret_cast<CPPCTYPE*>(dm_allocate_quantum_state(this->_dim));

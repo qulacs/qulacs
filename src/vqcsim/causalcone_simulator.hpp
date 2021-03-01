@@ -194,7 +194,6 @@ void build()
         }
         return ret;
     }
-
     std::vector<std::vector<ParametricQuantumCircuit*>> get_circuit_list()
     {
         return circuit_list;

@@ -15,7 +15,7 @@ private:
     std::vector<int> Parent;
 
 public:
-    UnionFind(int N) { Parent = std::vector<int>(N, -1); }
+    explicit UnionFind(int N) { Parent = std::vector<int>(N, -1); }
     int root(int A) {
         if (Parent[A] < 0) {
             return A;
@@ -108,7 +108,7 @@ public:
                     }
                 }
             }
-            //分解処理
+            //  分解処理
 
             auto term_index_list = term.get_index_list();
             auto pauli_id_list = term.get_pauli_id_list();
