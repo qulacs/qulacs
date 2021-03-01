@@ -111,8 +111,7 @@ public:
 
     /**
      * \~japanese-en
-     * GeneralQuantumOperatorが保持するPauliOperatorのリストを返す
-     * @return GeneralQuantumOperatorが持つPauliOperatorのリスト
+     * 読みやすい文字列を返す
      */
     virtual std::string to_string() const;
 
