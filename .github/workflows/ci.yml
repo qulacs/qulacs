@@ -251,4 +251,4 @@ jobs:
         run: |
           diff=$(git diff)
           echo $diff
-          test $(echo $diff | wc -l) -eq 0
+          test $(echo -n $diff | wc -l) -eq 0
