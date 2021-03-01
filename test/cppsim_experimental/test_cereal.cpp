@@ -125,25 +125,64 @@ TEST(CerealTest, serealize_QuantumCircuit) {
     a.set_zero_state();
     b.set_zero_state();
     QuantumCircuit inputs(10), outputs(1);
+    inputs.add_gate(gate::X(0));
+    inputs.add_gate(gate::H(1));
+    inputs.update_quantum_state(&a);
     {
         // serialize QuantumCircuit
-        inputs.add_gate(gate::X(0));
-        inputs.add_gate(gate::H(1));
-        inputs.update_quantum_state(&a);
         std::ofstream os("out3.cereal", std::ios::binary);
         cereal::PortableBinaryOutputArchive archive(os);
         archive(inputs);
-        os.close();
     }
     {
         // deserialize QuantumCircuit
         std::ifstream is("out3.cereal", std::ios::binary);
         cereal::PortableBinaryInputArchive archive(is);
         archive(outputs);
-        outputs.update_quantum_state(&b);
     }
+    outputs.update_quantum_state(&b);
 
     // StateVector applied by QuantumCircuit should be same.
+    for (int i = 0; i < (1 << 10); ++i) {
+        ASSERT_NEAR(abs(a.data_cpp()[i] - b.data_cpp()[i]), 0, 1e-7);
+    }
+}
+
+TEST(CerealTest, serealize_quantum_gate_basic_for_python) {
+    // Just Check whether they run without Runtime Errors.
+    QuantumGateBase* gate1 = QuantumGateBasic::DenseMatrixGate(
+        {0, 1}, Eigen::MatrixXcd::Identity(4, 4));
+    QuantumGateBase* gate2 =
+        QuantumGateBasic::DenseMatrixGate({2}, Eigen::MatrixXcd::Zero(2, 2));
+    std::string ss = gate1->dump_as_byte();
+    gate2->load_from_byte(ss);
+
+    // Check equivalence
+    StateVectorCpu a(10), b(10);
+    a.set_Haar_random_state();
+    b.load(&a);
+    gate1->update_quantum_state(&a);
+    gate2->update_quantum_state(&b);
+    for (int i = 0; i < (1 << 10); ++i) {
+        ASSERT_NEAR(abs(a.data_cpp()[i] - b.data_cpp()[i]), 0, 1e-7);
+    }
+}
+
+TEST(CerealTest, serealize_QuantumCircuit_for_python) {
+    // Just Check whether they run without Runtime Errors.
+    QuantumCircuit circuit1(10), circuit2(1);
+    circuit1.add_gate(gate::X(0));
+    circuit1.add_gate(gate::H(1));
+
+    std::string ss = circuit1.dump_as_byte();
+    circuit2.load_from_byte(ss);
+
+    // Check equivalence
+    StateVectorCpu a(10), b(10);
+    a.set_Haar_random_state();
+    b.load(&a);
+    circuit1.update_quantum_state(&a);
+    circuit2.update_quantum_state(&b);
     for (int i = 0; i < (1 << 10); ++i) {
         ASSERT_NEAR(abs(a.data_cpp()[i] - b.data_cpp()[i]), 0, 1e-7);
     }

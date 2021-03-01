@@ -9,7 +9,7 @@
 
 TEST(NoiseSimulatorTest, Random_with_State_Test) {
     // Just Check whether they run without Runtime Errors.
-    int n = 10, depth = 10;
+    UINT n = 10, depth = 10;
     StateVector state(n);
     state.set_Haar_random_state();
     QuantumCircuit circuit(n);
@@ -37,7 +37,7 @@ TEST(NoiseSimulatorTest, Random_with_State_Test) {
 
 TEST(NoiseSimulatorTest, Random_without_State_Test) {
     // Just Check whether they run without Runtime Errors.
-    int n = 10, depth = 10;
+    UINT n = 10, depth = 10;
     QuantumCircuit circuit(n);
     Random random;
     for (UINT d = 0; d < depth; ++d) {
