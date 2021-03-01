@@ -238,6 +238,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
+
+      - name: Install qulacs for Ubuntu
+        run: ./script/build_gcc.sh
+
       - name: Run clang-format
         run: cmake --build build --target format
 
