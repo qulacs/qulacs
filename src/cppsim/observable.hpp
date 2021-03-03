@@ -95,7 +95,6 @@ public:
      * 文字列に変換する。
      */
     std::string to_string() const override;
-
 };
 
 namespace observable {
