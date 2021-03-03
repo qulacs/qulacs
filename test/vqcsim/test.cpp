@@ -2,8 +2,8 @@
 
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/state_dm.hpp>
-#include <vqcsim/causalcone_simulator.hpp>
 #include <vqcsim/GradCalculator.hpp>
+#include <vqcsim/causalcone_simulator.hpp>
 #include <vqcsim/parametric_circuit_builder.hpp>
 #include <vqcsim/parametric_gate_factory.hpp>
 #include <vqcsim/problem.hpp>

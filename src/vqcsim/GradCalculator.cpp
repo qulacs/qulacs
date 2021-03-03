@@ -6,7 +6,7 @@
 std::vector<std::complex<double>> GradCalculator::calculate_grad(
     ParametricQuantumCircuit& x, Observable& obs, std::vector<double> theta) {
     std::vector<std::complex<double>> ans;
-    
+
     for (UINT i = 0; i < x.get_parameter_count(); ++i) {
         std::complex<double> y, z;
         {

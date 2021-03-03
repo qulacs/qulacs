@@ -1,18 +1,18 @@
-#include <vector>
-#include <utility>
-#include <iostream>
-#include <cppsim/state.hpp>
-#include <vqcsim/parametric_circuit.hpp>
-#include <cppsim/observable.hpp>
+#include <cppsim/gate.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_merge.hpp>
-#include <cppsim/type.hpp>
-#include <cppsim/gate.hpp>
 #include <cppsim/observable.hpp>
+#include <cppsim/state.hpp>
+#include <cppsim/type.hpp>
+#include <iostream>
+#include <utility>
+#include <vector>
+#include <vqcsim/parametric_circuit.hpp>
 
 class UnionFind {
 private:
     std::vector<int> Parent;
+
 public:
     explicit UnionFind(int N) { Parent = std::vector<int>(N, -1); }
     int root(int A) {
@@ -22,13 +22,9 @@ public:
         return Parent[A] = root(Parent[A]);
     }
 
-    bool same(int A, int B) {
-        return root(A) == root(B);
-    }
+    bool same(int A, int B) { return root(A) == root(B); }
 
-    int size(int A) {
-        return -Parent[root(A)];
-    }
+    int size(int A) { return -Parent[root(A)]; }
 
     bool connect(int A, int B) {
         A = root(A);
@@ -45,26 +41,24 @@ public:
 
         return true;
     }
-
 };
 
 class DllExport CausalConeSimulator {
 public:
-ParametricQuantumCircuit* init_circuit;
-Observable* init_observable;
-std::vector<std::vector<ParametricQuantumCircuit*>> circuit_list;
-std::vector<std::vector<PauliOperator>> pauli_operator_list;
-std::vector<CPPCTYPE> coef_list;
-bool build_run = false;
-CausalConeSimulator(const ParametricQuantumCircuit& _init_circuit, const Observable& _init_observable)
-{
-    init_observable = new Observable(_init_circuit.qubit_count);
-    *init_observable = _init_observable;
-    init_circuit = _init_circuit.copy();
-}
+    ParametricQuantumCircuit* init_circuit;
+    Observable* init_observable;
+    std::vector<std::vector<ParametricQuantumCircuit*>> circuit_list;
+    std::vector<std::vector<PauliOperator>> pauli_operator_list;
+    std::vector<CPPCTYPE> coef_list;
+    bool build_run = false;
+    CausalConeSimulator(const ParametricQuantumCircuit& _init_circuit,
+        const Observable& _init_observable) {
+        init_observable = new Observable(_init_circuit.qubit_count);
+        *init_observable = _init_observable;
+        init_circuit = _init_circuit.copy();
+    }
 
-void build()
-    {
+    void build() {
         build_run = true;
         auto terms = init_observable->get_terms();
         for (auto term : terms) {
@@ -80,8 +74,10 @@ void build()
                 use_qubit[observable_index] = true;
             }
             for (int i = gate_count - 1; i >= 0; i--) {
-                auto target_index_list = init_circuit->gate_list[i]->get_target_index_list();
-                auto control_index_list = init_circuit->gate_list[i]->get_control_index_list();
+                auto target_index_list =
+                    init_circuit->gate_list[i]->get_target_index_list();
+                auto control_index_list =
+                    init_circuit->gate_list[i]->get_control_index_list();
                 for (auto target_index : target_index_list) {
                     if (use_qubit[target_index]) {
                         use_gate[i] = true;
@@ -106,12 +102,15 @@ void build()
                     }
 
                     for (UINT i = 0; i + 1 < target_index_list.size(); i++) {
-                        uf.connect(target_index_list[i], target_index_list[i + 1]);
+                        uf.connect(
+                            target_index_list[i], target_index_list[i + 1]);
                     }
                     for (UINT i = 0; i + 1 < control_index_list.size(); i++) {
-                        uf.connect(control_index_list[i], control_index_list[i + 1]);
+                        uf.connect(
+                            control_index_list[i], control_index_list[i + 1]);
                     }
-                    if (!target_index_list.empty() && !control_index_list.empty()) {
+                    if (!target_index_list.empty() &&
+                        !control_index_list.empty()) {
                         uf.connect(target_index_list[0], control_index_list[0]);
                     }
                 }
@@ -128,23 +127,24 @@ void build()
                     circuit_count += 1;
                 }
             }
-            std::vector<ParametricQuantumCircuit*> circuits(circuit_count, nullptr);
-            std::vector<PauliOperator> pauli_operators(circuit_count, PauliOperator(1.0));
-            //CPPCTYPE expectation(1.0, 0);
+            std::vector<ParametricQuantumCircuit*> circuits(
+                circuit_count, nullptr);
+            std::vector<PauliOperator> pauli_operators(
+                circuit_count, PauliOperator(1.0));
+            // CPPCTYPE expectation(1.0, 0);
             for (UINT i = 0; i < circuit_count; i++) {
                 UINT root = roots[i];
                 circuits[i] = new ParametricQuantumCircuit(uf.size(root));
                 auto& circuit = circuits[i];
                 std::vector<int> qubit_encode(qubit_count, -1);
 
-                
                 int idx = 0;
                 for (UINT i = 0; i < qubit_count; i++) {
                     if (root == uf.root(i)) {
                         qubit_encode[i] = idx++;
                     }
                 }
-                
+
                 for (UINT i = 0; i < gate_count; i++) {
                     if (!use_gate[i]) continue;
 
@@ -153,7 +153,8 @@ void build()
                     auto control_index_list = gate->get_control_index_list();
                     if (uf.root(target_index_list[0]) != root) continue;
                     for (auto& idx : target_index_list) idx = qubit_encode[idx];
-                    for (auto& idx : control_index_list) idx = qubit_encode[idx];
+                    for (auto& idx : control_index_list)
+                        idx = qubit_encode[idx];
 
                     gate->set_target_index_list(target_index_list);
                     gate->set_control_index_list(control_index_list);
@@ -161,7 +162,8 @@ void build()
                 }
                 auto& paulioperator = pauli_operators[i];
                 for (UINT i = 0; i < (UINT)term_index_list.size(); i++) {
-                    paulioperator.add_single_Pauli(qubit_encode[term_index_list[i]], pauli_id_list[i]);
+                    paulioperator.add_single_Pauli(
+                        qubit_encode[term_index_list[i]], pauli_id_list[i]);
                 }
             }
             circuit_list.emplace_back(circuits);
@@ -170,21 +172,17 @@ void build()
         }
     }
 
-    CPPCTYPE get_expectation_value()
-    {
-        if(not build_run)
-            build();
+    CPPCTYPE get_expectation_value() {
+        if (not build_run) build();
         CPPCTYPE ret;
-        for (UINT i = 0; i < (UINT)circuit_list.size(); i++)
-        {
+        for (UINT i = 0; i < (UINT)circuit_list.size(); i++) {
             CPPCTYPE expectation(1.0, 0);
-            auto &circuits = circuit_list[i];
-            auto &pauli_operators = pauli_operator_list[i];
-            auto &coef = coef_list[i];
-            for (UINT i = 0; i < (UINT)circuits.size(); i++)
-            {
-                auto &circuit = circuits[i];
-                auto &paulioperator = pauli_operators[i];
+            auto& circuits = circuit_list[i];
+            auto& pauli_operators = pauli_operator_list[i];
+            auto& coef = coef_list[i];
+            for (UINT i = 0; i < (UINT)circuits.size(); i++) {
+                auto& circuit = circuits[i];
+                auto& paulioperator = pauli_operators[i];
                 QuantumState state(circuit->qubit_count);
                 state.set_zero_state();
                 circuit->update_quantum_state(&state);
@@ -194,16 +192,11 @@ void build()
         }
         return ret;
     }
-    std::vector<std::vector<ParametricQuantumCircuit*>> get_circuit_list()
-    {
+    std::vector<std::vector<ParametricQuantumCircuit*>> get_circuit_list() {
         return circuit_list;
     }
-    std::vector<std::vector<PauliOperator>> get_pauli_operator_list()
-    {
+    std::vector<std::vector<PauliOperator>> get_pauli_operator_list() {
         return pauli_operator_list;
     }
-    std::vector<CPPCTYPE> get_coef_list()
-    {
-        return coef_list;
-    }
+    std::vector<CPPCTYPE> get_coef_list() { return coef_list; }
 };

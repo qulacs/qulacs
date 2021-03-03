@@ -30,9 +30,9 @@ TEST(MemoryOperationTest, MemoryZeroCheck) {
     initialize_quantum_state(ptr, dim);
     for (ITYPE ind = 0; ind < dim; ++ind) {
         if (ind == 0)
-            ASSERT_NEAR(cabs(ptr[ind] - 1.), 0., eps);
+            ASSERT_NEAR(_cabs(ptr[ind] - 1.), 0., eps);
         else
-            ASSERT_NEAR(cabs(ptr[ind]), 0, eps);
+            ASSERT_NEAR(_cabs(ptr[ind]), 0, eps);
     }
     release_quantum_state(ptr);
 }
