@@ -173,7 +173,7 @@ public:
     }
 
     CPPCTYPE get_expectation_value() {
-        if (not build_run) build();
+        if (!build_run) build();
         CPPCTYPE ret;
         for (UINT i = 0; i < (UINT)circuit_list.size(); i++) {
             CPPCTYPE expectation(1.0, 0);
