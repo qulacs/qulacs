@@ -31,9 +31,9 @@ TEST(MemoryOperationTest, MemoryZeroCheck) {
         get_quantum_state_host(ptr, cpu_state, dim, stream_ptr, i);
         for (ITYPE ind = 0; ind < dim; ++ind) {
             if (ind == 0)
-                ASSERT_NEAR(cabs(cpu_state[ind] - 1.), 0., eps);
+                ASSERT_NEAR(_cabs(cpu_state[ind] - 1.), 0., eps);
             else
-                ASSERT_NEAR(cabs(cpu_state[ind]), 0, eps);
+                ASSERT_NEAR(_cabs(cpu_state[ind]), 0, eps);
         }
         free(cpu_state);
         release_quantum_state_host(ptr, i);

@@ -16,7 +16,7 @@ double state_norm_squared(const CTYPE* state, ITYPE dim) {
 #pragma omp parallel for reduction(+ : norm)
 #endif
     for (index = 0; index < dim; ++index) {
-        norm += pow(cabs(state[index]), 2);
+        norm += pow(_cabs(state[index]), 2);
     }
     return norm;
 }
@@ -45,8 +45,8 @@ state_inner_product(const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
     for (index = 0; index < dim; ++index) {
         CTYPE value;
         value += conj(state_bra[index]) * state_ket[index];
-        real_sum += creal(value);
-        imag_sum += cimag(value);
+        real_sum += _creal(value);
+        imag_sum += _cimag(value);
     }
     return real_sum + 1.i * imag_sum;
 #endif

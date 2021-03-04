@@ -1,3 +1,5 @@
+#include <mpi.h>
+
 #include <cppsim/circuit.hpp>
 #include <cppsim/gate.hpp>
 #include <cppsim/gate_factory.hpp>
@@ -8,13 +10,12 @@
 #include <iostream>
 #include <utility>
 #include <vector>
-
 class UnionFind {
 private:
     std::vector<int> Parent;
 
 public:
-    explicit UnionFind(int N) { Parent = std::vector<int>(N, -1); }
+    UnionFind(int N) { Parent = std::vector<int>(N, -1); }
     int root(int A) {
         if (Parent[A] < 0) {
             return A;
@@ -45,11 +46,15 @@ public:
 
 class DllExport Causal {
 public:
-    CPPCTYPE CausalCone(
+    CPPCTYPE CausalConeMPI(
         const QuantumCircuit& init_circuit, const Observable& init_observable) {
+        int rank = MPI::COMM_WORLD.Get_rank();
+        int size = MPI::COMM_WORLD.Get_size();
+        MPI::COMM_WORLD.Barrier();
         auto terms = init_observable.get_terms();
         CPPCTYPE ret;
-        for (auto term : terms) {
+        for (UINT i = rank; i < terms.size(); i += size) {
+            auto term = terms[i];
             std::vector<UINT> observable_index_list = term->get_index_list();
             const UINT gate_count = init_circuit.gate_list.size();
             const UINT qubit_count = init_circuit.qubit_count;
@@ -108,8 +113,8 @@ public:
             auto term_index_list = term->get_index_list();
             auto pauli_id_list = term->get_pauli_id_list();
             UINT circuit_count = 0;
-            std::vector<int> roots;
-            for (int i = 0; i < qubit_count; i++) {
+            std::vector<UINT> roots;
+            for (UINT i = 0; i < qubit_count; i++) {
                 if (use_qubit[i] && i == uf.root(i)) {
                     roots.emplace_back(uf.root(i));
                     circuit_count += 1;
@@ -118,7 +123,7 @@ public:
             std::vector<QuantumCircuit*> circuits(circuit_count, nullptr);
             CPPCTYPE expectation(1.0, 0);
             for (UINT i = 0; i < circuit_count; i++) {
-                const auto root = roots[i];
+                UINT root = roots[i];
                 circuits[i] = new QuantumCircuit(uf.size(root));
                 auto& circuit = circuits[i];
                 std::vector<int> qubit_encode(qubit_count, -1);
@@ -158,7 +163,6 @@ public:
 
             ret += expectation * term->get_coef();
         }
-
         return ret;
     }
 };
