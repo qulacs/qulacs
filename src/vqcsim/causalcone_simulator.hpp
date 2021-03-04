@@ -101,15 +101,13 @@ public:
                         use_qubit[control_index] = true;
                     }
 
-                    for (UINT j = 0; j + 1 < (UINT)target_index_list.size();
-                         j++) {
+                    for (UINT i = 0; i + 1 < target_index_list.size(); i++) {
                         uf.connect(
-                            target_index_list[j], target_index_list[j + 1]);
+                            target_index_list[i], target_index_list[i + 1]);
                     }
-                    for (UINT j = 0; j + 1 < (UINT)control_index_list.size();
-                         j++) {
+                    for (UINT i = 0; i + 1 < control_index_list.size(); i++) {
                         uf.connect(
-                            control_index_list[j], control_index_list[j + 1]);
+                            control_index_list[i], control_index_list[i + 1]);
                     }
                     if (!target_index_list.empty() &&
                         !control_index_list.empty()) {
@@ -124,7 +122,7 @@ public:
             UINT circuit_count = 0;
             std::vector<UINT> roots;
             for (UINT i = 0; i < qubit_count; i++) {
-                if (use_qubit[i] && i == (UINT)uf.root(i)) {
+                if (use_qubit[i] && i == uf.root(i)) {
                     roots.emplace_back(uf.root(i));
                     circuit_count += 1;
                 }
@@ -141,32 +139,31 @@ public:
                 std::vector<int> qubit_encode(qubit_count, -1);
 
                 int idx = 0;
-                for (UINT j = 0; j < (UINT)qubit_count; j++) {
-                    if (root == (UINT)uf.root(j)) {
-                        qubit_encode[j] = idx++;
+                for (UINT i = 0; i < qubit_count; i++) {
+                    if (root == uf.root(i)) {
+                        qubit_encode[i] = idx++;
                     }
                 }
 
-                for (UINT j = 0; j < gate_count; j++) {
-                    if (!use_gate[j]) continue;
+                for (UINT i = 0; i < gate_count; i++) {
+                    if (!use_gate[i]) continue;
 
-                    auto gate = init_circuit->gate_list[j]->copy();
+                    auto gate = init_circuit->gate_list[i]->copy();
                     auto target_index_list = gate->get_target_index_list();
                     auto control_index_list = gate->get_control_index_list();
-                    if ((UINT)uf.root(target_index_list[0]) != root) continue;
-                    for (auto& target_idx : target_index_list)
-                        target_idx = qubit_encode[target_idx];
-                    for (auto& control_idx : control_index_list)
-                        control_idx = qubit_encode[control_idx];
+                    if (uf.root(target_index_list[0]) != root) continue;
+                    for (auto& idx : target_index_list) idx = qubit_encode[idx];
+                    for (auto& idx : control_index_list)
+                        idx = qubit_encode[idx];
 
                     gate->set_target_index_list(target_index_list);
                     gate->set_control_index_list(control_index_list);
                     circuit->add_gate(gate);
                 }
                 auto& paulioperator = pauli_operators[i];
-                for (UINT j = 0; j < (UINT)term_index_list.size(); j++) {
+                for (UINT i = 0; i < (UINT)term_index_list.size(); i++) {
                     paulioperator.add_single_Pauli(
-                        qubit_encode[term_index_list[j]], pauli_id_list[j]);
+                        qubit_encode[term_index_list[i]], pauli_id_list[i]);
                 }
             }
             circuit_list.emplace_back(circuits);
@@ -183,9 +180,9 @@ public:
             auto& circuits = circuit_list[i];
             auto& pauli_operators = pauli_operator_list[i];
             auto& coef = coef_list[i];
-            for (UINT j = 0; j < (UINT)circuits.size(); j++) {
-                auto& circuit = circuits[j];
-                auto& paulioperator = pauli_operators[j];
+            for (UINT i = 0; i < (UINT)circuits.size(); i++) {
+                auto& circuit = circuits[i];
+                auto& paulioperator = pauli_operators[i];
                 QuantumState state(circuit->qubit_count);
                 state.set_zero_state();
                 circuit->update_quantum_state(&state);

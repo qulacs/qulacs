@@ -23,7 +23,7 @@ NoiseSimulator::NoiseSimulator(
         initial_state = init_state->copy();
     }
     circuit = init_circuit->copy();
-    for (int i = 0; i < (int)circuit->get_gate_list().size(); ++i) {
+    for (int i = 0; i < circuit->get_gate_list().size(); ++i) {
         auto gate = circuit->get_gate_list()[i];
         if (gate->get_map_type() != Probabilistic) continue;
 
@@ -31,27 +31,27 @@ NoiseSimulator::NoiseSimulator(
         std::vector<double> cumulative_distribution =
             gate->get_cumulative_distribution();
         std::vector<double> distribution;
-        for (int j = 1; j < (int)cumulative_distribution.size(); ++j) {
+        for (int i = 1; i < cumulative_distribution.size(); ++i) {
             distribution.push_back(
-                cumulative_distribution[j] - cumulative_distribution[j - 1]);
+                cumulative_distribution[i] - cumulative_distribution[i - 1]);
         }
         std::vector<QuantumGateBase*> Kraus_list = gate->get_kraus_list();
         std::vector<std::tuple<double, int, QuantumGateBase*>> dist_Kraus;
-        for (int j = 0; j < (int)distribution.size(); ++j) {
-            dist_Kraus.push_back(std::make_tuple(distribution[j], j,
-                Kraus_list[j]));  // determine 2 same
-                                  // distribution gate order using j.
+        for (int i = 0; i < distribution.size(); ++i) {
+            dist_Kraus.push_back(std::make_tuple(distribution[i], i,
+                Kraus_list[i]));  // determine 2 same
+                                  // distribution gate order using i.
         }
         sort(dist_Kraus.rbegin(), dist_Kraus.rend());
-        for (int j = 0; j < (int)dist_Kraus.size(); ++j) {
-            distribution[j] = std::get<0>(dist_Kraus[j]);
-            Kraus_list[j] = std::get<2>(dist_Kraus[j]);
+        for (int i = 0; i < dist_Kraus.size(); ++i) {
+            distribution[i] = std::get<0>(dist_Kraus[i]);
+            Kraus_list[i] = std::get<2>(dist_Kraus[i]);
         }
         QuantumGateWrapped* probgate =
             QuantumGateWrapped::ProbabilisticGate(Kraus_list, distribution);
         circuit->replace_gate(probgate, i);
         int itr = 0;
-        for ([[maybe_unused]] auto x : gate->get_kraus_list()) {
+        for (auto x : gate->get_kraus_list()) {
             itr++;
         }
     }
