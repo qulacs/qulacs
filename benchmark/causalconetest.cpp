@@ -31,7 +31,7 @@ int main() {
     }
     Observable observable(n * 2);
     mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
-    for (int i = 0; i < n * 2; ++i) {
+    for (int i = 0; i < (int)n * 2; ++i) {
         std::string s = "Z ";
         s += std::to_string(i);
         observable.add_operator(rnd(), s);
