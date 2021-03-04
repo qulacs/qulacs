@@ -1,5 +1,4 @@
 #include <chrono>
-#include <cppsim/circuit.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_merge.hpp>
 #include <cppsim/observable.hpp>
@@ -10,27 +9,36 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <vqcsim/parametric_circuit.hpp>
 
-#include "../src/cppsim/causal_cone.hpp"
+#include "../src/vqcsim/causalcone_simulator.hpp"
 
 using namespace std;
 int main() {
-    const UINT n = 5;
+    const UINT n = 13;
     const UINT depth = 3;
     QuantumState state(n * 2);
-    QuantumCircuit circuit(n * 2);
+    ParametricQuantumCircuit circuit(n * 2);
     for (UINT i = 0; i < depth; i++) {
         for (UINT j = 0; j < n; j++) {
             std::vector<UINT> v = {j * 2, j * 2 + 1};
             circuit.add_random_unitary_gate(v);
         }
+        for (UINT j = 0; j < n; j++) {
+            std::vector<UINT> v = {(j * 2 + 1) % 2, (j * 2 + 2) % 2};
+            circuit.add_random_unitary_gate(v);
+        }
     }
     Observable observable(n * 2);
     mt19937 rnd(chrono::steady_clock::now().time_since_epoch().count());
-    string s = "Z " + to_string(0) + "Z " + to_string(n);
-    observable.add_operator(rnd(), s);
+    for (int i = 0; i < n * 2; ++i) {
+        std::string s = "Z ";
+        s += std::to_string(i);
+        observable.add_operator(rnd(), s);
+    }
     circuit.update_quantum_state(&state);
     auto value = observable.get_expectation_value(&state);
-    auto value2 = CausalCone(circuit, observable);
+    CausalConeSimulator c(circuit, observable);
+    auto value2 = c.get_expectation_value();
     cout << value << " " << value2 << endl;
 }

@@ -43,7 +43,6 @@ inline static double _cabs(CTYPE val) {
     return sqrt(re * re + im * im);
 }
 #endif
-
 //! dimension index
 #ifdef _MSC_VER
 // In MSVC, OpenMP only supports signed index
