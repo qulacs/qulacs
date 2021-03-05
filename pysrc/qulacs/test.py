@@ -1,4 +1,6 @@
 
+from qulacs import QuantumState
 
 def test():
-    print("test")
+    state = QuantumState(2)
+    print(state)
