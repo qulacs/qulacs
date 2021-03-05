@@ -99,6 +99,27 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
     return sum;
 }
 
+
+void GeneralQuantumOperator::add_random_operator(const UINT operator_count) {
+    const auto qubit_count = this->get_qubit_count();
+    Random random;
+    for (UINT operator_index = 0; operator_index < operator_count;
+        operator_index++) {
+        auto target_qubit_index_list = std::vector<UINT>(qubit_count, 0);
+        auto target_qubit_pauli_list = std::vector<UINT>(qubit_count, 0);
+        for (UINT qubit_index = 0; qubit_index < qubit_count; qubit_index++) {
+            const UINT pauli_id = random.int32() % 4;
+            target_qubit_index_list.at(qubit_index) = qubit_index;
+            target_qubit_pauli_list.at(qubit_index) = pauli_id;
+        }
+        const CPPCTYPE coef = random.uniform();
+        auto pauli_operator = PauliOperator(
+            target_qubit_index_list, target_qubit_pauli_list, coef);
+        this->add_operator(&pauli_operator);
+    }
+}
+
+
 CPPCTYPE
 GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {

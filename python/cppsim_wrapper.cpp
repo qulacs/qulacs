@@ -1,4 +1,3 @@
-
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include <pybind11/complex.h>
@@ -31,6 +30,7 @@ extern "C" {
 #include <cppsim/simulator.hpp>
 #include <vqcsim/causalcone_simulator.hpp>
 #include <cppsim/noisesimulator.hpp>
+#include <cppsim/utility.hpp>
 
 #ifdef _USE_GPU
 #include <cppsim/state_gpu.hpp>
@@ -107,6 +107,7 @@ PYBIND11_MODULE(qulacs, m) {
                                           return res;}, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &HermitianQuantumOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         //.def_static("get_split_Observable", &(HermitianQuantumOperator::get_split_observable));
+        .def("add_random_operator", &HermitianQuantumOperator::add_random_operator, "Add random pauli operator", py::arg("operator_count"))
         .def("solve_ground_state_eigenvalue_by_arnoldi_method", &HermitianQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method,
             "Compute ground state eigenvalue by arnoldi method", py::arg("state"), py::arg("iter_count"), py::arg("mu") = 0.0)
         .def("solve_ground_state_eigenvalue_by_power_method", &HermitianQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method,
@@ -590,7 +591,4 @@ PYBIND11_MODULE(qulacs, m) {
         .def(py::init<>(),"Constructor")
         .def("calculate_grad",&GradCalculatorMPI::calculate_grad,"sampling & return result [array]");
 #endif
-
 }
-
-
