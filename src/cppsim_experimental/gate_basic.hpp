@@ -272,6 +272,7 @@ public:
 
 #ifdef _USE_GPU
     void _update_state_vector_gpu(QuantumStateBase* state);
+    void _update_density_matrix_gpu(QuantumStateBase* state);
 #endif
 
     void update_quantum_state(QuantumStateBase* state) override {
