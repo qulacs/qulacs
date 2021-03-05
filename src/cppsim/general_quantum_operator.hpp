@@ -111,6 +111,12 @@ public:
 
     /**
      * \~japanese-en
+     * 文字列に変換する。
+     */
+    virtual std::string to_string() const;
+
+    /**
+     * \~japanese-en
      * GeneralQuantumOperatorのある量子状態に対応するエネルギー(期待値)を計算して返す
      *
      * @param[in] state 期待値をとるときの量子状態

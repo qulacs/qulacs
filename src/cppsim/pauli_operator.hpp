@@ -232,4 +232,10 @@ public:
      * @return 自身のディープコピー
      */
     virtual PauliOperator* copy() const;
+
+    /**
+     * \~japanese-en
+     * パウリ演算子に対応する文字列を返す
+     */
+    virtual std::string get_pauli_string() const;
 };
