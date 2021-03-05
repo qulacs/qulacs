@@ -161,8 +161,8 @@ static std::string convert_CTYPE_array_to_string(
     const CTYPE* state, ITYPE dim) {
     std::string str = "";
     for (ITYPE ind = 0; ind < dim; ++ind) {
-        str += "(" + std::to_string(creal(state[ind])) + "," +
-               std::to_string(cimag(state[ind])) + ") ";
+        str += "(" + std::to_string(_creal(state[ind])) + "," +
+               std::to_string(_cimag(state[ind])) + ") ";
     }
     return str;
 }

@@ -35,8 +35,8 @@ typedef Eigen::SparseMatrix<CPPCTYPE> SparseComplexMatrix;
 namespace cereal {
 template <class Archive>
 void save(Archive& ar, const ComplexMatrix& m) {
-    int32_t rows = m.rows();
-    int32_t cols = m.cols();
+    size_t rows = m.rows();
+    size_t cols = m.cols();
     ar(rows);
     ar(cols);
     ar(binary_data(
@@ -45,8 +45,8 @@ void save(Archive& ar, const ComplexMatrix& m) {
 
 template <class Archive>
 void load(Archive& ar, ComplexMatrix& m) {
-    int32_t rows;
-    int32_t cols;
+    size_t rows;
+    size_t cols;
     ar(rows);
     ar(cols);
 
@@ -57,8 +57,8 @@ void load(Archive& ar, ComplexMatrix& m) {
 
 template <class Archive>
 void save(Archive& ar, const ComplexVector& m) {
-    int32_t rows = m.rows();
-    int32_t cols = m.cols();
+    size_t rows = m.rows();
+    size_t cols = m.cols();
     ar(rows);
     ar(cols);
     ar(binary_data(
@@ -67,8 +67,8 @@ void save(Archive& ar, const ComplexVector& m) {
 
 template <class Archive>
 void load(Archive& ar, ComplexVector& m) {
-    int32_t rows;
-    int32_t cols;
+    size_t rows;
+    size_t cols;
     ar(rows);
     ar(cols);
 
@@ -79,15 +79,16 @@ void load(Archive& ar, ComplexVector& m) {
 
 template <class Archive>
 void save(Archive& ar, const SparseComplexMatrix& m) {
-    int32_t rows = m.rows();
-    int32_t cols = m.cols();
+    Eigen::Index rows = m.rows();
+    Eigen::Index cols = m.cols();
     ar(rows);
     ar(cols);
-    std::vector<std::tuple<int, int, CPPCTYPE>> TripletList;
-    for (int k = 0; k < m.outerSize(); ++k) {
+    std::vector<std::tuple<Eigen::Index, Eigen::Index, CPPCTYPE>> TripletList;
+    for (Eigen::Index k = 0; k < m.outerSize(); ++k) {
         for (Eigen::SparseMatrix<CPPCTYPE>::InnerIterator it(m, k); it; ++it) {
             TripletList.push_back(
-                std::tuple<int, int, CPPCTYPE>(it.row(), it.col(), it.value()));
+                std::tuple<Eigen::Index, Eigen::Index, CPPCTYPE>(
+                    it.row(), it.col(), it.value()));
         }
     }
     ar(TripletList);
@@ -95,18 +96,19 @@ void save(Archive& ar, const SparseComplexMatrix& m) {
 
 template <class Archive>
 void load(Archive& ar, SparseComplexMatrix& m) {
-    int32_t rows;
-    int32_t cols;
+    Eigen::Index rows;
+    Eigen::Index cols;
     ar(rows);
     ar(cols);
 
     m.resize(rows, cols);
-    std::vector<std::tuple<int, int, CPPCTYPE>> TripletList;
+    std::vector<std::tuple<Eigen::Index, Eigen::Index, CPPCTYPE>> TripletList;
     ar(TripletList);
     std::vector<Eigen::Triplet<CPPCTYPE>> Triplets;
-    for (UINT i = 0; i < TripletList.size(); ++i) {
-        Triplets.push_back(Eigen::Triplet<CPPCTYPE>(std::get<0>(TripletList[i]),
-            std::get<1>(TripletList[i]), std::get<2>(TripletList[i])));
+    for (size_t i = 0; i < TripletList.size(); ++i) {
+        Triplets.push_back(
+            Eigen::Triplet<CPPCTYPE>((int)std::get<0>(TripletList[i]),
+                (int)std::get<1>(TripletList[i]), std::get<2>(TripletList[i])));
     }
     m.setFromTriplets(Triplets.begin(), Triplets.end());
 }

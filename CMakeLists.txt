@@ -374,8 +374,8 @@ add_custom_target(bench
 find_program(CLANG_FORMAT "clang-format")
 if(CLANG_FORMAT)
     file(GLOB_RECURSE ALL_CXX_SOURCE_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/bench/*.[ch]pp
-		${CMAKE_CURRENT_SOURCE_DIR}/bench/*.[ch]
+        ${CMAKE_CURRENT_SOURCE_DIR}/benchmark/*.[ch]pp
+		${CMAKE_CURRENT_SOURCE_DIR}/benchmark/*.[ch]
         ${CMAKE_CURRENT_SOURCE_DIR}/src/*.[ch]pp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/*.[ch]
         ${CMAKE_CURRENT_SOURCE_DIR}/test/*.[ch]pp
@@ -384,6 +384,7 @@ if(CLANG_FORMAT)
     add_custom_target(
         format
         COMMAND clang-format
+		-style=file
         -i
         ${ALL_CXX_SOURCE_FILES}
     )

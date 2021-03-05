@@ -52,6 +52,19 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
             .real();
 }
 
+std::string HermitianQuantumOperator::to_string() const {
+    std::stringstream os;
+    auto term_count = this->get_term_count();
+    for (UINT index = 0; index < term_count; index++) {
+        os << this->get_term(index)->get_coef().real() << " ";
+        os << this->get_term(index)->get_pauli_string();
+        if (index != term_count - 1) {
+            os << " + ";
+        }
+    }
+    return os.str();
+}
+
 namespace observable {
 HermitianQuantumOperator* create_observable_from_openfermion_file(
     std::string file_path) {

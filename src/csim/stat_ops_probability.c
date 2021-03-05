@@ -19,7 +19,7 @@ double M0_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim) {
     for (state_index = 0; state_index < loop_dim; ++state_index) {
         ITYPE basis_0 =
             insert_zero_to_basis_index(state_index, mask, target_qubit_index);
-        sum += pow(cabs(state[basis_0]), 2);
+        sum += pow(_cabs(state[basis_0]), 2);
     }
     return sum;
 }
@@ -37,7 +37,7 @@ double M1_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim) {
         ITYPE basis_1 =
             insert_zero_to_basis_index(state_index, mask, target_qubit_index) ^
             mask;
-        sum += pow(cabs(state[basis_1]), 2);
+        sum += pow(_cabs(state[basis_1]), 2);
     }
     return sum;
 }
@@ -62,7 +62,7 @@ double marginal_prob(const UINT* sorted_target_qubit_index_list,
             basis = insert_zero_to_basis_index(basis, mask, insert_index);
             basis ^= mask * measured_value_list[cursor];
         }
-        sum += pow(cabs(state[basis]), 2);
+        sum += pow(_cabs(state[basis]), 2);
     }
     return sum;
 }
@@ -76,7 +76,7 @@ double measurement_distribution_entropy(const CTYPE* state, ITYPE dim) {
 #pragma omp parallel for reduction(+ : ent)
 #endif
     for (index = 0; index < dim; ++index) {
-        double prob = pow(cabs(state[index]), 2);
+        double prob = pow(_cabs(state[index]), 2);
         prob = (prob > eps) ? prob : eps;
         ent += -1.0 * prob * log(prob);
     }
