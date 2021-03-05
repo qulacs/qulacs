@@ -400,15 +400,15 @@ add_custom_target(shared
 # python binding
 if(USE_PYTHON)
 	add_custom_target(python
-		DEPENDS qulacs
-		DEPENDS qulacs_osaka
+		DEPENDS qulacs_core
+		DEPENDS qulacs_osaka_core
 	)
 	add_custom_target(pythontest
-		DEPENDS qulacs
+		DEPENDS qulacs_core
 		COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_qulacs.py ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 	)
 endif()
 
 #dependency setting for ExternalProject
-add_dependencies(qulacs Cereal)
-add_dependencies(qulacs eigen)
+add_dependencies(qulacs_core Cereal)
+add_dependencies(qulacs_core eigen)

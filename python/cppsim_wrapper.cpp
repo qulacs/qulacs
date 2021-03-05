@@ -47,7 +47,7 @@ extern "C" {
 #endif
 
 namespace py = pybind11;
-PYBIND11_MODULE(qulacs, m) {
+PYBIND11_MODULE(qulacs_core, m) {
     m.doc() = "cppsim python interface";
 
     py::class_<PauliOperator>(m, "PauliOperator")
