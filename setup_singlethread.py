@@ -117,6 +117,7 @@ setup(
     url='http://www.qulacs.org',
     description='Quantum circuit simulator for research',
     long_description='',
+    package_dir = {"": "pysrc"},
     packages=find_packages(exclude=['test*'])+find_packages("pysrc"),
     include_package_data=True,
     ext_modules=[CMakeExtension('qulacs')],
