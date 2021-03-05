@@ -119,7 +119,7 @@ setup(
     description='Quantum circuit simulator for research',
     long_description='',
     package_dir = {"": "pysrc"},
-    packages=find_packages(exclude=['test*'])+["qulacs"],
+    packages=find_packages(exclude=['test*'])+find_packages("pysrc"),
     include_package_data=True,
     ext_modules=[CMakeExtension('qulacs_core')],
     cmdclass=dict(build_ext=CMakeBuild),
