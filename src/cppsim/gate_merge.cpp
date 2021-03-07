@@ -1,12 +1,5 @@
 
-#ifndef _MSC_VER
-extern "C" {
-#endif
-#include <csim/utility.h>
-#ifndef _MSC_VER
-}
-#endif
-
+#include <csim/utility.hpp>
 #include <algorithm>
 #include <iterator>
 #include <numeric>

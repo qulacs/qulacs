@@ -1,16 +1,8 @@
 
 #define EIGEN_DONT_PARALLELIZE
-#ifndef _MSC_VER
+#include "update_ops.hpp"
 #include "update_ops_cpp.hpp"
-extern "C" {
-#include "update_ops.h"
-#include "utility.h"
-}
-#else
-#include "update_ops.h"
-#include "update_ops_cpp.hpp"
-#include "utility.h"
-#endif
+#include "utility.hpp"
 #include <Eigen/Core>
 
 void double_qubit_dense_matrix_gate(UINT target_qubit_index1,

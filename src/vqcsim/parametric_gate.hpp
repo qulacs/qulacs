@@ -1,24 +1,13 @@
 
 #pragma once
 
-#ifndef _MSC_VER
-extern "C" {
-#include <csim/update_ops.h>
-#include <csim/update_ops_dm.h>
-}
-#else
-#include <csim/update_ops.h>
-#include <csim/update_ops_dm.h>
-#endif
+#include <csim/update_ops.hpp>
+#include <csim/update_ops_dm.hpp>
 
 #include <cppsim/gate.hpp>
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/state.hpp>
 #include <cppsim/utility.hpp>
-
-#ifndef _MSC_VER
-#include <complex.h>
-#endif
 
 #ifdef _USE_GPU
 #include <gpusim/update_ops_cuda.h>
