@@ -45,6 +45,7 @@ class DllExport ControlQubitInfo : public QubitInfo {
 private:
     // \~japanese-en
     // コントロール値　この量子ビットの添え字がコントロール値の時だけゲートが作用する。
+
     UINT _control_value;
 
 public:
