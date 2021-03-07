@@ -1,6 +1,12 @@
 #pragma once
 
-#include <csim/type.hpp>
+#ifndef _MSC_VER
+extern "C" {
+#include <csim/type.h>
+}
+#else
+#include <csim/type.h>
+#endif
 
 #include <Eigen/Core>
 #include <Eigen/Sparse>

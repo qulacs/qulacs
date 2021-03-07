@@ -2,8 +2,14 @@
 
 #include "gate.hpp"
 #include "state.hpp"
+#ifndef _MSC_VER
+extern "C" {
+#include <csim/update_ops.h>
+}
+#else
+#include <csim/update_ops.h>
+#endif
 #include <cmath>
-#include <csim/update_ops.hpp>
 #include <csim/update_ops_cpp.hpp>
 
 #ifdef _USE_GPU

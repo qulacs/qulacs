@@ -1,6 +1,13 @@
 #include <gtest/gtest.h>
 
-#include <csim/constant.hpp>
+#ifndef _MSC_VER
+extern "C" {
+#endif
+#include <csim/constant.h>
+#ifndef _MSC_VER
+}
+#endif
+
 #include <cppsim/circuit.hpp>
 #include <cppsim/circuit_optimizer.hpp>
 #include <cppsim/gate_factory.hpp>
@@ -14,7 +21,7 @@
 #include <unsupported/Eigen/MatrixFunctions>
 #include <utility>
 
-#include "../util/util.hpp"
+#include "../util/util.h"
 
 TEST(CircuitTest, CircuitOptimizeLight) {
     const UINT n = 4;

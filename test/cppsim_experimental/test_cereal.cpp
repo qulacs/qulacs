@@ -8,7 +8,7 @@
 #include <fstream>
 #include <iostream>
 
-#include "../util/util.hpp"
+#include "../util/util.h"
 
 TEST(CerealTest, Serialize_ComplexMatrix) {
     // Just Check whether they run without Runtime Errors.

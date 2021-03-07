@@ -5,9 +5,17 @@
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
 
-#include <csim/update_ops.hpp>
-#include <csim/memory_ops.hpp>
-#include <csim/stat_ops.hpp>
+#ifndef _MSC_VER
+extern "C" {
+#include <csim/update_ops.h>
+#include <csim/memory_ops.h>
+#include <csim/stat_ops.h>
+}
+#else
+#include <csim/update_ops.h>
+#include <csim/memory_ops.h>
+#include <csim/stat_ops.h>
+#endif
 
 #include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>

@@ -2,7 +2,9 @@ cmake_minimum_required(VERSION 2.8)
 
 file(GLOB CPPSIM_SRC
     "*.cpp"
+    "*.c"
     "*.hpp"
+    "*.h"
 )
 
 add_library(cppsim_exp_static STATIC ${CPPSIM_SRC})

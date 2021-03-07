@@ -1,6 +1,13 @@
 #include <gtest/gtest.h>
 
-#include <csim/update_ops.hpp>
+#ifndef _MSC_VER
+extern "C" {
+#endif
+#include <csim/update_ops.h>
+#ifndef _MSC_VER
+}
+#endif
+
 #include <cmath>
 #include <cppsim/gate.hpp>
 #include <cppsim/gate_factory.hpp>
@@ -12,7 +19,7 @@
 #include <functional>
 #include <numeric>
 
-#include "../util/util.hpp"
+#include "../util/util.h"
 
 TEST(DensityMatrixGateTest, ApplySingleQubitGate) {
     Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2), H(2, 2),

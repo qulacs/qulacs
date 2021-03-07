@@ -1,8 +1,15 @@
 
 #pragma once
 
-#include <csim/update_ops.hpp>
-#include <csim/update_ops_dm.hpp>
+#ifndef _MSC_VER
+extern "C" {
+#include <csim/update_ops.h>
+#include <csim/update_ops_dm.h>
+}
+#else
+#include <csim/update_ops.h>
+#include <csim/update_ops_dm.h>
+#endif
 
 #include <cppsim/gate.hpp>
 #include <cppsim/pauli_operator.hpp>

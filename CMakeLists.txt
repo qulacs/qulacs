@@ -258,8 +258,8 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 
 elseif(MSVC)
 	# Compile csim with cpp compiler since VC does not completely support C99 complex values
-	# SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
-	# add_compile_options("/TP")
+	SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
+	add_compile_options("/TP")
 
 	# Ignore warning
 	## ignore warning about template export

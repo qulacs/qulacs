@@ -3,7 +3,13 @@
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include <functional>
-#include "type.hpp"
+#ifndef _MSC_VER
+extern "C" {
+#include "type.h"
+}
+#else
+#include "type.h"
+#endif
 
 DllExport void double_qubit_dense_matrix_gate(UINT target_qubit_index0,
     UINT target_qubit_index1, const CTYPE matrix[16], CTYPE* state, ITYPE dim);
