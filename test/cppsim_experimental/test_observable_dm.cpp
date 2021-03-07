@@ -16,7 +16,7 @@ extern "C" {
 #include <cppsim_experimental/utility.hpp>
 #include <fstream>
 
-#include "../util/util.h"
+#include "../util/util.hpp"
 
 TEST(DensityMatrixObservableTest, CheckExpectationValue) {
     const UINT n = 4;

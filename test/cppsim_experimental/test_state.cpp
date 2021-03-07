@@ -3,7 +3,7 @@
 #include <cppsim_experimental/state.hpp>
 #include <cppsim_experimental/utility.hpp>
 
-#include "../util/util.h"
+#include "../util/util.hpp"
 
 TEST(StateTest, GenerateAndRelease) {
     UINT n = 10;

@@ -1,12 +1,6 @@
 #pragma once
 
-#ifndef _MSC_VER
-extern "C" {
-#include <csim/update_ops.h>
-}
-#else
-#include <csim/update_ops.h>
-#endif
+#include <csim/update_ops.hpp>
 
 #include "gate_named.hpp"
 #include "state.hpp"

@@ -1,19 +1,10 @@
 ﻿
 #pragma once
 
-#ifndef _MSC_VER
-extern "C" {
-#include <csim/init_ops.h>
-#include <csim/memory_ops.h>
-#include <csim/stat_ops.h>
-#include <csim/update_ops.h>
-}
-#else
-#include <csim/init_ops.h>
-#include <csim/memory_ops.h>
-#include <csim/stat_ops.h>
-#include <csim/update_ops.h>
-#endif
+#include <csim/init_ops.hpp>
+#include <csim/memory_ops.hpp>
+#include <csim/stat_ops.hpp>
+#include <csim/update_ops.hpp>
 
 #include <iostream>
 #include <vector>

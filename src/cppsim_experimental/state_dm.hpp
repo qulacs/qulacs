@@ -1,17 +1,9 @@
 
 #pragma once
 
-#ifndef _MSC_VER
-extern "C" {
-#include <csim/memory_ops_dm.h>
-#include <csim/stat_ops_dm.h>
-#include <csim/update_ops_dm.h>
-}
-#else
-#include <csim/memory_ops_dm.h>
-#include <csim/stat_ops_dm.h>
-#include <csim/update_ops_dm.h>
-#endif
+#include <csim/memory_ops_dm.hpp>
+#include <csim/stat_ops_dm.hpp>
+#include <csim/update_ops_dm.hpp>
 
 #include "state.hpp"
 
