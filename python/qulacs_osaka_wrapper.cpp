@@ -174,10 +174,10 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def("get_qubit_count", [](const StateVectorGpu& state) -> unsigned int {return (unsigned int) state.qubit_count; }, "Get qubit count")
         .def("__repr__", [](const StateVectorGpu &p) {return p.to_string(); });
         ;
-		m.def("StateVectorGpu", [](const unsigned int qubit_count) {
-			auto ptr = new StateVectorGpu(qubit_count);
-			return ptr;
-		}, "StateVectorGpu");
+	// m.def("StateVectorGpu", [](const unsigned int qubit_count) {
+        //	auto ptr = new StateVectorGpu(qubit_count);
+	//		return ptr;
+	//	}, "StateVectorGpu");
 
 #endif
 
