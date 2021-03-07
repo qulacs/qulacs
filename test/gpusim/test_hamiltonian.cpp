@@ -1,4 +1,4 @@
-#include <csim/constant.h>
+#include <csim/constant.hpp>
 #include <gtest/gtest.h>
 
 #include <cppsim/circuit.hpp>
@@ -10,7 +10,7 @@
 #include <cppsim/utility.hpp>
 #include <fstream>
 
-#include "../util/util.h"
+#include "../util/util.hpp"
 
 /*
 TEST(ObservableTest, CheckExpectationValue) {
