@@ -1,4 +1,4 @@
-#include <csim/update_ops.hpp>
+#include <csim/update_ops.h>
 #include <gtest/gtest.h>
 
 #include <cmath>

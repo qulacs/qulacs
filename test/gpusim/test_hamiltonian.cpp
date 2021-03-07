@@ -1,4 +1,4 @@
-#include <csim/constant.hpp>
+#include <csim/constant.h>
 #include <gtest/gtest.h>
 
 #include <cppsim/circuit.hpp>
