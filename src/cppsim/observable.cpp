@@ -4,7 +4,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#undef NDEBUG
 #include <Eigen/Dense>
+#include <cassert>
 #include <cmath>
 #include <fstream>
 #include <iostream>
@@ -117,24 +119,13 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     for (UINT i = 0; i < eigenvalues.size(); i++) {
         if (eigenvalues[i] < minimum_eigenvalue) {
             minimum_eigenvalue_index = i;
-            minimum_eigenvalue = eigenvalues[i];
+            minimum_eigenvalue = eigenvalues(i);
         }
     }
 
     // Compose ground state vector.
     auto eigenvectors = solver.eigenvectors();
     auto eigenvector_in_krylov = eigenvectors.col(minimum_eigenvalue_index);
-    // Let the tridiagonal matrix be A, solve (A - λE) * x = 0.
-    for (UINT i = 1; i < state_list.size(); i++) {
-        eigenvector_in_krylov(i) = -(alpha_v[i - 1] - minimum_eigenvalue) *
-                                   eigenvector_in_krylov(i - 1);
-        if (i > 1) {
-            eigenvector_in_krylov(i) +=
-                -beta_v[i - 2] * eigenvector_in_krylov(i - 2);
-        }
-        eigenvector_in_krylov(i) /= -beta_v[i - 1];
-    }
-    // std::cout << beta_v << std::endl;
     // Store ground state eigenvector to `state`.
     assert(state_list.size() == eigenvector_in_krylov.rows());
     state->multiply_coef(0.0);

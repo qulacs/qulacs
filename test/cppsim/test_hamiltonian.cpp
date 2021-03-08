@@ -334,9 +334,7 @@ enum class CalculationMethod {
 // Actual test code calls this function with prepared observable.
 void test_eigenvalue(const Observable& observable, const UINT iter_count,
     const double eps, const CalculationMethod method) {
-    // observable に対応する行列を求める
     auto observable_matrix = convert_observable_to_matrix(observable);
-    // 基底状態の固有値を求める
     const auto eigenvalues = observable_matrix.eigenvalues();
     CPPCTYPE test_ground_state_eigenvalue = eigenvalues[0];
     for (UINT i = 0; i < eigenvalues.size(); i++) {
@@ -370,11 +368,11 @@ void test_eigenvalue(const Observable& observable, const UINT iter_count,
     // A|q>
     observable.apply_to_state(&work_state, state, &multiplied_state);
     // λ|q>
-    state.multiply_coef(test_ground_state_eigenvalue);
+    state.multiply_coef(ground_state_eigenvalue);
     multiplied_state.normalize(multiplied_state.get_squared_norm());
     state.normalize(state.get_squared_norm());
 
-    for (UINT i = 0; i < observable.get_state_dim(); i++) {
+    for (UINT i = 0; i < state.dim; i++) {
         ASSERT_NEAR(multiplied_state.data_cpp()[i].real(),
             state.data_cpp()[i].real(), eps);
         ASSERT_NEAR(multiplied_state.data_cpp()[i].imag(),
