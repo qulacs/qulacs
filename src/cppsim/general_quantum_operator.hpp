@@ -111,6 +111,12 @@ public:
 
     /**
      * \~japanese-en
+     * 文字列に変換する。
+     */
+    virtual std::string to_string() const;
+
+    /**
+     * \~japanese-en
      * GeneralQuantumOperatorのある量子状態に対応するエネルギー(期待値)を計算して返す
      *
      * @param[in] state 期待値をとるときの量子状態
@@ -128,6 +134,15 @@ public:
      */
     virtual CPPCTYPE get_transition_amplitude(const QuantumStateBase* state_bra,
         const QuantumStateBase* state_ket) const;
+
+    /**
+     * \~japanese-en
+     * ランダムなパウリ演算子をもつ observable を生成する
+     * @param [in] observable パウリ演算子を追加する observable
+     * @param [in] operator_count observable に追加するパウリ演算子数
+     * @return ランダムなパウリ演算子を operator_count 個もつ　observable
+     */
+    void add_random_operator(const UINT operator_count);
 
     /**
      * \~japanese-en

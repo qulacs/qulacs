@@ -332,7 +332,7 @@ enum class CalculationMethod {
 
 // Test calculating eigenvalue.
 // Actual test code calls this function with prepared observable.
-void test_eigenvalue(const Observable& observable, const UINT iter_count,
+void test_eigenvalue(Observable& observable, const UINT iter_count,
     const double eps, const CalculationMethod method) {
     auto observable_matrix = convert_observable_to_matrix(observable);
     const auto eigenvalues = observable_matrix.eigenvalues();
@@ -390,8 +390,8 @@ TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
     for (UINT i = 0; i < test_count; i++) {
         const UINT operator_count =
             random.int32() % 10 + 2;  // 2 <= operator_count <= 11
-        auto observable =
-            generate_random_observable(qubit_count, operator_count);
+        auto observable = Observable(qubit_count);
+        observable.add_random_operator(operator_count);
         test_eigenvalue(observable, 500, eps, CalculationMethod::PowerMethod);
     }
 }
@@ -407,8 +407,8 @@ TEST(ObservableTest, MinimumEigenvalueByArnoldiMethod) {
         const UINT dim = 1U << qubit_count;
         // 2 <= operator_count <= 11
         const auto operator_count = random.int32() % 10 + 2;
-        auto observable =
-            generate_random_observable(qubit_count, operator_count);
+        auto observable = Observable(qubit_count);
+        observable.add_random_operator(operator_count);
         test_eigenvalue(observable, 60, eps, CalculationMethod::ArnoldiMethod);
     }
 }
@@ -437,8 +437,8 @@ TEST(ObservableTest, MinimumEigenvalueByArnoldiMethodWithIdentity) {
         const UINT dim = 1U << qubit_count;
         // 2 <= operator_count <= 11
         const auto operator_count = random.int32() % 10 + 2;
-        auto observable =
-            generate_random_observable(qubit_count, operator_count);
+        auto observable = Observable(qubit_count);
+        observable.add_random_operator(operator_count);
         add_identity(&observable, random);
         test_eigenvalue(observable, 70, eps, CalculationMethod::ArnoldiMethod);
     }

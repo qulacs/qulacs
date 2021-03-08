@@ -94,6 +94,22 @@ ExternalProject_Add(
 )
 include_directories(SYSTEM ${EIGEN_INCLUDE_DIR})
 
+# Cereal
+set(CEREAL_BUILD_DIR   ${CMAKE_BINARY_DIR}/cereal)
+set(CEREAL_INSTALL_DIR ${CMAKE_SOURCE_DIR}/include)
+set(CEREAL_INCLUDE_DIR ${CEREAL_INSTALL_DIR})
+ExternalProject_Add(
+    Cereal
+    URL https://github.com/USCiLab/cereal/archive/v1.3.0.tar.gz
+    PREFIX ${CEREAL_BUILD_DIR}
+    CONFIGURE_COMMAND ""
+    BUILD_COMMAND ""
+    INSTALL_COMMAND
+      ${CMAKE_COMMAND} -E copy_directory ${CEREAL_BUILD_DIR}/src/Cereal/include ${CEREAL_INCLUDE_DIR}
+    TEST_COMMAND ""
+)
+include_directories(SYSTEM ${CEREAL_INCLUDE_DIR})
+
 # Google test
 if(USE_TEST)
 	FetchContent_Declare(
@@ -202,7 +218,7 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 
 	# Enable imaginary literals for C++
 	if(NOT MINGW)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
+		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
 	endif()
 
 	# Enable openmp
@@ -358,8 +374,8 @@ add_custom_target(bench
 find_program(CLANG_FORMAT "clang-format")
 if(CLANG_FORMAT)
     file(GLOB_RECURSE ALL_CXX_SOURCE_FILES
-        ${CMAKE_CURRENT_SOURCE_DIR}/bench/*.[ch]pp
-		${CMAKE_CURRENT_SOURCE_DIR}/bench/*.[ch]
+        ${CMAKE_CURRENT_SOURCE_DIR}/benchmark/*.[ch]pp
+		${CMAKE_CURRENT_SOURCE_DIR}/benchmark/*.[ch]
         ${CMAKE_CURRENT_SOURCE_DIR}/src/*.[ch]pp
         ${CMAKE_CURRENT_SOURCE_DIR}/src/*.[ch]
         ${CMAKE_CURRENT_SOURCE_DIR}/test/*.[ch]pp
@@ -368,6 +384,7 @@ if(CLANG_FORMAT)
     add_custom_target(
         format
         COMMAND clang-format
+		-style=file
         -i
         ${ALL_CXX_SOURCE_FILES}
     )
@@ -383,11 +400,15 @@ add_custom_target(shared
 # python binding
 if(USE_PYTHON)
 	add_custom_target(python
-		DEPENDS qulacs
-		DEPENDS qulacs_osaka
+		DEPENDS qulacs_core
+		DEPENDS qulacs_osaka_core
 	)
 	add_custom_target(pythontest
-		DEPENDS qulacs
+		DEPENDS qulacs_core
 		COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_qulacs.py ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 	)
 endif()
+
+#dependency setting for ExternalProject
+add_dependencies(qulacs_core Cereal)
+add_dependencies(qulacs_core eigen)

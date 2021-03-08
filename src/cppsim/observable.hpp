@@ -100,6 +100,12 @@ public:
     CPPCTYPE solve_ground_state_eigenvalue_by_lanczos_method(
         QuantumStateBase* state, const UINT iter_count,
         const CPPCTYPE mu = 0.0) const;
+
+    /**
+     * \~japanese-en
+     * 文字列に変換する。
+     */
+    std::string to_string() const override;
 };
 
 namespace observable {
