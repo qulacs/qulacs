@@ -175,6 +175,21 @@ protected:
      * のデフォルト値を計算する．
      */
     CPPCTYPE calculate_default_mu() const;
+
+    /**
+     * \~japanese-en
+     * Arnoldi method, Lanczos method
+     * において，行列のすべての固有値と固有ベクトルから基底状態の固有値と固有ベクトルを求める．
+     * @param [in] eigenvalues 行列のすべての固有値
+     * @param [in] eigenvectors 行列のすべての固有ベクトル
+     * @param [in] state_list Krylov 部分空間を構成する状態の集合
+     * @param [in] state 基底状態の固有ベクトルが格納される．
+     * @param [in] tmp_state 作業用の領域
+     */
+    CPPCTYPE calculate_ground_state_eigenvector(
+        const Eigen::VectorXcd& eigenvalues, const ComplexMatrix& eigenvectors,
+        const std::vector<QuantumStateBase*>& state_list,
+        QuantumStateBase* state, QuantumStateBase* tmp_state) const;
 };
 
 namespace quantum_operator {

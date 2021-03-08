@@ -152,25 +152,8 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     Eigen::ComplexEigenSolver<ComplexMatrix> eigen_solver(hessenberg_matrix);
     const auto eigenvalues = eigen_solver.eigenvalues();
     const auto eigenvectors = eigen_solver.eigenvectors();
-
-    // Find ground state eigenvalue and eigenvector.
-    UINT minimum_eigenvalue_index = 0;
-    auto minimum_eigenvalue = eigenvalues[0];
-    for (UINT i = 0; i < eigenvalues.size(); i++) {
-        if (eigenvalues[i].real() < minimum_eigenvalue.real()) {
-            minimum_eigenvalue_index = i;
-            minimum_eigenvalue = eigenvalues[i];
-        }
-    }
-
-    // Compose ground state vector and store it to `state`.
-    present_state.multiply_coef(0.0);
-    for (UINT i = 0; i < state_list.size() - 1; i++) {
-        tmp_state.load(state_list[i]);
-        tmp_state.multiply_coef(eigenvectors(i, minimum_eigenvalue_index));
-        present_state.add_state(&tmp_state);
-    }
-    state->load(&present_state);
+    const auto minimum_eigenvalue = this->calculate_ground_state_eigenvector(
+        eigenvalues, eigenvectors, state_list, state, &tmp_state);
 
     // Free states allocated by `QuantumState::copy()`.
     for (auto used_state : state_list) {
@@ -238,6 +221,30 @@ CPPCTYPE GeneralQuantumOperator::calculate_default_mu() const {
         mu += term->get_coef();
     }
     return mu;
+}
+
+CPPCTYPE GeneralQuantumOperator::calculate_ground_state_eigenvector(
+    const Eigen::VectorXcd& eigenvalues, const ComplexMatrix& eigenvectors,
+    const std::vector<QuantumStateBase*>& state_list, QuantumStateBase* state,
+    QuantumStateBase* tmp_state) const {
+    // Find ground state eigenvalue.
+    UINT minimum_eigenvalue_index = 0;
+    auto minimum_eigenvalue = eigenvalues[0];
+    for (UINT i = 0; i < eigenvalues.size(); i++) {
+        if (eigenvalues[i].real() < minimum_eigenvalue.real()) {
+            minimum_eigenvalue_index = i;
+            minimum_eigenvalue = eigenvalues[i];
+        }
+    }
+
+    // Compose ground state eigenvector and store it to `state`.
+    state->multiply_coef(0.0);
+    for (UINT i = 0; i < state_list.size() - 1; i++) {
+        tmp_state->load(state_list[i]);
+        tmp_state->multiply_coef(eigenvectors(i, minimum_eigenvalue_index));
+        state->add_state(tmp_state);
+    }
+    return minimum_eigenvalue;
 }
 
 namespace quantum_operator {

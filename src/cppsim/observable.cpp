@@ -60,11 +60,9 @@ CPPCTYPE
 HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
     const auto qubit_count = this->get_qubit_count();
-    Eigen::VectorXd alpha_v(iter_count);
-    Eigen::VectorXd beta_v(iter_count - 1);
-    auto tmp_state = QuantumState(qubit_count);
-    auto multiplied_state = QuantumState(qubit_count);
-    auto mu_timed_state = QuantumState(qubit_count);
+    QuantumState tmp_state(qubit_count);
+    QuantumState multiplied_state(qubit_count);
+    QuantumState mu_timed_state(qubit_count);
 
     std::vector<QuantumStateBase*> state_list;
     state->normalize(state->get_squared_norm());
@@ -78,6 +76,8 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
         mu_ = mu;
     }
 
+    Eigen::VectorXd alpha_v(iter_count);
+    Eigen::VectorXd beta_v(iter_count - 1);
     for (UINT i = 0; i < iter_count; i++) {
         // v = (A - μI) * q_i
         mu_timed_state.load(state_list[i]);
@@ -113,27 +113,9 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     Eigen::SelfAdjointEigenSolver<ComplexMatrix> solver;
     solver.computeFromTridiagonal(alpha_v, beta_v);
     const auto eigenvalues = solver.eigenvalues();
-    // Find ground state eigenvalue and eigenvector.
-    UINT minimum_eigenvalue_index = 0;
-    auto minimum_eigenvalue = eigenvalues[0];
-    for (UINT i = 0; i < eigenvalues.size(); i++) {
-        if (eigenvalues[i] < minimum_eigenvalue) {
-            minimum_eigenvalue_index = i;
-            minimum_eigenvalue = eigenvalues(i);
-        }
-    }
-
-    // Compose ground state vector.
     auto eigenvectors = solver.eigenvectors();
-    auto eigenvector_in_krylov = eigenvectors.col(minimum_eigenvalue_index);
-    // Store ground state eigenvector to `state`.
-    assert(state_list.size() == eigenvector_in_krylov.rows());
-    state->multiply_coef(0.0);
-    for (UINT i = 0; i < state_list.size(); i++) {
-        tmp_state.load(state_list[i]);
-        tmp_state.multiply_coef(eigenvector_in_krylov(i));
-        state->add_state(&tmp_state);
-    }
+    const auto minimum_eigenvalue = this->calculate_ground_state_eigenvector(
+        eigenvalues, eigenvectors, state_list, state, &tmp_state);
 
     // Free states allocated by `QuantumState::copy()`.
     for (auto used_state : state_list) {
