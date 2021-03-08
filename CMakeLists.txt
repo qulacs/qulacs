@@ -218,7 +218,7 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 
 	# Enable imaginary literals for C++
 	if(NOT MINGW)
-		# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
 	endif()
 
 	# Enable openmp
@@ -369,7 +369,7 @@ add_custom_target(bench
 	DEPENDS csim_benchmark
 	DEPENDS cppsim_benchmark
 	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/csim_benchmark
-	#COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_benchmark
+	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_benchmark
 )
 
 # format
