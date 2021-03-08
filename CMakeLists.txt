@@ -218,7 +218,7 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 
 	# Enable imaginary literals for C++
 	if(NOT MINGW)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
+		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
 	endif()
 
 	# Enable openmp
