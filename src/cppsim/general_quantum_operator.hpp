@@ -182,6 +182,26 @@ public:
         const QuantumStateBase& state_to_be_multiplied,
         QuantumStateBase* dst_state) const;
 
+    virtual GeneralQuantumOperator* copy() const;
+
+    GeneralQuantumOperator operator+(
+        const GeneralQuantumOperator& target) const;
+
+    GeneralQuantumOperator operator+(const PauliOperator& target) const;
+
+    GeneralQuantumOperator& operator+=(const GeneralQuantumOperator& target);
+
+    GeneralQuantumOperator& operator+=(const PauliOperator& target);
+
+    GeneralQuantumOperator operator-(
+        const GeneralQuantumOperator& target) const;
+
+    GeneralQuantumOperator operator-(const PauliOperator& target) const;
+
+    GeneralQuantumOperator& operator-=(const GeneralQuantumOperator& target);
+
+    GeneralQuantumOperator& operator-=(const PauliOperator& target);
+
 private:
     /**
      * \~japanese-en
