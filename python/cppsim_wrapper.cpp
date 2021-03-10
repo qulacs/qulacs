@@ -56,6 +56,9 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("get_transition_amplitude", &PauliOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         .def("copy", &PauliOperator::copy, pybind11::return_value_policy::take_ownership, "Create copied instance of Pauli operator class")
         .def("get_pauli_string", &PauliOperator::get_pauli_string, "get pauli string")
+        .def("change_coef", &PauliOperator::change_coef, "change coefficient")
+        .def("get_x_bits", &PauliOperator::get_x_bits, "get x bits")
+        .def("get_z_bits", &PauliOperator::get_z_bits, "get z bits")
         ;
 
     py::class_<GeneralQuantumOperator>(m, "GeneralQuantumOperator")
@@ -107,6 +110,15 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("apply_to_state", &HermitianQuantumOperator::apply_to_state, "Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.",
             py::arg("work_state"), py::arg("state_to_be_multiplied"), py::arg("dst_state"))
         .def("__str__", &HermitianQuantumOperator::to_string, "to string")
+        .def("copy", &GeneralQuantumOperator::copy, pybind11::return_value_policy::take_ownership, "Create copied instance of General Quantum operator class")
+        .def(py::self + py::self)
+        .def("__add__", [](const GeneralQuantumOperator &a, const PauliOperator& b) { return a + b; }, py::is_operator())        
+        .def(py::self += py::self)
+        .def("__IADD__", [](GeneralQuantumOperator &a, const PauliOperator& b) { return a += b; }, py::is_operator())        
+        .def(py::self - py::self)
+        .def("__sub__", [](const GeneralQuantumOperator &a, const PauliOperator& b) { return a - b; }, py::is_operator())        
+        .def(py::self -= py::self)
+        .def("__ISUB__", [](GeneralQuantumOperator &a, const PauliOperator& b) { return a -= b; }, py::is_operator())        
         ;
     auto mobservable = m.def_submodule("observable");
     mobservable.def("create_observable_from_openfermion_file", &observable::create_observable_from_openfermion_file, pybind11::return_value_policy::take_ownership);
