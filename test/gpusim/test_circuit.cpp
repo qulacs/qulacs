@@ -1,10 +1,10 @@
-#include <csim/constant.h>
+#include <csim/constant.hpp>
 #include <gtest/gtest.h>
 
 #include <cppsim/state_gpu.hpp>
 #include <cppsim/type.hpp>
 
-#include "../util/util.h"
+#include "../util/util.hpp"
 //#define _USE_MATH_DEFINES
 //#include <cmath>
 #include <cppsim/circuit.hpp>

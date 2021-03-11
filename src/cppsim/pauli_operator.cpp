@@ -17,15 +17,8 @@
 #include <gpusim/stat_ops.h>
 #endif
 
-#ifndef _MSC_VER
-extern "C" {
-#include <csim/stat_ops.h>
-#include <csim/stat_ops_dm.h>
-}
-#else
-#include <csim/stat_ops.h>
-#include <csim/stat_ops_dm.h>
-#endif
+#include <csim/stat_ops.hpp>
+#include <csim/stat_ops_dm.hpp>
 #include "pauli_operator.hpp"
 #include "state.hpp"
 
