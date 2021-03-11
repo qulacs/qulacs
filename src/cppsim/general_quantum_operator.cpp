@@ -277,10 +277,11 @@ GeneralQuantumOperator GeneralQuantumOperator::operator+(
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     const GeneralQuantumOperator& target) {
+    ITYPE i, j;
 #pragma omp parallel for
-    for (UINT i = 0; i < _operator_list.size(); i++) {
+    for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
-        for (UINT j = 0; j < target.get_terms().size(); j++) {
+        for (j = 0; j < target.get_terms().size(); j++) {
             auto target_operator = target.get_terms()[j];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
@@ -289,10 +290,10 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
             }
         }
     }
-    for (UINT j = 0; j < target.get_terms().size(); j++) {
+    for (j = 0; j < target.get_terms().size(); j++) {
         auto target_operator = target.get_terms()[j];
         bool flag = true;
-        for (UINT i = 0; i < _operator_list.size(); i++) {
+        for (i = 0; i < _operator_list.size(); i++) {
             auto pauli_operator = _operator_list[i];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
@@ -309,8 +310,9 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
 GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     const PauliOperator& target) {
     bool flag = true;
+    ITYPE i;
 #pragma omp parallel for
-    for (UINT i = 0; i < _operator_list.size(); i++) {
+    for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         if (pauli_operator->get_x_bits() == target.get_x_bits() &&
             pauli_operator->get_z_bits() == target.get_z_bits()) {
@@ -341,10 +343,11 @@ GeneralQuantumOperator GeneralQuantumOperator::operator-(
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
     const GeneralQuantumOperator& target) {
+    ITYPE i, j;
 #pragma omp parallel for
-    for (UINT i = 0; i < _operator_list.size(); i++) {
+    for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
-        for (UINT j = 0; j < target.get_terms().size(); j++) {
+        for (j = 0; j < target.get_terms().size(); j++) {
             auto target_operator = target.get_terms()[j];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
@@ -353,10 +356,10 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
             }
         }
     }
-    for (UINT j = 0; j < target.get_terms().size(); j++) {
+    for (j = 0; j < target.get_terms().size(); j++) {
         auto target_operator = target.get_terms()[j];
         bool flag = true;
-        for (UINT i = 0; i < _operator_list.size(); i++) {
+        for (i = 0; i < _operator_list.size(); i++) {
             auto pauli_operator = _operator_list[i];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
@@ -375,7 +378,8 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
 GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
     const PauliOperator& target) {
     bool flag = true;
-    for (UINT i = 0; i < _operator_list.size(); i++) {
+    ITYPE i;
+    for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         if (pauli_operator->get_x_bits() == target.get_x_bits() &&
             pauli_operator->get_z_bits() == target.get_z_bits()) {
