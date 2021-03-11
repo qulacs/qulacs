@@ -75,7 +75,7 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       CIBW_TEST_COMMAND: "python {project}/python/test/test_qulacs.py"
-      CIBW_TEST_REQUIRES: "numpy scipy"
+      CIBW_TEST_REQUIRES: "numpy scipy openfermion"
       CIBW_BEFORE_BUILD: "pip install cmake"
       # In GitHub Actions virtual environment macos-10.15/20201115.1,
       # linking some functions from libgomp fails since the linker cannot find
