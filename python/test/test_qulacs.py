@@ -3,6 +3,7 @@
 import qulacs
 import unittest
 import numpy as np
+import warnings
 import sys
 for ind in range(1, len(sys.argv)):
     sys.path.append(sys.argv[ind])
@@ -27,7 +28,8 @@ class TestQuantumState(unittest.TestCase):
         vector = self.state.get_vector()
         vector_ans = np.zeros(self.dim)
         vector_ans[0] = 1.
-        self.assertTrue(((vector - vector_ans) < 1e-10).all(), msg="check set_zero_state")
+        self.assertTrue(((vector - vector_ans) < 1e-10).all(),
+                        msg="check set_zero_state")
 
     def test_comp_basis(self):
         pos = 0b0101
@@ -35,7 +37,8 @@ class TestQuantumState(unittest.TestCase):
         vector = self.state.get_vector()
         vector_ans = np.zeros(self.dim)
         vector_ans[pos] = 1.
-        self.assertTrue(((vector - vector_ans) < 1e-10).all(), msg="check set_computational_basis")
+        self.assertTrue(((vector - vector_ans) < 1e-10).all(),
+                        msg="check set_computational_basis")
 
 
 class TestQuantumCircuit(unittest.TestCase):
@@ -58,7 +61,8 @@ class TestQuantumCircuit(unittest.TestCase):
         vector_ans = np.zeros(self.dim)
         vector_ans[0] = np.sqrt(0.5)
         vector_ans[3] = np.sqrt(0.5)
-        self.assertTrue(((vector - vector_ans) < 1e-10).all(), msg="check make bell state")
+        self.assertTrue(((vector - vector_ans) < 1e-10).all(),
+                        msg="check make bell state")
 
 
 class TestPointerHandling(unittest.TestCase):
@@ -123,14 +127,22 @@ class TestPointerHandling(unittest.TestCase):
             return True
 
         gates = [
-            Identity(0), X(0), Y(0), Z(0), H(0), S(0), Sdag(0), T(0), Tdag(0), sqrtX(0), sqrtXdag(0), sqrtY(0), sqrtYdag(0),
-            Probabilistic([0.5, 0.5], [X(0), Y(0)]), CPTP([P0(0), P1(0)]), Instrument([P0(0), P1(0)], 1), Adaptive(X(0), adap),
-            CNOT(0, 1), CZ(0, 1), SWAP(0, 1), TOFFOLI(0, 1, 2), FREDKIN(0, 1, 2), Pauli([0, 1], [1, 2]), PauliRotation([0, 1], [1, 2], 0.1),
-            DenseMatrix(0, np.eye(2)), DenseMatrix([0, 1], np.eye(4)), SparseMatrix([0, 1], sparse_mat),
-            DiagonalMatrix([0, 1], np.ones(4)), RandomUnitary([0, 1]), ReversibleBoolean([0, 1], func), StateReflection(ref),
-            BitFlipNoise(0, 0.1), DephasingNoise(0, 0.1), IndependentXZNoise(0, 0.1), DepolarizingNoise(0, 0.1), TwoQubitDepolarizingNoise(0, 1, 0.1),
-            AmplitudeDampingNoise(0, 0.1), Measurement(0, 1), merge(X(0), Y(1)), add(X(0), Y(1)), to_matrix_gate(X(0)),
-            P0(0), P1(0), U1(0, 0.), U2(0, 0., 0.), U3(0, 0., 0., 0.), RX(0, 0.), RY(0, 0.), RZ(0, 0.),
+            Identity(0), X(0), Y(0), Z(0), H(0), S(0), Sdag(0), T(
+                0), Tdag(0), sqrtX(0), sqrtXdag(0), sqrtY(0), sqrtYdag(0),
+            Probabilistic([0.5, 0.5], [X(0), Y(0)]), CPTP(
+                [P0(0), P1(0)]), Instrument([P0(0), P1(0)], 1), Adaptive(X(0), adap),
+            CNOT(0, 1), CZ(0, 1), SWAP(0, 1), TOFFOLI(0, 1, 2), FREDKIN(
+                0, 1, 2), Pauli([0, 1], [1, 2]), PauliRotation([0, 1], [1, 2], 0.1),
+            DenseMatrix(0, np.eye(2)), DenseMatrix(
+                [0, 1], np.eye(4)), SparseMatrix([0, 1], sparse_mat),
+            DiagonalMatrix([0, 1], np.ones(4)), RandomUnitary(
+                [0, 1]), ReversibleBoolean([0, 1], func), StateReflection(ref),
+            BitFlipNoise(0, 0.1), DephasingNoise(0, 0.1), IndependentXZNoise(
+                0, 0.1), DepolarizingNoise(0, 0.1), TwoQubitDepolarizingNoise(0, 1, 0.1),
+            AmplitudeDampingNoise(0, 0.1), Measurement(0, 1), merge(
+                X(0), Y(1)), add(X(0), Y(1)), to_matrix_gate(X(0)),
+            P0(0), P1(0), U1(0, 0.), U2(0, 0., 0.), U3(
+                0, 0., 0., 0.), RX(0, 0.), RY(0, 0.), RZ(0, 0.),
         ]
         gates.append(merge(gates[0], gates[1]))
         gates.append(add(gates[0], gates[1]))
@@ -174,21 +186,30 @@ class TestPointerHandling(unittest.TestCase):
             return True
 
         gates = [
-            Identity(0), X(0), Y(0), Z(0), H(0), S(0), Sdag(0), T(0), Tdag(0), sqrtX(0), sqrtXdag(0), sqrtY(0), sqrtYdag(0),
-            Probabilistic([0.5, 0.5], [X(0), Y(0)]), CPTP([P0(0), P1(0)]), Instrument([P0(0), P1(0)], 1), Adaptive(X(0), adap),
-            CNOT(0, 1), CZ(0, 1), SWAP(0, 1), TOFFOLI(0, 1, 2), FREDKIN(0, 1, 2), Pauli([0, 1], [1, 2]), PauliRotation([0, 1], [1, 2], 0.1),
-            DenseMatrix(0, np.eye(2)), DenseMatrix([0, 1], np.eye(4)), SparseMatrix([0, 1], sparse_mat),
-            DiagonalMatrix([0, 1], np.ones(4)), RandomUnitary([0, 1]), ReversibleBoolean([0, 1], func), StateReflection(ref),
-            BitFlipNoise(0, 0.1), DephasingNoise(0, 0.1), IndependentXZNoise(0, 0.1), DepolarizingNoise(0, 0.1), TwoQubitDepolarizingNoise(0, 1, 0.1),
-            AmplitudeDampingNoise(0, 0.1), Measurement(0, 1), merge(X(0), Y(1)), add(X(0), Y(1)), to_matrix_gate(X(0)),
-            P0(0), P1(0), U1(0, 0.), U2(0, 0., 0.), U3(0, 0., 0., 0.), RX(0, 0.), RY(0, 0.), RZ(0, 0.),
+            Identity(0), X(0), Y(0), Z(0), H(0), S(0), Sdag(0), T(
+                0), Tdag(0), sqrtX(0), sqrtXdag(0), sqrtY(0), sqrtYdag(0),
+            Probabilistic([0.5, 0.5], [X(0), Y(0)]), CPTP(
+                [P0(0), P1(0)]), Instrument([P0(0), P1(0)], 1), Adaptive(X(0), adap),
+            CNOT(0, 1), CZ(0, 1), SWAP(0, 1), TOFFOLI(0, 1, 2), FREDKIN(
+                0, 1, 2), Pauli([0, 1], [1, 2]), PauliRotation([0, 1], [1, 2], 0.1),
+            DenseMatrix(0, np.eye(2)), DenseMatrix(
+                [0, 1], np.eye(4)), SparseMatrix([0, 1], sparse_mat),
+            DiagonalMatrix([0, 1], np.ones(4)), RandomUnitary(
+                [0, 1]), ReversibleBoolean([0, 1], func), StateReflection(ref),
+            BitFlipNoise(0, 0.1), DephasingNoise(0, 0.1), IndependentXZNoise(
+                0, 0.1), DepolarizingNoise(0, 0.1), TwoQubitDepolarizingNoise(0, 1, 0.1),
+            AmplitudeDampingNoise(0, 0.1), Measurement(0, 1), merge(
+                X(0), Y(1)), add(X(0), Y(1)), to_matrix_gate(X(0)),
+            P0(0), P1(0), U1(0, 0.), U2(0, 0., 0.), U3(
+                0, 0., 0., 0.), RX(0, 0.), RY(0, 0.), RZ(0, 0.),
         ]
 
         gates.append(merge(gates[0], gates[1]))
         gates.append(add(gates[0], gates[1]))
 
         parametric_gates = [
-            ParametricRX(0, 0.1), ParametricRY(0, 0.1), ParametricRZ(0, 0.1), ParametricPauliRotation([0, 1], [1, 1], 0.1)
+            ParametricRX(0, 0.1), ParametricRY(0, 0.1), ParametricRZ(
+                0, 0.1), ParametricPauliRotation([0, 1], [1, 1], 0.1)
         ]
 
         ref = None
@@ -328,7 +349,8 @@ class TestPointerHandling(unittest.TestCase):
         for gc in range(c.get_parameter_count()):
             val = c.get_parameter(gc)
             c.set_parameter(gc, val + 1.0)
-            self.assertAlmostEqual(val, gc * 0.1 + 0.1, msg="check vector size")
+            self.assertAlmostEqual(val, gc * 0.1 + 0.1,
+                                   msg="check vector size")
 
         d = c.copy()
         del c
@@ -336,7 +358,8 @@ class TestPointerHandling(unittest.TestCase):
             val = d.get_parameter(gc)
             d.set_parameter(gc, val + 10)
             val = d.get_parameter(gc)
-            self.assertAlmostEqual(val, 11.1 + gc * 0.1, msg="check vector size")
+            self.assertAlmostEqual(val, 11.1 + gc * 0.1,
+                                   msg="check vector size")
 
         qs = QuantumState(1)
         d.update_quantum_state(qs)
@@ -379,6 +402,27 @@ class TestPointerHandling(unittest.TestCase):
         check(pqc, [3, 1, 0, 5, 2])
         pqc.remove_gate(3)  # [1, 0, 3, *, 2]
         check(pqc, [1, 0, 4, 2])
+
+
+class TestUtils(unittest.TestCase):
+    def setUp(self):
+        # suppress warning from openfermion/cirq
+        warnings.simplefilter('ignore', category=DeprecationWarning)
+
+    def tearDown(self):
+        pass
+
+    def test_convert_openfermion_op(self):
+        from qulacs.utils import convert_openfermion_op
+        from openfermion import QubitOperator
+        openfermion_op = QubitOperator()
+        openfermion_op += 1. * QubitOperator("X0")
+        openfermion_op += 2. * QubitOperator("Z0 Y1")
+        openfermion_op += 1. * QubitOperator("Z0 Y3")
+
+        qulacs_op = convert_openfermion_op(openfermion_op)
+        self.assertEqual(str(qulacs_op),
+                         "(1,0) X 0 + (2,0) Z 0 Y 1 + (1,0) Z 0 Y 3")
 
 
 if __name__ == "__main__":
