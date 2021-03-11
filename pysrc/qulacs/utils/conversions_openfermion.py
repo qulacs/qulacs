@@ -2,6 +2,7 @@
 from qulacs_core import GeneralQuantumOperator
 import numpy as np
 
+
 def convert_openfermion_op(openfermion_op, n_qubits=None):
     """convert_openfermion_op
     Args:
@@ -24,6 +25,7 @@ def convert_openfermion_op(openfermion_op, n_qubits=None):
             pauli_string += ' '
         res.add_operator(coef, pauli_string[:-1])
     return res
+
 
 def _count_qubit_in_qubit_operator(op):
     """_count_qubit_in_qubit_operator
