@@ -5,13 +5,7 @@
 #include "type.hpp"
 #include "utility.hpp"
 
-#ifndef _MSC_VER
-extern "C" {
-#include <csim/stat_ops.h>
-}
-#else
-#include <csim/stat_ops.h>
-#endif
+#include <csim/stat_ops.hpp>
 #include <Eigen/Dense>
 
 #include "gate_factory.hpp"

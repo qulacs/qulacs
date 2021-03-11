@@ -1,16 +1,7 @@
-﻿
-#ifndef _MSC_VER
-extern "C" {
-#include <csim/memory_ops.h>
-#include <csim/stat_ops.h>
-#include <csim/update_ops.h>
-}
-#else
-#include <csim/init_ops.h>
-#include <csim/memory_ops.h>
-#include <csim/stat_ops.h>
-#include <csim/update_ops.h>
-#endif
+﻿#include <csim/init_ops.hpp>
+#include <csim/memory_ops.hpp>
+#include <csim/stat_ops.hpp>
+#include <csim/update_ops.hpp>
 #include <algorithm>
 #include <chrono>
 #include <csim/update_ops_cpp.hpp>
@@ -181,7 +172,7 @@ double benchmark_state_stat_func(UINT n, std::function<T(CTYPE*, ITYPE)> func) {
     timer.temporal_stop();
     CTYPE* state;
     state = allocate_quantum_state(dim);
-    initialize_Haar_random_state(state);
+    initialize_Haar_random_state(state,dim);
     do {
         timer.temporal_resume();
         func(state, dim);

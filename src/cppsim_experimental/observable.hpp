@@ -11,14 +11,8 @@
 #include <regex>
 #include <vector>
 
-#ifndef _MSC_VER
-extern "C" {
-#endif
-#include <csim/stat_ops.h>
-#include <csim/stat_ops_dm.h>
-#ifndef _MSC_VER
-}
-#endif
+#include <csim/stat_ops.hpp>
+#include <csim/stat_ops_dm.hpp>
 
 #ifdef _USE_GPU
 #include <gpusim/stat_ops.h>

@@ -5,7 +5,7 @@
 
 #include <Eigen/Core>
 
-#include "../util/util.h"
+#include "../util/util.hpp"
 
 static Eigen::VectorXcd copy_cpu_from_gpu(
     void* gpu_state, ITYPE dim, void* cuda_stream, UINT device_number) {

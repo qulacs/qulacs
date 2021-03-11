@@ -1,17 +1,9 @@
 
 #pragma once
 
-#ifndef _MSC_VER
-extern "C" {
-#include <csim/memory_ops_dm.h>
-#include <csim/stat_ops_dm.h>
-#include <csim/update_ops_dm.h>
-}
-#else
-#include <csim/memory_ops_dm.h>
-#include <csim/stat_ops_dm.h>
-#include <csim/update_ops_dm.h>
-#endif
+#include <csim/memory_ops_dm.hpp>
+#include <csim/stat_ops_dm.hpp>
+#include <csim/update_ops_dm.hpp>
 
 #include "state.hpp"
 
@@ -321,12 +313,7 @@ public:
      * \~japanese-en 複素数をかける
      */
     virtual void multiply_coef(CPPCTYPE coef) override {
-#ifdef _MSC_VER
         dm_state_multiply(coef, this->data_c(), this->dim);
-#else
-        CTYPE c_coef = {coef.real(), coef.imag()};
-        dm_state_multiply(c_coef, this->data_c(), this->dim);
-#endif
     }
 
     virtual void multiply_elementwise_function(

@@ -1,12 +1,6 @@
 #include <gtest/gtest.h>
 
-#ifndef _MSC_VER
-extern "C" {
-#endif
-#include <csim/update_ops.h>
-#ifndef _MSC_VER
-}
-#endif
+#include <csim/update_ops.hpp>
 
 #include <cmath>
 #include <cppsim/gate.hpp>
@@ -19,7 +13,7 @@ extern "C" {
 #include <functional>
 #include <numeric>
 
-#include "../util/util.h"
+#include "../util/util.hpp"
 
 TEST(DensityMatrixGeneralGateTest, ProbabilisticGate) {
     auto gate1 = gate::X(0);

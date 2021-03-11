@@ -6,7 +6,7 @@
 #include <cppsim/noisesimulator.hpp>
 #include <cppsim/state.hpp>
 
-#include "../util/util.h"
+#include "../util/util.hpp"
 
 TEST(NoiseSimulatorTest, Random_with_State_Test) {
     // Just Check whether they run without Runtime Errors.
