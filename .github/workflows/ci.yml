@@ -9,7 +9,7 @@ jobs:
     name: GCC8 build
     strategy:
       matrix:
-        python-version: ["3.7.5", "2.7.17"]
+        python-version: ["3.7.5"]
         os: ["ubuntu-self-hosted","windows-self-hosted"]
     runs-on: ${{ matrix.os }}
     env:
@@ -61,7 +61,7 @@ jobs:
     name: nvcc + gcc8 build
     strategy:
       matrix:
-        python-version: ["3.7.5", "2.7.17"]
+        python-version: ["3.7.5"]
         os: ["ubuntu-self-hosted"]
     runs-on: ${{ matrix.os }}
     env:
