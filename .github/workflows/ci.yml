@@ -185,7 +185,7 @@ jobs:
       # The following command fixes this issue by (brew) re-linking files from gcc-8.
       # cf. https://stackoverflow.com/a/55500164
       CIBW_BEFORE_BUILD_MACOS: "brew link --overwrite gcc@8 && pip install cmake"
-      CIBW_BUILD: "cp*-macosx_x86_64 cp*-manylinux_x86_64 cp*-win_amd64"
+      CIBW_BUILD: "cp3*-macosx_x86_64 cp3*-manylinux_x86_64 cp3*-win_amd64"
       CIBW_BUILD_VERBOSITY: "1"
       CIBW_ENVIRONMENT: 'QULACS_OPT_FLAGS="-mtune=haswell -mfpmath=both"'
       CIBW_REPAIR_WHEEL_COMMAND_MACOS: "delocate-listdeps {wheel} && script/fix_wheel_osx.sh {wheel} {dest_dir} && delocate-listdeps {wheel}"
