@@ -5,7 +5,7 @@
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/state_gpu.hpp>
 
-#include "../util/util.h"
+#include "../util/util.hpp"
 
 inline void assert_cpu_eq_gpu(QuantumStateCpu& state_cpu,
     QuantumStateGpu& state_gpu, ITYPE dim, double eps) {

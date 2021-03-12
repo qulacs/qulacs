@@ -2,7 +2,7 @@
 #include <gpusim/util_func.h>
 #include <gtest/gtest.h>
 
-#include "../util/util.h"
+#include "../util/util.hpp"
 
 TEST(MemoryOperationTest, AllocateAndRelease) {
     const UINT n = 10;

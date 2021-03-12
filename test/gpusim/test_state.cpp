@@ -4,7 +4,7 @@
 #include <cppsim/state_gpu.hpp>
 #include <cppsim/utility.hpp>
 
-#include "../util/util.h"
+#include "../util/util.hpp"
 
 inline void set_eigen_from_gpu(
     Eigen::VectorXcd& dst, QuantumStateGpu& src, ITYPE dim) {

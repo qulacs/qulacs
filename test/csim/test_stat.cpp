@@ -2,19 +2,11 @@
 
 #include <Eigen/Core>
 
-#include "../util/util.h"
+#include "../util/util.hpp"
 
-#ifndef _MSC_VER
-extern "C" {
-#include <csim/init_ops.h>
-#include <csim/memory_ops.h>
-#include <csim/stat_ops.h>
-}
-#else
-#include <csim/init_ops.h>
-#include <csim/memory_ops.h>
-#include <csim/stat_ops.h>
-#endif
+#include <csim/init_ops.hpp>
+#include <csim/memory_ops.hpp>
+#include <csim/stat_ops.hpp>
 
 // post-selection probability check
 TEST(StatOperationTest, ProbTest) {

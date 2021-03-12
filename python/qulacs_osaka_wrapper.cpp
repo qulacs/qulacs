@@ -8,18 +8,12 @@
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
 
-#ifndef _MSC_VER
-extern "C" {
-#endif
-#include <csim/update_ops.h>
-#include <csim/update_ops_dm.h>
-#include <csim/memory_ops.h>
-#include <csim/memory_ops_dm.h>
-#include <csim/stat_ops.h>
-#include <csim/stat_ops_dm.h>
-#ifndef _MSC_VER
-}
-#endif
+#include <csim/update_ops.hpp>
+#include <csim/update_ops_dm.hpp>
+#include <csim/memory_ops.hpp>
+#include <csim/memory_ops_dm.hpp>
+#include <csim/stat_ops.hpp>
+#include <csim/stat_ops_dm.hpp>
 
 #include <cppsim_experimental/observable.hpp>
 #include <cppsim_experimental/state.hpp>
@@ -180,10 +174,10 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def("get_qubit_count", [](const StateVectorGpu& state) -> unsigned int {return (unsigned int) state.qubit_count; }, "Get qubit count")
         .def("__repr__", [](const StateVectorGpu &p) {return p.to_string(); });
         ;
-		m.def("StateVectorGpu", [](const unsigned int qubit_count) {
-			auto ptr = new StateVectorGpu(qubit_count);
-			return ptr;
-		}, "StateVectorGpu");
+	// m.def("StateVectorGpu", [](const unsigned int qubit_count) {
+        //	auto ptr = new StateVectorGpu(qubit_count);
+	//		return ptr;
+	//	}, "StateVectorGpu");
 
 #endif
 

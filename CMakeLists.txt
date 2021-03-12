@@ -208,7 +208,7 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 	# Set C++ standard
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=gnu11")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 	set(PYBIND11_CPP_STANDARD -std=c++14)
 	
@@ -218,7 +218,7 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 
 	# Enable imaginary literals for C++
 	if(NOT MINGW)
-		#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
 	endif()
 
 	# Enable openmp
@@ -258,8 +258,8 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 
 elseif(MSVC)
 	# Compile csim with cpp compiler since VC does not completely support C99 complex values
-	SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
-	add_compile_options("/TP")
+	# SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
+	# add_compile_options("/TP")
 
 	# Ignore warning
 	## ignore warning about template export
@@ -341,10 +341,12 @@ if(USE_TEST)
 		add_custom_target(test
 			DEPENDS csim_test
 			DEPENDS cppsim_test
+			DEPENDS cppsim_exp_test
 			DEPENDS gpusim_test
 			DEPENDS vqcsim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/csim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_test
+			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_exp_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/gpusim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
 		)
@@ -367,7 +369,7 @@ add_custom_target(bench
 	DEPENDS csim_benchmark
 	DEPENDS cppsim_benchmark
 	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/csim_benchmark
-	#COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_benchmark
+	COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_benchmark
 )
 
 # format

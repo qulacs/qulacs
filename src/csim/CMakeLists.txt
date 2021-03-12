@@ -2,9 +2,7 @@ cmake_minimum_required(VERSION 2.8)
 
 file(GLOB CSIM_SRC
     "*.cpp"
-    "*.c"
     "*.hpp"
-    "*.h"
 )
 
 if (MSVC)

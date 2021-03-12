@@ -2,13 +2,7 @@
 
 #include "state.hpp"
 
-#ifndef _MSC_VER
-extern "C" {
-#include <csim/stat_ops.h>
-}
-#else
-#include <csim/stat_ops.h>
-#endif
+#include <csim/stat_ops.hpp>
 #include <iostream>
 
 namespace state {

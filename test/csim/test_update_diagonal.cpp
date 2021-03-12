@@ -5,21 +5,12 @@
 #include <algorithm>
 #include <string>
 
-#include "../util/util.h"
+#include "../util/util.hpp"
 
-#ifndef _MSC_VER
-extern "C" {
-#include <csim/init_ops.h>
-#include <csim/memory_ops.h>
-#include <csim/stat_ops.h>
-#include <csim/update_ops.h>
-}
-#else
-#include <csim/init_ops.h>
-#include <csim/memory_ops.h>
-#include <csim/stat_ops.h>
-#include <csim/update_ops.h>
-#endif
+#include <csim/init_ops.hpp>
+#include <csim/memory_ops.hpp>
+#include <csim/stat_ops.hpp>
+#include <csim/update_ops.hpp>
 #include <csim/update_ops_cpp.hpp>
 
 void test_single_diagonal_matrix_gate(
@@ -103,11 +94,7 @@ void test_single_phase_gate(
         target = rand_int(n);
         angle = rand_real();
         U << 1, 0, 0, cos(angle) + 1.i * sin(angle);
-#ifdef _MSC_VER
         CTYPE t = cos(angle) + 1.i * sin(angle);
-#else
-        CTYPE t = cos(angle) + 1.j * sin(angle);
-#endif
         func(target, t, state, dim);
         test_state =
             get_expanded_eigen_matrix_with_identity(target, U, n) * test_state;

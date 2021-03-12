@@ -3,7 +3,7 @@
 #include <cppsim/state_dm.hpp>
 #include <cppsim/utility.hpp>
 
-#include "../util/util.h"
+#include "../util/util.hpp"
 
 TEST(DensityMatrixTest, GenerateAndRelease) {
     UINT n = 5;

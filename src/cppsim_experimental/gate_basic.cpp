@@ -256,7 +256,7 @@ void QuantumGateBasic::_update_state_vector_gpu(QuantumStateBase* state) {
             "Only DenseMatrix gate type is supported for density matrix");
     }
 }
-void _update_density_matrix_gpu(QuantumStateBase* state) {
+void QuantumGateBasic::_update_density_matrix_gpu(QuantumStateBase* state) {
     throw std::runtime_error(
         "Density matrix simulation is not supported on GPU.");
 }

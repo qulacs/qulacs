@@ -1,12 +1,6 @@
 #include <gtest/gtest.h>
 
-#ifndef _MSC_VER
-extern "C" {
-#endif
-#include <csim/constant.h>
-#ifndef _MSC_VER
-}
-#endif
+#include <csim/constant.hpp>
 
 #include <Eigen/Eigenvalues>
 #include <cppsim/circuit.hpp>
@@ -19,7 +13,7 @@ extern "C" {
 #include <cppsim/utility.hpp>
 #include <fstream>
 
-#include "../util/util.h"
+#include "../util/util.hpp"
 
 TEST(ObservableTest, CheckExpectationValue) {
     const UINT n = 4;

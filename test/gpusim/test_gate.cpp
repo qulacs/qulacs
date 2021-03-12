@@ -1,4 +1,4 @@
-#include <csim/update_ops.h>
+#include <csim/update_ops.hpp>
 #include <gtest/gtest.h>
 
 #include <cmath>
@@ -11,7 +11,7 @@
 #include <cppsim/utility.hpp>
 #include <functional>
 
-#include "../util/util.h"
+#include "../util/util.hpp"
 
 inline void set_eigen_from_gpu(
     ComplexVector& dst, QuantumStateGpu& src, ITYPE dim) {
