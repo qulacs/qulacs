@@ -1,17 +1,16 @@
+#include "general_quantum_operator.hpp"
+
+#include <Eigen/Dense>
+#include <csim/stat_ops.hpp>
 #include <cstring>
 #include <fstream>
 #include <numeric>
 
-#include "type.hpp"
-#include "utility.hpp"
-
-#include <csim/stat_ops.hpp>
-#include <Eigen/Dense>
-
 #include "gate_factory.hpp"
-#include "general_quantum_operator.hpp"
 #include "pauli_operator.hpp"
 #include "state.hpp"
+#include "type.hpp"
+#include "utility.hpp"
 
 GeneralQuantumOperator::GeneralQuantumOperator(const UINT qubit_count)
     : _qubit_count(qubit_count), _is_hermitian(true) {}
@@ -278,11 +277,12 @@ GeneralQuantumOperator GeneralQuantumOperator::operator+(
 GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     const GeneralQuantumOperator& target) {
     ITYPE i, j;
+    auto terms = target.get_terms();
 #pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
-        for (j = 0; j < target.get_terms().size(); j++) {
-            auto target_operator = target.get_terms()[j];
+        for (j = 0; j < terms.size(); j++) {
+            auto target_operator = terms[j];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
                 _operator_list[i]->change_coef(_operator_list[i]->get_coef() +
@@ -290,8 +290,8 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
             }
         }
     }
-    for (j = 0; j < target.get_terms().size(); j++) {
-        auto target_operator = target.get_terms()[j];
+    for (j = 0; j < terms.size(); j++) {
+        auto target_operator = terms[j];
         bool flag = true;
         for (i = 0; i < _operator_list.size(); i++) {
             auto pauli_operator = _operator_list[i];
@@ -344,11 +344,12 @@ GeneralQuantumOperator GeneralQuantumOperator::operator-(
 GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
     const GeneralQuantumOperator& target) {
     ITYPE i, j;
+    auto terms = target.get_terms();
 #pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
-        for (j = 0; j < target.get_terms().size(); j++) {
-            auto target_operator = target.get_terms()[j];
+        for (j = 0; j < terms.size(); j++) {
+            auto target_operator = terms[j];
             if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
                 pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
                 _operator_list[i]->change_coef(_operator_list[i]->get_coef() -
@@ -356,8 +357,8 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
             }
         }
     }
-    for (j = 0; j < target.get_terms().size(); j++) {
-        auto target_operator = target.get_terms()[j];
+    for (j = 0; j < terms.size(); j++) {
+        auto target_operator = terms[j];
         bool flag = true;
         for (i = 0; i < _operator_list.size(); i++) {
             auto pauli_operator = _operator_list[i];
