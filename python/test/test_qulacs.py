@@ -423,9 +423,9 @@ class TestUtils(unittest.TestCase):
         qulacs_op = convert_openfermion_op(openfermion_op)
         str_qulacs_op = str(qulacs_op)
         # operator ordering in openfermion may differ sometimes so we have to do this
-        str_qulacs_op.replace("(1,0) X 0", "")
-        str_qulacs_op.replace("(2,0) Z 0 Y 1", "")
-        str_qulacs_op.replace("(1,0) Z 0 Y 3", "")
+        str_qulacs_op = str_qulacs_op.replace("(1,0) X 0", "")
+        str_qulacs_op = str_qulacs_op.replace("(2,0) Z 0 Y 1", "")
+        str_qulacs_op = str_qulacs_op.replace("(1,0) Z 0 Y 3", "")
         self.assertEqual(str_qulacs_op, " +  + ")
 
 
