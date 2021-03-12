@@ -202,6 +202,18 @@ public:
     GeneralQuantumOperator& operator-=(const GeneralQuantumOperator& target);
 
     GeneralQuantumOperator& operator-=(const PauliOperator& target);
+    GeneralQuantumOperator operator*(
+        const GeneralQuantumOperator& target) const;
+
+    GeneralQuantumOperator operator*(const PauliOperator& target) const;
+
+    GeneralQuantumOperator operator*(CPPCTYPE target) const;
+
+    GeneralQuantumOperator& operator*=(const GeneralQuantumOperator& target);
+
+    GeneralQuantumOperator& operator*=(const PauliOperator& target);
+
+    GeneralQuantumOperator& operator*=(CPPCTYPE target);
 
 protected:
     /**
