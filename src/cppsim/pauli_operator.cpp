@@ -19,6 +19,7 @@
 
 #include <csim/stat_ops.hpp>
 #include <csim/stat_ops_dm.hpp>
+
 #include "pauli_operator.hpp"
 #include "state.hpp"
 

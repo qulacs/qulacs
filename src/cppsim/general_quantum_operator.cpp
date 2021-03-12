@@ -1,17 +1,16 @@
+#include "general_quantum_operator.hpp"
+
+#include <Eigen/Dense>
+#include <csim/stat_ops.hpp>
 #include <cstring>
 #include <fstream>
 #include <numeric>
 
-#include "type.hpp"
-#include "utility.hpp"
-
-#include <csim/stat_ops.hpp>
-#include <Eigen/Dense>
-
 #include "gate_factory.hpp"
-#include "general_quantum_operator.hpp"
 #include "pauli_operator.hpp"
 #include "state.hpp"
+#include "type.hpp"
+#include "utility.hpp"
 
 GeneralQuantumOperator::GeneralQuantumOperator(const UINT qubit_count)
     : _qubit_count(qubit_count), _is_hermitian(true) {}
@@ -93,12 +92,11 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
     return sum;
 }
 
-
 void GeneralQuantumOperator::add_random_operator(const UINT operator_count) {
     const auto qubit_count = this->get_qubit_count();
     Random random;
     for (UINT operator_index = 0; operator_index < operator_count;
-        operator_index++) {
+         operator_index++) {
         auto target_qubit_index_list = std::vector<UINT>(qubit_count, 0);
         auto target_qubit_pauli_list = std::vector<UINT>(qubit_count, 0);
         for (UINT qubit_index = 0; qubit_index < qubit_count; qubit_index++) {
@@ -112,7 +110,6 @@ void GeneralQuantumOperator::add_random_operator(const UINT operator_count) {
         this->add_operator(&pauli_operator);
     }
 }
-
 
 CPPCTYPE
 GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(

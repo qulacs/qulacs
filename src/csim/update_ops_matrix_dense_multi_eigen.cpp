@@ -1,9 +1,9 @@
 
-#include "update_ops_cpp.hpp"
-#include "utility.hpp"
-
 #include <Eigen/Core>
 #include <functional>
+
+#include "update_ops_cpp.hpp"
+#include "utility.hpp"
 
 void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list,
     UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state,

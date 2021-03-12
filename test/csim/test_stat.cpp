@@ -1,12 +1,11 @@
 #include <gtest/gtest.h>
 
 #include <Eigen/Core>
-
-#include "../util/util.hpp"
-
 #include <csim/init_ops.hpp>
 #include <csim/memory_ops.hpp>
 #include <csim/stat_ops.hpp>
+
+#include "../util/util.hpp"
 
 // post-selection probability check
 TEST(StatOperationTest, ProbTest) {

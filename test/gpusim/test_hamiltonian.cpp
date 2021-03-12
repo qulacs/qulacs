@@ -1,4 +1,3 @@
-#include <csim/constant.hpp>
 #include <gtest/gtest.h>
 
 #include <cppsim/circuit.hpp>
@@ -8,6 +7,7 @@
 #include <cppsim/state_gpu.hpp>
 #include <cppsim/type.hpp>
 #include <cppsim/utility.hpp>
+#include <csim/constant.hpp>
 #include <fstream>
 
 #include "../util/util.hpp"

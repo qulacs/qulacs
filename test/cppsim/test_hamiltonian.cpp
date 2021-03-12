@@ -1,7 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <csim/constant.hpp>
-
 #include <Eigen/Eigenvalues>
 #include <cppsim/circuit.hpp>
 #include <cppsim/gate_factory.hpp>
@@ -11,6 +9,7 @@
 #include <cppsim/state.hpp>
 #include <cppsim/type.hpp>
 #include <cppsim/utility.hpp>
+#include <csim/constant.hpp>
 #include <fstream>
 
 #include "../util/util.hpp"
@@ -449,8 +448,8 @@ TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
         const UINT dim = 1U << qubit_count;
         // 2 <= operator_count <= 11
         const auto operator_count = random.int32() % 10 + 2;
-        auto observable =
-            generate_random_observable(qubit_count, operator_count);
-        test_eigenvalue(observable, 70, eps, CalculationMethod::LanczosMethod);
+        auto observable = Observable(qubit_count);
+        observable.add_random_operator(operator_count);
+        test_eigenvalue(observable, 100, eps, CalculationMethod::LanczosMethod);
     }
 }

@@ -1,4 +1,3 @@
-#include <csim/update_ops.hpp>
 #include <gtest/gtest.h>
 
 #include <cmath>
@@ -9,6 +8,7 @@
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/state_gpu.hpp>
 #include <cppsim/utility.hpp>
+#include <csim/update_ops.hpp>
 #include <functional>
 
 #include "../util/util.hpp"

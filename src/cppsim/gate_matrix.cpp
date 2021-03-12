@@ -1,12 +1,12 @@
 
+#include "gate_matrix.hpp"
+
+#include <algorithm>
 #include <csim/update_ops.hpp>
 #include <csim/update_ops_dm.hpp>
 #include <csim/utility.hpp>
-
-#include <algorithm>
 #include <numeric>
 
-#include "gate_matrix.hpp"
 #include "state.hpp"
 #include "type.hpp"
 #ifdef _USE_GPU

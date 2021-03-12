@@ -102,8 +102,10 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("add_random_operator", &HermitianQuantumOperator::add_random_operator, "Add random pauli operator", py::arg("operator_count"))
         .def("solve_ground_state_eigenvalue_by_arnoldi_method", &HermitianQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method,
             "Compute ground state eigenvalue by arnoldi method", py::arg("state"), py::arg("iter_count"), py::arg("mu") = 0.0)
-        .def("solve_ground_state_eigenvalue_by_power_method", &HermitianQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method,
+        .def("solve_ground_state_eigenvalue_by_power_method", &HermitianQuantumOperator::solve_ground_state_eigenvalue_by_power_method,
             "Compute ground state eigenvalue by power method", py::arg("state"), py::arg("iter_count"), py::arg("mu") = 0.0)
+        .def("solve_ground_state_eigenvalue_by_lanczos_method", &HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method,
+            "Compute ground state eigenvalue by lanczos method", py::arg("state"), py::arg("iter_count"), py::arg("mu") = 0.0)
         .def("apply_to_state", &HermitianQuantumOperator::apply_to_state, "Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.",
             py::arg("work_state"), py::arg("state_to_be_multiplied"), py::arg("dst_state"))
         .def("__str__", &HermitianQuantumOperator::to_string, "to string")
