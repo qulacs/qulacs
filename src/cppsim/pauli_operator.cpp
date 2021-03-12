@@ -19,6 +19,7 @@
 
 #include <csim/stat_ops.hpp>
 #include <csim/stat_ops_dm.hpp>
+
 #include "pauli_operator.hpp"
 #include "state.hpp"
 
@@ -95,9 +96,9 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_index_list,
 
 void PauliOperator::add_single_Pauli(UINT qubit_index, UINT pauli_type) {
     this->_pauli_list.push_back(SinglePauliOperator(qubit_index, pauli_type));
-    if (qubit_index >= _x.size()) {
-        _x.resize(qubit_index + 1);
-        _z.resize(qubit_index + 1);
+    while (_x.size() <= qubit_index) {
+        _x.resize(_x.size() * 2 + 1);
+        _z.resize(_z.size() * 2 + 1);
     }
     if (pauli_type == 1) {
         _x.set(qubit_index);

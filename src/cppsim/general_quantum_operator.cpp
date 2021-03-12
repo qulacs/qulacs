@@ -283,8 +283,18 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
         auto pauli_operator = _operator_list[i];
         for (j = 0; j < terms.size(); j++) {
             auto target_operator = terms[j];
-            if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
-                pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
+            auto pauli_x = pauli_operator->get_x_bits();
+            auto pauli_z = pauli_operator->get_z_bits();
+            auto target_x = target_operator->get_x_bits();
+            auto target_z = target_operator->get_z_bits();
+            if (pauli_x.size() != target_x.size()) {
+                UINT max_size = std::max(pauli_x.size(), target_x.size());
+                pauli_x.resize(max_size);
+                pauli_z.resize(max_size);
+                target_x.resize(max_size);
+                target_z.resize(max_size);
+            }
+            if (pauli_x == target_x && pauli_z == target_z) {
                 _operator_list[i]->change_coef(_operator_list[i]->get_coef() +
                                                target_operator->get_coef());
             }
@@ -295,8 +305,18 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
         bool flag = true;
         for (i = 0; i < _operator_list.size(); i++) {
             auto pauli_operator = _operator_list[i];
-            if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
-                pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
+            auto pauli_x = pauli_operator->get_x_bits();
+            auto pauli_z = pauli_operator->get_z_bits();
+            auto target_x = target_operator->get_x_bits();
+            auto target_z = target_operator->get_z_bits();
+            if (pauli_x.size() != target_x.size()) {
+                UINT max_size = std::max(pauli_x.size(), target_x.size());
+                pauli_x.resize(max_size);
+                pauli_z.resize(max_size);
+                target_x.resize(max_size);
+                target_z.resize(max_size);
+            }
+            if (pauli_x == target_x && pauli_z == target_z) {
                 flag = false;
             }
         }
@@ -314,8 +334,18 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
 #pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
-        if (pauli_operator->get_x_bits() == target.get_x_bits() &&
-            pauli_operator->get_z_bits() == target.get_z_bits()) {
+        auto pauli_x = pauli_operator->get_x_bits();
+        auto pauli_z = pauli_operator->get_z_bits();
+        auto target_x = target.get_x_bits();
+        auto target_z = target.get_z_bits();
+        if (pauli_x.size() != target_x.size()) {
+            UINT max_size = std::max(pauli_x.size(), target_x.size());
+            pauli_x.resize(max_size);
+            pauli_z.resize(max_size);
+            target_x.resize(max_size);
+            target_z.resize(max_size);
+        }
+        if (pauli_x == target_x && pauli_z == target_z) {
             _operator_list[i]->change_coef(
                 _operator_list[i]->get_coef() + target.get_coef());
             flag = false;
@@ -350,8 +380,18 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
         auto pauli_operator = _operator_list[i];
         for (j = 0; j < terms.size(); j++) {
             auto target_operator = terms[j];
-            if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
-                pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
+            auto pauli_x = pauli_operator->get_x_bits();
+            auto pauli_z = pauli_operator->get_z_bits();
+            auto target_x = target_operator->get_x_bits();
+            auto target_z = target_operator->get_z_bits();
+            if (pauli_x.size() != target_x.size()) {
+                UINT max_size = std::max(pauli_x.size(), target_x.size());
+                pauli_x.resize(max_size);
+                pauli_z.resize(max_size);
+                target_x.resize(max_size);
+                target_z.resize(max_size);
+            }
+            if (pauli_x == target_x && pauli_z == target_z) {
                 _operator_list[i]->change_coef(_operator_list[i]->get_coef() -
                                                target_operator->get_coef());
             }
@@ -362,8 +402,18 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
         bool flag = true;
         for (i = 0; i < _operator_list.size(); i++) {
             auto pauli_operator = _operator_list[i];
-            if (pauli_operator->get_x_bits() == target_operator->get_x_bits() &&
-                pauli_operator->get_z_bits() == target_operator->get_z_bits()) {
+            auto pauli_x = pauli_operator->get_x_bits();
+            auto pauli_z = pauli_operator->get_z_bits();
+            auto target_x = target_operator->get_x_bits();
+            auto target_z = target_operator->get_z_bits();
+            if (pauli_x.size() != target_x.size()) {
+                UINT max_size = std::max(pauli_x.size(), target_x.size());
+                pauli_x.resize(max_size);
+                pauli_z.resize(max_size);
+                target_x.resize(max_size);
+                target_z.resize(max_size);
+            }
+            if (pauli_x == target_x && pauli_z == target_z) {
                 flag = false;
             }
         }
@@ -382,8 +432,18 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
     ITYPE i;
     for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
-        if (pauli_operator->get_x_bits() == target.get_x_bits() &&
-            pauli_operator->get_z_bits() == target.get_z_bits()) {
+        auto pauli_x = pauli_operator->get_x_bits();
+        auto pauli_z = pauli_operator->get_z_bits();
+        auto target_x = target.get_x_bits();
+        auto target_z = target.get_z_bits();
+        if (pauli_x.size() != target_x.size()) {
+            UINT max_size = std::max(pauli_x.size(), target_x.size());
+            pauli_x.resize(max_size);
+            pauli_z.resize(max_size);
+            target_x.resize(max_size);
+            target_z.resize(max_size);
+        }
+        if (pauli_x == target_x && pauli_z == target_z) {
             _operator_list[i]->change_coef(
                 _operator_list[i]->get_coef() - target.get_coef());
             flag = false;
