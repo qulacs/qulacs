@@ -426,7 +426,7 @@ class TestUtils(unittest.TestCase):
         str_qulacs_op.replace("(1,0) X 0", "")
         str_qulacs_op.replace("(2,0) Z 0 Y 1", "")
         str_qulacs_op.replace("(1,0) Z 0 Y 3", "")
-        self.assertEqual(str(qulacs_op), " +  + ")
+        self.assertEqual(str_qulacs_op, " +  + ")
 
 
 if __name__ == "__main__":
