@@ -41,22 +41,6 @@ CPPCTYPE HermitianQuantumOperator::get_expectation_value(
 }
 
 CPPCTYPE
-HermitianQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
-    QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
-    return GeneralQuantumOperator::
-        solve_ground_state_eigenvalue_by_arnoldi_method(state, iter_count, mu)
-            .real();
-}
-
-CPPCTYPE
-HermitianQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
-    QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
-    return GeneralQuantumOperator::
-        solve_ground_state_eigenvalue_by_power_method(state, iter_count, mu)
-            .real();
-}
-
-CPPCTYPE
 HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
     if (this->get_term_count() == 0) {
@@ -84,7 +68,6 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     } else {
         mu_ = mu;
     }
-    std::cout << mu_ << std::endl;
 
     Eigen::VectorXd alpha_v(iter_count);
     Eigen::VectorXd beta_v(iter_count - 1);

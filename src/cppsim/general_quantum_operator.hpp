@@ -187,7 +187,7 @@ protected:
     /**
      * \~japanese-en
      * solve_ground_state_eigenvalue_by_power_method の mu
-     * のデフォルト値を計算する．
+     * のデフォルト値として，各 operator の係数の絶対値の和を計算する．
      */
     CPPCTYPE calculate_default_mu() const;
 

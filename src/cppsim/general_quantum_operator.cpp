@@ -115,6 +115,14 @@ void GeneralQuantumOperator::add_random_operator(const UINT operator_count) {
 CPPCTYPE
 GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
+    if (this->get_term_count() == 0) {
+        std::cerr << "Error: "
+            "GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method("
+            "QuantumStateBase * state, const UINT iter_count, const "
+            "CPPCTYPE mu): At least one PauliOperator is required.";
+        return 0;
+    }
+
     // Implemented based on
     // https://files.transtutors.com/cdn/uploadassignments/472339_1_-numerical-linear-aljebra.pdf
     const auto qubit_count = this->get_qubit_count();
@@ -177,6 +185,14 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
 
 CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
     QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
+    if (this->get_term_count() == 0) {
+        std::cerr << "Error: "
+            "GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method("
+            "QuantumStateBase * state, const UINT iter_count, const "
+            "CPPCTYPE mu): At least one PauliOperator is required.";
+        return 0;
+    }
+
     CPPCTYPE mu_;
     if (mu == 0.0) {
         // mu is not changed from default value.

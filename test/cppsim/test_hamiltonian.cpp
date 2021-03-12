@@ -358,9 +358,9 @@ void test_eigenvalue(Observable& observable, const UINT iter_count,
 
     QuantumState multiplied_state(qubit_count);
     QuantumState work_state(qubit_count);
-    // A|q>
+    // multiplied_state = A|q>
     observable.apply_to_state(&work_state, state, &multiplied_state);
-    // λ|q>
+    // state = λ|q>
     state.multiply_coef(ground_state_eigenvalue);
     multiplied_state.normalize(multiplied_state.get_squared_norm());
     state.normalize(state.get_squared_norm());
@@ -440,14 +440,12 @@ TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
     Random random;
 
     for (UINT i = 0; i < test_count; i++) {
-        // 3 <= qubit_count <= 5
+        // 3 <= qubit_count <= 6
         const auto qubit_count = random.int32() % 4 + 3;
         // 2 <= operator_count <= 11
         const auto operator_count = random.int32() % 10 + 2;
         auto observable = Observable(qubit_count);
         observable.add_random_operator(operator_count);
-        std::cout << qubit_count << ", " << operator_count << std::endl;
-        std::cout << observable.to_string() << std::endl;
-        test_eigenvalue(observable, 100, eps, CalculationMethod::LanczosMethod);
+        test_eigenvalue(observable, 70, eps, CalculationMethod::LanczosMethod);
     }
 }
