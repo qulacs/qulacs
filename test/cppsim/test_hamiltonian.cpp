@@ -374,11 +374,10 @@ void test_eigenvalue(Observable& observable, const UINT iter_count,
 }
 
 TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
-    constexpr UINT qubit_count = 4;
     constexpr double eps = 1e-2;
-    constexpr UINT dim = 1ULL << qubit_count;
+    constexpr UINT qubit_count = 4;
+    constexpr UINT test_count = 5;
     Random random;
-    constexpr size_t test_count = 5;
 
     for (UINT i = 0; i < test_count; i++) {
         const UINT operator_count =
@@ -397,7 +396,6 @@ TEST(ObservableTest, MinimumEigenvalueByArnoldiMethod) {
     for (UINT i = 0; i < test_count; i++) {
         // 3 <= qubit_count <= 5
         const auto qubit_count = random.int32() % 4 + 3;
-        const UINT dim = 1U << qubit_count;
         // 2 <= operator_count <= 11
         const auto operator_count = random.int32() % 10 + 2;
         auto observable = Observable(qubit_count);
@@ -427,7 +425,6 @@ TEST(ObservableTest, MinimumEigenvalueByArnoldiMethodWithIdentity) {
     for (UINT i = 0; i < test_count; i++) {
         // 3 <= qubit_count <= 5
         const auto qubit_count = random.int32() % 4 + 3;
-        const UINT dim = 1U << qubit_count;
         // 2 <= operator_count <= 11
         const auto operator_count = random.int32() % 10 + 2;
         auto observable = Observable(qubit_count);
@@ -439,17 +436,18 @@ TEST(ObservableTest, MinimumEigenvalueByArnoldiMethodWithIdentity) {
 
 TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
     constexpr double eps = 1e-6;
-    constexpr UINT test_count = 10;
+    constexpr UINT test_count = 100;
     Random random;
 
     for (UINT i = 0; i < test_count; i++) {
         // 3 <= qubit_count <= 5
         const auto qubit_count = random.int32() % 4 + 3;
-        const UINT dim = 1U << qubit_count;
         // 2 <= operator_count <= 11
         const auto operator_count = random.int32() % 10 + 2;
         auto observable = Observable(qubit_count);
         observable.add_random_operator(operator_count);
+        std::cout << qubit_count << ", " << operator_count << std::endl;
+        std::cout << observable.to_string() << std::endl;
         test_eigenvalue(observable, 100, eps, CalculationMethod::LanczosMethod);
     }
 }

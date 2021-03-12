@@ -104,7 +104,8 @@ void GeneralQuantumOperator::add_random_operator(const UINT operator_count) {
             target_qubit_index_list.at(qubit_index) = qubit_index;
             target_qubit_pauli_list.at(qubit_index) = pauli_id;
         }
-        const CPPCTYPE coef = random.uniform();
+        // -1.0 <= coef <= 1.0
+        const CPPCTYPE coef = random.uniform() * 2 - 1.0;
         auto pauli_operator = PauliOperator(
             target_qubit_index_list, target_qubit_pauli_list, coef);
         this->add_operator(&pauli_operator);
@@ -226,13 +227,13 @@ void GeneralQuantumOperator::apply_to_state(QuantumStateBase* work_state,
 }
 
 CPPCTYPE GeneralQuantumOperator::calculate_default_mu() const {
-    CPPCTYPE mu = 0.0;
+    double mu = 0.0;
     const auto term_count = this->get_term_count();
     for (UINT i = 0; i < term_count; i++) {
         const auto term = this->get_term(i);
-        mu += term->get_coef();
+        mu += std::abs(term->get_coef().real());
     }
-    return mu;
+    return static_cast<CPPCTYPE>(mu);
 }
 
 CPPCTYPE GeneralQuantumOperator::calculate_ground_state_eigenvector(

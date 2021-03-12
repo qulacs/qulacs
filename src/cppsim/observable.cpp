@@ -59,6 +59,15 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
 CPPCTYPE
 HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
+    if (this->get_term_count() == 0) {
+        std::cerr << "Error: "
+                     "HermitianQuantumOperator::solve_ground_state_eigenvalue_"
+                     "by_lanczos_method("
+                     "QuantumStateBase * state, const UINT iter_count, const "
+                     "CPPCTYPE mu): At least one PauliOperator is required.";
+        return 0;
+    }
+
     const auto qubit_count = this->get_qubit_count();
     QuantumState tmp_state(qubit_count);
     QuantumState multiplied_state(qubit_count);
@@ -75,6 +84,7 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     } else {
         mu_ = mu;
     }
+    std::cout << mu_ << std::endl;
 
     Eigen::VectorXd alpha_v(iter_count);
     Eigen::VectorXd beta_v(iter_count - 1);

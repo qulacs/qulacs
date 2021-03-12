@@ -49,7 +49,8 @@ void DllExport get_Pauli_matrix(
  * @param [in] observable 行列に変換する observable
  * @return observable に対応する行列
  */
-ComplexMatrix DllExport convert_observable_to_matrix(Observable& observable);
+ComplexMatrix DllExport convert_observable_to_matrix(
+    const Observable& observable);
 
 /**
  * \~japanese-en 乱数を管理するクラス
