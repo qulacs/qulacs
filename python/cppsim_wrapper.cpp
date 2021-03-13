@@ -78,6 +78,15 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("get_transition_amplitude", &GeneralQuantumOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         .def("__str__", &GeneralQuantumOperator::to_string, "to string")
         //.def_static("get_split_GeneralQuantumOperator", &(GeneralQuantumOperator::get_split_observable));
+        .def("copy", &GeneralQuantumOperator::copy, pybind11::return_value_policy::take_ownership, "Create copied instance of General Quantum operator class")
+        .def(py::self + py::self)
+        .def("__add__", [](const GeneralQuantumOperator &a, const PauliOperator& b) { return a + b; }, py::is_operator())        
+        .def(py::self += py::self)
+        .def("__IADD__", [](GeneralQuantumOperator &a, const PauliOperator& b) { return a += b; }, py::is_operator())        
+        .def(py::self - py::self)
+        .def("__sub__", [](const GeneralQuantumOperator &a, const PauliOperator& b) { return a - b; }, py::is_operator())        
+        .def(py::self -= py::self)
+        .def("__ISUB__", [](GeneralQuantumOperator &a, const PauliOperator& b) { return a -= b; }, py::is_operator())        
         ;
     auto mquantum_operator = m.def_submodule("quantum_operator");
     mquantum_operator.def("create_quantum_operator_from_openfermion_file", &quantum_operator::create_general_quantum_operator_from_openfermion_file, pybind11::return_value_policy::take_ownership);
@@ -110,15 +119,6 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("apply_to_state", &HermitianQuantumOperator::apply_to_state, "Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.",
             py::arg("work_state"), py::arg("state_to_be_multiplied"), py::arg("dst_state"))
         .def("__str__", &HermitianQuantumOperator::to_string, "to string")
-        .def("copy", &GeneralQuantumOperator::copy, pybind11::return_value_policy::take_ownership, "Create copied instance of General Quantum operator class")
-        .def(py::self + py::self)
-        .def("__add__", [](const GeneralQuantumOperator &a, const PauliOperator& b) { return a + b; }, py::is_operator())        
-        .def(py::self += py::self)
-        .def("__IADD__", [](GeneralQuantumOperator &a, const PauliOperator& b) { return a += b; }, py::is_operator())        
-        .def(py::self - py::self)
-        .def("__sub__", [](const GeneralQuantumOperator &a, const PauliOperator& b) { return a - b; }, py::is_operator())        
-        .def(py::self -= py::self)
-        .def("__ISUB__", [](GeneralQuantumOperator &a, const PauliOperator& b) { return a -= b; }, py::is_operator())        
         ;
     auto mobservable = m.def_submodule("observable");
     mobservable.def("create_observable_from_openfermion_file", &observable::create_observable_from_openfermion_file, pybind11::return_value_policy::take_ownership);
