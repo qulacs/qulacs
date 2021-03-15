@@ -18,7 +18,7 @@ private:
     std::vector<std::pair<UINT, UINT>> noise_info;
 
     void evaluate_gates(const std::vector<UINT> chosen_gate,
-        QuantumState* sampling_state, const int StartPos);
+        QuantumStateBase* sampling_state, const int StartPos);
 
 public:
     /**
@@ -33,7 +33,7 @@ public:
      * @return NoiseSimulatorのインスタンス
      */
     NoiseSimulatorMPI(const QuantumCircuit* init_circuit,
-        const QuantumState* init_state = NULL,
+        const QuantumStateBase* init_state = NULL,
         const std::vector<UINT>* Noise_itr = NULL);
     /**
      * \~japanese-en

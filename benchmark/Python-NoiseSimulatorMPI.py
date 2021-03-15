@@ -24,6 +24,7 @@ from qulacs.gate import CNOT, CZ, SWAP #2量子ビット演算
 from qulacs.gate import DephasingNoise,DepolarizingNoise,TwoQubitDepolarizingNoise
 
 
+probability = 0.001
 
 #xy座標から通し番号を出力
 def GridtoId(x,y,length):
@@ -46,7 +47,7 @@ def grid_CZ_gate(qubit1,qubit2,length):
 #グリッド上で2qubit gateを作用
 def grid_2Q_gate(qubit1,qubit2,length,gate_array,circuit):
     if InGrid(qubit1[0],qubit1[1],length)==0 and InGrid(qubit2[0],qubit2[1],length)==0:
-        circuit.add_gate(DenseMatrix([GridtoId(qubit1[0],qubit1[1],length),GridtoId(qubit2[0],qubit2[1],length)],gate_array))  
+        circuit.add_noise_gate(DenseMatrix([GridtoId(qubit1[0],qubit1[1],length),GridtoId(qubit2[0],qubit2[1],length)],gate_array),"Depolarizing",probability)  
 
 #グリッド上で1qubit gateを作用
 def grid_1Q_gate(qubitId,circuit,gate_type):
@@ -60,14 +61,14 @@ def grid_1Q_gate(qubitId,circuit,gate_type):
 
 #グリッド上でrandom 1Q gateを作用        
 def random_1Q_gate(qubitId,circuit):
-    hoge =1
+    hoge = 1
     prob = random.random()
     if prob < 1.0/3.0:
-        circuit.add_gate(sqrtX(qubitId))
+        circuit.add_noise_gate(sqrtX(qubitId),"Depolarizing",probability)
     elif prob < 2.0/3.0:
-        circuit.add_gate(sqrtY(qubitId))
+        circuit.add_noise_gate(sqrtY(qubitId),"Depolarizing",probability)
     else:
-        circuit.add_gate(DenseMatrix(qubitId,[[1/np.sqrt(2.0),- np.sqrt(1.0j/2.0)],[np.sqrt(-1.0j/2.0),1/np.sqrt(2.0)]]))
+        circuit.add_noise_gate(DenseMatrix(qubitId,[[1/np.sqrt(2.0),- np.sqrt(1.0j/2.0)],[np.sqrt(-1.0j/2.0),1/np.sqrt(2.0)]]),"Depolarizing",probability)
         #circuit.add_gate(T(qubitId))
 
 theta = np.pi/2.0
@@ -137,9 +138,8 @@ def Google_random_circuit(length,depth,circuit):
                         grid_2Q_gate([i,j],[i,j-1],length,iSwapLikeGate,circuit)
 
 
-
                         
-num_samp = 10000
+num_samp = 100000
 length = 4
 nqubits = length**2
 depth = 20
@@ -159,6 +159,8 @@ ans = hoge.execute(num_samp)
 
 elapsed_time = time.time() - start
 print ("elapsed_time:{0}".format(elapsed_time) + "[sec]")
-
+if len(ans) != 0:
+    for i in range(10):
+        print(ans[i * int(len(ans) / 10)])
 print(len(ans))
 print(circuit)
