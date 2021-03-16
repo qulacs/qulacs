@@ -65,6 +65,37 @@ class TestQuantumCircuit(unittest.TestCase):
                         msg="check make bell state")
 
 
+class TestObservable(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_get_matrix(self):
+        from qulacs import Observable
+        import numpy as np
+        n_qubits = 3
+        obs = Observable(n_qubits)
+        obs.add_operator(1., "Z 0")
+        obs.add_operator(1., "X 0 X 1 X 2")
+        obs.add_operator(1., "Y 1")
+        ans = np.array(
+            [
+                [1, 0, -1j, 0, 0, 0, 0, 1],
+                [0, 1, 0, -1j, 0, 0, 1, 0],
+                [1j, 0, 1, 0, 0, 1, 0, 0],
+                [0, 1j, 0, 1, 1, 0, 0, 0],
+                [0, 0, 0, 1, -1, 0, -1j, 0],
+                [0, 0, 1, 0, 0, -1, 0, -1j],
+                [0, 1, 0, 0, 1j, 0, -1, 0],
+                [1, 0, 0, 0, 0, 1j, 0, -1],
+            ], dtype=np.complex128
+        )
+        self.assertLessEqual(np.linalg.norm(
+            ans-obs.get_matrix().todense()), 1e-6)
+
+
 class TestPointerHandling(unittest.TestCase):
     def setUp(self):
         pass
