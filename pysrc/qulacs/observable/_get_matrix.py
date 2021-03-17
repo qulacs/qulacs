@@ -40,5 +40,5 @@ def _get_matrix(obs):
         pauli_string = [sigmai for q in range(n_qubits)]
         for j, target in enumerate(pauli_target_list):
             pauli_string[target] = sigma_list[pauli_id_list[j]]
-        result += pauli.get_coef()*_kron_n(*pauli_string)
+        result += pauli.get_coef()*_kron_n(*(pauli_string[::-1]))
     return result

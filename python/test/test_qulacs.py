@@ -77,7 +77,7 @@ class TestObservable(unittest.TestCase):
         import numpy as np
         n_qubits = 3
         obs = Observable(n_qubits)
-        obs.add_operator(.5, "Z 0")
+        obs.add_operator(.5, "Z 2")
         obs.add_operator(1., "X 0 X 1 X 2")
         obs.add_operator(1., "Y 1")
         ans = np.array(
@@ -96,7 +96,7 @@ class TestObservable(unittest.TestCase):
             ans-obs.get_matrix().todense()), 1e-6)
         from qulacs import GeneralQuantumOperator
         obs = GeneralQuantumOperator(n_qubits)
-        obs.add_operator(.5j, "Z 0")
+        obs.add_operator(.5j, "Z 2")
         obs.add_operator(1., "X 0 X 1 X 2")
         obs.add_operator(1., "Y 1")
         ans = np.array(
