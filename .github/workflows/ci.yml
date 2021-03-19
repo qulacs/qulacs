@@ -1,4 +1,4 @@
-name: CI
+name: Ubuntu & Windows CI
 
 on:
   pull_request:
@@ -53,8 +53,8 @@ jobs:
       - name: Test in Ubuntu
         run: |
           cd ./build
-          make test
-          make pythontest
+          make test -j
+          make pythontest -j
         if: ${{ contains(matrix.os, 'ubuntu') }}
 
   nvcc-gcc8-GPUbuild:
@@ -94,8 +94,8 @@ jobs:
       - name: Test in Ubuntu
         run: |
           cd ./build
-          make test
-          make pythontest
+          make test -j
+          make pythontest -j
         if: ${{ contains(matrix.os, 'ubuntu') }}
 
   source-dist:
