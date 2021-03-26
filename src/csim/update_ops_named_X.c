@@ -6,10 +6,12 @@
 #include <omp.h>
 #endif
 
+#ifdef _USE_SIMD
 #ifdef _MSC_VER
 #include <intrin.h>
 #else
 #include <x86intrin.h>
+#endif
 #endif
 
 //void X_gate_old(UINT target_qubit_index, CTYPE *state, ITYPE dim);
