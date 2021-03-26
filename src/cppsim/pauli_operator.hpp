@@ -205,6 +205,16 @@ public:
      */
     virtual PauliOperator* copy() const;
 
+    /**
+     * \~japanese-en
+     * added by myself
+     * 量子状態に対応するパウリ演算子の期待値を計算する
+     * get_expectation_value の 1 スレッドバージョン
+     *
+     * @param[in] state 期待値をとるときの量子状態
+     * @return stateに対応する期待値
+     */
+    virtual CPPCTYPE get_expectation_value_single_thread(const QuantumStateBase* state) const;
 };
 
 
