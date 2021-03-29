@@ -60,7 +60,7 @@ public:
                     target_index_list.data(), pauli_id_list.data(),
                     (UINT)target_index_list.size(), state->data(), state->dim,
                     state->get_cuda_stream(), state->device_number);
-                //_update_func_gpu(this->_target_qubit_list[0].index(), _angle,
+                // _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
                 // state->data(), state->dim);
             } else {
                 multi_qubit_Pauli_gate_partial_list(target_index_list.data(),

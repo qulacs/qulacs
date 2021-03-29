@@ -104,7 +104,8 @@ void GeneralQuantumOperator::add_random_operator(const UINT operator_count) {
             target_qubit_index_list.at(qubit_index) = qubit_index;
             target_qubit_pauli_list.at(qubit_index) = pauli_id;
         }
-        const CPPCTYPE coef = random.uniform();
+        // -1.0 <= coef <= 1.0
+        const CPPCTYPE coef = random.uniform() * 2 - 1.0;
         auto pauli_operator = PauliOperator(
             target_qubit_index_list, target_qubit_pauli_list, coef);
         this->add_operator(&pauli_operator);
@@ -114,6 +115,15 @@ void GeneralQuantumOperator::add_random_operator(const UINT operator_count) {
 CPPCTYPE
 GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
+    if (this->get_term_count() == 0) {
+        std::cerr << "Error: "
+                     "GeneralQuantumOperator::solve_ground_state_eigenvalue_by_"
+                     "arnoldi_method("
+                     "QuantumStateBase * state, const UINT iter_count, const "
+                     "CPPCTYPE mu): At least one PauliOperator is required.";
+        return 0;
+    }
+
     // Implemented based on
     // https://files.transtutors.com/cdn/uploadassignments/472339_1_-numerical-linear-aljebra.pdf
     const auto qubit_count = this->get_qubit_count();
@@ -164,8 +174,9 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     Eigen::ComplexEigenSolver<ComplexMatrix> eigen_solver(hessenberg_matrix);
     const auto eigenvalues = eigen_solver.eigenvalues();
     const auto eigenvectors = eigen_solver.eigenvectors();
+    assert(state_list.size() == eigenvectors.cols());
 
-    // Find ground state vector.
+    // Find ground state eigenvalue and eigenvector.
     UINT minimum_eigenvalue_index = 0;
     auto minimum_eigenvalue = eigenvalues[0];
     for (UINT i = 0; i < eigenvalues.size(); i++) {
@@ -175,7 +186,7 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
         }
     }
 
-    // Compose ground state vector.
+    // Compose ground state vector and store it to `state`.
     present_state.multiply_coef(0.0);
     for (UINT i = 0; i < state_list.size() - 1; i++) {
         tmp_state.load(state_list[i]);
@@ -193,6 +204,15 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
 
 CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
     QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
+    if (this->get_term_count() == 0) {
+        std::cerr << "Error: "
+                     "GeneralQuantumOperator::solve_ground_state_eigenvalue_by_"
+                     "power_method("
+                     "QuantumStateBase * state, const UINT iter_count, const "
+                     "CPPCTYPE mu): At least one PauliOperator is required.";
+        return 0;
+    }
+
     CPPCTYPE mu_;
     if (mu == 0.0) {
         // mu is not changed from default value.
@@ -243,13 +263,13 @@ void GeneralQuantumOperator::apply_to_state(QuantumStateBase* work_state,
 }
 
 CPPCTYPE GeneralQuantumOperator::calculate_default_mu() const {
-    CPPCTYPE mu = 0.0;
+    double mu = 0.0;
     const auto term_count = this->get_term_count();
     for (UINT i = 0; i < term_count; i++) {
         const auto term = this->get_term(i);
-        mu += term->get_coef();
+        mu += std::abs(term->get_coef().real());
     }
-    return mu;
+    return static_cast<CPPCTYPE>(mu);
 }
 
 GeneralQuantumOperator* GeneralQuantumOperator::copy() const {

@@ -3,15 +3,14 @@
 
 #include <Eigen/Core>
 #include <algorithm>
-#include <string>
-
-#include "../util/util.hpp"
-
 #include <csim/init_ops.hpp>
 #include <csim/memory_ops.hpp>
 #include <csim/stat_ops.hpp>
 #include <csim/update_ops.hpp>
 #include <csim/update_ops_cpp.hpp>
+#include <string>
+
+#include "../util/util.hpp"
 
 void test_double_dense_matrix_gate(
     std::function<void(UINT, UINT, const CTYPE*, CTYPE*, ITYPE)> func) {

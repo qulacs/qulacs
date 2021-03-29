@@ -175,6 +175,7 @@ public:
      * state_to_be_multiplied に GeneralQuantumOperator を作用させる．
      * 結果は dst_state に格納される．dst_state
      * はすべての要素を0に初期化してから計算するため， 任意の状態を渡してよい．
+     * @param [in] work_state 作業用の状態
      * @param [in] state_to_be_multiplied 作用を受ける状態
      * @param [in] dst_state 結果を格納する状態
      */
@@ -202,11 +203,11 @@ public:
 
     GeneralQuantumOperator& operator-=(const PauliOperator& target);
 
-private:
+protected:
     /**
      * \~japanese-en
      * solve_ground_state_eigenvalue_by_power_method の mu
-     * のデフォルト値を計算する．
+     * のデフォルト値として，各 operator の係数の絶対値の和を計算する．
      */
     CPPCTYPE calculate_default_mu() const;
 };

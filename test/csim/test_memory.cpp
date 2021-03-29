@@ -1,10 +1,10 @@
 #include <gtest/gtest.h>
 
-#include "../util/util.hpp"
-
 #include <csim/init_ops.hpp>
 #include <csim/memory_ops.hpp>
 #include <csim/utility.hpp>
+
+#include "../util/util.hpp"
 
 TEST(MemoryOperationTest, AllocateAndRelease) {
     const UINT n = 10;

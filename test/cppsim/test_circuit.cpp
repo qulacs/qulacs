@@ -1,7 +1,6 @@
 
 #include <gtest/gtest.h>
 
-#include <csim/constant.hpp>
 #include <cppsim/circuit.hpp>
 #include <cppsim/circuit_optimizer.hpp>
 #include <cppsim/gate_factory.hpp>
@@ -12,6 +11,7 @@
 #include <cppsim/state.hpp>
 #include <cppsim/type.hpp>
 #include <cppsim/utility.hpp>
+#include <csim/constant.hpp>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <utility>
 

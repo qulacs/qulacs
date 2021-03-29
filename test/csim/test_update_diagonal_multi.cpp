@@ -3,14 +3,13 @@
 
 #include <Eigen/Core>
 #include <algorithm>
-#include <string>
-
-#include "../util/util.hpp"
-
 #include <csim/init_ops.hpp>
 #include <csim/memory_ops.hpp>
 #include <csim/stat_ops.hpp>
 #include <csim/update_ops.hpp>
+#include <string>
+
+#include "../util/util.hpp"
 
 TEST(UpdateTest, MultiQubitDiagonalMatrixTest) {
     const UINT n = 6;

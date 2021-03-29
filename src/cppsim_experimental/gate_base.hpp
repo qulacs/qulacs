@@ -1,15 +1,13 @@
 #pragma once
 
+#include <csim/constant.hpp>
+#include <csim/update_ops.hpp>
+#include <csim/update_ops_cpp.hpp>
+#include <csim/update_ops_dm.hpp>
 #include <map>
 #include <set>
 #include <stdexcept>
 #include <string>
-
-#include <csim/constant.hpp>
-#include <csim/update_ops.hpp>
-#include <csim/update_ops_dm.hpp>
-
-#include <csim/update_ops_cpp.hpp>
 
 #ifdef _USE_GPU
 #include <gpusim/update_ops_cuda.h>

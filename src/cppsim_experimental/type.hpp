@@ -1,7 +1,5 @@
 #pragma once
 
-#include <csim/type.hpp>
-
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include <cereal/access.hpp>
@@ -14,6 +12,7 @@
 #include <cereal/types/tuple.hpp>
 #include <cereal/types/vector.hpp>
 #include <complex>
+#include <csim/type.hpp>
 typedef std::complex<double> CPPCTYPE;
 typedef Eigen::VectorXcd ComplexVector;
 

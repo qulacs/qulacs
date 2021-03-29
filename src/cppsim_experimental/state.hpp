@@ -5,7 +5,6 @@
 #include <csim/memory_ops.hpp>
 #include <csim/stat_ops.hpp>
 #include <csim/update_ops.hpp>
-
 #include <iostream>
 #include <map>
 #include <string>

@@ -1,8 +1,7 @@
 #pragma once
 
-#include <csim/type.hpp>
-
 #include <Eigen/Core>
+#include <csim/type.hpp>
 #include <string>
 
 #ifdef __GNUC__

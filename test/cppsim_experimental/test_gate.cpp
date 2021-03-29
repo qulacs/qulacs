@@ -1,12 +1,11 @@
 #include <gtest/gtest.h>
 
-#include <csim/update_ops.hpp>
-
 #include <cmath>
 #include <cppsim_experimental/gate.hpp>
 #include <cppsim_experimental/observable.hpp>
 #include <cppsim_experimental/state.hpp>
 #include <cppsim_experimental/utility.hpp>
+#include <csim/update_ops.hpp>
 #include <functional>
 
 #include "../util/util.hpp"

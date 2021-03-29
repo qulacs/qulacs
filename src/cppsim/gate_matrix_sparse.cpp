@@ -1,10 +1,11 @@
 
-#include <csim/utility.hpp>
+#include "gate_matrix_sparse.hpp"
+
 #include <algorithm>
 #include <csim/update_ops_cpp.hpp>
+#include <csim/utility.hpp>
 #include <numeric>
 
-#include "gate_matrix_sparse.hpp"
 #include "state.hpp"
 #include "type.hpp"
 #ifdef _USE_GPU

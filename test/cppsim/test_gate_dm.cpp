@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <csim/update_ops.hpp>
 #include <cmath>
 #include <cppsim/gate.hpp>
 #include <cppsim/gate_factory.hpp>
@@ -9,6 +8,7 @@
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/state_dm.hpp>
 #include <cppsim/utility.hpp>
+#include <csim/update_ops.hpp>
 #include <functional>
 #include <numeric>
 

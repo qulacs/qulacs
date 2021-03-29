@@ -4,6 +4,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#undef NDEBUG
+#include <Eigen/Dense>
+#include <cassert>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 
@@ -37,19 +41,98 @@ CPPCTYPE HermitianQuantumOperator::get_expectation_value(
 }
 
 CPPCTYPE
-HermitianQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
+HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
-    return GeneralQuantumOperator::
-        solve_ground_state_eigenvalue_by_arnoldi_method(state, iter_count, mu)
-            .real();
-}
+    if (this->get_term_count() == 0) {
+        std::cerr << "Error: "
+                     "HermitianQuantumOperator::solve_ground_state_eigenvalue_"
+                     "by_lanczos_method("
+                     "QuantumStateBase * state, const UINT iter_count, const "
+                     "CPPCTYPE mu): At least one PauliOperator is required.";
+        return 0;
+    }
 
-CPPCTYPE
-HermitianQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
-    QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
-    return GeneralQuantumOperator::
-        solve_ground_state_eigenvalue_by_power_method(state, iter_count, mu)
-            .real();
+    const auto qubit_count = this->get_qubit_count();
+    QuantumState tmp_state(qubit_count);
+    QuantumState multiplied_state(qubit_count);
+    QuantumState mu_timed_state(qubit_count);
+
+    std::vector<QuantumStateBase*> state_list;
+    state->normalize(state->get_squared_norm());
+    state_list.push_back(state->copy());
+
+    CPPCTYPE mu_;
+    if (mu == 0.0) {
+        // mu is not changed from default value.
+        mu_ = this->calculate_default_mu();
+    } else {
+        mu_ = mu;
+    }
+
+    Eigen::VectorXd alpha_v(iter_count);
+    Eigen::VectorXd beta_v(iter_count - 1);
+    for (UINT i = 0; i < iter_count; i++) {
+        // v = (A - μI) * q_i
+        mu_timed_state.load(state_list[i]);
+        mu_timed_state.multiply_coef(-mu_);
+        this->apply_to_state(&tmp_state, *state_list[i], &multiplied_state);
+        multiplied_state.add_state(&mu_timed_state);
+        // α = q_i^T * v
+        const auto alpha = state::inner_product(
+            static_cast<QuantumState*>(state_list[i]), &multiplied_state);
+        alpha_v(i) = alpha.real();
+        // In the last iteration, no need to calculate β.
+        if (i == iter_count - 1) {
+            break;
+        }
+
+        tmp_state.load(state_list[i]);
+        tmp_state.multiply_coef(-alpha);
+        // v -= α_i * q_i
+        multiplied_state.add_state(&tmp_state);
+        if (i != 0) {
+            tmp_state.load(state_list[i - 1]);
+            tmp_state.multiply_coef(-beta_v(i - 1));
+            // v -= β_{i-1} * q_{i-1}
+            multiplied_state.add_state(&tmp_state);
+        }
+
+        const auto beta = std::sqrt(multiplied_state.get_squared_norm());
+        beta_v(i) = beta;
+        multiplied_state.multiply_coef(1 / beta);
+        state_list.push_back(multiplied_state.copy());
+    }
+
+    Eigen::SelfAdjointEigenSolver<ComplexMatrix> solver;
+    solver.computeFromTridiagonal(alpha_v, beta_v);
+    const auto eigenvalues = solver.eigenvalues();
+    // Find ground state eigenvalue and eigenvector.
+    UINT minimum_eigenvalue_index = 0;
+    auto minimum_eigenvalue = eigenvalues[0];
+    for (UINT i = 0; i < eigenvalues.size(); i++) {
+        if (eigenvalues[i] < minimum_eigenvalue) {
+            minimum_eigenvalue_index = i;
+            minimum_eigenvalue = eigenvalues(i);
+        }
+    }
+
+    // Compose ground state vector.
+    auto eigenvectors = solver.eigenvectors();
+    auto eigenvector_in_krylov = eigenvectors.col(minimum_eigenvalue_index);
+    // Store ground state eigenvector to `state`.
+    state->multiply_coef(0.0);
+    for (UINT i = 0; i < state_list.size(); i++) {
+        tmp_state.load(state_list[i]);
+        tmp_state.multiply_coef(eigenvector_in_krylov(i));
+        state->add_state(&tmp_state);
+    }
+
+    // Free states allocated by `QuantumState::copy()`.
+    for (auto used_state : state_list) {
+        delete used_state;
+    }
+
+    return minimum_eigenvalue + mu_;
 }
 
 std::string HermitianQuantumOperator::to_string() const {

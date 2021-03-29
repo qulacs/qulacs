@@ -1,13 +1,12 @@
 #include <gtest/gtest.h>
 
-#include <csim/constant.hpp>
-
 #include <cppsim_experimental/circuit.hpp>
 #include <cppsim_experimental/gate.hpp>
 #include <cppsim_experimental/observable.hpp>
 #include <cppsim_experimental/state.hpp>
 #include <cppsim_experimental/type.hpp>
 #include <cppsim_experimental/utility.hpp>
+#include <csim/constant.hpp>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <utility>
 

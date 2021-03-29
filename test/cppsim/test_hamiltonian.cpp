@@ -1,7 +1,5 @@
 #include <gtest/gtest.h>
 
-#include <csim/constant.hpp>
-
 #include <Eigen/Eigenvalues>
 #include <cppsim/circuit.hpp>
 #include <cppsim/gate_factory.hpp>
@@ -11,6 +9,7 @@
 #include <cppsim/state.hpp>
 #include <cppsim/type.hpp>
 #include <cppsim/utility.hpp>
+#include <csim/constant.hpp>
 #include <fstream>
 
 #include "../util/util.hpp"
@@ -321,18 +320,17 @@ TEST(ObservableTest, CheckSplitObservable) {
 enum class CalculationMethod {
     PowerMethod,
     ArnoldiMethod,
+    LanczosMethod,
 };
 
 // Test calculating eigenvalue.
 // Actual test code calls this function with prepared observable.
 void test_eigenvalue(Observable& observable, const UINT iter_count,
     const double eps, const CalculationMethod method) {
-    // observable に対応する行列を求める
     auto observable_matrix = convert_observable_to_matrix(observable);
-    // 基底状態の固有値を求める
     const auto eigenvalues = observable_matrix.eigenvalues();
     CPPCTYPE test_ground_state_eigenvalue = eigenvalues[0];
-    for (auto i = 0; i < eigenvalues.size(); i++) {
+    for (UINT i = 0; i < eigenvalues.size(); i++) {
         if (eigenvalues[i].real() < test_ground_state_eigenvalue.real()) {
             test_ground_state_eigenvalue = eigenvalues[i];
         }
@@ -350,20 +348,24 @@ void test_eigenvalue(Observable& observable, const UINT iter_count,
         ground_state_eigenvalue =
             observable.solve_ground_state_eigenvalue_by_arnoldi_method(
                 &state, iter_count);
+    } else if (method == CalculationMethod::LanczosMethod) {
+        ground_state_eigenvalue =
+            observable.solve_ground_state_eigenvalue_by_lanczos_method(
+                &state, iter_count);
     }
     ASSERT_NEAR(ground_state_eigenvalue.real(),
         test_ground_state_eigenvalue.real(), eps);
 
     QuantumState multiplied_state(qubit_count);
     QuantumState work_state(qubit_count);
-    // A|q>
+    // multiplied_state = A|q>
     observable.apply_to_state(&work_state, state, &multiplied_state);
-    // λ|q>
-    state.multiply_coef(test_ground_state_eigenvalue);
+    // state = λ|q>
+    state.multiply_coef(ground_state_eigenvalue);
     multiplied_state.normalize(multiplied_state.get_squared_norm());
     state.normalize(state.get_squared_norm());
 
-    for (UINT i = 0; i < observable.get_state_dim(); i++) {
+    for (UINT i = 0; i < state.dim; i++) {
         ASSERT_NEAR(multiplied_state.data_cpp()[i].real(),
             state.data_cpp()[i].real(), eps);
         ASSERT_NEAR(multiplied_state.data_cpp()[i].imag(),
@@ -371,14 +373,13 @@ void test_eigenvalue(Observable& observable, const UINT iter_count,
     }
 }
 
-TEST(ObservableTest, MaximumEigenvalueByPowerMethod) {
-    constexpr UINT qubit_count = 4;
+TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
     constexpr double eps = 1e-2;
-    constexpr UINT dim = 1ULL << qubit_count;
+    constexpr UINT qubit_count = 4;
+    constexpr UINT test_count = 5;
     Random random;
-    constexpr size_t test_count = 5;
 
-    for (auto i = 0; i < test_count; i++) {
+    for (UINT i = 0; i < test_count; i++) {
         const UINT operator_count =
             random.int32() % 10 + 2;  // 2 <= operator_count <= 11
         auto observable = Observable(qubit_count);
@@ -387,15 +388,14 @@ TEST(ObservableTest, MaximumEigenvalueByPowerMethod) {
     }
 }
 
-TEST(ObservableTest, MaximumEigenvalueByArnoldiMethod) {
+TEST(ObservableTest, MinimumEigenvalueByArnoldiMethod) {
     constexpr double eps = 1e-6;
     constexpr UINT test_count = 10;
     Random random;
 
-    for (auto i = 0; i < test_count; i++) {
+    for (UINT i = 0; i < test_count; i++) {
         // 3 <= qubit_count <= 5
         const auto qubit_count = random.int32() % 4 + 3;
-        const UINT dim = 1U << qubit_count;
         // 2 <= operator_count <= 11
         const auto operator_count = random.int32() % 10 + 2;
         auto observable = Observable(qubit_count);
@@ -417,20 +417,35 @@ void add_identity(Observable* observable, Random random) {
 
 // Test observable with identity pauli operator because calculation was unstable
 // in this situation.
-TEST(ObservableTest, MaximumEigenvalueByArnoldiMethodWithIdentity) {
+TEST(ObservableTest, MinimumEigenvalueByArnoldiMethodWithIdentity) {
     constexpr double eps = 1e-6;
     constexpr UINT test_count = 10;
     Random random;
 
-    for (auto i = 0; i < test_count; i++) {
+    for (UINT i = 0; i < test_count; i++) {
         // 3 <= qubit_count <= 5
         const auto qubit_count = random.int32() % 4 + 3;
-        const UINT dim = 1U << qubit_count;
         // 2 <= operator_count <= 11
         const auto operator_count = random.int32() % 10 + 2;
         auto observable = Observable(qubit_count);
         observable.add_random_operator(operator_count);
         add_identity(&observable, random);
         test_eigenvalue(observable, 70, eps, CalculationMethod::ArnoldiMethod);
+    }
+}
+
+TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
+    constexpr double eps = 1e-6;
+    constexpr UINT test_count = 100;
+    Random random;
+
+    for (UINT i = 0; i < test_count; i++) {
+        // 3 <= qubit_count <= 6
+        const auto qubit_count = random.int32() % 4 + 3;
+        // 2 <= operator_count <= 11
+        const auto operator_count = random.int32() % 10 + 2;
+        auto observable = Observable(qubit_count);
+        observable.add_random_operator(operator_count);
+        test_eigenvalue(observable, 70, eps, CalculationMethod::LanczosMethod);
     }
 }

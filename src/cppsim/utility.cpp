@@ -31,7 +31,7 @@ void get_Pauli_matrix(
     }
 }
 
-ComplexMatrix convert_observable_to_matrix(Observable& observable) {
+ComplexMatrix convert_observable_to_matrix(const Observable& observable) {
     const auto dim = observable.get_state_dim();
     const auto qubit_count = observable.get_qubit_count();
     ComplexMatrix observable_matrix = ComplexMatrix::Zero(dim, dim);

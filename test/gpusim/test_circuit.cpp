@@ -1,8 +1,8 @@
-#include <csim/constant.hpp>
 #include <gtest/gtest.h>
 
 #include <cppsim/state_gpu.hpp>
 #include <cppsim/type.hpp>
+#include <csim/constant.hpp>
 
 #include "../util/util.hpp"
 //#define _USE_MATH_DEFINES

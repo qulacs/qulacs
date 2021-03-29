@@ -1,9 +1,10 @@
 
 #define EIGEN_DONT_PARALLELIZE
+#include <Eigen/Core>
+
 #include "update_ops.hpp"
 #include "update_ops_cpp.hpp"
 #include "utility.hpp"
-#include <Eigen/Core>
 
 void double_qubit_dense_matrix_gate(UINT target_qubit_index1,
     UINT target_qubit_index2, const CTYPE matrix[16], CTYPE* state, ITYPE dim) {

@@ -3,6 +3,7 @@
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include <functional>
+
 #include "type.hpp"
 
 DllExport void double_qubit_dense_matrix_gate(UINT target_qubit_index0,

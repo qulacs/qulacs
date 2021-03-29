@@ -1,13 +1,14 @@
 
-#include <csim/utility.hpp>
+#include "gate_merge.hpp"
+
 #include <algorithm>
+#include <csim/utility.hpp>
 #include <iterator>
 #include <numeric>
 #include <vector>
 
 #include "gate_general.hpp"
 #include "gate_matrix.hpp"
-#include "gate_merge.hpp"
 
 void get_new_qubit_list(const QuantumGateBase* gate_first,
     const QuantumGateBase* gate_second,

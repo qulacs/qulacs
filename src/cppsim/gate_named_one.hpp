@@ -1,9 +1,8 @@
 #pragma once
 
+#include <cmath>
 #include <csim/update_ops.hpp>
 #include <csim/update_ops_dm.hpp>
-
-#include <cmath>
 
 #include "gate_named.hpp"
 
