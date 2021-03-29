@@ -106,9 +106,26 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     Eigen::SelfAdjointEigenSolver<ComplexMatrix> solver;
     solver.computeFromTridiagonal(alpha_v, beta_v);
     const auto eigenvalues = solver.eigenvalues();
+    // Find ground state eigenvalue and eigenvector.
+    UINT minimum_eigenvalue_index = 0;
+    auto minimum_eigenvalue = eigenvalues[0];
+    for (UINT i = 0; i < eigenvalues.size(); i++) {
+        if (eigenvalues[i] < minimum_eigenvalue) {
+            minimum_eigenvalue_index = i;
+            minimum_eigenvalue = eigenvalues(i);
+        }
+    }
+
+    // Compose ground state vector.
     auto eigenvectors = solver.eigenvectors();
-    const auto minimum_eigenvalue = this->calculate_ground_state_eigenvector(
-        eigenvalues, eigenvectors, state_list, state, &tmp_state);
+    auto eigenvector_in_krylov = eigenvectors.col(minimum_eigenvalue_index);
+    // Store ground state eigenvector to `state`.
+    state->multiply_coef(0.0);
+    for (UINT i = 0; i < state_list.size(); i++) {
+        tmp_state.load(state_list[i]);
+        tmp_state.multiply_coef(eigenvector_in_krylov(i));
+        state->add_state(&tmp_state);
+    }
 
     // Free states allocated by `QuantumState::copy()`.
     for (auto used_state : state_list) {
