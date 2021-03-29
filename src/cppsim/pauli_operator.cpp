@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include <boost/dynamic_bitset.hpp>
 #include <cassert>
 #include <cstring>
 #include <fstream>
@@ -12,7 +13,6 @@
 
 #include "type.hpp"
 #include "utility.hpp"
-
 #ifdef _USE_GPU
 #include <gpusim/stat_ops.h>
 #endif
@@ -96,6 +96,18 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_index_list,
 
 void PauliOperator::add_single_Pauli(UINT qubit_index, UINT pauli_type) {
     this->_pauli_list.push_back(SinglePauliOperator(qubit_index, pauli_type));
+    while (_x.size() <= qubit_index) {
+        _x.resize(_x.size() * 2 + 1);
+        _z.resize(_z.size() * 2 + 1);
+    }
+    if (pauli_type == 1) {
+        _x.set(qubit_index);
+    } else if (pauli_type == 2) {
+        _x.set(qubit_index);
+        _z.set(qubit_index);
+    } else if (pauli_type == 3) {
+        _z.set(qubit_index);
+    }
 }
 
 CPPCTYPE PauliOperator::get_expectation_value(
@@ -206,3 +218,5 @@ std::string PauliOperator::get_pauli_string() const {
     res.pop_back();
     return res;
 }
+
+void PauliOperator::change_coef(CPPCTYPE new_coef) { _coef = new_coef; }

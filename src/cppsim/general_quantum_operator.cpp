@@ -272,6 +272,211 @@ CPPCTYPE GeneralQuantumOperator::calculate_default_mu() const {
     return static_cast<CPPCTYPE>(mu);
 }
 
+GeneralQuantumOperator* GeneralQuantumOperator::copy() const {
+    auto quantum_operator = new GeneralQuantumOperator(_qubit_count);
+    for (auto pauli : this->_operator_list) {
+        quantum_operator->add_operator(pauli->copy());
+    }
+    return quantum_operator;
+}
+
+GeneralQuantumOperator GeneralQuantumOperator::operator+(
+    const GeneralQuantumOperator& target) const {
+    auto res = this->copy();
+    *res += target;
+    return *res;
+}
+
+GeneralQuantumOperator GeneralQuantumOperator::operator+(
+    const PauliOperator& target) const {
+    auto res = this->copy();
+    *res += target;
+    return *res;
+}
+
+GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
+    const GeneralQuantumOperator& target) {
+    ITYPE i, j;
+    auto terms = target.get_terms();
+#pragma omp parallel for
+    for (i = 0; i < _operator_list.size(); i++) {
+        auto pauli_operator = _operator_list[i];
+        for (j = 0; j < terms.size(); j++) {
+            auto target_operator = terms[j];
+            auto pauli_x = pauli_operator->get_x_bits();
+            auto pauli_z = pauli_operator->get_z_bits();
+            auto target_x = target_operator->get_x_bits();
+            auto target_z = target_operator->get_z_bits();
+            if (pauli_x.size() != target_x.size()) {
+                UINT max_size = std::max(pauli_x.size(), target_x.size());
+                pauli_x.resize(max_size);
+                pauli_z.resize(max_size);
+                target_x.resize(max_size);
+                target_z.resize(max_size);
+            }
+            if (pauli_x == target_x && pauli_z == target_z) {
+                _operator_list[i]->change_coef(_operator_list[i]->get_coef() +
+                                               target_operator->get_coef());
+            }
+        }
+    }
+    for (j = 0; j < terms.size(); j++) {
+        auto target_operator = terms[j];
+        bool flag = true;
+        for (i = 0; i < _operator_list.size(); i++) {
+            auto pauli_operator = _operator_list[i];
+            auto pauli_x = pauli_operator->get_x_bits();
+            auto pauli_z = pauli_operator->get_z_bits();
+            auto target_x = target_operator->get_x_bits();
+            auto target_z = target_operator->get_z_bits();
+            if (pauli_x.size() != target_x.size()) {
+                UINT max_size = std::max(pauli_x.size(), target_x.size());
+                pauli_x.resize(max_size);
+                pauli_z.resize(max_size);
+                target_x.resize(max_size);
+                target_z.resize(max_size);
+            }
+            if (pauli_x == target_x && pauli_z == target_z) {
+                flag = false;
+            }
+        }
+        if (flag) {
+            this->add_operator(target_operator->copy());
+        }
+    }
+    return *this;
+}
+
+GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
+    const PauliOperator& target) {
+    bool flag = true;
+    ITYPE i;
+#pragma omp parallel for
+    for (i = 0; i < _operator_list.size(); i++) {
+        auto pauli_operator = _operator_list[i];
+        auto pauli_x = pauli_operator->get_x_bits();
+        auto pauli_z = pauli_operator->get_z_bits();
+        auto target_x = target.get_x_bits();
+        auto target_z = target.get_z_bits();
+        if (pauli_x.size() != target_x.size()) {
+            UINT max_size = std::max(pauli_x.size(), target_x.size());
+            pauli_x.resize(max_size);
+            pauli_z.resize(max_size);
+            target_x.resize(max_size);
+            target_z.resize(max_size);
+        }
+        if (pauli_x == target_x && pauli_z == target_z) {
+            _operator_list[i]->change_coef(
+                _operator_list[i]->get_coef() + target.get_coef());
+            flag = false;
+        }
+    }
+    if (flag) {
+        this->add_operator(target.copy());
+    }
+    return *this;
+}
+
+GeneralQuantumOperator GeneralQuantumOperator::operator-(
+    const GeneralQuantumOperator& target) const {
+    auto res = this->copy();
+    *res -= target;
+    return *res;
+}
+
+GeneralQuantumOperator GeneralQuantumOperator::operator-(
+    const PauliOperator& target) const {
+    auto res = this->copy();
+    *res -= target;
+    return *res;
+}
+
+GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
+    const GeneralQuantumOperator& target) {
+    ITYPE i, j;
+    auto terms = target.get_terms();
+#pragma omp parallel for
+    for (i = 0; i < _operator_list.size(); i++) {
+        auto pauli_operator = _operator_list[i];
+        for (j = 0; j < terms.size(); j++) {
+            auto target_operator = terms[j];
+            auto pauli_x = pauli_operator->get_x_bits();
+            auto pauli_z = pauli_operator->get_z_bits();
+            auto target_x = target_operator->get_x_bits();
+            auto target_z = target_operator->get_z_bits();
+            if (pauli_x.size() != target_x.size()) {
+                UINT max_size = std::max(pauli_x.size(), target_x.size());
+                pauli_x.resize(max_size);
+                pauli_z.resize(max_size);
+                target_x.resize(max_size);
+                target_z.resize(max_size);
+            }
+            if (pauli_x == target_x && pauli_z == target_z) {
+                _operator_list[i]->change_coef(_operator_list[i]->get_coef() -
+                                               target_operator->get_coef());
+            }
+        }
+    }
+    for (j = 0; j < terms.size(); j++) {
+        auto target_operator = terms[j];
+        bool flag = true;
+        for (i = 0; i < _operator_list.size(); i++) {
+            auto pauli_operator = _operator_list[i];
+            auto pauli_x = pauli_operator->get_x_bits();
+            auto pauli_z = pauli_operator->get_z_bits();
+            auto target_x = target_operator->get_x_bits();
+            auto target_z = target_operator->get_z_bits();
+            if (pauli_x.size() != target_x.size()) {
+                UINT max_size = std::max(pauli_x.size(), target_x.size());
+                pauli_x.resize(max_size);
+                pauli_z.resize(max_size);
+                target_x.resize(max_size);
+                target_z.resize(max_size);
+            }
+            if (pauli_x == target_x && pauli_z == target_z) {
+                flag = false;
+            }
+        }
+        if (flag) {
+            auto copy = target_operator->copy();
+            copy->change_coef(-copy->get_coef());
+            this->add_operator(copy);
+        }
+    }
+    return *this;
+}
+
+GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
+    const PauliOperator& target) {
+    bool flag = true;
+    ITYPE i;
+    for (i = 0; i < _operator_list.size(); i++) {
+        auto pauli_operator = _operator_list[i];
+        auto pauli_x = pauli_operator->get_x_bits();
+        auto pauli_z = pauli_operator->get_z_bits();
+        auto target_x = target.get_x_bits();
+        auto target_z = target.get_z_bits();
+        if (pauli_x.size() != target_x.size()) {
+            UINT max_size = std::max(pauli_x.size(), target_x.size());
+            pauli_x.resize(max_size);
+            pauli_z.resize(max_size);
+            target_x.resize(max_size);
+            target_z.resize(max_size);
+        }
+        if (pauli_x == target_x && pauli_z == target_z) {
+            _operator_list[i]->change_coef(
+                _operator_list[i]->get_coef() - target.get_coef());
+            flag = false;
+        }
+    }
+    if (flag) {
+        auto copy = target.copy();
+        copy->change_coef(-copy->get_coef());
+        this->add_operator(copy);
+    }
+    return *this;
+}
+
 namespace quantum_operator {
 GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(
     std::string file_path) {

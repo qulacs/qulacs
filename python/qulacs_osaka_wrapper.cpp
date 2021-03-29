@@ -27,6 +27,8 @@
 #include <cppsim_experimental/state_gpu.hpp>
 #endif
 
+#undef _USE_MPI
+
 #ifdef _USE_MPI
 #include <mpisim/noisesimulatorMPI.hpp>
 #include <mpisim/GradCalculatorMPI.hpp>

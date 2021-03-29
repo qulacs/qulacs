@@ -56,6 +56,9 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("get_transition_amplitude", &PauliOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         .def("copy", &PauliOperator::copy, pybind11::return_value_policy::take_ownership, "Create copied instance of Pauli operator class")
         .def("get_pauli_string", &PauliOperator::get_pauli_string, "get pauli string")
+        .def("change_coef", &PauliOperator::change_coef, "change coefficient")
+        .def("get_x_bits", &PauliOperator::get_x_bits, "get x bits")
+        .def("get_z_bits", &PauliOperator::get_z_bits, "get z bits")
         ;
 
     py::class_<GeneralQuantumOperator>(m, "GeneralQuantumOperator")
@@ -75,6 +78,15 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("get_transition_amplitude", &GeneralQuantumOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         .def("__str__", &GeneralQuantumOperator::to_string, "to string")
         //.def_static("get_split_GeneralQuantumOperator", &(GeneralQuantumOperator::get_split_observable));
+        .def("copy", &GeneralQuantumOperator::copy, pybind11::return_value_policy::take_ownership, "Create copied instance of General Quantum operator class")
+        .def(py::self + py::self)
+        .def("__add__", [](const GeneralQuantumOperator &a, const PauliOperator& b) { return a + b; }, py::is_operator())        
+        .def(py::self += py::self)
+        .def("__IADD__", [](GeneralQuantumOperator &a, const PauliOperator& b) { return a += b; }, py::is_operator())        
+        .def(py::self - py::self)
+        .def("__sub__", [](const GeneralQuantumOperator &a, const PauliOperator& b) { return a - b; }, py::is_operator())        
+        .def(py::self -= py::self)
+        .def("__ISUB__", [](GeneralQuantumOperator &a, const PauliOperator& b) { return a -= b; }, py::is_operator())        
         ;
     auto mquantum_operator = m.def_submodule("quantum_operator");
     mquantum_operator.def("create_quantum_operator_from_openfermion_file", &quantum_operator::create_general_quantum_operator_from_openfermion_file, pybind11::return_value_policy::take_ownership);

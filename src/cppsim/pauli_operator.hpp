@@ -6,6 +6,7 @@
 
 #pragma once
 
+#include <boost/dynamic_bitset.hpp>
 #include <cassert>
 #include <iostream>
 #include <vector>
@@ -75,6 +76,8 @@ class DllExport PauliOperator {
 private:
     std::vector<SinglePauliOperator> _pauli_list;
     CPPCTYPE _coef;
+    boost::dynamic_bitset<> _z;
+    boost::dynamic_bitset<> _x;
 
 public:
     /**
@@ -194,6 +197,22 @@ public:
      */
     virtual CPPCTYPE get_coef() const { return _coef; }
 
+    /**
+     * \~japanese-en
+     * 自身のxビットを返す
+     *
+     * @return 自身のxビット
+     */
+    virtual boost::dynamic_bitset<> get_x_bits() const { return _x; }
+
+    /**
+     * \~japanese-en
+     * 自身のzビットを返す
+     *
+     * @return 自身のzビット
+     */
+    virtual boost::dynamic_bitset<> get_z_bits() const { return _z; }
+
     virtual ~PauliOperator(){};
 
     /**
@@ -232,6 +251,8 @@ public:
      * @return 自身のディープコピー
      */
     virtual PauliOperator* copy() const;
+
+    virtual void change_coef(CPPCTYPE new_coef);
 
     /**
      * \~japanese-en
