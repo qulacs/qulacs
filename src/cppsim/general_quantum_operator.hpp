@@ -203,7 +203,7 @@ public:
 
     GeneralQuantumOperator& operator-=(const PauliOperator& target);
 
-private:
+protected:
     /**
      * \~japanese-en
      * solve_ground_state_eigenvalue_by_power_method の mu
