@@ -346,42 +346,6 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     }
     return *this;
 }
-GeneralQuantumOperator GeneralQuantumOperator::operator*(
-    const GeneralQuantumOperator& target) const {
-    auto res = this->copy();
-    *res *= target;
-    return *res;
-}
-
-GeneralQuantumOperator GeneralQuantumOperator::operator*(
-    const PauliOperator& target) const {
-    auto res = this->copy();
-    *res *= target;
-    return *res;
-}
-GeneralQuantumOperator GeneralQuantumOperator::operator*(
-    CPPCTYPE target) const {
-    auto res = this->copy();
-    *res *= target;
-    return *res;
-}
-
-GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
-    const GeneralQuantumOperator& target) {
-    auto copy = this->copy();
-    _operator_list.clear();
-#pragma omp parallel for
-    for (UINT i = 0; i < copy->get_terms().size(); i++) {
-        auto pauli_operator = copy->get_terms()[i];
-        for (UINT j = 0; j < target.get_terms().size(); j++) {
-            auto target_operator = target.get_terms()[j];
-            PauliOperator* product = new PauliOperator;
-            *product = (*pauli_operator) * (*target_operator);
-            *this += *product;
-        }
-    }
-    return *this;
-}
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     const PauliOperator& target) {
@@ -512,14 +476,55 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
     }
     return *this;
 }
+GeneralQuantumOperator GeneralQuantumOperator::operator*(
+    const GeneralQuantumOperator& target) const {
+    auto res = this->copy();
+    *res *= target;
+    return *res;
+}
+
+GeneralQuantumOperator GeneralQuantumOperator::operator*(
+    const PauliOperator& target) const {
+    auto res = this->copy();
+    *res *= target;
+    return *res;
+}
+GeneralQuantumOperator GeneralQuantumOperator::operator*(
+    CPPCTYPE target) const {
+    auto res = this->copy();
+    *res *= target;
+    return *res;
+}
+
+GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
+    const GeneralQuantumOperator& target) {
+    auto copy = this->copy();
+    _operator_list.clear();
+    auto terms = copy->get_terms();
+    auto target_terms = target.get_terms();
+    ITYPE i, j;
+#pragma omp parallel for
+    for (i = 0; i < terms.size(); i++) {
+        auto pauli_operator = terms[i];
+        for (j = 0; j < target_terms.size(); j++) {
+            auto target_operator = target_terms[j];
+            PauliOperator* product = new PauliOperator;
+            *product = (*pauli_operator) * (*target_operator);
+            *this += *product;
+        }
+    }
+    return *this;
+}
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     const PauliOperator& target) {
     auto copy = this->copy();
     _operator_list.clear();
+    ITYPE i;
+    auto terms = copy->get_terms();
 #pragma omp parallel for
-    for (UINT i = 0; i < copy->get_terms().size(); i++) {
-        auto pauli_operator = copy->get_terms()[i];
+    for (i = 0; i < terms.size(); i++) {
+        auto pauli_operator = terms[i];
         PauliOperator* product = new PauliOperator;
         *product = (*pauli_operator) * (target);
         *this += *product;
@@ -528,8 +533,9 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
 }
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator*=(CPPCTYPE target) {
+    ITYPE i;
 #pragma omp parallel for
-    for (UINT i = 0; i < _operator_list.size(); i++) {
+    for (i = 0; i < _operator_list.size(); i++) {
         *_operator_list[i] *= target;
     }
     return *this;

@@ -238,33 +238,37 @@ std::string PauliOperator::get_pauli_string() const {
 }
 
 void PauliOperator::change_coef(CPPCTYPE new_coef) { _coef = new_coef; }
+
 PauliOperator PauliOperator::operator*(const PauliOperator& target) const {
     CPPCTYPE bits_coef = 1.0;
     CPPCTYPE I = 1.0i;
+    auto x = _x;
+    auto z = _z;
     auto target_x = target.get_x_bits();
     auto target_z = target.get_x_bits();
     if (target_x.size() != _x.size()) {
-        UINT max_size = std::max(_x.size(), target_x.size());
-        _x.resize(max_size);
-        _z.resize(max_size);
+        ITYPE max_size = std::max(_x.size(), target_x.size());
+        x.resize(max_size);
+        z.resize(max_size);
         target_x.resize(max_size);
         target_z.resize(max_size);
     }
+    ITYPE i;
 #pragma omp parallel for
-    for (UINT i = 0; i < _x.size(); i++) {
-        if (_x[i] && !_z[i]) {  // X
+    for (i = 0; i < x.size(); i++) {
+        if (x[i] && !z[i]) {  // X
             if (!target_x[i] && target_z[i]) {
                 bits_coef = bits_coef * -I;
             } else if (target_x[i] && target_z[i]) {
                 bits_coef = bits_coef * I;
             }
-        } else if (!_x[i] && _z[i]) {           // Z
+        } else if (!x[i] && z[i]) {             // Z
             if (target_x[i] && !target_z[i]) {  // X
                 bits_coef = bits_coef * -I;
             } else if (target_x[i] && target_z[i]) {  // Y
                 bits_coef = bits_coef * I;
             }
-        } else if (_x[i] && _z[i]) {            // Y
+        } else if (x[i] && z[i]) {              // Y
             if (target_x[i] && !target_z[i]) {  // X
                 bits_coef = bits_coef * I;
             } else if (!target_x[i] && target_z[i]) {  // Z
@@ -272,8 +276,8 @@ PauliOperator PauliOperator::operator*(const PauliOperator& target) const {
             }
         }
     }
-    PauliOperator res(_x ^ target.get_x_bits(), _z ^ target.get_z_bits(),
-        _coef * target.get_coef() * bits_coef);
+    PauliOperator res(
+        x ^ target_x, z ^ target_z, _coef * target.get_coef() * bits_coef);
     return res;
 }
 
@@ -287,15 +291,16 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
     CPPCTYPE I = 1.0i;
     auto target_x = target.get_x_bits();
     auto target_z = target.get_z_bits();
+    ITYPE max_size = std::max(_x.size(), target_x.size());
     if (target_x.size() != _x.size()) {
-        UINT max_size = std::max(_x.size(), target_x.size());
         _x.resize(max_size);
         _z.resize(max_size);
         target_x.resize(max_size);
         target_z.resize(max_size);
     }
+    ITYPE i;
 #pragma omp parallel for
-    for (UINT i = 0; i < _x.size(); i++) {
+    for (i = 0; i < _x.size(); i++) {
         if (_x[i] && !_z[i]) {  // X
             if (!target_x[i] && target_z[i]) {
                 _coef *= -I;
@@ -316,13 +321,15 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
             }
         }
     }
-    auto x_bit = _x ^ target.get_x_bits();
-    auto z_bit = _z ^ target.get_z_bits();
+    auto x_bit = _x ^ target_x;
+    auto z_bit = _z ^ target_z;
     _x.clear();
     _z.clear();
+    _x.resize(max_size);
+    _z.resize(max_size);
 #pragma omp parallel for
-    for (UINT i = 0; i < x_bit.size(); i++) {
-        UINT pauli_type = 0;
+    for (i = 0; i < x_bit.size(); i++) {
+        ITYPE pauli_type = 0;
         if (x_bit[i] && !z_bit[i]) {
             pauli_type = 1;
         } else if (x_bit[i] && z_bit[i]) {

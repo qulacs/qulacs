@@ -45,6 +45,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<PauliOperator>(m, "PauliOperator")
         .def(py::init<std::complex<double>>(), "Constructor", py::arg("coef"))
         .def(py::init<std::string, std::complex<double>>(), "Constructor", py::arg("pauli_string"), py::arg("coef"))
+        .def(py::init<boost::dynamic_bitset<>, boost::dynamic_bitset<>, std::complex<double>>(), "Constructor", py::arg("x_bits"), py::arg("z_bits"), py::arg("coef"))
         //.def(py::init<std::vector<unsigned int>&, std::string, std::complex<double>>(), "Constructor")
         //.def(py::init<std::vector<unsigned int>&, std::vector<unsigned int>&, std::complex<double>>(), "Constructor")
         //.def(py::init<std::vector<unsigned int>&, std::complex<double>>(), "Constructor")
@@ -59,6 +60,10 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("change_coef", &PauliOperator::change_coef, "change coefficient")
         .def("get_x_bits", &PauliOperator::get_x_bits, "get x bits")
         .def("get_z_bits", &PauliOperator::get_z_bits, "get z bits")
+        .def(py::self * py::self)
+        .def("__mul__", [](const PauliOperator &a, std::complex<double> &b) { return a * b; }, py::is_operator())
+        .def(py::self *= py::self)
+        .def("__IMUL__", [](PauliOperator &a, std::complex<double> &b) { return a *= b; }, py::is_operator())
         ;
 
     py::class_<GeneralQuantumOperator>(m, "GeneralQuantumOperator")
@@ -87,6 +92,12 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("__sub__", [](const GeneralQuantumOperator &a, const PauliOperator& b) { return a - b; }, py::is_operator())        
         .def(py::self -= py::self)
         .def("__ISUB__", [](GeneralQuantumOperator &a, const PauliOperator& b) { return a -= b; }, py::is_operator())        
+        .def(py::self * py::self)
+        .def("__mul__", [](const GeneralQuantumOperator &a, const PauliOperator &b) { return a * b; }, py::is_operator())
+        .def("__mul__", [](const GeneralQuantumOperator &a, std::complex<double> &b) { return a * b; }, py::is_operator())
+        .def(py::self *= py::self)
+        .def("__IMUL__", [](GeneralQuantumOperator &a, const PauliOperator &b) { return a *= b; }, py::is_operator())
+        .def("__IMUL__", [](GeneralQuantumOperator &a, std::complex<double> &b) { return a *= b; }, py::is_operator())
         ;
     auto mquantum_operator = m.def_submodule("quantum_operator");
     mquantum_operator.def("create_quantum_operator_from_openfermion_file", &quantum_operator::create_general_quantum_operator_from_openfermion_file, pybind11::return_value_policy::take_ownership);
