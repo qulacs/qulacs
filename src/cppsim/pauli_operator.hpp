@@ -189,6 +189,9 @@ public:
     PauliOperator(const std::vector<UINT>& target_qubit_index_list,
         const std::vector<UINT>& target_qubit_pauli_list, CPPCTYPE coef = 1.);
 
+    PauliOperator(const boost::dynamic_bitset<>& x,
+        const boost::dynamic_bitset<>& z, CPPCTYPE coef = 1.);
+
     /**
      * \~japanese-en
      * 自身の係数を返す
@@ -259,4 +262,12 @@ public:
      * パウリ演算子に対応する文字列を返す
      */
     virtual std::string get_pauli_string() const;
+
+    PauliOperator operator*(const PauliOperator& target) const;
+
+    PauliOperator operator*(CPPCTYPE target) const;
+
+    PauliOperator& operator*=(const PauliOperator& target);
+
+    PauliOperator& operator*=(CPPCTYPE target);
 };
