@@ -47,6 +47,10 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def("add_single_Pauli", &MultiQubitPauliOperator::add_single_Pauli, "Add Pauli operator to this term", py::arg("index"), py::arg("pauli_string"))
         .def("get_expectation_value", &MultiQubitPauliOperator::get_expectation_value, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &MultiQubitPauliOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
+        .def("copy", &MultiQubitPauliOperator::copy, "Make copy")
+        .def(py::self == py::self)
+        .def(py::self * py::self)
+        .def(py::self *= py::self)
         ;
 
     py::class_<Observable>(m, "Observable")
@@ -59,6 +63,15 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         }, "Get Pauli term", py::arg("index"))
         .def("get_expectation_value", &Observable::get_expectation_value, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &Observable::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
+        .def("copy", &Observable::copy, "Make copy")
+        .def(py::self + py::self)
+        .def(py::self += py::self)
+        .def(py::self - py::self)
+        .def(py::self -= py::self)
+        .def(py::self * py::self)
+        .def("__mul__", [](const Observable &a, std::complex<double> &b) { return a * b; }, py::is_operator())
+        .def(py::self *= py::self)
+        .def("__IMUL__", [](Observable &a, std::complex<double> &b) { return a *= b; }, py::is_operator())
         ;
     /*
     auto mquantum_operator = m.def_submodule("quantum_operator");
