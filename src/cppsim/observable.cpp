@@ -6,6 +6,7 @@
 
 #undef NDEBUG
 #include <Eigen/Dense>
+#include <array>
 #include <cassert>
 #include <cmath>
 #include <fstream>
@@ -56,10 +57,8 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     QuantumState tmp_state(qubit_count);
     QuantumState multiplied_state(qubit_count);
     QuantumState mu_timed_state(qubit_count);
-
-    std::vector<QuantumStateBase*> state_list;
+    QuantumState work_state(qubit_count);
     state->normalize(state->get_squared_norm());
-    state_list.push_back(state->copy());
 
     CPPCTYPE mu_;
     if (mu == 0.0) {
@@ -73,25 +72,25 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     Eigen::VectorXd beta_v(iter_count - 1);
     for (UINT i = 0; i < iter_count; i++) {
         // v = (A - μI) * q_i
-        mu_timed_state.load(state_list[i]);
+        mu_timed_state.load(state);
         mu_timed_state.multiply_coef(-mu_);
-        this->apply_to_state(&tmp_state, *state_list[i], &multiplied_state);
+        this->apply_to_state(&tmp_state, *state, &multiplied_state);
         multiplied_state.add_state(&mu_timed_state);
         // α = q_i^T * v
         const auto alpha = state::inner_product(
-            static_cast<QuantumState*>(state_list[i]), &multiplied_state);
+            static_cast<QuantumState*>(state), &multiplied_state);
         alpha_v(i) = alpha.real();
         // In the last iteration, no need to calculate β.
         if (i == iter_count - 1) {
             break;
         }
 
-        tmp_state.load(state_list[i]);
+        tmp_state.load(state);
         tmp_state.multiply_coef(-alpha);
         // v -= α_i * q_i
         multiplied_state.add_state(&tmp_state);
         if (i != 0) {
-            tmp_state.load(state_list[i - 1]);
+            tmp_state.load(&work_state);
             tmp_state.multiply_coef(-beta_v(i - 1));
             // v -= β_{i-1} * q_{i-1}
             multiplied_state.add_state(&tmp_state);
@@ -99,8 +98,10 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
 
         const auto beta = std::sqrt(multiplied_state.get_squared_norm());
         beta_v(i) = beta;
+        // q_{n+1} *= β
         multiplied_state.multiply_coef(1 / beta);
-        state_list.push_back(multiplied_state.copy());
+        work_state.load(state);
+        state->load(&multiplied_state);
     }
 
     Eigen::SelfAdjointEigenSolver<ComplexMatrix> solver;
@@ -116,6 +117,7 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
         }
     }
 
+    /*
     // Compose ground state vector.
     auto eigenvectors = solver.eigenvectors();
     auto eigenvector_in_krylov = eigenvectors.col(minimum_eigenvalue_index);
@@ -131,6 +133,7 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     for (auto used_state : state_list) {
         delete used_state;
     }
+    */
 
     return minimum_eigenvalue + mu_;
 }
