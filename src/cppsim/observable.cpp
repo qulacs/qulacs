@@ -43,7 +43,8 @@ CPPCTYPE HermitianQuantumOperator::get_expectation_value(
 
 CPPCTYPE
 HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
-    QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
+    QuantumStateBase* init_state, const UINT iter_count,
+    const CPPCTYPE mu) const {
     if (this->get_term_count() == 0) {
         std::cerr << "Error: "
                      "HermitianQuantumOperator::solve_ground_state_eigenvalue_"
@@ -53,13 +54,8 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
         return 0;
     }
 
-    const auto qubit_count = this->get_qubit_count();
-    QuantumState tmp_state(qubit_count);
-    QuantumState multiplied_state(qubit_count);
-    QuantumState mu_timed_state(qubit_count);
-    QuantumState work_state(qubit_count);
-    state->normalize(state->get_squared_norm());
-
+    // Implemented based on
+    // https://files.transtutors.com/cdn/uploadassignments/472339_1_-numerical-linear-aljebra.pdf
     CPPCTYPE mu_;
     if (mu == 0.0) {
         // mu is not changed from default value.
@@ -68,72 +64,109 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
         mu_ = mu;
     }
 
+    const auto qubit_count = this->get_qubit_count();
+    QuantumState tmp_state(qubit_count);
+    QuantumState mu_timed_state(qubit_count);
+    // work_states: [q_{i-1}, q_i, q_{i+1}]
+    // q_0, q_1, q_2,... span Krylov subspace.
+    std::array<QuantumState, 3> work_states = {QuantumState(qubit_count),
+        QuantumState(qubit_count), QuantumState(qubit_count)};
+    init_state->normalize(init_state->get_squared_norm());
+    work_states.at(1).load(init_state);
+
     Eigen::VectorXd alpha_v(iter_count);
     Eigen::VectorXd beta_v(iter_count - 1);
     for (UINT i = 0; i < iter_count; i++) {
         // v = (A - μI) * q_i
-        mu_timed_state.load(state);
+        mu_timed_state.load(&work_states.at(1));
         mu_timed_state.multiply_coef(-mu_);
-        this->apply_to_state(&tmp_state, *state, &multiplied_state);
-        multiplied_state.add_state(&mu_timed_state);
-        // α = q_i^T * v
-        const auto alpha = state::inner_product(
-            static_cast<QuantumState*>(state), &multiplied_state);
-        alpha_v(i) = alpha.real();
+        this->apply_to_state(&tmp_state, work_states.at(1), &work_states.at(2));
+        work_states.at(2).add_state(&mu_timed_state);
+
+        // α_i = q_i^T * v
+        alpha_v(i) =
+            state::inner_product(&work_states.at(1), &work_states.at(2)).real();
         // In the last iteration, no need to calculate β.
         if (i == iter_count - 1) {
             break;
         }
-
-        tmp_state.load(state);
-        tmp_state.multiply_coef(-alpha);
         // v -= α_i * q_i
-        multiplied_state.add_state(&tmp_state);
+        tmp_state.load(&work_states.at(1));
+        tmp_state.multiply_coef(-alpha_v(i));
+        work_states.at(2).add_state(&tmp_state);
         if (i != 0) {
-            tmp_state.load(&work_state);
-            tmp_state.multiply_coef(-beta_v(i - 1));
             // v -= β_{i-1} * q_{i-1}
-            multiplied_state.add_state(&tmp_state);
+            tmp_state.load(&work_states.at(0));
+            tmp_state.multiply_coef(-beta_v(i - 1));
+            work_states.at(2).add_state(&tmp_state);
         }
 
-        const auto beta = std::sqrt(multiplied_state.get_squared_norm());
-        beta_v(i) = beta;
-        // q_{n+1} *= β
-        multiplied_state.multiply_coef(1 / beta);
-        work_state.load(state);
-        state->load(&multiplied_state);
+        // β_i = ||v||
+        beta_v(i) = std::sqrt(work_states.at(2).get_squared_norm());
+        // q_{i+1} = v / β_i
+        work_states.at(2).multiply_coef(1 / beta_v(i));
+        work_states.at(0).load(&work_states.at(1));
+        work_states.at(1).load(&work_states.at(2));
     }
 
+    // Compute eigenvalue of a symmetric matrix T whose diagonal elements are
+    // `alpha_v` and subdiagonal elements are `beta_v`.
     Eigen::SelfAdjointEigenSolver<ComplexMatrix> solver;
     solver.computeFromTridiagonal(alpha_v, beta_v);
     const auto eigenvalues = solver.eigenvalues();
-    // Find ground state eigenvalue and eigenvector.
+    // Find ground state eigenvalue.
     UINT minimum_eigenvalue_index = 0;
-    auto minimum_eigenvalue = eigenvalues[0];
+    auto minimum_eigenvalue = eigenvalues(0);
     for (UINT i = 0; i < eigenvalues.size(); i++) {
-        if (eigenvalues[i] < minimum_eigenvalue) {
+        if (eigenvalues(i) < minimum_eigenvalue) {
             minimum_eigenvalue_index = i;
             minimum_eigenvalue = eigenvalues(i);
         }
     }
 
-    /*
-    // Compose ground state vector.
     auto eigenvectors = solver.eigenvectors();
     auto eigenvector_in_krylov = eigenvectors.col(minimum_eigenvalue_index);
-    // Store ground state eigenvector to `state`.
-    state->multiply_coef(0.0);
-    for (UINT i = 0; i < state_list.size(); i++) {
-        tmp_state.load(state_list[i]);
+    // Store ground state eigenvector to `init_state`.
+    // If λ is an eigenvalue of T and q is the eigenvector, Tq = λq.
+    // And let V be a matrix whose column vectors span Krylov subspace.
+    // Then, T = V^* AV where A is this observable.
+    // Tq = λq, VV^* AVq = Vλq, A(Vq) = λ(Vq).
+    // So, an eigenvector of A for λ is Vq.
+    // q_0 = init_state
+    work_states.at(1).load(init_state);
+    init_state->set_zero_state();
+    assert(eigenvector_in_krylov.size() == iter_count);
+    for (UINT i = 0; i < iter_count; i++) {
+        // q += v_i * q_i, where q is eigenvector to compute
+        tmp_state.load(&work_states.at(1));
         tmp_state.multiply_coef(eigenvector_in_krylov(i));
-        state->add_state(&tmp_state);
-    }
+        init_state->add_state(&tmp_state);
 
-    // Free states allocated by `QuantumState::copy()`.
-    for (auto used_state : state_list) {
-        delete used_state;
+        // v = (A - μI) * q_i
+        mu_timed_state.load(&work_states.at(1));
+        mu_timed_state.multiply_coef(-mu_);
+        this->apply_to_state(&tmp_state, work_states.at(1), &work_states.at(2));
+        work_states.at(2).add_state(&mu_timed_state);
+        if (i == iter_count - 1) {
+            break;
+        }
+
+        // v -= α_i * q_i
+        tmp_state.load(&work_states.at(1));
+        tmp_state.multiply_coef(-alpha_v(i));
+        work_states.at(2).add_state(&tmp_state);
+        if (i != 0) {
+            // v -= β_{i-1} * q_{i-1}
+            tmp_state.load(&work_states.at(0));
+            tmp_state.multiply_coef(-beta_v(i - 1));
+            work_states.at(2).add_state(&tmp_state);
+        }
+
+        // q_{i+1} = v / β_i
+        work_states.at(2).multiply_coef(1 / beta_v[i]);
+        work_states.at(0).load(&work_states.at(1));
+        work_states.at(1).load(&work_states.at(2));
     }
-    */
 
     return minimum_eigenvalue + mu_;
 }

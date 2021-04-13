@@ -365,12 +365,12 @@ void test_eigenvalue(Observable& observable, const UINT iter_count,
     multiplied_state.normalize(multiplied_state.get_squared_norm());
     state.normalize(state.get_squared_norm());
 
-    // for (UINT i = 0; i < state.dim; i++) {
-    //     ASSERT_NEAR(multiplied_state.data_cpp()[i].real(),
-    //         state.data_cpp()[i].real(), eps);
-    //     ASSERT_NEAR(multiplied_state.data_cpp()[i].imag(),
-    //         state.data_cpp()[i].imag(), eps);
-    // }
+    for (UINT i = 0; i < state.dim; i++) {
+        ASSERT_NEAR(multiplied_state.data_cpp()[i].real(),
+            state.data_cpp()[i].real(), eps);
+        ASSERT_NEAR(multiplied_state.data_cpp()[i].imag(),
+            state.data_cpp()[i].imag(), eps);
+    }
 }
 
 TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
