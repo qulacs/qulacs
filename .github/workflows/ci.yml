@@ -62,7 +62,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-    runs-on: ["gpu"]
+    runs-on: ["ubuntu-self-hosted"]
     env:
       CXX_COMPILER: "g++-8"
       C_COMPILER: "gcc-8"

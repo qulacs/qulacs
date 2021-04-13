@@ -335,7 +335,7 @@ __host__ void triple_qubit_dense_matrix_gate_host(
 
     // (not using shared memory)
     ITYPE loop_dim = dim >> 3;
-    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
+    unsigned int block = loop_dim <= 512 ? loop_dim : 512;
     unsigned int grid = loop_dim / block;
 
     unsigned int small, mid, large, tmp;
