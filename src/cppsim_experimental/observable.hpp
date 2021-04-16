@@ -63,7 +63,8 @@ public:
     MultiQubitPauliOperator(const std::vector<UINT>& target_qubit_index_list,
         const std::vector<UINT>& pauli_id_list)
         : _target_index(target_qubit_index_list), _pauli_id(pauli_id_list) {
-        for (UINT i = 0; i < pauli_id_list.size(); i++) {
+        ITYPE i;
+        for (i = 0; i < pauli_id_list.size(); i++) {
             set_bit(pauli_id_list[i], target_qubit_index_list[i]);
         }
     };
@@ -97,7 +98,7 @@ public:
     MultiQubitPauliOperator(
         const boost::dynamic_bitset<>& x, const boost::dynamic_bitset<>& z)
         : _x(x), _z(z) {
-        UINT index = 0;
+        ITYPE index;
 #pragma omp parallel for
         for (index = 0; index < _x.size(); index++) {
             UINT pauli_id;
@@ -210,7 +211,7 @@ public:
         auto target_x = target.get_x_bits();
         auto target_z = target.get_x_bits();
         if (target_x.size() != _x.size()) {
-            UINT max_size = std::max(_x.size(), target_x.size());
+            size_t max_size = std::max(_x.size(), target_x.size());
             x.resize(max_size);
             z.resize(max_size);
             target_x.resize(max_size);
@@ -226,7 +227,7 @@ public:
         auto target_x = target.get_x_bits();
         auto target_z = target.get_x_bits();
         if (target_x.size() != _x.size()) {
-            UINT max_size = std::max(_x.size(), target_x.size());
+            size_t max_size = std::max(_x.size(), target_x.size());
             x.resize(max_size);
             z.resize(max_size);
             target_x.resize(max_size);
@@ -239,7 +240,7 @@ public:
     MultiQubitPauliOperator& operator*=(const MultiQubitPauliOperator& target) {
         auto target_x = target.get_x_bits();
         auto target_z = target.get_z_bits();
-        UINT max_size = std::max(_x.size(), target_x.size());
+        size_t max_size = std::max(_x.size(), target_x.size());
         if (target_x.size() != _x.size()) {
             _x.resize(max_size);
             _z.resize(max_size);
@@ -250,7 +251,7 @@ public:
         _z ^= target_z;
         _target_index.clear();
         _pauli_id.clear();
-        UINT i;
+        ITYPE i;
 #pragma omp parallel for
         for (i = 0; i < max_size; i++) {
             UINT pauli_id = PAULI_ID_I;
@@ -281,7 +282,7 @@ private:
         auto z_a = a.get_z_bits();
         auto x_b = b.get_x_bits();
         auto z_b = b.get_z_bits();
-        UINT max_size = std::max(x_a.size(), x_b.size());
+        size_t max_size = std::max(x_a.size(), x_b.size());
         if (x_a.size() != x_b.size()) {
             x_a.resize(max_size);
             z_a.resize(max_size);
@@ -290,7 +291,7 @@ private:
         }
         CPPCTYPE res = 1.0;
         CPPCTYPE I = 1.0i;
-        UINT i;
+        ITYPE i;
 #pragma omp parallel for
         for (i = 0; i < x_a.size(); i++) {
             if (x_a[i] && !z_a[i]) {  // X
@@ -339,7 +340,8 @@ public:
     virtual CPPCTYPE get_expectation_value(
         const QuantumStateBase* state) const {
         CPPCTYPE sum = 0;
-        for (UINT index = 0; index < _pauli_terms.size(); ++index) {
+        ITYPE index;
+        for (index = 0; index < _pauli_terms.size(); ++index) {
             sum += _coef_list.at(index) *
                    _pauli_terms.at(index).get_expectation_value(state);
         }
@@ -348,7 +350,8 @@ public:
     virtual CPPCTYPE get_transition_amplitude(const QuantumStateBase* state_bra,
         const QuantumStateBase* state_ket) const {
         CPPCTYPE sum = 0;
-        for (UINT index = 0; index < _pauli_terms.size(); ++index) {
+        ITYPE index;
+        for (index = 0; index < _pauli_terms.size(); ++index) {
             sum += _coef_list.at(index) *
                    _pauli_terms.at(index).get_transition_amplitude(
                        state_bra, state_ket);
@@ -358,7 +361,7 @@ public:
 
     virtual Observable* copy() const {
         auto res = new Observable();
-        UINT i;
+        ITYPE i;
 #pragma omp parallel for
         for (i = 0; i < _coef_list.size(); i++) {
             res->add_term(_coef_list[i], *_pauli_terms[i].copy());
@@ -373,7 +376,7 @@ public:
     }
 
     Observable& operator+=(const Observable& target) {
-        UINT i, j;
+        ITYPE i, j;
 #pragma omp parallel for
         for (j = 0; j < target.get_term_count(); j++) {
             auto term = target.get_term(j);
@@ -398,7 +401,7 @@ public:
     }
 
     Observable& operator-=(const Observable& target) {
-        UINT i, j;
+        ITYPE i, j;
 #pragma omp parallel for
         for (j = 0; j < target.get_term_count(); j++) {
             auto term = target.get_term(j);
@@ -418,7 +421,7 @@ public:
 
     Observable operator*(const Observable& target) const {
         Observable res;
-        UINT i, j;
+        ITYPE i, j;
 #pragma omp parallel for
         for (i = 0; i < _pauli_terms.size(); i++) {
             for (j = 0; j < target.get_term_count(); j++) {
@@ -443,7 +446,7 @@ public:
         auto tmp = *this->copy() * target;
         _coef_list.clear();
         _pauli_terms.clear();
-        UINT i;
+        ITYPE i;
 #pragma omp parallel for
         for (i = 0; i < tmp.get_term_count(); i++) {
             auto term = tmp.get_term(i);
@@ -453,7 +456,7 @@ public:
     }
 
     Observable& operator*=(const CPPCTYPE& target) {
-        UINT i;
+        ITYPE i;
 #pragma omp parallel for
         for (int i = 0; i < _coef_list.size(); i++) {
             _coef_list[i] *= target;
