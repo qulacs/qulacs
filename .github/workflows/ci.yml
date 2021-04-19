@@ -41,6 +41,10 @@ jobs:
         run: brew link --overwrite gcc@8
         if: ${{ contains(matrix.os, 'macos') }}
         
+      - name: Verify gcc-8 / g++-8 is installed
+        run: sudo apt-get install gcc-8 g++-8
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+
       - name: Install qulacs for Windows
         run: ./script/build_msvc_2017.bat
         if: ${{ contains(matrix.os, 'windows') }}
