@@ -394,7 +394,7 @@ class TestDensityMatrixHandling(unittest.TestCase):
         sv.set_Haar_random_state(seed=0)
         dm.load(sv)
         svv = np.atleast_2d(sv.get_vector()).T
-        mat = svv@svv.T.conj()
+        mat = np.dot(svv, svv.T.conj())
         self.assertTrue(np.allclose(dm.get_matrix(), mat), msg="check pure matrix to density matrix")
         
 
@@ -500,7 +500,7 @@ class TestDensityMatrixHandling(unittest.TestCase):
         sv = qulacs.StateVector(num_qubit)
         sv.set_Haar_random_state(seed=0)
         svv = np.atleast_2d(sv.get_vector()).T
-        mat = svv@svv.T.conj()
+        mat = np.dot(svv, svv.T.conj())
 
         target = np.arange(num_qubit)
         np.random.shuffle(target)
