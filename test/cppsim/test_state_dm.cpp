@@ -142,3 +142,55 @@ TEST(DensityMatrixTest, MultiplyCoef) {
 		}
 	}
 }
+
+
+
+TEST(DensityMatrixTest, TensorProduct) {
+    const double eps = 1e-10;
+    const UINT n = 4;
+
+    DensityMatrix state1(n), state2(n);
+    state1.set_Haar_random_state();
+    state2.set_Haar_random_state();
+
+    DensityMatrix* state3 = state::tensor_product(&state1, &state2);
+    // numerical test is performed in python
+    delete state3;
+}
+
+TEST(DensityMatrixTest, PermutateQubit) {
+    const double eps = 1e-10;
+    const UINT n = 3;
+
+    DensityMatrix state(n);
+    state.set_Haar_random_state();
+    DensityMatrix* state2 = state::permutate_qubit(&state, { 1, 0, 2 });
+    // numerical test is performed in python
+    delete state2;
+}
+
+
+
+TEST(DensityMatrixTest, PartialTraceSVtoDM) {
+    const double eps = 1e-10;
+    const UINT n = 5;
+
+    DensityMatrix state(n);
+    state.set_Haar_random_state();
+    DensityMatrix* state2 = state::partial_trace(&state, {2, 0});
+    // numerical test is performed in python
+    delete state2;
+}
+
+
+TEST(DensityMatrixTest, PartialTraceDMtoDM) {
+    const double eps = 1e-10;
+    const UINT n = 5;
+
+    QuantumState state(n);
+    state.set_Haar_random_state();
+    DensityMatrix* state2 = state::partial_trace(&state, { 2, 0 });
+    // numerical test is performed in python
+    delete state2;
+}
+
