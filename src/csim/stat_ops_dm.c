@@ -148,3 +148,71 @@ double dm_expectation_value_multi_qubit_Pauli_operator_partial_list(const UINT* 
 	free((ITYPE*)matrix_mask_list);
 	return creal(sum);
 }
+
+
+
+void dm_state_tensor_product(const CTYPE* state_left, ITYPE dim_left, const CTYPE* state_right, ITYPE dim_right, CTYPE* state_dst) {
+    ITYPE y_left, x_left, y_right, x_right;
+    const ITYPE dim_new = dim_left * dim_right;
+    for (y_left = 0; y_left < dim_left; ++y_left) {
+        for (x_left = 0; x_left < dim_left; ++x_left) {
+            CTYPE val_left = state_left[y_left * dim_left + x_left];
+            for (y_right = 0; y_right < dim_right; ++y_right) {
+                for (x_right = 0; x_right < dim_right; ++x_right) {
+                    CTYPE val_right = state_right[y_right * dim_right + x_right];
+                    ITYPE x_new = x_left * dim_left + x_right;
+                    ITYPE y_new = y_left * dim_left + y_right;
+                    state_dst[y_new * dim_new + x_new] = val_right * val_left;
+                }
+            }
+        }
+    }
+}
+
+void dm_state_permutate_qubit(const UINT* qubit_order, const CTYPE* state_src, CTYPE* state_dst, UINT qubit_count, ITYPE dim) {
+    ITYPE y, x;
+    for (y = 0; y < dim; ++y) {
+        for (x = 0; x < dim; ++x) {
+            ITYPE src_x = 0, src_y = 0;
+            for (UINT qubit_index = 0; qubit_index < qubit_count; ++qubit_index) {
+                if ((x >> qubit_index) % 2) {
+                    src_x += 1ULL << qubit_order[qubit_index];
+                }
+                if ((y >> qubit_index) % 2) {
+                    src_y += 1ULL << qubit_order[qubit_index];
+                }
+            }
+            state_dst[y * dim + x] = state_src[src_y * dim + src_x];
+        }
+    }
+}
+
+void dm_state_partial_trace(const UINT* target, UINT target_count, const CTYPE* state_src, CTYPE* state_dst, ITYPE dim) {
+    ITYPE dst_dim = dim >> target_count;
+    ITYPE trace_dim = 1ULL << target_count;
+    UINT* sorted_target = create_sorted_ui_list(target, target_count);
+    ITYPE* mask_list = create_matrix_mask_list(target, target_count);
+
+    ITYPE y,x;
+    for (y = 0; y < dst_dim; ++y) {
+        for (x = 0; x < dst_dim; ++x) {
+            ITYPE base_x = x;
+            ITYPE base_y = y;
+            for (UINT target_index = 0; target_index < target_count; ++target_index) {
+                UINT insert_index = sorted_target[target_index];
+                base_x = insert_zero_to_basis_index(base_x, 1ULL << insert_index, insert_index);
+                base_y = insert_zero_to_basis_index(base_y, 1ULL << insert_index, insert_index);
+            }
+            CTYPE val = 0.;
+            for (ITYPE idx = 0; idx < trace_dim; ++idx) {
+                ITYPE src_x = base_x ^ mask_list[idx];
+                ITYPE src_y = base_y ^ mask_list[idx];
+                val += state_src[src_y * dim + src_x];
+            }
+            state_dst[y*dst_dim + x] = val;
+        }
+    }
+    free(sorted_target);
+    free(mask_list);
+}
+
