@@ -69,9 +69,9 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     QuantumState mu_timed_state(qubit_count);
     // work_states: [q_{i-1}, q_i, q_{i+1}]
     // q_0, q_1, q_2,... span Krylov subspace.
+    init_state->normalize(init_state->get_squared_norm());
     std::array<QuantumState, 3> work_states = {QuantumState(qubit_count),
         QuantumState(qubit_count), QuantumState(qubit_count)};
-    init_state->normalize(init_state->get_squared_norm());
     work_states.at(1).load(init_state);
 
     Eigen::VectorXd alpha_v(iter_count);
@@ -134,7 +134,7 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     // So, an eigenvector of A for λ is Vq.
     // q_0 = init_state
     work_states.at(1).load(init_state);
-    init_state->set_zero_state();
+    init_state->multiply_coef(0.0);
     assert(eigenvector_in_krylov.size() == iter_count);
     for (UINT i = 0; i < iter_count; i++) {
         // q += v_i * q_i, where q is eigenvector to compute
