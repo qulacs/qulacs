@@ -69,11 +69,13 @@ public:
      * \~japanese-en
      * GeneralQuantumOperator の基底状態の固有値を lanczos method により求める
      * (A - \mu I) の絶対値最大固有値を求めることで基底状態の固有値を求める．
-     * @param[in] state 固有値を求めるための量子状態
+     * @param[in] init_state 固有値を求めるための量子状態
+     * @param[in] iter_count 計算の繰り返し回数
+     * @param [in] mu 固有値をシフトするための係数
      * @return GeneralQuantumOperator の基底状態の固有値
      */
     CPPCTYPE solve_ground_state_eigenvalue_by_lanczos_method(
-        QuantumStateBase* state, const UINT iter_count,
+        QuantumStateBase* init_state, const UINT iter_count,
         const CPPCTYPE mu = 0.0) const;
 
     /**

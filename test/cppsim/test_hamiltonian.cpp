@@ -436,7 +436,7 @@ TEST(ObservableTest, MinimumEigenvalueByArnoldiMethodWithIdentity) {
 
 TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
     constexpr double eps = 1e-6;
-    constexpr UINT test_count = 100;
+    constexpr UINT test_count = 10;
     Random random;
 
     for (UINT i = 0; i < test_count; i++) {
