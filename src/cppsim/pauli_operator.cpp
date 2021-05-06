@@ -325,6 +325,7 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
     auto z_bit = _z ^ target_z;
     _x.clear();
     _z.clear();
+    _pauli_list.clear();
     _x.resize(max_size);
     _z.resize(max_size);
 #pragma omp parallel for
