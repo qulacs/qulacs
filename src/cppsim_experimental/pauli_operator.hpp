@@ -21,7 +21,7 @@ private:
     boost::dynamic_bitset<> _z;
     boost::dynamic_bitset<> _x;
 
-    void set_bit(UINT pauli_id, UINT target_index);
+    void set_bit(const UINT pauli_id, const UINT target_index);
 
 public:
     MultiQubitPauliOperator() {};
@@ -79,90 +79,29 @@ public:
         }
     };
 
-    virtual ~MultiQubitPauliOperator() {};
+    ~MultiQubitPauliOperator() {};
 
-    virtual const std::vector<UINT>& get_pauli_id_list() const;
-    virtual const std::vector<UINT>& get_index_list() const;
-    virtual const boost::dynamic_bitset<>& get_x_bits() const { return this->_x; }
-    virtual const boost::dynamic_bitset<>& get_z_bits() const { return this->_z; }
+    const std::vector<UINT>& get_pauli_id_list() const;
+    const std::vector<UINT>& get_index_list() const;
+    const boost::dynamic_bitset<>& get_x_bits() const { return this->_x; }
+    const boost::dynamic_bitset<>& get_z_bits() const { return this->_z; }
 
-    virtual void add_single_Pauli(UINT qubit_index, UINT pauli_type);
+    void add_single_Pauli(UINT qubit_index, UINT pauli_type);
 
-    virtual CPPCTYPE get_expectation_value(
+    CPPCTYPE get_expectation_value(
         const QuantumStateBase* state) const;
 
-    virtual CPPCTYPE get_transition_amplitude(const QuantumStateBase* state_bra,
+    CPPCTYPE get_transition_amplitude(const QuantumStateBase* state_bra,
         const QuantumStateBase* state_ket) const;
 
-    MultiQubitPauliOperator* copy() const {
-        const auto pauli = new MultiQubitPauliOperator(_target_index, _pauli_id);
-        return pauli;
-    }
+    MultiQubitPauliOperator* copy() const;
 
-    bool operator==(const MultiQubitPauliOperator& target) const {
-        auto x = this->_x;
-        auto z = this->_z;
-        auto target_x = target.get_x_bits();
-        auto target_z = target.get_x_bits();
-        if (target_x.size() != this->_x.size()) {
-            size_t max_size = std::max(this->_x.size(), target_x.size());
-            x.resize(max_size);
-            z.resize(max_size);
-            target_x.resize(max_size);
-            target_z.resize(max_size);
-        }
-        return x == target_x && z == target_z;
-    }
+    bool operator==(const MultiQubitPauliOperator& target) const;
 
     MultiQubitPauliOperator operator*(
-        const MultiQubitPauliOperator& target) const {
-        auto x = this->_x;
-        auto z = this->_z;
-        auto target_x = target.get_x_bits();
-        auto target_z = target.get_x_bits();
-        if (target_x.size() != this->_x.size()) {
-            size_t max_size = std::max(this->_x.size(), target_x.size());
-            x.resize(max_size);
-            z.resize(max_size);
-            target_x.resize(max_size);
-            target_z.resize(max_size);
-        }
-        MultiQubitPauliOperator res(x ^ target_x, z ^ target_z);
-        return res;
-    }
+        const MultiQubitPauliOperator& target) const;
 
-    MultiQubitPauliOperator& operator*=(const MultiQubitPauliOperator& target) {
-        auto target_x = target.get_x_bits();
-        auto target_z = target.get_z_bits();
-        size_t max_size = std::max(this->_x.size(), target_x.size());
-        if (target_x.size() != this->_x.size()) {
-            this->_x.resize(max_size);
-            this->_z.resize(max_size);
-            target_x.resize(max_size);
-            target_z.resize(max_size);
-        }
-        this->_x ^= target_x;
-        this->_z ^= target_z;
-        _target_index.clear();
-        _pauli_id.clear();
-        ITYPE i;
-#pragma omp parallel for
-        for (i = 0; i < max_size; i++) {
-            UINT pauli_id = PAULI_ID_I;
-            if (this->_x[i] && !this->_z[i]) {
-                pauli_id = PAULI_ID_X;
-            }
-            else if (this->_x[i] && this->_z[i]) {
-                pauli_id = PAULI_ID_Y;
-            }
-            else if (!this->_x[i] && this->_z[i]) {
-                pauli_id = PAULI_ID_Z;
-            }
-            _target_index.push_back(i);
-            _pauli_id.push_back(pauli_id);
-        }
-        return *this;
-    }
+    MultiQubitPauliOperator& operator*=(const MultiQubitPauliOperator& target);
 };
 
 using PauliOperator = MultiQubitPauliOperator;

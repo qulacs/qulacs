@@ -2,10 +2,16 @@
 
 #include <boost/dynamic_bitset.hpp>
 #include <csim/stat_ops_dm.hpp>
+#include <vector>
 
+#ifdef _USE_GPU
+#include <gpusim/stat_ops.h>
+#endif
+
+#include "state.hpp"
 #include "type.hpp"
 
-void MultiQubitPauliOperator::set_bit(UINT pauli_id, UINT target_index) {
+void MultiQubitPauliOperator::set_bit(const UINT pauli_id, const UINT target_index) {
     while (this->_x.size() <= target_index) {
         this->_x.resize(this->_x.size() * 2 + 1);
         this->_z.resize(this->_z.size() * 2 + 1);
@@ -120,4 +126,74 @@ CPPCTYPE MultiQubitPauliOperator::get_transition_amplitude(const QuantumStateBas
     else {
         throw std::invalid_argument("Unsupported device");
     }
+}
+
+MultiQubitPauliOperator* MultiQubitPauliOperator::copy() const {
+    const auto pauli = new MultiQubitPauliOperator(this->_target_index, this->_pauli_id);
+    return pauli;
+}
+
+bool MultiQubitPauliOperator::operator==(const MultiQubitPauliOperator& target) const {
+    auto x = this->_x;
+    auto z = this->_z;
+    auto target_x = target.get_x_bits();
+    auto target_z = target.get_x_bits();
+    if (target_x.size() != this->_x.size()) {
+        size_t max_size = std::max(this->_x.size(), target_x.size());
+        x.resize(max_size);
+        z.resize(max_size);
+        target_x.resize(max_size);
+        target_z.resize(max_size);
+    }
+    return x == target_x && z == target_z;
+}
+
+MultiQubitPauliOperator MultiQubitPauliOperator::operator*(
+    const MultiQubitPauliOperator& target) const {
+    auto x = this->_x;
+    auto z = this->_z;
+    auto target_x = target.get_x_bits();
+    auto target_z = target.get_x_bits();
+    if (target_x.size() != this->_x.size()) {
+        size_t max_size = std::max(this->_x.size(), target_x.size());
+        x.resize(max_size);
+        z.resize(max_size);
+        target_x.resize(max_size);
+        target_z.resize(max_size);
+    }
+    MultiQubitPauliOperator res(x ^ target_x, z ^ target_z);
+    return res;
+}
+
+MultiQubitPauliOperator& MultiQubitPauliOperator::operator*=(const MultiQubitPauliOperator& target) {
+    auto target_x = target.get_x_bits();
+    auto target_z = target.get_z_bits();
+    size_t max_size = std::max(this->_x.size(), target_x.size());
+    if (target_x.size() != this->_x.size()) {
+        this->_x.resize(max_size);
+        this->_z.resize(max_size);
+        target_x.resize(max_size);
+        target_z.resize(max_size);
+    }
+    this->_x ^= target_x;
+    this->_z ^= target_z;
+    _target_index.clear();
+    _pauli_id.clear();
+    ITYPE i;
+#pragma omp parallel for
+    for (i = 0; i < max_size; i++) {
+        UINT pauli_id = PAULI_ID_I;
+        if (this->_x[i] && !this->_z[i]) {
+            pauli_id = PAULI_ID_X;
+        }
+        else if (this->_x[i] && this->_z[i]) {
+            pauli_id = PAULI_ID_Y;
+        }
+        else if (!this->_x[i] && this->_z[i]) {
+            pauli_id = PAULI_ID_Z;
+        }
+        _target_index.push_back(i);
+        _pauli_id.push_back(pauli_id);
+    }
+    return *this;
 }
