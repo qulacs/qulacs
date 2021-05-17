@@ -1,5 +1,7 @@
 #include "observable.hpp"
 
+#include <numeric>
+
 #ifdef _USE_GPU
 #include <gpusim/stat_ops.h>
 #endif
@@ -8,13 +10,13 @@
 #include "state.hpp"
 #include "type.hpp"
 
-CPPCTYPE Observable::culc_coef(const MultiQubitPauliOperator& a,
-    const MultiQubitPauliOperator& b) const {
+CPPCTYPE Observable::culc_coef(
+    const MultiQubitPauliOperator& a, const MultiQubitPauliOperator& b) const {
     auto x_a = a.get_x_bits();
     auto z_a = a.get_z_bits();
     auto x_b = b.get_x_bits();
     auto z_b = b.get_z_bits();
-    size_t max_size = std::max(x_a.size(), x_b.size());
+    const size_t max_size = std::max(x_a.size(), x_b.size());
     if (x_a.size() != x_b.size()) {
         x_a.resize(max_size);
         z_a.resize(max_size);
@@ -28,26 +30,21 @@ CPPCTYPE Observable::culc_coef(const MultiQubitPauliOperator& a,
     for (i = 0; i < x_a.size(); i++) {
         if (x_a[i] && !z_a[i]) {  // X
             if (!x_b[i] && z_b[i]) {
-                res = res * -I;
+                res *= -I;
+            } else if (x_b[i] && z_b[i]) {
+                res *= I;
             }
-            else if (x_b[i] && z_b[i]) {
-                res = res * I;
-            }
-        }
-        else if (!x_a[i] && z_a[i]) {  // Z
+        } else if (!x_a[i] && z_a[i]) {  // Z
             if (x_b[i] && !z_b[i]) {     // X
-                res = res * -I;
+                res *= -I;
+            } else if (x_b[i] && z_b[i]) {  // Y
+                res *= I;
             }
-            else if (x_b[i] && z_b[i]) {  // Y
-                res = res * I;
-            }
-        }
-        else if (x_a[i] && z_a[i]) {  // Y
+        } else if (x_a[i] && z_a[i]) {  // Y
             if (x_b[i] && !z_b[i]) {    // X
-                res = res * I;
-            }
-            else if (!x_b[i] && z_b[i]) {  // Z
-                res = res * I;
+                res *= I;
+            } else if (!x_b[i] && z_b[i]) {  // Z
+                res *= I;
             }
         }
     }
@@ -56,7 +53,8 @@ CPPCTYPE Observable::culc_coef(const MultiQubitPauliOperator& a,
 
 std::pair<CPPCTYPE, MultiQubitPauliOperator> Observable::get_term(
     const UINT index) const {
-    return std::make_pair(this->_coef_list.at(index), this->_pauli_terms.at(index));
+    return std::make_pair(
+        this->_coef_list.at(index), this->_pauli_terms.at(index));
 }
 
 void Observable::add_term(const CPPCTYPE coef, MultiQubitPauliOperator op) {
@@ -77,10 +75,9 @@ void Observable::remove_term(UINT index) {
 CPPCTYPE Observable::get_expectation_value(
     const QuantumStateBase* state) const {
     CPPCTYPE sum = 0;
-    ITYPE index;
-    for (index = 0; index < this->_pauli_terms.size(); ++index) {
+    for (ITYPE index = 0; index < this->_pauli_terms.size(); ++index) {
         sum += this->_coef_list.at(index) *
-            this->_pauli_terms.at(index).get_expectation_value(state);
+               this->_pauli_terms.at(index).get_expectation_value(state);
     }
     return sum;
 }
@@ -88,11 +85,10 @@ CPPCTYPE Observable::get_expectation_value(
 CPPCTYPE Observable::get_transition_amplitude(const QuantumStateBase* state_bra,
     const QuantumStateBase* state_ket) const {
     CPPCTYPE sum = 0;
-    ITYPE index;
-    for (index = 0; index < this->_pauli_terms.size(); ++index) {
+    for (ITYPE index = 0; index < this->_pauli_terms.size(); ++index) {
         sum += this->_coef_list.at(index) *
-            this->_pauli_terms.at(index).get_transition_amplitude(
-                state_bra, state_ket);
+               this->_pauli_terms.at(index).get_transition_amplitude(
+                   state_bra, state_ket);
     }
     return sum;
 }

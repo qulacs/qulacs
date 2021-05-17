@@ -18,14 +18,15 @@ class DllExport MultiQubitPauliOperator {
 private:
     std::vector<UINT> _target_index;
     std::vector<UINT> _pauli_id;
-    boost::dynamic_bitset<> _z;
     boost::dynamic_bitset<> _x;
+    boost::dynamic_bitset<> _z;
 
     void set_bit(const UINT pauli_id, const UINT target_index);
 
 public:
-    MultiQubitPauliOperator() {};
-    explicit MultiQubitPauliOperator(const std::vector<UINT>& target_qubit_index_list,
+    MultiQubitPauliOperator(){};
+
+    MultiQubitPauliOperator(const std::vector<UINT>& target_qubit_index_list,
         const std::vector<UINT>& pauli_id_list)
         : _target_index(target_qubit_index_list), _pauli_id(pauli_id_list) {
         for (ITYPE i = 0; i < pauli_id_list.size(); i++) {
@@ -79,7 +80,7 @@ public:
         }
     };
 
-    ~MultiQubitPauliOperator() {};
+    ~MultiQubitPauliOperator(){};
 
     const std::vector<UINT>& get_pauli_id_list() const;
     const std::vector<UINT>& get_index_list() const;
@@ -88,8 +89,7 @@ public:
 
     void add_single_Pauli(UINT qubit_index, UINT pauli_type);
 
-    CPPCTYPE get_expectation_value(
-        const QuantumStateBase* state) const;
+    CPPCTYPE get_expectation_value(const QuantumStateBase* state) const;
 
     CPPCTYPE get_transition_amplitude(const QuantumStateBase* state_bra,
         const QuantumStateBase* state_ket) const;
