@@ -5,7 +5,7 @@
 #include "utils.hpp"
 
 std::vector<std::complex<double>> GradCalculatorMPI::calculate_grad(
-    ParametricQuantumCircuit& x, Observable& obs, double theta) {
+    ParametricQuantumCircuit& x, Observable& obs, std::vector<double> theta) {
     std::vector<std::complex<double>> node_ans;
     int myrank, numprocs;
     MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
@@ -19,7 +19,7 @@ std::vector<std::complex<double>> GradCalculatorMPI::calculate_grad(
                 if (i == q) {
                     diff = M_PI / 2.0;
                 }
-                x.set_parameter(q, theta + diff);
+                x.set_parameter(q, theta[q] + diff);
             }
             state.set_zero_state();
             x.update_quantum_state(&state);
@@ -32,7 +32,7 @@ std::vector<std::complex<double>> GradCalculatorMPI::calculate_grad(
                 if (i == q) {
                     diff = M_PI / 2.0;
                 }
-                x.set_parameter(q, theta - diff);
+                x.set_parameter(q, theta[q] - diff);
             }
             state.set_zero_state();
             x.update_quantum_state(&state);
