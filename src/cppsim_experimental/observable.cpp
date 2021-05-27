@@ -10,7 +10,7 @@
 #include "state.hpp"
 #include "type.hpp"
 
-CPPCTYPE Observable::culc_coef(
+CPPCTYPE Observable::calc_coef(
     const MultiQubitPauliOperator& a, const MultiQubitPauliOperator& b) const {
     auto x_a = a.get_x_bits();
     auto z_a = a.get_z_bits();
@@ -161,7 +161,7 @@ Observable Observable::operator*(const Observable& target) const {
         for (j = 0; j < target.get_term_count(); j++) {
             Observable tmp;
             auto term = target.get_term(j);
-            CPPCTYPE bits_coef = culc_coef(this->_pauli_terms[i], term.second);
+            CPPCTYPE bits_coef = calc_coef(this->_pauli_terms[i], term.second);
             tmp.add_term(this->_coef_list[i] * term.first * bits_coef,
                 this->_pauli_terms[i] * term.second);
             res += tmp;
