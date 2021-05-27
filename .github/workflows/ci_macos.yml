@@ -43,6 +43,7 @@ jobs:
       
       - name: Install Boost for macOS
         run: |
+          brew upgrade
           brew install boost
           brew link boost
         if: ${{ contains(matrix.os, 'macos') }}
@@ -82,7 +83,7 @@ jobs:
       # some library files from gcc-8 installed via Homebrew.
       # The following command fixes this issue by (brew) re-linking files from gcc-8.
       # cf. https://stackoverflow.com/a/55500164
-      CIBW_BEFORE_BUILD_MACOS: "brew link --overwrite gcc@8 && pip install cmake && brew install boost && brew link boost"
+      CIBW_BEFORE_BUILD_MACOS: "brew link --overwrite gcc@8 && pip install cmake && brew upgrade && brew install -f boost && brew link boost"
       CIBW_BUILD: "cp3*-macosx_x86_64 cp3*-manylinux_x86_64 cp3*-win_amd64"
       CIBW_BUILD_VERBOSITY: "1"
       CIBW_ENVIRONMENT: 'QULACS_OPT_FLAGS="-mtune=haswell -mfpmath=both"'
