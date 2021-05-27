@@ -189,3 +189,21 @@ MultiQubitPauliOperator& MultiQubitPauliOperator::operator*=(
     }
     return *this;
 }
+
+std::string MultiQubitPauliOperator::to_string() {
+    std::string res;
+    ITYPE i;
+    for (i = 0; i < _pauli_id.size(); i++) {
+        if (_pauli_id[i] = PAULI_ID_I) {
+            res += "I ";
+        } else if (_pauli_id[i] = PAULI_ID_X) {
+            res += "X ";
+        } else if (_pauli_id[i] = PAULI_ID_Y) {
+            res += "Y ";
+        } else if (_pauli_id[i] = PAULI_ID_Z) {
+            res += "Z ";
+        }
+        res += std::to_string(_target_index[i]) + " ";
+    }
+    return res;
+}
