@@ -23,6 +23,7 @@
 #include <cppsim_experimental/causal_cone.hpp>
 #include <cppsim_experimental/noisesimulator.hpp>
 #include <cppsim_experimental/single_fermion_operator.hpp>
+#include <cppsim_experimental/fermion_operator.hpp>
 
 #ifdef _USE_GPU
 #include <cppsim_experimental/state_gpu.hpp>
@@ -79,6 +80,14 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def(py::init<>(), "Constructor")
         .def(py::init<const std::vector<unsigned int>&, const std::vector<unsigned int>&>(), "Constructor", py::arg("target_index_list"), py::arg("action_id_list"))
         .def(py::init<std::string>(), "Constructor", py::arg("action_string"))
+        ;
+
+    py::class_<FermionOperator>(m, "FermionOperator")
+        .def(py::init<>(), "Constructor")
+        .def("add_term", (void (FermionOperator::*)(std::complex<double>, SingleFermionOperator))&FermionOperator::add_term, "Add Fermion operator", py::arg("coef"), py::arg("fermion_operator"))
+        .def("add_term", (void (FermionOperator::*)(std::complex<double>, std::string))&FermionOperator::add_term, "Add Fermion operator", py::arg("coef"), py::arg("action_string"))
+        .def("get_term_count", &FermionOperator::get_term_count, "Get count of Fermion terms")
+        .def("get_term",&FermionOperator::get_term, "Get Fermion term", py::arg("index"))
         ;
     /*
     auto mquantum_operator = m.def_submodule("quantum_operator");
