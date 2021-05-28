@@ -17,6 +17,8 @@ private:
     std::vector<UINT> _action_id;
 
 public:
+    SingleFermionOperator();
+
     SingleFermionOperator(const std::vector<UINT>& target_index_list,
         const std::vector<UINT>& action_id_list);
 
