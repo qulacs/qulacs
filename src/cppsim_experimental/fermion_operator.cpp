@@ -13,9 +13,10 @@ std::pair<CPPCTYPE, SingleFermionOperator> FermionOperator::get_term(
         this->_coef_list.at(index), this->_fermi_terms.at(index));
 }
 
-void FermionOperator::add_term(const CPPCTYPE coef, SingleFermionOperator op) {
+void FermionOperator::add_term(
+    const CPPCTYPE coef, SingleFermionOperator fermion_operator) {
     this->_coef_list.push_back(coef);
-    this->_fermi_terms.push_back(op);
+    this->_fermi_terms.push_back(fermion_operator);
 }
 
 void FermionOperator::add_term(const CPPCTYPE coef, std::string action_string) {
