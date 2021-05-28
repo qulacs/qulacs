@@ -3,6 +3,8 @@
 #include "state.hpp"
 #include "type.hpp"
 
+FermionOperator::FermionOperator(){};
+
 UINT FermionOperator::get_term_count() const {
     return (UINT)_fermi_terms.size();
 }

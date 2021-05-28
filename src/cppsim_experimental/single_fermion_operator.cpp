@@ -6,6 +6,8 @@
 #include "state.hpp"
 #include "type.hpp"
 
+SingleFermionOperator::SingleFermionOperator(){};
+
 SingleFermionOperator::SingleFermionOperator(
     const std::vector<UINT>& target_index_list,
     const std::vector<UINT>& action_id_list)
