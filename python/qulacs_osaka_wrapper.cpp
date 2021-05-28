@@ -22,6 +22,7 @@
 #include <cppsim_experimental/circuit.hpp>
 #include <cppsim_experimental/causal_cone.hpp>
 #include <cppsim_experimental/noisesimulator.hpp>
+#include <cppsim_experimental/single_fermion_operator.hpp>
 
 #ifdef _USE_GPU
 #include <cppsim_experimental/state_gpu.hpp>
@@ -72,6 +73,12 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def("__mul__", [](const Observable &a, std::complex<double> &b) { return a * b; }, py::is_operator())
         .def(py::self *= py::self)
         .def("__IMUL__", [](Observable &a, std::complex<double> &b) { return a *= b; }, py::is_operator())
+        ;
+
+    py::class_<SingleFermionOperator>(m, "SingleFermionOperator")
+        .def(py::init<>(), "Constructor")
+        .def(py::init<const std::vector<unsigned int>&, const std::vector<unsigned int>&>(), "Constructor", py::arg("target_index_list"), py::arg("action_id_list"))
+        .def(py::init<std::string>(), "Constructor", py::arg("action_string"))
         ;
     /*
     auto mquantum_operator = m.def_submodule("quantum_operator");
