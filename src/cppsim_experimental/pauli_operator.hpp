@@ -102,6 +102,8 @@ public:
         const MultiQubitPauliOperator& target) const;
 
     MultiQubitPauliOperator& operator*=(const MultiQubitPauliOperator& target);
+
+    std::string to_string();
 };
 
 using PauliOperator = MultiQubitPauliOperator;

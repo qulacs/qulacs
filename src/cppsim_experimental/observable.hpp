@@ -21,7 +21,7 @@ private:
     std::vector<MultiQubitPauliOperator> _pauli_terms;
     std::vector<CPPCTYPE> _coef_list;
 
-    CPPCTYPE culc_coef(const MultiQubitPauliOperator& a,
+    CPPCTYPE calc_coef(const MultiQubitPauliOperator& a,
         const MultiQubitPauliOperator& b) const;
 
 public:
