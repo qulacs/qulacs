@@ -11,7 +11,7 @@
  */
 class DllExport FermionOperator {
 private:
-    std::vector<SingleFermionOperator> _fermi_terms;
+    std::vector<SingleFermionOperator> _fermion_terms;
     std::vector<CPPCTYPE> _coef_list;
 
 public:
