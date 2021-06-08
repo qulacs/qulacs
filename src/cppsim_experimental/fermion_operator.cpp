@@ -1,5 +1,9 @@
 #include "fermion_operator.hpp"
 
+#include <boost/range/combine.hpp>
+
+#include "observable.hpp"
+#include "pauli_operator.hpp"
 #include "state.hpp"
 #include "type.hpp"
 
@@ -38,4 +42,50 @@ const std::vector<SingleFermionOperator>& FermionOperator::get_fermion_list()
 
 const std::vector<CPPCTYPE>& FermionOperator::get_coef_list() const {
     return _coef_list;
+}
+
+Observable FermionOperator::jordan_wigner() {
+    Observable observable;
+    for (auto fop_tuple : boost::combine(_fermion_terms, _coef_list)) {
+        SingleFermionOperator sfop;
+        CPPCTYPE coef;
+        boost::tie(sfop, coef) = fop_tuple;
+
+        MultiQubitPauliOperator qubit_operator;
+
+        auto target_index_list = sfop.get_target_index_list();
+        auto action_id_list = sfop.get_action_id_list();
+        for (auto ladder_operator :
+            boost::combine(target_index_list, action_id_list)) {
+            UINT target_index;
+            UINT action_id;
+            boost::tie(target_index, action_id) = ladder_operator;
+
+            // Z factors
+            std::vector<UINT> target_qubit_index_list(target_index);
+            std::vector<UINT> pauli_id_list(target_index, PAULI_ID_Z);
+            for (UINT i = 0; i < target_index; i++) {
+                target_qubit_index_list[i] = i + 1;
+            }
+
+            // X factors
+            pauli_id_list.at(target_index - 1) = PAULI_ID_X;
+            observable.add_term(
+                coef * 0.5, MultiQubitPauliOperator(
+                                target_qubit_index_list, pauli_id_list));
+
+            // Y factors
+            pauli_id_list.at(target_index - 1) = PAULI_ID_Y;
+            if (action_id)
+                observable.add_term(-coef * CPPCTYPE(0, 0.5),
+                    MultiQubitPauliOperator(
+                        target_qubit_index_list, pauli_id_list));
+            else
+                observable.add_term(coef * CPPCTYPE(0, 0.5),
+                    MultiQubitPauliOperator(
+                        target_qubit_index_list, pauli_id_list));
+        }
+    }
+
+    return observable;
 }

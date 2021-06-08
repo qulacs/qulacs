@@ -1,5 +1,6 @@
 #pragma once
 
+#include "observable.hpp"
 #include "single_fermion_operator.hpp"
 #include "state.hpp"
 #include "type.hpp"
@@ -63,4 +64,9 @@ public:
      * 各項の係数を取得する
      */
     const std::vector<CPPCTYPE>& get_coef_list() const;
+
+    /**
+     * Jordan-Wigner変換を適用してFermionOperatorをQubitOperatorに変換する
+     */
+    Observable jordan_wigner();
 };
