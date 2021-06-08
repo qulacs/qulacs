@@ -46,4 +46,15 @@ public:
      * @return 新しいインスタンス
      */
     SingleFermionOperator(std::string action_string);
+
+    /**
+     * 作用する軌道の添字のリストを取得する
+     */
+    const std::vector<UINT>& get_target_index_list() const;
+
+    /**
+     * 各軌道に作用させるactionのリストを取得する
+     * 消滅: 0, 生成: 1に対応している
+     */
+    const std::vector<UINT>& get_action_id_list() const;
 };

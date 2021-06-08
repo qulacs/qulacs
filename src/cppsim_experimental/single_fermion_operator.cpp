@@ -35,3 +35,11 @@ SingleFermionOperator::SingleFermionOperator(std::string action_string) {
     }
     assert(_target_index.size() == _action_id.size());
 };
+
+const std::vector<UINT>& SingleFermionOperator::get_target_index_list() const {
+    return _target_index;
+}
+
+const std::vector<UINT>& SingleFermionOperator::get_action_id_list() const {
+    return _action_id;
+}

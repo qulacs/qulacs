@@ -30,3 +30,12 @@ void FermionOperator::remove_term(UINT index) {
     this->_coef_list.erase(this->_coef_list.begin() + index);
     this->_fermion_terms.erase(this->_fermion_terms.begin() + index);
 }
+
+const std::vector<SingleFermionOperator>& FermionOperator::get_fermion_list()
+    const {
+    return _fermion_terms;
+}
+
+const std::vector<CPPCTYPE>& FermionOperator::get_coef_list() const {
+    return _coef_list;
+}
