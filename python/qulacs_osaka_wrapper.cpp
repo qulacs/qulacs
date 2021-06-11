@@ -80,6 +80,8 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def(py::init<>(), "Constructor")
         .def(py::init<const std::vector<unsigned int>&, const std::vector<unsigned int>&>(), "Constructor", py::arg("target_index_list"), py::arg("action_id_list"))
         .def(py::init<std::string>(), "Constructor", py::arg("action_string"))
+        .def("get_target_index_list", &SingleFermionOperator::get_target_index_list, "Get list of target indices")
+        .def("get_action_id_list", &SingleFermionOperator::get_action_id_list, "Get list of action IDs (Create action: 1, Destroy action: 0)")
         ;
 
     py::class_<FermionOperator>(m, "FermionOperator")
@@ -87,7 +89,10 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def("add_term", (void (FermionOperator::*)(std::complex<double>, SingleFermionOperator))&FermionOperator::add_term, "Add Fermion operator", py::arg("coef"), py::arg("fermion_operator"))
         .def("add_term", (void (FermionOperator::*)(std::complex<double>, std::string))&FermionOperator::add_term, "Add Fermion operator", py::arg("coef"), py::arg("action_string"))
         .def("get_term_count", &FermionOperator::get_term_count, "Get count of Fermion terms")
-        .def("get_term",&FermionOperator::get_term, "Get Fermion term", py::arg("index"))
+        .def("get_term",&FermionOperator::get_term, "Get a Fermion term", py::arg("index"))
+        .def("get_fermion_list", &FermionOperator::get_fermion_list, "Get term(SingleFermionOperator) list")
+        .def("get_coef_list", &FermionOperator::get_coef_list, "Get coef list")
+        .def("jordan_wigner", &FermionOperator::jordan_wigner, "Apply the Jordan-Wigner transform to a FermionOperator")
         ;
     /*
     auto mquantum_operator = m.def_submodule("quantum_operator");
