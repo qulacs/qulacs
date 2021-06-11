@@ -56,12 +56,12 @@ public:
     void remove_term(UINT index);
 
     /**
-     * 各項のSingleFermionOperatorを取得する
+     * 各項のSingleFermionOperatorのリストを取得する
      */
     const std::vector<SingleFermionOperator>& get_fermion_list() const;
 
     /**
-     * 各項の係数を取得する
+     * 各項の係数のリストを取得する
      */
     const std::vector<CPPCTYPE>& get_coef_list() const;
 
