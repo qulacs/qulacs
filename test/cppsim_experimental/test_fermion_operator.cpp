@@ -12,7 +12,7 @@ TEST(FermionOperatorTest, GetTermCountTest){
     EXPECT_EQ(2, fermion_operator.get_term_count());
 }
 
-TEST(FermionOperatorTest, GetTermTest){
+TEST(FermionOperatorTest, AddGetTermTest){
     FermionOperator fermion_operator;
     fermion_operator.add_term(1.0, "2^ 1");
     fermion_operator.add_term(-2.0, "5^ 4 3^");
