@@ -61,6 +61,13 @@ Observable FermionOperator::jordan_wigner() {
             UINT action_id;
             boost::tie(target_index, action_id) = ladder_operator;
 
+            if (target_index == 0) {
+                observable.add_term(coef * 0.5, MultiQubitPauliOperator("X 0"));
+                CPPCTYPE coef_Y = coef * CPPCTYPE(0, 0.5);
+                if (action_id) coef_Y *= -1;
+                observable.add_term(coef_Y, MultiQubitPauliOperator("Y 0"));
+                continue;
+            }
             // Z factors
             std::vector<UINT> target_qubit_index_list(target_index);
             std::vector<UINT> pauli_id_list(target_index, PAULI_ID_Z);
