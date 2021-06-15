@@ -11,7 +11,9 @@ SingleFermionOperator::SingleFermionOperator(){};
 SingleFermionOperator::SingleFermionOperator(
     const std::vector<UINT>& target_index_list,
     const std::vector<UINT>& action_id_list)
-    : _target_index(target_index_list), _action_id(action_id_list){};
+    : _target_index(target_index_list), _action_id(action_id_list) {
+    assert(_target_index.size() == _action_id.size());
+};
 
 SingleFermionOperator::SingleFermionOperator(std::string action_string) {
     std::string pattern = "([0-9]+)(\\^?)\\s*";
