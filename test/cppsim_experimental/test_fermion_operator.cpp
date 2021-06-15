@@ -68,3 +68,15 @@ TEST(FermionOperatorTest, RemoveTermTest) {
     EXPECT_EQ(ACTION_CREATE_ID, term.second.get_action_id_list().at(1));
 }
 
+TEST(FermionOperatorTest, GetFermionListTest) {
+    FermionOperator fermion_operator;
+    fermion_operator.add_term(1.0, "2^ 1");
+    fermion_operator.add_term(2.0, "5^ 4 3^");
+
+    auto sfop_list = fermion_operator.get_fermion_list();
+    EXPECT_EQ(2, sfop_list.size());
+    auto target_index_list = sfop_list.at(0).get_target_index_list();
+    EXPECT_EQ(2, target_index_list.at(0));
+    EXPECT_EQ(1, target_index_list.at(1));
+}
+
