@@ -91,3 +91,15 @@ TEST(FermionOperatorTest, GetCoefListTest) {
     EXPECT_EQ(2.0, sfop_list.at(1));
 }
 
+
+TEST(FermionOperatorTest, JordanWignerTest) {
+    FermionOperator fermion_operator;
+    fermion_operator.add_term(1.0, "2^ 0");
+    Observable observable = fermion_operator.jordan_wigner();
+    std::cout << observable.get_term_count() << std::endl;
+
+    for (int i = 0; i < observable.get_term_count(); i++) {
+        auto pauli_op = observable.get_term(i);
+        std::cout << pauli_op.first << std::endl;
+    }
+}
