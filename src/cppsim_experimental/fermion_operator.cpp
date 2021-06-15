@@ -77,20 +77,17 @@ Observable FermionOperator::jordan_wigner() {
 
             // X factors
             pauli_id_list.at(target_index - 1) = PAULI_ID_X;
-            observable.add_term(
-                coef * 0.5, MultiQubitPauliOperator(
-                                target_qubit_index_list, pauli_id_list));
+            MultiQubitPauliOperator X_factors(
+                target_qubit_index_list, pauli_id_list);
+            observable.add_term(coef * 0.5, X_factors);
 
             // Y factors
             pauli_id_list.at(target_index - 1) = PAULI_ID_Y;
-            if (action_id)
-                observable.add_term(-coef * CPPCTYPE(0, 0.5),
-                    MultiQubitPauliOperator(
-                        target_qubit_index_list, pauli_id_list));
-            else
-                observable.add_term(coef * CPPCTYPE(0, 0.5),
-                    MultiQubitPauliOperator(
-                        target_qubit_index_list, pauli_id_list));
+            CPPCTYPE coef_Y = coef * CPPCTYPE(0, 0.5);
+            MultiQubitPauliOperator Y_factors(
+                target_qubit_index_list, pauli_id_list);
+            if (action_id) coef_Y *= -1;
+            observable.add_term(coef_Y, Y_factors);
         }
     }
 
