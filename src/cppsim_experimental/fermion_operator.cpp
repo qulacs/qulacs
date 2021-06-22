@@ -45,13 +45,21 @@ const std::vector<CPPCTYPE>& FermionOperator::get_coef_list() const {
 }
 
 Observable FermionOperator::jordan_wigner() {
-    Observable observable;
+    /**
+     * Qubitとの対応をXとYで展開して計算する
+     * a_p^\dagger \mapsto 1/2 (X_p - iY_p)Z_{p-1} ... Z_0
+     *  = 1/2 (X_p Z_{p-1} ... Z_0) - i/2 (Y_p Z_{p-1} ... Z_0)
+     */
+
+    Observable transformed;
     for (auto fop_tuple : boost::combine(_fermion_terms, _coef_list)) {
         SingleFermionOperator sfop;
         CPPCTYPE coef;
         boost::tie(sfop, coef) = fop_tuple;
 
-        MultiQubitPauliOperator qubit_operator;
+        Observable transformed_term;
+        // 0に掛け算しても0になってしまうため
+        transformed_term.add_term(1.0, "I 0");
 
         auto target_index_list = sfop.get_target_index_list();
         auto action_id_list = sfop.get_action_id_list();
@@ -61,35 +69,33 @@ Observable FermionOperator::jordan_wigner() {
             UINT action_id;
             boost::tie(target_index, action_id) = ladder_operator;
 
-            if (target_index == 0) {
-                observable.add_term(coef * 0.5, MultiQubitPauliOperator("X 0"));
-                CPPCTYPE coef_Y = coef * CPPCTYPE(0, 0.5);
-                if (action_id) coef_Y *= -1;
-                observable.add_term(coef_Y, MultiQubitPauliOperator("Y 0"));
-                continue;
-            }
+            Observable x_term, y_term;
+
             // Z factors
-            std::vector<UINT> target_qubit_index_list(target_index);
-            std::vector<UINT> pauli_id_list(target_index, PAULI_ID_Z);
-            for (UINT i = 0; i < target_index; i++) {
-                target_qubit_index_list[i] = i + 1;
+            std::vector<UINT> target_qubit_index_list(target_index + 1);
+            std::vector<UINT> pauli_id_list(target_index + 1, PAULI_ID_Z);
+            for (UINT i = 0; i < target_index + 1; i++) {
+                target_qubit_index_list[i] = i;
             }
 
             // X factors
-            pauli_id_list.at(target_index - 1) = PAULI_ID_X;
+            pauli_id_list.at(target_index) = PAULI_ID_X;
             MultiQubitPauliOperator X_factors(
                 target_qubit_index_list, pauli_id_list);
-            observable.add_term(coef * 0.5, X_factors);
+            x_term.add_term(coef * 0.5, X_factors);
 
             // Y factors
-            pauli_id_list.at(target_index - 1) = PAULI_ID_Y;
-            CPPCTYPE coef_Y = coef * CPPCTYPE(0, 0.5);
+            pauli_id_list.at(target_index) = PAULI_ID_Y;
             MultiQubitPauliOperator Y_factors(
                 target_qubit_index_list, pauli_id_list);
+            CPPCTYPE coef_Y = coef * 0.5i;
             if (action_id) coef_Y *= -1;
-            observable.add_term(coef_Y, Y_factors);
+            y_term.add_term(coef_Y, Y_factors);
+
+            transformed_term *= x_term + y_term;
         }
+        transformed += transformed_term;
     }
 
-    return observable;
+    return transformed;
 }
