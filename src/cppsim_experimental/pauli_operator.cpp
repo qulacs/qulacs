@@ -146,7 +146,7 @@ MultiQubitPauliOperator MultiQubitPauliOperator::operator*(
     auto x = this->_x;
     auto z = this->_z;
     auto target_x = target.get_x_bits();
-    auto target_z = target.get_x_bits();
+    auto target_z = target.get_z_bits();
     if (target_x.size() != this->_x.size()) {
         size_t max_size = std::max(this->_x.size(), target_x.size());
         x.resize(max_size);
@@ -194,13 +194,13 @@ std::string MultiQubitPauliOperator::to_string() {
     std::string res;
     ITYPE i;
     for (i = 0; i < _pauli_id.size(); i++) {
-        if (_pauli_id[i] = PAULI_ID_I) {
+        if (_pauli_id[i] == PAULI_ID_I) {
             res += "I ";
-        } else if (_pauli_id[i] = PAULI_ID_X) {
+        } else if (_pauli_id[i] == PAULI_ID_X) {
             res += "X ";
-        } else if (_pauli_id[i] = PAULI_ID_Y) {
+        } else if (_pauli_id[i] == PAULI_ID_Y) {
             res += "Y ";
-        } else if (_pauli_id[i] = PAULI_ID_Z) {
+        } else if (_pauli_id[i] == PAULI_ID_Z) {
             res += "Z ";
         }
         res += std::to_string(_target_index[i]) + " ";
