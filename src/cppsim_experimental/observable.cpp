@@ -207,10 +207,10 @@ std::string Observable::to_string() {
     std::string res;
     ITYPE i;
     for (i = 0; i < get_term_count(); i++) {
-        // (1.0-2.0i)
+        // (1.0-2.0j)
         ss << "(" << _coef_list[i].real();
         if (0 <= _coef_list[i].imag()) ss << "+";
-        ss << _coef_list[i].imag() << "i) ";
+        ss << _coef_list[i].imag() << "j) ";
 
         // [X 0 Y 1 Z 2]
         ss << "[" << _pauli_terms[i].to_string() << "]";
