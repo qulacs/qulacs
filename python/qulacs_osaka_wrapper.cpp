@@ -50,6 +50,7 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def("get_expectation_value", &MultiQubitPauliOperator::get_expectation_value, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &MultiQubitPauliOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         .def("copy", &MultiQubitPauliOperator::copy, "Make copy")
+        .def("__str__", &MultiQubitPauliOperator::to_string, "to string")
         .def(py::self == py::self)
         .def(py::self * py::self)
         .def(py::self *= py::self)

@@ -10,7 +10,7 @@
 #include "state.hpp"
 #include "type.hpp"
 
-CPPCTYPE Observable::culc_coef(
+CPPCTYPE Observable::calc_coef(
     const MultiQubitPauliOperator& a, const MultiQubitPauliOperator& b) const {
     auto x_a = a.get_x_bits();
     auto z_a = a.get_z_bits();
@@ -110,18 +110,20 @@ Observable Observable::operator+(const Observable& target) const {
 }
 
 Observable& Observable::operator+=(const Observable& target) {
-    ITYPE i, j;
+    ITYPE i;
+    std::unordered_map<std::string, int> u_map;
 #pragma omp parallel for
-    for (j = 0; j < target.get_term_count(); j++) {
-        auto term = target.get_term(j);
-        bool flag = true;
-        for (int i = 0; i < this->_pauli_terms.size(); i++) {
-            if (this->_pauli_terms[i] == term.second) {
-                this->_coef_list[i] += term.first;
-                flag = false;
-            }
-        }
-        if (flag) {
+    for (i = 0; i < this->_pauli_terms.size(); i++) {
+        u_map[_pauli_terms[i].to_string()] = i + 1;
+    }
+
+#pragma omp parallel for
+    for (i = 0; i < target.get_term_count(); i++) {
+        auto term = target.get_term(i);
+        UINT id = u_map[term.second.to_string()];
+        if (id > 0) {
+            this->_coef_list[id - 1] += term.first;
+        } else {
             this->add_term(term.first, term.second);
         }
     }
@@ -135,18 +137,20 @@ Observable Observable::operator-(const Observable& target) const {
 }
 
 Observable& Observable::operator-=(const Observable& target) {
-    ITYPE i, j;
+    ITYPE i;
+    std::unordered_map<std::string, int> u_map;
 #pragma omp parallel for
-    for (j = 0; j < target.get_term_count(); j++) {
-        auto term = target.get_term(j);
-        bool flag = true;
-        for (int i = 0; i < this->_pauli_terms.size(); i++) {
-            if (this->_pauli_terms[i] == term.second) {
-                this->_coef_list[i] -= term.first;
-                flag = false;
-            }
-        }
-        if (flag) {
+    for (i = 0; i < this->_pauli_terms.size(); i++) {
+        u_map[_pauli_terms[i].to_string()] = i + 1;
+    }
+
+#pragma omp parallel for
+    for (i = 0; i < target.get_term_count(); i++) {
+        auto term = target.get_term(i);
+        UINT id = u_map[term.second.to_string()];
+        if (id > 0) {
+            this->_coef_list[id - 1] -= term.first;
+        } else {
             this->add_term(-term.first, term.second);
         }
     }
@@ -161,7 +165,7 @@ Observable Observable::operator*(const Observable& target) const {
         for (j = 0; j < target.get_term_count(); j++) {
             Observable tmp;
             auto term = target.get_term(j);
-            CPPCTYPE bits_coef = culc_coef(this->_pauli_terms[i], term.second);
+            CPPCTYPE bits_coef = calc_coef(this->_pauli_terms[i], term.second);
             tmp.add_term(this->_coef_list[i] * term.first * bits_coef,
                 this->_pauli_terms[i] * term.second);
             res += tmp;
@@ -192,7 +196,7 @@ Observable& Observable::operator*=(const Observable& target) {
 Observable& Observable::operator*=(const CPPCTYPE& target) {
     ITYPE i;
 #pragma omp parallel for
-    for (int i = 0; i < this->_coef_list.size(); i++) {
+    for (i = 0; i < this->_coef_list.size(); i++) {
         this->_coef_list[i] *= target;
     }
     return *this;
