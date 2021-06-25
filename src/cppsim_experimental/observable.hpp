@@ -100,4 +100,9 @@ public:
     Observable& operator*=(const Observable& target);
 
     Observable& operator*=(const CPPCTYPE& target);
+
+    /**
+     * Observableを文字列に変換する
+     */
+    std::string to_string();
 };

@@ -95,6 +95,16 @@ TEST(ObservableTest, CheckExpectationValue) {
     }
 }
 
+TEST(ObservableTest, to_stringTest) {
+    std::string expected =
+        "(1-1j) [I 0 X 1 Y 2 Z 3 ] +\n"
+        "(0.2+0.2j) [I 4 X 5 Y 4 Z 5 ]";
+    Observable observable;
+    observable.add_term(1.0 - 1.0i, "I 0 X 1 Y 2 Z 3");
+    observable.add_term(0.2 + 0.2i, "I 4 X 5 Y 4 Z 5");
+    EXPECT_EQ(expected, observable.to_string());
+}
+
 /*
 TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile) {
     auto func = [](const std::string path,
