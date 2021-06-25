@@ -112,16 +112,15 @@ Observable Observable::operator+(const Observable& target) const {
 Observable& Observable::operator+=(const Observable& target) {
     ITYPE i;
     std::unordered_map<std::string, int> u_map;
-#pragma omp parallel for
     for (i = 0; i < this->_pauli_terms.size(); i++) {
-        u_map[_pauli_terms[i].to_string()] = i + 1;
+        u_map[_pauli_terms[i].to_string()] = i;
     }
 
 #pragma omp parallel for
     for (i = 0; i < target.get_term_count(); i++) {
         auto term = target.get_term(i);
-        UINT id = u_map[term.second.to_string()];
-        if (id > 0) {
+        if (u_map.find(term.second.to_string()) != u_map.end()) {
+            UINT id = u_map[term.second.to_string()];
             this->_coef_list[id - 1] += term.first;
         } else {
             this->add_term(term.first, term.second);
@@ -139,7 +138,6 @@ Observable Observable::operator-(const Observable& target) const {
 Observable& Observable::operator-=(const Observable& target) {
     ITYPE i;
     std::unordered_map<std::string, int> u_map;
-#pragma omp parallel for
     for (i = 0; i < this->_pauli_terms.size(); i++) {
         u_map[_pauli_terms[i].to_string()] = i + 1;
     }
@@ -147,8 +145,8 @@ Observable& Observable::operator-=(const Observable& target) {
 #pragma omp parallel for
     for (i = 0; i < target.get_term_count(); i++) {
         auto term = target.get_term(i);
-        UINT id = u_map[term.second.to_string()];
-        if (id > 0) {
+        if (u_map.find(term.second.to_string()) != u_map.end()) {
+            UINT id = u_map[term.second.to_string()];
             this->_coef_list[id - 1] -= term.first;
         } else {
             this->add_term(-term.first, term.second);
