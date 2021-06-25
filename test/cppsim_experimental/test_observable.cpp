@@ -105,6 +105,16 @@ TEST(ObservableTest, to_stringTest) {
     EXPECT_EQ(expected, observable.to_string());
 }
 
+TEST(ObservableTest, to_string_SignOfCoefTest) {
+    std::string expected =
+        "(0-0j) [I 0 ] +\n"
+        "(0+0j) [I 0 ]";
+    Observable observable;
+    observable.add_term(0.0 - 0.0i, "I 0");
+    observable.add_term(0.0 + 0.0i, "I 0");
+    EXPECT_EQ(expected, observable.to_string());
+}
+
 /*
 TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile) {
     auto func = [](const std::string path,
