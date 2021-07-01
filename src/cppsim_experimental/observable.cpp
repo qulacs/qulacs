@@ -209,8 +209,9 @@ std::string Observable::to_string() {
     for (i = 0; i < get_term_count(); i++) {
         // (1.0-2.0j)
         ss << "(" << _coef_list[i].real();
-        if (0 <= _coef_list[i].imag()) ss << "+";
-        ss << _coef_list[i].imag() << "j) ";
+        // 虚数部には符号をつける
+        // +0j or -0j に対応させるためstd::showposを用いる
+        ss << std::showpos << _coef_list[i].imag() << "j) ";
 
         // [X 0 Y 1 Z 2]
         ss << "[" << _pauli_terms[i].to_string() << "]";
@@ -220,6 +221,8 @@ std::string Observable::to_string() {
         res += ss.str();
         ss.str("");
         ss.clear();
+        // noshowposして、1項目以降の実数部に符号が付かないようにする
+        ss << std::noshowpos;
     }
     return res;
 }
