@@ -28,23 +28,23 @@ CPPCTYPE Observable::calc_coef(
     ITYPE i;
 #pragma omp parallel for
     for (i = 0; i < x_a.size(); i++) {
-        if (x_a[i] && !z_a[i]) {  // X
-            if (!x_b[i] && z_b[i]) {
-                res *= -I;
-            } else if (x_b[i] && z_b[i]) {
-                res *= I;
+        if (x_a[i] && !z_a[i]) {            // a = X
+            if (!x_b[i] && z_b[i]) {        // b = Z
+                res *= -I;                  // XZ = -iY
+            } else if (x_b[i] && z_b[i]) {  // b = Y
+                res *= I;                   // XY = iZ
             }
-        } else if (!x_a[i] && z_a[i]) {  // Z
-            if (x_b[i] && !z_b[i]) {     // X
-                res *= -I;
-            } else if (x_b[i] && z_b[i]) {  // Y
-                res *= I;
+        } else if (!x_a[i] && z_a[i]) {     // a = Z
+            if (x_b[i] && !z_b[i]) {        // b = X
+                res *= I;                   // ZX = iY
+            } else if (x_b[i] && z_b[i]) {  // b = Y
+                res *= -I;                  // ZY = -iX
             }
-        } else if (x_a[i] && z_a[i]) {  // Y
-            if (x_b[i] && !z_b[i]) {    // X
-                res *= I;
-            } else if (!x_b[i] && z_b[i]) {  // Z
-                res *= I;
+        } else if (x_a[i] && z_a[i]) {       // a = Y
+            if (x_b[i] && !z_b[i]) {         // b = X
+                res *= -I;                   // YX = -iZ
+            } else if (!x_b[i] && z_b[i]) {  // b = Z
+                res *= I;                    // YZ = iX
             }
         }
     }
