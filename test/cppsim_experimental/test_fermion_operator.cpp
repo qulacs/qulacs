@@ -40,12 +40,18 @@ TEST(FermionOperatorTest, AddGetTermTest) {
     // が得られることを確認する
     auto term3 = fermion_operator.get_term(2);
     EXPECT_EQ(term3.first, term2.first);
-    EXPECT_EQ(term3.second.get_target_index_list().at(0), term2.second.get_target_index_list().at(0));
-    EXPECT_EQ(term3.second.get_action_id_list().at(0), term2.second.get_action_id_list().at(0));
-    EXPECT_EQ(term3.second.get_target_index_list().at(1), term2.second.get_target_index_list().at(1));
-    EXPECT_EQ(term3.second.get_action_id_list().at(1), term2.second.get_action_id_list().at(1));
-    EXPECT_EQ(term3.second.get_target_index_list().at(2), term2.second.get_target_index_list().at(2));
-    EXPECT_EQ(term3.second.get_action_id_list().at(2), term2.second.get_action_id_list().at(2));
+    EXPECT_EQ(term3.second.get_target_index_list().at(0),
+        term2.second.get_target_index_list().at(0));
+    EXPECT_EQ(term3.second.get_action_id_list().at(0),
+        term2.second.get_action_id_list().at(0));
+    EXPECT_EQ(term3.second.get_target_index_list().at(1),
+        term2.second.get_target_index_list().at(1));
+    EXPECT_EQ(term3.second.get_action_id_list().at(1),
+        term2.second.get_action_id_list().at(1));
+    EXPECT_EQ(term3.second.get_target_index_list().at(2),
+        term2.second.get_target_index_list().at(2));
+    EXPECT_EQ(term3.second.get_action_id_list().at(2),
+        term2.second.get_action_id_list().at(2));
 }
 
 TEST(FermionOperatorTest, RemoveTermTest) {
@@ -55,7 +61,7 @@ TEST(FermionOperatorTest, RemoveTermTest) {
     fermion_operator.add_term(3.0, "6 7^");
 
     EXPECT_EQ(3, fermion_operator.get_term_count());
-    
+
     // Removeした結果、Termは1個減る
     fermion_operator.remove_term(1);
     EXPECT_EQ(2, fermion_operator.get_term_count());
@@ -91,15 +97,92 @@ TEST(FermionOperatorTest, GetCoefListTest) {
     EXPECT_EQ(2.0, sfop_list.at(1));
 }
 
+TEST(FermionOperatorTest, SingleActionJordanWignerTest) {
+    FermionOperator term_0, term_0hat;
+    FermionOperator term_2, term_2hat;
 
-TEST(FermionOperatorTest, JordanWignerTest) {
-    FermionOperator fermion_operator;
-    fermion_operator.add_term(1.0, "2^ 0");
-    Observable observable = fermion_operator.jordan_wigner();
-    std::cout << observable.get_term_count() << std::endl;
+    term_0.add_term(1.0, "0");
+    term_0hat.add_term(1.0, "0^");
+    term_2.add_term(1.0, "2");
+    term_2hat.add_term(1.0, "2^");
 
-    for (int i = 0; i < observable.get_term_count(); i++) {
-        auto pauli_op = observable.get_term(i);
-        std::cout << pauli_op.first << std::endl;
-    }
+    Observable term_0_jw = term_0.jordan_wigner();
+    Observable term_0hat_jw = term_0hat.jordan_wigner();
+    Observable term_2_jw = term_2.jordan_wigner();
+    Observable term_2hat_jw = term_2hat.jordan_wigner();
+
+    std::string term_0_jw_expected = "(0.5+0j) [X 0 ] +\n(0+0.5j) [Y 0 ]";
+    std::string term_0hat_jw_expected = "(0.5+0j) [X 0 ] +\n(0-0.5j) [Y 0 ]";
+    std::string term_2_jw_expected =
+        "(0.5+0j) [Z 0 Z 1 X 2 ] +\n"
+        "(0+0.5j) [Z 0 Z 1 Y 2 ]";
+    std::string term_2hat_jw_expected =
+        "(0.5+0j) [Z 0 Z 1 X 2 ] +\n"
+        "(0-0.5j) [Z 0 Z 1 Y 2 ]";
+    EXPECT_EQ(term_0_jw.to_string(), term_0_jw_expected);
+    EXPECT_EQ(term_0hat_jw.to_string(), term_0hat_jw_expected);
+    EXPECT_EQ(term_2_jw.to_string(), term_2_jw_expected);
+    EXPECT_EQ(term_2hat_jw.to_string(), term_2hat_jw_expected);
+}
+
+TEST(FermionOperatorTest, MultiActionJordanWignerTest1) {
+    FermionOperator op1, op2;
+    op1.add_term(1.0, "0 2^");
+    op2.add_term(1.0, "0^ 2");
+
+    Observable op1_jw = op1.jordan_wigner();
+    Observable op2_jw = op2.jordan_wigner();
+
+    Observable op3 = op1_jw + op2_jw;
+
+    std::string op1_expected =
+        "(0-0.25j) [Y 0 Z 1 X 2 ] +\n"
+        "(-0.25-0j) [Y 0 Z 1 Y 2 ] +\n"
+        "(-0.25+0j) [X 0 Z 1 X 2 ] +\n"
+        "(0+0.25j) [X 0 Z 1 Y 2 ]";
+    std::string op2_expected =
+        "(0-0.25j) [Y 0 Z 1 X 2 ] +\n"
+        "(0.25+0j) [Y 0 Z 1 Y 2 ] +\n"
+        "(0.25+0j) [X 0 Z 1 X 2 ] +\n"
+        "(0+0.25j) [X 0 Z 1 Y 2 ]";
+    // TODO 係数が0の場合、Observableから削除する処理をする
+    std::string op3_expected =
+        "(0-0.5j) [Y 0 Z 1 X 2 ] +\n"
+        "(0+0j) [Y 0 Z 1 Y 2 ] +\n"
+        "(0+0j) [X 0 Z 1 X 2 ] +\n"
+        "(0+0.5j) [X 0 Z 1 Y 2 ]";
+
+    EXPECT_EQ(op1_jw.to_string(), op1_expected);
+    EXPECT_EQ(op2_jw.to_string(), op2_expected);
+    EXPECT_EQ(op3.to_string(), op3_expected);
+}
+
+TEST(FermionOperatorTest, MultiActionJordanWignerTest2) {
+    FermionOperator op1, op2;
+    op1.add_term(1.0, "2^ 0");
+    op2.add_term(1.0, "0^ 2");
+
+    Observable op1_jw = op1.jordan_wigner();
+    Observable op2_jw = op2.jordan_wigner();
+
+    Observable op3 = op1_jw + op2_jw;
+
+    std::string op1_expected =
+        "(0-0.25j) [Y 0 Z 1 X 2 ] +\n"
+        "(-0.25-0j) [Y 0 Z 1 Y 2 ] +\n"
+        "(-0.25+0j) [X 0 Z 1 X 2 ] +\n"
+        "(0+0.25j) [X 0 Z 1 Y 2 ]";
+    std::string op2_expected =
+        "(0-0.25j) [Y 0 Z 1 X 2 ] +\n"
+        "(0.25+0j) [Y 0 Z 1 Y 2 ] +\n"
+        "(0.25+0j) [X 0 Z 1 X 2 ] +\n"
+        "(0+0.25j) [X 0 Z 1 Y 2 ]";
+    // TODO 係数が0の場合、Observableから削除する処理をする
+    std::string op3_expected =
+        "(0+0j) [Y 0 Z 1 X 2 ] +\n"
+        "(0.5+0j) [X 0 Z 1 X 2 ] +\n"
+        "(0.5+0j) [Y 0 Z 1 Y 2 ] +\n"
+        "(0+0j) [X 0 Z 1 Y 2 ]";
+
+    EXPECT_EQ(op3.to_string(), op3_expected);
 }
