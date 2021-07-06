@@ -67,6 +67,7 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def("get_expectation_value", &Observable::get_expectation_value, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &Observable::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         .def("copy", &Observable::copy, "Make copy")
+        .def("__str__", &Observable::to_string, "to string")
         .def(py::self + py::self)
         .def(py::self += py::self)
         .def(py::self - py::self)

@@ -28,23 +28,23 @@ CPPCTYPE Observable::calc_coef(
     ITYPE i;
 #pragma omp parallel for
     for (i = 0; i < x_a.size(); i++) {
-        if (x_a[i] && !z_a[i]) {  // X
-            if (!x_b[i] && z_b[i]) {
-                res *= -I;
-            } else if (x_b[i] && z_b[i]) {
-                res *= I;
+        if (x_a[i] && !z_a[i]) {            // a = X
+            if (!x_b[i] && z_b[i]) {        // b = Z
+                res *= -I;                  // XZ = -iY
+            } else if (x_b[i] && z_b[i]) {  // b = Y
+                res *= I;                   // XY = iZ
             }
-        } else if (!x_a[i] && z_a[i]) {  // Z
-            if (x_b[i] && !z_b[i]) {     // X
-                res *= -I;
-            } else if (x_b[i] && z_b[i]) {  // Y
-                res *= I;
+        } else if (!x_a[i] && z_a[i]) {     // a = Z
+            if (x_b[i] && !z_b[i]) {        // b = X
+                res *= I;                   // ZX = iY
+            } else if (x_b[i] && z_b[i]) {  // b = Y
+                res *= -I;                  // ZY = -iX
             }
-        } else if (x_a[i] && z_a[i]) {  // Y
-            if (x_b[i] && !z_b[i]) {    // X
-                res *= I;
-            } else if (!x_b[i] && z_b[i]) {  // Z
-                res *= I;
+        } else if (x_a[i] && z_a[i]) {       // a = Y
+            if (x_b[i] && !z_b[i]) {         // b = X
+                res *= -I;                   // YX = -iZ
+            } else if (!x_b[i] && z_b[i]) {  // b = Z
+                res *= I;                    // YZ = iX
             }
         }
     }
@@ -200,4 +200,29 @@ Observable& Observable::operator*=(const CPPCTYPE& target) {
         this->_coef_list[i] *= target;
     }
     return *this;
+}
+
+std::string Observable::to_string() {
+    std::ostringstream ss;
+    std::string res;
+    ITYPE i;
+    for (i = 0; i < get_term_count(); i++) {
+        // (1.0-2.0j)
+        ss << "(" << _coef_list[i].real();
+        // 虚数部には符号をつける
+        // +0j or -0j に対応させるためstd::showposを用いる
+        ss << std::showpos << _coef_list[i].imag() << "j) ";
+
+        // [X 0 Y 1 Z 2]
+        ss << "[" << _pauli_terms[i].to_string() << "]";
+        if (i != get_term_count() - 1) {
+            ss << " +" << std::endl;
+        }
+        res += ss.str();
+        ss.str("");
+        ss.clear();
+        // noshowposして、1項目以降の実数部に符号が付かないようにする
+        ss << std::noshowpos;
+    }
+    return res;
 }

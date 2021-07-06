@@ -95,6 +95,58 @@ TEST(ObservableTest, CheckExpectationValue) {
     }
 }
 
+TEST(ObservableTest, to_stringTest) {
+    std::string expected =
+        "(1-1j) [I 0 X 1 Y 2 Z 3 ] +\n"
+        "(0.2+0.2j) [I 4 X 5 Y 4 Z 5 ]";
+    Observable observable;
+    observable.add_term(1.0 - 1.0i, "I 0 X 1 Y 2 Z 3");
+    observable.add_term(0.2 + 0.2i, "I 4 X 5 Y 4 Z 5");
+    EXPECT_EQ(expected, observable.to_string());
+}
+
+TEST(ObservableTest, to_string_SignOfCoefTest) {
+    std::string expected =
+        "(0-0j) [I 0 ] +\n"
+        "(0+0j) [I 0 ]";
+    Observable observable;
+    observable.add_term(0.0 - 0.0i, "I 0");
+    observable.add_term(0.0 + 0.0i, "I 0");
+    EXPECT_EQ(expected, observable.to_string());
+}
+
+TEST(ObservableTest, calc_coefTest){
+    Observable X,Y,Z;
+    X.add_term(1.0, "X 0");
+    Y.add_term(1.0, "Y 0");
+    Z.add_term(1.0, "Z 0");
+
+    // XY = iZ
+    Observable XY = X * Y;
+    EXPECT_EQ(1i, XY.get_term(0).first);
+    EXPECT_EQ(PAULI_ID_Z, XY.get_term(0).second.get_pauli_id_list().at(0));
+    // XZ = -iY
+    Observable XZ = X * Z;
+    EXPECT_EQ(-1i, XZ.get_term(0).first);
+    EXPECT_EQ(PAULI_ID_Y, XZ.get_term(0).second.get_pauli_id_list().at(0));
+    // YX = -iZ
+    Observable YX = Y * X;
+    EXPECT_EQ(-1i, YX.get_term(0).first);
+    EXPECT_EQ(PAULI_ID_Z, YX.get_term(0).second.get_pauli_id_list().at(0));
+    // YZ = iX
+    Observable YZ = Y * Z;
+    EXPECT_EQ(1i, YZ.get_term(0).first);
+    EXPECT_EQ(PAULI_ID_X, YZ.get_term(0).second.get_pauli_id_list().at(0));
+    // ZX = iY
+    Observable ZX = Z * X;
+    EXPECT_EQ(1i, ZX.get_term(0).first);
+    EXPECT_EQ(PAULI_ID_Y, ZX.get_term(0).second.get_pauli_id_list().at(0));
+    // ZY = -iX
+    Observable ZY = Z * Y;
+    EXPECT_EQ(-1i, ZY.get_term(0).first);
+    EXPECT_EQ(PAULI_ID_X, ZY.get_term(0).second.get_pauli_id_list().at(0));
+}
+
 /*
 TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile) {
     auto func = [](const std::string path,
