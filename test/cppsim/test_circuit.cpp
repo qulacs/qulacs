@@ -46,6 +46,7 @@ TEST(CircuitTest, CircuitBasic) {
     QuantumCircuit circuit(n);
     UINT target,target_sub;
     double angle;
+    std::complex<double> imag_unit(0,1);
 
     target = random.int32() % n;
     circuit.add_X_gate(target);
@@ -106,17 +107,17 @@ TEST(CircuitTest, CircuitBasic) {
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
     circuit.add_RX_gate(target,angle);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + 1.i*sin(angle/2)*X, n)*state_eigen;
+    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + imag_unit*sin(angle/2)*X, n)*state_eigen;
 
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
     circuit.add_RY_gate(target, angle);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + 1.i*sin(angle/2)*Y, n)*state_eigen;
+    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + imag_unit*sin(angle/2)*Y, n)*state_eigen;
 
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
     circuit.add_RZ_gate(target, angle);
-    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + 1.i*sin(angle/2)*Z, n)*state_eigen;
+    state_eigen = get_expanded_eigen_matrix_with_identity(target, cos(angle/2)*Identity + imag_unit*sin(angle/2)*Z, n)*state_eigen;
 
     target = random.int32() % n;
     target_sub = random.int32() % (n-1);
@@ -698,13 +699,13 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
     test_state(0) = 1.;
 
     res = observable.get_expectation_value(&state);
-    test_res = (test_state.adjoint() * test_observable * test_state);
+    test_res = (test_state.adjoint() * test_observable * test_state)(0,0);
 
     circuit.update_quantum_state(&state);
     test_state = test_circuit * test_state;
 
     res = observable.get_expectation_value(&state);
-    test_res = (test_state.adjoint() * test_observable * test_state);
+    test_res = (test_state.adjoint() * test_observable * test_state)(0,0);
     ASSERT_NEAR(abs(test_res.real() - res.real())/ test_res.real(), 0, 0.01);
 
 
@@ -715,7 +716,7 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
     circuit.update_quantum_state(&state);
 
     res = observable.get_expectation_value(&state);
-    test_res = (test_state.adjoint() * test_observable * test_state);
+    test_res = (test_state.adjoint() * test_observable * test_state)(0,0);
     ASSERT_NEAR(abs(test_res.real() - res.real())/ test_res.real(), 0, 0.01);
 }
 
@@ -770,7 +771,7 @@ TEST(CircuitTest, RotateDiagonalObservable){
     test_state = test_circuit * test_state;
 
     res = observable.get_expectation_value(&state);
-    test_res = (test_state.adjoint() * test_observable * test_state);
+    test_res = (test_state.adjoint() * test_observable * test_state)(0,0);
 
     // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
     ASSERT_NEAR(abs(test_res.real() - res.real())/test_res.real(), 0, 0.01);
@@ -782,13 +783,13 @@ TEST(CircuitTest, RotateDiagonalObservable){
     for (ITYPE i = 0; i < dim; ++i) test_state[i] = state.data_cpp()[i];
 
     res = observable.get_expectation_value(&state);
-    test_res = (test_state.adjoint() * test_observable * test_state);
+    test_res = (test_state.adjoint() * test_observable * test_state)(0,0);
 
     test_state = test_circuit * test_state;
     circuit.update_quantum_state(&state);
 
     res = observable.get_expectation_value(&state);
-    test_res = (test_state.adjoint() * test_observable * test_state);
+    test_res = (test_state.adjoint() * test_observable * test_state)(0,0);
 
     // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] - state.data_cpp()[i]), 0, eps);
     ASSERT_NEAR(abs(test_res.real() - res.real())/test_res.real(), 0, 0.01);

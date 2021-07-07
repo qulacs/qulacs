@@ -178,7 +178,7 @@ PYBIND11_MODULE(qulacs, m) {
 			CTYPE* ptr = state.data_c();
 			for (ITYPE y = 0; y < state.dim; ++y) {
 				for (ITYPE x = 0; x < state.dim; ++x) {
-					mat(y, x) = ptr[y*state.dim + x];
+					mat(y, x) = (CPPCTYPE)ptr[y*state.dim + x];
 				}
 			}
 			return mat;

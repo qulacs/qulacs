@@ -134,6 +134,7 @@ TEST(GateTest, ApplySingleQubitRotationGate) {
     const UINT n = 5;
     const ITYPE dim = 1ULL << n;
     double eps = 1e-15;
+    std::complex<double> imag_unit(0,1);
 
 	int ngpus = get_num_device();
 	for (int idx = 0; idx < ngpus; ++idx) {
@@ -152,7 +153,7 @@ TEST(GateTest, ApplySingleQubitRotationGate) {
 				double angle = random.uniform() * 3.14159;
 
 				auto func = func_mat.first;
-				auto mat = cos(angle / 2) * Eigen::MatrixXcd::Identity(2, 2) + 1.i * sin(angle / 2) * func_mat.second;
+				auto mat = cos(angle / 2) * Eigen::MatrixXcd::Identity(2, 2) + imag_unit * sin(angle / 2) * func_mat.second;
 
 				state.set_Haar_random_state();
 				set_eigen_from_gpu(test_state1, state, dim);
@@ -263,6 +264,7 @@ TEST(GateTest, ApplyMultiQubitGate) {
     const UINT n = 1;
     const ITYPE dim = 1ULL << n;
     double eps = 1e-15;
+    std::complex<double> imag_unit(0,1);
 
 	int ngpus = get_num_device();
 	for (int idx = 0; idx < ngpus; ++idx) {
@@ -314,7 +316,7 @@ TEST(GateTest, ApplyMultiQubitGate) {
 			}
 			double angle = random.uniform() * 3.14159;
 
-			Eigen::MatrixXcd large_mat = cos(angle / 2) * Eigen::MatrixXcd::Identity(dim, dim) + 1.i * sin(angle / 2) * get_eigen_matrix_full_qubit_pauli(pauli.get_index_list(), pauli.get_pauli_id_list(), n);
+			Eigen::MatrixXcd large_mat = cos(angle / 2) * Eigen::MatrixXcd::Identity(dim, dim) + imag_unit * sin(angle / 2) * get_eigen_matrix_full_qubit_pauli(pauli.get_index_list(), pauli.get_pauli_id_list(), n);
 			test_state1 = large_mat * test_state1;
 
 			auto gate = gate::PauliRotation(pauli.get_index_list(), pauli.get_pauli_id_list(), angle);
@@ -373,6 +375,7 @@ TEST(GateTest, MergeMultiply) {
     UINT n = 1;
     ITYPE dim = 1ULL << n;
     const double eps = 1e-14;
+    std::complex<double> imag_unit(0,1);
 
 	int ngpus = get_num_device();
 	for (int idx = 0; idx < ngpus; ++idx) {
@@ -393,7 +396,7 @@ TEST(GateTest, MergeMultiply) {
 		xy00->update_quantum_state(&state);
 		x0->update_quantum_state(&test_state);
 		y0->update_quantum_state(&test_state);
-		Eigen::MatrixXcd mat = -1.i * get_eigen_matrix_full_qubit_pauli({ 3 });
+		Eigen::MatrixXcd mat = -imag_unit * get_eigen_matrix_full_qubit_pauli({ 3 });
 		test_state_eigen = mat * test_state_eigen;
 
 		assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
@@ -547,6 +550,7 @@ TEST(GateTest, RandomPauliRotationMerge) {
     UINT max_repeat = 3;
     Random random;
     random.set_seed(2);
+    std::complex<double> imag_unit(0,1);
 
     std::vector<UINT> new_pauli_ids = { 0,0,0,1 };
     std::vector<UINT> targets = { 0,1,2,2 };
@@ -599,7 +603,7 @@ TEST(GateTest, RandomPauliRotationMerge) {
 				new_gate->update_quantum_state(&test_state);
 
 				// update eigen state with matrix mul
-				auto new_gate_matrix = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2) * ComplexMatrix::Identity(2, 2) + 1.i * sin(angle / 2) * get_eigen_matrix_single_Pauli(new_pauli_id), n);
+				auto new_gate_matrix = get_expanded_eigen_matrix_with_identity(target, cos(angle / 2) * ComplexMatrix::Identity(2, 2) + imag_unit * sin(angle / 2) * get_eigen_matrix_single_Pauli(new_pauli_id), n);
 				total_matrix = new_gate_matrix * total_matrix;
 				test_state_eigen = new_gate_matrix * test_state_eigen;
 
@@ -635,6 +639,7 @@ TEST(GateTest, RandomUnitaryMerge) {
     UINT max_repeat = 3;
     Random random;
     random.set_seed(2);
+    std::complex<double> imag_unit(0,1);
 
     std::vector<UINT> new_pauli_ids = { 0,0,0,1 };
     std::vector<UINT> targets = { 0,1,2,2 };
@@ -675,7 +680,7 @@ TEST(GateTest, RandomUnitaryMerge) {
 				double dz = random.uniform();
 				double norm = sqrt(di * di + dx * dx + dy * dy + dz * dz);
 				di /= norm; dx /= norm; dy /= norm; dz /= norm;
-				ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + 1.i * (dx * get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
+				ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + imag_unit * (dx * get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
 
 				auto new_gate = gate::DenseMatrix(target, mat);
 
@@ -726,6 +731,7 @@ TEST(GateTest, RandomUnitaryMergeLarge) {
     UINT max_repeat = 2;
     Random random;
     random.set_seed(2);
+    std::complex<double> imag_unit(0,1);
 
     std::vector<UINT> new_pauli_ids = { 0,0,0,1 };
     std::vector<UINT> targets = { 0,1,2,2 };
@@ -760,7 +766,7 @@ TEST(GateTest, RandomUnitaryMergeLarge) {
 				double dz = random.uniform();
 				double norm = sqrt(di * di + dx * dx + dy * dy + dz * dz);
 				di /= norm; dx /= norm; dy /= norm; dz /= norm;
-				ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + 1.i * (dx * get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
+				ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + imag_unit * (dx * get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
 
 				auto new_gate = gate::DenseMatrix(target, mat);
 
@@ -783,7 +789,7 @@ TEST(GateTest, RandomUnitaryMergeLarge) {
 				double dz = random.uniform();
 				double norm = sqrt(di * di + dx * dx + dy * dy + dz * dz);
 				di /= norm; dx /= norm; dy /= norm; dz /= norm;
-				ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + 1.i * (dx * get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
+				ComplexMatrix mat = di * get_eigen_matrix_single_Pauli(0) + imag_unit * (dx * get_eigen_matrix_single_Pauli(1) + dy * get_eigen_matrix_single_Pauli(2) + dz * get_eigen_matrix_single_Pauli(3));
 
 				auto new_gate = gate::DenseMatrix(target, mat);
 
@@ -820,6 +826,7 @@ TEST(GateTest, ControlMerge) {
     UINT n = 2;
     ITYPE dim = 1ULL << n;
     const double eps = 1e-14;
+    std::complex<double> imag_unit(0,1);
 
     {
         auto x0 = gate::X(0);
@@ -893,7 +900,7 @@ TEST(GateTest, ControlMerge) {
 
         ASSERT_EQ(res->control_qubit_list.size(), 1);
         ASSERT_EQ(res->control_qubit_list[0].index(), 0);
-        ComplexMatrix mat_res = 1.i * get_eigen_matrix_single_Pauli(2);
+        ComplexMatrix mat_res = imag_unit * get_eigen_matrix_single_Pauli(2);
 
 
         ComplexMatrix checkmat;
