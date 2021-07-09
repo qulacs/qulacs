@@ -104,5 +104,5 @@ public:
     /**
      * Observableを文字列に変換する
      */
-    std::string to_string();
+    std::string to_string() const;
 };
