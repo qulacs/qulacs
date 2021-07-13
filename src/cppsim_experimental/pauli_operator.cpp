@@ -15,8 +15,8 @@ void MultiQubitPauliOperator::set_bit(
     const UINT pauli_id, const UINT target_index) {
     while (this->_x.size() <= target_index) {
         this->_x.resize(this->_x.size() * 2 + 1);
-        this->_z.resize(this->_z.size() * 2 + 1);
     }
+    this->_z.resize(this->_x.size());
     if (pauli_id == PAULI_ID_X) {
         this->_x.set(target_index);
     } else if (pauli_id == PAULI_ID_Y) {
@@ -120,7 +120,7 @@ CPPCTYPE MultiQubitPauliOperator::get_transition_amplitude(
 }
 
 MultiQubitPauliOperator* MultiQubitPauliOperator::copy() const {
-    const auto pauli =
+    auto pauli =
         new MultiQubitPauliOperator(this->_target_index, this->_pauli_id);
     return pauli;
 }
@@ -148,7 +148,7 @@ MultiQubitPauliOperator MultiQubitPauliOperator::operator*(
     auto target_x = target.get_x_bits();
     auto target_z = target.get_z_bits();
     if (target_x.size() != this->_x.size()) {
-        size_t max_size = std::max(this->_x.size(), target_x.size());
+        size_t max_size = std::max(x.size(), target_x.size());
         x.resize(max_size);
         z.resize(max_size);
         target_x.resize(max_size);
@@ -174,7 +174,6 @@ MultiQubitPauliOperator& MultiQubitPauliOperator::operator*=(
     _target_index.clear();
     _pauli_id.clear();
     ITYPE i;
-#pragma omp parallel for
     for (i = 0; i < max_size; i++) {
         UINT pauli_id = PAULI_ID_I;
         if (this->_x[i] && !this->_z[i]) {
@@ -190,7 +189,7 @@ MultiQubitPauliOperator& MultiQubitPauliOperator::operator*=(
     return *this;
 }
 
-std::string MultiQubitPauliOperator::to_string() {
+std::string MultiQubitPauliOperator::to_string() const{
     std::string res;
     ITYPE i;
     for (i = 0; i < _pauli_id.size(); i++) {

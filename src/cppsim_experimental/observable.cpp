@@ -26,7 +26,6 @@ CPPCTYPE Observable::calc_coef(
     CPPCTYPE res = 1.0;
     CPPCTYPE I = 1.0i;
     ITYPE i;
-#pragma omp parallel for
     for (i = 0; i < x_a.size(); i++) {
         if (x_a[i] && !z_a[i]) {            // a = X
             if (!x_b[i] && z_b[i]) {        // b = Z
@@ -94,9 +93,8 @@ CPPCTYPE Observable::get_transition_amplitude(const QuantumStateBase* state_bra,
 }
 
 Observable* Observable::copy() const {
-    auto res = new Observable();
+    Observable* res = new Observable();
     ITYPE i;
-#pragma omp parallel for
     for (i = 0; i < this->_coef_list.size(); i++) {
         res->add_term(this->_coef_list[i], *this->_pauli_terms[i].copy());
     }
@@ -104,25 +102,23 @@ Observable* Observable::copy() const {
 }
 
 Observable Observable::operator+(const Observable& target) const {
-    auto res = this->copy();
-    *res += target;
-    return *res;
+    Observable res = *(this->copy());
+    res += target;
+    return res;
 }
 
 Observable& Observable::operator+=(const Observable& target) {
     ITYPE i;
-    std::unordered_map<std::string, int> u_map;
-#pragma omp parallel for
+    std::unordered_map<std::string, ITYPE> u_map;
     for (i = 0; i < this->_pauli_terms.size(); i++) {
-        u_map[_pauli_terms[i].to_string()] = i + 1;
+        u_map[_pauli_terms[i].to_string()] = i;
     }
 
-#pragma omp parallel for
     for (i = 0; i < target.get_term_count(); i++) {
         auto term = target.get_term(i);
-        UINT id = u_map[term.second.to_string()];
-        if (id > 0) {
-            this->_coef_list[id - 1] += term.first;
+        if (u_map.find(term.second.to_string()) != u_map.end()) {
+            ITYPE id = u_map[term.second.to_string()];
+            this->_coef_list[id] += term.first;
         } else {
             this->add_term(term.first, term.second);
         }
@@ -131,25 +127,23 @@ Observable& Observable::operator+=(const Observable& target) {
 }
 
 Observable Observable::operator-(const Observable& target) const {
-    auto res = *this->copy();
+    Observable res = *(this->copy());
     res -= target;
     return res;
 }
 
 Observable& Observable::operator-=(const Observable& target) {
     ITYPE i;
-    std::unordered_map<std::string, int> u_map;
-#pragma omp parallel for
+    std::unordered_map<std::string, ITYPE> u_map;
     for (i = 0; i < this->_pauli_terms.size(); i++) {
-        u_map[_pauli_terms[i].to_string()] = i + 1;
+        u_map[_pauli_terms[i].to_string()] = i;
     }
 
-#pragma omp parallel for
     for (i = 0; i < target.get_term_count(); i++) {
         auto term = target.get_term(i);
-        UINT id = u_map[term.second.to_string()];
-        if (id > 0) {
-            this->_coef_list[id - 1] -= term.first;
+        if (u_map.find(term.second.to_string()) != u_map.end()) {
+            ITYPE id = u_map[term.second.to_string()];
+            this->_coef_list[id] -= term.first;
         } else {
             this->add_term(-term.first, term.second);
         }
@@ -160,7 +154,6 @@ Observable& Observable::operator-=(const Observable& target) {
 Observable Observable::operator*(const Observable& target) const {
     Observable res;
     ITYPE i, j;
-#pragma omp parallel for
     for (i = 0; i < this->_pauli_terms.size(); i++) {
         for (j = 0; j < target.get_term_count(); j++) {
             Observable tmp;
@@ -175,17 +168,16 @@ Observable Observable::operator*(const Observable& target) const {
 }
 
 Observable Observable::operator*(const CPPCTYPE& target) const {
-    auto res = *this->copy();
+    Observable res = *(this->copy());
     res *= target;
     return res;
 }
 
 Observable& Observable::operator*=(const Observable& target) {
-    auto tmp = *this->copy() * target;
+    Observable tmp = (*this) * target;
     this->_coef_list.clear();
     this->_pauli_terms.clear();
     ITYPE i;
-#pragma omp parallel for
     for (i = 0; i < tmp.get_term_count(); i++) {
         auto term = tmp.get_term(i);
         this->add_term(term.first, term.second);
@@ -202,7 +194,7 @@ Observable& Observable::operator*=(const CPPCTYPE& target) {
     return *this;
 }
 
-std::string Observable::to_string() {
+std::string Observable::to_string() const{
     std::ostringstream ss;
     std::string res;
     ITYPE i;

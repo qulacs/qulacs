@@ -64,7 +64,7 @@ public:
         const boost::dynamic_bitset<>& x, const boost::dynamic_bitset<>& z)
         : _x(x), _z(z) {
         ITYPE index;
-#pragma omp parallel for
+        _z.resize(_x.size());
         for (index = 0; index < this->_x.size(); index++) {
             UINT pauli_id;
             if (!this->_x[index] && !this->_z[index])
@@ -75,8 +75,10 @@ public:
                 pauli_id = PAULI_ID_X;
             else if (this->_x[index] && this->_z[index])
                 pauli_id = PAULI_ID_Y;
-            _target_index.push_back(index);
-            _pauli_id.push_back(pauli_id);
+            if(pauli_id!=PAULI_ID_I){
+                _target_index.push_back(index);
+                _pauli_id.push_back(pauli_id);
+            }
         }
     };
 
@@ -103,7 +105,7 @@ public:
 
     MultiQubitPauliOperator& operator*=(const MultiQubitPauliOperator& target);
 
-    std::string to_string();
+    std::string to_string() const;
 };
 
 using PauliOperator = MultiQubitPauliOperator;
