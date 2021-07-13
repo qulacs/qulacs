@@ -34,9 +34,9 @@ namespace state {
             std::cerr << "Error: drop_qubit(const QuantumState*, std::vector<UINT>): invalid qubit count" << std::endl;
             return NULL;
         }
-        DensityMatrix temp(state->qubit_count);
-        temp.load(state);
-        DensityMatrix* qs = partial_trace(&temp, target);
+        UINT qubit_count = state->qubit_count - (UINT)target.size();
+        DensityMatrixCpu* qs = new DensityMatrixCpu(qubit_count);
+        dm_state_partial_trace_from_state_vector(target.data(), (UINT)(target.size()), state->data_c(), qs->data_c(), state->dim);
         return qs;
     }
     DensityMatrixCpu* partial_trace(const DensityMatrixCpu* state, std::vector<UINT> target) {
@@ -46,7 +46,7 @@ namespace state {
         }
         UINT qubit_count = state->qubit_count - (UINT)target.size();
         DensityMatrixCpu* qs = new DensityMatrixCpu(qubit_count);
-        dm_state_partial_trace(target.data(), (UINT)target.size(), state->data_c(), qs->data_c(), state->dim);
+        dm_state_partial_trace_from_density_matrix(target.data(), (UINT)target.size(), state->data_c(), qs->data_c(), state->dim);
         return qs;
     }
 }

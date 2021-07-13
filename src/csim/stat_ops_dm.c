@@ -187,7 +187,7 @@ void dm_state_permutate_qubit(const UINT* qubit_order, const CTYPE* state_src, C
     }
 }
 
-void dm_state_partial_trace(const UINT* target, UINT target_count, const CTYPE* state_src, CTYPE* state_dst, ITYPE dim) {
+void dm_state_partial_trace_from_density_matrix(const UINT* target, UINT target_count, const CTYPE* state_src, CTYPE* state_dst, ITYPE dim) {
     ITYPE dst_dim = dim >> target_count;
     ITYPE trace_dim = 1ULL << target_count;
     UINT* sorted_target = create_sorted_ui_list(target, target_count);
@@ -208,6 +208,36 @@ void dm_state_partial_trace(const UINT* target, UINT target_count, const CTYPE* 
                 ITYPE src_x = base_x ^ mask_list[idx];
                 ITYPE src_y = base_y ^ mask_list[idx];
                 val += state_src[src_y * dim + src_x];
+            }
+            state_dst[y*dst_dim + x] = val;
+        }
+    }
+    free(sorted_target);
+    free(mask_list);
+}
+
+
+void dm_state_partial_trace_from_state_vector(const UINT* target, UINT target_count, const CTYPE* state_src, CTYPE* state_dst, ITYPE dim) {
+    ITYPE dst_dim = dim >> target_count;
+    ITYPE trace_dim = 1ULL << target_count;
+    UINT* sorted_target = create_sorted_ui_list(target, target_count);
+    ITYPE* mask_list = create_matrix_mask_list(target, target_count);
+
+    ITYPE y, x;
+    for (y = 0; y < dst_dim; ++y) {
+        for (x = 0; x < dst_dim; ++x) {
+            ITYPE base_x = x;
+            ITYPE base_y = y;
+            for (UINT target_index = 0; target_index < target_count; ++target_index) {
+                UINT insert_index = sorted_target[target_index];
+                base_x = insert_zero_to_basis_index(base_x, 1ULL << insert_index, insert_index);
+                base_y = insert_zero_to_basis_index(base_y, 1ULL << insert_index, insert_index);
+            }
+            CTYPE val = 0.;
+            for (ITYPE idx = 0; idx < trace_dim; ++idx) {
+                ITYPE src_x = base_x ^ mask_list[idx];
+                ITYPE src_y = base_y ^ mask_list[idx];
+                val += state_src[src_y] * conj(state_src[src_x]);
             }
             state_dst[y*dst_dim + x] = val;
         }
