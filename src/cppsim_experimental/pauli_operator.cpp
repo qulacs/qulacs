@@ -174,7 +174,6 @@ MultiQubitPauliOperator& MultiQubitPauliOperator::operator*=(
     _target_index.clear();
     _pauli_id.clear();
     ITYPE i;
-#pragma omp parallel for
     for (i = 0; i < max_size; i++) {
         UINT pauli_id = PAULI_ID_I;
         if (this->_x[i] && !this->_z[i]) {
