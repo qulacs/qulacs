@@ -167,7 +167,7 @@ jobs:
       # some library files from gcc-8 installed via Homebrew.
       # The following command fixes this issue by (brew) re-linking files from gcc-8.
       # cf. https://stackoverflow.com/a/55500164
-      CIBW_BEFORE_BUILD_MACOS: 'brew link --overwrite gcc@8 && pip install cmake'
+      CIBW_BEFORE_BUILD_MACOS: 'brew install gcc@8 && brew link --overwrite gcc@8 && pip install cmake'
       CIBW_BUILD: 'cp*-macosx_x86_64 cp*-manylinux_x86_64 cp*-win_amd64'
       CIBW_BUILD_VERBOSITY: '1'
       CIBW_ENVIRONMENT: 'QULACS_OPT_FLAGS="-mtune=haswell -mfpmath=both"'
