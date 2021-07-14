@@ -9,7 +9,8 @@ DllExport void dm_state_multiply(CTYPE coef, CTYPE *state, ITYPE dim);
 
 DllExport void dm_state_tensor_product(const CTYPE* state_left, ITYPE dim_left, const CTYPE* state_right, ITYPE dim_right, CTYPE* state_dst);
 DllExport void dm_state_permutate_qubit(const UINT* qubit_order, const CTYPE* state_src, CTYPE* state_dst, UINT qubit_count, ITYPE dim);
-DllExport void dm_state_partial_trace(const UINT* target, UINT target_count, const CTYPE* state_src, CTYPE* state_dst, ITYPE dim);
+DllExport void dm_state_partial_trace_from_density_matrix(const UINT* target, UINT target_count, const CTYPE* state_src, CTYPE* state_dst, ITYPE dim);
+DllExport void dm_state_partial_trace_from_state_vector(const UINT* target, UINT target_count, const CTYPE* state_src, CTYPE* state_dst, ITYPE dim);
 
 DllExport double dm_M0_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim);
 DllExport double dm_M1_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim);

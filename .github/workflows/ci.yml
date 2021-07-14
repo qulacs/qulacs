@@ -20,6 +20,23 @@ jobs:
     steps:
       - uses: actions/checkout@v2
        
+      - name: Verify gcc-8 / g++-8 is installed ubuntu
+        run: sudo apt-get install gcc-8 g++-8
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+
+      - name: Verify gcc-8 is installed macos
+        run: brew install gcc@8
+        if: ${{ contains(matrix.os, 'macos') }}
+
+      - name: Workaround for OpenMP link error on mac
+        # In GitHub Actions virtual environment macos-10.15/20201115.1,
+        # linking some functions from libgomp fails since the linker cannot find
+        # some library files from gcc-8 installed via Homebrew.
+        # The following command fixes this issue by (brew) re-linking files from gcc-8.
+        # cf. https://stackoverflow.com/a/55500164
+        run: brew link --overwrite gcc@8
+        if: ${{ contains(matrix.os, 'macos') }}
+        
       - name: Setup cmake
         uses: lukka/get-cmake@latest
   
@@ -31,19 +48,6 @@ jobs:
           
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy
-
-      - name: Workaround for OpenMP link error on mac
-        # In GitHub Actions virtual environment macos-10.15/20201115.1,
-        # linking some functions from libgomp fails since the linker cannot find
-        # some library files from gcc-8 installed via Homebrew.
-        # The following command fixes this issue by (brew) re-linking files from gcc-8.
-        # cf. https://stackoverflow.com/a/55500164
-        run: brew link --overwrite gcc@8
-        if: ${{ contains(matrix.os, 'macos') }}
-        
-      - name: Verify gcc-8 / g++-8 is installed
-        run: sudo apt-get install gcc-8 g++-8
-        if: ${{ contains(matrix.os, 'ubuntu') }}
 
       - name: Install qulacs for Windows
         run: ./script/build_msvc_2017.bat
@@ -163,7 +167,7 @@ jobs:
       # some library files from gcc-8 installed via Homebrew.
       # The following command fixes this issue by (brew) re-linking files from gcc-8.
       # cf. https://stackoverflow.com/a/55500164
-      CIBW_BEFORE_BUILD_MACOS: 'brew link --overwrite gcc@8 && pip install cmake'
+      CIBW_BEFORE_BUILD_MACOS: 'brew install gcc@8 && brew link --overwrite gcc@8 && pip install cmake'
       CIBW_BUILD: 'cp*-macosx_x86_64 cp*-manylinux_x86_64 cp*-win_amd64'
       CIBW_BUILD_VERBOSITY: '1'
       CIBW_ENVIRONMENT: 'QULACS_OPT_FLAGS="-mtune=haswell -mfpmath=both"'
