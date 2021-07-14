@@ -24,8 +24,8 @@ jobs:
         run: sudo apt-get install gcc-8 g++-8
         if: ${{ contains(matrix.os, 'ubuntu') }}
 
-      - name: Verify gcc-8 / g++-8 is installed macos
-        run: brew install gcc@8 g++@8
+      - name: Verify gcc-8 is installed macos
+        run: brew install gcc@8
         if: ${{ contains(matrix.os, 'macos') }}
 
       - name: Workaround for OpenMP link error on mac
