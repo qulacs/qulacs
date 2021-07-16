@@ -56,14 +56,21 @@ std::pair<CPPCTYPE, MultiQubitPauliOperator> Observable::get_term(
         this->_coef_list.at(index), this->_pauli_terms.at(index));
 }
 
+std::unordered_map<std::string, ITYPE> Observable::get_dict() const{
+    return _term_dict;
+}
+
 void Observable::add_term(const CPPCTYPE coef, MultiQubitPauliOperator op) {
     this->_coef_list.push_back(coef);
     this->_pauli_terms.push_back(op);
+    this->_term_dict[op.to_string()] = _coef_list.size() - 1;
 }
 
 void Observable::add_term(const CPPCTYPE coef, std::string s) {
+    MultiQubitPauliOperator op(s);
     this->_coef_list.push_back(coef);
-    this->_pauli_terms.push_back(MultiQubitPauliOperator(s));
+    this->_pauli_terms.push_back(op);
+    this->_term_dict[op.to_string()] = _coef_list.size() - 1;
 }
 
 void Observable::remove_term(UINT index) {
