@@ -191,18 +191,21 @@ MultiQubitPauliOperator& MultiQubitPauliOperator::operator*=(
 
 std::string MultiQubitPauliOperator::to_string() const{
     std::string res;
+    std::string id;
     ITYPE i;
-    for (i = 0; i < _pauli_id.size(); i++) {
-        if (_pauli_id[i] == PAULI_ID_I) {
-            res += "I ";
-        } else if (_pauli_id[i] == PAULI_ID_X) {
-            res += "X ";
-        } else if (_pauli_id[i] == PAULI_ID_Y) {
-            res += "Y ";
-        } else if (_pauli_id[i] == PAULI_ID_Z) {
-            res += "Z ";
+    for (i = 0; i < _x.size(); i++) {
+        if (!_x[i] && !_z[i]) {
+            id = "I";
+        } else if (_x[i] && !_z[i]) {
+            id = "X";
+        } else if (_x[i] && _z[i]) {
+            id = "Y";
+        } else if (!_x[i] && _z[i]) {
+            id = "Z";
         }
-        res += std::to_string(_target_index[i]) + " ";
+        if(id!="I"){
+            res += id + " " + std::to_string(i) + " ";
+        }
     }
     return res;
 }
