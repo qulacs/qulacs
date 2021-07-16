@@ -115,18 +115,14 @@ Observable Observable::operator+(const Observable& target) const {
 }
 
 Observable& Observable::operator+=(const Observable& target) {
-    ITYPE i;
-    std::unordered_map<std::string, ITYPE> u_map;
-    for (i = 0; i < this->_pauli_terms.size(); i++) {
-        u_map[_pauli_terms[i].to_string()] = i;
-    }
+    auto u_map = target.get_dict();
 
-    for (i = 0; i < target.get_term_count(); i++) {
-        auto term = target.get_term(i);
-        if (u_map.find(term.second.to_string()) != u_map.end()) {
-            ITYPE id = u_map[term.second.to_string()];
-            this->_coef_list[id] += term.first;
+    for (auto item:u_map) {
+        if (_term_dict.find(item.first) != _term_dict.end()) {
+            ITYPE id = _term_dict[item.first];
+            this->_coef_list[id] += target.get_term(item.second).first;
         } else {
+            auto term = target.get_term(item.second);
             this->add_term(term.first, term.second);
         }
     }
@@ -140,18 +136,14 @@ Observable Observable::operator-(const Observable& target) const {
 }
 
 Observable& Observable::operator-=(const Observable& target) {
-    ITYPE i;
-    std::unordered_map<std::string, ITYPE> u_map;
-    for (i = 0; i < this->_pauli_terms.size(); i++) {
-        u_map[_pauli_terms[i].to_string()] = i;
-    }
+    auto u_map = target.get_dict();
 
-    for (i = 0; i < target.get_term_count(); i++) {
-        auto term = target.get_term(i);
-        if (u_map.find(term.second.to_string()) != u_map.end()) {
-            ITYPE id = u_map[term.second.to_string()];
-            this->_coef_list[id] -= term.first;
+    for (auto item : u_map) {
+        if (_term_dict.find(item.first) != _term_dict.end()) {
+            ITYPE id = _term_dict[item.first];
+            this->_coef_list[id] -= target.get_term(item.second).first;
         } else {
+            auto term = target.get_term(item.second);
             this->add_term(-term.first, term.second);
         }
     }
