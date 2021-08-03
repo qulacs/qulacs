@@ -25,7 +25,7 @@ CPPCTYPE Observable::calc_coef(
     }
     CPPCTYPE res = 1.0;
     CPPCTYPE I = 1.0i;
-    ITYPE i;
+    size_t i;
     for (i = 0; i < x_a.size(); i++) {
         if (x_a[i] && !z_a[i]) {            // a = X
             if (!x_b[i] && z_b[i]) {        // b = Z
@@ -51,7 +51,7 @@ CPPCTYPE Observable::calc_coef(
 }
 
 std::pair<CPPCTYPE, MultiQubitPauliOperator> Observable::get_term(
-    const UINT index) const {
+    const size_t index) const {
     return std::make_pair(
         this->_coef_list.at(index), this->_pauli_terms.at(index));
 }
@@ -81,7 +81,7 @@ void Observable::remove_term(UINT index) {
 CPPCTYPE Observable::get_expectation_value(
     const QuantumStateBase* state) const {
     CPPCTYPE sum = 0;
-    for (ITYPE index = 0; index < this->_pauli_terms.size(); ++index) {
+    for (size_t index = 0; index < this->_pauli_terms.size(); ++index) {
         sum += this->_coef_list.at(index) *
                this->_pauli_terms.at(index).get_expectation_value(state);
     }
@@ -91,7 +91,7 @@ CPPCTYPE Observable::get_expectation_value(
 CPPCTYPE Observable::get_transition_amplitude(const QuantumStateBase* state_bra,
     const QuantumStateBase* state_ket) const {
     CPPCTYPE sum = 0;
-    for (ITYPE index = 0; index < this->_pauli_terms.size(); ++index) {
+    for (size_t index = 0; index < this->_pauli_terms.size(); ++index) {
         sum += this->_coef_list.at(index) *
                this->_pauli_terms.at(index).get_transition_amplitude(
                    state_bra, state_ket);
@@ -101,7 +101,7 @@ CPPCTYPE Observable::get_transition_amplitude(const QuantumStateBase* state_bra,
 
 Observable* Observable::copy() const {
     Observable* res = new Observable();
-    ITYPE i;
+    size_t i;
     for (i = 0; i < this->_coef_list.size(); i++) {
         res->add_term(this->_coef_list[i], *this->_pauli_terms[i].copy());
     }
@@ -152,7 +152,7 @@ Observable& Observable::operator-=(const Observable& target) {
 
 Observable Observable::operator*(const Observable& target) const {
     Observable res;
-    ITYPE i, j;
+    size_t i, j;
     for (i = 0; i < this->_pauli_terms.size(); i++) {
         for (j = 0; j < target.get_term_count(); j++) {
             Observable tmp;
@@ -176,7 +176,7 @@ Observable& Observable::operator*=(const Observable& target) {
     Observable tmp = (*this) * target;
     this->_coef_list.clear();
     this->_pauli_terms.clear();
-    ITYPE i;
+    size_t i;
     for (i = 0; i < tmp.get_term_count(); i++) {
         auto term = tmp.get_term(i);
         this->add_term(term.first, term.second);
@@ -187,7 +187,7 @@ Observable& Observable::operator*=(const Observable& target) {
 Observable& Observable::operator*=(const CPPCTYPE& target) {
     ITYPE i;
 #pragma omp parallel for
-    for (i = 0; i < this->_coef_list.size(); i++) {
+    for (i = 0; i < (ITYPE)this->_coef_list.size(); i++) {
         this->_coef_list[i] *= target;
     }
     return *this;
@@ -196,13 +196,18 @@ Observable& Observable::operator*=(const CPPCTYPE& target) {
 std::string Observable::to_string() const{
     std::ostringstream ss;
     std::string res;
-    ITYPE i;
+    size_t i;
     for (i = 0; i < get_term_count(); i++) {
         // (1.0-2.0j)
         ss << "(" << _coef_list[i].real();
+
         // 虚数部には符号をつける
         // +0j or -0j に対応させるためstd::showposを用いる
-        ss << std::showpos << _coef_list[i].imag() << "j) ";
+        // 0.の場合は+に強制する
+        if (_coef_list[i].imag() != 0.)
+            ss << std::showpos << _coef_list[i].imag() << "j) ";
+        else
+            ss << std::showpos << 0. << "j) ";
 
         // [X 0 Y 1 Z 2]
         ss << "[" << _pauli_terms[i].to_string() << "]";

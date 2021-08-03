@@ -32,7 +32,7 @@ public:
      * Observable が保持する PauliOperator の個数を返す
      * @return Observable が保持する PauliOperator の個数
      */
-    UINT get_term_count() const { return (UINT)_pauli_terms.size(); }
+    size_t get_term_count() const { return (UINT)_pauli_terms.size(); }
 
     /**
      * Observable の指定した添字に対応するPauliOperatorを返す
@@ -41,7 +41,7 @@ public:
      * @return 指定したindexにあるPauliOperator
      */
     std::pair<CPPCTYPE, MultiQubitPauliOperator> get_term(
-        const UINT index) const;
+        const size_t index) const;
 
     /**
      * Observable が保持するPauliOperatorをunordered_mapとして返す

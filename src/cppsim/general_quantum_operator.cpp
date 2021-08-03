@@ -299,16 +299,16 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     ITYPE i, j;
     auto terms = target.get_terms();
 #pragma omp parallel for
-    for (i = 0; i < _operator_list.size(); i++) {
+    for (i = 0; i < (ITYPE)_operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
-        for (j = 0; j < terms.size(); j++) {
+        for (j = 0; j < (ITYPE)terms.size(); j++) {
             auto target_operator = terms[j];
             auto pauli_x = pauli_operator->get_x_bits();
             auto pauli_z = pauli_operator->get_z_bits();
             auto target_x = target_operator->get_x_bits();
             auto target_z = target_operator->get_z_bits();
             if (pauli_x.size() != target_x.size()) {
-                UINT max_size = std::max(pauli_x.size(), target_x.size());
+                size_t max_size = std::max(pauli_x.size(), target_x.size());
                 pauli_x.resize(max_size);
                 pauli_z.resize(max_size);
                 target_x.resize(max_size);
@@ -320,17 +320,17 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
             }
         }
     }
-    for (j = 0; j < terms.size(); j++) {
+    for (j = 0; j < (ITYPE)terms.size(); j++) {
         auto target_operator = terms[j];
         bool flag = true;
-        for (i = 0; i < _operator_list.size(); i++) {
+        for (i = 0; i < (ITYPE)_operator_list.size(); i++) {
             auto pauli_operator = _operator_list[i];
             auto pauli_x = pauli_operator->get_x_bits();
             auto pauli_z = pauli_operator->get_z_bits();
             auto target_x = target_operator->get_x_bits();
             auto target_z = target_operator->get_z_bits();
             if (pauli_x.size() != target_x.size()) {
-                UINT max_size = std::max(pauli_x.size(), target_x.size());
+                size_t max_size = std::max(pauli_x.size(), target_x.size());
                 pauli_x.resize(max_size);
                 pauli_z.resize(max_size);
                 target_x.resize(max_size);
@@ -352,14 +352,14 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     bool flag = true;
     ITYPE i;
 #pragma omp parallel for
-    for (i = 0; i < _operator_list.size(); i++) {
+    for (i = 0; i < (ITYPE)_operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         auto pauli_x = pauli_operator->get_x_bits();
         auto pauli_z = pauli_operator->get_z_bits();
         auto target_x = target.get_x_bits();
         auto target_z = target.get_z_bits();
         if (pauli_x.size() != target_x.size()) {
-            UINT max_size = std::max(pauli_x.size(), target_x.size());
+            size_t max_size = std::max(pauli_x.size(), target_x.size());
             pauli_x.resize(max_size);
             pauli_z.resize(max_size);
             target_x.resize(max_size);
@@ -396,16 +396,16 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
     ITYPE i, j;
     auto terms = target.get_terms();
 #pragma omp parallel for
-    for (i = 0; i < _operator_list.size(); i++) {
+    for (i = 0; i < (ITYPE)_operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
-        for (j = 0; j < terms.size(); j++) {
+        for (j = 0; j < (ITYPE)terms.size(); j++) {
             auto target_operator = terms[j];
             auto pauli_x = pauli_operator->get_x_bits();
             auto pauli_z = pauli_operator->get_z_bits();
             auto target_x = target_operator->get_x_bits();
             auto target_z = target_operator->get_z_bits();
             if (pauli_x.size() != target_x.size()) {
-                UINT max_size = std::max(pauli_x.size(), target_x.size());
+                size_t max_size = std::max(pauli_x.size(), target_x.size());
                 pauli_x.resize(max_size);
                 pauli_z.resize(max_size);
                 target_x.resize(max_size);
@@ -417,17 +417,17 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
             }
         }
     }
-    for (j = 0; j < terms.size(); j++) {
+    for (j = 0; j < (ITYPE)terms.size(); j++) {
         auto target_operator = terms[j];
         bool flag = true;
-        for (i = 0; i < _operator_list.size(); i++) {
+        for (i = 0; i < (ITYPE)_operator_list.size(); i++) {
             auto pauli_operator = _operator_list[i];
             auto pauli_x = pauli_operator->get_x_bits();
             auto pauli_z = pauli_operator->get_z_bits();
             auto target_x = target_operator->get_x_bits();
             auto target_z = target_operator->get_z_bits();
             if (pauli_x.size() != target_x.size()) {
-                UINT max_size = std::max(pauli_x.size(), target_x.size());
+                size_t max_size = std::max(pauli_x.size(), target_x.size());
                 pauli_x.resize(max_size);
                 pauli_z.resize(max_size);
                 target_x.resize(max_size);
@@ -450,14 +450,14 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
     const PauliOperator& target) {
     bool flag = true;
     ITYPE i;
-    for (i = 0; i < _operator_list.size(); i++) {
+    for (i = 0; i < (ITYPE)_operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         auto pauli_x = pauli_operator->get_x_bits();
         auto pauli_z = pauli_operator->get_z_bits();
         auto target_x = target.get_x_bits();
         auto target_z = target.get_z_bits();
         if (pauli_x.size() != target_x.size()) {
-            UINT max_size = std::max(pauli_x.size(), target_x.size());
+            size_t max_size = std::max(pauli_x.size(), target_x.size());
             pauli_x.resize(max_size);
             pauli_z.resize(max_size);
             target_x.resize(max_size);
@@ -504,9 +504,9 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     auto target_terms = target.get_terms();
     ITYPE i, j;
 #pragma omp parallel for
-    for (i = 0; i < terms.size(); i++) {
+    for (i = 0; i < (ITYPE)terms.size(); i++) {
         auto pauli_operator = terms[i];
-        for (j = 0; j < target_terms.size(); j++) {
+        for (j = 0; j < (ITYPE)target_terms.size(); j++) {
             auto target_operator = target_terms[j];
             PauliOperator* product = new PauliOperator;
             *product = (*pauli_operator) * (*target_operator);
@@ -523,7 +523,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     ITYPE i;
     auto terms = copy->get_terms();
 #pragma omp parallel for
-    for (i = 0; i < terms.size(); i++) {
+    for (i = 0; i < (ITYPE)terms.size(); i++) {
         auto pauli_operator = terms[i];
         PauliOperator* product = new PauliOperator;
         *product = (*pauli_operator) * (target);
@@ -535,7 +535,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
 GeneralQuantumOperator& GeneralQuantumOperator::operator*=(CPPCTYPE target) {
     ITYPE i;
 #pragma omp parallel for
-    for (i = 0; i < _operator_list.size(); i++) {
+    for (i = 0; i < (ITYPE)_operator_list.size(); i++) {
         *_operator_list[i] *= target;
     }
     return *this;
