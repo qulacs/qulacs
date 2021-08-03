@@ -107,7 +107,7 @@ TEST(ObservableTest, to_stringTest) {
 
 TEST(ObservableTest, to_string_SignOfCoefTest) {
     std::string expected =
-        "(0-0j) [X 0 ] +\n"
+        "(0+0j) [X 0 ] +\n"
         "(0+0j) [Y 0 ]";
     Observable observable;
     observable.add_term(0.0 - 0.0i, "X 0");
