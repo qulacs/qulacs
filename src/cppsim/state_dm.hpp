@@ -217,14 +217,15 @@ public:
     }
 
     virtual void load(const Eigen::VectorXcd& _state) {
-        if (_state.size() != _dim && _state.size() != _dim * _dim) {
+        ITYPE arg_dim = _state.size();
+        if (arg_dim != _dim && arg_dim != _dim * _dim) {
             std::cerr
                 << "Error: DensityMatrixCpu::load(vector<Complex>&): invalid "
                    "length of state"
                 << std::endl;
             return;
         }
-        if (_state.size() == _dim) {
+        if (arg_dim == _dim) {
             dm_initialize_with_pure_state(
                 this->data_c(), (const CTYPE*)_state.data(), dim);
         } else {
@@ -234,7 +235,9 @@ public:
     }
 
     virtual void load(const ComplexMatrix& _state) {
-        if (_state.cols() != _dim && _state.rows() != _dim * _dim) {
+        ITYPE arg_cols = _state.cols();
+        ITYPE arg_rows = _state.rows();
+        if (arg_cols != _dim && arg_rows != _dim * _dim) {
             std::cerr
                 << "Error: DensityMatrixCpu::load(ComplexMatrix&): invalid "
                    "length of state"
@@ -317,7 +320,7 @@ public:
     }
 
     virtual void multiply_elementwise_function(
-        const std::function<CPPCTYPE(ITYPE)>& func) override {
+        const std::function<CPPCTYPE(ITYPE)>&) override {
         std::cerr << "multiply_elementwise_function between density matrix and "
                      "state vector is not implemented"
                   << std::endl;
