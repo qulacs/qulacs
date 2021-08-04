@@ -173,7 +173,7 @@ MultiQubitPauliOperator& MultiQubitPauliOperator::operator*=(
     this->_z ^= target_z;
     _target_index.clear();
     _pauli_id.clear();
-    size_t i;
+    ITYPE i;
     for (i = 0; i < max_size; i++) {
         UINT pauli_id = PAULI_ID_I;
         if (this->_x[i] && !this->_z[i]) {
@@ -183,7 +183,7 @@ MultiQubitPauliOperator& MultiQubitPauliOperator::operator*=(
         } else if (!this->_x[i] && this->_z[i]) {
             pauli_id = PAULI_ID_Z;
         }
-        _target_index.push_back((UINT)i);
+        _target_index.push_back(i);
         _pauli_id.push_back(pauli_id);
     }
     return *this;
@@ -193,7 +193,7 @@ std::string MultiQubitPauliOperator::to_string() const{
     std::string res;
     std::string id;
     ITYPE i;
-    for (i = 0; i < (ITYPE)_x.size(); i++) {
+    for (i = 0; i < _x.size(); i++) {
         if (!_x[i] && !_z[i]) {
             id = "I";
         } else if (_x[i] && !_z[i]) {

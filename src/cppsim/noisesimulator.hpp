@@ -47,5 +47,5 @@ public:
      * @param[in] prob ノイズが乗る確率
      * @param[in] sample_count 行うsamplingの回数
      */
-    virtual std::vector<ITYPE> execute(const UINT sample_count);
+    virtual std::vector<UINT> execute(const UINT sample_count);
 };

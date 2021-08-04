@@ -29,7 +29,7 @@ public:
     MultiQubitPauliOperator(const std::vector<UINT>& target_qubit_index_list,
         const std::vector<UINT>& pauli_id_list)
         : _target_index(target_qubit_index_list), _pauli_id(pauli_id_list) {
-        for (size_t i = 0; i < pauli_id_list.size(); i++) {
+        for (ITYPE i = 0; i < pauli_id_list.size(); i++) {
             set_bit(pauli_id_list[i], target_qubit_index_list[i]);
         }
     };
@@ -63,7 +63,7 @@ public:
     MultiQubitPauliOperator(
         const boost::dynamic_bitset<>& x, const boost::dynamic_bitset<>& z)
         : _x(x), _z(z) {
-        size_t index;
+        ITYPE index;
         _z.resize(_x.size());
         for (index = 0; index < this->_x.size(); index++) {
             UINT pauli_id;
@@ -76,7 +76,7 @@ public:
             else if (this->_x[index] && this->_z[index])
                 pauli_id = PAULI_ID_Y;
             if(pauli_id!=PAULI_ID_I){
-                _target_index.push_back((UINT)index);
+                _target_index.push_back(index);
                 _pauli_id.push_back(pauli_id);
             }
         }
