@@ -215,7 +215,7 @@ PauliOperator* PauliOperator::copy() const {
 
 std::string PauliOperator::get_pauli_string() const {
     std::string res = "";
-    UINT size = (UINT)_pauli_list.size();
+    UINT size = _pauli_list.size();
     UINT target_index, pauli_id;
     if (size == 0) {
         return "I";
@@ -255,7 +255,7 @@ PauliOperator PauliOperator::operator*(const PauliOperator& target) const {
     }
     ITYPE i;
 #pragma omp parallel for
-    for (i = 0; i < (ITYPE)x.size(); i++) {
+    for (i = 0; i < x.size(); i++) {
         if (x[i] && !z[i]) {  // X
             if (!target_x[i] && target_z[i]) {
                 bits_coef = bits_coef * -I;
@@ -300,7 +300,7 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
     }
     ITYPE i;
 #pragma omp parallel for
-    for (i = 0; i < (ITYPE)_x.size(); i++) {
+    for (i = 0; i < _x.size(); i++) {
         if (_x[i] && !_z[i]) {  // X
             if (!target_x[i] && target_z[i]) {
                 _coef *= -I;
@@ -329,7 +329,7 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
     _x.resize(max_size);
     _z.resize(max_size);
 #pragma omp parallel for
-    for (i = 0; i < (ITYPE)x_bit.size(); i++) {
+    for (i = 0; i < x_bit.size(); i++) {
         ITYPE pauli_type = 0;
         if (x_bit[i] && !z_bit[i]) {
             pauli_type = 1;
@@ -339,7 +339,7 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
             pauli_type = 3;
         }
         if (pauli_type != 0) {
-            this->add_single_Pauli((UINT)i, pauli_type);
+            this->add_single_Pauli(i, pauli_type);
         }
     }
     return *this;
