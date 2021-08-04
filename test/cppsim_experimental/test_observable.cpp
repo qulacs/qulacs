@@ -107,11 +107,11 @@ TEST(ObservableTest, to_stringTest) {
 
 TEST(ObservableTest, to_string_SignOfCoefTest) {
 #ifndef _MSC_VER
-    std::string expected1 =
+    std::string expected =
         "(0-0j) [X 0 ] +\n"
         "(0+0j) [Y 0 ]";
 #else
-    std::string expected2 =
+    std::string expected =
         "(0+0j) [X 0 ] +\n"
         "(0+0j) [Y 0 ]";
 #endif
