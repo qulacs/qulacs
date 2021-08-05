@@ -106,9 +106,15 @@ TEST(ObservableTest, to_stringTest) {
 }
 
 TEST(ObservableTest, to_string_SignOfCoefTest) {
+#ifndef _MSC_VER
     std::string expected =
         "(0-0j) [X 0 ] +\n"
         "(0+0j) [Y 0 ]";
+#else
+    std::string expected =
+        "(0+0j) [X 0 ] +\n"
+        "(0+0j) [Y 0 ]";
+#endif
     Observable observable;
     observable.add_term(0.0 - 0.0i, "X 0");
     observable.add_term(0.0 + 0.0i, "Y 0");
