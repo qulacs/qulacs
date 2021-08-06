@@ -136,10 +136,7 @@ CPPCTYPE Observable::get_transition_amplitude(const QuantumStateBase* state_bra,
 
 Observable* Observable::copy() const {
     Observable* res = new Observable();
-    ITYPE i;
-    for (i = 0; i < this->_coef_list.size(); i++) {
-        res->add_term(this->_coef_list[i], *this->_pauli_terms[i].copy());
-    }
+    res->add_term(this->_coef_list, this->_pauli_terms);
     return res;
 }
 
