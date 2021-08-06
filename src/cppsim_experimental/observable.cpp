@@ -53,8 +53,10 @@ CPPCTYPE Observable::calc_coef(
             }
         }
 #pragma omp critical
-        // 各スレッドで計算した結果を結合する
-        { res *= res_private; }
+        { 
+            // 各スレッドで計算した結果を結合する
+            res *= res_private; 
+        }
     }
     return res;
 }
@@ -65,7 +67,7 @@ std::pair<CPPCTYPE, MultiQubitPauliOperator> Observable::get_term(
         this->_coef_list.at(index), this->_pauli_terms.at(index));
 }
 
-std::unordered_map<std::string, ITYPE> Observable::get_dict() const{
+std::unordered_map<std::string, ITYPE> Observable::get_dict() const {
     return _term_dict;
 }
 
@@ -149,7 +151,7 @@ Observable Observable::operator+(const Observable& target) const {
 Observable& Observable::operator+=(const Observable& target) {
     auto u_map = target.get_dict();
 
-    for (auto item:u_map) {
+    for (auto item : u_map) {
         if (_term_dict.find(item.first) != _term_dict.end()) {
             ITYPE id = _term_dict[item.first];
             this->_coef_list[id] += target.get_term(item.second).first;
@@ -225,7 +227,7 @@ Observable& Observable::operator*=(const CPPCTYPE& target) {
     return *this;
 }
 
-std::string Observable::to_string() const{
+std::string Observable::to_string() const {
     std::ostringstream ss;
     std::string res;
     ITYPE i;
