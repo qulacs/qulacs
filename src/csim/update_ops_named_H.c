@@ -6,11 +6,13 @@
 #include <omp.h>
 #endif
 
+#ifdef _USE_SIMD
 #ifdef _MSC_VER
 #include <intrin.h>
 #include <iostream>
 #else
 #include <x86intrin.h>
+#endif
 #endif
 
 //void H_gate_old_parallel(UINT target_qubit_index, CTYPE *state, ITYPE dim);

@@ -105,3 +105,9 @@ bool check_is_unique_index_list(std::vector<UINT> index_list) {
 	}
 	return flag;
 }
+
+std::string& rtrim(std::string& str) {
+	auto it = std::find_if(str.rbegin(), str.rend(), [](unsigned char c){return !std::isspace(c);});
+	str.erase(it.base(), str.end());
+	return str;
+}

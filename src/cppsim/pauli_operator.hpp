@@ -82,6 +82,11 @@ public:
         return res;
     }
 
+    UINT get_qubit_count() const{
+        std::vector<UINT> index_list = get_index_list();
+        if (index_list.size() == 0) return 0;
+        return *std::max_element(index_list.begin(), index_list.end()) + 1;
+    }
     /**
      * \~japanese-en
      * 自身が保持するパウリ演算子を返す。
@@ -205,6 +210,16 @@ public:
      */
     virtual PauliOperator* copy() const;
 
+    /**
+     * \~japanese-en
+     * added by myself
+     * 量子状態に対応するパウリ演算子の期待値を計算する
+     * get_expectation_value の 1 スレッドバージョン
+     *
+     * @param[in] state 期待値をとるときの量子状態
+     * @return stateに対応する期待値
+     */
+    virtual CPPCTYPE get_expectation_value_single_thread(const QuantumStateBase* state) const;
 };
 
 

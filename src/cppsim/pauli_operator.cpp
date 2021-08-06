@@ -31,12 +31,20 @@ extern "C"{
 
 PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef){
     _coef = coef;
-    std::stringstream ss(strings);
+    std::stringstream ss(rtrim(strings));
     std::string pauli_str;
     UINT index, pauli_type=0;
     while(!ss.eof()){
+        pauli_str.clear();
+        index = UINT_MAX - 1;
         ss >> pauli_str >> index;
-        if (pauli_str.length() == 0) break;
+        if (index == UINT_MAX - 1) {
+            if (pauli_str.empty() == false) {
+                std::cerr << "Warning: PauliOperator::PauliOperator(std::string, CPPCTYPE) : detected pauli_str without indexs. Maybe mistyped?" << std::endl;
+                std::cerr << "Original Pauli string: " << strings << std::endl;
+            }
+            break;
+        }
         if(pauli_str=="I" || pauli_str=="i") pauli_type = 0;
         else if(pauli_str=="X" || pauli_str=="x") pauli_type = 1;
         else if(pauli_str=="Y" || pauli_str=="y") pauli_type = 2;
@@ -92,6 +100,11 @@ void PauliOperator::add_single_Pauli(UINT qubit_index, UINT pauli_type){
 }
 
 CPPCTYPE PauliOperator::get_expectation_value(const QuantumStateBase* state) const {
+    if (state->qubit_count < this->get_qubit_count()) {
+        std::cerr << "Error: PauliOperator::get_expectation_value(QuantumStateBase*) : The number of qubit in PauliOperator is greater than QuantumState. PauliOperator: " 
+               << this -> get_qubit_count() << " QuantumState: " << state -> qubit_count << std::endl;
+        return CPPCTYPE(std::nan(""), std::nan(""));
+    }
 	if(state->is_state_vector()){
 #ifdef _USE_GPU
 		if (state->get_device_name() == "gpu") {
@@ -103,15 +116,6 @@ CPPCTYPE PauliOperator::get_expectation_value(const QuantumStateBase* state) con
 				state->dim,
 				state->get_cuda_stream(),
 				state->device_number
-			);
-		}
-		else {
-			return _coef * expectation_value_multi_qubit_Pauli_operator_partial_list(
-				this->get_index_list().data(),
-				this->get_pauli_id_list().data(),
-				(UINT)this->get_index_list().size(),
-				state->data_c(),
-				state->dim
 			);
 		}
 #else
@@ -133,6 +137,51 @@ CPPCTYPE PauliOperator::get_expectation_value(const QuantumStateBase* state) con
 			state->dim
 		);
 	}
+}
+
+
+CPPCTYPE PauliOperator::get_expectation_value_single_thread(const QuantumStateBase* state) const {
+    if(state->is_state_vector()){
+#ifdef _USE_GPU
+        if (state->get_device_name() == "gpu") {
+			return _coef * expectation_value_multi_qubit_Pauli_operator_partial_list_host(
+                    this->get_index_list().data(),
+                    this->get_pauli_id_list().data(),
+                    (UINT)this->get_index_list().size(),
+                    state->data(),
+                    state->dim,
+                    state->get_cuda_stream(),
+                    state->device_number
+                    );
+		}
+		else {
+			return _coef * expectation_value_multi_qubit_Pauli_operator_partial_list(
+                    this->get_index_list().data(),
+                    this->get_pauli_id_list().data(),
+                    (UINT)this->get_index_list().size(),
+                    state->data_c(),
+                    state->dim
+                    );
+		}
+#else
+        return _coef * expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
+                this->get_index_list().data(),
+                this->get_pauli_id_list().data(),
+                (UINT)this->get_index_list().size(),
+                state->data_c(),
+                state->dim
+                );
+#endif
+    }
+    else {
+        return _coef * dm_expectation_value_multi_qubit_Pauli_operator_partial_list(
+			this->get_index_list().data(),
+			this->get_pauli_id_list().data(),
+			(UINT)this->get_index_list().size(),
+			state->data_c(),
+			state->dim
+		);
+    }
 }
 
 CPPCTYPE PauliOperator::get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const {

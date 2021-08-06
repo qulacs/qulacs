@@ -10,10 +10,13 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
+
+#ifdef _USE_SIMD
 #ifdef _MSC_VER
 #include <intrin.h>
 #else
 #include <x86intrin.h>
+#endif
 #endif
 
 #ifdef _USE_SIMD
@@ -649,8 +652,8 @@ void double_qubit_dense_matrix_gate_simd_middle(UINT target_qubit_index1, UINT t
 		__m256d vec_bef0, vec_aft0, vec_bef1, vec_aft1;
 		vec_bef0 = _mm256_loadu_pd(ptr_vec + basis00);		// (i1 r1 i0 r0)
 		vec_aft0 = _mm256_loadu_pd(ptr_vec + basis00 + 4);	// (i3 r3 i2 r2)
-		vec_bef1 = _mm256_loadu_pd(ptr_vec + basis10);		
-		vec_aft1 = _mm256_loadu_pd(ptr_vec + basis10 + 4);	
+		vec_bef1 = _mm256_loadu_pd(ptr_vec + basis10);
+		vec_aft1 = _mm256_loadu_pd(ptr_vec + basis10 + 4);
 
 		__m256d vec_u0, vec_u1, vec_u2, vec_u3;
 		__m256d vec_u0f, vec_u1f, vec_u2f, vec_u3f;
