@@ -26,26 +26,35 @@ CPPCTYPE Observable::calc_coef(
     CPPCTYPE res = 1.0;
     CPPCTYPE I = 1.0i;
     ITYPE i;
-    for (i = 0; i < x_a.size(); i++) {
-        if (x_a[i] && !z_a[i]) {            // a = X
-            if (!x_b[i] && z_b[i]) {        // b = Z
-                res *= -I;                  // XZ = -iY
-            } else if (x_b[i] && z_b[i]) {  // b = Y
-                res *= I;                   // XY = iZ
-            }
-        } else if (!x_a[i] && z_a[i]) {     // a = Z
-            if (x_b[i] && !z_b[i]) {        // b = X
-                res *= I;                   // ZX = iY
-            } else if (x_b[i] && z_b[i]) {  // b = Y
-                res *= -I;                  // ZY = -iX
-            }
-        } else if (x_a[i] && z_a[i]) {       // a = Y
-            if (x_b[i] && !z_b[i]) {         // b = X
-                res *= -I;                   // YX = -iZ
-            } else if (!x_b[i] && z_b[i]) {  // b = Z
-                res *= I;                    // YZ = iX
+#pragma omp parallel
+    {
+        // 各スレッドごとに独立な変数を用意する
+        CPPCTYPE res_private = 1.0;
+#pragma omp for nowait
+        for (i = 0; i < x_a.size(); i++) {
+            if (x_a[i] && !z_a[i]) {            // a = X
+                if (!x_b[i] && z_b[i]) {        // b = Z
+                    res_private *= -I;          // XZ = -iY
+                } else if (x_b[i] && z_b[i]) {  // b = Y
+                    res_private *= I;           // XY = iZ
+                }
+            } else if (!x_a[i] && z_a[i]) {     // a = Z
+                if (x_b[i] && !z_b[i]) {        // b = X
+                    res_private *= I;           // ZX = iY
+                } else if (x_b[i] && z_b[i]) {  // b = Y
+                    res_private *= -I;          // ZY = -iX
+                }
+            } else if (x_a[i] && z_a[i]) {       // a = Y
+                if (x_b[i] && !z_b[i]) {         // b = X
+                    res_private *= -I;           // YX = -iZ
+                } else if (!x_b[i] && z_b[i]) {  // b = Z
+                    res_private *= I;            // YZ = iX
+                }
             }
         }
+#pragma omp critical
+        // 各スレッドで計算した結果を結合する
+        { res *= res_private; }
     }
     return res;
 }
