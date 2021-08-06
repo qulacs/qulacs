@@ -1,0 +1,70 @@
+cff-version: 1.1.0
+message: "If you use this software, please cite it using these metadata."
+title: "Qulacs: a fast and versatile quantum circuit simulator for research purpose"
+version: 0.2.0
+date-released: 2020-11-29
+authors: 
+  -
+    family-names: Suzuki
+    given-names: Yasunari
+  -
+    family-names: Kawase
+    given-names: Yoshiaki
+  -
+    family-names: Masumura
+    given-names: Yuya
+  -
+    family-names: Hiraga
+    given-names: Yuria
+  -
+    family-names: Nakadai
+    given-names: Masahiro
+  -
+    family-names: Chen
+    given-names: Jiabao
+  -
+    family-names: Nakanishi
+    given-names: Ken
+    name-particle: M
+  -
+    family-names: Mitarai
+    given-names: Kosuke
+  -
+    family-names: Imai
+    given-names: Ryosuke
+  -
+    family-names: Tamiya
+    given-names: Shiro
+  -
+    family-names: Yamamoto
+    given-names: Takahiro
+  -
+    family-names: Yan
+    given-names: Tennin
+  -
+    family-names: Kawakubo
+    given-names: Toru
+  -
+    family-names: Nakagawa
+    given-names: Yuya
+    name-particle: O
+  -
+    family-names: Ibe
+    given-names: Yohei
+  -
+    family-names: Zhang
+    given-names: Youyuan
+  -
+    family-names: Yamashita
+    given-names: Hirotsugu
+  -
+    family-names: Yoshimura
+    given-names: Hikaru
+  -
+    family-names: Hayashi
+    given-names: Akihiro
+  -
+    family-names: Fujii
+    given-names: Keisuke
+license: MIT
+url: "https://github.com/qulacs/qulacs"
