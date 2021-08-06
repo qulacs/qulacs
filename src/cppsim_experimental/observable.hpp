@@ -65,6 +65,9 @@ public:
      */
     void add_term(const CPPCTYPE coef, std::string s);
 
+    void add_term(const std::vector<CPPCTYPE> coef_list,
+        std::vector<MultiQubitPauliOperator> pauli_terms);
+
     void remove_term(UINT index);
 
     /**

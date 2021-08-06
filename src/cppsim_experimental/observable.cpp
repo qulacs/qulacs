@@ -80,6 +80,34 @@ void Observable::add_term(const CPPCTYPE coef, std::string s) {
     add_term(coef, op);
 }
 
+void Observable::add_term(const std::vector<CPPCTYPE> coef_list,
+    std::vector<MultiQubitPauliOperator> pauli_terms) {
+    int base_size = this->_coef_list.size();
+    int changed_size = base_size + coef_list.size();
+    // vectorをindexでアクセス出来るようにする
+    this->_coef_list.resize(changed_size);
+    this->_pauli_terms.resize(changed_size);
+
+#pragma omp parallel
+    {
+        std::unordered_map<std::string, ITYPE> term_dict_private;
+#pragma omp for nowait
+        for (ITYPE index = 0; index < coef_list.size(); index++) {
+            int insert_pos = base_size + index;
+            this->_coef_list[insert_pos] = coef_list[index];
+            this->_pauli_terms[insert_pos] = pauli_terms[index];
+            // dictには並列で同時に書き込めないので、一旦term_dict_privateに書き込む
+            term_dict_private[pauli_terms[index].to_string()] = insert_pos;
+        }
+
+#pragma omp critical
+        {
+            _term_dict.insert(
+                term_dict_private.begin(), term_dict_private.end());
+        }
+    }
+}
+
 void Observable::remove_term(UINT index) {
     this->_coef_list.erase(this->_coef_list.begin() + index);
     this->_pauli_terms.erase(this->_pauli_terms.begin() + index);
