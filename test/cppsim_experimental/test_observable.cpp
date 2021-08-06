@@ -153,6 +153,30 @@ TEST(ObservableTest, calc_coefTest){
     EXPECT_EQ(PAULI_ID_X, ZY.get_term(0).second.get_pauli_id_list().at(0));
 }
 
+TEST(ObservableTest, term_dict_SizeTest){
+    Observable x_term, y_term, xy_term;
+    Observable ob;
+    Observable res, res1;
+    x_term.add_term(1.0, "X 0");
+    y_term.add_term(1.0, "Y 0");
+
+    xy_term = x_term + y_term;
+    EXPECT_EQ(2, xy_term.get_dict().size());
+
+    ob.add_term(1.0, "I 0");
+    ob *= xy_term;
+    EXPECT_EQ(2, ob.get_dict().size());
+
+    res += ob;
+    EXPECT_EQ(2, res.get_dict().size());
+
+    res.remove_term(0);
+    EXPECT_EQ(1, res.get_dict().size());
+
+    res1 += res;
+    EXPECT_EQ(1, res1.get_dict().size());
+}
+
 /*
 TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile) {
     auto func = [](const std::string path,

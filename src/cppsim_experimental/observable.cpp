@@ -176,6 +176,7 @@ Observable& Observable::operator*=(const Observable& target) {
     Observable tmp = (*this) * target;
     this->_coef_list.clear();
     this->_pauli_terms.clear();
+    this->_term_dict.clear();
     ITYPE i;
     for (i = 0; i < tmp.get_term_count(); i++) {
         auto term = tmp.get_term(i);
