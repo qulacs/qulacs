@@ -1,1 +1,1 @@
-from .visualizer import *
+from qulacs.visualizer import *
