@@ -3,6 +3,12 @@
 #include <cppsim_experimental/fermion_operator.hpp>
 #include <cppsim_experimental/observable.hpp>
 
+template<typename Set>
+bool set_compare(Set const &lhs, Set const &rhs){
+    return lhs.size() == rhs.size()
+        && equal(lhs.begin(), lhs.end(), rhs.begin());
+}
+
 TEST(FermionOperatorTest, GetTermCountTest) {
     FermionOperator fermion_operator;
     fermion_operator.add_term(1.0, "2^ 1");
@@ -196,4 +202,10 @@ TEST(FermionOperatorTest, count_qubitsTest){
     EXPECT_EQ(count_qubits(op1), 1);
     EXPECT_EQ(count_qubits(op2), 1);
     EXPECT_EQ(count_qubits(op3), 4);
+}
+
+TEST(FermionOperatorTest, update_setTest){
+    std::set<UINT> update_set_17 = _update_set(17,100);
+    std::set<UINT> update_set_17_expected = {17, 19, 23, 31, 63};
+    EXPECT_TRUE(set_compare(update_set_17, update_set_17_expected));
 }
