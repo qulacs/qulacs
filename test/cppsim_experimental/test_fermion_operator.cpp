@@ -209,3 +209,13 @@ TEST(FermionOperatorTest, update_setTest){
     std::set<UINT> update_set_17_expected = {17, 19, 23, 31, 63};
     EXPECT_TRUE(set_compare(update_set_17, update_set_17_expected));
 }
+
+TEST(FermionOperatorTest, occupation_setTest){
+    std::set<UINT> occupation_set_17 = _occupation_set(17);
+    std::set<UINT> occupation_set_17_expected = {16, 17};
+    EXPECT_TRUE(set_compare(occupation_set_17, occupation_set_17_expected));
+
+    std::set<UINT> occupation_set_23 = _occupation_set(23);
+    std::set<UINT> occupation_set_23_expected = {19, 21, 22, 23};
+    EXPECT_TRUE(set_compare(occupation_set_23, occupation_set_23_expected));
+}
