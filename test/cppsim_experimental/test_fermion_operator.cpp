@@ -186,3 +186,14 @@ TEST(FermionOperatorTest, MultiActionJordanWignerTest2) {
 
     EXPECT_EQ(op3.to_string(), op3_expected);
 }
+
+TEST(FermionOperatorTest, count_qubitsTest){
+    FermionOperator op1, op2, op3;
+    op1.add_term(1.0, "0");
+    op2.add_term(1.0, "0");
+    op3.add_term(1.0, "3^ 2 1");
+
+    EXPECT_EQ(count_qubits(op1), 1);
+    EXPECT_EQ(count_qubits(op2), 1);
+    EXPECT_EQ(count_qubits(op3), 4);
+}
