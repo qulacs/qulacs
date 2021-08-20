@@ -64,11 +64,6 @@ public:
      * 各項の係数のリストを取得する
      */
     const std::vector<CPPCTYPE>& get_coef_list() const;
-
-    /**
-     * Jordan-Wigner変換を適用してFermionOperatorをQubitOperatorに変換する
-     */
-    Observable jordan_wigner();
     Observable bravyi_kitaev(UINT n_qubits);
 };
 
