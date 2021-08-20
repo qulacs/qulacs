@@ -25,6 +25,7 @@
 #include <cppsim_experimental/single_fermion_operator.hpp>
 #include <cppsim_experimental/fermion_operator.hpp>
 #include <cppsim_experimental/jordan_wigner.hpp>
+#include <cppsim_experimental/bravyi_kitaev.hpp>
 
 #ifdef _USE_GPU
 #include <cppsim_experimental/state_gpu.hpp>
@@ -99,6 +100,7 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
 
     auto m_transforms = m.def_submodule("transforms", "FermionOperator transforms");
     m_transforms.def("jordan_wigner", &transforms::jordan_wigner, "Apply the Jordan-Wigner transform to a FermionOperator", py::arg("fermion_operator"));
+    m_transforms.def("bravyi_kitaev", &transforms::bravyi_kitaev, "Apply the Bravyi-Kitaev transform to a FermionOperator", py::arg("fermion_operator"), py::arg("n_qubits"));
     /*
     auto mquantum_operator = m.def_submodule("quantum_operator");
     mquantum_operator.def("create_quantum_operator_from_openfermion_file", &quantum_operator::create_general_quantum_operator_from_openfermion_file, pybind11::return_value_policy::take_ownership);
