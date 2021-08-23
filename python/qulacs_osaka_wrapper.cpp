@@ -86,6 +86,10 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def(py::init<std::string>(), "Constructor", py::arg("action_string"))
         .def("get_target_index_list", &SingleFermionOperator::get_target_index_list, "Get list of target indices")
         .def("get_action_id_list", &SingleFermionOperator::get_action_id_list, "Get list of action IDs (Create action: 1, Destroy action: 0)")
+        .def("__str__", &SingleFermionOperator::to_string, "to string")
+        .def(py::self == py::self)
+        .def(py::self * py::self)
+        .def(py::self *= py::self)
         ;
 
     py::class_<FermionOperator>(m, "FermionOperator")
@@ -96,6 +100,15 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def("get_term",&FermionOperator::get_term, "Get a Fermion term", py::arg("index"))
         .def("get_fermion_list", &FermionOperator::get_fermion_list, "Get term(SingleFermionOperator) list")
         .def("get_coef_list", &FermionOperator::get_coef_list, "Get coef list")
+        .def("copy", &FermionOperator::copy, "Make copy")
+        .def(py::self + py::self)
+        .def(py::self += py::self)
+        .def(py::self - py::self)
+        .def(py::self -= py::self)
+        .def(py::self * py::self)
+        .def("__mul__", [](const FermionOperator &a, std::complex<double> &b) { return a * b; }, py::is_operator())
+        .def(py::self *= py::self)
+        .def("__IMUL__", [](FermionOperator &a, std::complex<double> &b) { return a *= b; }, py::is_operator())
         ;
 
     auto m_transforms = m.def_submodule("transforms", "FermionOperator transforms");
