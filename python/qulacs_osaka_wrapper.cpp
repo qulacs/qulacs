@@ -87,7 +87,6 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def("get_target_index_list", &SingleFermionOperator::get_target_index_list, "Get list of target indices")
         .def("get_action_id_list", &SingleFermionOperator::get_action_id_list, "Get list of action IDs (Create action: 1, Destroy action: 0)")
         .def("__str__", &SingleFermionOperator::to_string, "to string")
-        .def(py::self == py::self)
         .def(py::self * py::self)
         .def(py::self *= py::self)
         ;

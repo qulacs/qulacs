@@ -119,12 +119,16 @@ TEST(FermionOperatorTest, add_operatorTest){
     FermionOperator res = op1+op2;
 
     for(int i =0;i<3;i++){
-        EXPECT_EQ(res.get_term(i),expected.get_term(i));
+        EXPECT_EQ(res.get_term(i).first, expected.get_term(i).first);
+        EXPECT_EQ(res.get_term(i).second.to_string(),
+            expected.get_term(i).second.to_string());
     }
 
     op1+=op2;
     for (int i = 0; i < 3; i++) {
-        EXPECT_EQ(op1.get_term(i), expected.get_term(i));
+        EXPECT_EQ(op1.get_term(i).first, expected.get_term(i).first);
+        EXPECT_EQ(op1.get_term(i).second.to_string(),
+            expected.get_term(i).second.to_string());
     }
 }
 
@@ -144,12 +148,16 @@ TEST(FermionOperatorTest, sub_operatorTest) {
     FermionOperator res = op1 - op2;
 
     for (int i = 0; i < 3; i++) {
-        EXPECT_EQ(res.get_term(i), expected.get_term(i));
+        EXPECT_EQ(res.get_term(i).first, expected.get_term(i).first);
+        EXPECT_EQ(res.get_term(i).second.to_string(),
+            expected.get_term(i).second.to_string());
     }
 
     op1 -= op2;
     for (int i = 0; i < 3; i++) {
-        EXPECT_EQ(op1.get_term(i), expected.get_term(i));
+        EXPECT_EQ(op1.get_term(i).first, expected.get_term(i).first);
+        EXPECT_EQ(op1.get_term(i).second.to_string(),
+            expected.get_term(i).second.to_string());
     }
 }
 
@@ -165,16 +173,20 @@ TEST(FermionOperatorTest, mul_operatorTest) {
     expected.add_term(2.0, "2^ 1 2^ 1");
     expected.add_term(3.0, "2^ 1 4^ 3");
     expected.add_term(4.0, "3^ 2 2^ 1");
-    expected.add_term(4.0, "3^ 2 4^ 3");
+    expected.add_term(6.0, "3^ 2 4^ 3");
 
     FermionOperator res = op1*op2;
 
     for (int i = 0; i < 4; i++) {
-        EXPECT_EQ(res.get_term(i), expected.get_term(i));
+        EXPECT_EQ(res.get_term(i).first, expected.get_term(i).first);
+        EXPECT_EQ(res.get_term(i).second.to_string(),
+            expected.get_term(i).second.to_string());
     }
 
     op1 *= op2;
     for (int i = 0; i < 4; i++) {
-        EXPECT_EQ(op1.get_term(i), expected.get_term(i));
+        EXPECT_EQ(op1.get_term(i).first, expected.get_term(i).first);
+        EXPECT_EQ(op1.get_term(i).second.to_string(),
+            expected.get_term(i).second.to_string());
     }
 }

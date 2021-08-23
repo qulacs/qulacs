@@ -101,7 +101,7 @@ std::string SingleFermionOperator::to_string() const {
             res.push_back(' ');
         }
         res += std::to_string(_target_index[i]);
-        if (_action_id[i] == 0) {
+        if (_action_id[i] == 1) {
             res.push_back('^');
         }
     }
