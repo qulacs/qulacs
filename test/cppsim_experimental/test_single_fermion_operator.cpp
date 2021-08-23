@@ -22,3 +22,29 @@ TEST(SingleFermionOperatorTest, InitTest){
         EXPECT_EQ(op1.get_action_id_list().at(i), op2.get_action_id_list().at(i));
     }
 }
+
+TEST(SingleFermionOperatorTest, to_stringTest){
+    std::string action_string = "4^ 3 2^ 1";
+    SingleFermionOperator op(action_string);
+
+    EXPECT_EQ(op.to_string(), action_string);
+}
+
+TEST(SingleFermionOperatorTest, operatorTest){
+    SingleFermionOperator expected("3^ 1 2^ 1");
+    SingleFermionOperator op1("3^ 1");
+    SingleFermionOperator op2("2^ 1");
+    SingleFermionOperator op3 = op1*op2;
+
+    for (int i = 0; i < 4; i++) {
+        EXPECT_EQ(op3.get_target_index_list().at(i), expected.get_target_index_list().at(i));
+        EXPECT_EQ(op3.get_action_id_list().at(i), expected.get_action_id_list().at(i));
+    }
+
+    op1 *= op2;
+
+    for (int i = 0; i < 4; i++) {
+        EXPECT_EQ(op1.get_target_index_list().at(i), expected.get_target_index_list().at(i));
+        EXPECT_EQ(op1.get_action_id_list().at(i), expected.get_action_id_list().at(i));
+    }
+}

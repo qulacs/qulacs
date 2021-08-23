@@ -102,3 +102,79 @@ TEST(FermionOperatorTest, GetCoefListTest) {
     EXPECT_EQ(1.0, sfop_list.at(0));
     EXPECT_EQ(2.0, sfop_list.at(1));
 }
+
+TEST(FermionOperatorTest, add_operatorTest){
+    FermionOperator op1;
+    op1.add_term(1.0, "2^ 1");
+    op1.add_term(2.0, "3^ 2");
+    FermionOperator op2;
+    op2.add_term(2.0, "2^ 1");
+    op2.add_term(3.0, "4^ 3");
+
+    FermionOperator expected;
+    expected.add_term(3.0, "2^ 1");
+    expected.add_term(2.0, "3^ 2");
+    expected.add_term(3.0, "4^ 3");
+
+    FermionOperator res = op1+op2;
+
+    for(int i =0;i<3;i++){
+        EXPECT_EQ(res.get_term(i),expected.get_term(i));
+    }
+
+    op1+=op2;
+    for (int i = 0; i < 3; i++) {
+        EXPECT_EQ(op1.get_term(i), expected.get_term(i));
+    }
+}
+
+TEST(FermionOperatorTest, sub_operatorTest) {
+    FermionOperator op1;
+    op1.add_term(1.0, "2^ 1");
+    op1.add_term(2.0, "3^ 2");
+    FermionOperator op2;
+    op2.add_term(2.0, "2^ 1");
+    op2.add_term(3.0, "4^ 3");
+
+    FermionOperator expected;
+    expected.add_term(-1.0, "2^ 1");
+    expected.add_term(2.0, "3^ 2");
+    expected.add_term(-3.0, "4^ 3");
+
+    FermionOperator res = op1 - op2;
+
+    for (int i = 0; i < 3; i++) {
+        EXPECT_EQ(res.get_term(i), expected.get_term(i));
+    }
+
+    op1 -= op2;
+    for (int i = 0; i < 3; i++) {
+        EXPECT_EQ(op1.get_term(i), expected.get_term(i));
+    }
+}
+
+TEST(FermionOperatorTest, mul_operatorTest) {
+    FermionOperator op1;
+    op1.add_term(1.0, "2^ 1");
+    op1.add_term(2.0, "3^ 2");
+    FermionOperator op2;
+    op2.add_term(2.0, "2^ 1");
+    op2.add_term(3.0, "4^ 3");
+
+    FermionOperator expected;
+    expected.add_term(2.0, "2^ 1 2^ 1");
+    expected.add_term(3.0, "2^ 1 4^ 3");
+    expected.add_term(4.0, "3^ 2 2^ 1");
+    expected.add_term(4.0, "3^ 2 4^ 3");
+
+    FermionOperator res = op1*op2;
+
+    for (int i = 0; i < 4; i++) {
+        EXPECT_EQ(res.get_term(i), expected.get_term(i));
+    }
+
+    op1 *= op2;
+    for (int i = 0; i < 4; i++) {
+        EXPECT_EQ(op1.get_term(i), expected.get_term(i));
+    }
+}
