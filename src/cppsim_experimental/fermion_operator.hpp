@@ -14,6 +14,7 @@ class DllExport FermionOperator {
 private:
     std::vector<SingleFermionOperator> _fermion_terms;
     std::vector<CPPCTYPE> _coef_list;
+    std::unordered_map<std::string, ITYPE> _term_dict;
 
 public:
     FermionOperator();
@@ -48,6 +49,9 @@ public:
      */
     void add_term(const CPPCTYPE coef, std::string action_string);
 
+    void add_term(const std::vector<CPPCTYPE> coef_list,
+        std::vector<SingleFermionOperator> fermion_terms);
+
     /**
      * 指定した添字に対応するフェルミオン演算子の項を削除する
      * @param[in] index
@@ -64,4 +68,24 @@ public:
      * 各項の係数のリストを取得する
      */
     const std::vector<CPPCTYPE>& get_coef_list() const;
+
+    const std::unordered_map<std::string, ITYPE>& get_dict() const;
+
+    FermionOperator* copy() const;
+
+    FermionOperator operator+(const FermionOperator& target) const;
+
+    FermionOperator operator+=(const FermionOperator& target);
+
+    FermionOperator operator-(const FermionOperator& target) const;
+
+    FermionOperator operator-=(const FermionOperator& target);
+
+    FermionOperator operator*(const FermionOperator& target) const;
+
+    FermionOperator operator*(const CPPCTYPE& target) const;
+
+    FermionOperator operator*=(const FermionOperator& target);
+
+    FermionOperator operator*=(const CPPCTYPE& target);
 };
