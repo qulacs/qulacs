@@ -57,4 +57,10 @@ public:
      * 消滅: 0, 生成: 1に対応している
      */
     const std::vector<UINT>& get_action_id_list() const;
+
+    SingleFermionOperator operator*(const SingleFermionOperator& target) const;
+
+    SingleFermionOperator& operator*=(const SingleFermionOperator& target);
+
+    std::string to_string() const;
 };

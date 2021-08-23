@@ -45,3 +45,65 @@ const std::vector<UINT>& SingleFermionOperator::get_target_index_list() const {
 const std::vector<UINT>& SingleFermionOperator::get_action_id_list() const {
     return _action_id;
 }
+
+SingleFermionOperator SingleFermionOperator::operator*(
+    const SingleFermionOperator& target) const {
+    auto target_index_list = _target_index;
+    auto tmp_target_index = target.get_target_index_list();
+
+    auto action_id_list = _action_id;
+    auto tmp_action_id = target.get_action_id_list();
+
+    int base_size = target_index_list.size();
+    int changed_size = base_size + tmp_target_index.size();
+
+    target_index_list.resize(changed_size);
+    action_id_list.resize(changed_size);
+
+    ITYPE i;
+#pragma omp parallel for
+    for (i = 0; i < target_index_list.size(); i++) {
+        int insert_pos = base_size + i;
+        target_index_list[insert_pos] = tmp_target_index[i];
+        action_id_list[insert_pos] = tmp_action_id[i];
+    }
+
+    SingleFermionOperator res(target_index_list, action_id_list);
+
+    return res;
+}
+
+SingleFermionOperator& SingleFermionOperator::operator*=(
+    const SingleFermionOperator& target) {
+    auto target_index_list = target.get_target_index_list();
+    auto action_id_list = target.get_action_id_list();
+
+    int base_size = _target_index.size();
+    int changed_size = base_size + target_index_list.size();
+    _target_index.resize(changed_size);
+    _action_id.resize(changed_size);
+
+    ITYPE i;
+#pragma omp parallel for
+    for (i = 0; i < target_index_list.size(); i++) {
+        int insert_pos = base_size + i;
+        _target_index[insert_pos] = target_index_list[i];
+        _action_id[insert_pos] = action_id_list[i];
+    }
+
+    return *this;
+}
+
+std::string SingleFermionOperator::to_string() const {
+    std::string res;
+    for (int i = 0; i < _target_index.size(); i++) {
+        if (i > 0) {
+            res.push_back(' ');
+        }
+        res += std::to_string(_target_index[i]);
+        if (_action_id[i] == 0) {
+            res.push_back('^');
+        }
+    }
+    return res;
+}
