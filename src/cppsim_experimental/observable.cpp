@@ -111,8 +111,14 @@ void Observable::add_term(const std::vector<CPPCTYPE> coef_list,
 }
 
 void Observable::remove_term(UINT index) {
+    this->_term_dict.erase(this->_pauli_terms.at(index).to_string());
     this->_coef_list.erase(this->_coef_list.begin() + index);
     this->_pauli_terms.erase(this->_pauli_terms.begin() + index);
+
+    // index番目の項を削除したので、index番目以降の項のindexが1つずれる
+    for(ITYPE i = 0; i < this->_coef_list.size() - index; i++) {
+        this->_term_dict[this->_pauli_terms.at(index + i).to_string()] = index + i;
+    }
 }
 
 CPPCTYPE Observable::get_expectation_value(
@@ -210,6 +216,7 @@ Observable& Observable::operator*=(const Observable& target) {
     Observable tmp = (*this) * target;
     this->_coef_list.clear();
     this->_pauli_terms.clear();
+    this->_term_dict.clear();
     ITYPE i;
     for (i = 0; i < tmp.get_term_count(); i++) {
         auto term = tmp.get_term(i);
