@@ -20,6 +20,7 @@ class DllExport Observable {
 private:
     std::vector<MultiQubitPauliOperator> _pauli_terms;
     std::vector<CPPCTYPE> _coef_list;
+    std::unordered_map<std::string, ITYPE> _term_dict;
 
     CPPCTYPE calc_coef(const MultiQubitPauliOperator& a,
         const MultiQubitPauliOperator& b) const;
@@ -43,6 +44,12 @@ public:
         const UINT index) const;
 
     /**
+     * Observable が保持するPauliOperatorをunordered_mapとして返す
+     * @return Observable が保持するunordered_map
+     */
+    std::unordered_map<std::string, ITYPE> get_dict() const;
+
+    /**
      * PauliOperatorを内部で保持するリストの末尾に追加する。
      *
      * @param[in] mpt 追加するPauliOperatorのインスタンス
@@ -57,6 +64,9 @@ public:
      * パウリ演算子と掛かるindexの組からなる文字列。(example: "X 1 Y 2 Z 5")
      */
     void add_term(const CPPCTYPE coef, std::string s);
+
+    void add_term(const std::vector<CPPCTYPE> coef_list,
+        std::vector<MultiQubitPauliOperator> pauli_terms);
 
     void remove_term(UINT index);
 

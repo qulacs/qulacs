@@ -120,7 +120,7 @@ public:
         return _gate_list;
     }
     virtual void optimize_ProbablisticGate() override {
-        int n = _gate_list.size();
+        int n = (int)_gate_list.size();
         std::vector<std::pair<double, int>> itr;
         for (int i = 0; i < n; ++i) {
             itr.push_back(std::make_pair(_distribution[i], i));

@@ -52,12 +52,12 @@ NoiseSimulator::~NoiseSimulator() {
     delete circuit;
 }
 
-std::vector<UINT> NoiseSimulator::execute(const UINT sample_count) {
+std::vector<ITYPE> NoiseSimulator::execute(const UINT sample_count) {
     Random random;
     std::vector<std::vector<UINT>> trial_gates(
         sample_count, std::vector<UINT>(circuit->gate_list.size(), 0));
     for (UINT i = 0; i < sample_count; ++i) {
-        UINT gate_size = circuit->gate_list.size();
+        UINT gate_size = (UINT)circuit->gate_list.size();
         for (UINT q = 0; q < gate_size; ++q) {
             auto gate = circuit->gate_list[q];
             if (gate->is_noise() == false) continue;
@@ -65,7 +65,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count) {
             std::vector<double> itr = gate->get_cumulative_distribution();
             auto hoge = std::lower_bound(itr.begin(), itr.end(), val);
             assert(hoge != itr.begin());
-            trial_gates[i][q] = std::distance(itr.begin(), hoge) - 1;
+            trial_gates[i][q] = (UINT)(std::distance(itr.begin(), hoge) - 1);
         }
     }
 
@@ -95,7 +95,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count) {
     std::complex<long double> Fid = 0;
     */
     Common_state.load(initial_state);
-    std::vector<UINT> result(sample_count);
+    std::vector<ITYPE> result(sample_count);
     auto result_itr = result.begin();
     UINT done_itr = 0;  // for gates i such that i < done_itr, gate i is already
                         // applied to Common_state.
@@ -128,7 +128,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count) {
         }
     }
     // std::cout << Fid << std::endl;
-    std::mt19937 Randomizer(random.int64());
+    std::mt19937 Randomizer(random.int32());
     std::shuffle(begin(result), end(result), Randomizer);
 
     return result;
@@ -136,7 +136,7 @@ std::vector<UINT> NoiseSimulator::execute(const UINT sample_count) {
 
 void NoiseSimulator::evaluate_gates(const std::vector<UINT>& chosen_gate,
     QuantumState* sampling_state, const int StartPos) {
-    UINT gate_size = circuit->gate_list.size();
+    UINT gate_size = (UINT)circuit->gate_list.size();
     for (UINT q = StartPos; q < gate_size; ++q) {
         auto gate = circuit->gate_list[q];
         if (gate->is_noise() == false) {
