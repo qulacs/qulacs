@@ -62,7 +62,7 @@ SingleFermionOperator SingleFermionOperator::operator*(
 
     ITYPE i;
 #pragma omp parallel for
-    for (i = 0; i < target_index_list.size(); i++) {
+    for (i = 0; i < tmp_target_index.size(); i++) {
         int insert_pos = base_size + i;
         target_index_list[insert_pos] = tmp_target_index[i];
         action_id_list[insert_pos] = tmp_action_id[i];
