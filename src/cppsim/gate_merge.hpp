@@ -145,3 +145,10 @@ DllExport QuantumGateBase* Adaptive(QuantumGateBase* gate,
     std::function<bool(const std::vector<UINT>&, UINT)> func, UINT id);
 }  // namespace gate
 // namespace gate
+
+DllExport QuantumGateMatrix* get_transpose_gate(const QuantumGateBase* gate);
+
+DllExport QuantumGateMatrix* get_conjugate_gate(const QuantumGateBase* gate);
+
+DllExport QuantumGateMatrix* get_adjoint_gate(const QuantumGateBase* gate);
+

@@ -134,3 +134,4 @@ std::ostream& operator<<(std::ostream& stream, const QuantumGateBase* gate) {
     stream << *gate;
     return stream;
 }
+

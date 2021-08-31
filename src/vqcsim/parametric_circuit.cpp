@@ -5,7 +5,11 @@
 
 #include "parametric_gate.hpp"
 #include "parametric_gate_factory.hpp"
-
+#include "cppsim/type.hpp"
+#include "cppsim/gate_factory.hpp"
+#include "cppsim/state.hpp"
+#include "cppsim/gate_matrix.hpp"
+#include "cppsim/gate_merge.cpp"
 ParametricQuantumCircuit::ParametricQuantumCircuit(UINT qubit_count_)
     : QuantumCircuit(qubit_count_){};
 
@@ -162,4 +166,121 @@ void ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate(
     double initial_angle) {
     this->add_parametric_gate(
         gate::ParametricPauliRotation(target, pauli_id, initial_angle));
+}
+
+//watle made
+using namespace std;
+std::vector<double> ParametricQuantumCircuit::backprop(const std::vector<UINT>& target_qubit_index_list,const std::vector<UINT>& target_qubit_pauli_list,const std::vector<double>& target_qubit_coef_list){
+    
+    int n=this->qubit_count;
+    QuantumState* state = new QuantumState(n);
+    state->set_zero_state();
+    this->update_quantum_state(state);
+    //parametric bibunti tasu
+    std::vector<CPPCTYPE>bibun(1<<(this->qubit_count));
+    QuantumState* bistate = new QuantumState(n);
+    ComplexMatrix zero_matrix(2, 2);
+    zero_matrix << 0, 0, 0, 0;
+    std::vector<UINT> target_list_a={0};
+    auto zero_gate = new QuantumGateMatrix(target_list_a, zero_matrix);
+    zero_gate->update_quantum_state(bistate);
+
+    QuantumState* Astate = new QuantumState(n);
+   
+    for(int i=0;i<target_qubit_index_list.size();i++){
+        int tqi=target_qubit_index_list[i];
+       
+        Astate->load(state);
+        if(target_qubit_pauli_list[i]==1){
+            //pauli X
+            auto x_gate=gate::X(tqi);
+            x_gate->update_quantum_state(Astate);
+            Astate->multiply_coef(-target_qubit_coef_list[i]);
+            bistate->add_state(Astate);
+            delete x_gate;
+        }
+        if(target_qubit_pauli_list[i]==2){
+            //pauli Y
+            auto y_gate=gate::Y(tqi);
+            y_gate->update_quantum_state(Astate);
+            Astate->multiply_coef(-target_qubit_coef_list[i]);
+            bistate->add_state(Astate);
+            delete y_gate;
+
+        }
+        if(target_qubit_pauli_list[i]==3){
+            //pauli Z
+            auto z_gate=gate::Z(tqi);
+            z_gate->update_quantum_state(Astate);
+            Astate->multiply_coef(-target_qubit_coef_list[i]);
+            bistate->add_state(Astate);
+            delete z_gate;
+        }
+        
+    }
+
+    double ansnorm=bistate->get_squared_norm();
+    if(ansnorm==0){
+        vector<double>ans(this->get_parameter_count() );
+        return ans;
+       
+    }
+    
+    //cerr<<bistate<<endl;
+    bistate->normalize(ansnorm);
+    ansnorm=sqrt(ansnorm);
+    int m=this->gate_list.size();
+    vector<int>gyapgp(m,-1);//prametric gate position no gyaku
+    for(int i=0;i<this->get_parameter_count();i++){
+        gyapgp[this->_parametric_gate_position[i]]=i;
+    }
+    vector<double>ans(this->get_parameter_count() );
+    //cerr<<"de"<<endl;
+    //cerr<<state<<endl;
+    //cerr<<bistate<<endl;
+    //cerr<<ansnorm<<endl;
+    for(int i=m-1;i>=0;i--){
+        auto gate=(this->gate_list[i])->copy();
+        //cerr<<"de"<<endl;
+        //cerr<<(*gate)<<endl;
+        
+
+        if(gyapgp[i]!=-1){
+            Astate->load(bistate);
+            
+            if (gate->get_name()!="ParametricRX"&&gate->get_name()!="ParametricRY"&&gate->get_name()!="ParametricRZ"){
+                std::cerr << "Error: "<< gate->get_name() <<" does not support backprop in parametric"<< std::endl;
+            }else{
+               
+                double kaku=this->get_parameter(gyapgp[i]);
+                this->set_parameter(gyapgp[i],3.14159265358979);
+                auto Dgate=(this->gate_list[i])->copy();
+                Dgate->update_quantum_state(Astate);
+                ans[gyapgp[i]]=(state::inner_product(state,Astate)*ansnorm).real();
+                this->set_parameter(gyapgp[i],kaku);
+                //cerr<<"de A"<<endl;
+                //cerr<<Astate<<endl;
+            }
+        }
+
+        auto Agate=gate::get_adjoint_gate(gate);
+        Agate->update_quantum_state(bistate);
+        Agate->update_quantum_state(state);
+        //cout<<(*Agate)<<endl;
+        delete Agate;
+        delete gate;
+        //cerr<<"de\n";
+        //cerr<<state<<endl;
+        //cerr<<bistate<<endl;
+        
+    }
+    
+
+    delete Astate;
+    delete state;
+    delete bistate;
+    delete zero_gate;
+
+    return ans;
+    //CPP
 }
