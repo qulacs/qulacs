@@ -16,7 +16,7 @@ def cmp_to_color(z):
     return color
 
 def show_amplitude(state):
-    #純粋状態量子状態を受け取って、棒グラフを返す
+    """純粋状態量子状態を受け取って、棒グラフを返す"""
     n_qubit = state.get_qubit_count()
     aaa=state.get_vector()
     bits=[]
