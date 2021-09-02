@@ -16,7 +16,7 @@ def cmp_to_color(z):
     return color
 
 def show_amplitude(state):
-    """純粋状態量子状態を受け取って、棒グラフを返す"""
+    """純粋状態量子状態を受け取って、棒グラフを表示する"""
     n_qubit = state.get_qubit_count()
     aaa=state.get_vector()
     bits=[]
@@ -36,7 +36,7 @@ def show_amplitude(state):
 
 
 def show_blochsphere(state, bit):
-
+    """ブロッホ球の表示をします"""
     n_qubit = state.get_qubit_count()
     observableX = Observable(n_qubit)
     observableX.add_operator(1.0, f"X {bit}")  # オブザーバブルを設定
@@ -68,6 +68,7 @@ def show_blochsphere(state, bit):
 
 
 def show_probability(state):
+    """量子状態を受け取って、　出現確率の棒グラフを表示します。"""
     n_qubit = state.get_qubit_count()
     bits=[]
     ys=np.zeros(2**n_qubit)
