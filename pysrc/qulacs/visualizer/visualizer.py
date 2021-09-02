@@ -9,7 +9,7 @@ import matplotlib.colors
 # bar(x, y, color=["red", "blue", "green", "pink", "orange"], width=0.5)
 
 def cmp_to_color(z):
-    #複素数を受け取って、色を返す
+    """複素数を受け取って、色を返す"""
     arg_rad = np.angle(z)
 
     color=(np.cos(arg_rad)*0.5+0.5,np.cos(arg_rad+np.pi*0.667)*0.5+0.5,np.cos(arg_rad+np.pi*1.333)*0.5+0.5 )
