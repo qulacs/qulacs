@@ -605,6 +605,8 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("add_parametric_RZ_gate", &ParametricQuantumCircuit::add_parametric_RZ_gate, "Add parametric Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
         .def("add_parametric_multi_Pauli_rotation_gate", &ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate, "Add parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"))
 
+        .def("backprop",&ParametricQuantumCircuit::backprop,"do backprop",py::arg("target_qubit_index_list"),py::arg("target_qubit_pauli_list"),py::arg("target_qubit_coef_list"))
+
         .def("__repr__", [](const ParametricQuantumCircuit &p) {return p.to_string(); });
     ;
     
