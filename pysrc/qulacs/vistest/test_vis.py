@@ -7,6 +7,7 @@ from qulacs.visualizer import show_blochsphere,show_amplitude,show_probability
 
 
 def test_amp_pro():
+    """適当な量子状態をつくって、棒グラフを表示するテスト用関数。"""
     n = 3
     state = QuantumState(n)
     #state.set_Haar_random_state()
@@ -27,6 +28,7 @@ def test_amp_pro():
 
 
 def test_bloch():
+    """適当な量子状態をつくって、ブロッホ球を表示するテスト用関数。"""
     n = 3
     state = QuantumState(n)
     state.set_computational_basis(0b000)
