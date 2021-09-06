@@ -8,25 +8,6 @@ Qulacs-Osaka is a python/C++ library for fast simulation of large, noisy, or par
 
 Qulacs-Osaka is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob/master/LICENSE).
 
-## Quick Install
-
-```
-pip install qulacs
-```
-
-Notice: this command install the Qulacs binary which requires AVX2 features.
-If your computer doesn't support AVX2, the Python program using Qulacs installed by this command will almost certainly fail due to segmentation fault or something else.
-You should check your CPU and if it doesn't support AVX2 (i.e. older than Haswell) then you have to install Qulacs from the source code.
-
-```
-pip install git+https://github.com/qulacs/qulacs.git
-```
-
-If you have NVIDIA GPU with CUDA installed try:
-```
-pip install qulacs-gpu
-```
-
 ## Feature
 - Fast quantum circuit simulation with parallelized C/C++ backend
 - Noisy quantum gate for simulation of NISQ devices
