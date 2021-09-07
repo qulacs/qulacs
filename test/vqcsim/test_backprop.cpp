@@ -72,7 +72,6 @@ TEST( TESTSET_NAME , TEST_NAME ){
     //cout<<"de"<<endl;
     //cout<<observable.get_expectation_value(&state)<<endl<<endl;
     //cerr<<(*gate::H(1))<<endl;
-    return 0;
     
     
 }
