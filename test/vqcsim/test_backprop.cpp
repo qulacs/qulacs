@@ -14,7 +14,7 @@
 
 //cl /wd4819 -I ./src -I C:/eigen -I C:/boost/boost_1_77_0 /I ./include /MT csim_static.lib cppsim_static.lib vqcsim_static.lib test_backprop.cpp /link  /libpath:"C:\Users\watta\Desktop\qulacs-osaka\lib" 
 using namespace std;
-int main(){
+TEST( TESTSET_NAME , TEST_NAME ){
     ParametricQuantumCircuit kairo(3);
     kairo.add_parametric_RX_gate(0,2.2);
     kairo.add_parametric_RY_gate(1,0);
