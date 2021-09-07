@@ -2,7 +2,7 @@
 #include "GradCalculator.hpp"
 
 #include "causalcone_simulator.hpp"
-//クラスのメンバ関数だと使い方がわかりません
+
 std::vector<std::complex<double>> GradCalculator::calculate_grad(
     ParametricQuantumCircuit& x, Observable& obs, std::vector<double> theta) {
     std::vector<std::complex<double>> ans;
@@ -36,6 +36,7 @@ std::vector<std::complex<double>> GradCalculator::calculate_grad(
     return ans;
 };
 
+//メンバ関数ではないバージョンを作りました
 std::vector<std::complex<double>> calculate_grad(
     ParametricQuantumCircuit& x, Observable& obs, std::vector<double> theta) {
     std::vector<std::complex<double>> ans;
