@@ -1,3 +1,4 @@
+#include <gtest/gtest.h>
 #include <iostream>
 #include <cppsim/state.hpp>
 #include <cppsim/circuit.hpp>
