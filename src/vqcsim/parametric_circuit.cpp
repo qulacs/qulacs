@@ -180,12 +180,6 @@ std::vector<double> ParametricQuantumCircuit::backprop(GeneralQuantumOperator* o
     //parametric bibunti tasu
     std::vector<CPPCTYPE>bibun(1<<(this->qubit_count));
     QuantumState* bistate = new QuantumState(n);
-    ComplexMatrix zero_matrix(2, 2);
-    zero_matrix << 0, 0, 0, 0;
-    std::vector<UINT> target_list_a={0};
-    auto zero_gate = new QuantumGateMatrix(target_list_a, zero_matrix);
-    zero_gate->update_quantum_state(bistate);
-
     QuantumState* Astate = new QuantumState(n);
    
     /*for(int i=0;i<target_qubit_index_list.size();i++){
@@ -218,7 +212,8 @@ std::vector<double> ParametricQuantumCircuit::backprop(GeneralQuantumOperator* o
             delete z_gate;
         }   
     }*/
-    bistate=obs->get_upd_quantum_state(state);
+    bistate->load(state);
+    obs->update_quantum_state(bistate);
 
     double ansnorm=bistate->get_squared_norm();
     if(ansnorm==0){
@@ -259,7 +254,6 @@ std::vector<double> ParametricQuantumCircuit::backprop(GeneralQuantumOperator* o
     delete Astate;
     delete state;
     delete bistate;
-    delete zero_gate;
 
     return ans;
     //CPP

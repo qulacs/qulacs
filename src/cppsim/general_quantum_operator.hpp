@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "type.hpp"
-
 class PauliOperator;
 class QuantumStateBase;
 
@@ -189,7 +188,7 @@ public:
      stateは変えない。
      * @param [in] state 入力
      */
-    virtual QuantumStateBase* get_upd_quantum_state(QuantumStateBase*state);
+    virtual void update_quantum_state(QuantumStateBase*state);
 
     virtual GeneralQuantumOperator* copy() const;
 

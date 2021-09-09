@@ -64,6 +64,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("__mul__", [](const PauliOperator &a, std::complex<double> &b) { return a * b; }, py::is_operator())
         .def(py::self *= py::self)
         .def("__IMUL__", [](PauliOperator &a, std::complex<double> &b) { return a *= b; }, py::is_operator())
+        .def("update_quantum_state", &PauliOperator::update_quantum_state, "do update")
         ;
 
     py::class_<GeneralQuantumOperator>(m, "GeneralQuantumOperator")
@@ -98,6 +99,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def(py::self *= py::self)
         .def("__IMUL__", [](GeneralQuantumOperator &a, const PauliOperator &b) { return a *= b; }, py::is_operator())
         .def("__IMUL__", [](GeneralQuantumOperator &a, std::complex<double> &b) { return a *= b; }, py::is_operator())
+        .def("update_quantum_state",&GeneralQuantumOperator::update_quantum_state,"do update")
         ;
     auto mquantum_operator = m.def_submodule("quantum_operator");
     mquantum_operator.def("create_quantum_operator_from_openfermion_file", &quantum_operator::create_general_quantum_operator_from_openfermion_file, pybind11::return_value_policy::take_ownership);
@@ -309,6 +311,9 @@ PYBIND11_MODULE(qulacs_core, m) {
     mstate.def("drop_qubit", &state::drop_qubit,
         pybind11::return_value_policy::take_ownership, "Drop qubits from state",
         py::arg("state"), py::arg("target"), py::arg("projection"));
+    mstate.def("get_zero_state", &state::get_zero_state,
+        pybind11::return_value_policy::take_ownership, "get all zero sate(not |0000>)",
+        py::arg("n"));
     mstate.def("partial_trace",
         py::overload_cast<const QuantumState *, std::vector<UINT>>(
             &state::partial_trace),
@@ -605,7 +610,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("add_parametric_RZ_gate", &ParametricQuantumCircuit::add_parametric_RZ_gate, "Add parametric Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
         .def("add_parametric_multi_Pauli_rotation_gate", &ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate, "Add parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"))
 
-        .def("backprop",&ParametricQuantumCircuit::backprop,"do backprop",py::arg("target_qubit_index_list"),py::arg("target_qubit_pauli_list"),py::arg("target_qubit_coef_list"))
+        .def("backprop",&ParametricQuantumCircuit::backprop,"do backprop",py::arg("obs"))
 
         .def("__repr__", [](const ParametricQuantumCircuit &p) {return p.to_string(); });
     ;

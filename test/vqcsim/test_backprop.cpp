@@ -8,11 +8,6 @@
 #include <vqcsim/parametric_circuit.cpp>
 #include <cppsim/observable.hpp>
 #include <vqcsim/GradCalculator.cpp>
-
-// "script/build_msvc_2019.bat"
-
-
-//cl /wd4819 -I ./src -I C:/eigen -I C:/boost/boost_1_77_0 /I ./include /MT csim_static.lib cppsim_static.lib vqcsim_static.lib test_backprop.cpp /link  /libpath:"C:\Users\watta\Desktop\qulacs-osaka\lib" 
 using namespace std;
 TEST( TESTSET_NAME , TEST_NAME ){
     ParametricQuantumCircuit kairo(3);
@@ -47,7 +42,7 @@ TEST( TESTSET_NAME , TEST_NAME ){
     //cout<<observable.get_expectation_value(&state)<<endl<<endl;
     vector<double> kaku={2.2,0,1.4,1,-1,1,1,-1,1};
     //vector<double> kaku={2.2,1.4};
-    GradCalculator　wrakln;
+    GradCalculator wrakln;
     auto bibun=wrakln.calculate_grad(kaiiro,observable,kaku);
     //for(auto it:bibun){cout<<it<<endl;}
     //cout<<"de"<<endl;

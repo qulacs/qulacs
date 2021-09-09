@@ -542,7 +542,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(CPPCTYPE target) {
     return *this;
 }
 //made by watle
-QuantumStateBase* GeneralQuantumOperator::get_upd_quantum_state(QuantumStateBase* state){
+void GeneralQuantumOperator::update_quantum_state(QuantumStateBase* state){
     int n=state->qubit_count;
     auto sum_state=state::get_zero_state(n);
     auto terms=this->get_terms();
@@ -552,7 +552,8 @@ QuantumStateBase* GeneralQuantumOperator::get_upd_quantum_state(QuantumStateBase
         sum_state->add_state(now_state);
         delete now_state;
     }
-    return sum_state;
+    state=sum_state->copy();
+    delete sum_state;
 }
     
 namespace quantum_operator {
