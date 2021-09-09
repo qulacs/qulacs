@@ -254,6 +254,7 @@ std::vector<double> ParametricQuantumCircuit::backprop(GeneralQuantumOperator* o
         Agate->update_quantum_state(state);
         delete Agate;
         delete gate;
+
     }
     delete Astate;
     delete state;

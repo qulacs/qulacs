@@ -1,3 +1,4 @@
+#include <gtest/gtest.h>
 #include <iostream>
 #include <cppsim/state.hpp>
 #include <cppsim/circuit.hpp>
@@ -13,7 +14,7 @@
 
 //cl /wd4819 -I ./src -I C:/eigen -I C:/boost/boost_1_77_0 /I ./include /MT csim_static.lib cppsim_static.lib vqcsim_static.lib test_backprop.cpp /link  /libpath:"C:\Users\watta\Desktop\qulacs-osaka\lib" 
 using namespace std;
-int main(){
+TEST( TESTSET_NAME , TEST_NAME ){
     ParametricQuantumCircuit kairo(3);
     kairo.add_parametric_RX_gate(0,2.2);
     kairo.add_parametric_RY_gate(1,0);
@@ -46,7 +47,8 @@ int main(){
     //cout<<observable.get_expectation_value(&state)<<endl<<endl;
     vector<double> kaku={2.2,0,1.4,1,-1,1,1,-1,1};
     //vector<double> kaku={2.2,1.4};
-    auto bibun=calculate_grad(kairo,observable,kaku);
+    GradCalculator　wrakln;
+    auto bibun=wrakln.calculate_grad(kaiiro,observable,kaku);
     //for(auto it:bibun){cout<<it<<endl;}
     //cout<<"de"<<endl;
     //culculate_gradした後は、パラメータがぐちゃぐちゃになるので、再セット
@@ -71,7 +73,6 @@ int main(){
     //cout<<"de"<<endl;
     //cout<<observable.get_expectation_value(&state)<<endl<<endl;
     //cerr<<(*gate::H(1))<<endl;
-    return 0;
     
     
 }
