@@ -17,9 +17,4 @@ if (USE_GPU)
     target_link_libraries(cppsim_shared gpusim_static)
 endif()
 
-if (USE_MPI)
-    target_link_libraries(cppsim_static mpisim_static)
-    target_link_libraries(cppsim_shared mpisim_static)
-endif()
-
 set_target_properties(cppsim_shared PROPERTIES EXCLUDE_FROM_ALL TRUE)
