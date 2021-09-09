@@ -100,7 +100,6 @@ class CMakeBuild(build_ext):
             cmake_args += ['-DOPT_FLAGS=' + opt_flags]
 
         cmake_args += ["-DUSE_GPU:STR=Yes"]
-        cmake_args += ["-DUSE_MPI:STR=No"]
         
         env = os.environ.copy()
         env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
