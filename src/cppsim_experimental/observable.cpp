@@ -26,25 +26,36 @@ CPPCTYPE Observable::calc_coef(
     CPPCTYPE res = 1.0;
     CPPCTYPE I = 1.0i;
     ITYPE i;
-    for (i = 0; i < x_a.size(); i++) {
-        if (x_a[i] && !z_a[i]) {            // a = X
-            if (!x_b[i] && z_b[i]) {        // b = Z
-                res *= -I;                  // XZ = -iY
-            } else if (x_b[i] && z_b[i]) {  // b = Y
-                res *= I;                   // XY = iZ
+#pragma omp parallel
+    {
+        // 各スレッドごとに独立な変数を用意する
+        CPPCTYPE res_private = 1.0;
+#pragma omp for nowait
+        for (i = 0; i < x_a.size(); i++) {
+            if (x_a[i] && !z_a[i]) {            // a = X
+                if (!x_b[i] && z_b[i]) {        // b = Z
+                    res_private *= -I;          // XZ = -iY
+                } else if (x_b[i] && z_b[i]) {  // b = Y
+                    res_private *= I;           // XY = iZ
+                }
+            } else if (!x_a[i] && z_a[i]) {     // a = Z
+                if (x_b[i] && !z_b[i]) {        // b = X
+                    res_private *= I;           // ZX = iY
+                } else if (x_b[i] && z_b[i]) {  // b = Y
+                    res_private *= -I;          // ZY = -iX
+                }
+            } else if (x_a[i] && z_a[i]) {       // a = Y
+                if (x_b[i] && !z_b[i]) {         // b = X
+                    res_private *= -I;           // YX = -iZ
+                } else if (!x_b[i] && z_b[i]) {  // b = Z
+                    res_private *= I;            // YZ = iX
+                }
             }
-        } else if (!x_a[i] && z_a[i]) {     // a = Z
-            if (x_b[i] && !z_b[i]) {        // b = X
-                res *= I;                   // ZX = iY
-            } else if (x_b[i] && z_b[i]) {  // b = Y
-                res *= -I;                  // ZY = -iX
-            }
-        } else if (x_a[i] && z_a[i]) {       // a = Y
-            if (x_b[i] && !z_b[i]) {         // b = X
-                res *= -I;                   // YX = -iZ
-            } else if (!x_b[i] && z_b[i]) {  // b = Z
-                res *= I;                    // YZ = iX
-            }
+        }
+#pragma omp critical
+        { 
+            // 各スレッドで計算した結果を結合する
+            res *= res_private; 
         }
     }
     return res;
@@ -56,7 +67,7 @@ std::pair<CPPCTYPE, MultiQubitPauliOperator> Observable::get_term(
         this->_coef_list.at(index), this->_pauli_terms.at(index));
 }
 
-std::unordered_map<std::string, ITYPE> Observable::get_dict() const{
+std::unordered_map<std::string, ITYPE> Observable::get_dict() const {
     return _term_dict;
 }
 
@@ -68,14 +79,46 @@ void Observable::add_term(const CPPCTYPE coef, MultiQubitPauliOperator op) {
 
 void Observable::add_term(const CPPCTYPE coef, std::string s) {
     MultiQubitPauliOperator op(s);
-    this->_coef_list.push_back(coef);
-    this->_pauli_terms.push_back(op);
-    this->_term_dict[op.to_string()] = _coef_list.size() - 1;
+    add_term(coef, op);
+}
+
+void Observable::add_term(const std::vector<CPPCTYPE> coef_list,
+    std::vector<MultiQubitPauliOperator> pauli_terms) {
+    int base_size = this->_coef_list.size();
+    int changed_size = base_size + coef_list.size();
+    // vectorをindexでアクセス出来るようにする
+    this->_coef_list.resize(changed_size);
+    this->_pauli_terms.resize(changed_size);
+
+#pragma omp parallel
+    {
+        std::unordered_map<std::string, ITYPE> term_dict_private;
+#pragma omp for nowait
+        for (ITYPE index = 0; index < coef_list.size(); index++) {
+            int insert_pos = base_size + index;
+            this->_coef_list[insert_pos] = coef_list[index];
+            this->_pauli_terms[insert_pos] = pauli_terms[index];
+            // dictには並列で同時に書き込めないので、一旦term_dict_privateに書き込む
+            term_dict_private[pauli_terms[index].to_string()] = insert_pos;
+        }
+
+#pragma omp critical
+        {
+            _term_dict.insert(
+                term_dict_private.begin(), term_dict_private.end());
+        }
+    }
 }
 
 void Observable::remove_term(UINT index) {
+    this->_term_dict.erase(this->_pauli_terms.at(index).to_string());
     this->_coef_list.erase(this->_coef_list.begin() + index);
     this->_pauli_terms.erase(this->_pauli_terms.begin() + index);
+
+    // index番目の項を削除したので、index番目以降の項のindexが1つずれる
+    for(ITYPE i = 0; i < this->_coef_list.size() - index; i++) {
+        this->_term_dict[this->_pauli_terms.at(index + i).to_string()] = index + i;
+    }
 }
 
 CPPCTYPE Observable::get_expectation_value(
@@ -101,10 +144,7 @@ CPPCTYPE Observable::get_transition_amplitude(const QuantumStateBase* state_bra,
 
 Observable* Observable::copy() const {
     Observable* res = new Observable();
-    ITYPE i;
-    for (i = 0; i < this->_coef_list.size(); i++) {
-        res->add_term(this->_coef_list[i], *this->_pauli_terms[i].copy());
-    }
+    res->add_term(this->_coef_list, this->_pauli_terms);
     return res;
 }
 
@@ -117,7 +157,7 @@ Observable Observable::operator+(const Observable& target) const {
 Observable& Observable::operator+=(const Observable& target) {
     auto u_map = target.get_dict();
 
-    for (auto item:u_map) {
+    for (auto item : u_map) {
         if (_term_dict.find(item.first) != _term_dict.end()) {
             ITYPE id = _term_dict[item.first];
             this->_coef_list[id] += target.get_term(item.second).first;
@@ -176,6 +216,7 @@ Observable& Observable::operator*=(const Observable& target) {
     Observable tmp = (*this) * target;
     this->_coef_list.clear();
     this->_pauli_terms.clear();
+    this->_term_dict.clear();
     ITYPE i;
     for (i = 0; i < tmp.get_term_count(); i++) {
         auto term = tmp.get_term(i);
@@ -193,7 +234,7 @@ Observable& Observable::operator*=(const CPPCTYPE& target) {
     return *this;
 }
 
-std::string Observable::to_string() const{
+std::string Observable::to_string() const {
     std::ostringstream ss;
     std::string res;
     ITYPE i;

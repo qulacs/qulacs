@@ -23,8 +23,9 @@ NoiseSimulator::NoiseSimulator(
         initial_state = init_state->copy();
     }
     circuit = init_circuit->copy();
-    for (UINT i = 0; i < circuit->get_gate_list().size(); ++i) {
-        auto gate = circuit->get_gate_list()[i];
+    for (UINT gate_num = 0; gate_num < circuit->get_gate_list().size();
+         ++gate_num) {
+        auto gate = circuit->get_gate_list()[gate_num];
         if (gate->get_map_type() != Probabilistic) continue;
 
         // generate new gate & output it.
@@ -49,7 +50,7 @@ NoiseSimulator::NoiseSimulator(
         }
         QuantumGateWrapped* probgate =
             QuantumGateWrapped::ProbabilisticGate(Kraus_list, distribution);
-        circuit->replace_gate(probgate, i);
+        circuit->replace_gate(probgate, gate_num);
     }
 }
 
