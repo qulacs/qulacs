@@ -1,10 +1,11 @@
+#pragma once
 /**
  * ゲートを生成するための関数
  *
  * @file gate_factory.hpp
  */
 
-#pragma once
+
 
 #include <string>
 #include <vector>

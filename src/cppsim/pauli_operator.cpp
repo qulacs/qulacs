@@ -1,3 +1,5 @@
+
+#pragma once
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -19,7 +21,7 @@
 
 #include <csim/stat_ops.hpp>
 #include <csim/stat_ops_dm.hpp>
-
+#include "gate_factory.hpp"
 #include "pauli_operator.hpp"
 #include "state.hpp"
 
@@ -348,4 +350,28 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
 PauliOperator& PauliOperator::operator*=(CPPCTYPE target) {
     _coef *= target;
     return *this;
+}
+
+//made by watle
+void PauliOperator::update_quantum_state(QuantumStateBase* instate){
+    //PauliOperator　wo gate tosite kanngaeru
+    std::vector<UINT> index_list=this->get_index_list();
+    std::vector<UINT> pauli_list=this->get_pauli_id_list();
+    for(int ii=0;ii<index_list.size();ii++){
+        if(pauli_list[ii]==1){
+            auto x_gate=gate::X(index_list[ii]);
+            x_gate->update_quantum_state(instate);
+            delete x_gate;
+        }else if(pauli_list[ii]==2){
+            auto y_gate=gate::Y(index_list[ii]);
+            y_gate->update_quantum_state(instate);
+            delete y_gate;
+        }else if(pauli_list[ii]==3){
+            auto z_gate=gate::Z(index_list[ii]);
+            z_gate->update_quantum_state(instate);
+            delete z_gate;
+        }
+    }
+    instate->multiply_coef(this->get_coef());
+    return;
 }
