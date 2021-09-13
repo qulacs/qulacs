@@ -1,10 +1,10 @@
-name: Ubuntu & Windows CI
+name: Ubuntu CI
 
 on:
   pull_request:
   push:
 
-jobs:   
+jobs:
   gcc8-build:
     name: GCC8 build
     strategy:
