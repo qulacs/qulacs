@@ -24,6 +24,7 @@ jobs:
 
       - name: Setup Python
         uses: actions/setup-python@v2
+        with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
 
