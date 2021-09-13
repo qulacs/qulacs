@@ -96,7 +96,7 @@ SingleFermionOperator& SingleFermionOperator::operator*=(
 
 std::string SingleFermionOperator::to_string() const {
     std::string res;
-    for (int i = 0; i < _target_index.size(); i++) {
+    for (UINT i = 0; i < _target_index.size(); i++) {
         if (i > 0) {
             res.push_back(' ');
         }
