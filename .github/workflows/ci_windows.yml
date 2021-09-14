@@ -43,10 +43,6 @@ jobs:
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
 
-      - name: Install qulacs for Ubuntu
-        run: ./script/build_gcc.sh
-        if: ${{ contains(matrix.os, 'ubuntu') }}
-
       - name: Install qulacs Python module
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
@@ -59,10 +55,3 @@ jobs:
           cmake --build ./visualstudio --target test --config Release
           cmake --build ./visualstudio --target pythontest --config Release
         if: ${{ contains(matrix.os, 'windows') }}
-
-      - name: Test in Ubuntu
-        run: |
-          cd ./build
-          make test -j
-          make pythontest -j
-        if: ${{ contains(matrix.os, 'ubuntu') }}
