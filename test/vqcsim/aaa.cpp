@@ -5,9 +5,9 @@
 #include <cppsim/observable.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_merge.hpp>
-#include <vqcsim/parametric_circuit.cpp>
+#include <vqcsim/parametric_circuit.hpp>
 #include <cppsim/observable.hpp>
-#include <vqcsim/GradCalculator.cpp>
+#include <vqcsim/GradCalculator.hpp>
 using namespace std;
 int main(void){
     ParametricQuantumCircuit kairo(3);
