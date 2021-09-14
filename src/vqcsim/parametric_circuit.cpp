@@ -180,7 +180,7 @@ std::vector<double> ParametricQuantumCircuit::backprop(GeneralQuantumOperator* o
     std::vector<CPPCTYPE>bibun(1<<(this->qubit_count));
     QuantumState* bistate = new QuantumState(n);
     QuantumState* Astate = new QuantumState(n);
-    cerr<<state<<endl;
+    //cerr<<state<<endl;
     /*for(int i=0;i<target_qubit_index_list.size();i++){
         int tqi=target_qubit_index_list[i];
        
