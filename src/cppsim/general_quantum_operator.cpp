@@ -1,4 +1,3 @@
-#pragma once
 #include "general_quantum_operator.hpp"
 
 #include <Eigen/Dense>

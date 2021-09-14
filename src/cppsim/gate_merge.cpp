@@ -1,4 +1,3 @@
-#pragma once
 #include "gate_merge.hpp"
 
 #include <algorithm>

@@ -1,6 +1,4 @@
-﻿#pragma once
-
-#include "state.hpp"
+﻿#include "state.hpp"
 #include "cppsim/gate_matrix.hpp"
 #include <csim/stat_ops.hpp>
 #include <iostream>

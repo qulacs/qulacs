@@ -1,4 +1,3 @@
-#pragma once
 #include "observable.hpp"
 
 #include <stdarg.h>

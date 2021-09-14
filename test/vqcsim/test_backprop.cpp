@@ -43,7 +43,7 @@ TEST( TESTSET_NAME , TEST_NAME ){
     vector<double> kaku={2.2,0,1.4,1,-1,1,1,-1,1};
     //vector<double> kaku={2.2,1.4};
     GradCalculator wrakln;
-    auto bibun=wrakln.calculate_grad(kaiiro,observable,kaku);
+    auto bibun=wrakln.calculate_grad(kairo,observable,kaku);
     //for(auto it:bibun){cout<<it<<endl;}
     //cout<<"de"<<endl;
     //culculate_gradした後は、パラメータがぐちゃぐちゃになるので、再セット
