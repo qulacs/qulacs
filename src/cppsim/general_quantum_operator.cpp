@@ -552,7 +552,7 @@ void GeneralQuantumOperator::update_quantum_state(QuantumStateBase* state){
         sum_state->add_state(now_state);
         delete now_state;
     }
-    state=sum_state->copy();
+    state->load(sum_state);
     delete sum_state;
 }
     

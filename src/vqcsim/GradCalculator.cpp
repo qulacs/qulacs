@@ -13,7 +13,7 @@ std::vector<std::complex<double>> GradCalculator::calculate_grad(
             for (UINT q = 0; q < x.get_parameter_count(); ++q) {
                 float diff = 0;
                 if (i == q) {
-                    diff = M_PI / 2.0;
+                    diff = 3.1415926589793238462643 / 2.0;
                 }
                 x.set_parameter(q, theta[q] + diff);
             }
@@ -24,7 +24,7 @@ std::vector<std::complex<double>> GradCalculator::calculate_grad(
             for (UINT q = 0; q < x.get_parameter_count(); ++q) {
                 float diff = 0;
                 if (i == q) {
-                    diff = M_PI / 2.0;
+                    diff = 3.1415926589793238462643 / 2.0;
                 }
                 x.set_parameter(q, theta[q] - diff);
             }

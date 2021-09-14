@@ -1,15 +1,14 @@
-
+#pragma once
 #include "parametric_circuit.hpp"
 
 #include <iostream>
-#include "obs_etc.cpp"
 #include "parametric_gate.hpp"
 #include "parametric_gate_factory.hpp"
 #include "cppsim/type.hpp"
 #include "cppsim/gate_factory.hpp"
 #include "cppsim/state.hpp"
 #include "cppsim/gate_matrix.hpp"
-#include "cppsim/gate_merge.cpp"
+#include "cppsim/gate_merge.hpp"
 
 ParametricQuantumCircuit::ParametricQuantumCircuit(UINT qubit_count_)
     : QuantumCircuit(qubit_count_){};
@@ -181,7 +180,7 @@ std::vector<double> ParametricQuantumCircuit::backprop(GeneralQuantumOperator* o
     std::vector<CPPCTYPE>bibun(1<<(this->qubit_count));
     QuantumState* bistate = new QuantumState(n);
     QuantumState* Astate = new QuantumState(n);
-   
+    cerr<<state<<endl;
     /*for(int i=0;i<target_qubit_index_list.size();i++){
         int tqi=target_qubit_index_list[i];
        
@@ -213,8 +212,10 @@ std::vector<double> ParametricQuantumCircuit::backprop(GeneralQuantumOperator* o
         }   
     }*/
     bistate->load(state);
+    
     obs->update_quantum_state(bistate);
-
+    bistate->multiply_coef(-1);
+    //cerr<<bistate<<endl;
     double ansnorm=bistate->get_squared_norm();
     if(ansnorm==0){
         vector<double>ans(this->get_parameter_count() );

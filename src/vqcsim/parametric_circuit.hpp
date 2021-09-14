@@ -1,7 +1,7 @@
 #pragma once
 
 #include <cppsim/circuit.hpp>
-#include "cppsim/observable.cpp"
+#include "cppsim/observable.hpp"
 class QuantumGate_SingleParameter;
 
 class DllExport ParametricQuantumCircuit : public QuantumCircuit {
