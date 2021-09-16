@@ -1,0 +1,57 @@
+name: Windows CI
+
+on:
+  pull_request:
+
+jobs:
+  gcc8-build:
+    name: GCC8 build
+    strategy:
+      matrix:
+        python-version: ["3.7.5"]
+        os: ["windows-latest"]
+    runs-on: ${{ matrix.os }}
+    env:
+      CXX_COMPILER: "g++-8"
+      C_COMPILER: "gcc-8"
+      PYTHON: ${{ matrix.python-version }}
+      COVERAGE: "ON"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Install Python dependencies
+        run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion
+
+      - name: Install boost
+        uses: MarkusJx/install-boost@v2.0.0
+        id: install-boost
+        with:
+          boost_version: 1.77.0
+
+      - name: Install qulacs for Windows
+        run:  ./script/build_msvc_2019.bat
+        if: ${{ contains(matrix.os, 'windows') }}
+        env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+
+      - name: Install qulacs Python module
+        env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+        run: python setup.py install
+
+      - name: Test in Windows
+        env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+        run: |
+          cmake --build ./visualstudio --target test --config Release
+          cmake --build ./visualstudio --target pythontest --config Release
+        if: ${{ contains(matrix.os, 'windows') }}
