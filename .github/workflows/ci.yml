@@ -57,6 +57,9 @@ jobs:
           make pythontest
         if: ${{ contains(matrix.os, 'ubuntu') }}
 
+      - name: Show cache stats
+        run: ccache -s
+
   nvcc-gcc8-GPUbuild:
     name: nvcc + gcc8 build
     strategy:
