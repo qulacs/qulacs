@@ -17,6 +17,7 @@ jobs:
       C_COMPILER: "/usr/lib/ccache/gcc"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
+      CACHE_NAME: ccache-qulacs-build
     steps:
       - uses: actions/checkout@v2
 
@@ -36,9 +37,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ~/.ccache
-          key: ${{ runner.os }}-ccache-${{ github.ref }}
-          restore-keys: |
-            ${{ runner.os }}-ccache-
+          key: ${{ runner.os }}-${{ env.CACHE_NAME }}
 
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion
