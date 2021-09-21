@@ -13,11 +13,10 @@ jobs:
         os: ["ubuntu-self-hosted"]
     runs-on: ${{ matrix.os }}
     env:
-      CXX_COMPILER: "g++-8"
-      C_COMPILER: "gcc-8"
+      CXX_COMPILER: "/usr/lib/ccache/g++"
+      C_COMPILER: "/usr/lib/ccache/gcc"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
-      BOOST_ROOT: "C:/boost_1_75_0"
     steps:
       - uses: actions/checkout@v2
 
@@ -29,6 +28,17 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
+
+      - name: Install ccache
+        run: sudo apt install ccache
+
+      - name: Setup cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.ccache
+          key: ${{ runner.os }}-ccache-${{ github.ref }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-
 
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion
