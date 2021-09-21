@@ -30,7 +30,7 @@ jobs:
           architecture: x64
 
       - name: Install ccache
-        run: sudo apt install ccache
+        run: apt install ccache
 
       - name: Setup cache
         uses: actions/cache@v2
