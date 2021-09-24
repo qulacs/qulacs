@@ -30,8 +30,17 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
 
+      # Workaround for installing ccache in self-hosted runner;
+      # Some runner runs with a root permission, and others does not.
+      # After this repository becomes public, this step is not needed
+      # because ccache is already installed in GitHub-hosted runner.
       - name: Install ccache
-        run: apt install ccache
+        run: |
+          if [ $(command -v sudo) ]; then
+            sudo apt install ccache
+          else
+            apt install ccache
+          fi
 
       - name: Setup cache
         uses: actions/cache@v2
