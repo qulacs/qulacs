@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-        os: ["ubuntu-self-hosted"]
+        os: ["docker-runner"]
     runs-on: ${{ matrix.os }}
     env:
       CXX_COMPILER: "/usr/lib/ccache/g++"
