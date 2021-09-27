@@ -40,14 +40,12 @@ jobs:
         # The following command fixes this issue by (brew) re-linking files from gcc-8.
         # cf. https://stackoverflow.com/a/55500164
         run: brew link --overwrite gcc@8
-        if: ${{ contains(matrix.os, 'macos') }}
       
       - name: Install Boost for macOS
         run: |
           brew upgrade
           brew install boost
           brew link boost
-        if: ${{ contains(matrix.os, 'macos') }}
 
       # Make sure that ccache is already installed in a machine for CI.
       - name: Setup cache
@@ -58,7 +56,6 @@ jobs:
 
       - name: Install qulacs for macOS
         run: ./script/build_gcc.sh
-        if: ${{ contains(matrix.os, 'macos') }}
 
       - name: Install qulacs Python module
         run: python setup.py install
@@ -68,10 +65,9 @@ jobs:
           cd ./build
           make test -j
           make pythontest -j
-        if: ${{ contains(matrix.os, 'macos') }}
 
       - name: Show cache stats
-        run: ccache -s
+        run: ccache -s -v
 
   wheel-build:
     name: Python wheel build
