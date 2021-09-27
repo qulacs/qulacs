@@ -13,10 +13,11 @@ jobs:
         os: ["macos-self-hosted"]
     runs-on: ${{ matrix.os }}
     env:
-      CXX_COMPILER: "g++-8"
-      C_COMPILER: "gcc-8"
+      CXX_COMPILER: "/usr/local/opt/ccache/libexec/g++-8"
+      C_COMPILER: "/usr/local/opt/ccache/libexec/gcc-8"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
+      CACHE_NAME: "ccache-qulacs-build"
     steps:
       - uses: actions/checkout@v2
 
@@ -48,6 +49,13 @@ jobs:
           brew link boost
         if: ${{ contains(matrix.os, 'macos') }}
 
+      # Make sure that ccache is already installed in a machine for CI.
+      - name: Setup cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.ccache
+          key: ${{ runner.os }}-${{ env.CACHE_NAME }}
+
       - name: Install qulacs for macOS
         run: ./script/build_gcc.sh
         if: ${{ contains(matrix.os, 'macos') }}
@@ -61,6 +69,9 @@ jobs:
           make test -j
           make pythontest -j
         if: ${{ contains(matrix.os, 'macos') }}
+
+      - name: Show cache stats
+        run: ccache -s
 
   wheel-build:
     name: Python wheel build
