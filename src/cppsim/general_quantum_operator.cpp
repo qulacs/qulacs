@@ -540,7 +540,21 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(CPPCTYPE target) {
     }
     return *this;
 }
-
+//made by watle
+void GeneralQuantumOperator::update_quantum_state(QuantumStateBase* state){
+    int n=state->qubit_count;
+    auto sum_state=state::get_zero_state(n);
+    auto terms=this->get_terms();
+    for(int i=0;i<terms.size();i++){
+        auto now_state=state->copy();
+        terms[i]->update_quantum_state(now_state);
+        sum_state->add_state(now_state);
+        delete now_state;
+    }
+    state->load(sum_state);
+    delete sum_state;
+}
+    
 namespace quantum_operator {
 GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(
     std::string file_path) {

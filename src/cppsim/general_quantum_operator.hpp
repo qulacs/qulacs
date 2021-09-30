@@ -7,7 +7,6 @@
 #include <vector>
 
 #include "type.hpp"
-
 class PauliOperator;
 class QuantumStateBase;
 
@@ -183,6 +182,14 @@ public:
         const QuantumStateBase& state_to_be_multiplied,
         QuantumStateBase* dst_state) const;
 
+    /**
+     * \~japanese-en
+     * このオブザーバブルに入っているものを、ゲートとしてstateに作用させたものを返す。
+     stateは変えない。
+     * @param [in] state 入力
+     */
+    virtual void update_quantum_state(QuantumStateBase*state);
+
     virtual GeneralQuantumOperator* copy() const;
 
     GeneralQuantumOperator operator+(
@@ -215,6 +222,7 @@ public:
 
     GeneralQuantumOperator& operator*=(CPPCTYPE target);
 
+   
 protected:
     /**
      * \~japanese-en

@@ -1,15 +1,15 @@
-
+#pragma once
 #include "parametric_circuit.hpp"
 
 #include <iostream>
-
 #include "parametric_gate.hpp"
 #include "parametric_gate_factory.hpp"
 #include "cppsim/type.hpp"
 #include "cppsim/gate_factory.hpp"
 #include "cppsim/state.hpp"
 #include "cppsim/gate_matrix.hpp"
-#include "cppsim/gate_merge.cpp"
+#include "cppsim/gate_merge.hpp"
+
 ParametricQuantumCircuit::ParametricQuantumCircuit(UINT qubit_count_)
     : QuantumCircuit(qubit_count_){};
 
@@ -170,7 +170,7 @@ void ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate(
 
 //watle made
 using namespace std;
-std::vector<double> ParametricQuantumCircuit::backprop(const std::vector<UINT>& target_qubit_index_list,const std::vector<UINT>& target_qubit_pauli_list,const std::vector<double>& target_qubit_coef_list){
+std::vector<double> ParametricQuantumCircuit::backprop(GeneralQuantumOperator* obs){
     
     int n=this->qubit_count;
     QuantumState* state = new QuantumState(n);
@@ -179,15 +179,9 @@ std::vector<double> ParametricQuantumCircuit::backprop(const std::vector<UINT>& 
     //parametric bibunti tasu
     std::vector<CPPCTYPE>bibun(1<<(this->qubit_count));
     QuantumState* bistate = new QuantumState(n);
-    ComplexMatrix zero_matrix(2, 2);
-    zero_matrix << 0, 0, 0, 0;
-    std::vector<UINT> target_list_a={0};
-    auto zero_gate = new QuantumGateMatrix(target_list_a, zero_matrix);
-    zero_gate->update_quantum_state(bistate);
-
     QuantumState* Astate = new QuantumState(n);
-   
-    for(int i=0;i<target_qubit_index_list.size();i++){
+    //cerr<<state<<endl;
+    /*for(int i=0;i<target_qubit_index_list.size();i++){
         int tqi=target_qubit_index_list[i];
        
         Astate->load(state);
@@ -215,14 +209,17 @@ std::vector<double> ParametricQuantumCircuit::backprop(const std::vector<UINT>& 
             Astate->multiply_coef(-target_qubit_coef_list[i]);
             bistate->add_state(Astate);
             delete z_gate;
-        }
-        
-    }
+        }   
+    }*/
+    bistate->load(state);
+    
+    obs->update_quantum_state(bistate);
+    bistate->multiply_coef(-1);
+    //cerr<<bistate<<endl;
     double ansnorm=bistate->get_squared_norm();
     if(ansnorm==0){
         vector<double>ans(this->get_parameter_count() );
         return ans;
-       
     }
     bistate->normalize(ansnorm);
     ansnorm=sqrt(ansnorm);
@@ -253,14 +250,11 @@ std::vector<double> ParametricQuantumCircuit::backprop(const std::vector<UINT>& 
         Agate->update_quantum_state(state);
         delete Agate;
         delete gate;
-        
-    }
-    
 
+    }
     delete Astate;
     delete state;
     delete bistate;
-    delete zero_gate;
 
     return ans;
     //CPP
