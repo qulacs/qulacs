@@ -57,7 +57,7 @@ TEST( TESTSET_NAME , TEST_NAME ){
     kairo.set_parameter(6,1);
     kairo.set_parameter(7,-1);
     kairo.set_parameter(8,1);
-    auto bk=kairo.backprop({0,1,2},{1,2,3},{1.0,1.2,1.5});
+    auto bk=kairo.backprop(observable);
     for(int i=0;i<9;i++){
         cerr<<bk[i]<<" "<<bibun[i].real()<<endl;
         assert(abs(bk[i]-(bibun[i].real()))<1e-8);
