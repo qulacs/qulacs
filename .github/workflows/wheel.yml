@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-        os: ["ubuntu-self-hosted","windows-self-hosted"]
+        os: ["ubuntu-self-hosted", "windows-self-hosted", "macos-self-hosted"]
     runs-on: ${{ matrix.os }}
     env:
       CXX_COMPILER: "g++-8"
@@ -21,14 +21,15 @@ jobs:
       CIBW_TEST_COMMAND: "python {project}/python/test/test_qulacs.py"
       CIBW_TEST_REQUIRES: "numpy scipy openfermion"
       CIBW_BEFORE_BUILD: "pip install cmake"
-      CIBW_BEFORE_BUILD_LINUX: "pip install cmake && yum install wget -y && wget -q https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz && tar -zxf boost_1_76_0.tar.gz && 
-                                cd boost_1_76_0 && ./bootstrap.sh && ./b2 headers && cp -r boost /usr/local/include" #install boost and cmake
+      CIBW_BEFORE_BUILD_LINUX:
+        "pip install cmake && yum install wget -y && wget -q https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz && tar -zxf boost_1_76_0.tar.gz &&
+        cd boost_1_76_0 && ./bootstrap.sh && ./b2 headers && cp -r boost /usr/local/include" #install boost and cmake
       # In GitHub Actions virtual environment macos-10.15/20201115.1,
       # linking some functions from libgomp fails since the linker cannot find
       # some library files from gcc-8 installed via Homebrew.
       # The following command fixes this issue by (brew) re-linking files from gcc-8.
       # cf. https://stackoverflow.com/a/55500164
-      CIBW_BEFORE_BUILD_MACOS: "brew link --overwrite gcc@8 && pip install cmake"
+      CIBW_BEFORE_BUILD_MACOS: "brew link --overwrite gcc@8 && pip install cmake && brew upgrade && brew install -f boost && brew link boost"
       CIBW_BUILD: "cp3*-macosx_x86_64 cp3*-manylinux_x86_64 cp3*-win_amd64"
       # See https://github.com/Qulacs-Osaka/qulacs-osaka/issues/106
       CIBW_SKIP: "cp310-manylinux_x86_64"
