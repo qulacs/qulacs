@@ -18,6 +18,7 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       CACHE_NAME: "ccache-qulacs-build"
+    # The following steps assume that ccache is already installed in a machine for CI.
     steps:
       - uses: actions/checkout@v2
 
@@ -47,7 +48,6 @@ jobs:
           brew install boost
           brew link boost
 
-      # Make sure that ccache is already installed in a machine for CI.
       - name: Setup cache
         uses: actions/cache@v2
         with:
