@@ -449,7 +449,6 @@ QuantumGateMatrix* to_matrix_gate(const QuantumGateBase* gate) {
         gate->target_qubit_list, &mat, gate->control_qubit_list);
 }*/
 
-//watle made getgate .
 QuantumGateMatrix* get_transpose_gate(const QuantumGateBase* gate){
     //tenti
     ComplexMatrix mat;
