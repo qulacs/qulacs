@@ -206,10 +206,6 @@ Module.symvers
 Mkfile.old
 dkms.conf
 
-#watle debugs
-aaa.cpp
-aaa.py
-
 # End of https://www.gitignore.io/api/c
 
 # End of https://www.gitignore.io/api/python,macos
