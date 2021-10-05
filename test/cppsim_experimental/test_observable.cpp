@@ -153,6 +153,52 @@ TEST(ObservableTest, calc_coefTest){
     EXPECT_EQ(PAULI_ID_X, ZY.get_term(0).second.get_pauli_id_list().at(0));
 }
 
+TEST(ObservableTest, remove_term_Test){
+    Observable ob;
+    ob.add_term(1.0, "X 0");
+    ob.add_term(1.0, "Y 1");
+    ob.add_term(1.0, "Z 2");
+    ob.add_term(1.0, "X 3");
+
+    auto dict1 = ob.get_dict();
+    EXPECT_EQ(4, dict1.size());
+    EXPECT_EQ(0, dict1["X 0 "]);
+    EXPECT_EQ(1, dict1["Y 1 "]);
+    EXPECT_EQ(2, dict1["Z 2 "]);
+    EXPECT_EQ(3, dict1["X 3 "]);
+
+    ob.remove_term(1);
+    auto dict2 = ob.get_dict();
+    EXPECT_EQ(3, dict2.size());
+    EXPECT_EQ(0, dict2["X 0 "]);
+    EXPECT_EQ(1, dict2["Z 2 "]);
+    EXPECT_EQ(2, dict2["X 3 "]);
+}
+
+TEST(ObservableTest, term_dict_SizeTest){
+    Observable x_term, y_term, xy_term;
+    Observable ob;
+    Observable res, res1;
+    x_term.add_term(1.0, "X 0");
+    y_term.add_term(1.0, "Y 0");
+
+    xy_term = x_term + y_term;
+    EXPECT_EQ(2, xy_term.get_dict().size());
+
+    ob.add_term(1.0, "I 0");
+    ob *= xy_term;
+    EXPECT_EQ(2, ob.get_dict().size());
+
+    res += ob;
+    EXPECT_EQ(2, res.get_dict().size());
+
+    res.remove_term(0);
+    EXPECT_EQ(1, res.get_dict().size());
+
+    res1 += res;
+    EXPECT_EQ(1, res1.get_dict().size());
+}
+
 /*
 TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile) {
     auto func = [](const std::string path,

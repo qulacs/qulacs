@@ -130,7 +130,7 @@ bool MultiQubitPauliOperator::operator==(
     auto x = this->_x;
     auto z = this->_z;
     auto target_x = target.get_x_bits();
-    auto target_z = target.get_x_bits();
+    auto target_z = target.get_z_bits();
     if (target_x.size() != this->_x.size()) {
         size_t max_size = std::max(this->_x.size(), target_x.size());
         x.resize(max_size);

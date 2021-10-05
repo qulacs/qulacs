@@ -22,6 +22,10 @@
 #include <cppsim_experimental/circuit.hpp>
 #include <cppsim_experimental/causal_cone.hpp>
 #include <cppsim_experimental/noisesimulator.hpp>
+#include <cppsim_experimental/single_fermion_operator.hpp>
+#include <cppsim_experimental/fermion_operator.hpp>
+#include <cppsim_experimental/jordan_wigner.hpp>
+#include <cppsim_experimental/bravyi_kitaev.hpp>
 
 #ifdef _USE_GPU
 #include <cppsim_experimental/state_gpu.hpp>
@@ -75,6 +79,40 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def(py::self *= py::self)
         .def("__IMUL__", [](Observable &a, std::complex<double> &b) { return a *= b; }, py::is_operator())
         ;
+
+    py::class_<SingleFermionOperator>(m, "SingleFermionOperator")
+        .def(py::init<>(), "Constructor")
+        .def(py::init<const std::vector<unsigned int>&, const std::vector<unsigned int>&>(), "Constructor", py::arg("target_index_list"), py::arg("action_id_list"))
+        .def(py::init<std::string>(), "Constructor", py::arg("action_string"))
+        .def("get_target_index_list", &SingleFermionOperator::get_target_index_list, "Get list of target indices")
+        .def("get_action_id_list", &SingleFermionOperator::get_action_id_list, "Get list of action IDs (Create action: 1, Destroy action: 0)")
+        .def("__str__", &SingleFermionOperator::to_string, "to string")
+        .def(py::self * py::self)
+        .def(py::self *= py::self)
+        ;
+
+    py::class_<FermionOperator>(m, "FermionOperator")
+        .def(py::init<>(), "Constructor")
+        .def("add_term", (void (FermionOperator::*)(std::complex<double>, SingleFermionOperator))&FermionOperator::add_term, "Add Fermion operator", py::arg("coef"), py::arg("fermion_operator"))
+        .def("add_term", (void (FermionOperator::*)(std::complex<double>, std::string))&FermionOperator::add_term, "Add Fermion operator", py::arg("coef"), py::arg("action_string"))
+        .def("get_term_count", &FermionOperator::get_term_count, "Get count of Fermion terms")
+        .def("get_term",&FermionOperator::get_term, "Get a Fermion term", py::arg("index"))
+        .def("get_fermion_list", &FermionOperator::get_fermion_list, "Get term(SingleFermionOperator) list")
+        .def("get_coef_list", &FermionOperator::get_coef_list, "Get coef list")
+        .def("copy", &FermionOperator::copy, "Make copy")
+        .def(py::self + py::self)
+        .def(py::self += py::self)
+        .def(py::self - py::self)
+        .def(py::self -= py::self)
+        .def(py::self * py::self)
+        .def("__mul__", [](const FermionOperator &a, std::complex<double> &b) { return a * b; }, py::is_operator())
+        .def(py::self *= py::self)
+        .def("__IMUL__", [](FermionOperator &a, std::complex<double> &b) { return a *= b; }, py::is_operator())
+        ;
+
+    auto m_transforms = m.def_submodule("transforms", "FermionOperator transforms");
+    m_transforms.def("jordan_wigner", &transforms::jordan_wigner, "Apply the Jordan-Wigner transform to a FermionOperator", py::arg("fermion_operator"));
+    m_transforms.def("bravyi_kitaev", &transforms::bravyi_kitaev, "Apply the Bravyi-Kitaev transform to a FermionOperator", py::arg("fermion_operator"), py::arg("n_qubits"));
     /*
     auto mquantum_operator = m.def_submodule("quantum_operator");
     mquantum_operator.def("create_quantum_operator_from_openfermion_file", &quantum_operator::create_general_quantum_operator_from_openfermion_file, pybind11::return_value_policy::take_ownership);
