@@ -35,4 +35,3 @@ std::vector<std::complex<double>> GradCalculator::calculate_grad(
     }
     return ans;
 };
-
