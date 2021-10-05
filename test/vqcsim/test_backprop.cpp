@@ -9,7 +9,7 @@
 #include <cppsim/observable.hpp>
 #include <vqcsim/GradCalculator.hpp>
 using namespace std;
-TEST( TESTSET_NAME , TEST_NAME ){
+TEST(Backprop, BackpropCircuit){
     ParametricQuantumCircuit kairo(3);
     kairo.add_parametric_RX_gate(0,2.2);
     kairo.add_parametric_RY_gate(1,0);
