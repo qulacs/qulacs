@@ -1,9 +1,10 @@
+#pragma once
 /**
  * @file Observable.hpp
  * @brief Definition and basic functions for HermitianQuantumOperator
  */
 
-#pragma once
+
 
 #include <iostream>
 #include <string>
