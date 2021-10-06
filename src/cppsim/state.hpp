@@ -1,5 +1,4 @@
-﻿
-#pragma once
+﻿#pragma once
 
 #include <csim/init_ops.hpp>
 #include <csim/memory_ops.hpp>
@@ -298,6 +297,8 @@ public:
     }
 
     virtual void* get_cuda_stream() const { return this->_cuda_stream; }
+
+    
 };
 
 class QuantumStateCpu : public QuantumStateBase {
@@ -622,4 +623,6 @@ DllExport QuantumState* permutate_qubit(
     const QuantumState* state, std::vector<UINT> qubit_order);
 DllExport QuantumState* drop_qubit(const QuantumState* state,
     std::vector<UINT> target, std::vector<UINT> projection);
+
+DllExport QuantumState* get_zero_state(int n);
 }  // namespace state
