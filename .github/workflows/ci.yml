@@ -121,7 +121,7 @@ jobs:
       - name: Run sdist
         run: python setup.py sdist
 
-      - name: Uplead the source if the Git tag is set
+      - name: Upload the source if the Git tag is set
         run: |
           python -m pip install twine
           python -m twine upload dist/*
@@ -154,7 +154,7 @@ jobs:
       - name: Run sdist
         run: python setup.py sdist
 
-      - name: Uplead the source if the Git tag is set
+      - name: Upload the source if the Git tag is set
         run: |
           python -m pip install twine
           python -m twine upload dist/*
