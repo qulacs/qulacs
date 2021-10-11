@@ -218,6 +218,7 @@ std::vector<double> ParametricQuantumCircuit::backprop(
     bistate->multiply_coef(-1);
     // cerr<<bistate<<endl;
     double ansnorm = bistate->get_squared_norm();
+    // TODO: Not compare with 0, check if `ansnorm` is close enough to 0; e.g. `ansnorm < 1e-6`.
     if (ansnorm == 0) {
         vector<double> ans(this->get_parameter_count());
         return ans;
