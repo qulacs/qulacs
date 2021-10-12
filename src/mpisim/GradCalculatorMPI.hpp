@@ -5,5 +5,6 @@
 class DllExport GradCalculatorMPI {
 public:
     std::vector<std::complex<double>> calculate_grad(
-        ParametricQuantumCircuit& x, Observable& obs, std::vector<double> theta);
+        ParametricQuantumCircuit& x, Observable& obs,
+        std::vector<double> theta);
 };

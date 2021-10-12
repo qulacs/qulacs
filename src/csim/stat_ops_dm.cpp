@@ -159,7 +159,6 @@ double dm_expectation_value_multi_qubit_Pauli_operator_partial_list(
     return _creal(sum);
 }
 
-
 void dm_state_tensor_product(const CTYPE* state_left, ITYPE dim_left,
     const CTYPE* state_right, ITYPE dim_right, CTYPE* state_dst) {
     ITYPE y_left, x_left, y_right, x_right;
