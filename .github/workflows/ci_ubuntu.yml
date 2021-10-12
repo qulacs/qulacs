@@ -179,4 +179,5 @@ jobs:
         run: |
           diff=$(git diff)
           echo -n "$diff"
-          test $(echo "$diff" | wc -l) -eq 0
+          # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
+          test $(echo -n "$diff" | wc -l) -eq 0
