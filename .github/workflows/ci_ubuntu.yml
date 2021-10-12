@@ -179,6 +179,4 @@ jobs:
         run: |
           diff=$(git diff)
           echo -n "$diff"
-          n_diff=$(echo $diff | wc -l)
-          echo $n_diff
-          test $n_diff -eq 0
+          test $(echo "$diff" | wc -l) -eq 0
