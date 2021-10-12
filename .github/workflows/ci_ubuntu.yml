@@ -178,7 +178,7 @@ jobs:
       - name: Compare diff
         run: |
           diff=$(git diff)
-          echo -n $diff
-          n_diff=$(echo -n $diff | wc -l)
-          echo -n $n_diff
+          echo -n "$diff"
+          n_diff=$(echo $diff | wc -l)
+          echo $n_diff
           test $n_diff -eq 0
