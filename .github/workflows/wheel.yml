@@ -32,7 +32,6 @@ jobs:
       CIBW_BEFORE_BUILD_MACOS: "brew link --overwrite gcc@8 && pip install cmake && brew upgrade && brew install -f boost && brew link boost"
       CIBW_BUILD: "cp3*-macosx_x86_64 cp3*-manylinux_x86_64 cp3*-win_amd64"
       # See https://github.com/Qulacs-Osaka/qulacs-osaka/issues/106
-      CIBW_SKIP: "cp310-manylinux_x86_64"
       CIBW_BUILD_VERBOSITY: "1"
       CIBW_ENVIRONMENT: 'QULACS_OPT_FLAGS="-mtune=haswell -mfpmath=both"'
       CIBW_REPAIR_WHEEL_COMMAND_MACOS: "delocate-listdeps {wheel} && script/fix_wheel_osx.sh {wheel} {dest_dir} && delocate-listdeps {wheel}"
