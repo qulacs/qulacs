@@ -15,7 +15,6 @@ endif()
 ##### Set default behavior #####
 set(DEFAULT_USE_SIMD Yes)
 set(DEFAULT_USE_OMP Yes)
-set(DEFAULT_USE_MPI No)
 set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)
 set(DEFAULT_USE_TEST Yes)
@@ -26,9 +25,6 @@ if(NOT DEFINED USE_SIMD)
 endif()
 if(NOT DEFINED USE_OMP)
 	set(USE_OMP ${DEFAULT_USE_OMP})
-endif()
-if(NOT DEFINED USE_MPI)
-	set(USE_MPI ${DEFAULT_USE_MPI})
 endif()
 if(NOT DEFINED USE_GPU)
 	set(USE_GPU ${DEFAULT_USE_GPU})
@@ -45,7 +41,6 @@ endif()
 
 message(STATUS "USE_SIMD = ${USE_SIMD}")
 message(STATUS "USE_OMP = ${USE_OMP}")
-message(STATUS "USE_MPI = ${USE_MPI}")
 message(STATUS "USE_GPU = ${USE_GPU}")
 message(STATUS "USE_TEST = ${USE_TEST}")
 message(STATUS "USE_PYTHON = ${USE_PYTHON}")
@@ -211,7 +206,7 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 	set(PYBIND11_CPP_STANDARD -std=c++14)
-	
+
 	# Enable pthread
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
@@ -225,11 +220,6 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 	if(USE_OMP)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
-	endif()
-
-	# Enable mpi
-	if(USE_MPI)
-		add_compile_options("-D _USE_MPI")
 	endif()
 
 	# Enable gpu
@@ -284,18 +274,13 @@ elseif(MSVC)
 		add_compile_options("/openmp")
 	endif()
 
-	# enable mpi
-	if(USE_MPI)
-		add_compile_options("/D_USE_MPI")
-	endif()
-	
 	# enable gpu
 	if(USE_GPU)
 		add_compile_options("/D_USE_GPU")
 	endif()
 
 	# Static link to multithread runtimes
-	set(variables 
+	set(variables
 		CMAKE_CXX_FLAGS_DEBUG
 		CMAKE_CXX_FLAGS_RELEASE
 		CMAKE_CXX_FLAGS_RELWITHDEBINFO

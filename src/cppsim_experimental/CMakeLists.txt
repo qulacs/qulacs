@@ -13,7 +13,3 @@ add_dependencies(cppsim_exp_static Cereal)
 if (USE_GPU)
     target_link_libraries(cppsim_exp_static gpusim_static)
 endif()
-
-if (USE_MPI)
-    target_link_libraries(cppsim_exp_static mpisim_static)
-endif()
