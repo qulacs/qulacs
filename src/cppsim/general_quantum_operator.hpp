@@ -188,7 +188,7 @@ public:
      stateは変えない。
      * @param [in] state 入力
      */
-    virtual void update_quantum_state(QuantumStateBase*state);
+    virtual void update_quantum_state(QuantumStateBase* state);
 
     virtual GeneralQuantumOperator* copy() const;
 
@@ -222,7 +222,6 @@ public:
 
     GeneralQuantumOperator& operator*=(CPPCTYPE target);
 
-   
 protected:
     /**
      * \~japanese-en

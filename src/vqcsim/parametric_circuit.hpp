@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cppsim/circuit.hpp>
+
 #include "cppsim/observable.hpp"
 class QuantumGate_SingleParameter;
 
@@ -48,5 +49,4 @@ public:
         std::vector<UINT> target, std::vector<UINT> pauli_id,
         double initial_angle);
     virtual std::vector<double> backprop(GeneralQuantumOperator* obs);
-
 };
