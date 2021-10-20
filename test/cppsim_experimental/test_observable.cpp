@@ -121,8 +121,8 @@ TEST(ObservableTest, to_string_SignOfCoefTest) {
     EXPECT_EQ(expected, observable.to_string());
 }
 
-TEST(ObservableTest, calc_coefTest){
-    Observable X,Y,Z;
+TEST(ObservableTest, calc_coefTest) {
+    Observable X, Y, Z;
     X.add_term(1.0, "X 0");
     Y.add_term(1.0, "Y 0");
     Z.add_term(1.0, "Z 0");
@@ -153,7 +153,7 @@ TEST(ObservableTest, calc_coefTest){
     EXPECT_EQ(PAULI_ID_X, ZY.get_term(0).second.get_pauli_id_list().at(0));
 }
 
-TEST(ObservableTest, remove_term_Test){
+TEST(ObservableTest, remove_term_Test) {
     Observable ob;
     ob.add_term(1.0, "X 0");
     ob.add_term(1.0, "Y 1");
@@ -175,7 +175,7 @@ TEST(ObservableTest, remove_term_Test){
     EXPECT_EQ(2, dict2["X 3 "]);
 }
 
-TEST(ObservableTest, term_dict_SizeTest){
+TEST(ObservableTest, term_dict_SizeTest) {
     Observable x_term, y_term, xy_term;
     Observable ob;
     Observable res, res1;

@@ -545,7 +545,7 @@ void GeneralQuantumOperator::update_quantum_state(QuantumStateBase* state) {
     int n = state->qubit_count;
     auto sum_state = state::get_zero_state(n);
     auto terms = this->get_terms();
-    for (UINT i = 0; i < terms.size(); i++) {
+    for (int i = 0; i < terms.size(); i++) {
         auto now_state = state->copy();
         terms[i]->update_quantum_state(now_state);
         sum_state->add_state(now_state);

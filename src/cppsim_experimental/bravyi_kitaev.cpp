@@ -1,9 +1,10 @@
 #include "bravyi_kitaev.hpp"
 
-namespace transforms{
+namespace transforms {
 Observable bravyi_kitaev(FermionOperator const& fop, UINT n_qubits) {
     UINT N = count_qubits(fop);
-    if(n_qubits < N) assert(n_qubits < N && "Invalid number of qubits specified.");
+    if (n_qubits < N)
+        assert(n_qubits < N && "Invalid number of qubits specified.");
 
     std::vector<Observable> transformed_terms;
     std::vector<SingleFermionOperator> fermion_terms = fop.get_fermion_list();
@@ -12,7 +13,8 @@ Observable bravyi_kitaev(FermionOperator const& fop, UINT n_qubits) {
         SingleFermionOperator sfop;
         CPPCTYPE coef;
         boost::tie(sfop, coef) = fop_tuple;
-        transformed_terms.push_back(_transform_operator_term(sfop, coef, n_qubits));
+        transformed_terms.push_back(
+            _transform_operator_term(sfop, coef, n_qubits));
     }
     return inline_sum(transformed_terms, Observable());
 }
@@ -110,8 +112,10 @@ Observable _transform_ladder_operator(
     std::vector<UINT> pauli_x_list(update_set.size(), PAULI_ID_X);
     std::vector<UINT> pauli_z_list(parity_set.size(), PAULI_ID_Z);
     std::vector<UINT> pauli_list;
-    pauli_list.insert(pauli_list.end(), pauli_x_list.begin(), pauli_x_list.end());
-    pauli_list.insert(pauli_list.end(), pauli_z_list.begin(), pauli_z_list.end());
+    pauli_list.insert(
+        pauli_list.end(), pauli_x_list.begin(), pauli_x_list.end());
+    pauli_list.insert(
+        pauli_list.end(), pauli_z_list.begin(), pauli_z_list.end());
 
     transformed_operator.add_term(
         0.5, MultiQubitPauliOperator(target_index_list, pauli_list));
@@ -141,7 +145,8 @@ Observable _transform_ladder_operator(
     pauli_z_list.clear();
 
     pauli_x_list = std::vector<UINT>(update_minus_index_set.size(), PAULI_ID_X);
-    pauli_z_list = std::vector<UINT>(p_xor_o_minus_index_set.size(), PAULI_ID_Z);
+    pauli_z_list =
+        std::vector<UINT>(p_xor_o_minus_index_set.size(), PAULI_ID_Z);
 
     target_index_list.push_back(target_index);
     target_index_list.insert(target_index_list.end(),
@@ -150,8 +155,10 @@ Observable _transform_ladder_operator(
         p_xor_o_minus_index_set.begin(), p_xor_o_minus_index_set.end());
 
     pauli_list.push_back(PAULI_ID_Y);
-    pauli_list.insert(pauli_list.end(), pauli_x_list.begin(), pauli_x_list.end());
-    pauli_list.insert(pauli_list.end(), pauli_z_list.begin(), pauli_z_list.end());
+    pauli_list.insert(
+        pauli_list.end(), pauli_x_list.begin(), pauli_x_list.end());
+    pauli_list.insert(
+        pauli_list.end(), pauli_z_list.begin(), pauli_z_list.end());
 
     transformed_majorana_difference.add_term(
         -0.5i, MultiQubitPauliOperator(target_index_list, pauli_list));
@@ -181,4 +188,4 @@ Observable _transform_operator_term(
     seed.add_term(coef, "I 0");
     return inline_product(transformed_ladder_ops, seed);
 }
-}
+}  // namespace transforms

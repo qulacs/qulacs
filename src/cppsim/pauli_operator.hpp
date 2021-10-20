@@ -262,7 +262,7 @@ public:
      * パウリ演算子に対応する文字列を返す
      */
     virtual std::string get_pauli_string() const;
-   /**
+    /**
      * \~japanese-en
      * このオブザーバブルに入っているものを、ゲートとしてstateに作用させる
      * @param [in] state 入力

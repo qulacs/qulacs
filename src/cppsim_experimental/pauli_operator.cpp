@@ -189,7 +189,7 @@ MultiQubitPauliOperator& MultiQubitPauliOperator::operator*=(
     return *this;
 }
 
-std::string MultiQubitPauliOperator::to_string() const{
+std::string MultiQubitPauliOperator::to_string() const {
     std::string res;
     std::string id;
     ITYPE i;
@@ -203,7 +203,7 @@ std::string MultiQubitPauliOperator::to_string() const{
         } else if (!_x[i] && _z[i]) {
             id = "Z";
         }
-        if(id!="I"){
+        if (id != "I") {
             res += id + " " + std::to_string(i) + " ";
         }
     }

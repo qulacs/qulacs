@@ -4,8 +4,6 @@
  * @brief Definition and basic functions for HermitianQuantumOperator
  */
 
-
-
 #include <iostream>
 #include <string>
 #include <utility>

@@ -53,9 +53,9 @@ CPPCTYPE Observable::calc_coef(
             }
         }
 #pragma omp critical
-        { 
+        {
             // 各スレッドで計算した結果を結合する
-            res *= res_private; 
+            res *= res_private;
         }
     }
     return res;
@@ -116,8 +116,9 @@ void Observable::remove_term(UINT index) {
     this->_pauli_terms.erase(this->_pauli_terms.begin() + index);
 
     // index番目の項を削除したので、index番目以降の項のindexが1つずれる
-    for(ITYPE i = 0; i < this->_coef_list.size() - index; i++) {
-        this->_term_dict[this->_pauli_terms.at(index + i).to_string()] = index + i;
+    for (ITYPE i = 0; i < this->_coef_list.size() - index; i++) {
+        this->_term_dict[this->_pauli_terms.at(index + i).to_string()] =
+            index + i;
     }
 }
 

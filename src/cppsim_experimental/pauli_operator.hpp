@@ -75,7 +75,7 @@ public:
                 pauli_id = PAULI_ID_X;
             else if (this->_x[index] && this->_z[index])
                 pauli_id = PAULI_ID_Y;
-            if(pauli_id!=PAULI_ID_I){
+            if (pauli_id != PAULI_ID_I) {
                 _target_index.push_back(index);
                 _pauli_id.push_back(pauli_id);
             }

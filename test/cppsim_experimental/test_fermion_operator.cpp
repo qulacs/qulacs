@@ -3,10 +3,10 @@
 #include <cppsim_experimental/fermion_operator.hpp>
 #include <cppsim_experimental/observable.hpp>
 
-template<typename Set>
-bool set_compare(Set const &lhs, Set const &rhs){
-    return lhs.size() == rhs.size()
-        && equal(lhs.begin(), lhs.end(), rhs.begin());
+template <typename Set>
+bool set_compare(Set const &lhs, Set const &rhs) {
+    return lhs.size() == rhs.size() &&
+           equal(lhs.begin(), lhs.end(), rhs.begin());
 }
 
 TEST(FermionOperatorTest, GetTermCountTest) {
@@ -103,7 +103,7 @@ TEST(FermionOperatorTest, GetCoefListTest) {
     EXPECT_EQ(2.0, sfop_list.at(1));
 }
 
-TEST(FermionOperatorTest, add_operatorTest){
+TEST(FermionOperatorTest, add_operatorTest) {
     FermionOperator op1;
     op1.add_term(1.0, "2^ 1");
     op1.add_term(2.0, "3^ 2");
@@ -116,15 +116,15 @@ TEST(FermionOperatorTest, add_operatorTest){
     expected.add_term(2.0, "3^ 2");
     expected.add_term(3.0, "4^ 3");
 
-    FermionOperator res = op1+op2;
+    FermionOperator res = op1 + op2;
 
-    for(int i =0;i<3;i++){
+    for (int i = 0; i < 3; i++) {
         EXPECT_EQ(res.get_term(i).first, expected.get_term(i).first);
         EXPECT_EQ(res.get_term(i).second.to_string(),
             expected.get_term(i).second.to_string());
     }
 
-    op1+=op2;
+    op1 += op2;
     for (int i = 0; i < 3; i++) {
         EXPECT_EQ(op1.get_term(i).first, expected.get_term(i).first);
         EXPECT_EQ(op1.get_term(i).second.to_string(),
@@ -175,7 +175,7 @@ TEST(FermionOperatorTest, mul_operatorTest) {
     expected.add_term(4.0, "3^ 2 2^ 1");
     expected.add_term(6.0, "3^ 2 4^ 3");
 
-    FermionOperator res = op1*op2;
+    FermionOperator res = op1 * op2;
 
     for (int i = 0; i < 4; i++) {
         EXPECT_EQ(res.get_term(i).first, expected.get_term(i).first);

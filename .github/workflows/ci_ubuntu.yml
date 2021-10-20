@@ -175,5 +175,6 @@ jobs:
       - name: Compare diff
         run: |
           diff=$(git diff)
-          echo $diff
-          test $(echo -n $diff | wc -l) -eq 0
+          echo -n "$diff"
+          # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
+          test $(echo -n "$diff" | wc -l) -eq 0

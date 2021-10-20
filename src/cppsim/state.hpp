@@ -297,8 +297,6 @@ public:
     }
 
     virtual void* get_cuda_stream() const { return this->_cuda_stream; }
-
-    
 };
 
 class QuantumStateCpu : public QuantumStateBase {

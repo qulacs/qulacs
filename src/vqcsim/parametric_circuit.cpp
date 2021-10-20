@@ -218,7 +218,6 @@ std::vector<double> ParametricQuantumCircuit::backprop(
     bistate->multiply_coef(-1);
     // cerr<<bistate<<endl;
     double ansnorm = bistate->get_squared_norm();
-    // TODO: Not compare with 0, check if `ansnorm` is close enough to 0; e.g. `ansnorm < 1e-6`.
     if (ansnorm == 0) {
         vector<double> ans(this->get_parameter_count());
         return ans;
@@ -227,7 +226,7 @@ std::vector<double> ParametricQuantumCircuit::backprop(
     ansnorm = sqrt(ansnorm);
     int m = this->gate_list.size();
     vector<int> gyapgp(m, -1);  // prametric gate position no gyaku
-    for (UINT i = 0; i < this->get_parameter_count(); i++) {
+    for (int i = 0; i < this->get_parameter_count(); i++) {
         gyapgp[this->_parametric_gate_position[i]] = i;
     }
     vector<double> ans(this->get_parameter_count());
