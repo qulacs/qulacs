@@ -356,7 +356,7 @@ void PauliOperator::update_quantum_state(QuantumStateBase* instate) {
     // PauliOperator　wo gate tosite kanngaeru
     std::vector<UINT> index_list = this->get_index_list();
     std::vector<UINT> pauli_list = this->get_pauli_id_list();
-    for (int ii = 0; ii < index_list.size(); ii++) {
+    for (size_t ii = 0; ii < index_list.size(); ii++) {
         if (pauli_list[ii] == 1) {
             auto x_gate = gate::X(index_list[ii]);
             x_gate->update_quantum_state(instate);
