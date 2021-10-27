@@ -1,6 +1,10 @@
 
 cmake_minimum_required(VERSION 2.8)
 
+if (POLICY CMP0048)
+  cmake_policy(SET CMP0048 NEW)
+endif (POLICY CMP0048)
+
 project(qulacs)
 
 ##### Check GCC version #####
@@ -130,7 +134,7 @@ if(USE_PYTHON)
 		set(PYBIND11_INCLUDE_DIR ${PYBIND11_INSTALL_DIR}/include)
 		ExternalProject_Add(
 			pybind11_pop
-			URL http://github.com/pybind/pybind11/archive/v2.5.0.tar.gz
+			URL http://github.com/pybind/pybind11/archive/v2.7.1.tar.gz
 			PREFIX ${PYBIND11_BUILD_DIR}
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND ""
@@ -143,7 +147,7 @@ if(USE_PYTHON)
 		FetchContent_Declare(
 			pybind11_fetch
 			GIT_REPOSITORY https://github.com/pybind/pybind11
-			GIT_TAG v2.5.0
+			GIT_TAG v2.7.1
 		)
 		FetchContent_GetProperties(pybind11_fetch)
 		if(NOT pybind11_fetch_POPULATED)
@@ -153,7 +157,7 @@ if(USE_PYTHON)
 		endif()
 	endif()
 else()
-	message(STATUS "Skip downloding pybind11")
+	message(STATUS "Skip downloading pybind11")
 endif()
 
 

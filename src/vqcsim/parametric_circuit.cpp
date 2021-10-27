@@ -1,4 +1,3 @@
-#pragma once
 #include "parametric_circuit.hpp"
 
 #include <iostream>
@@ -226,7 +225,7 @@ std::vector<double> ParametricQuantumCircuit::backprop(
     ansnorm = sqrt(ansnorm);
     int m = this->gate_list.size();
     vector<int> gyapgp(m, -1);  // prametric gate position no gyaku
-    for (int i = 0; i < this->get_parameter_count(); i++) {
+    for (UINT i = 0; i < this->get_parameter_count(); i++) {
         gyapgp[this->_parametric_gate_position[i]] = i;
     }
     vector<double> ans(this->get_parameter_count());
