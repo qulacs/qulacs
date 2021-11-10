@@ -38,7 +38,6 @@ jobs:
 
       - name: Install qulacs for Windows
         run: ./script/build_msvc_2019.bat
-        if: ${{ contains(runs-on, 'windows') }}
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
 
