@@ -85,11 +85,7 @@ jobs:
       - name: Install qulacs Python module
         run: python setup.py install
 
-      - name: Test in Ubuntu
-        run: |
-          cd ./build
-          make test -j
-          make pythontest -j
+      # Testing is removed because GPU is not available for GitHub-Hosted Runner.
 
   source-dist:
     name: Source dist
@@ -97,7 +93,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-    runs-on: "ubuntu-self-hosted"
+    runs-on: "ubuntu-latest"
     env:
       TWINE_USERNAME: "__token__"
       TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS }}
@@ -127,7 +123,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-    runs-on: "ubuntu-self-hosted"
+    runs-on: "ubuntu-latest"
     env:
       TWINE_USERNAME: "__token__"
       TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS_GPU }}
@@ -156,10 +152,7 @@ jobs:
 
   format:
     name: Format with clang-format
-    strategy:
-      matrix:
-        os: ["ubuntu-self-hosted"]
-    runs-on: ${{ matrix.os }}
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
 
