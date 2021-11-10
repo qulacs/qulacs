@@ -120,7 +120,7 @@ setup(
     package_dir = {"": "pysrc"},
     packages=find_packages(exclude=['test*'])+find_packages("pysrc"),
     include_package_data=True,
-    ext_modules=[CMakeExtension('qulacs')],
+    ext_modules=[CMakeExtension('qulacs_core')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
     test_suite = 'test',
