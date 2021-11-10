@@ -1,7 +1,7 @@
 name: Windows CI
 
 on:
-  pull_request:
+  push:
 
 jobs:
   gcc8-build:
@@ -9,8 +9,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-        os: ["windows-latest"]
-    runs-on: ${{ matrix.os }}
+    runs-on: "windows-latest"
     env:
       CXX_COMPILER: "g++-8"
       C_COMPILER: "gcc-8"
@@ -38,7 +37,7 @@ jobs:
           boost_version: 1.77.0
 
       - name: Install qulacs for Windows
-        run:  ./script/build_msvc_2019.bat
+        run: ./script/build_msvc_2019.bat
         if: ${{ contains(matrix.os, 'windows') }}
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}

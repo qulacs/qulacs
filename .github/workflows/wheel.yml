@@ -2,7 +2,6 @@ name: Wheel build
 
 on:
   push:
-    branches: dev
 
 jobs:
   wheel-build:
