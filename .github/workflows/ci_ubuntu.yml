@@ -61,12 +61,13 @@ jobs:
 
   nvcc-gcc8-GPUbuild:
     name: nvcc + gcc8 build
-    runs-on: ["ubuntu-latest"]
+    runs-on: "ubuntu-latest"
     env:
-      CXX_COMPILER: "g++-8"
-      C_COMPILER: "gcc-8"
+      CXX_COMPILER: "/usr/lib/ccache/g++"
+      C_COMPILER: "/usr/lib/ccache/gcc"
       PYTHON: "3.7.5"
       COVERAGE: "ON"
+      CACHE_NAME: ccache-qulacs-gpu-build
     steps:
       - uses: actions/checkout@v2
 
@@ -78,6 +79,15 @@ jobs:
         with:
           python-version: "3.7.5"
           architecture: x64
+
+      - name: Install ccache
+        run: sudo apt install ccache
+
+      - name: Setup cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.ccache
+          key: ${{ runner.os }}-${{ env.CACHE_NAME }}
 
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion
