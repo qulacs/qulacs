@@ -29,6 +29,10 @@ jobs:
       # cf. https://stackoverflow.com/a/55500164
       CIBW_BEFORE_BUILD_MACOS: "brew install gcc@8 && brew link --overwrite gcc@8 && pip install cmake && brew upgrade && brew install -f boost && brew link boost"
       CIBW_BUILD: "cp3*-macosx_x86_64 cp3*-manylinux_x86_64 cp3*-win_amd64"
+
+      # necessary for compiling python pillow library.
+      CIBW_BEFORE_TEST_LINUX: "yum install libjpeg-devel -y"
+
       # See https://github.com/Qulacs-Osaka/qulacs-osaka/issues/106
       CIBW_SKIP: "cp310-manylinux_x86_64"
       CIBW_BUILD_VERBOSITY: "1"
