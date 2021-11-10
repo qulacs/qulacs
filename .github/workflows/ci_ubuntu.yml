@@ -61,7 +61,7 @@ jobs:
 
   nvcc-gcc8-GPUbuild:
     name: nvcc + gcc8 build
-    runs-on: ["ubuntu-self-hosted"]
+    runs-on: ["ubuntu-latest"]
     env:
       CXX_COMPILER: "g++-8"
       C_COMPILER: "gcc-8"
