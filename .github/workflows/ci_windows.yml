@@ -52,4 +52,3 @@ jobs:
         run: |
           cmake --build ./visualstudio --target test --config Release
           cmake --build ./visualstudio --target pythontest --config Release
-        if: ${{ contains(matrix.os, 'windows') }}
