@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-        os: ["macos-self-hosted"]
+        os: ["macos-latest"]
     runs-on: ${{ matrix.os }}
     env:
       CXX_COMPILER: "/usr/local/opt/ccache/libexec/g++-8"
@@ -41,7 +41,7 @@ jobs:
         # The following command fixes this issue by (brew) re-linking files from gcc-8.
         # cf. https://stackoverflow.com/a/55500164
         run: brew link --overwrite gcc@8
-      
+
       - name: Install Boost for macOS
         run: |
           brew upgrade
