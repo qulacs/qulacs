@@ -29,14 +29,17 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
 
-      - name: Install ccache and boost
-        run: sudo apt install ccache libboost-dev
+      - name: Install ccache
+        run: sudo apt install ccache
 
       - name: Setup cache
         uses: actions/cache@v2
         with:
           path: ~/.ccache
           key: ${{ runner.os }}-${{ env.CACHE_NAME }}
+
+      - name: Install boost
+        run: sudo apt install libboost-dev
 
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion
@@ -79,6 +82,9 @@ jobs:
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion
 
+      - name: Install boost
+        run: sudo apt install libboost-dev
+
       - name: Install qulacs for Ubuntu
         run: ./script/build_gcc_with_gpu.sh
 
@@ -105,6 +111,9 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
+
+      - name: Install boost
+        run: sudo apt install libboost-dev
 
       - name: Run sdist
         run: python setup.py sdist
@@ -136,6 +145,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
 
+      - name: Install boost
+        run: sudo apt install libboost-dev
+
       - name: Switch setup.py to GPU enabled version
         run: cp setup_gpu.py setup.py
 
@@ -158,6 +170,9 @@ jobs:
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
+
+      - name: Install boost
+        run: sudo apt install libboost-dev
 
       - name: Install qulacs for Ubuntu
         run: ./script/build_gcc.sh
