@@ -13,8 +13,8 @@ jobs:
         os: ["macos-latest"]
     runs-on: ${{ matrix.os }}
     env:
-      CXX_COMPILER: "/usr/local/opt/ccache/libexec/g++-8"
-      C_COMPILER: "/usr/local/opt/ccache/libexec/gcc-8"
+      CXX_COMPILER: "/usr/local/opt/ccache/libexec/g++-11"
+      C_COMPILER: "/usr/local/opt/ccache/libexec/gcc-11"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       CACHE_NAME: "ccache-qulacs-build"
@@ -44,7 +44,7 @@ jobs:
         # some library files from gcc-8 installed via Homebrew.
         # The following command fixes this issue by (brew) re-linking files from gcc-8.
         # cf. https://stackoverflow.com/a/55500164
-        run: brew link --overwrite gcc@8
+        run: brew link --overwrite gcc@11
 
       - name: Install Boost for macOS
         run: |
