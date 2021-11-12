@@ -10,16 +10,13 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-        os: ["macos-latest"]
-    runs-on: ${{ matrix.os }}
+    runs-on: "macos-11"
     env:
       CXX_COMPILER: "/usr/local/opt/ccache/libexec/g++-11"
       C_COMPILER: "/usr/local/opt/ccache/libexec/gcc-11"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       CACHE_NAME: "ccache-qulacs-build"
-    # TODO: remove this comment
-    # The following steps assume that ccache is already installed in a machine for CI.
     steps:
       - uses: actions/checkout@v2
 
@@ -38,13 +35,16 @@ jobs:
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion
 
+      - name: Install gcc-8
+        run: brew install gcc@8
+
       - name: Workaround for OpenMP link error on mac
         # In GitHub Actions virtual environment macos-10.15/20201115.1,
         # linking some functions from libgomp fails since the linker cannot find
         # some library files from gcc-8 installed via Homebrew.
         # The following command fixes this issue by (brew) re-linking files from gcc-8.
         # cf. https://stackoverflow.com/a/55500164
-        run: brew link --overwrite gcc@11
+        run: brew link --overwrite gcc@8
 
       - name: Install Boost for macOS
         run: |

@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
     env:
       CXX_COMPILER: "/usr/lib/ccache/g++"
       C_COMPILER: "/usr/lib/ccache/gcc"
@@ -61,7 +61,7 @@ jobs:
 
   nvcc-gcc8-GPUbuild:
     name: nvcc + gcc8 build
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
     env:
       CXX_COMPILER: "/usr/lib/ccache/g++"
       C_COMPILER: "/usr/lib/ccache/gcc"
@@ -109,7 +109,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
     env:
       TWINE_USERNAME: "__token__"
       TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS }}
@@ -142,7 +142,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-    runs-on: "ubuntu-latest"
+    runs-on: "ubuntu-20.04"
     env:
       TWINE_USERNAME: "__token__"
       TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS_GPU }}
@@ -174,7 +174,7 @@ jobs:
 
   format:
     name: Format with clang-format
-    runs-on: ubuntu-latest
+    runs-on: "ubuntu-20.04"
     steps:
       - uses: actions/checkout@v2
 
