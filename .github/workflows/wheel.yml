@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-        os: ["ubuntu-20.04", "windows-2016", "macos-11"]
+        os: ["ubuntu-20.04", "windows-2019", "macos-11"]
     runs-on: ${{ matrix.os }}
     env:
       CXX_COMPILER: "g++-8"
