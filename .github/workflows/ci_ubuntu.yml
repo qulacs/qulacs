@@ -16,7 +16,7 @@ jobs:
       C_COMPILER: "/usr/lib/ccache/gcc"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
-      CACHE_NAME: ccache-qulacs-build
+      CACHE_NAME: ccache-qulacs-build-v2
     steps:
       - uses: actions/checkout@v2
 
@@ -67,7 +67,7 @@ jobs:
       C_COMPILER: "/usr/lib/ccache/gcc"
       PYTHON: "3.7.5"
       COVERAGE: "ON"
-      CACHE_NAME: ccache-qulacs-gpu-build
+      CACHE_NAME: ccache-qulacs-gpu-build-v2
     steps:
       - uses: actions/checkout@v2
 
