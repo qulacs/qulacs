@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.7.5"]
-    runs-on: "windows-2019"
+    runs-on: "windows-2016"
     env:
       CXX_COMPILER: "g++-8"
       C_COMPILER: "gcc-8"
