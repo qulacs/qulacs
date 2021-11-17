@@ -5,8 +5,6 @@
  * @file gate_factory.hpp
  */
 
-
-
 #include <string>
 #include <vector>
 

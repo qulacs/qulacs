@@ -745,8 +745,7 @@ void dm_CZ_gate(UINT control_qubit_index, UINT target_qubit_index, CTYPE* state,
 }
 void dm_SWAP_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
     CTYPE* state, ITYPE dim) {
-    CTYPE matrix[16];
-    memset(matrix, 0, sizeof(CTYPE) * 16);
+    CTYPE matrix[16] = {};
     matrix[0 * 4 + 0] = 1;
     matrix[1 * 4 + 2] = 1;
     matrix[2 * 4 + 1] = 1;

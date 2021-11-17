@@ -419,7 +419,6 @@ public:
 typedef DensityMatrixCpu
     DensityMatrix; /**< QuantumState is an alias of StateVectorCpu */
 
-
 namespace state {
 DllExport DensityMatrixCpu* tensor_product(
     const DensityMatrixCpu* state_left, const DensityMatrixCpu* state_right);

@@ -778,6 +778,7 @@ void double_qubit_dense_matrix_gate_simd_middle(UINT target_qubit_index1,
     const ITYPE loop_dim = dim / 4;
     ITYPE state_index;
 
+    // TODO: fix compile warning.
     double* ptr_vec = (double*)vec;
     const double* ptr_mat = (const double*)mat;
 #ifdef _OPENMP

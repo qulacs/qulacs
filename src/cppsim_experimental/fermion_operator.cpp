@@ -163,7 +163,6 @@ FermionOperator FermionOperator::operator*=(const FermionOperator& target) {
     this->_coef_list.clear();
     this->_fermion_terms.clear();
     this->_term_dict.clear();
-    ITYPE i;
     this->add_term(tmp.get_coef_list(), tmp.get_fermion_list());
     return *this;
 }
