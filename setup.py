@@ -10,7 +10,7 @@ from distutils.version import LooseVersion
 
 _VERSION = '0.2.0'
 
-project_name = 'Qulacs'
+project_name = 'qulacs-osaka'
 
 def _is_valid_compiler(cmd):
     try:
