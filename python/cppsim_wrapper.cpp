@@ -164,11 +164,13 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("to_string",&QuantumState::to_string, "Get string representation")
         .def("sampling", (std::vector<ITYPE> (QuantumState::*)(UINT))&QuantumState::sampling, "Sampling measurement results", py::arg("count"))
         .def("sampling", (std::vector<ITYPE>(QuantumState::*)(UINT, UINT))&QuantumState::sampling, "Sampling measurement results", py::arg("count"), py::arg("seed"))
-
         .def("get_vector", [](const QuantumState& state) {
         Eigen::VectorXcd vec = Eigen::Map<Eigen::VectorXcd>(state.data_cpp(), state.dim);
         return vec;
         }, "Get state vector")
+        .def("get_amplitude", [](const QuantumState& state, const UINT index) -> CPPCTYPE {
+            return state.data_cpp()[index];
+        }, "Get state vector", py::arg("index"))
         .def("get_qubit_count", [](const QuantumState& state) -> unsigned int {return (unsigned int) state.qubit_count; }, "Get qubit count")
         .def("__repr__", [](const QuantumState &p) {return p.to_string();});
         ;
