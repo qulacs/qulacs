@@ -29,7 +29,7 @@ jobs:
       # The following command fixes this issue by (brew) re-linking files from gcc-8.
       # cf. https://stackoverflow.com/a/55500164
       CIBW_BEFORE_BUILD_MACOS: "brew install gcc@8 && brew link --overwrite gcc@8 && pip install cmake && brew upgrade && brew install -f boost && brew link boost"
-      CIBW_BUILD: "cp3*-macosx_x86_64 cp3*-manylinux_x86_64 cp3*-win_amd64"
+      CIBW_BUILD: "cp310*-macosx_x86_64 cp310*-manylinux_x86_64 cp310*-win_amd64"
 
       # necessary for compiling python pillow library required to install numpy,scipy,openfermion.
       CIBW_BEFORE_TEST_LINUX: "yum install libjpeg-devel -y"
