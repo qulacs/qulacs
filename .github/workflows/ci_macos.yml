@@ -12,8 +12,8 @@ jobs:
         python-version: ["3.7.5"]
     runs-on: "macos-11"
     env:
-      CXX_COMPILER: "/usr/local/opt/ccache/libexec/g++-8"
-      C_COMPILER: "/usr/local/opt/ccache/libexec/gcc-8"
+      CXX_COMPILER: "/usr/local/opt/ccache/libexec/g++-10"
+      C_COMPILER: "/usr/local/opt/ccache/libexec/gcc-10"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       CACHE_NAME: "ccache-qulacs-build-v2"
