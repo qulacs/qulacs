@@ -5,8 +5,8 @@ on:
   pull_request:
 
 jobs:
-  gcc8-build:
-    name: GCC8 build
+  gcc10-build:
+    name: GCC10 build
     strategy:
       matrix:
         python-version: ["3.7.5"]
@@ -34,9 +34,6 @@ jobs:
 
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion
-
-      - name: Install gcc-8
-        run: brew install gcc@8
 
       - name: Workaround for OpenMP link error on mac
         # In GitHub Actions virtual environment macos-10.15/20201115.1,
