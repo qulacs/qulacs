@@ -220,6 +220,10 @@ public:
      * @return stateに対応する期待値
      */
     virtual CPPCTYPE get_expectation_value_single_thread(const QuantumStateBase* state) const;
+
+
+
+    virtual void update_quantum_state(QuantumStateBase* instate);
 };
 
 

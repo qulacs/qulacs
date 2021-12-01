@@ -55,6 +55,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_expectation_value", &PauliOperator::get_expectation_value, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &PauliOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         .def("copy", &PauliOperator::copy, pybind11::return_value_policy::take_ownership, "Create copied instance of Pauli operator class")
+        .def("update_quantum_state", &PauliOperator::update_quantum_state, "do update")
         ;
 
     py::class_<GeneralQuantumOperator>(m, "GeneralQuantumOperator")
@@ -73,6 +74,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_expectation_value", &GeneralQuantumOperator::get_expectation_value, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &GeneralQuantumOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         //.def_static("get_split_GeneralQuantumOperator", &(GeneralQuantumOperator::get_split_observable));
+        .def("update_quantum_state",&GeneralQuantumOperator::update_quantum_state,"do update")
         ;
     auto mquantum_operator = m.def_submodule("quantum_operator");
     mquantum_operator.def("create_quantum_operator_from_openfermion_file", &quantum_operator::create_general_quantum_operator_from_openfermion_file, pybind11::return_value_policy::take_ownership);
@@ -354,7 +356,9 @@ PYBIND11_MODULE(qulacs, m) {
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to PauliRotation.");
 		return ptr;
 	}, pybind11::return_value_policy::take_ownership, "Create multi-qubit Pauli rotation", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"));
-
+    mstate.def("get_zero_state", &state::get_zero_state,
+        pybind11::return_value_policy::take_ownership, "get all zero sate(not |0000>)",
+        py::arg("n"));
     //QuantumGateMatrix*(*ptr1)(unsigned int, ComplexMatrix) = &gate::DenseMatrix;
     //QuantumGateMatrix*(*ptr2)(std::vector<unsigned int>, ComplexMatrix) = &gate::DenseMatrix;
     mgate.def("DenseMatrix", [](unsigned int target_qubit_index, ComplexMatrix matrix) {
@@ -528,6 +532,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("add_parametric_RY_gate", &ParametricQuantumCircuit::add_parametric_RY_gate, "Add parametric Pauli-Y rotation gate", py::arg("index"), py::arg("angle"))
         .def("add_parametric_RZ_gate", &ParametricQuantumCircuit::add_parametric_RZ_gate, "Add parametric Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
         .def("add_parametric_multi_Pauli_rotation_gate", &ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate, "Add parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"))
+        .def("backprop",&ParametricQuantumCircuit::backprop,"do backprop",py::arg("obs"))
 
         .def("__repr__", [](const ParametricQuantumCircuit &p) {return p.to_string(); });
     ;
