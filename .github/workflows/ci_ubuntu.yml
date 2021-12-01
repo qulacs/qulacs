@@ -14,6 +14,7 @@ jobs:
     env:
       CXX_COMPILER: "/usr/lib/ccache/g++"
       C_COMPILER: "/usr/lib/ccache/gcc"
+      OPT_FLAGS: "-mtune=haswell -march=haswell -mfpmath=both"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       CACHE_NAME: ccache-qulacs-build-v2

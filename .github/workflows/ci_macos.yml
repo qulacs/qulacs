@@ -5,15 +5,15 @@ on:
   pull_request:
 
 jobs:
-  gcc8-build:
-    name: GCC8 build
+  gcc10-build:
+    name: GCC10 build
     strategy:
       matrix:
         python-version: ["3.7.5"]
     runs-on: "macos-11"
     env:
-      CXX_COMPILER: "/usr/local/opt/ccache/libexec/g++-8"
-      C_COMPILER: "/usr/local/opt/ccache/libexec/gcc-8"
+      CXX_COMPILER: "/usr/local/opt/ccache/libexec/g++-10"
+      C_COMPILER: "/usr/local/opt/ccache/libexec/gcc-10"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       CACHE_NAME: "ccache-qulacs-build-v2"
@@ -34,17 +34,6 @@ jobs:
 
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion
-
-      - name: Install gcc-8
-        run: brew install gcc@8
-
-      - name: Workaround for OpenMP link error on mac
-        # In GitHub Actions virtual environment macos-10.15/20201115.1,
-        # linking some functions from libgomp fails since the linker cannot find
-        # some library files from gcc-8 installed via Homebrew.
-        # The following command fixes this issue by (brew) re-linking files from gcc-8.
-        # cf. https://stackoverflow.com/a/55500164
-        run: brew link --overwrite gcc@8
 
       - name: Install Boost for macOS
         run: |

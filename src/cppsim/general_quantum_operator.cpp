@@ -174,7 +174,6 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     Eigen::ComplexEigenSolver<ComplexMatrix> eigen_solver(hessenberg_matrix);
     const auto eigenvalues = eigen_solver.eigenvalues();
     const auto eigenvectors = eigen_solver.eigenvectors();
-    assert(state_list.size() == eigenvectors.cols());
 
     // Find ground state eigenvalue and eigenvector.
     UINT minimum_eigenvalue_index = 0;
