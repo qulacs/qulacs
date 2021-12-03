@@ -2,7 +2,7 @@
 
 GCC_COMMAND=${C_COMPILER:-"gcc"}
 GXX_COMMAND=${CXX_COMPILER:-"g++"}
-OPT_FLAGS=${QULACS_OPT_FLAGS:-"-mtune=native -march=native -mfpmath=both"}
+OPT_FLAGS=${OPT_FLAGS:-"-mtune=native -march=native -mfpmath=both"}
 
 mkdir ./build
 cd ./build
