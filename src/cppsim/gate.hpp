@@ -122,6 +122,14 @@ public:
         for (UINT i = 0; i < control_qubit_list.size(); ++i) res[i] = control_qubit_list[i].index();
         return res;
     }
+    /**
+     * \~japanese-en 量子ビットの回転角を取得する
+     *
+     * @return 量子ビットの回転角
+     */
+    virtual double get_angle() const {
+        return 0.0;
+    }
 
     /**
      * \~japanese-en 量子状態を更新する

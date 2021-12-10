@@ -221,6 +221,14 @@ public:
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         matrix = this->_matrix_element;
     }
+    /**
+     * \~japanese-en 量子ビットの回転角を取得する
+     *
+     * @return 量子ビットの回転角
+     */
+    virtual double get_angle() const {
+        return _angle;
+    }
 };
 
 

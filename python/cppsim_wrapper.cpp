@@ -260,6 +260,7 @@ PYBIND11_MODULE(qulacs, m) {
         .def("get_target_index_list", &QuantumGateBase::get_target_index_list, "Get target qubit index list")
         .def("get_control_index_list", &QuantumGateBase::get_control_index_list, "Get control qubit index list")
         .def("get_name", &QuantumGateBase::get_name, "Get gate name")
+        .def("get_angle", &QuantumGateBase::get_angle, "Get gate angle")
         .def("is_commute", &QuantumGateBase::is_commute, "Check this gate commutes with a given gate", py::arg("gate"))
         .def("is_Pauli", &QuantumGateBase::is_Pauli, "Check this gate is element of Pauli group")
         .def("is_Clifford", &QuantumGateBase::is_Clifford, "Check this gate is element of Clifford group")
