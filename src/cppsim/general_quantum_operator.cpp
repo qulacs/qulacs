@@ -52,7 +52,7 @@ void GeneralQuantumOperator::add_operator(CPPCTYPE coef, std::string pauli_strin
 }
 
 CPPCTYPE GeneralQuantumOperator::get_expectation_value(const QuantumStateBase* state) const {
-	if (this->_qubit_count != state->qubit_count) {
+	if (this->_qubit_count > state->qubit_count) {
 		std::cerr << "Error: GeneralQuantumOperator::get_expectation_value(const QuantumStateBase*): invalid qubit count" << std::endl;
 		return 0.;
 	}
@@ -82,7 +82,7 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(const QuantumStateBase* s
 }
 
 CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const {
-	if (this->_qubit_count != state_bra->qubit_count || this->_qubit_count != state_ket->qubit_count) {
+	if (this->_qubit_count > state_bra->qubit_count || state_bra->qubit_count != state_ket->qubit_count) {
 		std::cerr << "Error: GeneralQuantumOperator::get_transition_amplitude(const QuantumStateBase*, const QuantumStateBase*): invalid qubit count" << std::endl;
 		return 0.;
 	}
