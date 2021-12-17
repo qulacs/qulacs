@@ -120,7 +120,7 @@ public:
      * @return 入力で与えた量子状態に対応するGeneralQuantumOperatorの遷移振幅
      */
     virtual CPPCTYPE get_transition_amplitude(const QuantumStateBase* state_bra, const QuantumStateBase* state_ket) const;
-
+    virtual void update_quantum_state(QuantumStateBase*state);
 };
 
 namespace quantum_operator{

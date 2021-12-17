@@ -2,6 +2,8 @@
 
 #include <cppsim/circuit.hpp>
 
+#include <cppsim/observable.hpp>
+
 class QuantumGate_SingleParameter;
 
 class DllExport ParametricQuantumCircuit : public QuantumCircuit {
@@ -37,6 +39,7 @@ public:
     virtual void add_parametric_RZ_gate(UINT target_index, double initial_angle);
     virtual void add_parametric_multi_Pauli_rotation_gate(std::vector<UINT> target, std::vector<UINT> pauli_id, double initial_angle);
 
+    virtual std::vector<double> backprop(GeneralQuantumOperator* obs);
 };
 
 
