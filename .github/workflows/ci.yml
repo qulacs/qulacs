@@ -9,7 +9,8 @@ jobs:
     name: GCC8 build
     strategy:
       matrix:
-        python-version: [ '3.7.5', '2.7.17' ]
+        # python-version: [ '3.7.5', '2.7.17' ]
+        python-version: [ '3.7.5' ]
         os: [ 'ubuntu-latest', 'macos-10.15', 'windows-2019' ]
     runs-on: ${{ matrix.os }}
     env:
@@ -169,6 +170,7 @@ jobs:
       # cf. https://stackoverflow.com/a/55500164
       CIBW_BEFORE_BUILD_MACOS: 'brew install gcc@8 && brew link --overwrite gcc@8 && pip install cmake'
       CIBW_BUILD: 'cp*-macosx_x86_64 cp*-manylinux_x86_64 cp*-win_amd64'
+      CIBW_SKIP: 'cp310-win*'
       CIBW_BUILD_VERBOSITY: '1'
       CIBW_ENVIRONMENT: 'QULACS_OPT_FLAGS="-mtune=haswell -mfpmath=both"'
       CIBW_REPAIR_WHEEL_COMMAND_MACOS: 'delocate-listdeps {wheel} && script/fix_wheel_osx.sh {wheel} {dest_dir} && delocate-listdeps {wheel}'
