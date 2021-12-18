@@ -10,7 +10,7 @@ jobs:
     strategy:
       matrix:
         python-version: [ '3.7.5', '2.7.17' ]
-        os: [ 'ubuntu-latest', 'macos-latest', 'windows-latest' ]
+        os: [ 'ubuntu-latest', 'macos-latest', 'windows-2019' ]
     runs-on: ${{ matrix.os }}
     env:
       CXX_COMPILER: 'g++-8'
@@ -50,7 +50,7 @@ jobs:
         run: pip install -U --only-binary=numpy,scipy numpy scipy
 
       - name: Install qulacs for Windows
-        run: ./script/build_msvc_2017.bat
+        run: ./script/build_msvc_2019.bat
         if: ${{ contains(matrix.os, 'windows') }}
 
       - name: Install qulacs for macOS or Ubuntu
@@ -152,7 +152,7 @@ jobs:
     strategy:
       matrix:
         python-version: [ '3.7.5' ]
-        os: [ 'ubuntu-latest', 'macos-latest', 'windows-latest' ]
+        os: [ 'ubuntu-latest', 'macos-latest', 'windows-2019' ]
     runs-on: ${{ matrix.os }}
     env:
       CXX_COMPILER: 'g++-8'
