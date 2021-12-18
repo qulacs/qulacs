@@ -87,11 +87,7 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        std::vector<QuantumGateBase*> new_gate_list;
-        for (auto item : _gate_list) {
-            new_gate_list.push_back(item->copy());
-        }
-        return new QuantumGate_Probabilistic(_distribution, new_gate_list);
+        return new QuantumGate_Probabilistic(_distribution, _gate_list);
     };
 
     /**
@@ -168,11 +164,7 @@ public:
 	 * @return 自身のディープコピー
 	 */
 	virtual QuantumGateBase* copy() const override {
-		std::vector<QuantumGateBase*> new_gate_list;
-		for (auto item : _gate_list) {
-			new_gate_list.push_back(item->copy());
-		}
-		return new QuantumGate_ProbabilisticInstrument(_distribution, new_gate_list, _classical_register_address);
+		return new QuantumGate_ProbabilisticInstrument(_distribution, _gate_list, _classical_register_address);
 	};
 
 	/**
@@ -267,11 +259,7 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        std::vector<QuantumGateBase*> new_gate_list;
-        for (auto item : _gate_list) {
-            new_gate_list.push_back(item->copy());
-        }
-        return new QuantumGate_CPTP(new_gate_list);
+        return new QuantumGate_CPTP(_gate_list);
     };
     /**
      * \~japanese-en 自身のゲート行列をセットする
@@ -388,11 +376,7 @@ public:
 	 * @return 自身のディープコピー
 	 */
 	virtual QuantumGateBase* copy() const override {
-		std::vector<QuantumGateBase*> new_gate_list;
-		for (auto item : _gate_list) {
-			new_gate_list.push_back(item->copy());
-		}
-		return new QuantumGate_CP(new_gate_list, _state_normalize, _probability_normalize, _assign_zero_if_not_matched);
+		return new QuantumGate_CP(_gate_list, _state_normalize, _probability_normalize, _assign_zero_if_not_matched);
 	};
 	/**
 	 * \~japanese-en 自身のゲート行列をセットする
@@ -469,11 +453,7 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        std::vector<QuantumGateBase*> new_gate_list;
-        for (auto item : _gate_list) {
-            new_gate_list.push_back(item->copy());
-        }
-        return new QuantumGate_Instrument(new_gate_list, _classical_register_address);
+        return new QuantumGate_Instrument(_gate_list, _classical_register_address);
     };
     /**
      * \~japanese-en 自身のゲート行列をセットする
@@ -520,7 +500,7 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        return new QuantumGate_Adaptive(_gate->copy(), _func);
+        return new QuantumGate_Adaptive(_gate, _func);
     };
     /**
      * \~japanese-en 自身のゲート行列をセットする
