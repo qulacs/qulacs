@@ -39,7 +39,8 @@ private:
         }
     }
 
-    void update_quantum_state_probabilistic_state_vector(QuantumStateBase* state) {
+    void update_quantum_state_probabilistic_state_vector(
+        QuantumStateBase* state) {
         double r = random_state.uniform();
         auto ite =
             std::lower_bound(_prob_cum_list.begin(), _prob_cum_list.end(), r);
@@ -49,8 +50,7 @@ private:
         if (gate_index < _gate_list.size()) {
             _gate_list[gate_index]->update_quantum_state(state);
         }
-        if (_reg_name != "")
-            state->set_classical_value(_reg_name, gate_index);
+        if (_reg_name != "") state->set_classical_value(_reg_name, gate_index);
     }
     void update_quantum_state_probabilistic_density_matrix(
         QuantumStateBase* state) {
@@ -76,9 +76,7 @@ private:
         delete temp_state;
         if (_reg_name != "") state->set_classical_value(_reg_name, -1);
     }
-    void update_quantum_state_CPTP_random(
-        QuantumStateBase* state) {
-
+    void update_quantum_state_CPTP_random(QuantumStateBase* state) {
         if (_reg_name != "") state->set_classical_value(_reg_name, -1);
 
         double r = random_state.uniform();
@@ -238,8 +236,8 @@ public:
         ptr->update_qubit_index_list();
         return ptr;
     }
-    static QuantumGateWrapped* Instrument(
-        std::vector<QuantumGateBase*> gates, std::string reg_name, bool take_ownership = false) {
+    static QuantumGateWrapped* Instrument(std::vector<QuantumGateBase*> gates,
+        std::string reg_name, bool take_ownership = false) {
         auto ptr = new QuantumGateWrapped(MapType::Instrument);
         ptr->_prob_list.clear();
         ptr->_prob_cum_list.clear();
@@ -288,8 +286,8 @@ public:
         else
             throw std::invalid_argument("unknown map type");
         s += "\n";
-           
-        s += "MapCount: " + std::to_string(_gate_list.size()) +"\n";
+
+        s += "MapCount: " + std::to_string(_gate_list.size()) + "\n";
         return s;
     }
     virtual void update_quantum_state(QuantumStateBase* state) override {
