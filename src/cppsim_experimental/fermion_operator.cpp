@@ -66,6 +66,7 @@ void FermionOperator::remove_term(UINT index) {
     this->_fermion_terms.erase(this->_fermion_terms.begin() + index);
 
     // index番目の項を削除したので、index番目以降の項のindexが1つずれる
+
     for (ITYPE i = 0; i < this->_coef_list.size() - index; i++) {
         this->_term_dict[this->_fermion_terms.at(index + i).to_string()] =
             index + i;

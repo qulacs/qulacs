@@ -341,6 +341,10 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
                 pybind11::return_value_policy::take_ownership,
                 "Get Kraus operator", py::arg("index"))
 
+        .def("get_gate_count", [](const QuantumGateWrapped &gate) {
+                return gate.get_kraus_list().size();
+            }, "Get the number of Kraus operators")
+
         .def("dump_as_byte", [](const QuantumGateWrapped& gate) -> pybind11::bytes {
             // return data as "bytes" object to python
             std::string obj = gate.dump_as_byte();
