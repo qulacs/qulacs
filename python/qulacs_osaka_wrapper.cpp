@@ -330,11 +330,16 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def("copy", &QuantumGateWrapped::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
         .def("to_string", &QuantumGateWrapped::to_string, "Get string representation")
 
-        .def("get_matrix", [](const QuantumGateWrapped& gate) {
-            ComplexMatrix mat;
-            gate.get_matrix(mat);
-            return mat;
-        }, "Get gate matrix")
+        .def("get_gate", [](const QuantumGateWrapped &gate, UINT index) {
+            auto kraus_list = gate.get_kraus_list();
+            if (index >= kraus_list.size()) {
+                throw std::invalid_argument("Index out of range");
+            }
+            auto new_gate = kraus_list[index]->copy();
+            return new_gate;
+                },
+                pybind11::return_value_policy::take_ownership,
+                "Get Kraus operator", py::arg("index"))
 
         .def("dump_as_byte", [](const QuantumGateWrapped& gate) -> pybind11::bytes {
             // return data as "bytes" object to python
