@@ -39,6 +39,89 @@ private:
         }
     }
 
+    void update_quantum_state_probabilistic_state_vector(QuantumStateBase* state) {
+        double r = random_state.uniform();
+        auto ite =
+            std::lower_bound(_prob_cum_list.begin(), _prob_cum_list.end(), r);
+        assert(ite != _prob_cum_list.begin());
+        size_t gate_index = std::distance(_prob_cum_list.begin(), ite) - 1;
+
+        if (gate_index < _gate_list.size()) {
+            _gate_list[gate_index]->update_quantum_state(state);
+        }
+        if (_reg_name != "")
+            state->set_classical_value(_reg_name, gate_index);
+    }
+    void update_quantum_state_probabilistic_density_matrix(
+        QuantumStateBase* state) {
+        auto org_state = state->copy();
+        auto temp_state = state->copy();
+        for (UINT gate_index = 0; gate_index < _gate_list.size();
+             ++gate_index) {
+            if (gate_index == 0) {
+                _gate_list[gate_index]->update_quantum_state(state);
+                state->multiply_coef(_prob_list[gate_index]);
+            } else if ((size_t)gate_index + 1 < _gate_list.size()) {
+                temp_state->load(org_state);
+                _gate_list[gate_index]->update_quantum_state(temp_state);
+                temp_state->multiply_coef(_prob_list[gate_index]);
+                state->add_state(temp_state);
+            } else {
+                _gate_list[gate_index]->update_quantum_state(org_state);
+                org_state->multiply_coef(_prob_list[gate_index]);
+                state->add_state(org_state);
+            }
+        }
+        delete org_state;
+        delete temp_state;
+        if (_reg_name != "") state->set_classical_value(_reg_name, -1);
+    }
+    void update_quantum_state_CPTP_random(
+        QuantumStateBase* state) {
+
+        if (_reg_name != "") state->set_classical_value(_reg_name, -1);
+
+        double r = random_state.uniform();
+        double probability_sum = 0.;
+
+        auto org_state = state->copy();
+        for (UINT gate_index = 0; gate_index < _gate_list.size();
+             ++gate_index) {
+            _gate_list[gate_index]->update_quantum_state(state);
+            double norm = state->get_squared_norm();
+            probability_sum += norm;
+            if (r <= probability_sum) {
+                state->normalize(norm);
+                if (_reg_name != "")
+                    state->set_classical_value(_reg_name, gate_index);
+                break;
+            } else {
+                state->load(org_state);
+            }
+        }
+        delete org_state;
+    }
+    void update_quantum_state_CPTP_sum(QuantumStateBase* state) {
+        if (_reg_name != "") state->set_classical_value(_reg_name, -1);
+        auto org_state = state->copy();
+        auto temp_state = state->copy();
+        for (UINT gate_index = 0; gate_index < _gate_list.size();
+             ++gate_index) {
+            if (gate_index == 0) {
+                _gate_list[gate_index]->update_quantum_state(state);
+            } else if ((size_t)gate_index + 1 < _gate_list.size()) {
+                temp_state->load(org_state);
+                _gate_list[gate_index]->update_quantum_state(temp_state);
+                state->add_state(temp_state);
+            } else {
+                _gate_list[gate_index]->update_quantum_state(org_state);
+                state->add_state(org_state);
+            }
+        }
+        delete org_state;
+        delete temp_state;
+    }
+
 public:
     template <class Archive>
     void save(Archive& ar) const {
@@ -124,11 +207,12 @@ public:
 
     static QuantumGateWrapped* ProbabilisticGate(
         std::vector<QuantumGateBase*> gates, const std::vector<double>& prob,
-        bool take_ownership = false) {
+        std::string reg_name = "", bool take_ownership = false) {
         auto ptr = new QuantumGateWrapped(Probabilistic);
         ptr->_prob_list.clear();
         ptr->_prob_cum_list.clear();
         ptr->_prob_cum_list.push_back(0.);
+        ptr->_reg_name = reg_name;
         for (UINT index = 0; index < gates.size(); ++index) {
             if (take_ownership)
                 ptr->add_probabilistic_map(gates[index], prob[index]);
@@ -138,7 +222,38 @@ public:
         ptr->update_qubit_index_list();
         return ptr;
     }
-
+    static QuantumGateWrapped* CPTP(std::vector<QuantumGateBase*> gates,
+        std::string reg_name = "", bool take_ownership = false) {
+        auto ptr = new QuantumGateWrapped(MapType::CPTP);
+        ptr->_prob_list.clear();
+        ptr->_prob_cum_list.clear();
+        ptr->_prob_cum_list.push_back(0.);
+        ptr->_reg_name = reg_name;
+        for (UINT index = 0; index < gates.size(); ++index) {
+            if (take_ownership)
+                ptr->_gate_list.push_back(gates[index]);
+            else
+                ptr->_gate_list.push_back(gates[index]->copy());
+        }
+        ptr->update_qubit_index_list();
+        return ptr;
+    }
+    static QuantumGateWrapped* Instrument(
+        std::vector<QuantumGateBase*> gates, std::string reg_name, bool take_ownership = false) {
+        auto ptr = new QuantumGateWrapped(MapType::Instrument);
+        ptr->_prob_list.clear();
+        ptr->_prob_cum_list.clear();
+        ptr->_prob_cum_list.push_back(0.);
+        ptr->_reg_name = reg_name;
+        for (UINT index = 0; index < gates.size(); ++index) {
+            if (take_ownership)
+                ptr->_gate_list.push_back(gates[index]);
+            else
+                ptr->_gate_list.push_back(gates[index]->copy());
+        }
+        ptr->update_qubit_index_list();
+        return ptr;
+    }
     virtual void reset_qubit_index_list(
         const std::vector<UINT>& src, const std::vector<UINT>& dst) {
         for (auto gate : _gate_list) {
@@ -161,44 +276,37 @@ public:
         return ptr;
     }
     virtual std::string to_string() const override {
-        return "WrappedGate (TODO)";
+        std::string s = "";
+        s += "WrappedGate\n";
+        s += "MapType: ";
+        if (_map_type == MapType::Probabilistic)
+            s += "Probabilistic";
+        else if (_map_type == MapType::CPTP)
+            s += "CPTP";
+        else if (_map_type == MapType::Instrument)
+            s += "Instrument";
+        else
+            throw std::invalid_argument("unknown map type");
+        s += "\n";
+           
+        s += "MapCount: " + std::to_string(_gate_list.size()) +"\n";
+        return s;
     }
     virtual void update_quantum_state(QuantumStateBase* state) override {
-        if (_map_type == Probabilistic) {
+        if (_map_type == MapType::Probabilistic) {
             if (state->is_state_vector()) {
-                double r = random_state.uniform();
-                auto ite = std::lower_bound(
-                    _prob_cum_list.begin(), _prob_cum_list.end(), r);
-                assert(ite != _prob_cum_list.begin());
-                size_t gate_index =
-                    std::distance(_prob_cum_list.begin(), ite) - 1;
-
-                if (gate_index < _gate_list.size()) {
-                    _gate_list[gate_index]->update_quantum_state(state);
-                }
+                update_quantum_state_probabilistic_state_vector(state);
             } else {
-                auto org_state = state->copy();
-                auto temp_state = state->copy();
-                for (UINT gate_index = 0; gate_index < _gate_list.size();
-                     ++gate_index) {
-                    if (gate_index == 0) {
-                        _gate_list[gate_index]->update_quantum_state(state);
-                        state->multiply_coef(_prob_list[gate_index]);
-                    } else if (gate_index + 1 < _gate_list.size()) {
-                        temp_state->load(org_state);
-                        _gate_list[gate_index]->update_quantum_state(
-                            temp_state);
-                        temp_state->multiply_coef(_prob_list[gate_index]);
-                        state->add_state(temp_state);
-                    } else {
-                        _gate_list[gate_index]->update_quantum_state(org_state);
-                        org_state->multiply_coef(_prob_list[gate_index]);
-                        state->add_state(org_state);
-                    }
-                }
-                delete org_state;
-                delete temp_state;
+                update_quantum_state_probabilistic_density_matrix(state);
             }
+        } else if (_map_type == MapType::CPTP) {
+            if (state->is_state_vector()) {
+                update_quantum_state_CPTP_random(state);
+            } else {
+                update_quantum_state_CPTP_sum(state);
+            }
+        } else if (_map_type == MapType::Instrument) {
+            update_quantum_state_CPTP_random(state);
         } else {
             throw std::invalid_argument("Not implemented");
         }

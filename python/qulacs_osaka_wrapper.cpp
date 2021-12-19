@@ -492,6 +492,30 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
 	mgate.def("Instrument", &gate::Instrument, pybind11::return_value_policy::take_ownership, "Create instruments", py::arg("kraus_list"), py::arg("register"));
     mgate.def("Adaptive", &gate::Adaptive, pybind11::return_value_policy::take_ownership, "Create adaptive gate", py::arg("gate"), py::arg("condition"));
     */
+    mgate.def(
+            "Probabilistic",
+            [](std::vector<QuantumGateBase *> gate_list,
+                std::vector<double> prob_list,
+                std::string reg_name) -> QuantumGateWrapped * {
+            return QuantumGateWrapped::ProbabilisticGate(gate_list, prob_list, reg_name, false);
+        },pybind11::return_value_policy::take_ownership,
+        "Create probabilistic gate", py::arg("gate_list"),
+            py::arg("prob_list"), py::arg("register_name") = "");
+    mgate.def(
+        "CPTP",
+        [](std::vector<QuantumGateBase *> gate_list,
+            std::string reg_name) -> QuantumGateWrapped * {
+            return QuantumGateWrapped::CPTP(gate_list, reg_name, false);
+        },pybind11::return_value_policy::take_ownership,
+        "Create completely-positive trace preserving map",
+        py::arg("kraus_list"), py::arg("register_name") = "");
+    mgate.def(
+        "Instrument",
+        [](std::vector<QuantumGateBase *> gate_list, std::string reg_name) -> QuantumGateWrapped * {
+            return QuantumGateWrapped::Instrument(gate_list,reg_name, false);
+        },
+        pybind11::return_value_policy::take_ownership, "Create instruments",
+        py::arg("kraus_list"), py::arg("register_name"));
 
     py::class_<QuantumCircuit>(m, "QuantumCircuit")
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
