@@ -35,7 +35,7 @@ TEST(GateTest, CPTPGate) {
     auto proj1 = QuantumGateBasic::DenseMatrixGate({0, 1}, mat1);
     auto proj2 = QuantumGateBasic::DenseMatrixGate({0, 1}, mat2);
     auto proj3 = QuantumGateBasic::DenseMatrixGate({0, 1}, mat3);
-    auto CPTP = 
+    auto CPTP =
         QuantumGateWrapped::CPTP({proj0, proj1, proj2, proj3}, "", true);
 
     StateVectorCpu s(3);
