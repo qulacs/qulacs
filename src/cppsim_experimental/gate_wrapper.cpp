@@ -54,7 +54,8 @@ DllExport QuantumGateWrapped* AmplitudeDampingNoise(UINT index, double prob) {
     return ptr;
 }
 DllExport QuantumGateWrapped* Measurement(UINT index, std::string name) {
-    auto ptr = QuantumGateWrapped::Instrument({gate::P0(index), gate::P1(index)}, name, true);
+    auto ptr = QuantumGateWrapped::Instrument(
+        {gate::P0(index), gate::P1(index)}, name, true);
     return ptr;
 }
 
