@@ -318,6 +318,8 @@ DllExport QuantumGateWrapped* TwoQubitDepolarizingNoise(
 DllExport QuantumGateWrapped* BitFlipNoise(UINT index, double prob);
 DllExport QuantumGateWrapped* DephasingNoise(UINT index, double prob);
 DllExport QuantumGateWrapped* IndependentXZNoise(UINT index, double prob);
+DllExport QuantumGateWrapped* AmplitudeDampingNoise(UINT index, double prob);
+DllExport QuantumGateWrapped* Measurement(UINT index, std::string name);
 };  // namespace gate
 
 // Cereal Type Registration

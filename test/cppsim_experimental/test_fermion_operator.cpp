@@ -26,6 +26,7 @@ TEST(FermionOperatorTest, AddGetTermTest) {
     fermion_operator.add_term(-2.0, op);
 
     // AddしたものとGetしたものが一致することを確認する
+
     auto term1 = fermion_operator.get_term(0);
     EXPECT_EQ(1.0, term1.first);
     EXPECT_EQ(2, term1.second.get_target_index_list().at(0));
@@ -44,6 +45,7 @@ TEST(FermionOperatorTest, AddGetTermTest) {
 
     // SingleFermionOperatorを用いてAddした場合と、文字列を用いてAddした場合で同じ結果
     // が得られることを確認する
+
     auto term3 = fermion_operator.get_term(2);
     EXPECT_EQ(term3.first, term2.first);
     EXPECT_EQ(term3.second.get_target_index_list().at(0),
@@ -69,6 +71,7 @@ TEST(FermionOperatorTest, RemoveTermTest) {
     EXPECT_EQ(3, fermion_operator.get_term_count());
 
     // Removeした結果、Termは1個減る
+
     fermion_operator.remove_term(1);
     EXPECT_EQ(2, fermion_operator.get_term_count());
 

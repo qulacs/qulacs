@@ -396,7 +396,9 @@ if(USE_PYTHON)
 	)
 	add_custom_target(pythontest
 		DEPENDS qulacs_core
+		DEPENDS qulacs_osaka_core
 		COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_qulacs.py ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+		COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_qulacs_osaka.py ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
 	)
 endif()
 

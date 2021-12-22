@@ -4,6 +4,7 @@
 
 TEST(SingleFermionOperatorTest, InitTest) {
     // 異なる初期化方法で同じ結果が得られることをテストする
+
     std::vector<UINT> target_index{4, 3, 2, 1};
     std::vector<UINT> action_id{1, 0, 1, 0};
     std::string action_string = "4^ 3 2^ 1";

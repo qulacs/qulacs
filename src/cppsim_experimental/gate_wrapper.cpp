@@ -44,4 +44,18 @@ DllExport QuantumGateWrapped* DephasingNoise(UINT index, double prob) {
         {gate::Identity(index), gate::Z(index)}, {1 - prob, prob}, "", true);
     return ptr;
 }
+DllExport QuantumGateWrapped* AmplitudeDampingNoise(UINT index, double prob) {
+    ComplexMatrix damping_matrix_0(2, 2), damping_matrix_1(2, 2);
+    damping_matrix_0 << 1, 0, 0, sqrt(1 - prob);
+    damping_matrix_1 << 0, sqrt(prob), 0, 0;
+    auto gate0 = QuantumGateBasic::DenseMatrixGate({index}, damping_matrix_0);
+    auto gate1 = QuantumGateBasic::DenseMatrixGate({index}, damping_matrix_1);
+    auto ptr = QuantumGateWrapped::CPTP({gate0, gate1});
+    return ptr;
+}
+DllExport QuantumGateWrapped* Measurement(UINT index, std::string name) {
+    auto ptr = QuantumGateWrapped::Instrument({gate::P0(index), gate::P1(index)}, name, true);
+    return ptr;
+}
+
 }  // namespace gate
