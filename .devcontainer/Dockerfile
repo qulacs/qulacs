@@ -9,7 +9,7 @@ FROM mcr.microsoft.com/vscode/devcontainers/cpp:0-${VARIANT}
 #     && apt-get -y install --no-install-recommends <your-package-list-here>
 ENV DEBIAN_FRONTEND=noninteractive
 
-ENV PYTHON_VERSION="3.8.8"
+ENV PYTHON_VERSION="3.9.5"
 ENV PYENV_ROOT="${HOME}/.pyenv"
 ENV PATH="${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
 ENV PWD="/qulacs-osaka"
