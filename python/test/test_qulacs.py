@@ -4,10 +4,18 @@ import qulacs
 import unittest
 import numpy as np
 import sys
+from tashizan import tashizan
 for ind in range(1, len(sys.argv)):
     sys.path.append(sys.argv[ind])
 sys.argv = sys.argv[:1]
 
+class TestTashizan(unittest.TestCase):
+    def test_tashizan(self):
+        value1 = 2
+        value2 = 6
+        expected = 8
+        actual = tashizan(value1, value2)
+        self.assertEqual(expected, actual)
 
 class TestQuantumState(unittest.TestCase):
     def setUp(self):
@@ -37,6 +45,9 @@ class TestQuantumState(unittest.TestCase):
         vector_ans[pos] = 1.
         self.assertTrue(((vector - vector_ans) < 1e-10).all(), msg="check set_computational_basis")
 
+    def test_yoshioka(self):
+        hoge = self.state.get_vector()
+        self.assertEqual(len(hoge), self.dim, msg="check vector size")
 
 class TestQuantumCircuit(unittest.TestCase):
     def setUp(self):
@@ -60,7 +71,17 @@ class TestQuantumCircuit(unittest.TestCase):
         vector_ans[3] = np.sqrt(0.5)
         self.assertTrue(((vector - vector_ans) < 1e-10).all(), msg="check make bell state")
 
-
+    def test_get_angle(self):
+        self.circuit.add_H_gate(0)
+        self.circuit.add_CNOT_gate(0, 1)
+        self.state.set_zero_state()
+        self.circuit.update_quantum_state(self.state)
+        vector = self.state.get_vector()
+        vector_ans = np.zeros(self.dim)
+        vector_ans[0] = np.sqrt(0.5)
+        vector_ans[3] = np.sqrt(0.5)
+        self.assertTrue(((vector - vector_ans) < 1e-10).all(), msg="check make bell state")
+        
 class TestPointerHandling(unittest.TestCase):
     def setUp(self):
         pass
@@ -517,5 +538,6 @@ class TestDensityMatrixHandling(unittest.TestCase):
         pdm = qulacs.state.partial_trace(sv, target)
         self.assertTrue(np.allclose(pdm.get_matrix(), dmt), msg="check pure state partial trace")
 
+        
 if __name__ == "__main__":
     unittest.main()
