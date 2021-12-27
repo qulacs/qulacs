@@ -160,8 +160,8 @@ void dm_state_tensor_product(const CTYPE* state_left, ITYPE dim_left, const CTYP
             for (y_right = 0; y_right < dim_right; ++y_right) {
                 for (x_right = 0; x_right < dim_right; ++x_right) {
                     CTYPE val_right = state_right[y_right * dim_right + x_right];
-                    ITYPE x_new = x_left * dim_left + x_right;
-                    ITYPE y_new = y_left * dim_left + y_right;
+                    ITYPE x_new = x_left * dim_right + x_right;
+                    ITYPE y_new = y_left * dim_right + y_right;
                     state_dst[y_new * dim_new + x_new] = val_right * val_left;
                 }
             }
