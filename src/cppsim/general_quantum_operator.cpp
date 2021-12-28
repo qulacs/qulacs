@@ -731,3 +731,14 @@ std::string GeneralQuantumOperator::to_string() const {
     }
     return os.str();
 }
+
+GeneralQuantumOperator* GeneralQuantumOperator::get_dagger() const {
+    auto ret = new GeneralQuantumOperator(_qubit_count);
+    for (const auto &p : _operator_list){
+        auto coef = p -> get_coef();
+        auto pauli_id_list = p -> get_pauli_id_list();
+        auto target_list = p -> get_index_list();
+        ret -> add_operator(PauliOperator(target_list, pauli_id_list, conj(coef)))
+    }
+    return ret;
+}

@@ -110,6 +110,13 @@ public:
 
     /**
      * \~japanese-en
+     * エルミート共役を返す
+     * @return GeneralQuantumOperator
+     */
+    virtual GeneralQuantumOperator* get_dagger() const;
+
+    /**
+     * \~japanese-en
      * 文字列に変換する。
      */
     virtual std::string to_string() const;
