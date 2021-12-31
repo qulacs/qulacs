@@ -38,6 +38,16 @@ void state_add(const CTYPE* state_added, CTYPE* state, ITYPE dim) {
     }
 }
 
+void state_add_with_coef(CTYPE coef, const CTYPE* state_added, CTYPE* state, ITYPE dim) {
+    ITYPE index;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (index = 0; index < dim; ++index) {
+        state[index] += coef * state_added[index];
+    }
+}
+
 void state_multiply(CTYPE coef, CTYPE* state, ITYPE dim) {
     ITYPE index;
 #ifdef _OPENMP

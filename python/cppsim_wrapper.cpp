@@ -71,6 +71,8 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("get_qubit_count", &GeneralQuantumOperator::get_qubit_count, "Get qubit count")
         .def("get_state_dim", &GeneralQuantumOperator::get_state_dim, "Get state dimension")
         .def("get_term_count", &GeneralQuantumOperator::get_term_count, "Get count of Pauli terms")
+        .def("apply_to_state", py::overload_cast<QuantumStateBase*, const QuantumStateBase&, QuantumStateBase*>(&GeneralQuantumOperator::apply_to_state, py::const_), "Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.",
+            py::arg("work_state"), py::arg("state_to_be_multiplied"), py::arg("dst_state"))
         //.def("get_term", &GeneralQuantumOperator::get_term, pybind11::return_value_policy::take_ownership)
         .def("get_term",[](const GeneralQuantumOperator& quantum_operator, const unsigned int index) {
             return quantum_operator.get_term(index)->copy();
@@ -126,7 +128,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Compute ground state eigenvalue by power method", py::arg("state"), py::arg("iter_count"), py::arg("mu") = 0.0)
         .def("solve_ground_state_eigenvalue_by_lanczos_method", &HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method,
             "Compute ground state eigenvalue by lanczos method", py::arg("state"), py::arg("iter_count"), py::arg("mu") = 0.0)
-        .def("apply_to_state", &HermitianQuantumOperator::apply_to_state, "Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.",
+        .def("apply_to_state", py::overload_cast<QuantumStateBase*, const QuantumStateBase&, QuantumStateBase*>(&HermitianQuantumOperator::apply_to_state, py::const_), "Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.",
             py::arg("work_state"), py::arg("state_to_be_multiplied"), py::arg("dst_state"))
         .def("__str__", &HermitianQuantumOperator::to_string, "to string")
         ;

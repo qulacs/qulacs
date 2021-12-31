@@ -256,8 +256,28 @@ void GeneralQuantumOperator::apply_to_state(QuantumStateBase* work_state,
         auto pauli_operator =
             gate::Pauli(term->get_index_list(), term->get_pauli_id_list());
         pauli_operator->update_quantum_state(work_state);
-        work_state->multiply_coef(term->get_coef());
-        dst_state->add_state(work_state);
+        dst_state->add_state_with_coef(term->get_coef(), work_state);
+        delete pauli_operator;
+    }
+}
+
+void GeneralQuantumOperator::apply_to_state(QuantumStateBase* state,
+    QuantumStateBase* dst_state) const {
+    if (state->qubit_count != dst_state->qubit_count) {
+        throw std::invalid_argument(
+            "Qubit count of state_to_be_multiplied and dst_state must be the "
+            "same");
+    }
+
+    dst_state->multiply_coef(0.0);
+    const auto term_count = this->get_term_count();
+    for (UINT i = 0; i < term_count; i++) {
+        const auto term = this->get_term(i);
+        auto pauli_operator =
+            gate::Pauli(term->get_index_list(), term->get_pauli_id_list());
+        pauli_operator->update_quantum_state(state);
+        dst_state->add_state_with_coef(term->get_coef(), state);
+        pauli_operator->update_quantum_state(state);
         delete pauli_operator;
     }
 }
@@ -276,6 +296,14 @@ GeneralQuantumOperator* GeneralQuantumOperator::copy() const {
     auto quantum_operator = new GeneralQuantumOperator(_qubit_count);
     for (auto pauli : this->_operator_list) {
         quantum_operator->add_operator(pauli->copy());
+    }
+    return quantum_operator;
+}
+
+GeneralQuantumOperator* GeneralQuantumOperator::get_dagger() const {
+    auto quantum_operator = new GeneralQuantumOperator(_qubit_count);
+    for (auto pauli : this->_operator_list) {
+        quantum_operator->add_operator(std::conj(pauli->get_coef()), pauli->get_pauli_string());
     }
     return quantum_operator;
 }

@@ -264,6 +264,17 @@ public:
             device_number);
     }
     /**
+     * \~japanese-en 量子状態を足しこむ (とりあえずの実装なので遅い)
+     */
+    virtual void add_state_with_coef(CPPCTYPE coef, const QuantumStateBase* state) override {
+        state_multiply_host(
+            coef, this->data(), this->dim, _cuda_stream, device_number);
+        state_add_host(state->data(), this->data(), this->dim, _cuda_stream,
+            device_number);
+        state_multiply_host(
+            1/coef, this->data(), this->dim, _cuda_stream, device_number);
+    }
+    /**
      * \~japanese-en 複素数をかける
      */
     virtual void multiply_coef(CPPCTYPE coef) override {
