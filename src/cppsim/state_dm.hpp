@@ -313,6 +313,19 @@ public:
         dm_state_add(state->data_c(), this->data_c(), this->dim);
     }
     /**
+     * \~japanese-en 量子状態を足しこむ
+     */
+    virtual void add_state_with_coef(CPPCTYPE coef, const QuantumStateBase* state) override {
+        if (state->is_state_vector()) {
+            std::cerr
+                << "add state between density matrix and state vector is not "
+                   "implemented"
+                << std::endl;
+            return;
+        }
+        dm_state_add_with_coef(coef, state->data_c(), this->data_c(), this->dim);
+    }
+    /**
      * \~japanese-en 複素数をかける
      */
     virtual void multiply_coef(CPPCTYPE coef) override {

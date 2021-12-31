@@ -433,4 +433,19 @@ DllExport QuantumGateBase* AmplitudeDampingNoise(
 DllExport QuantumGateBase* Measurement(
     UINT target_index, UINT classical_register_address);
 
+/**
+ * Noisy Evolution
+ * TODO: do this comment
+ *
+ * @param[in] target_index ターゲットとなる量子ビットの添え字
+ * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
+ * @return 作成されたゲートのインスタンス
+ */
+DllExport QuantumGateBase* NoisyEvolution(
+    Observable* hamiltonian, 
+    std::vector<GeneralQuantumOperator*> c_ops,
+    double time,
+    double dt=1e-6
+);
+
 }  // namespace gate

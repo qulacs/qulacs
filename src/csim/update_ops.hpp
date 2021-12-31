@@ -1219,6 +1219,7 @@ DllExport void reflection_gate(
     const CTYPE* reflection_state, CTYPE* state, ITYPE dim);
 
 DllExport void state_add(const CTYPE* state_added, CTYPE* state, ITYPE dim);
+DllExport void state_add_with_coef(CTYPE coef, const CTYPE* state_added, CTYPE* state, ITYPE dim);
 DllExport void state_multiply(CTYPE coef, CTYPE* state, ITYPE dim);
 
 ////////////////////////////////

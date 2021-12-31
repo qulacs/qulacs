@@ -8,42 +8,42 @@
 #include "general_quantum_operator.hpp"
 
 
-class NoisyEvolution : public QuantumGateBase
+class ClsNoisyEvolution : public QuantumGateBase
 {
 private:
     Random _random;
-    const Observable* _hamiltonian;
-    const GeneralQuantumOperator* _effective_hamiltoian;
-    const std::vector<GeneralQuantumOperator*> _c_ops;
-    const std::vector<GeneralQuantumOperator*> _c_ops_dagger;
-    const double _time;
-    const double _dt;
+    Observable* _hamiltonian;
+    GeneralQuantumOperator* _effective_hamiltonian;
+    std::vector<GeneralQuantumOperator*> _c_ops;
+    std::vector<GeneralQuantumOperator*> _c_ops_dagger;
+    double _time;
+    double _dt;
     
 
 public:
-    NoisyEvolution(Observable* hamiltonian, 
+    ClsNoisyEvolution(Observable* hamiltonian, 
                    std::vector<GeneralQuantumOperator*> c_ops,
                    double time,
                    double dt=1e-6){
-        _hamiltonian = hamiltonian->copy();
-        _c_ops = c_ops;
-        for (auto const & op: _c_ops){
+        _hamiltonian = dynamic_cast<Observable*>(hamiltonian->copy());
+        for (auto const & op: c_ops){
+            _c_ops.push_back(op->copy());
             _c_ops_dagger.push_back(op->get_dagger());
         } 
-        _effective_hamiltoian = hamiltonian->copy();
-        for (int k=0; k<_c_ops.size(); k++){
-            auto cdagc = (*_c_ops_dagger[k])*(*_c_ops[k])/2*(-1.i)
-            for (int j=0; j<cdagc.get_term_count(); j++){
-                _effective_hamiltoian->add_operator(cdagc.get_term(j))
+        _effective_hamiltonian = hamiltonian->copy();
+        for (size_t k=0; k<_c_ops.size(); k++){
+            auto cdagc = (*_c_ops_dagger[k])*(*_c_ops[k])*(-0.5i);
+            for (UINT j=0; j<cdagc.get_term_count(); j++){
+                _effective_hamiltonian->add_operator(cdagc.get_term(j));
             }
         }
         _time = time;
         _dt = dt;
     };
-    ~NoisyEvolution(){
+    ~ClsNoisyEvolution(){
         delete _hamiltonian;
-        delete _effective_hamiltoian;
-        for (int k=0; k<_c_ops.size(); k++){
+        delete _effective_hamiltonian;
+        for (size_t k=0; k<_c_ops.size(); k++){
             delete _c_ops[k];
             delete _c_ops_dagger[k];
         }
@@ -63,75 +63,74 @@ public:
     virtual void set_seed(int seed) override { _random.set_seed(seed); };
 
     virtual QuantumGateBase* copy() const override {
-        return new NoisyEvolution(_hamiltonian, _c_ops, _time, _dt);
+        return new ClsNoisyEvolution(_hamiltonian, _c_ops, _time, _dt);
     }
 
     virtual void update_quantum_state(QuantumStateBase* state) {
-        double t = 0;
-        double r;
-        auto n_qubits = state->qubit_count;
+        double r = _random.uniform();
+        std::vector<double> cumulative_dist(_c_ops.size());
+        double prob_sum = 0;
         auto k1 = state->copy(); //vector for Runge-Kutta k
         auto k2 = state->copy(); //vector for Runge-Kutta k
         auto k3 = state->copy(); //vector for Runge-Kutta k
         auto k4 = state->copy(); //vector for Runge-Kutta k
-        auto tmp_state_1 = state->copy();
-        auto tmp_state_2 = state->copy();
-        auto work_state = state->copy();
-        for (double t=0; t <= _time; t += dt){
-            double r = random.uniform();
+        auto buffer = state->copy();
+        auto dt = _dt;
+        for (double t=0; t <= _time; t += _dt){
+            // for final time, we modify the step size to match the total execution time
+            if (t + _dt > _time){
+                dt = _time-t;
+            }
             // Runge-Kutta evolution
             // k1
-            _effective_hamiltonian.apply_to_state(work_state, *tmp_state_2, k1);
-            k1 -> multiply_coef(-1.i);
+            _effective_hamiltonian -> apply_to_state(state, k1);
 
             //k2
-            tmp_state_1.load(k1); 
-            tmp_state_1 -> multiply_coef(_dt/2);
-            tmp_state_2.add_state(tmp_state_1);
-            _effective_hamiltonian.apply_to_state(work_state, *tmp_state_2, k2);
-            k2 -> multiply_coef(-1.i);
+            buffer -> load(state);
+            buffer -> add_state_with_coef(-1.i*dt/2., k1);
+            _effective_hamiltonian -> apply_to_state(buffer, k2);
             
             // k3
-            tmp_state_1 -> load(k2);
-            tmp_state_1 -> multiply_coef(_dt/2);
-            tmp_state_2.load(state);
-            tmp_state_2.add_state(tmp_state_1);
-            _effective_hamiltonian.apply_to_state(work_state, *tmp_state_2, k3);
-            k3 -> multiply_coef(-1.i);
+            buffer -> load(state);
+            buffer -> add_state_with_coef(-1.i*dt/2., k2);
+            _effective_hamiltonian -> apply_to_state(buffer, k3);
             
             // k4
-            tmp_state_1 -> load(k3);
-            tmp_state_1 -> multiply_coef(_dt);
-            tmp_state_2.load(state);
-            tmp_state_2.add_state(tmp_state_1);
-            _effective_hamiltonian.apply_to_state(work_state, *tmp_state_2, k4);
-            k4 -> multiply_coef(-1.i);
+            buffer -> load(state);
+            buffer -> add_state_with_coef(-1.i*dt, k3);
+            _effective_hamiltonian -> apply_to_state(buffer, k4);
 
             // add them together
-            k1->multiply_coef(_dt/6);
-            k2->multiply_coef(_dt/3);
-            k3->multiply_coef(_dt/3);
-            k4->multiply_coef(_dt/6);
-            state->add_state(k1);
-            state->add_state(k2);
-            state->add_state(k3);
-            state->add_state(k4);
-            
+            state->add_state_with_coef(-1.i*dt/6., k1);
+            state->add_state_with_coef(-1.i*dt/3., k2);
+            state->add_state_with_coef(-1.i*dt/3., k3);
+            state->add_state_with_coef(-1.i*dt/6., k4);
+
             auto norm = state -> get_squared_norm();
             if (norm <= r){
-                std::vector<double> cumulative_dist(_c_ops.size())
-                double prob_sum = 0.;
                 // get cumulative distribution
-                _c_ops[0] -> apply_to_state(work_state, *state, tmp_state_1);
-                cumulative_dist[0] = tmp_state_1->get_squared_norm();    
-                for (int k=1; k<_c_ops.size(); k++){
-                    _c_ops[k] -> apply_to_state(work_state, *state, tmp_state_1);
-                    cumulative_dist[k] = tmp_state_1->get_squared_norm()+cumulative_dist[k-1];
+                for (size_t k=0; k<_c_ops.size(); k++){
+                    _c_ops[k] -> apply_to_state(state, buffer);
+                    cumulative_dist[k] = buffer->get_squared_norm()+prob_sum;
+                    prob_sum = cumulative_dist[k];
                 }
-                jump_r = _random.uniform() * cumulative_dist[cumulative_dist.size()-1]
+                auto jump_r = _random.uniform() * cumulative_dist[cumulative_dist.size()-1];
+                auto ite =
+                    std::lower_bound(cumulative_dist.begin(), cumulative_dist.end(), jump_r);
+                auto index = std::distance(cumulative_dist.begin(), ite);
+                _c_ops[index] -> apply_to_state(state, buffer);
+                buffer -> normalize(buffer -> get_squared_norm());
+                state -> load(buffer);
+                r = _random.uniform();
             }
         }
+        delete k1;
+        delete k2;
+        delete k3;
+        delete k4;
+        delete buffer;
     }
+    
 };
 
 
