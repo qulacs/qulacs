@@ -246,7 +246,7 @@ PauliOperator PauliOperator::operator*(const PauliOperator& target) const {
     auto x = _x;
     auto z = _z;
     auto target_x = target.get_x_bits();
-    auto target_z = target.get_x_bits();
+    auto target_z = target.get_z_bits();
     if (target_x.size() != _x.size()) {
         ITYPE max_size = std::max(_x.size(), target_x.size());
         x.resize(max_size);
