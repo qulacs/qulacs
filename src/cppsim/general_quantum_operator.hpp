@@ -211,8 +211,6 @@ public:
 
     virtual GeneralQuantumOperator* copy() const;
 
-    GeneralQuantumOperator* get_dagger() const;
-
     GeneralQuantumOperator operator+(
         const GeneralQuantumOperator& target) const;
 
