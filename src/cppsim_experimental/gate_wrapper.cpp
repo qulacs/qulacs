@@ -29,8 +29,6 @@ DllExport QuantumGateWrapped* TwoQubitDepolarizingNoise(
         ComplexMatrix matrix;
         get_Pauli_matrix(matrix, {i % 4, i / 4});
         auto gate = QuantumGateBasic::DenseMatrixGate({index1, index2}, matrix);
-        //auto gate = QuantumGateBasic::PauliMatrixGate(
-        //    {index1, index2}, {i % 4, i / 4}, 0.);
         gates.push_back(gate);
         probs.push_back(prob / 15);
     }

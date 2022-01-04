@@ -1,6 +1,7 @@
 
-#include <Eigen/QR>
 #include "gate_basic.hpp"
+
+#include <Eigen/QR>
 
 void QuantumGateBasic::_update_state_vector_cpu_special(
     QuantumStateBase* state) const {
@@ -472,20 +473,20 @@ DllExport QuantumGateBasic* Fredkin(
     ptr->add_control_qubit(control_qubit, 1);
     return ptr;
 }
-DllExport QuantumGateBasic* RandomUnitary(std::vector<UINT> target_list, int64_t seed) {
+DllExport QuantumGateBasic* RandomUnitary(
+    std::vector<UINT> target_list, int64_t seed) {
     if (!check_is_unique_index_list(target_list)) {
-        throw std::invalid_argument("duplicated indices found in target qubit list");
+        throw std::invalid_argument(
+            "duplicated indices found in target qubit list");
     }
     Random random;
-    if (seed!=-1)
-        random.set_seed(seed);
+    if (seed!=-1) random.set_seed(seed);
     UINT qubit_count = (UINT)target_list.size();
     ITYPE dim = 1ULL << qubit_count;
     ComplexMatrix matrix(dim, dim);
     for (ITYPE i = 0; i < dim; ++i) {
         for (ITYPE j = 0; j < dim; ++j) {
-            matrix(i, j) =
-                (random.normal() + 1.i * random.normal()) / sqrt(2.);
+            matrix(i, j) = (random.normal() + 1.i * random.normal()) / sqrt(2.);
         }
     }
     Eigen::HouseholderQR<ComplexMatrix> qr_solver(matrix);
