@@ -52,7 +52,7 @@ TEST(DensityMatrixGeneralGateTest, CheckProbabilisticGate) {
             ComplexMatrix dense_mat(dim, dim);
             for (ITYPE i = 0; i < dim; ++i)
                 for (ITYPE j = 0; j < dim; ++j)
-                    dense_mat(i, j) = dm.data_cpp()[i*dim + j];
+                    dense_mat(i, j) = dm.data_cpp()[i * dim + j];
             mat += probs[i] * gate_mat * dense_mat * gate_mat.adjoint();
         }
         prob_gate->update_quantum_state(&dm);
@@ -61,7 +61,7 @@ TEST(DensityMatrixGeneralGateTest, CheckProbabilisticGate) {
         for (ITYPE i = 0; i < dim; ++i)
             for (ITYPE j = 0; j < dim; ++j)
                 ASSERT_NEAR(
-                    abs(dm.data_cpp()[i*dim + j] - mat(i, j)), 0., eps);
+                    abs(dm.data_cpp()[i * dim + j] - mat(i, j)), 0., eps);
         // check TP
         ASSERT_NEAR(dm.get_squared_norm(), 1., eps);
 
@@ -115,7 +115,7 @@ TEST(DensityMatrixGeneralGateTest, CheckCPTPMap) {
             ComplexMatrix dense_mat(dim, dim);
             for (ITYPE i = 0; i < dim; ++i)
                 for (ITYPE j = 0; j < dim; ++j)
-                    dense_mat(i, j) = dm.data_cpp()[i*dim + j];
+                    dense_mat(i, j) = dm.data_cpp()[i * dim + j];
             mat += gate_mat * dense_mat * gate_mat.adjoint();
         }
         cptp_gate->update_quantum_state(&dm);
@@ -124,7 +124,7 @@ TEST(DensityMatrixGeneralGateTest, CheckCPTPMap) {
         for (ITYPE i = 0; i < dim; ++i)
             for (ITYPE j = 0; j < dim; ++j)
                 ASSERT_NEAR(
-                    abs(dm.data_cpp()[i*dim + j] - mat(i, j)), 0., eps);
+                    abs(dm.data_cpp()[i * dim + j] - mat(i, j)), 0., eps);
         // check TP
         ASSERT_NEAR(dm.get_squared_norm(), 1., eps);
 
@@ -171,7 +171,7 @@ TEST(DensityMatrixGeneralGateTest, AmplitudeDampingTest) {
             ComplexMatrix dense_mat(dim, dim);
             for (ITYPE i = 0; i < dim; ++i)
                 for (ITYPE j = 0; j < dim; ++j)
-                    dense_mat(i, j) = dm.data_cpp()[i*dim + j];
+                    dense_mat(i, j) = dm.data_cpp()[i * dim + j];
             mat += gate_mat * dense_mat * gate_mat.adjoint();
         }
         cptp_gate->update_quantum_state(&dm);
@@ -180,7 +180,7 @@ TEST(DensityMatrixGeneralGateTest, AmplitudeDampingTest) {
         for (ITYPE i = 0; i < dim; ++i)
             for (ITYPE j = 0; j < dim; ++j)
                 ASSERT_NEAR(
-                    abs(dm.data_cpp()[i*dim + j] - mat(i, j)), 0., eps);
+                    abs(dm.data_cpp()[i * dim + j] - mat(i, j)), 0., eps);
         // check TP
         ASSERT_NEAR(dm.get_squared_norm(), 1., eps);
 
@@ -207,18 +207,19 @@ TEST(DensityMatrixGeneralGateTest, DepolarizingTest) {
     ComplexMatrix dense_mat(dim, dim);
     for (ITYPE i = 0; i < dim; ++i)
         for (ITYPE j = 0; j < dim; ++j)
-            dense_mat(i, j) = dm.data_cpp()[i*dim + j];
+            dense_mat(i, j) = dm.data_cpp()[i * dim + j];
     ASSERT_NEAR(dense_mat.norm(), 1., eps);
     ASSERT_NEAR(dm.get_squared_norm(), 1., eps);
 
-    auto conv_mat = dense_mat * (1 - prob) + prob / dim * ComplexMatrix::Identity(dim, dim);
-    auto two_qubit_depolarizing = gate::DepolarizingNoise(0,prob*3/4);
+    auto conv_mat =
+        dense_mat * (1 - prob) + prob / dim * ComplexMatrix::Identity(dim, dim);
+    auto two_qubit_depolarizing = gate::DepolarizingNoise(0, prob * 3 / 4);
     two_qubit_depolarizing->update_quantum_state(&dm);
     ASSERT_NEAR(dense_mat.norm(), 1., eps);
     ASSERT_NEAR(dm.get_squared_norm(), 1., eps);
 
-    //std::cout << dense_mat << std::endl;
-    //std::cout << dm << std::endl;
+    // std::cout << dense_mat << std::endl;
+    // std::cout << dm << std::endl;
 
     // check equivalence
     for (ITYPE i = 0; i < dim; ++i)
@@ -244,7 +245,7 @@ TEST(DensityMatrixGeneralGateTest, TwoQubitDepolarizingTest) {
     ComplexMatrix dense_mat(dim, dim);
     for (ITYPE i = 0; i < dim; ++i)
         for (ITYPE j = 0; j < dim; ++j)
-            dense_mat(i, j) = dm.data_cpp()[i*dim + j];
+            dense_mat(i, j) = dm.data_cpp()[i * dim + j];
     ASSERT_NEAR(dense_mat.norm(), 1., eps);
     ASSERT_NEAR(dm.get_squared_norm(), 1., eps);
 
@@ -264,7 +265,7 @@ TEST(DensityMatrixGeneralGateTest, TwoQubitDepolarizingTest) {
     for (ITYPE i = 0; i < dim; ++i)
         for (ITYPE j = 0; j < dim; ++j)
             ASSERT_NEAR(
-                abs(dm.data_cpp()[i*dim + j] - conv_mat(i, j)), 0., eps);
+                abs(dm.data_cpp()[i * dim + j] - conv_mat(i, j)), 0., eps);
     // check TP
     delete two_qubit_depolarizing;
 }
