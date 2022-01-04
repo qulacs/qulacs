@@ -50,7 +50,7 @@ private:
         if (gate_index < _gate_list.size()) {
             _gate_list[gate_index]->update_quantum_state(state);
         }
-        if (_reg_name != "") state->set_classical_value(_reg_name, gate_index);
+        if (_reg_name != "") state->set_classical_value(_reg_name, (int)gate_index);
     }
     void update_quantum_state_probabilistic_density_matrix(
         QuantumStateBase* state) {
