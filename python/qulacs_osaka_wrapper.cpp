@@ -447,13 +447,8 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to SparseMatrix.");
 		return ptr;
 	}, pybind11::return_value_policy::take_ownership, "Create diagonal matrix gate", py::arg("index_list"), py::arg("diagonal_element"));
-
+    mgate.def("RandomUnitary", gate::RandomUnitary, pybind11::return_value_policy::take_ownership, "Create random unitary gate", py::arg("index_list"), py::arg("seed") = -1);
     /*
-    mgate.def("RandomUnitary", [](std::vector<unsigned int> target_qubit_index_list) {
-		auto ptr = gate::RandomUnitary(target_qubit_index_list);
-		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to RandomUnitary.");
-		return ptr;
-	}, pybind11::return_value_policy::take_ownership, "Create random unitary gate", py::arg("index_list")); 
     mgate.def("ReversibleBoolean", [](std::vector<UINT> target_qubit_list, std::function<ITYPE(ITYPE,ITYPE)> function_py) {
 		auto ptr = gate::ReversibleBoolean(target_qubit_list, function_py);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to ReversibleBoolean.");

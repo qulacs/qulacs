@@ -357,6 +357,16 @@ class TestPointerHandling(unittest.TestCase):
         del gate
         del state
 
+    def test_random_unitary(self):
+        n = 3
+        state = qulacs.StateVector(n)
+        gate = qulacs.gate.RandomUnitary([0,1], 0)
+        gate.update_quantum_state(state)
+        matrix = gate.get_matrix()
+        self.assertTrue(np.allclose(matrix@matrix.T.conj(), np.eye(4)))
+        del state
+        del gate
+
     """
     def test_copied_parametric_gate(self):
 
