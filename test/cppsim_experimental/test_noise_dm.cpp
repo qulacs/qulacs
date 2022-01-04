@@ -73,8 +73,6 @@ TEST(DensityMatrixGeneralGateTest, CheckProbabilisticGate) {
     }
 }
 
-
-
 TEST(DensityMatrixGeneralGateTest, CheckCPTPMap) {
     const UINT n = 2;
     const ITYPE dim = 1ULL << n;
@@ -225,10 +223,9 @@ TEST(DensityMatrixGeneralGateTest, DepolarizingTest) {
     for (ITYPE i = 0; i < dim; ++i)
         for (ITYPE j = 0; j < dim; ++j)
             ASSERT_NEAR(
-                abs(dm.data_cpp()[i*dim + j] - conv_mat(i, j)), 0., eps);
+                abs(dm.data_cpp()[i * dim + j] - conv_mat(i, j)), 0., eps);
     delete two_qubit_depolarizing;
 }
-
 
 TEST(DensityMatrixGeneralGateTest, TwoQubitDepolarizingTest) {
     const UINT n = 2;
