@@ -480,7 +480,7 @@ DllExport QuantumGateBasic* RandomUnitary(
             "duplicated indices found in target qubit list");
     }
     Random random;
-    if (seed!=-1) random.set_seed(seed);
+    if (seed != -1) random.set_seed(seed);
     UINT qubit_count = (UINT)target_list.size();
     ITYPE dim = 1ULL << qubit_count;
     ComplexMatrix matrix(dim, dim);

@@ -37,7 +37,8 @@ TEST(DensityMatrixGeneralGateTest, CheckProbabilisticGate) {
             auto gate = gate::RandomUnitary(arr);
             gate_list.push_back(gate);
         }
-        auto prob_gate = QuantumGateWrapped::ProbabilisticGate(gate_list, probs);
+        auto prob_gate =
+            QuantumGateWrapped::ProbabilisticGate(gate_list, probs);
 
         // update density matrix
         DensityMatrix dm(n);
@@ -49,13 +50,18 @@ TEST(DensityMatrixGeneralGateTest, CheckProbabilisticGate) {
             ComplexMatrix gate_mat;
             gate_list[i]->get_matrix(gate_mat);
             ComplexMatrix dense_mat(dim, dim);
-            for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) dense_mat(i, j) = dm.data_cpp()[i*dim + j];
+            for (ITYPE i = 0; i < dim; ++i)
+                for (ITYPE j = 0; j < dim; ++j)
+                    dense_mat(i, j) = dm.data_cpp()[i*dim + j];
             mat += probs[i] * gate_mat * dense_mat * gate_mat.adjoint();
         }
         prob_gate->update_quantum_state(&dm);
 
         // check equivalence
-        for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(dm.data_cpp()[i*dim + j] - mat(i, j)), 0., eps);
+        for (ITYPE i = 0; i < dim; ++i)
+            for (ITYPE j = 0; j < dim; ++j)
+                ASSERT_NEAR(
+                    abs(dm.data_cpp()[i*dim + j] - mat(i, j)), 0., eps);
         // check TP
         ASSERT_NEAR(dm.get_squared_norm(), 1., eps);
 
@@ -107,13 +113,18 @@ TEST(DensityMatrixGeneralGateTest, CheckCPTPMap) {
             ComplexMatrix gate_mat;
             gate_list[i]->get_matrix(gate_mat);
             ComplexMatrix dense_mat(dim, dim);
-            for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) dense_mat(i, j) = dm.data_cpp()[i*dim + j];
+            for (ITYPE i = 0; i < dim; ++i)
+                for (ITYPE j = 0; j < dim; ++j)
+                    dense_mat(i, j) = dm.data_cpp()[i*dim + j];
             mat += gate_mat * dense_mat * gate_mat.adjoint();
         }
         cptp_gate->update_quantum_state(&dm);
 
         // check equivalence
-        for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(dm.data_cpp()[i*dim + j] - mat(i, j)), 0., eps);
+        for (ITYPE i = 0; i < dim; ++i)
+            for (ITYPE j = 0; j < dim; ++j)
+                ASSERT_NEAR(
+                    abs(dm.data_cpp()[i*dim + j] - mat(i, j)), 0., eps);
         // check TP
         ASSERT_NEAR(dm.get_squared_norm(), 1., eps);
 
@@ -145,7 +156,7 @@ TEST(DensityMatrixGeneralGateTest, AmplitudeDampingTest) {
 
         auto gate0 = QuantumGateBasic::DenseMatrixGate(arr, K0);
         auto gate1 = QuantumGateBasic::DenseMatrixGate(arr, K1);
-        std::vector<QuantumGateBase*> gate_list = { gate0, gate1 };
+        std::vector<QuantumGateBase*> gate_list = {gate0, gate1};
         auto cptp_gate = QuantumGateWrapped::CPTP(gate_list);
 
         // update density matrix
@@ -158,13 +169,18 @@ TEST(DensityMatrixGeneralGateTest, AmplitudeDampingTest) {
             ComplexMatrix gate_mat;
             gate_list[i]->get_matrix(gate_mat);
             ComplexMatrix dense_mat(dim, dim);
-            for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) dense_mat(i, j) = dm.data_cpp()[i*dim + j];
+            for (ITYPE i = 0; i < dim; ++i)
+                for (ITYPE j = 0; j < dim; ++j)
+                    dense_mat(i, j) = dm.data_cpp()[i*dim + j];
             mat += gate_mat * dense_mat * gate_mat.adjoint();
         }
         cptp_gate->update_quantum_state(&dm);
 
         // check equivalence
-        for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(dm.data_cpp()[i*dim + j] - mat(i, j)), 0., eps);
+        for (ITYPE i = 0; i < dim; ++i)
+            for (ITYPE j = 0; j < dim; ++j)
+                ASSERT_NEAR(
+                    abs(dm.data_cpp()[i*dim + j] - mat(i, j)), 0., eps);
         // check TP
         ASSERT_NEAR(dm.get_squared_norm(), 1., eps);
 
@@ -189,7 +205,9 @@ TEST(DensityMatrixGeneralGateTest, DepolarizingTest) {
     DensityMatrix dm(n);
     dm.set_Haar_random_state();
     ComplexMatrix dense_mat(dim, dim);
-    for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) dense_mat(i, j) = dm.data_cpp()[i*dim + j];
+    for (ITYPE i = 0; i < dim; ++i)
+        for (ITYPE j = 0; j < dim; ++j)
+            dense_mat(i, j) = dm.data_cpp()[i*dim + j];
     ASSERT_NEAR(dense_mat.norm(), 1., eps);
     ASSERT_NEAR(dm.get_squared_norm(), 1., eps);
 
@@ -203,7 +221,10 @@ TEST(DensityMatrixGeneralGateTest, DepolarizingTest) {
     //std::cout << dm << std::endl;
 
     // check equivalence
-    for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(dm.data_cpp()[i*dim + j] - conv_mat(i, j)), 0., eps);
+    for (ITYPE i = 0; i < dim; ++i)
+        for (ITYPE j = 0; j < dim; ++j)
+            ASSERT_NEAR(
+                abs(dm.data_cpp()[i*dim + j] - conv_mat(i, j)), 0., eps);
     delete two_qubit_depolarizing;
 }
 
@@ -221,22 +242,29 @@ TEST(DensityMatrixGeneralGateTest, TwoQubitDepolarizingTest) {
     DensityMatrix dm(n);
     dm.set_Haar_random_state();
     ComplexMatrix dense_mat(dim, dim);
-    for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) dense_mat(i, j) = dm.data_cpp()[i*dim + j];
+    for (ITYPE i = 0; i < dim; ++i)
+        for (ITYPE j = 0; j < dim; ++j)
+            dense_mat(i, j) = dm.data_cpp()[i*dim + j];
     ASSERT_NEAR(dense_mat.norm(), 1., eps);
     ASSERT_NEAR(dm.get_squared_norm(), 1., eps);
 
-    //std::cout << dense_mat << std::endl;
-    //std::cout << dm << std::endl;
-    auto conv_mat = dense_mat * (1 - prob) + prob / dim * ComplexMatrix::Identity(dim, dim);
-    auto two_qubit_depolarizing = gate::TwoQubitDepolarizingNoise(0, 1, prob * 15 / 16);
+    // std::cout << dense_mat << std::endl;
+    // std::cout << dm << std::endl;
+    auto conv_mat =
+        dense_mat * (1 - prob) + prob / dim * ComplexMatrix::Identity(dim, dim);
+    auto two_qubit_depolarizing =
+        gate::TwoQubitDepolarizingNoise(0, 1, prob * 15 / 16);
     two_qubit_depolarizing->update_quantum_state(&dm);
-    //std::cout << conv_mat << std::endl;
-    //std::cout << dm << std::endl;
+    // std::cout << conv_mat << std::endl;
+    // std::cout << dm << std::endl;
     ASSERT_NEAR(dense_mat.norm(), 1., eps);
     ASSERT_NEAR(dm.get_squared_norm(), 1., eps);
 
     // check equivalence
-    for (ITYPE i = 0; i < dim; ++i) for (ITYPE j = 0; j < dim; ++j) ASSERT_NEAR(abs(dm.data_cpp()[i*dim + j] - conv_mat(i, j)), 0., eps);
+    for (ITYPE i = 0; i < dim; ++i)
+        for (ITYPE j = 0; j < dim; ++j)
+            ASSERT_NEAR(
+                abs(dm.data_cpp()[i*dim + j] - conv_mat(i, j)), 0., eps);
     // check TP
     delete two_qubit_depolarizing;
 }
