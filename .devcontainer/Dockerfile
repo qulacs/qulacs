@@ -10,7 +10,7 @@ FROM mcr.microsoft.com/vscode/devcontainers/cpp:0-${VARIANT}
 ENV DEBIAN_FRONTEND=noninteractive
 
 ENV PYTHON_VERSION="3.9.5"
-ENV PYENV_ROOT="${HOME}/.pyenv"
+ENV PYENV_ROOT="/.pyenv"
 ENV PATH="${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
 ENV PWD="/workspaces/qulacs-osaka"
 ENV QULACS_OSAKA_PACKAGE="qulacs_osaka"
@@ -54,4 +54,5 @@ RUN git clone https://github.com/pyenv/pyenv.git ${PYENV_ROOT} \
     && pyenv global ${PYTHON_VERSION} \
     && pyenv rehash \
     && python -m pip install --upgrade pip \
-    && pip install black mypy numpy openfermion pybind11-stubgen scipy wheel
+    && pip install black mypy numpy openfermion pybind11-stubgen scipy wheel \
+    && chmod -R 777 /.pyenv
