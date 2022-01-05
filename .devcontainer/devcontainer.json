@@ -30,7 +30,9 @@
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [
 		"ms-vscode.cpptools",
-		"ms-vscode.cmake-tools"
+		"ms-vscode.cmake-tools",
+		"ms-python.python",
+		"ms-python.vscode-pylance"
 	],
 	// A location of gpg might differ from host machine's git config.
 	// This config accepts string or array. If you use array form destructure command like following; not a list of commands.

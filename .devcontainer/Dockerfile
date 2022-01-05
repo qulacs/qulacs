@@ -54,4 +54,4 @@ RUN git clone https://github.com/pyenv/pyenv.git ${PYENV_ROOT} \
     && pyenv global ${PYTHON_VERSION} \
     && pyenv rehash \
     && python -m pip install --upgrade pip \
-    && pip install mypy numpy openfermion pybind11-stubgen scipy wheel
+    && pip install black mypy numpy openfermion pybind11-stubgen scipy wheel
