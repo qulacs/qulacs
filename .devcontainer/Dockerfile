@@ -12,13 +12,13 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV PYTHON_VERSION="3.9.5"
 ENV PYENV_ROOT="${HOME}/.pyenv"
 ENV PATH="${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
-ENV PWD="/qulacs-osaka"
+ENV PWD="/workspaces/qulacs-osaka"
 ENV QULACS_OSAKA_PACKAGE="qulacs_osaka"
 ENV QULACS_OSAKA_VERSION="0.2.0"
 # Add build artifact to PYTHONPATH and python can find qulacs.
 # Egg file name might vary depending on qulacs and python version.
-ENV PYTHONPATH="${PWD}/dist/${QULACS_OSAKA_PACKAGE}-${QULACS_OSAKA_VERSION}-cp38-cp38-linux_x86_64.whl:${PYTHONPATH}"
-ENV PYTHONPATH="${PWD}/build/lib.linux-x86_64-3.8:${PYTHONPATH}"
+ENV PYTHONPATH="${PWD}/dist/${QULACS_OSAKA_PACKAGE}-${QULACS_OSAKA_VERSION}-cp39-cp39-linux_x86_64.whl:${PYTHONPATH}"
+ENV PYTHONPATH="${PWD}/build/lib.linux-x86_64-3.9:${PYTHONPATH}"
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
@@ -28,7 +28,6 @@ RUN apt-get update \
     curl \
     gcc \
     git \
-    gosu \
     g++ \
     libboost-dev \
     libbz2-dev \
@@ -55,4 +54,4 @@ RUN git clone https://github.com/pyenv/pyenv.git ${PYENV_ROOT} \
     && pyenv global ${PYTHON_VERSION} \
     && pyenv rehash \
     && python -m pip install --upgrade pip \
-    && pip install mypy numpy pybind11-stubgen scipy wheel
+    && pip install mypy numpy openfermion pybind11-stubgen scipy wheel
