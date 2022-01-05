@@ -1,6 +1,8 @@
 
 #include "gate_basic.hpp"
 
+#include <Eigen/QR>
+
 void QuantumGateBasic::_update_state_vector_cpu_special(
     QuantumStateBase* state) const {
     if (_special_func_type == GateI) {
@@ -470,5 +472,33 @@ DllExport QuantumGateBasic* Fredkin(
         {target_qubit1, target_qubit2}, mat, {});
     ptr->add_control_qubit(control_qubit, 1);
     return ptr;
+}
+DllExport QuantumGateBasic* RandomUnitary(
+    std::vector<UINT> target_list, int64_t seed) {
+    if (!check_is_unique_index_list(target_list)) {
+        throw std::invalid_argument(
+            "duplicated indices found in target qubit list");
+    }
+    Random random;
+    if (seed != -1) random.set_seed(seed);
+    UINT qubit_count = (UINT)target_list.size();
+    ITYPE dim = 1ULL << qubit_count;
+    ComplexMatrix matrix(dim, dim);
+    for (ITYPE i = 0; i < dim; ++i) {
+        for (ITYPE j = 0; j < dim; ++j) {
+            matrix(i, j) = (random.normal() + 1.i * random.normal()) / sqrt(2.);
+        }
+    }
+    Eigen::HouseholderQR<ComplexMatrix> qr_solver(matrix);
+    ComplexMatrix Q = qr_solver.householderQ();
+    // actual R matrix is upper-right triangle of matrixQR
+    auto R = qr_solver.matrixQR();
+    for (ITYPE i = 0; i < dim; ++i) {
+        CPPCTYPE phase = R(i, i) / abs(R(i, i));
+        for (ITYPE j = 0; j < dim; ++j) {
+            Q(j, i) *= phase;
+        }
+    }
+    return QuantumGateBasic::DenseMatrixGate(target_list, Q);
 }
 }  // namespace gate

@@ -330,11 +330,20 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
         .def("copy", &QuantumGateWrapped::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
         .def("to_string", &QuantumGateWrapped::to_string, "Get string representation")
 
-        .def("get_matrix", [](const QuantumGateWrapped& gate) {
-            ComplexMatrix mat;
-            gate.get_matrix(mat);
-            return mat;
-        }, "Get gate matrix")
+        .def("get_gate", [](const QuantumGateWrapped &gate, UINT index) {
+            auto kraus_list = gate.get_kraus_list();
+            if (index >= kraus_list.size()) {
+                throw std::invalid_argument("Index out of range");
+            }
+            auto new_gate = kraus_list[index]->copy();
+            return new_gate;
+                },
+                pybind11::return_value_policy::take_ownership,
+                "Get Kraus operator", py::arg("index"))
+
+        .def("get_gate_count", [](const QuantumGateWrapped &gate) {
+                return gate.get_kraus_list().size();
+            }, "Get the number of Kraus operators")
 
         .def("dump_as_byte", [](const QuantumGateWrapped& gate) -> pybind11::bytes {
             // return data as "bytes" object to python
@@ -438,13 +447,8 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to SparseMatrix.");
 		return ptr;
 	}, pybind11::return_value_policy::take_ownership, "Create diagonal matrix gate", py::arg("index_list"), py::arg("diagonal_element"));
-
+    mgate.def("RandomUnitary", gate::RandomUnitary, pybind11::return_value_policy::take_ownership, "Create random unitary gate", py::arg("index_list"), py::arg("seed") = -1);
     /*
-    mgate.def("RandomUnitary", [](std::vector<unsigned int> target_qubit_index_list) {
-		auto ptr = gate::RandomUnitary(target_qubit_index_list);
-		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to RandomUnitary.");
-		return ptr;
-	}, pybind11::return_value_policy::take_ownership, "Create random unitary gate", py::arg("index_list")); 
     mgate.def("ReversibleBoolean", [](std::vector<UINT> target_qubit_list, std::function<ITYPE(ITYPE,ITYPE)> function_py) {
 		auto ptr = gate::ReversibleBoolean(target_qubit_list, function_py);
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to ReversibleBoolean.");
@@ -457,7 +461,6 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
 	}, pybind11::return_value_policy::take_ownership, "Create state reflection gate", py::arg("state"));
     */
 
-
     mgate.def("BitFlipNoise", &gate::BitFlipNoise, pybind11::return_value_policy::take_ownership, "Create bit-flip noise", py::arg("index"), py::arg("prob"));
     mgate.def("DephasingNoise", &gate::DephasingNoise, pybind11::return_value_policy::take_ownership, "Create dephasing noise", py::arg("index"), py::arg("prob"));
     mgate.def("IndependentXZNoise", &gate::IndependentXZNoise, pybind11::return_value_policy::take_ownership, "Create independent XZ noise", py::arg("index"), py::arg("prob"));
@@ -467,11 +470,10 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
 		if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to TwoQubitDepolarizingNoise.");
 		return ptr;
 	}, pybind11::return_value_policy::take_ownership, "Create two-qubit depolarizing noise", py::arg("index1"), py::arg("index2"), py::arg("prob"));
-
-    /*
 	mgate.def("AmplitudeDampingNoise", &gate::AmplitudeDampingNoise, pybind11::return_value_policy::take_ownership, "Create amplitude damping noise", py::arg("index"), py::arg("prob"));
     mgate.def("Measurement", &gate::Measurement, pybind11::return_value_policy::take_ownership, "Create measurement gate", py::arg("index"), py::arg("register"));
 
+    /*
     QuantumGateBasic*(*ptr3)(const QuantumGateBase*, const QuantumGateBase*) = &gate::merge;
     mgate.def("merge", ptr3, pybind11::return_value_policy::take_ownership, "Merge two quantum gate", py::arg("gate1"), py::arg("gate2"));
 
@@ -492,6 +494,30 @@ PYBIND11_MODULE(qulacs_osaka_core, m) {
 	mgate.def("Instrument", &gate::Instrument, pybind11::return_value_policy::take_ownership, "Create instruments", py::arg("kraus_list"), py::arg("register"));
     mgate.def("Adaptive", &gate::Adaptive, pybind11::return_value_policy::take_ownership, "Create adaptive gate", py::arg("gate"), py::arg("condition"));
     */
+    mgate.def(
+            "Probabilistic",
+            [](std::vector<QuantumGateBase *> gate_list,
+                std::vector<double> prob_list,
+                std::string reg_name) -> QuantumGateWrapped * {
+            return QuantumGateWrapped::ProbabilisticGate(gate_list, prob_list, reg_name, false);
+        },pybind11::return_value_policy::take_ownership,
+        "Create probabilistic gate", py::arg("gate_list"),
+            py::arg("prob_list"), py::arg("register_name") = "");
+    mgate.def(
+        "CPTP",
+        [](std::vector<QuantumGateBase *> gate_list,
+            std::string reg_name) -> QuantumGateWrapped * {
+            return QuantumGateWrapped::CPTP(gate_list, reg_name, false);
+        },pybind11::return_value_policy::take_ownership,
+        "Create completely-positive trace preserving map",
+        py::arg("kraus_list"), py::arg("register_name") = "");
+    mgate.def(
+        "Instrument",
+        [](std::vector<QuantumGateBase *> gate_list, std::string reg_name) -> QuantumGateWrapped * {
+            return QuantumGateWrapped::Instrument(gate_list,reg_name, false);
+        },
+        pybind11::return_value_policy::take_ownership, "Create instruments",
+        py::arg("kraus_list"), py::arg("register_name"));
 
     py::class_<QuantumCircuit>(m, "QuantumCircuit")
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
