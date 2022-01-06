@@ -188,7 +188,7 @@ public:
     void apply_to_state(QuantumStateBase* work_state,
         const QuantumStateBase& state_to_be_multiplied,
         QuantumStateBase* dst_state) const;
-    
+
     /**
      * \~japanese-en
      * state_to_be_multiplied に GeneralQuantumOperator を作用させる．
@@ -197,11 +197,11 @@ public:
      * @param [in] state_to_be_multiplied 作用を受ける状態
      * @param [in] dst_state 結果を格納する状態
      */
-    void apply_to_state(QuantumStateBase* state,
-        QuantumStateBase* dst_state) const;
+    void apply_to_state(
+        QuantumStateBase* state, QuantumStateBase* dst_state) const;
 
-    void _apply_pauli_to_state(std::vector<UINT> pauli_id_list, std::vector<UINT> target_index_list, QuantumStateBase* state) const;
-    
+    void _apply_pauli_to_state(std::vector<UINT> pauli_id_list,
+        std::vector<UINT> target_index_list, QuantumStateBase* state) const;
 
     /**
      * \~japanese-en

@@ -19,9 +19,9 @@
 #include "gate_named_one.hpp"
 #include "gate_named_pauli.hpp"
 #include "gate_named_two.hpp"
+#include "gate_noisy_evolution.hpp"
 #include "gate_reflect.hpp"
 #include "gate_reversible.hpp"
-#include "gate_noisy_evolution.hpp"
 #include "type.hpp"
 
 namespace gate {
@@ -329,12 +329,8 @@ QuantumGateBase* Measurement(
     delete gate1;
     return new_gate;
 }
-QuantumGateBase* NoisyEvolution(
-    Observable* hamiltonian, 
-    std::vector<GeneralQuantumOperator*> c_ops,
-    double time,
-    double dt
-) {
+QuantumGateBase* NoisyEvolution(Observable* hamiltonian,
+    std::vector<GeneralQuantumOperator*> c_ops, double time, double dt) {
     return new ClsNoisyEvolution(hamiltonian, c_ops, time, dt);
 }
 

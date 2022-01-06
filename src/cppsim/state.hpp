@@ -203,7 +203,8 @@ public:
      */
     virtual void add_state(const QuantumStateBase* state) = 0;
 
-    virtual void add_state_with_coef(CPPCTYPE coef, const QuantumStateBase* state) = 0;
+    virtual void add_state_with_coef(
+        CPPCTYPE coef, const QuantumStateBase* state) = 0;
 
     /**
      * \~japanese-en 複素数をかける
@@ -561,7 +562,8 @@ public:
     /**
      * \~japanese-en 量子状態を足しこむ
      */
-    virtual void add_state_with_coef(CPPCTYPE coef, const QuantumStateBase* state) override {
+    virtual void add_state_with_coef(
+        CPPCTYPE coef, const QuantumStateBase* state) override {
         if (state->get_device_name() == "gpu") {
             std::cerr << "State vector on GPU cannot be added to that on CPU"
                       << std::endl;

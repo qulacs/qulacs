@@ -6,7 +6,8 @@ DllExport double dm_state_norm_squared(const CTYPE* state, ITYPE dim);
 DllExport double dm_measurement_distribution_entropy(
     const CTYPE* state, ITYPE dim);
 DllExport void dm_state_add(const CTYPE* state_added, CTYPE* state, ITYPE dim);
-DllExport void dm_state_add_with_coef(CTYPE coef, const CTYPE* state_added, CTYPE* state, ITYPE dim);
+DllExport void dm_state_add_with_coef(
+    CTYPE coef, const CTYPE* state_added, CTYPE* state, ITYPE dim);
 DllExport void dm_state_multiply(CTYPE coef, CTYPE* state, ITYPE dim);
 
 DllExport void dm_state_tensor_product(const CTYPE* state_left, ITYPE dim_left,
