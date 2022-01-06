@@ -449,3 +449,15 @@ TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
         test_eigenvalue(observable, 70, eps, CalculationMethod::LanczosMethod);
     }
 }
+
+TEST(ObservableTest, ApplyIdentityToState) {
+    double coef = .5;
+    int n_qubits = 3;
+    Observable obs(n_qubits);
+    obs.add_operator(coef,"I");
+    QuantumState state(n_qubits);
+    QuantumState dst_state(n_qubits);
+    obs.apply_to_state(&state, &dst_state);
+    state.add_state_with_coef(-1/coef,&dst_state);
+    ASSERT_EQ(state.get_squared_norm(), 0.);
+}

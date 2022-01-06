@@ -6,6 +6,9 @@
 #include <fstream>
 #include <numeric>
 
+#include <csim/update_ops.hpp>
+#include <csim/update_ops_dm.hpp>
+
 #include "gate_factory.hpp"
 #include "pauli_operator.hpp"
 #include "state.hpp"
@@ -272,12 +275,37 @@ void GeneralQuantumOperator::apply_to_state(QuantumStateBase* state,
     const auto term_count = this->get_term_count();
     for (UINT i = 0; i < term_count; i++) {
         const auto term = this->get_term(i);
-        auto pauli_operator =
-            gate::Pauli(term->get_index_list(), term->get_pauli_id_list());
-        pauli_operator->update_quantum_state(state);
+        _apply_pauli_to_state(term->get_pauli_id_list(), term->get_index_list(), state);
         dst_state->add_state_with_coef(term->get_coef(), state);
-        pauli_operator->update_quantum_state(state);
-        delete pauli_operator;
+        _apply_pauli_to_state(term->get_pauli_id_list(), term->get_index_list(), state);
+    }
+}
+
+void GeneralQuantumOperator::_apply_pauli_to_state(std::vector<UINT> pauli_id_list, std::vector<UINT> target_index_list, QuantumStateBase* state) const {
+    // this function is same as the gate::Pauli update quantum state
+    if (state->is_state_vector()) {
+#ifdef _USE_GPU
+        if (state->get_device_name() == "gpu") {
+            multi_qubit_Pauli_gate_partial_list_host(
+                target_index_list.data(), pauli_id_list.data(),
+                (UINT)target_index_list.size(), state->data(), state->dim,
+                state->get_cuda_stream(), state->device_number);
+            // _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
+            // state->data(), state->dim);
+        } else {
+            multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
+                pauli_id_list.data(), (UINT)target_index_list.size(),
+                state->data_c(), state->dim);
+        }
+#else
+        multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
+            pauli_id_list.data(), (UINT)target_index_list.size(),
+            state->data_c(), state->dim);
+#endif
+    } else {
+        dm_multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
+            pauli_id_list.data(), (UINT)target_index_list.size(),
+            state->data_c(), state->dim);
     }
 }
 

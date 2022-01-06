@@ -199,6 +199,8 @@ public:
      */
     void apply_to_state(QuantumStateBase* state,
         QuantumStateBase* dst_state) const;
+
+    void _apply_pauli_to_state(std::vector<UINT> pauli_id_list, std::vector<UINT> target_index_list, QuantumStateBase* state) const;
     
 
     /**
