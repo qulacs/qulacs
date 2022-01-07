@@ -74,52 +74,59 @@ public:
         auto k3 = state->copy();  // vector for Runge-Kutta k
         auto k4 = state->copy();  // vector for Runge-Kutta k
         auto buffer = state->copy();
-        auto dt = _dt;
         double t = 0;
 
         while (std::abs(t - _time) >
-               1e-10 * _time) {  // for machine precision error
-            // for final time, we modify the step size to match the total
+               1e-10 * _time) {  // For machine precision error.
+            // For final time, we modify the step size to match the total
             // execution time
+            auto dt = _dt;
             if (t + _dt > _time) {
                 dt = _time - t;
-            } else {
-                dt = _dt;
             }
-            // check if the jump should occur or not
-            auto norm = state->get_squared_norm();
-            if (norm <= r) {
-                // evolve the state to the time such that norm=r
-                auto dt_target_norm =
-                    _find_collapse(k1, k2, k3, k4, buffer, state, r, dt);
-                // get cumulative distribution
-                for (size_t k = 0; k < _c_ops.size(); k++) {
-                    _c_ops[k]->apply_to_state(state, buffer);
-                    cumulative_dist[k] = state->get_squared_norm() + prob_sum;
-                    prob_sum = cumulative_dist[k];
+            while (std::abs(dt)>1e-10*_dt){ // dt is decreased by dt_target_norm if jump occurs and if jump did not occure dt will be set to zero.
+                // evolve the state by dt
+                _evolve_one_step(k1, k2, k3, k4, buffer, state, dt);
+                // check if the jump should occur or not
+                auto norm = state->get_squared_norm();
+                if (norm <= r) { // jump occured
+                    // evolve the state to the time such that norm=r
+                    auto dt_target_norm =
+                        _find_collapse(k1, k2, k3, k4, buffer, state, r, dt);
+                    
+                    // get cumulative distribution
+                    prob_sum = 0.;
+                    for (size_t k = 0; k < _c_ops.size(); k++) {
+                        _c_ops[k]->apply_to_state(state, buffer);
+                        cumulative_dist[k] = buffer->get_squared_norm() + prob_sum;
+                        prob_sum = cumulative_dist[k];
+                    }
+                    
+                    // determine which collapse operator to be applied
+                    auto jump_r = _random.uniform() * prob_sum;
+                    auto ite = std::lower_bound(
+                        cumulative_dist.begin(), cumulative_dist.end(), jump_r);
+                    auto index = std::distance(cumulative_dist.begin(), ite);
+                    
+                    // apply the collapse operator and normalize the state
+                    _c_ops[index]->apply_to_state(state, buffer);
+                    buffer->normalize(buffer->get_squared_norm());
+                    state->load(buffer);
+
+                    // update dt to be consistent with the step size
+                    t += dt_target_norm;
+                    dt -= dt_target_norm;
+
+                    // update random variable
+                    r = _random.uniform();
                 }
-                // determine which collapse operator to be applied
-                auto jump_r = _random.uniform() *
-                              cumulative_dist[cumulative_dist.size() - 1];
-                auto ite = std::lower_bound(
-                    cumulative_dist.begin(), cumulative_dist.end(), jump_r);
-                auto index = std::distance(cumulative_dist.begin(), ite);
-
-                // apply the collapse operator and normalize the state
-                _c_ops[index]->apply_to_state(state, buffer);
-                buffer->normalize(buffer->get_squared_norm());
-                state->load(buffer);
-
-                // update dt to be consistent with the step size
-                t += dt_target_norm;
-                dt -= dt_target_norm;
-
-                // update random variable
-                r = _random.uniform();
+                else { //if jump did not occur, update t to the next time and break the loop
+                    t += dt;
+                    dt = 0.;
+                }
             }
-            _evolve_one_step(k1, k2, k3, k4, buffer, state, dt);
-            t += dt;
         }
+
         // normalize the state and finish
         state->normalize(state->get_squared_norm());
         delete k1;
