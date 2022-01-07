@@ -120,7 +120,7 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText) {
 
             // std::cout << mpt.get_coef() << " ";
             // std::cout << elems[3].c_str() << std::endl;
-            energy += mpt.get_expectation_value(state);
+            energy += mpt.get_expectation_value_single_thread(state);
             // mpt.get_expectation_value(state);
         }
         return energy;
@@ -154,7 +154,7 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText) {
     QuantumState state(qubit_count);
     state.set_computational_basis(0);
 
-    res = observable->get_expectation_value(&state);
+    res = observable->get_expectation_value_single_thread(&state);
     test_res = func(text, &state);
 
     ASSERT_EQ(test_res, res);
