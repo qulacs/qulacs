@@ -84,30 +84,34 @@ public:
             if (t + _dt > _time) {
                 dt = _time - t;
             }
-            while (std::abs(dt)>1e-10*_dt){ // dt is decreased by dt_target_norm if jump occurs and if jump did not occure dt will be set to zero.
+            while (std::abs(dt) >
+                   1e-10 * _dt) {  // dt is decreased by dt_target_norm if jump
+                                   // occurs and if jump did not occure dt will
+                                   // be set to zero.
                 // evolve the state by dt
                 _evolve_one_step(k1, k2, k3, k4, buffer, state, dt);
                 // check if the jump should occur or not
                 auto norm = state->get_squared_norm();
-                if (norm <= r) { // jump occured
+                if (norm <= r) {  // jump occured
                     // evolve the state to the time such that norm=r
                     auto dt_target_norm =
                         _find_collapse(k1, k2, k3, k4, buffer, state, r, dt);
-                    
+
                     // get cumulative distribution
                     prob_sum = 0.;
                     for (size_t k = 0; k < _c_ops.size(); k++) {
                         _c_ops[k]->apply_to_state(state, buffer);
-                        cumulative_dist[k] = buffer->get_squared_norm() + prob_sum;
+                        cumulative_dist[k] =
+                            buffer->get_squared_norm() + prob_sum;
                         prob_sum = cumulative_dist[k];
                     }
-                    
+
                     // determine which collapse operator to be applied
                     auto jump_r = _random.uniform() * prob_sum;
                     auto ite = std::lower_bound(
                         cumulative_dist.begin(), cumulative_dist.end(), jump_r);
                     auto index = std::distance(cumulative_dist.begin(), ite);
-                    
+
                     // apply the collapse operator and normalize the state
                     _c_ops[index]->apply_to_state(state, buffer);
                     buffer->normalize(buffer->get_squared_norm());
@@ -119,8 +123,8 @@ public:
 
                     // update random variable
                     r = _random.uniform();
-                }
-                else { //if jump did not occur, update t to the next time and break the loop
+                } else {  // if jump did not occur, update t to the next time
+                          // and break the loop
                     t += dt;
                     dt = 0.;
                 }

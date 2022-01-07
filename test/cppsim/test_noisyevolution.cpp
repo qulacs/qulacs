@@ -202,18 +202,18 @@ TEST(NoisyEvolutionTest, T1T2) {
     Observable hamiltonian(n);
     hamiltonian.add_operator(hamiltonian_energy, "Z 0 Z 1");
     std::vector<GeneralQuantumOperator*> c_ops;
-    for (int k=0; k<6; k++) c_ops.push_back(new GeneralQuantumOperator(n));
+    for (int k = 0; k < 6; k++) c_ops.push_back(new GeneralQuantumOperator(n));
     c_ops[0]->add_operator(decay_rate_z, "Z 0");
     c_ops[1]->add_operator(decay_rate_z, "Z 1");
-    c_ops[2]->add_operator(decay_rate_p/2, "X 0");
-    c_ops[2]->add_operator(decay_rate_p/2*1.i, "Y 0");
-    c_ops[3]->add_operator(decay_rate_p/2, "X 1");
-    c_ops[3]->add_operator(decay_rate_p/2*1.i, "Y 1");
-    c_ops[4]->add_operator(decay_rate_m/2, "X 0");
-    c_ops[4]->add_operator(-decay_rate_m/2*1.i, "Y 0");
-    c_ops[5]->add_operator(decay_rate_m/2, "X 1");
-    c_ops[5]->add_operator(-decay_rate_m/2*1.i, "Y 1");
-    
+    c_ops[2]->add_operator(decay_rate_p / 2, "X 0");
+    c_ops[2]->add_operator(decay_rate_p / 2 * 1.i, "Y 0");
+    c_ops[3]->add_operator(decay_rate_p / 2, "X 1");
+    c_ops[3]->add_operator(decay_rate_p / 2 * 1.i, "Y 1");
+    c_ops[4]->add_operator(decay_rate_m / 2, "X 0");
+    c_ops[4]->add_operator(-decay_rate_m / 2 * 1.i, "Y 0");
+    c_ops[5]->add_operator(decay_rate_m / 2, "X 1");
+    c_ops[5]->add_operator(-decay_rate_m / 2 * 1.i, "Y 1");
+
     QuantumState state(n);
     QuantumCircuit circuit(n);
     circuit.add_gate(gate::NoisyEvolution(&hamiltonian, c_ops, time, dt));
