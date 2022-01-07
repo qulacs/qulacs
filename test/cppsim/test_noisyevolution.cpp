@@ -166,16 +166,16 @@ TEST(NoisyEvolutionTest, dephasing) {
     op2.add_operator(decay_rate, "Z 1");
     c_ops.push_back(&op2);
 
-    QuantumState state(n);
+    QuantumState state(n), init_state(n);
     QuantumCircuit circuit(n);
+    gate::H(0)->update_quantum_state(&init_state);
+    gate::H(1)->update_quantum_state(&init_state);
     circuit.add_gate(gate::NoisyEvolution(&hamiltonian, c_ops, time, dt));
     double exp = 0.;
     for (int k = 0; k < n_samples; k++) {
-        state.set_zero_state();
-        gate::H(0)->update_quantum_state(&state);
-        gate::H(1)->update_quantum_state(&state);
+        state.load(&init_state);
         circuit.update_quantum_state(&state);
-        exp += observable.get_expectation_value(&state).real() / n_samples;
+        exp += observable.get_expectation_value_single_thread(&state).real() / n_samples;
     }
     // intrinsic variance is (<P>_withoutnoise^2-<P>_withnoise^2).
     // take 5-sigma for assertion. Correct code should violate this assertion by
@@ -223,7 +223,7 @@ TEST(NoisyEvolutionTest, T1T2) {
         gate::H(0)->update_quantum_state(&state);
         gate::H(1)->update_quantum_state(&state);
         circuit.update_quantum_state(&state);
-        exp += observable.get_expectation_value(&state).real() / n_samples;
+        exp += observable.get_expectation_value_single_thread(&state).real() / n_samples;
     }
     std::cout << "NoisyEvolution: " << exp << " ref: " << ref << std::endl;
     ASSERT_NEAR(exp, ref, .1);
@@ -257,6 +257,6 @@ TEST(NoisyEvolutionTest, check_inf_occurence) {
     for (int k = 0; k < n_samples; k++) {
         circuit.update_quantum_state(&state);
         ASSERT_FALSE(
-            std::isinf(observable.get_expectation_value(&state).real()));
+            std::isinf(observable.get_expectation_value_single_thread(&state).real()));
     }
 }

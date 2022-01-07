@@ -854,6 +854,10 @@ DllExport void multi_qubit_Pauli_gate_whole_list(
     const UINT* Pauli_operator_type_list, UINT qubit_count, CTYPE* state,
     ITYPE dim_);
 
+DllExport void multi_qubit_Pauli_gate_whole_list_single_thread(
+    const UINT* Pauli_operator_type_list, UINT qubit_count, CTYPE* state,
+    ITYPE dim_);
+
 /**
  * \~english
  * Apply multi-qubit Pauli operator to the quantum state with a partial list.
@@ -891,6 +895,9 @@ DllExport void multi_qubit_Pauli_gate_whole_list(
  *
  */
 DllExport void multi_qubit_Pauli_gate_partial_list(
+    const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
+    UINT target_qubit_index_count, CTYPE* state, ITYPE dim);
+DllExport void multi_qubit_Pauli_gate_partial_list_single_thread(
     const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
     UINT target_qubit_index_count, CTYPE* state, ITYPE dim);
 
@@ -938,6 +945,9 @@ DllExport void multi_qubit_Pauli_gate_partial_list(
 DllExport void multi_qubit_Pauli_rotation_gate_whole_list(
     const UINT* Pauli_operator_type_list, UINT qubit_count, double angle,
     CTYPE* state, ITYPE dim_);
+DllExport void multi_qubit_Pauli_rotation_gate_whole_list_single_thread(
+    const UINT* Pauli_operator_type_list, UINT qubit_count, double angle,
+    CTYPE* state, ITYPE dim_);
 
 /**
  * \~english
@@ -983,6 +993,9 @@ DllExport void multi_qubit_Pauli_rotation_gate_whole_list(
  *
  */
 DllExport void multi_qubit_Pauli_rotation_gate_partial_list(
+    const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
+    UINT target_qubit_index_count, double angle, CTYPE* state, ITYPE dim);
+DllExport void multi_qubit_Pauli_rotation_gate_partial_list_single_thread(
     const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
     UINT target_qubit_index_count, double angle, CTYPE* state, ITYPE dim);
 

@@ -65,11 +65,45 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
             << std::endl;
         return 0.;
     }
-    auto sum = std::accumulate(this->_operator_list.cbegin(),
-        this->_operator_list.cend(), (CPPCTYPE)0.0,
-        [&](CPPCTYPE acc, PauliOperator* pauli) {
-            return acc + pauli->get_expectation_value(state);
-        });
+    double sum_real = 0.;
+    double sum_imag = 0.;
+    CPPCTYPE tmp(0., 0.);
+    size_t n_terms = this->_operator_list.size();
+
+    if (state->get_device_name() == "gpu") {
+        CPPCTYPE sum = 0;
+        for (UINT i=0; i<n_terms; ++i) {
+            sum += _operator_list[i]->get_expectation_value(state);
+        }
+        return sum;    
+    }
+    else {
+        #ifdef _OPENMP
+        #pragma omp parallel for reduction(+:sum_real, sum_imag) private(tmp)
+        #endif
+        for (UINT i=0; i<n_terms; ++i) {
+            tmp = _operator_list[i]->get_expectation_value_single_thread(state);
+            sum_real += tmp.real();
+            sum_imag += tmp.imag();
+        }
+        return CPPCTYPE(sum_real, sum_imag);
+    }
+}
+
+CPPCTYPE GeneralQuantumOperator::get_expectation_value_single_thread(
+    const QuantumStateBase* state) const {
+    if (this->_qubit_count != state->qubit_count) {
+        std::cerr
+            << "Error: GeneralQuantumOperator::get_expectation_value(const "
+               "QuantumStateBase*): invalid qubit count"
+            << std::endl;
+        return 0.;
+    }
+    size_t n_terms = this->_operator_list.size();
+    CPPCTYPE sum = 0.;
+    for (UINT i=0; i<n_terms; ++i) {
+        sum += _operator_list[i]->get_expectation_value_single_thread(state);
+    }
     return sum;
 }
 
@@ -254,11 +288,9 @@ void GeneralQuantumOperator::apply_to_state(QuantumStateBase* work_state,
     for (UINT i = 0; i < term_count; i++) {
         work_state->load(&state_to_be_multiplied);
         const auto term = this->get_term(i);
-        auto pauli_operator =
-            gate::Pauli(term->get_index_list(), term->get_pauli_id_list());
-        pauli_operator->update_quantum_state(work_state);
+        _apply_pauli_to_state(
+            term->get_pauli_id_list(), term->get_index_list(), work_state);
         dst_state->add_state_with_coef(term->get_coef(), work_state);
-        delete pauli_operator;
     }
 }
 
@@ -278,6 +310,26 @@ void GeneralQuantumOperator::apply_to_state(
             term->get_pauli_id_list(), term->get_index_list(), state);
         dst_state->add_state_with_coef(term->get_coef(), state);
         _apply_pauli_to_state(
+            term->get_pauli_id_list(), term->get_index_list(), state);
+    }
+}
+
+void GeneralQuantumOperator::apply_to_state_single_thread(
+    QuantumStateBase* state, QuantumStateBase* dst_state) const {
+    if (state->qubit_count != dst_state->qubit_count) {
+        throw std::invalid_argument(
+            "Qubit count of state_to_be_multiplied and dst_state must be the "
+            "same");
+    }
+
+    dst_state->multiply_coef(0.0);
+    const auto term_count = this->get_term_count();
+    for (UINT i = 0; i < term_count; i++) {
+        const auto term = this->get_term(i);
+        _apply_pauli_to_state_single_thread(
+            term->get_pauli_id_list(), term->get_index_list(), state);
+        dst_state->add_state_with_coef(term->get_coef(), state);
+        _apply_pauli_to_state_single_thread(
             term->get_pauli_id_list(), term->get_index_list(), state);
     }
 }
@@ -309,6 +361,34 @@ void GeneralQuantumOperator::_apply_pauli_to_state(
         dm_multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
             pauli_id_list.data(), (UINT)target_index_list.size(),
             state->data_c(), state->dim);
+    }
+}
+
+void GeneralQuantumOperator::_apply_pauli_to_state_single_thread(
+    std::vector<UINT> pauli_id_list, std::vector<UINT> target_index_list,
+    QuantumStateBase* state) const {
+    // this function is same as the gate::Pauli update quantum state
+    if (state->is_state_vector()) {
+#ifdef _USE_GPU
+        if (state->get_device_name() == "gpu") {
+            multi_qubit_Pauli_gate_partial_list_host(target_index_list.data(),
+                pauli_id_list.data(), (UINT)target_index_list.size(),
+                state->data(), state->dim, state->get_cuda_stream(),
+                state->device_number);
+            // _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
+            // state->data(), state->dim);
+        } else {
+            multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
+                pauli_id_list.data(), (UINT)target_index_list.size(),
+                state->data_c(), state->dim);
+        }
+#else
+        multi_qubit_Pauli_gate_partial_list_single_thread(target_index_list.data(),
+            pauli_id_list.data(), (UINT)target_index_list.size(),
+            state->data_c(), state->dim);
+#endif
+    } else {
+        std::cerr << "apply single thread is not implemented for density matrix" << std::endl;
     }
 }
 

@@ -100,7 +100,7 @@ public:
                     // get cumulative distribution
                     prob_sum = 0.;
                     for (size_t k = 0; k < _c_ops.size(); k++) {
-                        _c_ops[k]->apply_to_state(state, buffer);
+                        _c_ops[k]->apply_to_state_single_thread(state, buffer);
                         cumulative_dist[k] =
                             buffer->get_squared_norm() + prob_sum;
                         prob_sum = cumulative_dist[k];
@@ -113,7 +113,7 @@ public:
                     auto index = std::distance(cumulative_dist.begin(), ite);
 
                     // apply the collapse operator and normalize the state
-                    _c_ops[index]->apply_to_state(state, buffer);
+                    _c_ops[index]->apply_to_state_single_thread(state, buffer);
                     buffer->normalize(buffer->get_squared_norm());
                     state->load(buffer);
 
