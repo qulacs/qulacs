@@ -35,10 +35,17 @@
 		"ms-python.python",
 		"ms-python.vscode-pylance"
 	],
+	// Required by `mounts`.
+	// c.f. https://code.visualstudio.com/remote/advancedcontainers/improve-performance#_use-a-targeted-named-volume
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/qulacs-osaka,type=bind,consistency=cached",
+	"workspaceFolder": "/workspaces/qulacs-osaka",
+	"mounts": [
+		"source=${localWorkspaceFolderBasename}-build,target=${containerWorkspaceFolder}/build,type=volume"
+	],
 	// A location of gpg might differ from host machine's git config.
 	// This config accepts string or array. If you use array form destructure command like following; not a list of commands.
 	// ["echo", "hello"]
-	"postStartCommand": "/usr/bin/git config --global gpg.program /usr/bin/gpg",
+	"postStartCommand": "/usr/bin/git config --global gpg.program /usr/bin/gpg && sudo chown vscode build",
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// Use 'postCreateCommand' to run commands after the container is created.
