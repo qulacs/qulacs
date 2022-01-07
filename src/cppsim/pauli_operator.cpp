@@ -255,7 +255,6 @@ PauliOperator PauliOperator::operator*(const PauliOperator& target) const {
         target_z.resize(max_size);
     }
     ITYPE i;
-#pragma omp parallel for
     for (i = 0; i < x.size(); i++) {
         if (x[i] && !z[i]) {  // X
             if (!target_x[i] && target_z[i]) {
@@ -271,7 +270,7 @@ PauliOperator PauliOperator::operator*(const PauliOperator& target) const {
             }
         } else if (x[i] && z[i]) {              // Y
             if (target_x[i] && !target_z[i]) {  // X
-                bits_coef = bits_coef * I;
+                bits_coef = bits_coef * -I;
             } else if (!target_x[i] && target_z[i]) {  // Z
                 bits_coef = bits_coef * I;
             }
@@ -300,7 +299,6 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
         target_z.resize(max_size);
     }
     ITYPE i;
-#pragma omp parallel for
     for (i = 0; i < _x.size(); i++) {
         if (_x[i] && !_z[i]) {  // X
             if (!target_x[i] && target_z[i]) {
@@ -316,7 +314,7 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
             }
         } else if (_x[i] && _z[i]) {            // Y
             if (target_x[i] && !target_z[i]) {  // X
-                _coef *= I;
+                _coef *= -I;
             } else if (!target_x[i] && target_z[i]) {  // Z
                 _coef *= I;
             }
@@ -329,7 +327,7 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
     _pauli_list.clear();
     _x.resize(max_size);
     _z.resize(max_size);
-#pragma omp parallel for
+// #pragma omp parallel for
     for (i = 0; i < x_bit.size(); i++) {
         ITYPE pauli_type = 0;
         if (x_bit[i] && !z_bit[i]) {
