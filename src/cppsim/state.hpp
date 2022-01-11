@@ -216,13 +216,12 @@ public:
      */
     virtual void add_state(const QuantumStateBase* state) = 0;
 
-
     /**
      * \~japanese-en 量子状態を係数付きで足しこむ
      */
     virtual void add_state_with_coef(
         CPPCTYPE coef, const QuantumStateBase* state) = 0;
-    
+
     /**
      * \~japanese-en 量子状態を係数付きで足しこむ
      */
@@ -631,7 +630,8 @@ public:
                       << std::endl;
             return;
         }
-        state_add_with_coef_single_thread(coef, state->data_c(), this->data_c(), this->dim);
+        state_add_with_coef_single_thread(
+            coef, state->data_c(), this->data_c(), this->dim);
     }
 
     /**

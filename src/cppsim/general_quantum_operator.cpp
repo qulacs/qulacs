@@ -72,16 +72,17 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
 
     if (state->get_device_name() == "gpu") {
         CPPCTYPE sum = 0;
-        for (UINT i=0; i<n_terms; ++i) {
+        for (UINT i = 0; i < n_terms; ++i) {
             sum += _operator_list[i]->get_expectation_value(state);
         }
-        return sum;    
-    }
-    else {
-        #ifdef _OPENMP
-        #pragma omp parallel for reduction(+:sum_real, sum_imag) private(tmp)
-        #endif
-        for (int i=0; i<n_terms; ++i) { // this variable has to be signed integer because of OpenMP of Windows compiler.
+        return sum;
+    } else {
+#ifdef _OPENMP
+#pragma omp parallel for reduction(+ : sum_real, sum_imag) private(tmp)
+#endif
+        for (int i = 0; i < n_terms;
+             ++i) {  // this variable has to be signed integer because of OpenMP
+                     // of Windows compiler.
             tmp = _operator_list[i]->get_expectation_value_single_thread(state);
             sum_real += tmp.real();
             sum_imag += tmp.imag();
@@ -101,7 +102,7 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value_single_thread(
     }
     size_t n_terms = this->_operator_list.size();
     CPPCTYPE sum = 0.;
-    for (UINT i=0; i<n_terms; ++i) {
+    for (UINT i = 0; i < n_terms; ++i) {
         sum += _operator_list[i]->get_expectation_value_single_thread(state);
     }
     return sum;
@@ -383,12 +384,13 @@ void GeneralQuantumOperator::_apply_pauli_to_state_single_thread(
                 state->data_c(), state->dim);
         }
 #else
-        multi_qubit_Pauli_gate_partial_list_single_thread(target_index_list.data(),
-            pauli_id_list.data(), (UINT)target_index_list.size(),
-            state->data_c(), state->dim);
+        multi_qubit_Pauli_gate_partial_list_single_thread(
+            target_index_list.data(), pauli_id_list.data(),
+            (UINT)target_index_list.size(), state->data_c(), state->dim);
 #endif
     } else {
-        std::cerr << "apply single thread is not implemented for density matrix" << std::endl;
+        std::cerr << "apply single thread is not implemented for density matrix"
+                  << std::endl;
     }
 }
 

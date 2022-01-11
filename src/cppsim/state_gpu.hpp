@@ -60,7 +60,9 @@ public:
      * \~japanese-en 量子状態を計算基底の0状態に初期化する
      */
     virtual void set_zero_norm_state() override {
-        std::cerr << "set_zero_norm_state for QuantumStateGpu is not implemented yet" << std::endl;
+        std::cerr
+            << "set_zero_norm_state for QuantumStateGpu is not implemented yet"
+            << std::endl;
     }
     /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
@@ -295,7 +297,7 @@ public:
         state_multiply_host(
             1 / coef, this->data(), this->dim, _cuda_stream, device_number);
     }
-    
+
     /**
      * \~japanese-en 量子状態を足しこむ (とりあえずの実装なので遅い)
      */

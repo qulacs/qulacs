@@ -11,12 +11,13 @@ class ClsNoisyEvolution : public QuantumGateBase {
 private:
     Random _random;
     Observable* _hamiltonian;
-    GeneralQuantumOperator* _effective_hamiltonian; 
-    std::vector<GeneralQuantumOperator*> _c_ops; // collapse operator
-    std::vector<GeneralQuantumOperator*> _c_ops_dagger; //collapse operator dagger
-    double _time; // evolution time
-    double _dt; // step size for runge kutta evolution
-    double _norm_tol = 1e-8; // accuracy in solving <psi|psi>=r
+    GeneralQuantumOperator* _effective_hamiltonian;
+    std::vector<GeneralQuantumOperator*> _c_ops;  // collapse operator
+    std::vector<GeneralQuantumOperator*>
+        _c_ops_dagger;        // collapse operator dagger
+    double _time;             // evolution time
+    double _dt;               // step size for runge kutta evolution
+    double _norm_tol = 1e-8;  // accuracy in solving <psi|psi>=r
 
     /**
      * \~japanese-en collapse が起こるタイミング (norm = rになるタイミング)
@@ -184,7 +185,8 @@ public:
 
                     // apply the collapse operator and normalize the state
                     _c_ops[index]->apply_to_state_single_thread(state, buffer);
-                    buffer->normalize_single_thread(buffer->get_squared_norm_single_thread());
+                    buffer->normalize_single_thread(
+                        buffer->get_squared_norm_single_thread());
                     state->load(buffer);
 
                     // update dt to be consistent with the step size
@@ -209,5 +211,4 @@ public:
         delete k4;
         delete buffer;
     }
-
 };

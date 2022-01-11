@@ -32,9 +32,9 @@ void multi_qubit_Pauli_gate_Z_mask(
 void multi_qubit_Pauli_rotation_gate_Z_mask(
     ITYPE phase_flip_mask, double angle, CTYPE* state, ITYPE dim);
 
-void multi_qubit_Pauli_gate_XZ_mask_single_thread(ITYPE bit_flip_mask, ITYPE phase_flip_mask,
-    UINT global_phase_90rot_count, UINT pivot_qubit_index, CTYPE* state,
-    ITYPE dim);
+void multi_qubit_Pauli_gate_XZ_mask_single_thread(ITYPE bit_flip_mask,
+    ITYPE phase_flip_mask, UINT global_phase_90rot_count,
+    UINT pivot_qubit_index, CTYPE* state, ITYPE dim);
 void multi_qubit_Pauli_rotation_gate_XZ_mask_single_thread(ITYPE bit_flip_mask,
     ITYPE phase_flip_mask, UINT global_phase_90rot_count,
     UINT pivot_qubit_index, double angle, CTYPE* state, ITYPE dim);
@@ -42,7 +42,6 @@ void multi_qubit_Pauli_gate_Z_mask_single_thread(
     ITYPE phase_flip_mask, CTYPE* state, ITYPE dim);
 void multi_qubit_Pauli_rotation_gate_Z_mask_single_thread(
     ITYPE phase_flip_mask, double angle, CTYPE* state, ITYPE dim);
-
 
 void multi_qubit_Pauli_gate_XZ_mask(ITYPE bit_flip_mask, ITYPE phase_flip_mask,
     UINT global_phase_90rot_count, UINT pivot_qubit_index, CTYPE* state,
@@ -270,10 +269,9 @@ void multi_qubit_Pauli_rotation_gate_whole_list(
     }
 }
 
-
-void multi_qubit_Pauli_gate_XZ_mask_single_thread(ITYPE bit_flip_mask, ITYPE phase_flip_mask,
-    UINT global_phase_90rot_count, UINT pivot_qubit_index, CTYPE* state,
-    ITYPE dim) {
+void multi_qubit_Pauli_gate_XZ_mask_single_thread(ITYPE bit_flip_mask,
+    ITYPE phase_flip_mask, UINT global_phase_90rot_count,
+    UINT pivot_qubit_index, CTYPE* state, ITYPE dim) {
     // loop varaibles
     const ITYPE loop_dim = dim / 2;
     ITYPE state_index;
@@ -382,9 +380,9 @@ void multi_qubit_Pauli_rotation_gate_Z_mask_single_thread(
     }
 }
 
-void multi_qubit_Pauli_gate_partial_list_single_thread(const UINT* target_qubit_index_list,
-    const UINT* Pauli_operator_type_list, UINT target_qubit_index_count,
-    CTYPE* state, ITYPE dim) {
+void multi_qubit_Pauli_gate_partial_list_single_thread(
+    const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
+    UINT target_qubit_index_count, CTYPE* state, ITYPE dim) {
     // create pauli mask and call function
     ITYPE bit_flip_mask = 0;
     ITYPE phase_flip_mask = 0;
@@ -394,15 +392,18 @@ void multi_qubit_Pauli_gate_partial_list_single_thread(const UINT* target_qubit_
         Pauli_operator_type_list, target_qubit_index_count, &bit_flip_mask,
         &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
     if (bit_flip_mask == 0) {
-        multi_qubit_Pauli_gate_Z_mask_single_thread(phase_flip_mask, state, dim);
+        multi_qubit_Pauli_gate_Z_mask_single_thread(
+            phase_flip_mask, state, dim);
     } else {
-        multi_qubit_Pauli_gate_XZ_mask_single_thread(bit_flip_mask, phase_flip_mask,
-            global_phase_90rot_count, pivot_qubit_index, state, dim);
+        multi_qubit_Pauli_gate_XZ_mask_single_thread(bit_flip_mask,
+            phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state,
+            dim);
     }
 }
 
-void multi_qubit_Pauli_gate_whole_list_single_thread(const UINT* Pauli_operator_type_list,
-    UINT qubit_count, CTYPE* state, ITYPE dim) {
+void multi_qubit_Pauli_gate_whole_list_single_thread(
+    const UINT* Pauli_operator_type_list, UINT qubit_count, CTYPE* state,
+    ITYPE dim) {
     // create pauli mask and call function
     ITYPE bit_flip_mask = 0;
     ITYPE phase_flip_mask = 0;
@@ -412,10 +413,12 @@ void multi_qubit_Pauli_gate_whole_list_single_thread(const UINT* Pauli_operator_
         &bit_flip_mask, &phase_flip_mask, &global_phase_90rot_count,
         &pivot_qubit_index);
     if (bit_flip_mask == 0) {
-        multi_qubit_Pauli_gate_Z_mask_single_thread(phase_flip_mask, state, dim);
+        multi_qubit_Pauli_gate_Z_mask_single_thread(
+            phase_flip_mask, state, dim);
     } else {
-        multi_qubit_Pauli_gate_XZ_mask_single_thread(bit_flip_mask, phase_flip_mask,
-            global_phase_90rot_count, pivot_qubit_index, state, dim);
+        multi_qubit_Pauli_gate_XZ_mask_single_thread(bit_flip_mask,
+            phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, state,
+            dim);
     }
 }
 
@@ -434,8 +437,9 @@ void multi_qubit_Pauli_rotation_gate_partial_list_single_thread(
         multi_qubit_Pauli_rotation_gate_Z_mask_single_thread(
             phase_flip_mask, angle, state, dim);
     } else {
-        multi_qubit_Pauli_rotation_gate_XZ_mask_single_thread(bit_flip_mask, phase_flip_mask,
-            global_phase_90rot_count, pivot_qubit_index, angle, state, dim);
+        multi_qubit_Pauli_rotation_gate_XZ_mask_single_thread(bit_flip_mask,
+            phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, angle,
+            state, dim);
     }
 }
 
@@ -454,7 +458,8 @@ void multi_qubit_Pauli_rotation_gate_whole_list_single_thread(
         multi_qubit_Pauli_rotation_gate_Z_mask_single_thread(
             phase_flip_mask, angle, state, dim);
     } else {
-        multi_qubit_Pauli_rotation_gate_XZ_mask_single_thread(bit_flip_mask, phase_flip_mask,
-            global_phase_90rot_count, pivot_qubit_index, angle, state, dim);
+        multi_qubit_Pauli_rotation_gate_XZ_mask_single_thread(bit_flip_mask,
+            phase_flip_mask, global_phase_90rot_count, pivot_qubit_index, angle,
+            state, dim);
     }
 }

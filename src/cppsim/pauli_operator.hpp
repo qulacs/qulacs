@@ -236,7 +236,7 @@ public:
      */
     virtual CPPCTYPE get_expectation_value(const QuantumStateBase* state) const;
 
-        /**
+    /**
      * \~japanese-en
      * added by myself
      * 量子状態に対応するパウリ演算子の期待値を計算する
@@ -245,7 +245,8 @@ public:
      * @param[in] state 期待値をとるときの量子状態
      * @return stateに対応する期待値
      */
-    virtual CPPCTYPE get_expectation_value_single_thread(const QuantumStateBase* state) const;
+    virtual CPPCTYPE get_expectation_value_single_thread(
+        const QuantumStateBase* state) const;
 
     /**
      * \~japanese-en

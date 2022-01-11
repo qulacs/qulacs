@@ -19,7 +19,6 @@ private:
     bool _is_hermitian;
 
 protected:
-
     /**
      * \~japanese-en
      * state にパウリ演算子を作用させる
@@ -29,7 +28,7 @@ protected:
      */
     void _apply_pauli_to_state_single_thread(std::vector<UINT> pauli_id_list,
         std::vector<UINT> target_index_list, QuantumStateBase* state) const;
-    
+
     /**
      * \~japanese-en
      * state にパウリ演算子を作用させる
@@ -151,7 +150,8 @@ public:
      * @return 入力で与えた量子状態に対応するGeneralQuantumOperatorの期待値
      */
     virtual CPPCTYPE get_expectation_value(const QuantumStateBase* state) const;
-    virtual CPPCTYPE get_expectation_value_single_thread(const QuantumStateBase* state) const;
+    virtual CPPCTYPE get_expectation_value_single_thread(
+        const QuantumStateBase* state) const;
 
     /**
      * \~japanese-en
@@ -222,7 +222,7 @@ public:
      */
     void apply_to_state(
         QuantumStateBase* state, QuantumStateBase* dst_state) const;
-    
+
     /**
      * \~japanese-en
      * state_to_be_multiplied に GeneralQuantumOperator を作用させる．
@@ -233,7 +233,6 @@ public:
      */
     void apply_to_state_single_thread(
         QuantumStateBase* state, QuantumStateBase* dst_state) const;
-
 
     /**
      * \~japanese-en
