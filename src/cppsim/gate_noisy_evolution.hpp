@@ -11,12 +11,78 @@ class ClsNoisyEvolution : public QuantumGateBase {
 private:
     Random _random;
     Observable* _hamiltonian;
-    GeneralQuantumOperator* _effective_hamiltonian;
-    std::vector<GeneralQuantumOperator*> _c_ops;
-    std::vector<GeneralQuantumOperator*> _c_ops_dagger;
-    double _time;
-    double _dt;
-    double _norm_tol = 1e-8;
+    GeneralQuantumOperator* _effective_hamiltonian; 
+    std::vector<GeneralQuantumOperator*> _c_ops; // collapse operator
+    std::vector<GeneralQuantumOperator*> _c_ops_dagger; //collapse operator dagger
+    double _time; // evolution time
+    double _dt; // step size for runge kutta evolution
+    double _norm_tol = 1e-8; // accuracy in solving <psi|psi>=r
+
+    /**
+     * \~japanese-en collapse が起こるタイミング (norm = rになるタイミング)
+     * を見つける。 この関数内で norm=rになるタイミングまでの evolution
+     * が行われる。
+     */
+    virtual double _find_collapse(QuantumStateBase* k1, QuantumStateBase* k2,
+        QuantumStateBase* k3, QuantumStateBase* k4,
+        QuantumStateBase* prev_state, QuantumStateBase* now_state,
+        double target_norm, double dt) {
+        auto now_norm = now_state->get_squared_norm_single_thread();
+        auto prev_norm = prev_state->get_squared_norm_single_thread();
+        auto t_guess = dt;
+        int search_count = 0;
+        while (std::abs(now_norm - target_norm) > _norm_tol) {
+            // we expect norm to reduce as Ae^-a*dt, so we first calculate the
+            // coefficient a
+            auto a = std::log(now_norm / prev_norm) / t_guess;
+            // then guess the time to become target norm as (target_norm) =
+            // (prev_norm)e^-a*(t_guess) which means -a*t_guess =
+            // log(target_norm/prev_norm)
+            t_guess = std::log(target_norm / prev_norm) / a;
+            // evole by time t_guess
+            now_state->load(prev_state);
+            _evolve_one_step(k1, k2, k3, k4, prev_state, now_state, t_guess);
+            now_norm = now_state->get_squared_norm_single_thread();
+            search_count++;
+        }
+        return t_guess;
+    }
+
+    /**
+     * \~japanese-en runge-kutta を 1 step 進める
+     * この関数が終わった時点で、時間発展前の状態は buffer に格納される。
+     */
+    virtual void _evolve_one_step(QuantumStateBase* k1, QuantumStateBase* k2,
+        QuantumStateBase* k3, QuantumStateBase* k4, QuantumStateBase* buffer,
+        QuantumStateBase* state, double dt) {
+        // Runge-Kutta evolution
+        // k1
+        _effective_hamiltonian->apply_to_state_single_thread(state, k1);
+
+        // k2
+        buffer->load(state);
+        buffer->add_state_with_coef_single_thread(-1.i * dt / 2., k1);
+        _effective_hamiltonian->apply_to_state_single_thread(buffer, k2);
+
+        // k3
+        buffer->load(state);
+        buffer->add_state_with_coef_single_thread(-1.i * dt / 2., k2);
+        _effective_hamiltonian->apply_to_state_single_thread(buffer, k3);
+
+        // k4
+        buffer->load(state);
+        buffer->add_state_with_coef_single_thread(-1.i * dt, k3);
+        _effective_hamiltonian->apply_to_state_single_thread(buffer, k4);
+
+        // store the previous state in buffer
+        buffer->load(state);
+
+        // add them together
+        state->add_state_with_coef_single_thread(-1.i * dt / 6., k1);
+        state->add_state_with_coef_single_thread(-1.i * dt / 3., k2);
+        state->add_state_with_coef_single_thread(-1.i * dt / 3., k3);
+        state->add_state_with_coef_single_thread(-1.i * dt / 6., k4);
+    }
 
 public:
     ClsNoisyEvolution(Observable* hamiltonian,
@@ -51,9 +117,8 @@ public:
      */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         std::cerr << "* Warning : Gate-matrix of noisy evolution cannot be "
-                     "obtained. Identity matrix is returned."
+                     "defined. Nothing has been done."
                   << std::endl;
-        matrix = Eigen::MatrixXcd::Ones(1, 1);
     }
     virtual void set_seed(int seed) override { _random.set_seed(seed); };
 
@@ -65,6 +130,11 @@ public:
         return _effective_hamiltonian->copy();
     }
 
+    /**
+     * \~japanese-en 量子状態を更新する
+     *
+     * @param state 更新する量子状態
+     */
     virtual void update_quantum_state(QuantumStateBase* state) {
         double r = _random.uniform();
         std::vector<double> cumulative_dist(_c_ops.size());
@@ -91,7 +161,7 @@ public:
                 // evolve the state by dt
                 _evolve_one_step(k1, k2, k3, k4, buffer, state, dt);
                 // check if the jump should occur or not
-                auto norm = state->get_squared_norm();
+                auto norm = state->get_squared_norm_single_thread();
                 if (norm <= r) {  // jump occured
                     // evolve the state to the time such that norm=r
                     auto dt_target_norm =
@@ -102,7 +172,7 @@ public:
                     for (size_t k = 0; k < _c_ops.size(); k++) {
                         _c_ops[k]->apply_to_state_single_thread(state, buffer);
                         cumulative_dist[k] =
-                            buffer->get_squared_norm() + prob_sum;
+                            buffer->get_squared_norm_single_thread() + prob_sum;
                         prob_sum = cumulative_dist[k];
                     }
 
@@ -114,7 +184,7 @@ public:
 
                     // apply the collapse operator and normalize the state
                     _c_ops[index]->apply_to_state_single_thread(state, buffer);
-                    buffer->normalize(buffer->get_squared_norm());
+                    buffer->normalize_single_thread(buffer->get_squared_norm_single_thread());
                     state->load(buffer);
 
                     // update dt to be consistent with the step size
@@ -132,7 +202,7 @@ public:
         }
 
         // normalize the state and finish
-        state->normalize(state->get_squared_norm());
+        state->normalize_single_thread(state->get_squared_norm_single_thread());
         delete k1;
         delete k2;
         delete k3;
@@ -140,75 +210,4 @@ public:
         delete buffer;
     }
 
-    /**
-     * \~japanese-en collapse が起こるタイミング (norm = rになるタイミング)
-     * を見つける。 この関数内で norm=rになるタイミングまでの evolution
-     * が行われる。
-     */
-    virtual double _find_collapse(QuantumStateBase* k1, QuantumStateBase* k2,
-        QuantumStateBase* k3, QuantumStateBase* k4,
-        QuantumStateBase* prev_state, QuantumStateBase* now_state,
-        double target_norm, double dt) {
-        auto now_norm = now_state->get_squared_norm();
-        auto prev_norm = prev_state->get_squared_norm();
-        auto t_guess = dt;
-        int search_count = 0;
-        // std::cout << "prev norm" << prev_state->get_squared_norm() <<
-        // std::endl; std::cout << "now state: " << now_norm << " prev state: "
-        // << prev_norm << target_norm << std::endl;
-        while (std::abs(now_norm - target_norm) > _norm_tol) {
-            // we expect norm to reduce as Ae^-a*dt, so we first calculate the
-            // coefficient a
-            auto a = std::log(now_norm / prev_norm) / t_guess;
-            // then guess the time to become target norm as (target_norm) =
-            // (prev_norm)e^-a*(t_guess) which means -a*t_guess =
-            // log(target_norm/prev_norm)
-            t_guess = std::log(target_norm / prev_norm) / a;
-            // evole by time t_guess
-            now_state->load(prev_state);
-            _evolve_one_step(k1, k2, k3, k4, prev_state, now_state, t_guess);
-            now_norm = now_state->get_squared_norm();
-            // std::cout << "prev norm" << prev_state->get_squared_norm() <<
-            // std::endl;
-            search_count++;
-            // std::cout << "search count" << search_count << std::endl;
-        }
-        return t_guess;
-    }
-
-    /**
-     * \~japanese-en runge-kutta を 1 step 進める
-     * この関数が終わった時点で、時間発展前の状態は buffer に格納される。
-     */
-    virtual void _evolve_one_step(QuantumStateBase* k1, QuantumStateBase* k2,
-        QuantumStateBase* k3, QuantumStateBase* k4, QuantumStateBase* buffer,
-        QuantumStateBase* state, double dt) {
-        // Runge-Kutta evolution
-        // k1
-        _effective_hamiltonian->apply_to_state(state, k1);
-
-        // k2
-        buffer->load(state);
-        buffer->add_state_with_coef(-1.i * dt / 2., k1);
-        _effective_hamiltonian->apply_to_state(buffer, k2);
-
-        // k3
-        buffer->load(state);
-        buffer->add_state_with_coef(-1.i * dt / 2., k2);
-        _effective_hamiltonian->apply_to_state(buffer, k3);
-
-        // k4
-        buffer->load(state);
-        buffer->add_state_with_coef(-1.i * dt, k3);
-        _effective_hamiltonian->apply_to_state(buffer, k4);
-
-        // store the previous state in buffer
-        buffer->load(state);
-
-        // add them together
-        state->add_state_with_coef(-1.i * dt / 6., k1);
-        state->add_state_with_coef(-1.i * dt / 3., k2);
-        state->add_state_with_coef(-1.i * dt / 3., k3);
-        state->add_state_with_coef(-1.i * dt / 6., k4);
-    }
 };

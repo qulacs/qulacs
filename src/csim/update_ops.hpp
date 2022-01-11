@@ -456,6 +456,7 @@ void P1_gate_parallel(UINT target_qubit_index, CTYPE* state, ITYPE dim);
  * @param[in] dim 次元
  */
 DllExport void normalize(double squared_norm, CTYPE* state, ITYPE dim);
+DllExport void normalize_single_thread(double squared_norm, CTYPE* state, ITYPE dim);
 
 /**
  * \~english
@@ -1233,6 +1234,8 @@ DllExport void reflection_gate(
 
 DllExport void state_add(const CTYPE* state_added, CTYPE* state, ITYPE dim);
 DllExport void state_add_with_coef(
+    CTYPE coef, const CTYPE* state_added, CTYPE* state, ITYPE dim);
+DllExport void state_add_with_coef_single_thread(
     CTYPE coef, const CTYPE* state_added, CTYPE* state, ITYPE dim);
 DllExport void state_multiply(CTYPE coef, CTYPE* state, ITYPE dim);
 

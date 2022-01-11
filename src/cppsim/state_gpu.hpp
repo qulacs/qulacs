@@ -57,6 +57,12 @@ public:
             this->data(), _dim, _cuda_stream, device_number);
     }
     /**
+     * \~japanese-en 量子状態を計算基底の0状態に初期化する
+     */
+    virtual void set_zero_norm_state() override {
+        std::cerr << "set_zero_norm_state for QuantumStateGpu is not implemented yet" << std::endl;
+    }
+    /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
      *
      * @param comp_basis 初期化する基底を表す整数
@@ -137,6 +143,10 @@ public:
         return state_norm_squared_host(
             this->data(), _dim, _cuda_stream, device_number);
     }
+    virtual double get_squared_norm_single_thread() const override {
+        return state_norm_squared_host(
+            this->data(), _dim, _cuda_stream, device_number);
+    }
 
     /**
      * \~japanese-en 量子状態を正規化する
@@ -144,6 +154,16 @@ public:
      * @param norm 自身のノルム
      */
     virtual void normalize(double squared_norm) override {
+        normalize_host(
+            squared_norm, this->data(), _dim, _cuda_stream, device_number);
+    }
+
+    /**
+     * \~japanese-en 量子状態を正規化する
+     *
+     * @param norm 自身のノルム
+     */
+    virtual void normalize_single_thread(double squared_norm) override {
         normalize_host(
             squared_norm, this->data(), _dim, _cuda_stream, device_number);
     }
@@ -267,6 +287,19 @@ public:
      * \~japanese-en 量子状態を足しこむ (とりあえずの実装なので遅い)
      */
     virtual void add_state_with_coef(
+        CPPCTYPE coef, const QuantumStateBase* state) override {
+        state_multiply_host(
+            coef, this->data(), this->dim, _cuda_stream, device_number);
+        state_add_host(state->data(), this->data(), this->dim, _cuda_stream,
+            device_number);
+        state_multiply_host(
+            1 / coef, this->data(), this->dim, _cuda_stream, device_number);
+    }
+    
+    /**
+     * \~japanese-en 量子状態を足しこむ (とりあえずの実装なので遅い)
+     */
+    virtual void add_state_with_coef_with_single_thread(
         CPPCTYPE coef, const QuantumStateBase* state) override {
         state_multiply_host(
             coef, this->data(), this->dim, _cuda_stream, device_number);

@@ -70,6 +70,11 @@ public:
     virtual void set_zero_state() = 0;
 
     /**
+     * \~japanese-en ノルム0の状態 (要素がすべて0のベクトル) にする
+     */
+    virtual void set_zero_norm_state() = 0;
+
+    /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
      *
      * @param comp_basis 初期化する基底を表す整数
@@ -123,6 +128,7 @@ public:
      * @return ノルム
      */
     virtual double get_squared_norm() const = 0;
+    virtual double get_squared_norm_single_thread() const = 0;
 
     /**
      * \~japanese-en 量子状態を正規化する
@@ -130,6 +136,13 @@ public:
      * @param norm 自身のノルム
      */
     virtual void normalize(double squared_norm) = 0;
+
+    /**
+     * \~japanese-en 量子状態を正規化する
+     *
+     * @param norm 自身のノルム
+     */
+    virtual void normalize_single_thread(double squared_norm) = 0;
 
     /**
      * \~japanese-en バッファとして同じサイズの量子状態を作成する。
@@ -203,7 +216,17 @@ public:
      */
     virtual void add_state(const QuantumStateBase* state) = 0;
 
+
+    /**
+     * \~japanese-en 量子状態を係数付きで足しこむ
+     */
     virtual void add_state_with_coef(
+        CPPCTYPE coef, const QuantumStateBase* state) = 0;
+    
+    /**
+     * \~japanese-en 量子状態を係数付きで足しこむ
+     */
+    virtual void add_state_with_coef_single_thread(
         CPPCTYPE coef, const QuantumStateBase* state) = 0;
 
     /**
@@ -331,6 +354,13 @@ public:
         initialize_quantum_state(this->data_c(), _dim);
     }
     /**
+     * \~japanese-en 量子状態をノルム0の状態にする
+     */
+    virtual void set_zero_norm_state() override {
+        set_zero_state();
+        _state_vector[0] = 0;
+    }
+    /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
      *
      * @param comp_basis 初期化する基底を表す整数
@@ -433,12 +463,31 @@ public:
     }
 
     /**
+     * \~japanese-en 量子状態のノルムを計算する
+     *
+     * 量子状態のノルムは非ユニタリなゲートを作用した時に小さくなる。
+     * @return ノルム
+     */
+    virtual double get_squared_norm_single_thread() const override {
+        return state_norm_squared_single_thread(this->data_c(), _dim);
+    }
+
+    /**
      * \~japanese-en 量子状態を正規化する
      *
      * @param norm 自身のノルム
      */
     virtual void normalize(double squared_norm) override {
         ::normalize(squared_norm, this->data_c(), _dim);
+    }
+
+    /**
+     * \~japanese-en 量子状態を正規化する
+     *
+     * @param norm 自身のノルム
+     */
+    virtual void normalize_single_thread(double squared_norm) override {
+        ::normalize_single_thread(squared_norm, this->data_c(), _dim);
     }
 
     /**
@@ -570,6 +619,19 @@ public:
             return;
         }
         state_add_with_coef(coef, state->data_c(), this->data_c(), this->dim);
+    }
+
+    /**
+     * \~japanese-en 量子状態を足しこむ
+     */
+    virtual void add_state_with_coef_single_thread(
+        CPPCTYPE coef, const QuantumStateBase* state) override {
+        if (state->get_device_name() == "gpu") {
+            std::cerr << "State vector on GPU cannot be added to that on CPU"
+                      << std::endl;
+            return;
+        }
+        state_add_with_coef_single_thread(coef, state->data_c(), this->data_c(), this->dim);
     }
 
     /**

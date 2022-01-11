@@ -3,6 +3,7 @@
 #include "type.hpp"
 
 DllExport double state_norm_squared(const CTYPE* state, ITYPE dim);
+DllExport double state_norm_squared_single_thread(const CTYPE* state, ITYPE dim);
 DllExport double measurement_distribution_entropy(
     const CTYPE* state, ITYPE dim);
 DllExport CTYPE state_inner_product(

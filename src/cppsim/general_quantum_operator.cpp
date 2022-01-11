@@ -81,7 +81,7 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
         #ifdef _OPENMP
         #pragma omp parallel for reduction(+:sum_real, sum_imag) private(tmp)
         #endif
-        for (UINT i=0; i<n_terms; ++i) {
+        for (int i=0; i<n_terms; ++i) { // this variable has to be signed integer because of OpenMP of Windows compiler.
             tmp = _operator_list[i]->get_expectation_value_single_thread(state);
             sum_real += tmp.real();
             sum_imag += tmp.imag();
@@ -222,7 +222,7 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     }
 
     // Compose ground state vector and store it to `state`.
-    present_state.multiply_coef(0.0);
+    present_state.set_zero_norm_state();
     for (UINT i = 0; i < state_list.size() - 1; i++) {
         tmp_state.load(state_list[i]);
         tmp_state.multiply_coef(eigenvectors(i, minimum_eigenvalue_index));
@@ -265,7 +265,7 @@ CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
         mu_timed_state.load(state);
         mu_timed_state.multiply_coef(-mu_);
 
-        multiplied_state.multiply_coef(0.0);
+        multiplied_state.set_zero_norm_state();
         this->apply_to_state(&work_state, *state, &multiplied_state);
         state->load(&multiplied_state);
         state->add_state(&mu_timed_state);
@@ -283,7 +283,7 @@ void GeneralQuantumOperator::apply_to_state(QuantumStateBase* work_state,
             "same");
     }
 
-    dst_state->multiply_coef(0.0);
+    dst_state->set_zero_norm_state();
     const auto term_count = this->get_term_count();
     for (UINT i = 0; i < term_count; i++) {
         work_state->load(&state_to_be_multiplied);
@@ -302,7 +302,7 @@ void GeneralQuantumOperator::apply_to_state(
             "same");
     }
 
-    dst_state->multiply_coef(0.0);
+    dst_state->set_zero_norm_state();
     const auto term_count = this->get_term_count();
     for (UINT i = 0; i < term_count; i++) {
         const auto term = this->get_term(i);
@@ -322,13 +322,13 @@ void GeneralQuantumOperator::apply_to_state_single_thread(
             "same");
     }
 
-    dst_state->multiply_coef(0.0);
+    dst_state->set_zero_norm_state();
     const auto term_count = this->get_term_count();
     for (UINT i = 0; i < term_count; i++) {
         const auto term = this->get_term(i);
         _apply_pauli_to_state_single_thread(
             term->get_pauli_id_list(), term->get_index_list(), state);
-        dst_state->add_state_with_coef(term->get_coef(), state);
+        dst_state->add_state_with_coef_single_thread(term->get_coef(), state);
         _apply_pauli_to_state_single_thread(
             term->get_pauli_id_list(), term->get_index_list(), state);
     }
