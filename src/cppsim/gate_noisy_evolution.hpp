@@ -18,6 +18,7 @@ private:
     double _time;             // evolution time
     double _dt;               // step size for runge kutta evolution
     double _norm_tol = 1e-8;  // accuracy in solving <psi|psi>=r
+    int _find_collapse_max_steps = 1000; // maximum number of steps for while loop in _find_collapse
 
     /**
      * \~japanese-en collapse が起こるタイミング (norm = rになるタイミング)
@@ -45,6 +46,12 @@ private:
             _evolve_one_step(k1, k2, k3, k4, prev_state, now_state, t_guess);
             now_norm = now_state->get_squared_norm_single_thread();
             search_count++;
+            // avoid infinite loop
+            // It sometimes fails to find t_guess to reach the target norm.
+            // More likely to happen when dt is not small enough compared to the relaxation times
+            if (search_count > _find_collapse_max_steps) {
+                std::cerr << "Failed to find the exact jump time. Try with smaller dt." << std::endl;
+            }
         }
         return t_guess;
     }
@@ -126,9 +133,21 @@ public:
     virtual QuantumGateBase* copy() const override {
         return new ClsNoisyEvolution(_hamiltonian, _c_ops, _time, _dt);
     }
-
+    
+    /**
+     * \~japanese-en NoisyEvolution が使用する有効ハミルトニアンを得る
+     */
     virtual GeneralQuantumOperator* get_effective_hamiltonian() const {
         return _effective_hamiltonian->copy();
+    }
+
+    /**
+     * \~japanese-en collapse 時間を探すときに許す最大ループ数をセットする
+     * 
+     * @param n ステップ数
+     */
+    virtual void set_find_collapse_max_steps(int n) {
+        this->_find_collapse_max_steps=n;
     }
 
     /**
