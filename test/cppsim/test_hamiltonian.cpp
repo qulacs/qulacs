@@ -450,7 +450,7 @@ TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
     }
 }
 
-TEST(ObservableTest, CheckDiffObsOKTest) {
+TEST(ObservableTest, ObservableAndStateHaveDifferentQubitCountTest) {
     auto func = [](const std::string str,
                     const QuantumStateBase* state) -> CPPCTYPE {
         CPPCTYPE energy = 0;
@@ -458,22 +458,12 @@ TEST(ObservableTest, CheckDiffObsOKTest) {
         std::vector<std::string> lines = split(str, "\n");
 
         for (std::string line : lines) {
-            // std::cout << state->get_norm() << std::endl;
-
             std::vector<std::string> elems;
             elems = split(line, "()j[]+");
-
             chfmt(elems[3]);
-
             CPPCTYPE coef(std::stod(elems[0]), std::stod(elems[1]));
-            // std::cout << elems[3].c_str() << std::endl;
-
             PauliOperator mpt(elems[3].c_str(), coef.real());
-
-            // std::cout << mpt.get_coef() << " ";
-            // std::cout << elems[3].c_str() << std::endl;
             energy += mpt.get_expectation_value(state);
-            // mpt.get_expectation_value(state);
         }
         return energy;
     };
@@ -503,21 +493,21 @@ TEST(ObservableTest, CheckDiffObsOKTest) {
     ASSERT_NE(observable, (Observable*)NULL);
     UINT qubit_count = observable->get_qubit_count();
 
-    QuantumState state(qubit_count + 2);
+    QuantumState state(qubit_count + 2);  // +2 is point. diff test
     state.set_computational_basis(0);
 
     res = observable->get_expectation_value(&state);
     test_res = func(text, &state);
 
     ASSERT_NEAR(res.real(), test_res.real(), eps);
-    ASSERT_NEAR(test_res.imag(), res.imag(), eps);
+    ASSERT_NEAR(res.imag(), test_res.imag(), eps);
 
     state.set_Haar_random_state();
 
     res = observable->get_expectation_value(&state);
     test_res = func(text, &state);
 
-    ASSERT_NEAR(test_res.real(), res.real(), eps);
-    ASSERT_NEAR(test_res.imag(), 0, eps);
-    ASSERT_NEAR(res.imag(), 0, eps);
+    ASSERT_NEAR(res.real(), test_res.real(), eps);
+    ASSERT_NEAR(0, test_res.imag(), eps);
+    ASSERT_NEAR(0, res.imag(), eps);
 }
