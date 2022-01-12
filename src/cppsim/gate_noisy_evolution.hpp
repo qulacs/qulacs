@@ -198,7 +198,9 @@ public:
                     auto dt_target_norm =
                         _find_collapse(k1, k2, k3, k4, buffer, state, r, dt);
                     if (dt_target_norm < 0) {
-                        std::cerr << "_find_collapse failed. Result is unreliable." << std::endl;
+                        std::cerr
+                            << "_find_collapse failed. Result is unreliable."
+                            << std::endl;
                         return;
                     }
                     // get cumulative distribution
