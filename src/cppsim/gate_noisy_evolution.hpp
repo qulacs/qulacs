@@ -55,6 +55,7 @@ private:
                 std::cerr << "Failed to find the exact jump time. Try with "
                              "smaller dt."
                           << std::endl;
+                return -1.;
             }
         }
         return t_guess;
@@ -196,7 +197,10 @@ public:
                     // evolve the state to the time such that norm=r
                     auto dt_target_norm =
                         _find_collapse(k1, k2, k3, k4, buffer, state, r, dt);
-
+                    if (dt_target_norm < 0) {
+                        std::cerr << "_find_collapse failed. Result is unreliable." << std::endl;
+                        return;
+                    }
                     // get cumulative distribution
                     prob_sum = 0.;
                     for (size_t k = 0; k < _c_ops.size(); k++) {
