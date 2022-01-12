@@ -180,8 +180,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Use Docker image
-        uses: docker://ghcr.io/qulacs-osaka/qulacs-ubuntu-clang-format:latest
+      - name: clang-format
+        run: docker run --rm -it -v `pwd`:/qulacs-osaka -e LOCAL_UID=`id -u $USER` -e LOCAL_GID=`id -g $USER` ghcr.io/qulacs-osaka/qulacs-ubuntu-clang-format:latest
 
       - name: Compare diff
         run: |
