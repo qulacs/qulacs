@@ -1161,7 +1161,8 @@ operator = create_observable_from_openfermion_file("./H2.txt")
 state = QuantumState(n)
 state.set_Haar_random_state()
 result = QuantumState(n)
-value = operator.apply_to_state(state, result)
+work_state = QuantumState(n)
+value = operator.apply_to_state(work_state, state, result)
 print(result)
 ```
 
