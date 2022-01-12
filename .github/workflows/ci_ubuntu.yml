@@ -180,14 +180,8 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - name: Setup cmake
-        uses: lukka/get-cmake@latest
-
-      - name: Install boost
-        run: sudo apt install libboost-dev
-
-      - name: Run clang-format
-        run: cmake --build build --target format
+      - name: Use Docker image
+        uses: docker://ghcr.io/qulacs-osaka/qulacs-ubuntu-clang-format:latest
 
       - name: Compare diff
         run: |
