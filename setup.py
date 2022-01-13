@@ -107,6 +107,7 @@ class CMakeBuild(build_ext):
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
+        print(build_args, self.build_temp, cmake_args)
         subprocess.check_call(['cmake', '--build', '.', '--target', 'python'] + build_args, cwd=self.build_temp)
 
 setup(
@@ -121,7 +122,7 @@ setup(
     packages=find_packages(exclude=['test*'])+find_packages("pysrc"),
     include_package_data=True,
     ext_modules=[CMakeExtension('qulacs_core')],
-    cmdclass=dict(build_ext=CMakeBuild),
+    # cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
     test_suite = 'test',
     classifiers=[
