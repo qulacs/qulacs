@@ -176,15 +176,14 @@ jobs:
 
   format:
     name: Format with clang-format
-    runs-on: "ubuntu-20.04"
     container:
       image: ghcr.io/qulacs-osaka/qulacs-ubuntu-clang-format:latest
     steps:
       - name: clone qulacs-osaka
         run: git clone https://github.com/Qulacs-Osaka/qulacs-osaka
 
-      - name: clang-format
-        uses: bash qulacs_format.sh
+      - name: format
+        run: bash qulacs_format.sh
 
       - name: Compare diff
         run: |
