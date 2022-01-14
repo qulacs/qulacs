@@ -184,7 +184,7 @@ jobs:
         run: git clone https://github.com/Qulacs-Osaka/qulacs-osaka
       
       - name: test
-        run: ls -al /qulacs-osaka
+        run: ls -al qulacs-osaka/
 
       - name: format
         run: |
