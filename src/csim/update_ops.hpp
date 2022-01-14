@@ -894,6 +894,10 @@ DllExport void multi_qubit_Pauli_gate_partial_list(
     const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
     UINT target_qubit_index_count, CTYPE* state, ITYPE dim);
 
+DllExport void multi_qubit_Pauli_gate_partial_list_single_thread(
+    const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
+    UINT target_qubit_index_count, CTYPE* state, ITYPE dim);
+    
 /**
  * \~english
  * Apply multi-qubit Pauli rotation operator to the quantum state with a whole
@@ -1219,6 +1223,10 @@ DllExport void reflection_gate(
     const CTYPE* reflection_state, CTYPE* state, ITYPE dim);
 
 DllExport void state_add(const CTYPE* state_added, CTYPE* state, ITYPE dim);
+DllExport void state_add_with_coef(
+    CTYPE coef, const CTYPE* state_added, CTYPE* state, ITYPE dim);
+DllExport void state_add_with_coef_single_thread(
+    CTYPE coef, const CTYPE* state_added, CTYPE* state, ITYPE dim);
 DllExport void state_multiply(CTYPE coef, CTYPE* state, ITYPE dim);
 
 ////////////////////////////////
