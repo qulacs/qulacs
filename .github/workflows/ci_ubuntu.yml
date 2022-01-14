@@ -184,7 +184,7 @@ jobs:
         run: git clone https://github.com/Qulacs-Osaka/qulacs-osaka
 
       - name: format
-        run: bash qulacs_format.sh
+        run: bash qulacs-osaka/qulacs_format.sh
 
       - name: Compare diff
         run: |
