@@ -185,7 +185,7 @@ jobs:
       - name: clone qulacs-osaka
         run: |
           cd /
-          git clone -b "$BRANCH_NAME" https://github.com/Qulacs-Osaka/qulacs-osaka
+          git clone -b $BRANCH_NAME https://github.com/Qulacs-Osaka/qulacs-osaka
 
       - name: format
         run: qulacs_format
