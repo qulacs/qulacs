@@ -176,6 +176,7 @@ jobs:
 
   format:
     name: Format with clang-format
+    runs-on: "ubuntu-20.04"
     container:
       image: ghcr.io/qulacs-osaka/qulacs-ubuntu-clang-format:latest
     steps:
