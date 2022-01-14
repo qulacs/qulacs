@@ -192,6 +192,7 @@ jobs:
 
       - name: Compare diff
         run: |
+          cd /qulacs-osaka
           diff=$(git diff)
           echo -n "$diff"
           # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
