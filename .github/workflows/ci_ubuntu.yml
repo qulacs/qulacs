@@ -181,10 +181,9 @@ jobs:
       image: ghcr.io/qulacs-osaka/qulacs-ubuntu-clang-format:latest
     steps:
       - name: clone qulacs-osaka
-        run: git clone https://github.com/Qulacs-Osaka/qulacs-osaka
-      
-      - name: test
-        run: ls -al qulacs-osaka/
+        run: |
+          cd /
+          git clone https://github.com/Qulacs-Osaka/qulacs-osaka
 
       - name: format
         run: |
