@@ -171,14 +171,6 @@ public:
 
     /**
      * \~japanese-en
-     * このオブザーバブルに入っているものを、ゲートとしてstateに作用させたものを返す。
-     stateは変えない。
-     * @param [in] state 入力
-     */
-    virtual void update_quantum_state(QuantumStateBase* state);
-
-    /**
-     * \~japanese-en
      * state_to_be_multiplied に GeneralQuantumOperator を作用させる．
      * 結果は dst_state に格納される．dst_state
      * はすべての要素を0に初期化してから計算するため， 任意の状態を渡してよい．
