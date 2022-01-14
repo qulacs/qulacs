@@ -182,9 +182,14 @@ jobs:
     steps:
       - name: clone qulacs-osaka
         run: git clone https://github.com/Qulacs-Osaka/qulacs-osaka
+      
+      - name: test
+        run: ls -al /qulacs-osaka
 
       - name: format
-        run: qulacs_format
+        run: |
+          cd qulacs-osaka
+          qulacs_format
 
       - name: Compare diff
         run: |
