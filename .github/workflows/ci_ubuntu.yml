@@ -180,11 +180,9 @@ jobs:
     container:
       image: ghcr.io/qulacs-osaka/qulacs-ubuntu-clang-format:latest
     steps:
-      - name: Get Branch Name
+      - name: clone qulacs-osaka
         env:
           BRANCH_NAME: ${{github.head_ref}}
-
-      - name: clone qulacs-osaka
         run: |
           cd /
           git clone -b $BRANCH_NAME https://github.com/Qulacs-Osaka/qulacs-osaka
