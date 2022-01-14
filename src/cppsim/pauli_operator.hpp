@@ -247,7 +247,7 @@ public:
      */
     virtual CPPCTYPE get_expectation_value_single_thread(
         const QuantumStateBase* state) const;
-        
+
     /**
      * \~japanese-en
      * 量子状態に対応するパウリ演算子の遷移振幅を計算する

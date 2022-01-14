@@ -269,7 +269,6 @@ void multi_qubit_Pauli_rotation_gate_whole_list(
     }
 }
 
-
 void multi_qubit_Pauli_gate_XZ_mask_single_thread(ITYPE bit_flip_mask,
     ITYPE phase_flip_mask, UINT global_phase_90rot_count,
     UINT pivot_qubit_index, CTYPE* state, ITYPE dim) {

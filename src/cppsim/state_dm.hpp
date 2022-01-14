@@ -139,7 +139,7 @@ public:
     virtual double get_squared_norm() const override {
         return dm_state_norm_squared(this->data_c(), _dim);
     }
-    
+
     /**
      * \~japanese-en 量子状態のノルムを計算する
      *
@@ -149,7 +149,7 @@ public:
     virtual double get_squared_norm_single_thread() const override {
         return dm_state_norm_squared(this->data_c(), _dim);
     }
-    
+
     /**
      * \~japanese-en 量子状態を正規化する
      *
@@ -158,7 +158,7 @@ public:
     virtual void normalize(double squared_norm) override {
         dm_normalize(squared_norm, this->data_c(), _dim);
     }
-        
+
     /**
      * \~japanese-en 量子状態を正規化する
      *

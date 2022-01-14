@@ -172,7 +172,8 @@ CPPCTYPE PauliOperator::get_expectation_value_single_thread(
     if (state->is_state_vector()) {
 #ifdef _USE_GPU
         if (state->get_device_name() == "gpu") {
-            // TODO: implement single_thread version of expectation_value_multi_qubit_Pauli_operator_partial_list_host
+            // TODO: implement single_thread version of
+            // expectation_value_multi_qubit_Pauli_operator_partial_list_host
             return _coef *
                    expectation_value_multi_qubit_Pauli_operator_partial_list_host(
                        this->get_index_list().data(),
@@ -197,7 +198,8 @@ CPPCTYPE PauliOperator::get_expectation_value_single_thread(
                    state->dim);
 #endif
     } else {
-        // TODO: implement single_thread version of dm_expectation_value_multi_qubit_Pauli_operator_partial_list
+        // TODO: implement single_thread version of
+        // dm_expectation_value_multi_qubit_Pauli_operator_partial_list
         return _coef *
                dm_expectation_value_multi_qubit_Pauli_operator_partial_list(
                    this->get_index_list().data(),
@@ -205,7 +207,7 @@ CPPCTYPE PauliOperator::get_expectation_value_single_thread(
                    (UINT)this->get_index_list().size(), state->data_c(),
                    state->dim);
     }
-} 
+}
 
 CPPCTYPE PauliOperator::get_transition_amplitude(
     const QuantumStateBase* state_bra,

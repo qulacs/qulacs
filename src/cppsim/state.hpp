@@ -470,7 +470,7 @@ public:
     virtual void normalize_single_thread(double squared_norm) override {
         ::normalize_single_thread(squared_norm, this->data_c(), _dim);
     }
-    
+
     /**
      * \~japanese-en バッファとして同じサイズの量子状態を作成する。
      *

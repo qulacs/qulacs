@@ -194,7 +194,7 @@ public:
      */
     void apply_to_state_single_thread(
         QuantumStateBase* state, QuantumStateBase* dst_state) const;
-        
+
     /**
      * \~japanese-en
      * このオブザーバブルに入っているものを、ゲートとしてstateに作用させたものを返す。

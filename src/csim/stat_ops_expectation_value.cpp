@@ -251,4 +251,4 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
                 pivot_qubit_index, state, dim);
     }
     return result;
-} 
+}

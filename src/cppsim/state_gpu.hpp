@@ -137,7 +137,7 @@ public:
         return state_norm_squared_host(
             this->data(), _dim, _cuda_stream, device_number);
     }
-    
+
     /**
      * \~japanese-en 量子状態のノルムを計算する
      *
