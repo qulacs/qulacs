@@ -177,11 +177,14 @@ jobs:
   format:
     name: Format with clang-format
     runs-on: "ubuntu-20.04"
+    container:
+      image: ghcr.io/qulacs-osaka/qulacs-ubuntu-clang-format:latest
     steps:
-      - uses: actions/checkout@v2
+      - name: clone qulacs-osaka
+        run: git clone https://github.com/Qulacs-Osaka/qulacs-osaka
 
       - name: clang-format
-        run: docker run --rm -it -v `pwd`:/qulacs-osaka -e LOCAL_UID=`id -u $USER` -e LOCAL_GID=`id -g $USER` ghcr.io/qulacs-osaka/qulacs-ubuntu-clang-format:latest
+        uses: bash qulacs_format.sh
 
       - name: Compare diff
         run: |
