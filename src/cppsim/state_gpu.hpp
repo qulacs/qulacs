@@ -137,6 +137,17 @@ public:
         return state_norm_squared_host(
             this->data(), _dim, _cuda_stream, device_number);
     }
+    
+    /**
+     * \~japanese-en 量子状態のノルムを計算する
+     *
+     * 量子状態のノルムは非ユニタリなゲートを作用した時に小さくなる。
+     * @return ノルム
+     */
+    virtual double get_squared_norm_single_thread() const override {
+        return state_norm_squared_host(
+            this->data(), _dim, _cuda_stream, device_number);
+    }
 
     /**
      * \~japanese-en 量子状態を正規化する
@@ -144,6 +155,16 @@ public:
      * @param norm 自身のノルム
      */
     virtual void normalize(double squared_norm) override {
+        normalize_host(
+            squared_norm, this->data(), _dim, _cuda_stream, device_number);
+    }
+
+    /**
+     * \~japanese-en 量子状態を正規化する
+     *
+     * @param norm 自身のノルム
+     */
+    virtual void normalize_single_thread(double squared_norm) override {
         normalize_host(
             squared_norm, this->data(), _dim, _cuda_stream, device_number);
     }

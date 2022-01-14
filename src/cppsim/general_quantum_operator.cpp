@@ -71,6 +71,23 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
     return sum;
 }
 
+CPPCTYPE GeneralQuantumOperator::get_expectation_value_single_thread(
+    const QuantumStateBase* state) const {
+    if (this->_qubit_count != state->qubit_count) {
+        std::cerr
+            << "Error: GeneralQuantumOperator::get_expectation_value(const "
+               "QuantumStateBase*): invalid qubit count"
+            << std::endl;
+        return 0.;
+    }
+    size_t n_terms = this->_operator_list.size();
+    CPPCTYPE sum = 0.;
+    for (UINT i = 0; i < n_terms; ++i) {
+        sum += _operator_list[i]->get_expectation_value_single_thread(state);
+    }
+    return sum;
+}
+
 CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
     const QuantumStateBase* state_bra,
     const QuantumStateBase* state_ket) const {
