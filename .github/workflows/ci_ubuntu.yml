@@ -187,7 +187,7 @@ jobs:
 
       - name: format
         run: |
-          cd qulacs-osaka
+          cd /qulacs-osaka
           qulacs_format
 
       - name: Compare diff
