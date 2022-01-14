@@ -179,7 +179,8 @@ jobs:
     runs-on: "ubuntu-20.04"
     container:
       image: ghcr.io/qulacs-osaka/qulacs-ubuntu-clang-format:latest
-      env : BRANCH_NAME: ${{github.head_ref}}
+      env:
+        BRANCH_NAME: ${{github.head_ref}}
     steps:
       - name: clone qulacs-osaka
         run: |
