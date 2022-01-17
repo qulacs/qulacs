@@ -50,7 +50,31 @@ class CMakeBuild(build_ext):
             self.build_extension(ext)
 
     def build_extension(self, ext):
-        # extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
+        build_args, cmake_args = self._generate_args()
+
+        if self.opt_flags is not None:
+            opt_flags = self.opt_flags
+        elif os.getenv('QULACS_OPT_FLAGS'):
+            opt_flags = os.getenv('QULACS_OPT_FLAGS')
+        else:
+            opt_flags = None
+        if opt_flags:
+            cmake_args += ['-DOPT_FLAGS=' + opt_flags]
+
+        cmake_args += ["-DUSE_GPU:STR=No"]
+
+        env = os.environ.copy()
+        env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
+                                                              self.distribution.get_version())
+        if not os.path.exists(self.build_temp):
+            os.makedirs(self.build_temp)
+
+        cwd = os.path.join(os.getcwd(), "build")
+        subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=cwd, env=env)
+        print(build_args, self.build_temp, cmake_args)
+        subprocess.check_call(['cmake', '--build', '.', '--target', 'python'] + build_args, cwd=cwd)
+
+    def _generate_args(self):
         extdir = os.path.join(os.getcwd(), "bin")
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=' + extdir,
@@ -58,7 +82,7 @@ class CMakeBuild(build_ext):
                       '-DPYTHON_SETUP_FLAG:STR=Yes']
 
         cfg = 'Debug' if self.debug else 'Release'
-        build_args = ['--config', cfg]
+        build_args = ['--config', cfg, '--', '-j2']
 
         if platform.system() == "Windows":
             cmake_args += ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}'.format(cfg.upper(), extdir)]
@@ -89,29 +113,8 @@ class CMakeBuild(build_ext):
             cmake_args += ['-DCMAKE_CXX_COMPILER=' + gxx]
 
             cmake_args += ['-DCMAKE_BUILD_TYPE=' + cfg]
-            build_args += ['--', '-j2']
 
-        if self.opt_flags is not None:
-            opt_flags = self.opt_flags
-        elif os.getenv('QULACS_OPT_FLAGS'):
-            opt_flags = os.getenv('QULACS_OPT_FLAGS')
-        else:
-            opt_flags = None
-        if opt_flags:
-            cmake_args += ['-DOPT_FLAGS=' + opt_flags]
-
-        cmake_args += ["-DUSE_GPU:STR=No"]
-
-        env = os.environ.copy()
-        env['CXXFLAGS'] = '{} -DVERSION_INFO=\\"{}\\"'.format(env.get('CXXFLAGS', ''),
-                                                              self.distribution.get_version())
-        if not os.path.exists(self.build_temp):
-            os.makedirs(self.build_temp)
-
-        cwd = os.path.join(os.getcwd(), "build")
-        subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=cwd, env=env)
-        print(build_args, self.build_temp, cmake_args)
-        subprocess.check_call(['cmake', '--build', '.', '--target', 'python'] + build_args, cwd=cwd)
+        return build_args, cmake_args
 
 setup(
     name=project_name,
