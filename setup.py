@@ -50,7 +50,8 @@ class CMakeBuild(build_ext):
             self.build_extension(ext)
 
     def build_extension(self, ext):
-        extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
+        # extdir = os.path.abspath(os.path.dirname(self.get_ext_fullpath(ext.name)))
+        extdir = os.path.join(os.getcwd(), "bin")
         cmake_args = ['-DCMAKE_LIBRARY_OUTPUT_DIRECTORY=' + extdir,
                       '-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=' + extdir,
                       '-DPYTHON_EXECUTABLE=' + sys.executable,
@@ -106,9 +107,11 @@ class CMakeBuild(build_ext):
                                                               self.distribution.get_version())
         if not os.path.exists(self.build_temp):
             os.makedirs(self.build_temp)
-        subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
+
+        cwd = os.path.join(os.getcwd(), "build")
+        subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=cwd, env=env)
         print(build_args, self.build_temp, cmake_args)
-        subprocess.check_call(['cmake', '--build', '.', '--target', 'python'] + build_args, cwd=self.build_temp)
+        subprocess.check_call(['cmake', '--build', '.', '--target', 'python'] + build_args, cwd=cwd)
 
 setup(
     name=project_name,
@@ -122,7 +125,7 @@ setup(
     packages=find_packages(exclude=['test*'])+find_packages("pysrc"),
     include_package_data=True,
     ext_modules=[CMakeExtension('qulacs_core')],
-    # cmdclass=dict(build_ext=CMakeBuild),
+    cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
     test_suite = 'test',
     classifiers=[
