@@ -60,7 +60,7 @@ TEST(Backprop, BackpropCircuit) {
     auto bk = kairo.backprop(&observable);
     for (int i = 0; i < 9; i++) {
         cerr << bk[i] << " " << bibun[i].real() << endl;
-        assert(abs(bk[i] - (bibun[i].real())) < 1e-8);
+        ASSERT_NEAR(bk[i], bibun[i].real(), 1e-10);
     }
     // for(auto it:bk){cout<<it<<endl;}
     // cout<<"de"<<endl;
