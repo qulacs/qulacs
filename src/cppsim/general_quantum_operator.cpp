@@ -73,18 +73,18 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
 
 CPPCTYPE GeneralQuantumOperator::get_expectation_value_single_thread(
     const QuantumStateBase* state) const {
-    if (this->_qubit_count != state->qubit_count) {
+    if (this->_qubit_count > state->qubit_count) {
         std::cerr
             << "Error: GeneralQuantumOperator::get_expectation_value(const "
                "QuantumStateBase*): invalid qubit count"
             << std::endl;
         return 0.;
     }
-    size_t n_terms = this->_operator_list.size();
-    CPPCTYPE sum = 0.;
-    for (UINT i = 0; i < n_terms; ++i) {
-        sum += _operator_list[i]->get_expectation_value_single_thread(state);
-    }
+    auto sum = std::accumulate(this->_operator_list.cbegin(),
+        this->_operator_list.cend(), (CPPCTYPE)0.0,
+        [&](CPPCTYPE acc, PauliOperator* pauli) {
+            return acc + pauli->get_expectation_value_single_thread(state);
+        });
     return sum;
 }
 
@@ -275,6 +275,26 @@ void GeneralQuantumOperator::apply_to_state(QuantumStateBase* work_state,
         work_state->multiply_coef(term->get_coef());
         dst_state->add_state(work_state);
         delete pauli_operator;
+    }
+}
+
+void GeneralQuantumOperator::apply_to_state_single_thread(
+    QuantumStateBase* state, QuantumStateBase* dst_state) const {
+    if (state->qubit_count != dst_state->qubit_count) {
+        throw std::invalid_argument(
+            "Qubit count of state_to_be_multiplied and dst_state must be the "
+            "same");
+    }
+
+    dst_state->set_zero_norm_state();
+    const auto term_count = this->get_term_count();
+    for (UINT i = 0; i < term_count; i++) {
+        const auto term = this->get_term(i);
+        _apply_pauli_to_state_single_thread(
+            term->get_pauli_id_list(), term->get_index_list(), state);
+        dst_state->add_state_with_coef_single_thread(term->get_coef(), state);
+        _apply_pauli_to_state_single_thread(
+            term->get_pauli_id_list(), term->get_index_list(), state);
     }
 }
 
