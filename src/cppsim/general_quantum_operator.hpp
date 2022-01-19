@@ -195,14 +195,6 @@ public:
     void apply_to_state_single_thread(
         QuantumStateBase* state, QuantumStateBase* dst_state) const;
 
-    /**
-     * \~japanese-en
-     * このオブザーバブルに入っているものを、ゲートとしてstateに作用させたものを返す。
-     stateは変えない。
-     * @param [in] state 入力
-     */
-    virtual void update_quantum_state(QuantumStateBase* state);
-
     virtual GeneralQuantumOperator* copy() const;
 
     GeneralQuantumOperator operator+(

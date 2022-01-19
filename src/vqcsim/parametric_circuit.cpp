@@ -179,43 +179,11 @@ std::vector<double> ParametricQuantumCircuit::backprop(
     // parametric bibunti tasu
     std::vector<CPPCTYPE> bibun(1 << (this->qubit_count));
     QuantumState* bistate = new QuantumState(n);
-    QuantumState* Astate = new QuantumState(n);
-    // cerr<<state<<endl;
-    /*for(int i=0;i<target_qubit_index_list.size();i++){
-        int tqi=target_qubit_index_list[i];
+    QuantumState* Astate = new QuantumState(n);  // for itizi work
 
-        Astate->load(state);
-        if(target_qubit_pauli_list[i]==1){
-            //pauli X
-            auto x_gate=gate::X(tqi);
-            x_gate->update_quantum_state(Astate);
-            Astate->multiply_coef(-target_qubit_coef_list[i]);
-            bistate->add_state(Astate);
-            delete x_gate;
-        }
-        if(target_qubit_pauli_list[i]==2){
-            //pauli Y
-            auto y_gate=gate::Y(tqi);
-            y_gate->update_quantum_state(Astate);
-            Astate->multiply_coef(-target_qubit_coef_list[i]);
-            bistate->add_state(Astate);
-            delete y_gate;
-
-        }
-        if(target_qubit_pauli_list[i]==3){
-            //pauli Z
-            auto z_gate=gate::Z(tqi);
-            z_gate->update_quantum_state(Astate);
-            Astate->multiply_coef(-target_qubit_coef_list[i]);
-            bistate->add_state(Astate);
-            delete z_gate;
-        }
-    }*/
-    bistate->load(state);
-
-    obs->update_quantum_state(bistate);
+    obs->apply_to_state(Astate, *state, bistate);
     bistate->multiply_coef(-1);
-    // cerr<<bistate<<endl;
+
     double ansnorm = bistate->get_squared_norm();
     if (ansnorm == 0) {
         vector<double> ans(this->get_parameter_count());

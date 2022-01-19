@@ -56,7 +56,7 @@ void GeneralQuantumOperator::add_operator(
 
 CPPCTYPE GeneralQuantumOperator::get_expectation_value(
     const QuantumStateBase* state) const {
-    if (this->_qubit_count != state->qubit_count) {
+    if (this->_qubit_count > state->qubit_count) {
         std::cerr
             << "Error: GeneralQuantumOperator::get_expectation_value(const "
                "QuantumStateBase*): invalid qubit count"
@@ -91,8 +91,8 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value_single_thread(
 CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
     const QuantumStateBase* state_bra,
     const QuantumStateBase* state_ket) const {
-    if (this->_qubit_count != state_bra->qubit_count ||
-        this->_qubit_count != state_ket->qubit_count) {
+    if (this->_qubit_count > state_bra->qubit_count ||
+        state_bra->qubit_count != state_ket->qubit_count) {
         std::cerr
             << "Error: GeneralQuantumOperator::get_transition_amplitude(const "
                "QuantumStateBase*, const QuantumStateBase*): invalid qubit "
@@ -556,21 +556,6 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(CPPCTYPE target) {
     }
     return *this;
 }
-// made by watle
-void GeneralQuantumOperator::update_quantum_state(QuantumStateBase* state) {
-    int n = state->qubit_count;
-    auto sum_state = state::get_zero_state(n);
-    auto terms = this->get_terms();
-    for (size_t i = 0; i < terms.size(); i++) {
-        auto now_state = state->copy();
-        terms[i]->update_quantum_state(now_state);
-        sum_state->add_state(now_state);
-        delete now_state;
-    }
-    state->load(sum_state);
-    delete sum_state;
-}
-
 namespace quantum_operator {
 GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(
     std::string file_path) {
