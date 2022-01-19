@@ -676,6 +676,4 @@ DllExport QuantumState* permutate_qubit(
     const QuantumState* state, std::vector<UINT> qubit_order);
 DllExport QuantumState* drop_qubit(const QuantumState* state,
     std::vector<UINT> target, std::vector<UINT> projection);
-
-DllExport QuantumState* get_zero_state(int n);
 }  // namespace state

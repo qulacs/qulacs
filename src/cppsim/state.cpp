@@ -53,15 +53,5 @@ QuantumState* drop_qubit(const QuantumState* state, std::vector<UINT> target,
         state->data_c(), qs->data_c(), state->dim);
     return qs;
 }
-QuantumState* get_zero_state(int n) {
-    QuantumState* state = new QuantumState(n);
-    ComplexMatrix zero_matrix(2, 2);
-    zero_matrix << 0, 0, 0, 0;
-    std::vector<UINT> target_list_a = {0};
-    auto zero_gate = new QuantumGateMatrix(target_list_a, zero_matrix);
-    zero_gate->update_quantum_state(state);
-    delete zero_gate;
-    return state;
-}
 
 }  // namespace state
