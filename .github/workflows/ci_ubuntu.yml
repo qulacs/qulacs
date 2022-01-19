@@ -190,7 +190,7 @@ jobs:
         if: ${{ github.event_name == 'push' }}
         run: |
           cd /
-          git clone -b ${{github.ref#refs/heads/}} https://github.com/Qulacs-Osaka/qulacs-osaka
+          git clone -b ${{github.ref}} https://github.com/Qulacs-Osaka/qulacs-osaka
 
       - name: format
         run: qulacs_format
