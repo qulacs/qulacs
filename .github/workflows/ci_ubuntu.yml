@@ -180,10 +180,17 @@ jobs:
     container:
       image: ghcr.io/qulacs-osaka/qulacs-ubuntu-clang-format:latest
     steps:
-      - name: clone /qulacs-osaka
+      - name: clone /qulacs-osaka (pull_request)
+        if: ${{ github.event_name == 'pull_request' }}
         run: |
           cd /
-          git clone -b ${{ github.head_ref }} https://github.com/Qulacs-Osaka/qulacs-osaka
+          git clone -b ${{github.head_ref}} https://github.com/Qulacs-Osaka/qulacs-osaka
+        
+      - name: clone /qulacs-osaka (push)
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          cd /
+          git clone -b ${{github.base_ref}} https://github.com/Qulacs-Osaka/qulacs-osaka
 
       - name: format
         run: qulacs_format
