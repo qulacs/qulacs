@@ -57,7 +57,6 @@ void state_add_with_coef_single_thread(
     }
 }
 
-
 void state_multiply(CTYPE coef, CTYPE* state, ITYPE dim) {
     ITYPE index;
 #ifdef _OPENMP

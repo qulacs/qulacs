@@ -289,7 +289,7 @@ public:
         state_multiply_host(
             1 / coef, this->data(), this->dim, _cuda_stream, device_number);
     }
-    
+
     /**
      * \~japanese-en 複素数をかける
      */

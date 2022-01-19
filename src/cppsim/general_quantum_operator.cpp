@@ -263,7 +263,6 @@ void GeneralQuantumOperator::apply_to_state(QuantumStateBase* work_state,
     }
 }
 
-
 void GeneralQuantumOperator::apply_to_state(
     QuantumStateBase* state, QuantumStateBase* dst_state) const {
     if (state->qubit_count != dst_state->qubit_count) {

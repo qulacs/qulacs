@@ -34,7 +34,7 @@ public:
     virtual void set_zero_state() override {
         dm_initialize_quantum_state(this->data_c(), _dim);
     }
-    
+
     /**
      * \~japanese-en ノルム0の状態 (すべての要素が0の行列にする)
      */
@@ -42,7 +42,7 @@ public:
         set_zero_state();
         _density_matrix[0] = 0.;
     }
-    
+
     /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
      *
@@ -337,7 +337,7 @@ public:
         dm_state_add_with_coef(
             coef, state->data_c(), this->data_c(), this->dim);
     }
-    
+
     /**
      * \~japanese-en 量子状態を足しこむ
      */
@@ -353,7 +353,7 @@ public:
         dm_state_add_with_coef(
             coef, state->data_c(), this->data_c(), this->dim);
     }
-    
+
     /**
      * \~japanese-en 複素数をかける
      */

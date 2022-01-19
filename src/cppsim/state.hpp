@@ -581,7 +581,7 @@ public:
         }
         state_add(state->data_c(), this->data_c(), this->dim);
     }
-    
+
     /**
      * \~japanese-en 量子状態を足しこむ
      */
