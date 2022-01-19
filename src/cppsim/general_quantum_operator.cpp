@@ -278,26 +278,6 @@ void GeneralQuantumOperator::apply_to_state(QuantumStateBase* work_state,
     }
 }
 
-void GeneralQuantumOperator::apply_to_state_single_thread(
-    QuantumStateBase* state, QuantumStateBase* dst_state) const {
-    if (state->qubit_count != dst_state->qubit_count) {
-        throw std::invalid_argument(
-            "Qubit count of state_to_be_multiplied and dst_state must be the "
-            "same");
-    }
-
-    dst_state->set_zero_norm_state();
-    const auto term_count = this->get_term_count();
-    for (UINT i = 0; i < term_count; i++) {
-        const auto term = this->get_term(i);
-        _apply_pauli_to_state_single_thread(
-            term->get_pauli_id_list(), term->get_index_list(), state);
-        dst_state->add_state_with_coef_single_thread(term->get_coef(), state);
-        _apply_pauli_to_state_single_thread(
-            term->get_pauli_id_list(), term->get_index_list(), state);
-    }
-}
-
 CPPCTYPE GeneralQuantumOperator::calculate_default_mu() const {
     double mu = 0.0;
     const auto term_count = this->get_term_count();
