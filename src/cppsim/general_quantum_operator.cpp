@@ -300,6 +300,26 @@ void GeneralQuantumOperator::apply_to_state(
     }
 }
 
+void GeneralQuantumOperator::apply_to_state_single_thread(
+    QuantumStateBase* state, QuantumStateBase* dst_state) const {
+    if (state->qubit_count != dst_state->qubit_count) {
+        throw std::invalid_argument(
+            "Qubit count of state_to_be_multiplied and dst_state must be the "
+            "same");
+    }
+
+    dst_state->set_zero_norm_state();
+    const auto term_count = this->get_term_count();
+    for (UINT i = 0; i < term_count; i++) {
+        const auto term = this->get_term(i);
+        _apply_pauli_to_state_single_thread(
+            term->get_pauli_id_list(), term->get_index_list(), state);
+        dst_state->add_state_with_coef_single_thread(term->get_coef(), state);
+        _apply_pauli_to_state_single_thread(
+            term->get_pauli_id_list(), term->get_index_list(), state);
+    }
+}
+
 void GeneralQuantumOperator::_apply_pauli_to_state(
     std::vector<UINT> pauli_id_list, std::vector<UINT> target_index_list,
     QuantumStateBase* state) const {
@@ -313,17 +333,41 @@ void GeneralQuantumOperator::_apply_pauli_to_state(
                 state->device_number);
             // _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
             // state->data(), state->dim);
-        } else {
-            multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
-                pauli_id_list.data(), (UINT)target_index_list.size(),
-                state->data_c(), state->dim);
+            return;
         }
-#else
+#endif
         multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
             pauli_id_list.data(), (UINT)target_index_list.size(),
             state->data_c(), state->dim);
-#endif
     } else {
+        dm_multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
+            pauli_id_list.data(), (UINT)target_index_list.size(),
+            state->data_c(), state->dim);
+    }
+}
+
+void GeneralQuantumOperator::_apply_pauli_to_state_single_thread(
+    std::vector<UINT> pauli_id_list, std::vector<UINT> target_index_list,
+    QuantumStateBase* state) const {
+    // this function is same as the gate::Pauli update quantum state
+    if (state->is_state_vector()) {
+#ifdef _USE_GPU
+        if (state->get_device_name() == "gpu") {
+            // TODO: make it single thread for this function
+            multi_qubit_Pauli_gate_partial_list_host(target_index_list.data(),
+                pauli_id_list.data(), (UINT)target_index_list.size(),
+                state->data(), state->dim, state->get_cuda_stream(),
+                state->device_number);
+            // _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
+            // state->data(), state->dim);
+            return;
+        }
+#endif
+        multi_qubit_Pauli_gate_partial_list_single_thread(
+            target_index_list.data(), pauli_id_list.data(),
+            (UINT)target_index_list.size(), state->data_c(), state->dim);
+    } else {
+        // TODO: make it single thread for this function
         dm_multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
             pauli_id_list.data(), (UINT)target_index_list.size(),
             state->data_c(), state->dim);
