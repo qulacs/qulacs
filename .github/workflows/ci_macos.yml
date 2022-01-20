@@ -2,7 +2,17 @@ name: macOS CI
 
 on:
   push:
+    paths-ignore:
+      - ".devcontainer/"
+      - ".vscode/"
+      - "doc/"
+      - "*.md"
   pull_request:
+    paths-ignore:
+      - ".devcontainer/"
+      - ".vscode/"
+      - "doc/"
+      - "*.md"
 
 jobs:
   gcc10-build:
