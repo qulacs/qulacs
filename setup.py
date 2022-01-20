@@ -82,9 +82,8 @@ class CMakeBuild(build_ext):
         subprocess.check_call(
             ["cmake", ext.sourcedir] + cmake_args, cwd=build_dir, env=env
         )
-        # Specify `shell=True` to expand `$(nproc)` in build_args.
         subprocess.check_call(
-            ["cmake", "--build", ".", "--target", "python"] + build_args, cwd=build_dir, shell=True
+            ["cmake", "--build", ".", "--target", "python"] + build_args, cwd=build_dir
         )
 
     def _generate_args(self, ext):
@@ -127,7 +126,11 @@ class CMakeBuild(build_ext):
             cmake_args += ["-DCMAKE_CXX_COMPILER=" + gxx]
             cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]
 
-            build_args += ["--", "-j$(nproc)"]
+            # The reason to call `nproc` explicitly instead of `-j$(nproc)`:
+            # - To expand `$(nproc)`, need `shell=True` for `subprocess.check_call()`.
+            # - But with `shell=True`, the command specified by `subprocess.check_call()` is not executed.
+            n_processors = subprocess.check_output("nproc").strip()
+            build_args += ["--", "-j", n_processors]
 
         return build_args, cmake_args
 
