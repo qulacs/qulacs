@@ -126,11 +126,7 @@ class CMakeBuild(build_ext):
             cmake_args += ["-DCMAKE_CXX_COMPILER=" + gxx]
             cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]
 
-            # The reason to call `nproc` explicitly instead of `-j$(nproc)`:
-            # - To expand `$(nproc)`, need `shell=True` for `subprocess.check_call()`.
-            # - But with `shell=True`, the command specified by `subprocess.check_call()` is not executed.
-            n_processors = subprocess.check_output("nproc").strip()
-            build_args += ["--", "-j", n_processors]
+            build_args += ["--", "-j"]
 
         return build_args, cmake_args
 
