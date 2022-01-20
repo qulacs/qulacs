@@ -82,7 +82,6 @@ class CMakeBuild(build_ext):
         subprocess.check_call(
             ["cmake", ext.sourcedir] + cmake_args, cwd=build_dir, env=env
         )
-        print(build_args, self.build_temp, cmake_args)
         subprocess.check_call(
             ["cmake", "--build", ".", "--target", "python"] + build_args, cwd=build_dir
         )

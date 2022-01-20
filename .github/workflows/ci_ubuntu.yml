@@ -64,8 +64,8 @@ jobs:
       - name: Test in Ubuntu
         run: |
           cd ./build
-          make test
-          make pythontest
+          make test -j
+          make pythontest -j
 
       - name: Show cache stats
         run: ccache -s
