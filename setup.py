@@ -103,15 +103,12 @@ class CMakeBuild(build_ext):
         ]
 
         cfg = "Debug" if self.debug else "Release"
-        # TODO: Use -j$(nproc)
-        build_args = ["--config", cfg, "--", "-j"]
+        build_args = ["--config", cfg]
 
         if platform.system() == "Windows":
             cmake_args += [
-                "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir)
-            ]
-            cmake_args += [
-                "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir)
+                "-DCMAKE_LIBRARY_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir),
+                "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY_{}={}".format(cfg.upper(), extdir),
             ]
             if sys.maxsize > 2 ** 32:
                 cmake_args += ["-A", "x64"]
@@ -128,6 +125,8 @@ class CMakeBuild(build_ext):
             cmake_args += ["-DCMAKE_C_COMPILER=" + gcc]
             cmake_args += ["-DCMAKE_CXX_COMPILER=" + gxx]
             cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]
+
+            build_args += ["--", "-j$(nproc)"]
 
         return build_args, cmake_args
 
