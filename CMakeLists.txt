@@ -178,9 +178,8 @@ if(NOT USE_GPU)
 	 # -Werror=undef is eliminated due to conflict with boost
 endif()
 
-
-
 ##### set output directory #####
+# PYTHON_SETUP_FLAG is set if you have run setup.py previously.
 if(NOT DEFINED PYTHON_SETUP_FLAG)
 	message(STATUS "Install from cmakebuild")
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../lib)
