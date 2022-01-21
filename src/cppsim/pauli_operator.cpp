@@ -40,9 +40,9 @@ PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef) : _coef(coef) {
         else if (pauli_str == "Z" || pauli_str == "z")
             pauli_type = 3;
         else {
-            fprintf(stderr, "invalid Pauli string is given : %s\n ",
-                pauli_str.c_str());
-            assert(false);
+            std::stringstream ss;
+            ss << "invalid Pauli string is given : " << pauli_str;
+            throw std::invalid_argument(ss.str());
         }
         if (pauli_type != 0) this->add_single_Pauli(index, pauli_type);
     }
@@ -67,8 +67,9 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list,
                    Pauli_operator_type_list[term_index] == 'Z') {
             pauli_type = 3;
         } else {
-            fprintf(stderr, "invalid Pauli string is given\n");
-            assert(false);
+            std::stringstream ss;
+            ss << "invalid Pauli string is given : ";
+            throw std::invalid_argument(ss.str());
         }
 
         if (pauli_type != 0)
@@ -171,9 +172,9 @@ CPPCTYPE PauliOperator::get_transition_amplitude(
     const QuantumStateBase* state_bra,
     const QuantumStateBase* state_ket) const {
     if ((!state_bra->is_state_vector()) || (!state_ket->is_state_vector())) {
-        std::cerr
-            << "get_transition_amplitude for density matrix is not implemented"
-            << std::endl;
+        std::stringstream ss;
+        ss << "get_transition_amplitude for density matrix is not implemented";
+        throw std::invalid_argument(ss.str());
     }
 #ifdef _USE_GPU
     if (state_ket->get_device_name() == "gpu" &&

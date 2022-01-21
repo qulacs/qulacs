@@ -17,10 +17,10 @@
 
 void HermitianQuantumOperator::add_operator(const PauliOperator* mpt) {
     if (std::abs(mpt->get_coef().imag()) > 0) {
-        std::cerr << "Error: HermitianQuantumOperator::add_operator(const "
-                     "PauliOperator* mpt): PauliOperator must be Hermitian."
-                  << std::endl;
-        return;
+        std::stringstream ss;
+        ss << "Error: HermitianQuantumOperator::add_operator(const "
+              "PauliOperator* mpt): PauliOperator must be Hermitian.";
+        throw std::invalid_argument(ss.str());
     }
     GeneralQuantumOperator::add_operator(mpt);
 }
@@ -28,10 +28,10 @@ void HermitianQuantumOperator::add_operator(const PauliOperator* mpt) {
 void HermitianQuantumOperator::add_operator(
     CPPCTYPE coef, std::string pauli_string) {
     if (std::abs(coef.imag()) > 0) {
-        std::cerr << "Error: HermitianQuantumOperator::add_operator(const "
-                     "PauliOperator* mpt): PauliOperator must be Hermitian."
-                  << std::endl;
-        return;
+        std::stringstream ss;
+        ss << "Error: HermitianQuantumOperator::add_operator(const "
+              "PauliOperator* mpt): PauliOperator must be Hermitian.";
+        throw std::invalid_argument(ss.str());
     }
     GeneralQuantumOperator::add_operator(coef, pauli_string);
 }
@@ -46,12 +46,13 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     QuantumStateBase* init_state, const UINT iter_count,
     const CPPCTYPE mu) const {
     if (this->get_term_count() == 0) {
-        std::cerr << "Error: "
-                     "HermitianQuantumOperator::solve_ground_state_eigenvalue_"
-                     "by_lanczos_method("
-                     "QuantumStateBase * state, const UINT iter_count, const "
-                     "CPPCTYPE mu): At least one PauliOperator is required.";
-        return 0;
+        std::stringstream ss;
+        ss << "Error: "
+              "HermitianQuantumOperator::solve_ground_state_eigenvalue_"
+              "by_lanczos_method("
+              "QuantumStateBase * state, const UINT iter_count, const "
+              "CPPCTYPE mu): At least one PauliOperator is required.";
+        throw std::invalid_argument(ss.str());
     }
 
     // Implemented based on
@@ -195,8 +196,9 @@ HermitianQuantumOperator* create_observable_from_openfermion_file(
     ifs.open(file_path);
 
     if (!ifs) {
-        std::cerr << "ERROR: Cannot open file" << std::endl;
-        return NULL;
+        std::stringstream ss;
+        ss << "ERROR: Cannot open file";
+        throw std::runtime_error(ss.str());
     }
 
     // loading lines and check qubit_count
@@ -222,8 +224,9 @@ HermitianQuantumOperator* create_observable_from_openfermion_file(
         }
     }
     if (!ifs.eof()) {
-        std::cerr << "ERROR: Invalid format" << std::endl;
-        return NULL;
+        std::stringstream ss;
+        ss << "ERROR: Invalid format";
+        throw std::runtime_error(ss.str());
     }
     ifs.close();
 
@@ -286,9 +289,9 @@ create_split_observable(std::string file_path) {
     ifs.open(file_path);
 
     if (!ifs) {
-        std::cerr << "ERROR: Cannot open file" << std::endl;
-        return std::make_pair(
-            (HermitianQuantumOperator*)NULL, (HermitianQuantumOperator*)NULL);
+        std::stringstream ss;
+        ss << "ERROR: Cannot open file";
+        throw std::runtime_error(ss.str());
     }
 
     // loading lines and check qubit_count
@@ -314,9 +317,9 @@ create_split_observable(std::string file_path) {
         }
     }
     if (!ifs.eof()) {
-        std::cerr << "ERROR: Invalid format" << std::endl;
-        return std::make_pair(
-            (HermitianQuantumOperator*)NULL, (HermitianQuantumOperator*)NULL);
+        std::stringstream ss;
+        ss << "ERROR: Invalid format";
+        throw std::runtime_error(ss.str());
     }
     ifs.close();
 

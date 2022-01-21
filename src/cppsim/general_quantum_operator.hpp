@@ -91,10 +91,9 @@ public:
      */
     virtual const PauliOperator* get_term(UINT index) const {
         if (index >= _operator_list.size()) {
-            std::cerr
-                << "Error: PauliOperator::get_term(UINT): index out of range"
-                << std::endl;
-            return NULL;
+            std::stringstream ss;
+            ss << "Error: PauliOperator::get_term(UINT): index out of range";
+            throw std::out_of_range(ss.str());
         }
         return _operator_list[index];
     }
