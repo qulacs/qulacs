@@ -57,6 +57,15 @@ public:
             this->data(), _dim, _cuda_stream, device_number);
     }
     /**
+     * \~japanese-en 量子状態を計算基底の0状態に初期化する
+     * TODO: implement this
+     */
+    virtual void set_zero_norm_state() override {
+        std::cerr
+            << "set_zero_norm_state for QuantumStateGpu is not implemented yet"
+            << std::endl;
+    }
+    /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
      *
      * @param comp_basis 初期化する基底を表す整数
@@ -138,6 +147,17 @@ public:
             this->data(), _dim, _cuda_stream, device_number);
     }
 
+    /**
+     * \~japanese-en 量子状態のノルムを計算する
+     *
+     * 量子状態のノルムは非ユニタリなゲートを作用した時に小さくなる。
+     * TODO: implement this as a single thread version.
+     * @return ノルム
+     */
+    virtual double get_squared_norm_single_thread() const override {
+        return state_norm_squared_host(
+            this->data(), _dim, _cuda_stream, device_number);
+    }
     /**
      * \~japanese-en 量子状態のノルムを計算する
      *
