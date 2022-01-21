@@ -29,6 +29,16 @@ protected:
     void _apply_pauli_to_state(std::vector<UINT> pauli_id_list,
         std::vector<UINT> target_index_list, QuantumStateBase* state) const;
 
+    /**
+     * \~japanese-en
+     * state にパウリ演算子を作用させる
+     * @param [in] pauli_id_list パウリ演算子の ID
+     * @param [in] target_index_list パウリ演算子が作用する量子ビットの番号
+     * @param [in] state 作用を受ける状態
+     */
+    void _apply_pauli_to_state_single_thread(std::vector<UINT> pauli_id_list,
+        std::vector<UINT> target_index_list, QuantumStateBase* state) const;
+
 public:
     /**
      * \~japanese-en
@@ -140,6 +150,8 @@ public:
      * @return 入力で与えた量子状態に対応するGeneralQuantumOperatorの期待値
      */
     virtual CPPCTYPE get_expectation_value(const QuantumStateBase* state) const;
+    virtual CPPCTYPE get_expectation_value_single_thread(
+        const QuantumStateBase* state) const;
 
     /**
      * \~japanese-en

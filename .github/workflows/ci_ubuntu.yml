@@ -2,7 +2,17 @@ name: Ubuntu CI
 
 on:
   push:
+    paths-ignore:
+      - ".devcontainer/"
+      - ".vscode/"
+      - "doc/"
+      - "*.md"
   pull_request:
+    paths-ignore:
+      - ".devcontainer/"
+      - ".vscode/"
+      - "doc/"
+      - "*.md"
 
 jobs:
   gcc8-build:
@@ -177,23 +187,27 @@ jobs:
   format:
     name: Format with clang-format
     runs-on: "ubuntu-20.04"
+    container:
+      image: ghcr.io/qulacs-osaka/qulacs-ubuntu-clang-format:latest
     steps:
-      - uses: actions/checkout@v2
+      - name: clone /qulacs-osaka (pull_request)
+        if: ${{ github.event_name == 'pull_request' }}
+        run: |
+          cd /
+          git clone -b "${GITHUB_HEAD_REF#refs/heads/}" https://github.com/Qulacs-Osaka/qulacs-osaka
+        
+      - name: clone /qulacs-osaka (push)
+        if: ${{ github.event_name == 'push' }}
+        run: |
+          cd /
+          git clone -b "${GITHUB_REF#refs/heads/}" https://github.com/Qulacs-Osaka/qulacs-osaka
 
-      - name: Setup cmake
-        uses: lukka/get-cmake@latest
-
-      - name: Install boost
-        run: sudo apt install libboost-dev
-
-      - name: Install qulacs for Ubuntu
-        run: ./script/build_gcc.sh
-
-      - name: Run clang-format
-        run: cmake --build build --target format
+      - name: format
+        run: qulacs_format
 
       - name: Compare diff
         run: |
+          cd /qulacs-osaka
           diff=$(git diff)
           echo -n "$diff"
           # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
