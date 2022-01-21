@@ -191,7 +191,9 @@ QuantumGateBase* DiagonalMatrix(
         std::stringstream ss;
         ss << "Error: gate::DiagonalMatrix(std::vector<UINT> target_list, "
               "ComplexVector diagonal_element): target list contains "
-              "duplicated values.";
+              "duplicated values."
+              "\nInfo: NULL used to be returned, "
+              "but it changed to throw exception.";
         throw std::invalid_argument(ss.str());
     }
     return new QuantumGateDiagonalMatrix(target_list, diagonal_element);
