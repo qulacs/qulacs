@@ -511,3 +511,17 @@ TEST(ObservableTest, ObservableAndStateHaveDifferentQubitCountTest) {
     ASSERT_NEAR(0, test_res.imag(), eps);
     ASSERT_NEAR(0, res.imag(), eps);
 }
+
+TEST(ObservableTest, ApplyIdentityToState) {
+    const double eps = 1e-14;
+
+    double coef = .5;
+    int n_qubits = 3;
+    Observable obs(n_qubits);
+    obs.add_operator(coef, "I");
+    QuantumState state(n_qubits);
+    QuantumState dst_state(n_qubits);
+    obs.apply_to_state(&state, &dst_state);
+    state.add_state_with_coef(-1 / coef, &dst_state);
+    ASSERT_NEAR(0., state.get_squared_norm(), eps);
+}
