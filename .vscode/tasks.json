@@ -1,0 +1,55 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build gcc",
+            "type": "shell",
+            "command": "./script/build_gcc.sh",
+        },
+        {
+            "label": "test",
+            "type": "shell",
+            "command": "make test -C build -j",
+            "dependsOn": [
+                "build gcc"
+            ]
+        },
+        {
+            "label": "pythontest",
+            "type": "shell",
+            "command": "make pythontest -C build -j",
+            "dependsOn": [
+                "build gcc"
+            ]
+        },
+        {
+            "label": "install",
+            "type": "shell",
+            "command": "python setup.py bdist_wheel",
+            "dependsOn": [
+                "build gcc"
+            ]
+        },
+        {
+            "label": "format",
+            "type": "shell",
+            "command": "find ./src ./test ./benchmark -regex '.*\\.\\(cu\\|cuh\\|cpp\\|h\\|hpp\\)' -exec clang-format -style=file -i {} \\;"
+        },
+        {
+            "label": "generate stub(only qulacs_osaka_core)",
+            "type": "shell",
+            "command": "stubgen -p qulacs_osaka_core -o typings && pybind11-stubgen qulacs_osaka_core --no-setup-py --root-module-suffix='' --ignore-invalid=all --output-dir='./typings'",
+            "dependsOn": [
+                "install"
+            ]
+        },
+        {
+            "label": "generate stub",
+            "type": "shell",
+            "command": "stubgen -p qulacs_osaka -o typings && pybind11-stubgen qulacs_osaka --no-setup-py --root-module-suffix='' --ignore-invalid=all --output-dir='./typings'",
+            "dependsOn": [
+                "generate stub(only qulacs_osaka_core)"
+            ]
+        }
+    ]
+}

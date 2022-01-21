@@ -167,6 +167,40 @@ CPPCTYPE PauliOperator::get_expectation_value(
     }
 }
 
+CPPCTYPE PauliOperator::get_expectation_value_single_thread(
+    const QuantumStateBase* state) const {
+    if (state->is_state_vector()) {
+#ifdef _USE_GPU
+        if (state->get_device_name() == "gpu") {
+            // TODO: implement single_thread version of
+            // expectation_value_multi_qubit_Pauli_operator_partial_list_host
+            return _coef *
+                   expectation_value_multi_qubit_Pauli_operator_partial_list_host(
+                       this->get_index_list().data(),
+                       this->get_pauli_id_list().data(),
+                       (UINT)this->get_index_list().size(), state->data(),
+                       state->dim, state->get_cuda_stream(),
+                       state->device_number);
+        }
+#endif
+        return _coef *
+               expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
+                   this->get_index_list().data(),
+                   this->get_pauli_id_list().data(),
+                   (UINT)this->get_index_list().size(), state->data_c(),
+                   state->dim);
+    } else {
+        // TODO: implement single_thread version of
+        // dm_expectation_value_multi_qubit_Pauli_operator_partial_list
+        return _coef *
+               dm_expectation_value_multi_qubit_Pauli_operator_partial_list(
+                   this->get_index_list().data(),
+                   this->get_pauli_id_list().data(),
+                   (UINT)this->get_index_list().size(), state->data_c(),
+                   state->dim);
+    }
+}
+
 CPPCTYPE PauliOperator::get_transition_amplitude(
     const QuantumStateBase* state_bra,
     const QuantumStateBase* state_ket) const {
@@ -371,42 +405,4 @@ void PauliOperator::update_quantum_state(QuantumStateBase* instate) {
     }
     instate->multiply_coef(this->get_coef());
     return;
-}
-
-CPPCTYPE PauliOperator::get_expectation_value_single_thread(
-    const QuantumStateBase* state) const {
-    if (state->is_state_vector()) {
-#ifdef _USE_GPU
-        if (state->get_device_name() == "gpu") {
-            return _coef *
-                   expectation_value_multi_qubit_Pauli_operator_partial_list_host(
-                       this->get_index_list().data(),
-                       this->get_pauli_id_list().data(),
-                       (UINT)this->get_index_list().size(), state->data(),
-                       state->dim, state->get_cuda_stream(),
-                       state->device_number);
-        } else {
-            return _coef *
-                   expectation_value_multi_qubit_Pauli_operator_partial_list(
-                       this->get_index_list().data(),
-                       this->get_pauli_id_list().data(),
-                       (UINT)this->get_index_list().size(), state->data_c(),
-                       state->dim);
-        }
-#else
-        return _coef *
-               expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
-                   this->get_index_list().data(),
-                   this->get_pauli_id_list().data(),
-                   (UINT)this->get_index_list().size(), state->data_c(),
-                   state->dim);
-#endif
-    } else {
-        return _coef *
-               dm_expectation_value_multi_qubit_Pauli_operator_partial_list(
-                   this->get_index_list().data(),
-                   this->get_pauli_id_list().data(),
-                   (UINT)this->get_index_list().size(), state->data_c(),
-                   state->dim);
-    }
 }

@@ -400,6 +400,8 @@ DllExport QuantumGateBasic* Toffoli(
     UINT control_qubit1, UINT control_qubit2, UINT target_qubit);
 DllExport QuantumGateBasic* Fredkin(
     UINT control_qubit, UINT target_qubit1, UINT target_qubit2);
+DllExport QuantumGateBasic* RandomUnitary(
+    std::vector<UINT> target_list, int64_t seed = -1);
 };  // namespace gate
 
 // Cereal Type Registration

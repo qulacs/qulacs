@@ -23,14 +23,14 @@ protected:
     ITYPE _dim;
     UINT _qubit_count;
     bool _is_state_vector;
-    std::map<std::string, UINT> _classical_register;
+    std::map<std::string, int> _classical_register;
     UINT _device_number;
     void* _cuda_stream;
 
 public:
     const UINT& qubit_count; /**< \~japanese-en 量子ビット数 */
     const ITYPE& dim;        /**< \~japanese-en 量子状態の次元 */
-    const std::map<std::string, UINT>&
+    const std::map<std::string, int>&
         classical_register; /**< \~japanese-en 古典ビットのレジスタ */
     const UINT& device_number;
     /**
@@ -221,7 +221,7 @@ public:
      * @param index セットするレジスタの添え字
      * @return 複素ベクトルのポインタ
      */
-    virtual UINT get_classical_value(std::string index) {
+    virtual int get_classical_value(std::string index) {
         return _classical_register[index];
     }
 
@@ -232,7 +232,7 @@ public:
      * @param val セットする値
      * @return 複素ベクトルのポインタ
      */
-    virtual void set_classical_value(std::string index, UINT val) {
+    virtual void set_classical_value(std::string index, int val) {
         _classical_register[index] = val;
     }
 
@@ -241,7 +241,7 @@ public:
      *
      * @return 古典レジスタ
      */
-    virtual const std::map<std::string, UINT> get_classical_register() const {
+    virtual const std::map<std::string, int> get_classical_register() const {
         return _classical_register;
     }
 

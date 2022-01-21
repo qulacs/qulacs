@@ -128,6 +128,13 @@ public:
      * @return ノルム
      */
     virtual double get_squared_norm() const = 0;
+
+    /**
+     * \~japanese-en 量子状態のノルムを計算する
+     *
+     * 量子状態のノルムは非ユニタリなゲートを作用した時に小さくなる。
+     * @return ノルム
+     */
     virtual double get_squared_norm_single_thread() const = 0;
 
     /**
@@ -701,6 +708,4 @@ DllExport QuantumState* permutate_qubit(
     const QuantumState* state, std::vector<UINT> qubit_order);
 DllExport QuantumState* drop_qubit(const QuantumState* state,
     std::vector<UINT> target, std::vector<UINT> projection);
-
-DllExport QuantumState* get_zero_state(int n);
 }  // namespace state

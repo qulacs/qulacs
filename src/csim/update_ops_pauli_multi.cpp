@@ -303,6 +303,7 @@ void multi_qubit_Pauli_gate_XZ_mask_single_thread(ITYPE bit_flip_mask,
             cval_0 * PHASE_M90ROT[(global_phase_90rot_count + sign_1 * 2) % 4];
     }
 }
+
 void multi_qubit_Pauli_rotation_gate_XZ_mask_single_thread(ITYPE bit_flip_mask,
     ITYPE phase_flip_mask, UINT global_phase_90rot_count,
     UINT pivot_qubit_index, double angle, CTYPE* state, ITYPE dim) {
