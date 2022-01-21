@@ -21,6 +21,16 @@ double state_norm_squared(const CTYPE* state, ITYPE dim) {
     return norm;
 }
 
+// calculate norm
+double state_norm_squared_single_thread(const CTYPE* state, ITYPE dim) {
+    ITYPE index;
+    double norm = 0;
+    for (index = 0; index < dim; ++index) {
+        norm += pow(_cabs(state[index]), 2);
+    }
+    return norm;
+}
+
 // calculate inner product of two state vector
 CTYPE
 state_inner_product(const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
