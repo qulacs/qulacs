@@ -41,4 +41,3 @@ INSTANTIATE_TEST_CASE_P(SinglePauli, PauliOperatorMultiplyTest,
             PauliOperator("X", -4.0i)),
         PauliTestParam(PauliOperator("Z", 2.0), PauliOperator("Z", 2.0),
             PauliOperator("I", 4.0))));
-
