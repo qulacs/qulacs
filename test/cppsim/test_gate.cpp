@@ -1391,6 +1391,19 @@ TEST(GateTest, DuplicateIndex) {
             std::invalid_argument);
     }
     {
+        UINT n = 2;
+        ITYPE dim = 1ULL << n;
+        ComplexVector test_state_eigen(dim);
+        auto gate1 = gate::DiagonalMatrix({10, 13}, test_state_eigen);
+        EXPECT_TRUE(gate1 != NULL);
+        delete gate1;
+        ASSERT_THROW(
+            {
+                auto gate2 = gate::DiagonalMatrix({21, 21}, test_state_eigen);
+            },
+            std::invalid_argument);
+    }
+    {
         auto gate1 = gate::RandomUnitary({10, 13});
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
