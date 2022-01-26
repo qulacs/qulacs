@@ -51,7 +51,7 @@ jobs:
 
       - name: Install boost
         run: sudo apt install libboost-dev
-
+      
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion
 
@@ -106,6 +106,10 @@ jobs:
 
       - name: Install boost
         run: sudo apt install libboost-dev
+
+      - name: Install CUDA toolkit
+        uses: Jimver/cuda-toolkit@v0.2.5
+        id: cuda-toolkit
 
       - name: Install qulacs for Ubuntu
         run: ./script/build_gcc_with_gpu.sh
