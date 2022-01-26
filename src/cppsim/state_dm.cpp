@@ -17,10 +17,10 @@ DensityMatrixCpu* tensor_product(
 DensityMatrixCpu* permutate_qubit(
     const DensityMatrixCpu* state, std::vector<UINT> qubit_order) {
     if (state->qubit_count != (UINT)qubit_order.size()) {
-        std::stringstream ss;
-        ss << "Error: permutate_qubit(const QuantumState*, "
-              "std::vector<UINT>): invalid qubit count";
-        throw std::invalid_argument(ss.str());
+        std::stringstream error_message_stream;
+        error_message_stream << "Error: permutate_qubit(const QuantumState*, "
+                                "std::vector<UINT>): invalid qubit count";
+        throw std::invalid_argument(error_message_stream.str());
     }
     UINT qubit_count = state->qubit_count;
     DensityMatrixCpu* qs = new DensityMatrixCpu(qubit_count);
@@ -31,10 +31,10 @@ DensityMatrixCpu* permutate_qubit(
 DensityMatrixCpu* partial_trace(
     const QuantumStateCpu* state, std::vector<UINT> target) {
     if (state->qubit_count <= target.size()) {
-        std::stringstream ss;
-        ss << "Error: drop_qubit(const QuantumState*, "
-              "std::vector<UINT>): invalid qubit count";
-        throw std::invalid_argument(ss.str());
+        std::stringstream error_message_stream;
+        error_message_stream << "Error: drop_qubit(const QuantumState*, "
+                                "std::vector<UINT>): invalid qubit count";
+        throw std::invalid_argument(error_message_stream.str());
     }
     UINT qubit_count = state->qubit_count - (UINT)target.size();
     DensityMatrixCpu* qs = new DensityMatrixCpu(qubit_count);
@@ -45,10 +45,10 @@ DensityMatrixCpu* partial_trace(
 DensityMatrixCpu* partial_trace(
     const DensityMatrixCpu* state, std::vector<UINT> target) {
     if (state->qubit_count <= target.size()) {
-        std::stringstream ss;
-        ss << "Error: drop_qubit(const QuantumState*, "
-              "std::vector<UINT>): invalid qubit count";
-        throw std::invalid_argument(ss.str());
+        std::stringstream error_message_stream;
+        error_message_stream << "Error: drop_qubit(const QuantumState*, "
+                                "std::vector<UINT>): invalid qubit count";
+        throw std::invalid_argument(error_message_stream.str());
     }
     UINT qubit_count = state->qubit_count - (UINT)target.size();
     DensityMatrixCpu* qs = new DensityMatrixCpu(qubit_count);
