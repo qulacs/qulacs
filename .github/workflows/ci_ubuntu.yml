@@ -115,7 +115,7 @@ jobs:
         run: ./script/build_gcc_with_gpu.sh
 
       - name: Install qulacs Python module
-        run: python setup.py install
+        run: python setup_gpu.py install
 
       # Testing is removed because GPU is not available for GitHub-Hosted Runner.
 
