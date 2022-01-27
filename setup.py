@@ -6,10 +6,26 @@ import subprocess
 
 from setuptools import setup, find_packages, Extension
 from setuptools.command.build_ext import build_ext
-from distutils.version import LooseVersion
+
 
 VERSION = "0.2.0"
 PROJECT_NAME = "qulacs-osaka"
+
+
+def _get_n_cpus(platform_name: str):
+    """Get the number of logical CPUs.
+
+    Args:
+        platform_name: Assumed to the return value of `platform.system()`.
+    """
+    command = ""
+    if platform_name == "Linux":
+        command = "nproc"
+    elif platform_name == "Darwin":
+        "sysctl -n hw.ncpu"
+
+    # Output contains newline character, so strip it.
+    return "" if command == "" else subprocess.check_output(command).strip()
 
 
 class CMakeExtension(Extension):
@@ -111,7 +127,8 @@ class CMakeBuild(build_ext):
             cmake_args += ["-DCMAKE_CXX_COMPILER=" + gxx]
             cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]
 
-            build_args += ["--", "-j"]
+            n_cpus = _get_n_cpus(platform.system())
+            build_args += ["--", "-j", n_cpus]
 
         return build_args, cmake_args
 
