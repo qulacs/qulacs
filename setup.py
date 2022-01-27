@@ -22,7 +22,7 @@ def _get_n_cpus(platform_name: str):
     if platform_name == "Linux":
         command = "nproc"
     elif platform_name == "Darwin":
-        "sysctl -n hw.ncpu"
+        command = "sysctl -n hw.ncpu"
 
     # Output contains newline character, so strip it.
     return "" if command == "" else subprocess.check_output(command).strip()
