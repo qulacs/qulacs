@@ -12,7 +12,7 @@ VERSION = "0.2.0"
 PROJECT_NAME = "qulacs-osaka"
 
 
-def _get_n_cpus(platform_name: str):
+def _get_n_cpus(platform_name: str) -> str:
     """Get the number of logical CPUs.
 
     Args:
@@ -24,8 +24,14 @@ def _get_n_cpus(platform_name: str):
     elif platform_name == "Darwin":
         command = "sysctl -n hw.ncpu"
 
-    # Output contains newline character, so strip it.
-    return "" if command == "" else subprocess.check_output(command).strip()
+    try:
+        # Output contains newline character, so strip it.
+        n_cpus = str(subprocess.check_output(command).strip())
+    except PermissionError:
+        # A case that the `command` is not available on the machine.
+        # `subprocess.check_output("")` also throws this error.
+        n_cpus = ""
+    return n_cpus
 
 
 class CMakeExtension(Extension):
@@ -128,7 +134,7 @@ class CMakeBuild(build_ext):
             cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]
 
             n_cpus = _get_n_cpus(platform.system())
-            build_args += ["--", "-j", n_cpus]
+            build_args += ["--", f"-j{n_cpus}"]
 
         return build_args, cmake_args
 
