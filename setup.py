@@ -18,11 +18,11 @@ def _get_n_cpus(platform_name: str) -> str:
     Args:
         platform_name: Assumed to the return value of `platform.system()`.
     """
-    command = ""
+    command = [""]
     if platform_name == "Linux":
-        command = "nproc"
+        command = ["nproc"]
     elif platform_name == "Darwin":
-        command = "sysctl -n hw.ncpu"
+        command = ["sysctl", "-n", "hw.ncpu"]
 
     try:
         # Output contains newline character, so strip it.
