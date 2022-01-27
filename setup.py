@@ -26,7 +26,7 @@ def _get_n_cpus(platform_name: str) -> str:
 
     try:
         # Output contains newline character, so strip it.
-        n_cpus = str(subprocess.check_output(command).strip())
+        n_cpus = subprocess.check_output(command).strip().decode("utf-8")
     except PermissionError:
         # A case that the `command` is not available on the machine.
         # `subprocess.check_output("")` also throws this error.
