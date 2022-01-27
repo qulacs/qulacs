@@ -12,17 +12,6 @@ VERSION = "0.2.0"
 PROJECT_NAME = "qulacs-osaka"
 
 
-def _is_valid_compiler(cmd):
-    try:
-        out = subprocess.check_output(
-            [cmd, "-dumpfullversion", "-dumpversion"]
-        ).decode()
-        version = LooseVersion(out)
-        return version >= LooseVersion("7.0.0")
-    except:
-        return False
-
-
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=""):
         Extension.__init__(self, name, sources=[])
@@ -50,9 +39,6 @@ class CMakeBuild(build_ext):
                 + ", ".join(e.name for e in self.extensions)
             )
 
-        cmake_version = LooseVersion(
-            re.search(r"version\s*([\d.]+)", out.decode()).group(1)
-        )
         for ext in self.extensions:
             self.build_extension(ext)
 
@@ -67,8 +53,6 @@ class CMakeBuild(build_ext):
             opt_flags = None
         if opt_flags:
             cmake_args += ["-DOPT_FLAGS=" + opt_flags]
-
-        cmake_args += ["-DUSE_GPU:STR=No"]
 
         env = os.environ.copy()
         env["CXXFLAGS"] = '{} -DVERSION_INFO=\\"{}\\"'.format(
@@ -100,6 +84,7 @@ class CMakeBuild(build_ext):
             "-DCMAKE_RUNTIME_OUTPUT_DIRECTORY=" + bindir,
             "-DPYTHON_EXECUTABLE=" + sys.executable,
             "-DPYTHON_SETUP_FLAG:STR=Yes",
+            "-DUSE_GPU:STR=No",
         ]
 
         cfg = "Debug" if self.debug else "Release"
