@@ -348,11 +348,11 @@ public:
     virtual void add_state_with_coef(
         CPPCTYPE coef, const QuantumStateBase* state) override {
         if (state->is_state_vector()) {
-            std::cerr
+            std::stringstream error_message_stream;
+            error_message_stream
                 << "add state between density matrix and state vector is not "
-                   "implemented"
-                << std::endl;
-            return;
+                   "implemented";
+            throw std::invalid_argument(error_message_stream.str());
         }
         dm_state_add_with_coef(
             coef, state->data_c(), this->data_c(), this->dim);
@@ -364,11 +364,11 @@ public:
     virtual void add_state_with_coef_single_thread(
         CPPCTYPE coef, const QuantumStateBase* state) override {
         if (state->is_state_vector()) {
-            std::cerr
+            std::stringstream error_message_stream;
+            error_message_stream
                 << "add state between density matrix and state vector is not "
-                   "implemented"
-                << std::endl;
-            return;
+                   "implemented";
+            throw std::invalid_argument(error_message_stream.str());
         }
         dm_state_add_with_coef(
             coef, state->data_c(), this->data_c(), this->dim);
@@ -383,9 +383,11 @@ public:
 
     virtual void multiply_elementwise_function(
         const std::function<CPPCTYPE(ITYPE)>&) override {
-        std::cerr << "multiply_elementwise_function between density matrix and "
-                     "state vector is not implemented"
-                  << std::endl;
+        std::stringstream error_message_stream;
+        error_message_stream
+            << "multiply_elementwise_function between density matrix and "
+               "state vector is not implemented";
+        throw std::invalid_argument(error_message_stream.str());
     }
 
     /**
