@@ -55,3 +55,11 @@ INSTANTIATE_TEST_CASE_P(SinglePauli, PauliOperatorMultiplyTest,
         PauliTestParam("ZZ", PauliOperator("Z 0", 2.0),
             PauliOperator("Z 0", 2.0), PauliOperator("I 0", 4.0))),
     testing::PrintToStringParamName());
+
+INSTANTIATE_TEST_CASE_P(MultiPauli, PauliOperatorMultiplyTest,
+    testing::Values(
+        PauliTestParam("X_Y", PauliOperator("X 0", 2.0),
+            PauliOperator("Y 1", 2.0), PauliOperator("X 0 Y 1", 4.0)),
+        PauliTestParam("XY_YX", PauliOperator("X 0 Y 1", 2.0),
+            PauliOperator("Y 0 X 1", 2.0), PauliOperator("Z 0 Z 1", 4.0))),
+    testing::PrintToStringParamName());
