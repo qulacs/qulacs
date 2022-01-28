@@ -290,7 +290,7 @@ PauliOperator PauliOperator::operator*(const PauliOperator& target) const {
     }
     ITYPE i;
     for (i = 0; i < x.size(); i++) {
-        if (x[i] && !z[i]) {  // X
+        if (x[i] && !z[i]) {                    // X
             if (!target_x[i] && target_z[i]) {  // Z
                 bits_coef = bits_coef * -I;
             } else if (target_x[i] && target_z[i]) {  // Y
@@ -334,7 +334,7 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
     }
     ITYPE i;
     for (i = 0; i < _x.size(); i++) {
-        if (_x[i] && !_z[i]) {  // X
+        if (_x[i] && !_z[i]) {                  // X
             if (!target_x[i] && target_z[i]) {  // Z
                 _coef *= -I;
             } else if (target_x[i] && target_z[i]) {  // Y
