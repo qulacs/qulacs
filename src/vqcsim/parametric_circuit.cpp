@@ -198,7 +198,7 @@ std::vector<double> ParametricQuantumCircuit::backprop(
     }
     vector<double> ans(this->get_parameter_count());
     for (int i = m - 1; i >= 0; i--) {
-        auto gate = this->gate_list[i]; // sono gate
+        auto gate = this->gate_list[i];  // sono gate
         if (gyapgp[i] != -1) {
             Astate->load(bistate);
             if (gate->get_name() != "ParametricRX" &&
@@ -209,11 +209,12 @@ std::vector<double> ParametricQuantumCircuit::backprop(
                           << std::endl;
             } else {
                 double kaku = this->get_parameter(gyapgp[i]);
-                this->set_parameter(gyapgp[i], 3.14159265358979);//tmp param=pi for culculate
+                this->set_parameter(
+                    gyapgp[i], 3.14159265358979);  // tmp param=pi for culculate
                 gate->update_quantum_state(Astate);
                 ans[gyapgp[i]] =
                     (state::inner_product(state, Astate) * ansnorm).real();
-                this->set_parameter(gyapgp[i], kaku); //modosu
+                this->set_parameter(gyapgp[i], kaku);  // modosu
             }
         }
 
@@ -221,11 +222,10 @@ std::vector<double> ParametricQuantumCircuit::backprop(
         Agate->update_quantum_state(bistate);
         Agate->update_quantum_state(state);
         delete Agate;
-        
     }
     delete Astate;
     delete state;
     delete bistate;
 
     return ans;
-}// CPP
+}  // CPP
