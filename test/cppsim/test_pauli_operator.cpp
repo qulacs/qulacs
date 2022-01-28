@@ -26,6 +26,13 @@ TEST_P(PauliOperatorMultiplyTest, MuliplyTest) {
     EXPECT_EQ(p.expected.get_pauli_string(), res.get_pauli_string());
     EXPECT_EQ(p.expected.get_coef(), res.get_coef());}
 
+TEST_P(PauliOperatorMultiplyTest, MuliplyAssignmentTest) {
+    const auto p = GetParam();
+    PauliOperator res = p.op1;
+    res *= p.op2;
+    EXPECT_EQ(p.expected.get_pauli_string(), res.get_pauli_string());
+    EXPECT_EQ(p.expected.get_coef(), res.get_coef());}
+
 INSTANTIATE_TEST_CASE_P(SinglePauli, PauliOperatorMultiplyTest,
     testing::Values(PauliTestParam("XX", PauliOperator("X 0", 2.0),
                         PauliOperator("X 0", 2.0), PauliOperator("I 0", 4.0)),
