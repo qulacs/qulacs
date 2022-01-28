@@ -109,6 +109,17 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', ext.sourcedir] + cmake_args, cwd=self.build_temp, env=env)
         subprocess.check_call(['cmake', '--build', '.', '--target', 'python'] + build_args, cwd=self.build_temp)
 
+
+packages = find_packages("pysrc") + [
+    'qulacs_osaka_core',
+    'qulacs_osaka_core.gate',
+    'qulacs_osaka_core.state',
+    'qulacs_osaka_core.transforms'
+]
+package_data = {}
+for package in packages:
+    package_data[package] = ["py.typed", "*.pyi"]
+
 setup(
     name=project_name,
     version=_VERSION,
@@ -117,13 +128,14 @@ setup(
     url='http://www.qulacs.org',
     description='Quantum circuit simulator for research',
     long_description='',
-    package_dir = {"": "pysrc"},
-    packages=find_packages(exclude=['test*'])+find_packages("pysrc"),
+    package_dir={"": "pysrc-withstubs"},
+    packages=packages,
+    package_data={"": ["py.typed", "*.pyi"]},
     include_package_data=True,
     ext_modules=[CMakeExtension('qulacs_core')],
     cmdclass=dict(build_ext=CMakeBuild),
     zip_safe=False,
-    test_suite = 'test',
+    test_suite='test',
     classifiers=[
         'Development Status :: 3 - Alpha',
         'Environment :: Console',
