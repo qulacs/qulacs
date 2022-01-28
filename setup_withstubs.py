@@ -116,9 +116,6 @@ packages = find_packages("pysrc") + [
     'qulacs_osaka_core.state',
     'qulacs_osaka_core.transforms'
 ]
-package_data = {}
-for package in packages:
-    package_data[package] = ["py.typed", "*.pyi"]
 
 setup(
     name=project_name,
