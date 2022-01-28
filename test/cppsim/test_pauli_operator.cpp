@@ -20,13 +20,13 @@ std::ostream & operator<<(std::ostream & stream, const PauliTestParam& p) {
 class PauliOperatorMultiplyTest
     : public testing::TestWithParam<PauliTestParam> {};
 
-TEST_P(PauliOperatorMultiplyTest, MuliplyTest) {
+TEST_P(PauliOperatorMultiplyTest, MultiplyTest) {
     const auto p = GetParam();
     PauliOperator res = p.op1 * p.op2;
     EXPECT_EQ(p.expected.get_pauli_string(), res.get_pauli_string());
     EXPECT_EQ(p.expected.get_coef(), res.get_coef());}
 
-TEST_P(PauliOperatorMultiplyTest, MuliplyAssignmentTest) {
+TEST_P(PauliOperatorMultiplyTest, MultiplyAssignmentTest) {
     const auto p = GetParam();
     PauliOperator res = p.op1;
     res *= p.op2;
