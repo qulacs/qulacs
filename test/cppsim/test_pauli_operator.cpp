@@ -63,3 +63,33 @@ INSTANTIATE_TEST_CASE_P(MultiPauli, PauliOperatorMultiplyTest,
         PauliTestParam("XY_YX", PauliOperator("X 0 Y 1", 2.0),
             PauliOperator("Y 0 X 1", 2.0), PauliOperator("Z 0 Z 1", 4.0))),
     testing::PrintToStringParamName());
+
+// OpenMPによって並列化した場合でも、計算結果のindexの順序が保たれることを確認する
+INSTANTIATE_TEST_CASE_P(
+    MultiPauliWithOpenMP, PauliOperatorMultiplyTest,
+    []() {
+        double coef = 2.0;
+        unsigned int MAX_TERM = 100;
+        std::string pauli_string_x = "";
+        std::string pauli_string_y = "";
+        std::string pauli_string_z = "";
+
+        for (int i = 0; i < MAX_TERM; i++) {
+            pauli_string_x += "X " + std::to_string(i);
+            pauli_string_y += "Y " + std::to_string(i);
+            pauli_string_z += "Z " + std::to_string(i);
+            if (i + 1 < MAX_TERM) {
+                pauli_string_x += " ";
+                pauli_string_y += " ";
+                pauli_string_z += " ";
+            }
+        }
+
+        PauliOperator expected = PauliOperator(pauli_string_x, coef * coef);
+        PauliOperator pauli_y = PauliOperator(pauli_string_y, coef);
+        PauliOperator pauli_z = PauliOperator(pauli_string_z, coef);
+
+        return testing::Values(
+            PauliTestParam("Z_Y", pauli_z, pauli_y, expected));
+    }(),
+    testing::PrintToStringParamName());
