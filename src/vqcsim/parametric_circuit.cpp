@@ -169,7 +169,7 @@ void ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate(
 }
 
 // watle made
-using namespace std;
+
 std::vector<double> ParametricQuantumCircuit::backprop(
     GeneralQuantumOperator* obs) {
     int n = this->qubit_count;
@@ -186,17 +186,17 @@ std::vector<double> ParametricQuantumCircuit::backprop(
 
     double ansnorm = bistate->get_squared_norm();
     if (ansnorm == 0) {
-        vector<double> ans(this->get_parameter_count());
+        std::vector<double> ans(this->get_parameter_count());
         return ans;
     }
     bistate->normalize(ansnorm);
     ansnorm = sqrt(ansnorm);
     int m = this->gate_list.size();
-    vector<int> gyapgp(m, -1);  // prametric gate position no gyaku
+    std::vector<int> gyapgp(m, -1);  // prametric gate position no gyaku
     for (UINT i = 0; i < this->get_parameter_count(); i++) {
         gyapgp[this->_parametric_gate_position[i]] = i;
     }
-    vector<double> ans(this->get_parameter_count());
+    std::vector<double> ans(this->get_parameter_count());
     for (int i = m - 1; i >= 0; i--) {
         auto gate = this->gate_list[i];  // sono gate
         if (gyapgp[i] != -1) {
@@ -210,7 +210,7 @@ std::vector<double> ParametricQuantumCircuit::backprop(
             } else {
                 double kaku = this->get_parameter(gyapgp[i]);
                 this->set_parameter(
-                    gyapgp[i], 3.14159265358979);  // tmp param=pi for culculate
+                    gyapgp[i], M_PI);  // tmp param=pi for culculate
                 gate->update_quantum_state(Astate);
                 ans[gyapgp[i]] =
                     (state::inner_product(state, Astate) * ansnorm).real();
