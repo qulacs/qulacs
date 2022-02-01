@@ -122,6 +122,8 @@ public:
      * @return 入力で与えた量子状態に対応するGeneralQuantumOperatorの期待値
      */
     virtual CPPCTYPE get_expectation_value(const QuantumStateBase* state) const;
+    virtual CPPCTYPE get_expectation_value_single_thread(
+        const QuantumStateBase* state) const;
 
     /**
      * \~japanese-en

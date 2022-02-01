@@ -1,6 +1,6 @@
 #!/bin/sh
 
-set -eu
+set -eux
 
 GCC_COMMAND=${C_COMPILER:-"gcc"}
 GXX_COMMAND=${CXX_COMPILER:-"g++"}

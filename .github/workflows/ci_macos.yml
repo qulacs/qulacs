@@ -3,15 +3,15 @@ name: macOS CI
 on:
   push:
     paths-ignore:
-      - ".devcontainer/"
-      - ".vscode/"
-      - "doc/"
+      - ".devcontainer/**"
+      - ".vscode/**"
+      - "doc/**"
       - "*.md"
   pull_request:
     paths-ignore:
-      - ".devcontainer/"
-      - ".vscode/"
-      - "doc/"
+      - ".devcontainer/**"
+      - ".vscode/**"
+      - "doc/**"
       - "*.md"
 
 jobs:
