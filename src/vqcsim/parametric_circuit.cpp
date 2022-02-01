@@ -173,52 +173,74 @@ void ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate(
 std::vector<double> ParametricQuantumCircuit::backprop(
     GeneralQuantumOperator* obs) {
     int n = this->qubit_count;
-    QuantumState* state = new QuantumState(n);
+    QuantumState* state =
+        new QuantumState(n);  //これは、ゲートを前から適用したときの状態を示す
     state->set_zero_state();
-    this->update_quantum_state(state);
-    // parametric bibunti tasu
-    std::vector<CPPCTYPE> bibun(1 << (this->qubit_count));
-    QuantumState* bistate = new QuantumState(n);
-    QuantumState* Astate = new QuantumState(n);  // for itizi work
+    this->update_quantum_state(state);  //一度最後までする
+
+    QuantumState* bistate = new QuantumState(
+        n);  //ニューラルネットワークのbackpropにおける、後ろからの微分値的な役目を果たす
+    QuantumState* Astate = new QuantumState(n);  //一時的なやつ　
 
     obs->apply_to_state(Astate, *state, bistate);
-    bistate->multiply_coef(-1);
+    bistate->multiply_coef(-1);  //ここで、オブザーバブルの微分値が完成する。
 
-    double ansnorm = bistate->get_squared_norm();
-    if (ansnorm == 0) {
-        std::vector<double> ans(this->get_parameter_count());
-        return ans;
-    }
-    bistate->normalize(ansnorm);
-    ansnorm = sqrt(ansnorm);
     int m = this->gate_list.size();
     std::vector<int> gyapgp(m, -1);  // prametric gate position no gyaku
     for (UINT i = 0; i < this->get_parameter_count(); i++) {
         gyapgp[this->_parametric_gate_position[i]] = i;
     }
     std::vector<double> ans(this->get_parameter_count());
+
+    /*
+    現在、2番のゲートを見ているとする
+    ゲート 0 1 2 3 4 5
+         state | bistate
+    前から2番までのゲートを適用した状態がAstate
+    最後の微分値から逆算して3番まで　gateの逆行列を掛けたのがbistate
+
+    1番まで掛けて、YのΘ微分した行列を掛けたやつと、　bistateの内積の実数部分をとれば答えが出ることが知られている(知られてないかも)
+
+    ParametricR? の微分値を計算した値は、Θに180°を足した値と等しい
+
+    だから、2番まで掛けて、 R?(π) を掛けたやつと、bistateの内積を取る
+
+    さらに、見るゲートは逆順である。
+    だから、最初にstateを最後までやって、　ゲートを進めるたびにstateとbistateに逆行列を掛けている
+    */
+
     for (int i = m - 1; i >= 0; i--) {
-        auto gate = this->gate_list[i];  // sono gate
+        QuantumGateBase* gate_now = this->gate_list[i];  // sono gate
         if (gyapgp[i] != -1) {
             Astate->load(bistate);
-            if (gate->get_name() != "ParametricRX" &&
-                gate->get_name() != "ParametricRY" &&
-                gate->get_name() != "ParametricRZ") {
-                std::cerr << "Error: " << gate->get_name()
-                          << " does not support backprop in parametric"
-                          << std::endl;
+
+            if (gate_now->get_name() == "ParametricRX") {
+                QuantumGateBase* RXPI =
+                    gate::RX(gate_now->get_target_index_list()[0], M_PI);
+                RXPI->update_quantum_state(Astate);
+                ans[gyapgp[i]] = state::inner_product(state, Astate).real();
+                delete RXPI;
+            } else if (gate_now->get_name() == "ParametricRY") {
+                QuantumGateBase* RYPI =
+                    gate::RY(gate_now->get_target_index_list()[0], M_PI);
+                RYPI->update_quantum_state(Astate);
+                ans[gyapgp[i]] = state::inner_product(state, Astate).real();
+                delete RYPI;
+            } else if (gate_now->get_name() == "ParametricRZ") {
+                QuantumGateBase* RZPI =
+                    gate::RZ(gate_now->get_target_index_list()[0], M_PI);
+                RZPI->update_quantum_state(Astate);
+                ans[gyapgp[i]] = state::inner_product(state, Astate).real();
+                delete RZPI;
             } else {
-                double kaku = this->get_parameter(gyapgp[i]);
-                this->set_parameter(
-                    gyapgp[i], M_PI);  // tmp param=pi for culculate
-                gate->update_quantum_state(Astate);
-                ans[gyapgp[i]] =
-                    (state::inner_product(state, Astate) * ansnorm).real();
-                this->set_parameter(gyapgp[i], kaku);  // modosu
+                std::stringstream error_message_stream;
+                error_message_stream
+                    << "Error: " << gate_now->get_name()
+                    << " does not support backprop in parametric";
+                throw std::invalid_argument(error_message_stream.str());
             }
         }
-
-        auto Agate = gate::get_adjoint_gate(gate);
+        auto Agate = gate::get_adjoint_gate(gate_now);
         Agate->update_quantum_state(bistate);
         Agate->update_quantum_state(state);
         delete Agate;
