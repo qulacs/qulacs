@@ -14,8 +14,8 @@
 #include "type.hpp"
 #include "utility.hpp"
 
-#ifdef USE_GPU
-#include "update_ops_cuda.h"
+#ifdef _USE_GPU
+#include <gpusim/update_ops_cuda.h>
 #endif
 
 GeneralQuantumOperator::GeneralQuantumOperator(const UINT qubit_count)
