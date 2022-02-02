@@ -10,7 +10,7 @@ from setuptools.command.build_ext import build_ext
 
 _VERSION = '0.2.0'
 
-project_name = 'qulacs-osaka'
+PROJECT_NAME = 'qulacs-osaka'
 
 def _is_valid_compiler(cmd):
     try:
@@ -110,7 +110,7 @@ class CMakeBuild(build_ext):
         subprocess.check_call(['cmake', '--build', '.', '--target', 'python'] + build_args, cwd=self.build_temp)
 
 setup(
-    name=project_name,
+    name=PROJECT_NAME,
     version=_VERSION,
     author='QunaSys',
     author_email='qulacs@qunasys.com',
