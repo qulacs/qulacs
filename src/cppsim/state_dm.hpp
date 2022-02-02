@@ -48,12 +48,12 @@ public:
      */
     virtual void set_computational_basis(ITYPE comp_basis) override {
         if (comp_basis >= (ITYPE)(1ULL << this->qubit_count)) {
-            std::cerr
+            std::stringstream error_message_stream;
+            error_message_stream
                 << "Error: DensityMatrixCpu::set_computational_basis(ITYPE): "
                    "index "
-                   "of computational basis must be smaller than 2^qubit_count"
-                << std::endl;
-            return;
+                   "of computational basis must be smaller than 2^qubit_count";
+            throw std::invalid_argument(error_message_stream.str());
         }
         set_zero_state();
         _density_matrix[0] = 0.;
@@ -88,11 +88,11 @@ public:
     virtual double get_zero_probability(
         UINT target_qubit_index) const override {
         if (target_qubit_index >= this->qubit_count) {
-            std::cerr
+            std::stringstream error_message_stream;
+            error_message_stream
                 << "Error: DensityMatrixCpu::get_zero_probability(UINT): index "
-                   "of target qubit must be smaller than qubit_count"
-                << std::endl;
-            return 0.;
+                   "of target qubit must be smaller than qubit_count";
+            throw std::invalid_argument(error_message_stream.str());
         }
         return dm_M0_prob(target_qubit_index, this->data_c(), _dim);
     }
@@ -106,12 +106,12 @@ public:
     virtual double get_marginal_probability(
         std::vector<UINT> measured_values) const override {
         if (measured_values.size() != this->qubit_count) {
-            std::cerr
+            std::stringstream error_message_stream;
+            error_message_stream
                 << "Error: "
                    "DensityMatrixCpu::get_marginal_probability(vector<UINT>): "
-                   "the length of measured_values must be equal to qubit_count"
-                << std::endl;
-            return 0.;
+                   "the length of measured_values must be equal to qubit_count";
+            throw std::invalid_argument(error_message_stream.str());
         }
 
         std::vector<UINT> target_index;
@@ -202,11 +202,11 @@ public:
      */
     virtual void load(const QuantumStateBase* _state) {
         if (_state->qubit_count != this->qubit_count) {
-            std::cerr
+            std::stringstream error_message_stream;
+            error_message_stream
                 << "Error: DensityMatrixCpu::load(const QuantumStateBase*): "
-                   "invalid qubit count"
-                << std::endl;
-            return;
+                   "invalid qubit count";
+            throw std::invalid_argument(error_message_stream.str());
         }
         if (_state->is_state_vector()) {
             if (_state->get_device_name() == "gpu") {
@@ -228,11 +228,11 @@ public:
      */
     virtual void load(const std::vector<CPPCTYPE>& _state) {
         if (_state.size() != _dim && _state.size() != _dim * _dim) {
-            std::cerr
+            std::stringstream error_message_stream;
+            error_message_stream
                 << "Error: DensityMatrixCpu::load(vector<Complex>&): invalid "
-                   "length of state"
-                << std::endl;
-            return;
+                   "length of state";
+            throw std::invalid_argument(error_message_stream.str());
         }
         if (_state.size() == _dim) {
             dm_initialize_with_pure_state(
@@ -246,11 +246,11 @@ public:
     virtual void load(const Eigen::VectorXcd& _state) {
         ITYPE arg_dim = _state.size();
         if (arg_dim != _dim && arg_dim != _dim * _dim) {
-            std::cerr
+            std::stringstream error_message_stream;
+            error_message_stream
                 << "Error: DensityMatrixCpu::load(vector<Complex>&): invalid "
-                   "length of state"
-                << std::endl;
-            return;
+                   "length of state";
+            throw std::invalid_argument(error_message_stream.str());
         }
         if (arg_dim == _dim) {
             dm_initialize_with_pure_state(
@@ -265,11 +265,11 @@ public:
         ITYPE arg_cols = _state.cols();
         ITYPE arg_rows = _state.rows();
         if (arg_cols != _dim && arg_rows != _dim * _dim) {
-            std::cerr
+            std::stringstream error_message_stream;
+            error_message_stream
                 << "Error: DensityMatrixCpu::load(ComplexMatrix&): invalid "
-                   "length of state"
-                << std::endl;
-            return;
+                   "length of state";
+            throw std::invalid_argument(error_message_stream.str());
         }
         memcpy(this->data_cpp(), _state.data(),
             (size_t)(sizeof(CPPCTYPE) * _dim * _dim));
@@ -331,11 +331,11 @@ public:
      */
     virtual void add_state(const QuantumStateBase* state) override {
         if (state->is_state_vector()) {
-            std::cerr
+            std::stringstream error_message_stream;
+            error_message_stream
                 << "add state between density matrix and state vector is not "
-                   "implemented"
-                << std::endl;
-            return;
+                   "implemented";
+            throw std::invalid_argument(error_message_stream.str());
         }
         dm_state_add(state->data_c(), this->data_c(), this->dim);
     }
@@ -378,9 +378,11 @@ public:
 
     virtual void multiply_elementwise_function(
         const std::function<CPPCTYPE(ITYPE)>&) override {
-        std::cerr << "multiply_elementwise_function between density matrix and "
-                     "state vector is not implemented"
-                  << std::endl;
+        std::stringstream error_message_stream;
+        error_message_stream
+            << "multiply_elementwise_function between density matrix and "
+               "state vector is not implemented";
+        throw std::invalid_argument(error_message_stream.str());
     }
 
     /**

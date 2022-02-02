@@ -40,9 +40,10 @@ PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef) : _coef(coef) {
         else if (pauli_str == "Z" || pauli_str == "z")
             pauli_type = 3;
         else {
-            fprintf(stderr, "invalid Pauli string is given : %s\n ",
-                pauli_str.c_str());
-            assert(false);
+            std::stringstream error_message_stream;
+            error_message_stream << "invalid Pauli string is given : "
+                                 << pauli_str;
+            throw std::invalid_argument(error_message_stream.str());
         }
         if (pauli_type != 0) this->add_single_Pauli(index, pauli_type);
     }
@@ -67,8 +68,9 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list,
                    Pauli_operator_type_list[term_index] == 'Z') {
             pauli_type = 3;
         } else {
-            fprintf(stderr, "invalid Pauli string is given\n");
-            assert(false);
+            std::stringstream error_message_stream;
+            error_message_stream << "invalid Pauli string is given : ";
+            throw std::invalid_argument(error_message_stream.str());
         }
 
         if (pauli_type != 0)
@@ -205,9 +207,10 @@ CPPCTYPE PauliOperator::get_transition_amplitude(
     const QuantumStateBase* state_bra,
     const QuantumStateBase* state_ket) const {
     if ((!state_bra->is_state_vector()) || (!state_ket->is_state_vector())) {
-        std::cerr
-            << "get_transition_amplitude for density matrix is not implemented"
-            << std::endl;
+        std::stringstream error_message_stream;
+        error_message_stream
+            << "get_transition_amplitude for density matrix is not implemented";
+        throw std::invalid_argument(error_message_stream.str());
     }
 #ifdef _USE_GPU
     if (state_ket->get_device_name() == "gpu" &&
@@ -290,17 +293,17 @@ PauliOperator PauliOperator::operator*(const PauliOperator& target) const {
     }
     ITYPE i;
     for (i = 0; i < x.size(); i++) {
-        if (x[i] && !z[i]) {  // X
-            if (!target_x[i] && target_z[i]) {
+        if (x[i] && !z[i]) {                    // X
+            if (!target_x[i] && target_z[i]) {  // Z
                 bits_coef = bits_coef * -I;
-            } else if (target_x[i] && target_z[i]) {
+            } else if (target_x[i] && target_z[i]) {  // Y
                 bits_coef = bits_coef * I;
             }
         } else if (!x[i] && z[i]) {             // Z
             if (target_x[i] && !target_z[i]) {  // X
-                bits_coef = bits_coef * -I;
-            } else if (target_x[i] && target_z[i]) {  // Y
                 bits_coef = bits_coef * I;
+            } else if (target_x[i] && target_z[i]) {  // Y
+                bits_coef = bits_coef * -I;
             }
         } else if (x[i] && z[i]) {              // Y
             if (target_x[i] && !target_z[i]) {  // X
@@ -334,17 +337,17 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
     }
     ITYPE i;
     for (i = 0; i < _x.size(); i++) {
-        if (_x[i] && !_z[i]) {  // X
-            if (!target_x[i] && target_z[i]) {
+        if (_x[i] && !_z[i]) {                  // X
+            if (!target_x[i] && target_z[i]) {  // Z
                 _coef *= -I;
-            } else if (target_x[i] && target_z[i]) {
+            } else if (target_x[i] && target_z[i]) {  // Y
                 _coef *= I;
             }
         } else if (!_x[i] && _z[i]) {           // Z
             if (target_x[i] && !target_z[i]) {  // X
-                _coef *= -I;
-            } else if (target_x[i] && target_z[i]) {  // Y
                 _coef *= I;
+            } else if (target_x[i] && target_z[i]) {  // Y
+                _coef *= -I;
             }
         } else if (_x[i] && _z[i]) {            // Y
             if (target_x[i] && !target_z[i]) {  // X
@@ -361,7 +364,6 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
     _pauli_list.clear();
     _x.resize(max_size);
     _z.resize(max_size);
-    // #pragma omp parallel for
     for (i = 0; i < x_bit.size(); i++) {
         ITYPE pauli_type = 0;
         if (x_bit[i] && !z_bit[i]) {

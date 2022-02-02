@@ -373,12 +373,12 @@ public:
      */
     virtual void set_computational_basis(ITYPE comp_basis) override {
         if (comp_basis >= (ITYPE)(1ULL << this->qubit_count)) {
-            std::cerr
+            std::stringstream error_message_stream;
+            error_message_stream
                 << "Error: QuantumStateCpu::set_computational_basis(ITYPE): "
                    "index of "
-                   "computational basis must be smaller than 2^qubit_count"
-                << std::endl;
-            return;
+                   "computational basis must be smaller than 2^qubit_count";
+            throw std::invalid_argument(error_message_stream.str());
         }
         set_zero_state();
         _state_vector[0] = 0.;
@@ -410,11 +410,11 @@ public:
     virtual double get_zero_probability(
         UINT target_qubit_index) const override {
         if (target_qubit_index >= this->qubit_count) {
-            std::cerr
+            std::stringstream error_message_stream;
+            error_message_stream
                 << "Error: QuantumStateCpu::get_zero_probability(UINT): index "
-                   "of target qubit must be smaller than qubit_count"
-                << std::endl;
-            return 0.;
+                   "of target qubit must be smaller than qubit_count";
+            throw std::invalid_argument(error_message_stream.str());
         }
         return M0_prob(target_qubit_index, this->data_c(), _dim);
     }
@@ -428,12 +428,12 @@ public:
     virtual double get_marginal_probability(
         std::vector<UINT> measured_values) const override {
         if (measured_values.size() != this->qubit_count) {
-            std::cerr
+            std::stringstream error_message_stream;
+            error_message_stream
                 << "Error: "
                    "QuantumStateCpu::get_marginal_probability(vector<UINT>): "
-                   "the length of measured_values must be equal to qubit_count"
-                << std::endl;
-            return 0.;
+                   "the length of measured_values must be equal to qubit_count";
+            throw std::invalid_argument(error_message_stream.str());
         }
 
         std::vector<UINT> target_index;
@@ -523,11 +523,11 @@ public:
      */
     virtual void load(const QuantumStateBase* _state) override {
         if (_state->qubit_count != this->qubit_count) {
-            std::cerr
+            std::stringstream error_message_stream;
+            error_message_stream
                 << "Error: QuantumStateCpu::load(const QuantumStateBase*): "
-                   "invalid qubit count"
-                << std::endl;
-            return;
+                   "invalid qubit count";
+            throw std::invalid_argument(error_message_stream.str());
         }
 
         this->_classical_register = _state->classical_register;
@@ -545,11 +545,11 @@ public:
      */
     virtual void load(const std::vector<CPPCTYPE>& _state) override {
         if (_state.size() != _dim) {
-            std::cerr
+            std::stringstream error_message_stream;
+            error_message_stream
                 << "Error: QuantumStateCpu::load(vector<Complex>&): invalid "
-                   "length of state"
-                << std::endl;
-            return;
+                   "length of state";
+            throw std::invalid_argument(error_message_stream.str());
         }
         memcpy(
             this->data_cpp(), _state.data(), (size_t)(sizeof(CPPCTYPE) * _dim));
@@ -607,9 +607,10 @@ public:
      */
     virtual void add_state(const QuantumStateBase* state) override {
         if (state->get_device_name() == "gpu") {
-            std::cerr << "State vector on GPU cannot be added to that on CPU"
-                      << std::endl;
-            return;
+            std::stringstream error_message_stream;
+            error_message_stream
+                << "State vector on GPU cannot be added to that on CPU";
+            throw std::invalid_argument(error_message_stream.str());
         }
         state_add(state->data_c(), this->data_c(), this->dim);
     }

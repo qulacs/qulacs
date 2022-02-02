@@ -3,15 +3,17 @@ name: Wheel build
 on:
   push:
     paths-ignore:
-      - ".devcontainer/"
-      - ".vscode/"
-      - "doc/"
+      - ".devcontainer/**"
+      - ".vscode/**"
+      - "doc/**"
       - "*.md"
+    branches:
+      - "dev"
   pull_request:
     paths-ignore:
-      - ".devcontainer/"
-      - ".vscode/"
-      - "doc/"
+      - ".devcontainer/**"
+      - ".vscode/**"
+      - "doc/**"
       - "*.md"
 
 jobs:
