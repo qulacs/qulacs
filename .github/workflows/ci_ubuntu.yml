@@ -63,7 +63,7 @@ jobs:
       
       - name: Check stubs
         run: |
-          ./update_stubs.sh
+          ./script/update_stubs.sh
           diff=$(git diff)
           echo -n "$diff"
           # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
