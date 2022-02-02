@@ -25,6 +25,7 @@
 		"editor.codeActionsOnSave": {
 			"source.organizeImports": true
 		},
+		"editor.defaultFormatter": "xaver.clang-format",
 		"python.linting.mypyEnabled": true,
 		"python.terminal.activateEnvironment": false
 	},
@@ -33,7 +34,8 @@
 		"ms-vscode.cpptools",
 		"ms-vscode.cmake-tools",
 		"ms-python.python",
-		"ms-python.vscode-pylance"
+		"ms-python.vscode-pylance",
+		"xaver.clang-format"
 	],
 	// Required by `mounts`.
 	// c.f. https://code.visualstudio.com/remote/advancedcontainers/improve-performance#_use-a-targeted-named-volume

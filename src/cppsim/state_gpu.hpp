@@ -57,6 +57,17 @@ public:
             this->data(), _dim, _cuda_stream, device_number);
     }
     /**
+     * \~japanese-en 量子状態を計算基底の0状態に初期化する
+     * TODO: implement this
+     */
+    virtual void set_zero_norm_state() override {
+        std::stringstream error_message_stream;
+        error_message_stream
+            << "set_zero_norm_state for QuantumStateGpu is not implemented "
+               "yet";
+        throw std::invalid_argument(error_message_stream.str());
+    }
+    /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
      *
      * @param comp_basis 初期化する基底を表す整数
@@ -142,6 +153,7 @@ public:
      * \~japanese-en 量子状態のノルムを計算する
      *
      * 量子状態のノルムは非ユニタリなゲートを作用した時に小さくなる。
+     * TODO: implement this as a single thread version.
      * @return ノルム
      */
     virtual double get_squared_norm_single_thread() const override {
@@ -234,10 +246,9 @@ public:
      * @return 複素ベクトルのポインタ
      */
     virtual CPPCTYPE* data_cpp() const override {
-        std::cerr << "Cannot reinterpret state vector on GPU to cpp complex "
-                     "vector. Use duplicate_data_cpp instead."
-                  << std::endl;
-        return NULL;
+        throw std::runtime_error(
+            "Cannot reinterpret state vector on GPU to cpp complex "
+            "vector. Use duplicate_data_cpp instead.");
     }
 
     /**
@@ -247,11 +258,9 @@ public:
      * @return 複素ベクトルのポインタ
      */
     virtual CTYPE* data_c() const override {
-        std::cerr
-            << "Cannot reinterpret state vector on GPU to C complex vector. "
-               "Use duplicate_data_cpp instead."
-            << std::endl;
-        return NULL;
+        throw std::runtime_error(
+            "Cannot reinterpret state vector on GPU to C complex vector. "
+            "Use duplicate_data_cpp instead.");
     }
 
     /**
@@ -294,21 +303,21 @@ public:
             coef, this->data(), this->dim, _cuda_stream, device_number);
         state_add_host(state->data(), this->data(), this->dim, _cuda_stream,
             device_number);
-        state_multiply_host(
-            1 / coef, this->data(), this->dim, _cuda_stream, device_number);
+        state_multiply_host(CPPCTYPE(1) / coef, this->data(), this->dim,
+            _cuda_stream, device_number);
     }
 
     /**
      * \~japanese-en 量子状態を足しこむ (とりあえずの実装なので遅い)
      */
-    virtual void add_state_with_coef_with_single_thread(
+    virtual void add_state_with_coef_single_thread(
         CPPCTYPE coef, const QuantumStateBase* state) override {
         state_multiply_host(
             coef, this->data(), this->dim, _cuda_stream, device_number);
         state_add_host(state->data(), this->data(), this->dim, _cuda_stream,
             device_number);
-        state_multiply_host(
-            1 / coef, this->data(), this->dim, _cuda_stream, device_number);
+        state_multiply_host(CPPCTYPE(1) / coef, this->data(), this->dim,
+            _cuda_stream, device_number);
     }
 
     /**
