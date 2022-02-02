@@ -14,6 +14,10 @@
 #include "type.hpp"
 #include "utility.hpp"
 
+#ifdef USE_GPU
+#include "update_ops_cuda.h"
+#endif
+
 GeneralQuantumOperator::GeneralQuantumOperator(const UINT qubit_count)
     : _qubit_count(qubit_count), _is_hermitian(true) {}
 
