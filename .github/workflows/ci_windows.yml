@@ -57,6 +57,15 @@ jobs:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
         run: python setup.py install
 
+      -name: Check stubs
+        run: |
+          ./update_stubs.sh
+          diff=$(git diff)
+          echo -n "$diff"
+          # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
+          test $(echo -n "$diff" | wc -l) -eq 0
+          mypy python/stub-test/mypy-import-test.py
+
       - name: Test in Windows
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
