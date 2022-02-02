@@ -158,16 +158,6 @@ public:
         return state_norm_squared_host(
             this->data(), _dim, _cuda_stream, device_number);
     }
-    /**
-     * \~japanese-en 量子状態のノルムを計算する
-     *
-     * 量子状態のノルムは非ユニタリなゲートを作用した時に小さくなる。
-     * @return ノルム
-     */
-    virtual double get_squared_norm_single_thread() const override {
-        return state_norm_squared_host(
-            this->data(), _dim, _cuda_stream, device_number);
-    }
 
     /**
      * \~japanese-en 量子状態を正規化する
@@ -311,21 +301,21 @@ public:
             coef, this->data(), this->dim, _cuda_stream, device_number);
         state_add_host(state->data(), this->data(), this->dim, _cuda_stream,
             device_number);
-        state_multiply_host(
-            1 / coef, this->data(), this->dim, _cuda_stream, device_number);
+        state_multiply_host(CPPCTYPE(1) / coef, this->data(), this->dim,
+            _cuda_stream, device_number);
     }
 
     /**
      * \~japanese-en 量子状態を足しこむ (とりあえずの実装なので遅い)
      */
-    virtual void add_state_with_coef_with_single_thread(
+    virtual void add_state_with_coef_single_thread(
         CPPCTYPE coef, const QuantumStateBase* state) override {
         state_multiply_host(
             coef, this->data(), this->dim, _cuda_stream, device_number);
         state_add_host(state->data(), this->data(), this->dim, _cuda_stream,
             device_number);
-        state_multiply_host(
-            1 / coef, this->data(), this->dim, _cuda_stream, device_number);
+        state_multiply_host(CPPCTYPE(1) / coef, this->data(), this->dim,
+            _cuda_stream, device_number);
     }
 
     /**
