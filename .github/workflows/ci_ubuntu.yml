@@ -3,15 +3,15 @@ name: Ubuntu CI
 on:
   push:
     paths-ignore:
-      - ".devcontainer/"
-      - ".vscode/"
-      - "doc/"
+      - ".devcontainer/**"
+      - ".vscode/**"
+      - "doc/**"
       - "*.md"
   pull_request:
     paths-ignore:
-      - ".devcontainer/"
-      - ".vscode/"
-      - "doc/"
+      - ".devcontainer/**"
+      - ".vscode/**"
+      - "doc/**"
       - "*.md"
 
 jobs:
@@ -51,7 +51,7 @@ jobs:
 
       - name: Install boost
         run: sudo apt install libboost-dev
-
+      
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion mypy pybind11-stubgen
 
@@ -116,11 +116,15 @@ jobs:
       - name: Install boost
         run: sudo apt install libboost-dev
 
+      - name: Install CUDA toolkit
+        uses: Jimver/cuda-toolkit@v0.2.5
+        id: cuda-toolkit
+
       - name: Install qulacs for Ubuntu
         run: ./script/build_gcc_with_gpu.sh
 
       - name: Install qulacs Python module
-        run: python setup.py install
+        run: python setup_gpu.py install
 
       # Testing is removed because GPU is not available for GitHub-Hosted Runner.
 
