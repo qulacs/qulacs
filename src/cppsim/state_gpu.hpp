@@ -61,9 +61,11 @@ public:
      * TODO: implement this
      */
     virtual void set_zero_norm_state() override {
-        std::cerr
-            << "set_zero_norm_state for QuantumStateGpu is not implemented yet"
-            << std::endl;
+        std::stringstream error_message_stream;
+        error_message_stream
+            << "set_zero_norm_state for QuantumStateGpu is not implemented "
+               "yet";
+        throw std::invalid_argument(error_message_stream.str());
     }
     /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
