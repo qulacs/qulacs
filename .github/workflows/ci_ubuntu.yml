@@ -68,6 +68,9 @@ jobs:
           echo -n "$diff"
           # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
           test $(echo -n "$diff" | wc -l) -eq 0
+
+      - name: Test if stub is working
+        run: |
           mypy python/stub-test/mypy-import-test.py
 
       - name: Test in Ubuntu
