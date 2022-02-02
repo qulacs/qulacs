@@ -254,10 +254,9 @@ public:
      * @return 複素ベクトルのポインタ
      */
     virtual CPPCTYPE* data_cpp() const override {
-        std::cerr << "Cannot reinterpret state vector on GPU to cpp complex "
-                     "vector. Use duplicate_data_cpp instead."
-                  << std::endl;
-        return NULL;
+        throw std::runtime_error(
+            "Cannot reinterpret state vector on GPU to cpp complex "
+            "vector. Use duplicate_data_cpp instead.");
     }
 
     /**
@@ -267,11 +266,9 @@ public:
      * @return 複素ベクトルのポインタ
      */
     virtual CTYPE* data_c() const override {
-        std::cerr
-            << "Cannot reinterpret state vector on GPU to C complex vector. "
-               "Use duplicate_data_cpp instead."
-            << std::endl;
-        return NULL;
+        throw std::runtime_error(
+            "Cannot reinterpret state vector on GPU to C complex vector. "
+            "Use duplicate_data_cpp instead.");
     }
 
     /**
