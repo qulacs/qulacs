@@ -61,7 +61,7 @@ jobs:
       - name: Install qulacs Python module
         run: python setup.py install
       
-      -name: Check stubs
+      - name: Check stubs
         run: |
           ./update_stubs.sh
           diff=$(git diff)

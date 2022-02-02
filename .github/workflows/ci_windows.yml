@@ -57,7 +57,7 @@ jobs:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
         run: python setup.py install
 
-      -name: Check stubs
+      - name: Check stubs
         run: |
           ./update_stubs.sh
           diff=$(git diff)
