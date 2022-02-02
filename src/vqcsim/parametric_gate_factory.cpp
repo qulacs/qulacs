@@ -29,11 +29,12 @@ QuantumGate_SingleParameter* ParametricRZ(
 QuantumGate_SingleParameter* ParametricPauliRotation(std::vector<UINT> target,
     std::vector<UINT> pauli_id, double initial_angle) {
     if (!check_is_unique_index_list(target)) {
-        std::cerr << "Error: gate::ParametricPauliRotation(std::vector<UINT>, "
-                     "std::vector<UINT>, double): target qubit list contains "
-                     "duplicated values."
-                  << std::endl;
-        return NULL;
+        throw std::invalid_argument(
+            "Error: gate::ParametricPauliRotation(std::vector<UINT>, "
+            "std::vector<UINT>, double): target qubit list contains "
+            "duplicated values."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
     }
     auto pauli = new PauliOperator(target, pauli_id, initial_angle);
     return new ClsParametricPauliRotationGate(initial_angle, pauli);

@@ -42,8 +42,9 @@ public:
         if (state->is_state_vector()) {
 #ifdef _USE_GPU
             if (state->get_device_name() == "gpu") {
-                std::cerr << "Not Implemented" << std::endl;
-                exit(0);
+                std::stringstream error_message_stream;
+                error_message_stream << "Not Implemented";
+                throw std::invalid_argument(error_message_stream.str());
                 // reversible_boolean_gate_gpu(target_index.data(),
                 // target_index.size(), function_ptr, state->data_c(),
                 // state->dim);
@@ -58,7 +59,9 @@ public:
                 state->dim);
 #endif
         } else {
-            std::cerr << "not implemented" << std::endl;
+            std::stringstream error_message_stream;
+            error_message_stream << "not implemented";
+            throw std::invalid_argument(error_message_stream.str());
         }
     };
     /**
