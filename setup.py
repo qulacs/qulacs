@@ -119,6 +119,7 @@ setup(
     long_description='',
     package_dir = {"": "pysrc"},
     packages=find_packages(exclude=['test*'])+find_packages("pysrc"),
+    package_data={"": ["py.typed", "*.pyi"]},
     include_package_data=True,
     ext_modules=[CMakeExtension('qulacs_core')],
     cmdclass=dict(build_ext=CMakeBuild),
