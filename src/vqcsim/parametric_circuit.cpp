@@ -168,27 +168,22 @@ void ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate(
         gate::ParametricPauliRotation(target, pauli_id, initial_angle));
 }
 
-// watle made
-
-std::vector<double> ParametricQuantumCircuit::backprop(
-    GeneralQuantumOperator* obs) {
+std::vector<double> ParametricQuantumCircuit::backprop_inpro(
+    QuantumState* bistate) {
+    // circuitを書けた結果と、bistateのinner_productを取った結果を「値」として、それを逆誤差伝搬します
+    // bistateはノルムが1のやつでなくてもよい
     int n = this->qubit_count;
-    QuantumState* state =
-        new QuantumState(n);  //これは、ゲートを前から適用したときの状態を示す
+    QuantumState* state = new QuantumState(n);
+    //これは、ゲートを前から適用したときの状態を示す
     state->set_zero_state();
     this->update_quantum_state(state);  //一度最後までする
 
-    QuantumState* bistate = new QuantumState(
-        n);  //ニューラルネットワークのbackpropにおける、後ろからの微分値的な役目を果たす
-    QuantumState* Astate = new QuantumState(n);  //一時的なやつ　
-
-    obs->apply_to_state(Astate, *state, bistate);
-    bistate->multiply_coef(-1);  //ここで、オブザーバブルの微分値が完成する。
+    QuantumState* Astate = new QuantumState(n);  //一時的なやつ
 
     int m = this->gate_list.size();
-    std::vector<int> gyapgp(m, -1);  // prametric gate position no gyaku
+    std::vector<int> inverse_parametric_gate_position(m, -1); 
     for (UINT i = 0; i < this->get_parameter_count(); i++) {
-        gyapgp[this->_parametric_gate_position[i]] = i;
+        inverse_parametric_gate_position[this->_parametric_gate_position[i]] = i;
     }
     std::vector<double> ans(this->get_parameter_count());
 
@@ -196,42 +191,33 @@ std::vector<double> ParametricQuantumCircuit::backprop(
     現在、2番のゲートを見ているとする
     ゲート 0 1 2 3 4 5
          state | bistate
-    前から2番までのゲートを適用した状態がAstate
+    前から2番までのゲートを適用した状態がstate
     最後の微分値から逆算して3番まで　gateの逆行列を掛けたのがbistate
 
     1番まで掛けて、YのΘ微分した行列を掛けたやつと、　bistateの内積の実数部分をとれば答えが出ることが知られている(知られてないかも)
 
-    ParametricR? の微分値を計算した値は、Θに180°を足した値と等しい
+    ParametricR? の微分値を計算した行列は、Θに180°を足した行列/2 と等しい
 
     だから、2番まで掛けて、 R?(π) を掛けたやつと、bistateの内積を取る
 
     さらに、見るゲートは逆順である。
-    だから、最初にstateを最後までやって、　ゲートを進めるたびにstateとbistateに逆行列を掛けている
+    だから、最初にstateを最後までやって、　ゲートを進めるたびにstateに逆行列を掛けている
+    さらに、bistateが複素共役になっていることを忘れると、bistateに転置行列を掛ける必要がある。
+    しかしこのプログラムではbistateはずっと複素共役なので、　転置して共役な行列を掛ける必要がある。
+    ユニタリ性より、転置して共役な行列 = 逆行列 なので、両社にadjoint_gateを掛けている
     */
 
     for (int i = m - 1; i >= 0; i--) {
         QuantumGateBase* gate_now = this->gate_list[i];  // sono gate
-        if (gyapgp[i] != -1) {
-            Astate->load(bistate);
-
+        if (inverse_parametric_gate_position[i] != -1) {
+            Astate->load(state);
+            QuantumGateBase* RcPI;
             if (gate_now->get_name() == "ParametricRX") {
-                QuantumGateBase* RXPI =
-                    gate::RX(gate_now->get_target_index_list()[0], M_PI);
-                RXPI->update_quantum_state(Astate);
-                ans[gyapgp[i]] = state::inner_product(state, Astate).real();
-                delete RXPI;
+                RcPI = gate::RX(gate_now->get_target_index_list()[0], M_PI);
             } else if (gate_now->get_name() == "ParametricRY") {
-                QuantumGateBase* RYPI =
-                    gate::RY(gate_now->get_target_index_list()[0], M_PI);
-                RYPI->update_quantum_state(Astate);
-                ans[gyapgp[i]] = state::inner_product(state, Astate).real();
-                delete RYPI;
+                RcPI = gate::RY(gate_now->get_target_index_list()[0], M_PI);
             } else if (gate_now->get_name() == "ParametricRZ") {
-                QuantumGateBase* RZPI =
-                    gate::RZ(gate_now->get_target_index_list()[0], M_PI);
-                RZPI->update_quantum_state(Astate);
-                ans[gyapgp[i]] = state::inner_product(state, Astate).real();
-                delete RZPI;
+                RcPI = gate::RZ(gate_now->get_target_index_list()[0], M_PI); // 本当はここで2で割りたいけど、行列を割るのは無理
             } else {
                 std::stringstream error_message_stream;
                 error_message_stream
@@ -239,6 +225,13 @@ std::vector<double> ParametricQuantumCircuit::backprop(
                     << " does not support backprop in parametric";
                 throw std::invalid_argument(error_message_stream.str());
             }
+            RcPI->update_quantum_state(Astate);
+            ans[inverse_parametric_gate_position[i]] = state::inner_product( bistate,Astate).real()/2.0; //だからここで2で割る
+
+
+            //各状態ごとにAstate*bistate を計算して足すはずだけど、
+            //bistateがすでに共役なので、inner_productを用いてよい。 (inner_productは共役をとるから)
+            delete RcPI;
         }
         auto Agate = gate::get_adjoint_gate(gate_now);
         Agate->update_quantum_state(bistate);
@@ -247,7 +240,36 @@ std::vector<double> ParametricQuantumCircuit::backprop(
     }
     delete Astate;
     delete state;
-    delete bistate;
-
     return ans;
+}  // CPP
+
+std::vector<double> ParametricQuantumCircuit::backprop(
+    GeneralQuantumOperator* obs) {
+    //オブザーバブルから、　最終段階での微分値を求めて、backprop_from_stateに流す関数
+    //上側から来た変動量 * 下側の対応する微分値 = 最終的な変動量　になるようにする。
+
+
+    int n = this->qubit_count;
+    QuantumState* state = new QuantumState(n);
+    state->set_zero_state();
+    this->update_quantum_state(state);  //一度最後までする
+    QuantumState* bistate = new QuantumState(n);
+    QuantumState* Astate = new QuantumState(n);  //一時的なやつ　
+
+    obs->apply_to_state(Astate, *state, bistate);
+    bistate->multiply_coef(2);
+    /*一度stateを最後まで求めてから、さらにapply_to_state している。
+    なぜなら、　量子のオブザーバブルは普通の機械学習と違って、　二乗した値の絶対値が観測値になる。
+    二乗の絶対値を微分したやつと、　値の複素共役*2は等しい
+
+    オブザーバブルよくわからないけど、テストしたらできてた
+    */
+
+    //ニューラルネットワークのbackpropにおける、後ろからの微分値的な役目を果たす
+    auto ans = backprop_inpro(bistate);
+    delete bistate;
+    delete state;
+    delete Astate;
+    return ans;
+
 }  // CPP
