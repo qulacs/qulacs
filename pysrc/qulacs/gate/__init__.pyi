@@ -240,7 +240,7 @@ def TwoQubitDepolarizingNoise(index1: int, index2: int, prob: float) -> qulacs_c
     """
     Create two-qubit depolarizing noise
     """
-def U1(index: int, lambdas: float) -> qulacs_core.QuantumGateBase:
+def U1(*args, **kwargs) -> typing.Any:
     """
     Create QASM U1 gate
     """
