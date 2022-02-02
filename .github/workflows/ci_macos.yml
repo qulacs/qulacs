@@ -43,7 +43,7 @@ jobs:
         run: brew install ccache
 
       - name: Install Python dependencies
-        run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion
+        run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion mypy
 
       - name: Install Boost for macOS
         run: |
