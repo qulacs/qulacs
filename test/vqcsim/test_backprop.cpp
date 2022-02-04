@@ -54,10 +54,7 @@ TEST(Backprop, BackpropCircuit) {
         cerr << bk[i] << " " << bibun[i].real() << endl;
         ASSERT_NEAR(bk[i], bibun[i].real(), 1e-10);
     }
-
 }
-
-
 
 TEST(Backprop, BackpropCircuitInpro) {
     ParametricQuantumCircuit kairo(3);
@@ -81,30 +78,29 @@ TEST(Backprop, BackpropCircuitInpro) {
     kairo.add_parametric_RY_gate(2, 1);
     //回路に適当にゲートを加える
 
-    std::vector<CPPCTYPE> state_hai = {1.0,0.5,3.0,-0.2,-2.0,1.0,0.7,3.0};
+    std::vector<CPPCTYPE> state_hai = {
+        1.0, 0.5, 3.0, -0.2, -2.0, 1.0, 0.7, 3.0};
     QuantumState state_soku(3);
     state_soku.load(state_hai);
 
     QuantumState Astate(3);
-    
+
     auto bk = kairo.backprop_inpro(&state_soku);
     state_soku.load(state_hai);
     vector<double> kaku = {2.2, 0, 1.4, 1, -1, 1, 1, -1, 1};
-    
+
     Astate.set_zero_state();
     kairo.update_quantum_state(&Astate);
-    CPPCTYPE mto_sco=state::inner_product(&state_soku,&Astate);
+    CPPCTYPE mto_sco = state::inner_product(&state_soku, &Astate);
     for (int h = 0; h < 9; h++) {
-
-        kairo.set_parameter(h, kaku[h]+0.0001);
+        kairo.set_parameter(h, kaku[h] + 0.0001);
         Astate.set_zero_state();
         kairo.update_quantum_state(&Astate);
-        CPPCTYPE gen_sco=state::inner_product(&state_soku,&Astate);
+        CPPCTYPE gen_sco = state::inner_product(&state_soku, &Astate);
 
-        cerr << (gen_sco-mto_sco)*10000.0 << " " << bk[h] << endl;
-        ASSERT_NEAR(((gen_sco-mto_sco)*10000.0).real(), bk[h], 1e-2);
-        
+        cerr << (gen_sco - mto_sco) * 10000.0 << " " << bk[h] << endl;
+        ASSERT_NEAR(((gen_sco - mto_sco) * 10000.0).real(), bk[h], 1e-2);
+
         kairo.set_parameter(h, kaku[h]);
     }
-
 }

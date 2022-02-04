@@ -170,7 +170,7 @@ void ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate(
 
 std::vector<double> ParametricQuantumCircuit::backprop_inpro(
     QuantumState* bistate) {
-    // circuitを書けた結果と、bistateのinner_productを取った結果を「値」として、それを逆誤差伝搬します
+    // circuitを実行した状態とbistateの、inner_productを取った結果を「値」として、それを逆誤差伝搬します
     // bistateはノルムが1のやつでなくてもよい
     int n = this->qubit_count;
     QuantumState* state = new QuantumState(n);
@@ -178,12 +178,11 @@ std::vector<double> ParametricQuantumCircuit::backprop_inpro(
     state->set_zero_state();
     this->update_quantum_state(state);  //一度最後までする
 
-    QuantumState* Astate = new QuantumState(n);  //一時的なやつ
-
-    int m = this->gate_list.size();
-    std::vector<int> inverse_parametric_gate_position(m, -1); 
+    int num_gates = this->gate_list.size();
+    std::vector<int> inverse_parametric_gate_position(num_gates, -1);
     for (UINT i = 0; i < this->get_parameter_count(); i++) {
-        inverse_parametric_gate_position[this->_parametric_gate_position[i]] = i;
+        inverse_parametric_gate_position[this->_parametric_gate_position[i]] =
+            i;
     }
     std::vector<double> ans(this->get_parameter_count());
 
@@ -204,10 +203,11 @@ std::vector<double> ParametricQuantumCircuit::backprop_inpro(
     だから、最初にstateを最後までやって、　ゲートを進めるたびにstateに逆行列を掛けている
     さらに、bistateが複素共役になっていることを忘れると、bistateに転置行列を掛ける必要がある。
     しかしこのプログラムではbistateはずっと複素共役なので、　転置して共役な行列を掛ける必要がある。
-    ユニタリ性より、転置して共役な行列 = 逆行列 なので、両社にadjoint_gateを掛けている
+    ユニタリ性より、転置して共役な行列 = 逆行列
+    なので、両社にadjoint_gateを掛けている
     */
-
-    for (int i = m - 1; i >= 0; i--) {
+    QuantumState* Astate = new QuantumState(n);  //一時的なやつ
+    for (int i = num_gates - 1; i >= 0; i--) {
         QuantumGateBase* gate_now = this->gate_list[i];  // sono gate
         if (inverse_parametric_gate_position[i] != -1) {
             Astate->load(state);
@@ -217,7 +217,8 @@ std::vector<double> ParametricQuantumCircuit::backprop_inpro(
             } else if (gate_now->get_name() == "ParametricRY") {
                 RcPI = gate::RY(gate_now->get_target_index_list()[0], M_PI);
             } else if (gate_now->get_name() == "ParametricRZ") {
-                RcPI = gate::RZ(gate_now->get_target_index_list()[0], M_PI); // 本当はここで2で割りたいけど、行列を割るのは無理
+                RcPI = gate::RZ(gate_now->get_target_index_list()[0],
+                    M_PI);  // 本当はここで2で割りたいけど、行列を割るのは実装が面倒
             } else {
                 std::stringstream error_message_stream;
                 error_message_stream
@@ -226,11 +227,9 @@ std::vector<double> ParametricQuantumCircuit::backprop_inpro(
                 throw std::invalid_argument(error_message_stream.str());
             }
             RcPI->update_quantum_state(Astate);
-            ans[inverse_parametric_gate_position[i]] = state::inner_product( bistate,Astate).real()/2.0; //だからここで2で割る
-
-
-            //各状態ごとにAstate*bistate を計算して足すはずだけど、
-            //bistateがすでに共役なので、inner_productを用いてよい。 (inner_productは共役をとるから)
+            ans[inverse_parametric_gate_position[i]] =
+                state::inner_product(bistate, Astate).real() /
+                2.0;  //だからここで2で割る
             delete RcPI;
         }
         auto Agate = gate::get_adjoint_gate(gate_now);
@@ -246,8 +245,8 @@ std::vector<double> ParametricQuantumCircuit::backprop_inpro(
 std::vector<double> ParametricQuantumCircuit::backprop(
     GeneralQuantumOperator* obs) {
     //オブザーバブルから、　最終段階での微分値を求めて、backprop_from_stateに流す関数
-    //上側から来た変動量 * 下側の対応する微分値 = 最終的な変動量　になるようにする。
-
+    //上側から来た変動量 * 下側の対応する微分値 =
+    //最終的な変動量　になるようにする。
 
     int n = this->qubit_count;
     QuantumState* state = new QuantumState(n);
