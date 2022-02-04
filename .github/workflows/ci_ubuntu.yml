@@ -71,7 +71,7 @@ jobs:
 
       - name: Test if stub is working
         run: |
-          mypy python/stub-test/mypy-import-test.py
+          mypy python/stub-test/mypy-import-test-qulacs.py python/stub-test/mypy-import-test-qulacs-osaka.py
 
       - name: Test in Ubuntu
         run: |
