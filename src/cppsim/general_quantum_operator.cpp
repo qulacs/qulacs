@@ -14,6 +14,10 @@
 #include "type.hpp"
 #include "utility.hpp"
 
+#ifdef _USE_GPU
+#include <gpusim/update_ops_cuda.h>
+#endif
+
 GeneralQuantumOperator::GeneralQuantumOperator(const UINT qubit_count)
     : _qubit_count(qubit_count), _is_hermitian(true) {}
 
@@ -425,13 +429,6 @@ GeneralQuantumOperator* GeneralQuantumOperator::get_dagger() const {
             std::conj(pauli->get_coef()), pauli->get_pauli_string());
     }
     return quantum_operator;
-}
-
-GeneralQuantumOperator GeneralQuantumOperator::operator+(
-    const GeneralQuantumOperator& target) const {
-    auto res = this->copy();
-    *res += target;
-    return *res;
 }
 
 GeneralQuantumOperator GeneralQuantumOperator::operator+(

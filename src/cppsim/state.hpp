@@ -359,6 +359,7 @@ public:
     virtual void set_zero_state() override {
         initialize_quantum_state(this->data_c(), _dim);
     }
+
     /**
      * \~japanese-en 量子状態をノルム0の状態にする
      */
@@ -366,6 +367,7 @@ public:
         set_zero_state();
         _state_vector[0] = 0;
     }
+
     /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
      *

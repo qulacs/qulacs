@@ -26,7 +26,7 @@ protected:
      * @param [in] target_index_list パウリ演算子が作用する量子ビットの番号
      * @param [in] state 作用を受ける状態
      */
-    void _apply_pauli_to_state_single_thread(std::vector<UINT> pauli_id_list,
+    void _apply_pauli_to_state(std::vector<UINT> pauli_id_list,
         std::vector<UINT> target_index_list, QuantumStateBase* state) const;
 
     /**
@@ -36,7 +36,7 @@ protected:
      * @param [in] target_index_list パウリ演算子が作用する量子ビットの番号
      * @param [in] state 作用を受ける状態
      */
-    void _apply_pauli_to_state(std::vector<UINT> pauli_id_list,
+    void _apply_pauli_to_state_single_thread(std::vector<UINT> pauli_id_list,
         std::vector<UINT> target_index_list, QuantumStateBase* state) const;
 
 public:

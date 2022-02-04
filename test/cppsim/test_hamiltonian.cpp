@@ -450,6 +450,17 @@ TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
     }
 }
 
+TEST(ObservableTest, GetDaggerTest) {
+    constexpr double eps = 1e-2;
+    constexpr UINT qubit_count = 4;
+
+    auto observable = Observable(qubit_count);
+    observable.add_operator(1.0, "X 0");
+    auto dagger_observable = observable.get_dagger();
+    std::string s = dagger_observable->to_string();
+    ASSERT_TRUE(s == "(1,-0) X 0" || s == "(1,0) X 0");
+}
+
 TEST(ObservableTest, ObservableAndStateHaveDifferentQubitCountTest) {
     auto func = [](const std::string str,
                     const QuantumStateBase* state) -> CPPCTYPE {
@@ -513,6 +524,8 @@ TEST(ObservableTest, ObservableAndStateHaveDifferentQubitCountTest) {
 }
 
 TEST(ObservableTest, ApplyIdentityToState) {
+    const double eps = 1e-14;
+
     double coef = .5;
     int n_qubits = 3;
     Observable obs(n_qubits);
@@ -521,5 +534,5 @@ TEST(ObservableTest, ApplyIdentityToState) {
     QuantumState dst_state(n_qubits);
     obs.apply_to_state(&state, &dst_state);
     state.add_state_with_coef(-1 / coef, &dst_state);
-    ASSERT_EQ(state.get_squared_norm(), 0.);
+    ASSERT_NEAR(0., state.get_squared_norm(), eps);
 }
