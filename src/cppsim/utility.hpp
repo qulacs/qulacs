@@ -6,7 +6,6 @@
 
 #pragma once
 
-#include <cctype>
 #include <chrono>
 #include <cstdio>
 #include <random>

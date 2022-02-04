@@ -4,6 +4,8 @@
 
 #include "utility.hpp"
 
+#include <cctype>
+
 void get_Pauli_matrix(
     ComplexMatrix& matrix, const std::vector<UINT>& pauli_id_list) {
     ITYPE matrix_dim = 1ULL << pauli_id_list.size();
