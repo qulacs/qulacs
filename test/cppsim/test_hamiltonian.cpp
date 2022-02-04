@@ -458,9 +458,7 @@ TEST(ObservableTest, GetDaggerTest) {
     observable.add_operator(1.0, "X 0");
     auto dagger_observable = observable.get_dagger();
     std::string s = dagger_observable->to_string();
-    if (s != "(1,-0) X 0" && s != "(1,0) X 0") {
-        FAIL();
-    }
+    ASSERT_TRUE(s == "(1,-0) X 0" || s == "(1,0) X 0");
 }
 
 TEST(ObservableTest, ObservableAndStateHaveDifferentQubitCountTest) {
