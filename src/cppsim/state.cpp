@@ -1,4 +1,5 @@
 ﻿#include "state.hpp"
+
 #include <csim/stat_ops.hpp>
 #include <iostream>
 
@@ -7,10 +8,11 @@
 namespace state {
 CPPCTYPE inner_product(const QuantumState* state1, const QuantumState* state2) {
     if (state1->qubit_count != state2->qubit_count) {
-        std::cerr << "Error: inner_product(const QuantumState*, const "
-                     "QuantumState*): invalid qubit count"
-                  << std::endl;
-        return 0.;
+        std::stringstream error_message_stream;
+        error_message_stream
+            << "Error: inner_product(const QuantumState*, const "
+               "QuantumState*): invalid qubit count";
+        throw std::invalid_argument(error_message_stream.str());
     }
 
     return state_inner_product(state1->data_c(), state2->data_c(), state1->dim);
@@ -26,10 +28,10 @@ QuantumState* tensor_product(
 QuantumState* permutate_qubit(
     const QuantumState* state, std::vector<UINT> qubit_order) {
     if (state->qubit_count != (UINT)qubit_order.size()) {
-        std::cerr << "Error: permutate_qubit(const QuantumState*, "
-                     "std::vector<UINT>): invalid qubit count"
-                  << std::endl;
-        return NULL;
+        std::stringstream error_message_stream;
+        error_message_stream << "Error: permutate_qubit(const QuantumState*, "
+                                "std::vector<UINT>): invalid qubit count";
+        throw std::invalid_argument(error_message_stream.str());
     }
     UINT qubit_count = state->qubit_count;
     QuantumState* qs = new QuantumState(qubit_count);
@@ -41,11 +43,11 @@ QuantumState* drop_qubit(const QuantumState* state, std::vector<UINT> target,
     std::vector<UINT> projection) {
     if (state->qubit_count <= target.size() ||
         target.size() != projection.size()) {
-        std::cerr
+        std::stringstream error_message_stream;
+        error_message_stream
             << "Error: drop_qubit(const QuantumState*, std::vector<UINT>): "
-               "invalid qubit count"
-            << std::endl;
-        return NULL;
+               "invalid qubit count";
+        throw std::invalid_argument(error_message_stream.str());
     }
     UINT qubit_count = state->qubit_count - (UINT)target.size();
     QuantumState* qs = new QuantumState(qubit_count);

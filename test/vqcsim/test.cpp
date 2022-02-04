@@ -213,12 +213,18 @@ TEST(ParametricGate, DuplicateIndex) {
         {2, 1, 0, 3, 7, 9, 4}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
     EXPECT_TRUE(gate2 != NULL);
     delete gate2;
-    auto gate3 = gate::ParametricPauliRotation(
-        {0, 1, 3, 1, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
-    ASSERT_EQ(NULL, gate3);
-    auto gate4 = gate::ParametricPauliRotation(
-        {0, 3, 5, 2, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
-    ASSERT_EQ(NULL, gate4);
+    ASSERT_THROW(
+        {
+            auto gate3 = gate::ParametricPauliRotation(
+                {0, 1, 3, 1, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
+        },
+        std::invalid_argument);
+    ASSERT_THROW(
+        {
+            auto gate4 = gate::ParametricPauliRotation(
+                {0, 3, 5, 2, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
+        },
+        std::invalid_argument);
 }
 
 TEST(GradCalculator, BasicCheck) {
