@@ -25,7 +25,7 @@
 #include "state.hpp"
 
 PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef) : _coef(coef) {
-    std::stringstream ss(strings);
+    std::stringstream ss(rtrim(strings));
     std::string pauli_str;
     UINT index, pauli_type = 0;
     while (!ss.eof()) {
