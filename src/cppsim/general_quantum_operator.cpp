@@ -429,7 +429,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     const GeneralQuantumOperator& target) {
     ITYPE i, j;
     auto terms = target.get_terms();
-#pragma omp parallel for
+    // #pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         for (j = 0; j < terms.size(); j++) {
@@ -482,7 +482,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     const PauliOperator& target) {
     bool flag = true;
     ITYPE i;
-#pragma omp parallel for
+    // #pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         auto pauli_x = pauli_operator->get_x_bits();
@@ -526,7 +526,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
     const GeneralQuantumOperator& target) {
     ITYPE i, j;
     auto terms = target.get_terms();
-#pragma omp parallel for
+    // #pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         for (j = 0; j < terms.size(); j++) {
@@ -634,7 +634,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     auto terms = copy->get_terms();
     auto target_terms = target.get_terms();
     ITYPE i, j;
-#pragma omp parallel for
+    //#pragma omp parallel for
     for (i = 0; i < terms.size(); i++) {
         auto pauli_operator = terms[i];
         for (j = 0; j < target_terms.size(); j++) {
@@ -653,7 +653,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     _operator_list.clear();
     ITYPE i;
     auto terms = copy->get_terms();
-#pragma omp parallel for
+    //#pragma omp parallel for
     for (i = 0; i < terms.size(); i++) {
         auto pauli_operator = terms[i];
         PauliOperator* product = new PauliOperator;
@@ -665,7 +665,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator*=(CPPCTYPE target) {
     ITYPE i;
-#pragma omp parallel for
+    //#pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         *_operator_list[i] *= target;
     }
