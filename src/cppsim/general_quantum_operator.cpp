@@ -429,7 +429,9 @@ GeneralQuantumOperator* GeneralQuantumOperator::get_dagger() const {
             std::conj(pauli->get_coef()), pauli->get_pauli_string());
     }
     return quantum_operator;
-}GeneralQuantumOperator GeneralQuantumOperator::operator+(
+}
+
+GeneralQuantumOperator GeneralQuantumOperator::operator+(
     const GeneralQuantumOperator& target) const {
     auto res = this->copy();
     *res += target;
