@@ -148,10 +148,6 @@ public:
         return state_norm_squared_host(
             this->data(), _dim, _cuda_stream, device_number);
     }
-    virtual double get_squared_norm_single_thread() const override {
-        return state_norm_squared_host(
-            this->data(), _dim, _cuda_stream, device_number);
-    }
 
     /**
      * \~japanese-en 量子状態のノルムを計算する
@@ -324,31 +320,6 @@ public:
             _cuda_stream, device_number);
     }
 
-    /**
-     * \~japanese-en 量子状態を足しこむ (とりあえずの実装なので遅い)
-     */
-    virtual void add_state_with_coef(
-        CPPCTYPE coef, const QuantumStateBase* state) override {
-        state_multiply_host(
-            coef, this->data(), this->dim, _cuda_stream, device_number);
-        state_add_host(state->data(), this->data(), this->dim, _cuda_stream,
-            device_number);
-        state_multiply_host(
-            1 / coef, this->data(), this->dim, _cuda_stream, device_number);
-    }
-
-    /**
-     * \~japanese-en 量子状態を足しこむ (とりあえずの実装なので遅い)
-     */
-    virtual void add_state_with_coef_with_single_thread(
-        CPPCTYPE coef, const QuantumStateBase* state) override {
-        state_multiply_host(
-            coef, this->data(), this->dim, _cuda_stream, device_number);
-        state_add_host(state->data(), this->data(), this->dim, _cuda_stream,
-            device_number);
-        state_multiply_host(
-            1 / coef, this->data(), this->dim, _cuda_stream, device_number);
-    }
     /**
      * \~japanese-en 複素数をかける
      */
