@@ -99,6 +99,10 @@ class GeneralQuantumOperator():
         """
     @typing.overload
     def add_operator(self, pauli_operator: PauliOperator) -> None: ...
+    def apply_to_state(self, work_state: QuantumStateBase, state_to_be_multiplied: QuantumStateBase, dst_state: QuantumStateBase) -> None: 
+        """
+        Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.
+        """
     def copy(self) -> GeneralQuantumOperator: 
         """
         Create copied instance of General Quantum operator class
@@ -700,6 +704,10 @@ class QuantumState(QuantumStateBase):
     def copy(self) -> QuantumStateBase: 
         """
         Create copied instance
+        """
+    def get_amplitude(self, index: int) -> complex: 
+        """
+        Get state vector
         """
     def get_classical_value(self, index: int) -> int: 
         """
