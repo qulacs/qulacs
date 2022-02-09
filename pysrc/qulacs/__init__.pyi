@@ -99,11 +99,19 @@ class GeneralQuantumOperator():
         """
     @typing.overload
     def add_operator(self, pauli_operator: PauliOperator) -> None: ...
+    def apply_to_state(self, work_state: QuantumStateBase, state_to_be_multiplied: QuantumStateBase, dst_state: QuantumStateBase) -> None: 
+        """
+        Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.
+        """
     def copy(self) -> GeneralQuantumOperator: 
         """
         Create copied instance of General Quantum operator class
         """
     def get_expectation_value(self, state: QuantumStateBase) -> complex: 
+        """
+        Get expectation value
+        """
+    def get_expectation_value_single_thread(self, state: QuantumStateBase) -> complex: 
         """
         Get expectation value
         """
@@ -176,6 +184,10 @@ class Observable(GeneralQuantumOperator):
         Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.
         """
     def get_expectation_value(self, state: QuantumStateBase) -> float: 
+        """
+        Get expectation value
+        """
+    def get_expectation_value_single_thread(self, state: QuantumStateBase) -> float: 
         """
         Get expectation value
         """
@@ -445,6 +457,10 @@ class PauliOperator():
         """
         Get expectation value
         """
+    def get_expectation_value_single_thread(self, state: QuantumStateBase) -> complex: 
+        """
+        Get expectation value
+        """
     def get_index_list(self) -> typing.List[int]: 
         """
         Get list of target qubit indices
@@ -700,6 +716,10 @@ class QuantumState(QuantumStateBase):
     def copy(self) -> QuantumStateBase: 
         """
         Create copied instance
+        """
+    def get_amplitude(self, index: int) -> complex: 
+        """
+        Get state vector
         """
     def get_classical_value(self, index: int) -> int: 
         """
