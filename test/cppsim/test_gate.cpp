@@ -1328,45 +1328,55 @@ TEST(GateTest, DuplicateIndex) {
         auto gate1 = gate::CNOT(10, 13);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::CNOT(21, 21);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            { auto gate2 = gate::CNOT(21, 21); }, std::invalid_argument);
     }
     {
         auto gate1 = gate::CZ(10, 13);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::CZ(21, 21);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW({ auto gate2 = gate::CZ(21, 21); }, std::invalid_argument);
     }
     {
         auto gate1 = gate::SWAP(10, 13);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::SWAP(21, 21);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            { auto gate2 = gate::SWAP(21, 21); }, std::invalid_argument);
     }
     {
         auto gate1 = gate::Pauli({2, 1, 0, 3, 7, 9, 4}, {0, 0, 0, 0, 0, 0, 0});
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::Pauli({0, 1, 3, 1, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0});
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            {
+                auto gate2 =
+                    gate::Pauli({0, 1, 3, 1, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0});
+            },
+            std::invalid_argument);
     }
     {
         auto gate1 = gate::PauliRotation(
             {2, 1, 0, 3, 7, 9, 4}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::PauliRotation(
-            {0, 1, 3, 1, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            {
+                auto gate2 = gate::PauliRotation(
+                    {0, 1, 3, 1, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
+            },
+            std::invalid_argument);
     }
     {
         auto gate1 = gate::DenseMatrix({10, 13}, ComplexMatrix::Identity(4, 4));
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::DenseMatrix({21, 21}, ComplexMatrix::Identity(4, 4));
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            {
+                auto gate2 =
+                    gate::DenseMatrix({21, 21}, ComplexMatrix::Identity(4, 4));
+            },
+            std::invalid_argument);
     }
     {
         auto matrix = SparseComplexMatrix(4, 4);
@@ -1374,29 +1384,52 @@ TEST(GateTest, DuplicateIndex) {
         auto gate1 = gate::SparseMatrix({10, 13}, matrix);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::SparseMatrix({21, 21}, matrix);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            {
+                auto gate2 = gate::SparseMatrix({21, 21}, matrix);
+            },
+            std::invalid_argument);
+    }
+    {
+        UINT n = 2;
+        ITYPE dim = 1ULL << n;
+        ComplexVector test_state_eigen(dim);
+        auto gate1 = gate::DiagonalMatrix({10, 13}, test_state_eigen);
+        EXPECT_TRUE(gate1 != NULL);
+        delete gate1;
+        ASSERT_THROW(
+            {
+                auto gate2 = gate::DiagonalMatrix({21, 21}, test_state_eigen);
+            },
+            std::invalid_argument);
     }
     {
         auto gate1 = gate::RandomUnitary({10, 13});
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::RandomUnitary({21, 21});
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            {
+                auto gate2 = gate::RandomUnitary({21, 21});
+            },
+            std::invalid_argument);
     }
     {
         auto ident = [](ITYPE a, ITYPE dim) { return a; };
         auto gate1 = gate::ReversibleBoolean({10, 13}, ident);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::ReversibleBoolean({21, 21}, ident);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            {
+                auto gate2 = gate::ReversibleBoolean({21, 21}, ident);
+            },
+            std::invalid_argument);
     }
     {
         auto gate1 = gate::TwoQubitDepolarizingNoise(10, 13, 0.1);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::TwoQubitDepolarizingNoise(21, 21, 0.1);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            { auto gate2 = gate::TwoQubitDepolarizingNoise(21, 21, 0.1); },
+            std::invalid_argument);
     }
 }

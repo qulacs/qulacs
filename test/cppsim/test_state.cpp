@@ -115,6 +115,39 @@ TEST(StateTest, AddState) {
     }
 }
 
+TEST(StateTest, AddStateWithCoef) {
+    const double eps = 1e-10;
+    const std::complex<double> coef(2.5, 1.3);
+    const UINT n = 10;
+    QuantumState state1(n);
+    QuantumState state2(n);
+    state1.set_Haar_random_state();
+    state2.set_Haar_random_state();
+
+    const ITYPE dim = 1ULL << n;
+    std::vector<std::complex<double>> state_vector1(dim);
+    std::vector<std::complex<double>> state_vector2(dim);
+    for (ITYPE i = 0; i < dim; ++i) {
+        state_vector1[i] = state1.data_cpp()[i];
+        state_vector2[i] = state2.data_cpp()[i];
+    }
+
+    state1.add_state_with_coef(coef, &state2);
+
+    for (ITYPE i = 0; i < dim; ++i) {
+        ASSERT_NEAR(state1.data_cpp()[i].real(),
+            state_vector1[i].real() + coef.real() * state_vector2[i].real() -
+                coef.imag() * state_vector2[i].imag(),
+            eps);
+        ASSERT_NEAR(state1.data_cpp()[i].imag(),
+            state_vector1[i].imag() + coef.real() * state_vector2[i].imag() +
+                coef.imag() * state_vector2[i].real(),
+            eps);
+        ASSERT_NEAR(state2.data_cpp()[i].real(), state_vector2[i].real(), eps);
+        ASSERT_NEAR(state2.data_cpp()[i].imag(), state_vector2[i].imag(), eps);
+    }
+}
+
 TEST(StateTest, MultiplyCoef) {
     const double eps = 1e-10;
     const UINT n = 10;
@@ -191,4 +224,16 @@ TEST(StateTest, PermutateQubit) {
             state.data_cpp()[corr[i]].imag(), eps);
     }
     delete state2;
+}
+
+TEST(StateTest, ZeroNormState) {
+    const UINT n = 5;
+
+    QuantumState state(n);
+    state.set_Haar_random_state();
+    state.set_zero_norm_state();
+    std::complex<double>* result = state.data_cpp();
+    for (int i = 0; i < (1 << n); ++i) {
+        ASSERT_EQ(result[i], std::complex<double>(0, 0));
+    }
 }

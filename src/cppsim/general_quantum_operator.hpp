@@ -18,6 +18,27 @@ private:
     UINT _qubit_count;
     bool _is_hermitian;
 
+protected:
+    /**
+     * \~japanese-en
+     * state にパウリ演算子を作用させる
+     * @param [in] pauli_id_list パウリ演算子の ID
+     * @param [in] target_index_list パウリ演算子が作用する量子ビットの番号
+     * @param [in] state 作用を受ける状態
+     */
+    void _apply_pauli_to_state(std::vector<UINT> pauli_id_list,
+        std::vector<UINT> target_index_list, QuantumStateBase* state) const;
+
+    /**
+     * \~japanese-en
+     * state にパウリ演算子を作用させる
+     * @param [in] pauli_id_list パウリ演算子の ID
+     * @param [in] target_index_list パウリ演算子が作用する量子ビットの番号
+     * @param [in] state 作用を受ける状態
+     */
+    void _apply_pauli_to_state_single_thread(std::vector<UINT> pauli_id_list,
+        std::vector<UINT> target_index_list, QuantumStateBase* state) const;
+
 public:
     /**
      * \~japanese-en
@@ -91,10 +112,10 @@ public:
      */
     virtual const PauliOperator* get_term(UINT index) const {
         if (index >= _operator_list.size()) {
-            std::cerr
-                << "Error: PauliOperator::get_term(UINT): index out of range"
-                << std::endl;
-            return NULL;
+            std::stringstream error_message_stream;
+            error_message_stream
+                << "Error: PauliOperator::get_term(UINT): index out of range";
+            throw std::out_of_range(error_message_stream.str());
         }
         return _operator_list[index];
     }
@@ -107,6 +128,13 @@ public:
     virtual std::vector<PauliOperator*> get_terms() const {
         return _operator_list;
     }
+
+    /**
+     * \~japanese-en
+     * エルミート共役を返す
+     * @return GeneralQuantumOperator
+     */
+    virtual GeneralQuantumOperator* get_dagger() const;
 
     /**
      * \~japanese-en
@@ -183,6 +211,28 @@ public:
     void apply_to_state(QuantumStateBase* work_state,
         const QuantumStateBase& state_to_be_multiplied,
         QuantumStateBase* dst_state) const;
+
+    /**
+     * \~japanese-en
+     * state_to_be_multiplied に GeneralQuantumOperator を作用させる．
+     * 結果は dst_state に格納される．dst_state
+     * はすべての要素を0に初期化してから計算するため， 任意の状態を渡してよい．
+     * @param [in] state_to_be_multiplied 作用を受ける状態
+     * @param [in] dst_state 結果を格納する状態
+     */
+    void apply_to_state(
+        QuantumStateBase* state, QuantumStateBase* dst_state) const;
+
+    /**
+     * \~japanese-en
+     * state_to_be_multiplied に GeneralQuantumOperator を作用させる．
+     * 結果は dst_state に格納される．dst_state
+     * はすべての要素を0に初期化してから計算するため， 任意の状態を渡してよい．
+     * @param [in] state_to_be_multiplied 作用を受ける状態
+     * @param [in] dst_state 結果を格納する状態
+     */
+    void apply_to_state_single_thread(
+        QuantumStateBase* state, QuantumStateBase* dst_state) const;
 
     virtual GeneralQuantumOperator* copy() const;
 
