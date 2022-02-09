@@ -4,6 +4,8 @@
 
 #include "utility.hpp"
 
+#include <cctype>
+
 void get_Pauli_matrix(
     ComplexMatrix& matrix, const std::vector<UINT>& pauli_id_list) {
     ITYPE matrix_dim = 1ULL << pauli_id_list.size();
@@ -134,4 +136,11 @@ bool check_is_unique_index_list(std::vector<UINT> index_list) {
         if (!flag) break;
     }
     return flag;
+}
+
+std::string& rtrim(std::string& str) {
+    auto it = std::find_if(str.rbegin(), str.rend(),
+        [](unsigned char c) { return !std::isspace(c); });
+    str.erase(it.base(), str.end());
+    return str;
 }
