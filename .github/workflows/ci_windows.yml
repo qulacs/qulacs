@@ -39,7 +39,7 @@ jobs:
           architecture: x64
 
       - name: Install Python dependencies
-        run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion
+        run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion mypy
 
       - name: Install boost
         uses: MarkusJx/install-boost@v2.0.0
@@ -56,6 +56,10 @@ jobs:
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
         run: python setup.py install
+
+      - name: Test if stub is working
+        run: |
+          mypy python/stub-test/mypy-import-test-qulacs.py python/stub-test/mypy-import-test-qulacs-osaka.py
 
       - name: Test in Windows
         env:
