@@ -65,7 +65,9 @@ jobs:
 
       - name: Test if stub is working
         run: |
-          mypy python/stub-test/mypy-import-test-qulacs.py python/stub-test/mypy-import-test-qulacs-osaka.py
+          python python/stub-test/generate_mypy_tester_qulacs_osaka.py
+          python python/stub-test/generate_mypy_tester_qulacs.py
+          mypy python/stub-test/names_qulacs_osaka.py python/stub-test/names_qulacs.py
 
       - name: Test in macOS
         run: |
