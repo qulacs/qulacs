@@ -524,7 +524,7 @@ class ParametricQuantumCircuit(QuantumCircuit):
         """
         do backprop
         """
-    def backprop_inpro(self, state: QuantumState) -> typing.List[float]: 
+    def backprop_inner_product(self, state: QuantumState) -> typing.List[float]: 
         """
         do backprop with innder product
         """

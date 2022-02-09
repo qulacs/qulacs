@@ -50,5 +50,5 @@ public:
         std::vector<UINT> target, std::vector<UINT> pauli_id,
         double initial_angle);
     virtual std::vector<double> backprop(GeneralQuantumOperator* obs);
-    virtual std::vector<double> backprop_inpro(QuantumState* bistate);
+    virtual std::vector<double> backprop_inner_product(QuantumState* bistate);
 };

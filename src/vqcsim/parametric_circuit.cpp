@@ -169,7 +169,7 @@ void ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate(
         gate::ParametricPauliRotation(target, pauli_id, initial_angle));
 }
 
-std::vector<double> ParametricQuantumCircuit::backprop_inpro(
+std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
     QuantumState* bistate) {
     // circuitを実行した状態とbistateの、inner_productを取った結果を「値」として、それを逆誤差伝搬します
     // bistateはノルムが1のやつでなくてもよい
@@ -266,7 +266,7 @@ std::vector<double> ParametricQuantumCircuit::backprop(
     */
 
     //ニューラルネットワークのbackpropにおける、後ろからの微分値的な役目を果たす
-    auto ans = backprop_inpro(bistate);
+    auto ans = backprop_inner_product(bistate);
     delete bistate;
     delete state;
     delete Astate;

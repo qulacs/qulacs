@@ -85,7 +85,7 @@ TEST(Backprop, BackpropCircuitInpro) {
 
     QuantumState Astate(3);
 
-    auto bk = kairo.backprop_inpro(&state_soku);
+    auto bk = kairo.backprop_inner_product(&state_soku);
     state_soku.load(state_hai);
     vector<double> kaku = {2.2, 0, 1.4, 1, -1, 1, 1, -1, 1};
 
