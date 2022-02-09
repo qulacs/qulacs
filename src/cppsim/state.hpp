@@ -70,6 +70,11 @@ public:
     virtual void set_zero_state() = 0;
 
     /**
+     * \~japanese-en ノルム0の状態 (要素がすべて0のベクトル) にする
+     */
+    virtual void set_zero_norm_state() = 0;
+
+    /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
      *
      * @param comp_basis 初期化する基底を表す整数
@@ -217,6 +222,19 @@ public:
      * \~japanese-en 量子状態を足しこむ
      */
     virtual void add_state(const QuantumStateBase* state) = 0;
+
+    /**
+     * \~japanese-en 量子状態を係数付きで足しこむ
+     */
+    virtual void add_state_with_coef(
+        CPPCTYPE coef, const QuantumStateBase* state) = 0;
+
+    /**
+     * \~japanese-en 量子状態を係数付きで足しこむ
+     */
+    virtual void add_state_with_coef_single_thread(
+        CPPCTYPE coef, const QuantumStateBase* state) = 0;
+
     /**
      * \~japanese-en 複素数をかける
      */
@@ -341,6 +359,15 @@ public:
     virtual void set_zero_state() override {
         initialize_quantum_state(this->data_c(), _dim);
     }
+
+    /**
+     * \~japanese-en 量子状態をノルム0の状態にする
+     */
+    virtual void set_zero_norm_state() override {
+        set_zero_state();
+        _state_vector[0] = 0;
+    }
+
     /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
      *
@@ -589,6 +616,34 @@ public:
         }
         state_add(state->data_c(), this->data_c(), this->dim);
     }
+
+    /**
+     * \~japanese-en 量子状態を足しこむ
+     */
+    virtual void add_state_with_coef(
+        CPPCTYPE coef, const QuantumStateBase* state) override {
+        if (state->get_device_name() == "gpu") {
+            std::cerr << "State vector on GPU cannot be added to that on CPU"
+                      << std::endl;
+            return;
+        }
+        state_add_with_coef(coef, state->data_c(), this->data_c(), this->dim);
+    }
+
+    /**
+     * \~japanese-en 量子状態を足しこむ
+     */
+    virtual void add_state_with_coef_single_thread(
+        CPPCTYPE coef, const QuantumStateBase* state) override {
+        if (state->get_device_name() == "gpu") {
+            std::cerr << "State vector on GPU cannot be added to that on CPU"
+                      << std::endl;
+            return;
+        }
+        state_add_with_coef_single_thread(
+            coef, state->data_c(), this->data_c(), this->dim);
+    }
+
     /**
      * \~japanese-en 複素数をかける
      */
