@@ -9,7 +9,7 @@
         {
             "label": "test",
             "type": "shell",
-            "command": "make test -C build -j",
+            "command": "make test -C build -j $(nproc)",
             "dependsOn": [
                 "build gcc"
             ]
@@ -17,7 +17,7 @@
         {
             "label": "pythontest",
             "type": "shell",
-            "command": "make pythontest -C build -j",
+            "command": "make pythontest -C build -j $(nproc)",
             "dependsOn": [
                 "build gcc"
             ]

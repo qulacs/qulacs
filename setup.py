@@ -1,12 +1,12 @@
 import os
-import re
-import sys
 import platform
+import re
 import subprocess
+import sys
+from distutils.version import LooseVersion
 
-from setuptools import setup, find_packages, Extension
+from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
-
 
 VERSION = "0.2.0"
 PROJECT_NAME = "qulacs-osaka"
@@ -149,6 +149,7 @@ setup(
     long_description="",
     package_dir={"": "pysrc"},
     packages=find_packages(exclude=["test*"]) + find_packages("pysrc"),
+    package_data={"": ["py.typed", "*.pyi"]},
     include_package_data=True,
     ext_modules=[CMakeExtension("qulacs_core")],
     cmdclass=dict(build_ext=CMakeBuild),

@@ -43,7 +43,7 @@ jobs:
         run: brew install ccache
 
       - name: Install Python dependencies
-        run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion
+        run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion mypy
 
       - name: Install Boost for macOS
         run: |
@@ -62,6 +62,10 @@ jobs:
 
       - name: Install qulacs Python module
         run: python setup.py install
+
+      - name: Test if stub is working
+        run: |
+          mypy python/stub-test/mypy-import-test-qulacs.py python/stub-test/mypy-import-test-qulacs-osaka.py
 
       - name: Test in macOS
         run: |

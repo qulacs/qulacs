@@ -53,13 +53,25 @@ jobs:
         run: sudo apt install libboost-dev
       
       - name: Install Python dependencies
-        run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion
+        run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion mypy pybind11-stubgen
 
       - name: Install qulacs for Ubuntu
         run: ./script/build_gcc.sh
 
       - name: Install qulacs Python module
         run: python setup.py install
+      
+      - name: Check stubs
+        run: |
+          ./script/update_stubs.sh
+          diff=$(git diff)
+          echo -n "$diff"
+          # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
+          test $(echo -n "$diff" | wc -l) -eq 0
+
+      - name: Test if stub is working
+        run: |
+          mypy python/stub-test/mypy-import-test-qulacs.py python/stub-test/mypy-import-test-qulacs-osaka.py
 
       - name: Test in Ubuntu
         run: |
@@ -118,75 +130,6 @@ jobs:
         run: python setup_gpu.py install
 
       # Testing is removed because GPU is not available for GitHub-Hosted Runner.
-
-  source-dist:
-    name: Source dist
-    needs: gcc8-build
-    strategy:
-      matrix:
-        python-version: ["3.7.5"]
-    runs-on: "ubuntu-20.04"
-    env:
-      TWINE_USERNAME: "__token__"
-      TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS }}
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
-
-      - name: Install boost
-        run: sudo apt install libboost-dev
-
-      - name: Run sdist
-        run: python setup.py sdist
-
-      - name: Upload the source if the Git tag is set
-        run: |
-          python -m pip install twine
-          python -m twine upload dist/*
-        # This condition is refered for:
-        #   https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions
-        if: ${{ contains(github.ref, '/tags/') }}
-
-  source-dist-gpu:
-    name: Source dist (Qulacs-GPU)
-    needs: gcc8-build
-    strategy:
-      matrix:
-        python-version: ["3.7.5"]
-    runs-on: "ubuntu-20.04"
-    env:
-      TWINE_USERNAME: "__token__"
-      TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS_GPU }}
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup Python
-        uses: actions/setup-python@v2
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
-
-      - name: Install boost
-        run: sudo apt install libboost-dev
-
-      - name: Switch setup.py to GPU enabled version
-        run: cp setup_gpu.py setup.py
-
-      - name: Run sdist
-        run: python setup.py sdist
-
-      - name: Upload the source if the Git tag is set
-        run: |
-          python -m pip install twine
-          python -m twine upload dist/*
-        # This condition is refered for:
-        #   https://docs.github.com/en/free-pro-team@latest/actions/reference/context-and-expression-syntax-for-github-actions
-        if: ${{ contains(github.ref, '/tags/') }}
 
   format:
     name: Format with clang-format
