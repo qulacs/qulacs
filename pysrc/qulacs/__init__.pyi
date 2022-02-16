@@ -524,6 +524,10 @@ class ParametricQuantumCircuit(QuantumCircuit):
         """
         do backprop
         """
+    def backprop_inner_product(self, state: QuantumState) -> typing.List[float]: 
+        """
+        do backprop with innder product
+        """
     def copy(self) -> ParametricQuantumCircuit: 
         """
         Create copied instance
