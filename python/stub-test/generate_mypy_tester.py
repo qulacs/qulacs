@@ -12,12 +12,15 @@ if __name__ == "__main__":
 
     with open("%s/names_%s.py" % (os.path.dirname(__file__), module_name), "w") as f:
         names = list()
+        submodule_names = list()
         objects = list()
 
         def search_names(obj, name):
             if obj in objects:
                 return
             names.append(name)
+            if inspect.ismodule(obj):
+                submodule_names.append(name)
             objects.append(obj)
 
             if not (inspect.isclass(obj) or inspect.ismodule(obj)):
@@ -28,7 +31,8 @@ if __name__ == "__main__":
                 search_names(subobj[1], name + "." + subobj[0])
 
         search_names(module, module_name)
-        f.write("import " + module_name + "\n")
+        for submodule_name in submodule_names:
+            f.write("import " + submodule_name + "\n")
         names_list = sorted(names)
         for name in names_list:
             f.write(name + "\n")
