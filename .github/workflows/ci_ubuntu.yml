@@ -71,8 +71,8 @@ jobs:
 
       - name: Test if stub is working
         run: |
-          python python/stub-test/generate_mypy_tester_qulacs_osaka.py
-          python python/stub-test/generate_mypy_tester_qulacs.py
+          python python/stub-test/generate_mypy_tester.py qulacs_osaka
+          python python/stub-test/generate_mypy_tester.py qulacs
           mypy python/stub-test/names_qulacs_osaka.py python/stub-test/names_qulacs.py
 
       - name: Test in Ubuntu
