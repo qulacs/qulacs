@@ -16,6 +16,13 @@ if __name__ == "__main__":
         objects = list()
 
         def search_names(obj, name):
+            # Issue 234
+            if (
+                name == "qulacs.Observable.get_matrix"
+                or name == "qulacs.GeneralQuantumOperator.get_matrix"
+            ):
+                return
+
             if obj in objects:
                 return
             names.append(name)
