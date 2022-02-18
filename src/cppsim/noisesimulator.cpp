@@ -27,24 +27,9 @@ NoiseSimulator::NoiseSimulator(
     circuit = init_circuit->copy();
     for (size_t i = 0; i < circuit->gate_list.size(); ++i) {
         auto gate = circuit->gate_list[i];
-        if (gate->is_noise() == false) continue;
+        if (!gate->is_noise()) continue;
         gate->optimize_ProbablisticGate();
     }
-    /*
-    UINT n = init_circuit -> gate_list.size();
-    for(UINT i = 0;i < n;++i){
-        std::vector<UINT> qubit_indexs = init_circuit -> gate_list[i] ->
-    get_target_index_list(); for(auto x:init_circuit -> gate_list[i] ->
-    get_control_index_list()){ qubit_indexs.push_back(x);
-        }
-        if(qubit_indexs.size() == 1) qubit_indexs.push_back(UINT_MAX);
-        if(qubit_indexs.size() >= 3){
-            std::cerr << "Error: In NoiseSimulator gates must not over 2 qubits"
-    << std::endl; return;
-        }
-        noise_info.push_back(std::pair<UINT,UINT>(qubit_indexs[0],qubit_indexs[1]));
-    }
-    */
 }
 
 NoiseSimulator::~NoiseSimulator() {
@@ -53,88 +38,126 @@ NoiseSimulator::~NoiseSimulator() {
 }
 
 std::vector<ITYPE> NoiseSimulator::execute(const UINT sample_count) {
-    Random random;
-    std::vector<std::vector<UINT>> trial_gates(
+    std::vector<SamplingRequest> sampling_required =
+        create_sampling_request(sample_count);
+    return execute_sampling(sampling_required);
+}
+
+std::vector<NoiseSimulator::SamplingRequest>
+NoiseSimulator::create_sampling_request(const UINT sample_count) {
+    std::vector<std::vector<UINT>> selected_gate_pos(
         sample_count, std::vector<UINT>(circuit->gate_list.size(), 0));
+
     for (UINT i = 0; i < sample_count; ++i) {
         UINT gate_size = (UINT)circuit->gate_list.size();
-        for (UINT q = 0; q < gate_size; ++q) {
-            auto gate = circuit->gate_list[q];
-            if (gate->is_noise() == false) continue;
-            double val = random.uniform();
-            std::vector<double> itr = gate->get_cumulative_distribution();
-            auto hoge = std::lower_bound(itr.begin(), itr.end(), val);
-            assert(hoge != itr.begin());
-            trial_gates[i][q] = (UINT)(std::distance(itr.begin(), hoge) - 1);
+        for (UINT j = 0; j < gate_size; ++j) {
+            selected_gate_pos[i][j] =
+                randomly_select_which_gate_pos_to_apply(circuit->gate_list[j]);
         }
     }
 
-    std::sort(trial_gates.rbegin(), trial_gates.rend());
+    std::sort(begin(selected_gate_pos), end(selected_gate_pos));
+    std::reverse(begin(selected_gate_pos), end(selected_gate_pos));
 
-    std::vector<std::pair<std::vector<UINT>, UINT>>
-        sampling_required;  // pair<trial_gate, number of samplings>
-    int cnter_samplings = 0;
+    // merge sampling requests with same applied gate.
+    // we don't have to recalculate same quantum state twice for sampling.
+    std::vector<SamplingRequest> required_sampling_request_list;
+    int current_sampling_count = 0;
     for (UINT i = 0; i < sample_count; ++i) {
-        cnter_samplings++;
-        if (i + 1 == sample_count || trial_gates[i] != trial_gates[i + 1]) {
-            sampling_required.push_back(
-                std::make_pair(trial_gates[i], cnter_samplings));
-            cnter_samplings = 0;
+        current_sampling_count++;
+        if (i + 1 == sample_count ||
+            selected_gate_pos[i] != selected_gate_pos[i + 1]) {
+            // can not merge (i-th) sampling step and (i+1-th) sampling step
+            // together bacause applied gate is different.
+
+            required_sampling_request_list.push_back(
+                SamplingRequest(selected_gate_pos[i], current_sampling_count));
+            current_sampling_count = 0;
         }
     }
+
+    return required_sampling_request_list;
+}
+
+std::vector<ITYPE> NoiseSimulator::execute_sampling(
+    std::vector<NoiseSimulator::SamplingRequest> sampling_request_vector) {
+    UINT sample_count = 0;
+    for (UINT i = 0; i < sampling_request_vector.size(); ++i) {
+        sample_count += sampling_request_vector[i].numOfSampling;
+    }
+
+    std::sort(begin(sampling_request_vector), end(sampling_request_vector),
+        [](auto l, auto r) { return l.gate_pos > r.gate_pos; });
+
+    std::vector<ITYPE> sampling_result(sample_count);
+    auto result_itr = sampling_result.begin();
+    auto put_result = [&result_itr](ITYPE result) {
+        *result_itr = result;
+        result_itr++;
+    };
 
     QuantumState Common_state(initial_state->qubit_count);
-    QuantumState Calculate_state(initial_state->qubit_count);
+    QuantumState Buffer(initial_state->qubit_count);
 
-    /*
-    QuantumState IdealState(initial_state -> qubit_count);
-    IdealState.load(initial_state);
-    for(int i = 0;i < circuit -> gate_list.size();++i){
-        circuit -> gate_list[i] -> update_quantum_state(&IdealState);
-    }
-    std::complex<long double> Fid = 0;
-    */
     Common_state.load(initial_state);
-    std::vector<ITYPE> result(sample_count);
-    auto result_itr = result.begin();
     UINT done_itr = 0;  // for gates i such that i < done_itr, gate i is already
                         // applied to Common_state.
 
-    for (UINT i = 0; i < sampling_required.size(); ++i) {
-        // if noise is not applied to gate done_itr forever, we can apply gate
-        // done_itr to Common_state.
-        std::vector<UINT> trial = sampling_required[i].first;
-        while (done_itr < trial.size() && trial[done_itr] == 0) {
+    for (UINT i = 0; i < sampling_request_vector.size(); ++i) {
+        // if gate[done_itr] will always choice 0-th gate to apply to state, we
+        // can apply 0-th gate of gate[done_itr] to Common_state.
+
+        std::vector<UINT> current_gate_pos =
+            sampling_request_vector[i].gate_pos;
+        while (done_itr < current_gate_pos.size() &&
+               current_gate_pos[done_itr] == 0) {
             auto gate = circuit->gate_list[done_itr];
             if (gate->is_noise() == false) {
                 gate->update_quantum_state(&Common_state);
             } else {
-                gate->get_gate_list()[trial[done_itr]]->update_quantum_state(
-                    &Common_state);
+                gate->get_gate_list()[current_gate_pos[done_itr]]
+                    ->update_quantum_state(&Common_state);
             }
             done_itr++;
         }
-        // recalculate is required.
-        Calculate_state.load(&Common_state);
-        evaluate_gates(trial, &Calculate_state, done_itr);
+
+        Buffer.load(&Common_state);
+        apply_gates(current_gate_pos, &Buffer, done_itr);
         std::vector<ITYPE> samples =
-            Calculate_state.sampling(sampling_required[i].second);
-        // std::complex<long double> Now =
-        // state::inner_product(&Calculate_state,&IdealState);
+            Buffer.sampling(sampling_request_vector[i].numOfSampling);
         for (UINT q = 0; q < samples.size(); ++q) {
-            *result_itr = samples[q];
-            result_itr++;
-            // Fid += Now*Now;
+            put_result(samples[q]);
         }
     }
-    // std::cout << Fid << std::endl;
-    std::mt19937 Randomizer(random.int32());
-    std::shuffle(begin(result), end(result), Randomizer);
 
-    return result;
+    // shuffle result because near sampling result may be sampled from same
+    // merged state.
+    std::mt19937 Randomizer(random.int32());
+    std::shuffle(begin(sampling_result), end(sampling_result), Randomizer);
+
+    return sampling_result;
 }
 
-void NoiseSimulator::evaluate_gates(const std::vector<UINT>& chosen_gate,
+UINT NoiseSimulator::randomly_select_which_gate_pos_to_apply(
+    QuantumGateBase* gate) {
+    if (!gate->is_noise()) return 0;
+
+    std::vector<double> current_cumulative_distribution =
+        gate->get_cumulative_distribution();
+    double tmp = random.uniform();
+    auto gate_iterator =
+        std::lower_bound(begin(current_cumulative_distribution),
+            end(current_cumulative_distribution), tmp);
+
+    // -1 is applied to gate_pos since gate_iterator is based on
+    // cumulative distribution.
+    auto gate_pos =
+        std::distance(current_cumulative_distribution.begin(), gate_iterator) -
+        1;
+    return gate_pos;
+};
+
+void NoiseSimulator::apply_gates(const std::vector<UINT>& chosen_gate,
     QuantumState* sampling_state, const int StartPos) {
     UINT gate_size = (UINT)circuit->gate_list.size();
     for (UINT q = StartPos; q < gate_size; ++q) {
