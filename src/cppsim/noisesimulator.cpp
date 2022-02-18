@@ -39,12 +39,12 @@ NoiseSimulator::~NoiseSimulator() {
 
 std::vector<ITYPE> NoiseSimulator::execute(const UINT sample_count) {
     std::vector<SamplingRequest> sampling_required =
-        create_sampling_request(sample_count);
+        generate_sampling_request(sample_count);
     return execute_sampling(sampling_required);
 }
 
 std::vector<NoiseSimulator::SamplingRequest>
-NoiseSimulator::create_sampling_request(const UINT sample_count) {
+NoiseSimulator::generate_sampling_request(const UINT sample_count) {
     std::vector<std::vector<UINT>> selected_gate_pos(
         sample_count, std::vector<UINT>(circuit->gate_list.size(), 0));
 
@@ -83,7 +83,7 @@ std::vector<ITYPE> NoiseSimulator::execute_sampling(
     std::vector<NoiseSimulator::SamplingRequest> sampling_request_vector) {
     UINT sample_count = 0;
     for (UINT i = 0; i < sampling_request_vector.size(); ++i) {
-        sample_count += sampling_request_vector[i].numOfSampling;
+        sample_count += sampling_request_vector[i].num_of_sampling;
     }
 
     std::sort(begin(sampling_request_vector), end(sampling_request_vector),
@@ -124,7 +124,7 @@ std::vector<ITYPE> NoiseSimulator::execute_sampling(
         Buffer.load(&Common_state);
         apply_gates(current_gate_pos, &Buffer, done_itr);
         std::vector<ITYPE> samples =
-            Buffer.sampling(sampling_request_vector[i].numOfSampling);
+            Buffer.sampling(sampling_request_vector[i].num_of_sampling);
         for (UINT q = 0; q < samples.size(); ++q) {
             put_result(samples[q]);
         }

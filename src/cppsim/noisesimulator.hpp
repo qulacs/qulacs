@@ -17,22 +17,55 @@ private:
     QuantumCircuit* circuit;
     QuantumStateBase* initial_state;
 
+    /**
+     * \~japanese-en
+     *
+     * サンプリングのリクエストに関する構造体
+     */
     struct SamplingRequest {
+        /**
+         * \~japanese-en
+         * 1つのゲート内で複数のゲートのうちどれかが選ばれる時、どのゲートを選んでサンプリングすべきかを示す値のvector。
+         */
         std::vector<UINT> gate_pos;
-        UINT numOfSampling;
+        /**
+         * \~japanese-en
+         *
+         * サンプリング回数。
+         */
+        UINT num_of_sampling;
         SamplingRequest(
             std::vector<UINT> init_gate_pos, UINT init_num_of_sampling)
-            : gate_pos(init_gate_pos), numOfSampling(init_num_of_sampling) {}
+            : gate_pos(init_gate_pos), num_of_sampling(init_num_of_sampling) {}
     };
 
     void apply_gates(const std::vector<UINT>& chosen_gate,
         QuantumState* sampling_state, const int StartPos);
 
-    std::vector<SamplingRequest> create_sampling_request(
+    /**
+     * \~japanese-en
+     *
+     * サンプリングの回数だけを入力して、実際にどうゲートを適用してサンプリングするかの計画であるSamplingRequestのvectorを生成する関数。
+     * @param[in] sample_count 行うサンプリングの回数
+     */
+    std::vector<SamplingRequest> generate_sampling_request(
         const UINT sample_count);
 
+    /**
+     * \~japanese-en
+     *
+     * ノイズゲートの場合、ノイズあり/なしで複数個のゲートのうちどれか一つが選ばれる。
+     * どちらを選ぶかを決めて適用するゲートの番号を返す関数。
+     * @param[in] gate 入力ゲート
+     */
     UINT randomly_select_which_gate_pos_to_apply(QuantumGateBase* gate);
 
+    /**
+     * \~japanese-en
+     *
+     * SamplingRequestの計画通りにサンプリングを行い、結果を配列で返す。
+     * @param[in] sampling_request_vector SamplingRequestのvector
+     */
     std::vector<ITYPE> execute_sampling(
         std::vector<SamplingRequest> sampling_request_vector);
 
