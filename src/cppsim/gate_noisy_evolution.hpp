@@ -35,6 +35,17 @@ private:
         auto t_guess = dt;
         int search_count = 0;
         while (std::abs(now_norm - target_norm) > _norm_tol) {
+            search_count++;
+            // avoid infinite loop
+            // It sometimes fails to find t_guess to reach the target norm.
+            // More likely to happen when dt is not small enough compared to the
+            // relaxation times
+            if (search_count > _find_collapse_max_steps) {
+                throw std::runtime_error(
+                    "Failed to find the exact jump time. Try with "
+                    "smaller dt.");
+            }
+
             // we expect norm to reduce as Ae^-a*dt, so we first calculate the
             // coefficient a
             auto a = std::log(now_norm / prev_norm) / t_guess;
@@ -46,17 +57,6 @@ private:
             now_state->load(prev_state);
             _evolve_one_step(k1, k2, k3, k4, prev_state, now_state, t_guess);
             now_norm = now_state->get_squared_norm();
-            search_count++;
-            // avoid infinite loop
-            // It sometimes fails to find t_guess to reach the target norm.
-            // More likely to happen when dt is not small enough compared to the
-            // relaxation times
-            if (search_count > _find_collapse_max_steps) {
-                std::cerr << "Failed to find the exact jump time. Try with "
-                             "smaller dt."
-                          << std::endl;
-                return -1.;
-            }
         }
         return t_guess;
     }
@@ -195,14 +195,17 @@ public:
                 auto norm = state->get_squared_norm();
                 if (norm <= r) {  // jump occured
                     // evolve the state to the time such that norm=r
-                    auto dt_target_norm =
-                        _find_collapse(k1, k2, k3, k4, buffer, state, r, dt);
-                    if (dt_target_norm < 0) {
-                        std::cerr
-                            << "_find_collapse failed. Result is unreliable."
-                            << std::endl;
+                    double dt_target_norm;
+                    try {
+                        dt_target_norm = _find_collapse(
+                            k1, k2, k3, k4, buffer, state, r, dt);
+                    } catch (std::runtime_error& e) {
+                        throw std::runtime_error(
+                            "_find_collapse failed. Result is "
+                            "unreliable.");
                         return;
                     }
+
                     // get cumulative distribution
                     prob_sum = 0.;
                     for (size_t k = 0; k < _c_ops.size(); k++) {
