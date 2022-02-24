@@ -137,6 +137,10 @@ jobs:
     container:
       image: ghcr.io/qulacs-osaka/qulacs-ubuntu-clang-format:latest
     steps:
+      # This job is running on a docker container.
+      # We can't use actions/checkout because Node.js is not installed on the container.
+      # Therefore, we use `git clone` instead of actions/checkout.
+      # We use ${GITHUB_REPOSITORY} for the repository url to support PR from the forked repository of Qulacs-Osaka/qulacs-osaka.
       - name: clone /qulacs-osaka (pull_request)
         if: ${{ github.event_name == 'pull_request' }}
         run: |
