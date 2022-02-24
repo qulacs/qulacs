@@ -140,12 +140,14 @@ jobs:
       # This job is running on a docker container.
       # We can't use actions/checkout because Node.js is not installed on the container.
       # Therefore, we use `git clone` instead of actions/checkout.
-      # We use ${GITHUB_REPOSITORY} for the repository url to support PR from the forked repository of Qulacs-Osaka/qulacs-osaka.
       - name: clone /qulacs-osaka (pull_request)
         if: ${{ github.event_name == 'pull_request' }}
+        env:
+          # We use $REPOSITORY to support PR from the forked repository of Qulacs-Osaka/qulacs-osaka.
+          REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
         run: |
           cd /
-          git clone -b "${GITHUB_HEAD_REF#refs/heads/}" https://github.com/${GITHUB_REPOSITORY}
+          git clone -b "${GITHUB_HEAD_REF#refs/heads/}" https://github.com/$REPOSITORY
 
       - name: clone /qulacs-osaka (push)
         if: ${{ github.event_name == 'push' }}
