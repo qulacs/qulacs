@@ -195,7 +195,5 @@ public:
                      ComplexMatrix::Identity(matrix.rows(), matrix.cols()) +
                  1.i * sin(_angle / 2) * matrix;
     };
-    virtual PauliOperator* get_pauli() const {
-        return _pauli;
-    };
+    virtual PauliOperator* get_pauli() const { return _pauli; };
 };

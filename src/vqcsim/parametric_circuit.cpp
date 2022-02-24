@@ -221,12 +221,11 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
                 RcPI = gate::RZ(gate_now->get_target_index_list()[0],
                     M_PI);  // 本当はここで2で割りたいけど、行列を割るのは実装が面倒
             } else if (gate_now->get_name() == "ParametricPauliRotation") {
-                ClsParametricPauliRotationGate* pauli_gate_now = 
+                ClsParametricPauliRotationGate* pauli_gate_now =
                     (ClsParametricPauliRotationGate*)gate_now;
-                RcPI = gate::PauliRotation(
-                    pauli_gate_now->get_target_index_list(), 
-                    pauli_gate_now->get_pauli()->get_pauli_id_list(),
-                    M_PI);
+                RcPI =
+                    gate::PauliRotation(pauli_gate_now->get_target_index_list(),
+                        pauli_gate_now->get_pauli()->get_pauli_id_list(), M_PI);
             } else {
                 std::stringstream error_message_stream;
                 error_message_stream
