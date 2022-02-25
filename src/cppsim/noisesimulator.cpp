@@ -5,6 +5,7 @@
 #include "noisesimulator.hpp"
 
 #include <algorithm>
+#include <numeric>
 
 #include "circuit.hpp"
 #include "gate_factory.hpp"
