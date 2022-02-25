@@ -48,8 +48,8 @@ NoiseSimulator::generate_sampling_request(const UINT sample_count) {
     std::vector<std::vector<UINT>> selected_gate_pos(
         sample_count, std::vector<UINT>(circuit->gate_list.size(), 0));
 
+    const UINT gate_size = (UINT)circuit->gate_list.size();
     for (UINT i = 0; i < sample_count; ++i) {
-        UINT gate_size = (UINT)circuit->gate_list.size();
         for (UINT j = 0; j < gate_size; ++j) {
             selected_gate_pos[i][j] =
                 randomly_select_which_gate_pos_to_apply(circuit->gate_list[j]);
@@ -159,7 +159,7 @@ UINT NoiseSimulator::randomly_select_which_gate_pos_to_apply(
 
 void NoiseSimulator::apply_gates(const std::vector<UINT>& chosen_gate,
     QuantumState* sampling_state, const int StartPos) {
-    UINT gate_size = (UINT)circuit->gate_list.size();
+    const UINT gate_size = (UINT)circuit->gate_list.size();
     for (UINT q = StartPos; q < gate_size; ++q) {
         auto gate = circuit->gate_list[q];
         if (gate->is_noise() == false) {
