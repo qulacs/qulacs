@@ -96,16 +96,16 @@ std::vector<ITYPE> NoiseSimulator::execute_sampling(
         result_itr++;
     };
 
-    QuantumState Common_state(initial_state->qubit_count);
-    QuantumState Buffer(initial_state->qubit_count);
+    QuantumState common_state(initial_state->qubit_count);
+    QuantumState buffer(initial_state->qubit_count);
 
-    Common_state.load(initial_state);
+    common_state.load(initial_state);
     UINT done_itr = 0;  // for gates i such that i < done_itr, gate i is already
-                        // applied to Common_state.
+                        // applied to common_state.
 
     for (UINT i = 0; i < sampling_request_vector.size(); ++i) {
         // if gate[done_itr] will always choice 0-th gate to apply to state, we
-        // can apply 0-th gate of gate[done_itr] to Common_state.
+        // can apply 0-th gate of gate[done_itr] to common_state.
 
         std::vector<UINT> current_gate_pos =
             sampling_request_vector[i].gate_pos;
@@ -113,18 +113,18 @@ std::vector<ITYPE> NoiseSimulator::execute_sampling(
                current_gate_pos[done_itr] == 0) {
             auto gate = circuit->gate_list[done_itr];
             if (gate->is_noise() == false) {
-                gate->update_quantum_state(&Common_state);
+                gate->update_quantum_state(&common_state);
             } else {
                 gate->get_gate_list()[current_gate_pos[done_itr]]
-                    ->update_quantum_state(&Common_state);
+                    ->update_quantum_state(&common_state);
             }
             done_itr++;
         }
 
-        Buffer.load(&Common_state);
-        apply_gates(current_gate_pos, &Buffer, done_itr);
+        buffer.load(&common_state);
+        apply_gates(current_gate_pos, &buffer, done_itr);
         std::vector<ITYPE> samples =
-            Buffer.sampling(sampling_request_vector[i].num_of_sampling);
+            buffer.sampling(sampling_request_vector[i].num_of_sampling);
         for (UINT q = 0; q < samples.size(); ++q) {
             put_result(samples[q]);
         }
