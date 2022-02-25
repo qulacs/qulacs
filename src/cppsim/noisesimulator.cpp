@@ -25,7 +25,7 @@ NoiseSimulator::NoiseSimulator(
         initial_state = init_state->copy();
     }
     circuit = init_circuit->copy();
-    for (size_t i = 0; i < circuit->gate_list.size(); ++i) {
+    for (UINT i = 0; i < circuit->gate_list.size(); ++i) {
         auto gate = circuit->gate_list[i];
         if (!gate->is_noise()) continue;
         gate->optimize_ProbablisticGate();
@@ -61,7 +61,7 @@ NoiseSimulator::generate_sampling_request(const UINT sample_count) {
 
     // merge sampling requests with same applied gate.
     // we don't have to recalculate same quantum state twice for sampling.
-    std::vector<SamplingRequest> required_sampling_request_list;
+    std::vector<SamplingRequest> required_sampling_requests;
     int current_sampling_count = 0;
     for (UINT i = 0; i < sample_count; ++i) {
         current_sampling_count++;
@@ -70,13 +70,13 @@ NoiseSimulator::generate_sampling_request(const UINT sample_count) {
             // can not merge (i-th) sampling step and (i+1-th) sampling step
             // together bacause applied gate is different.
 
-            required_sampling_request_list.push_back(
+            required_sampling_requests.push_back(
                 SamplingRequest(selected_gate_pos[i], current_sampling_count));
             current_sampling_count = 0;
         }
     }
 
-    return required_sampling_request_list;
+    return required_sampling_requests;
 }
 
 std::vector<ITYPE> NoiseSimulator::execute_sampling(
