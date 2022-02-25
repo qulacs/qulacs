@@ -266,6 +266,12 @@ TEST(GradCalculator, BasicCheck) {
     std::vector<std::complex<double>> GradCalculator_ans =
         hoge.calculate_grad(circuit, observable, theta);
 
+    for (UINT i = 0; i < cnter_parametric_gate; ++i) {
+        ASSERT_EQ(circuit.get_parameter(i), 0);
+        circuit.set_parameter(i, theta[i]);
+    }
+    GradCalculator_ans = hoge.calculate_grad(circuit, observable);
+
     // Calculate using normal Greedy.
     std::vector<std::complex<double>> Greedy_ans;
     {
