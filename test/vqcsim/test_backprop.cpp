@@ -104,3 +104,50 @@ TEST(Backprop, BackpropCircuitInpro) {
         kairo.set_parameter(h, kaku[h]);
     }
 }
+
+// PauliRotationのBackpropTest
+TEST(Backprop, BackpropPauliRotationCircuit) {
+    ParametricQuantumCircuit kairo(2);
+    vector<double> kaku = {2.2, 0, 1.4, 0.8, -0.4, 1.2, 0.7, -1, 1.3, 0.5, -0.8,
+        -2.1, 1.9, 2.1, 0.3};
+
+    int ind = 0;
+    kairo.add_parametric_RX_gate(0, kaku[ind++]);
+    kairo.add_parametric_RY_gate(0, kaku[ind++]);
+    kairo.add_parametric_RZ_gate(0, kaku[ind++]);
+    kairo.add_parametric_RX_gate(1, kaku[ind++]);
+    kairo.add_parametric_RY_gate(1, kaku[ind++]);
+    kairo.add_parametric_RZ_gate(1, kaku[ind++]);
+
+    // PauliRotation
+    // Rxx
+    kairo.add_parametric_multi_Pauli_rotation_gate({0, 1}, {1, 1}, kaku[ind++]);
+    // Ryy
+    kairo.add_parametric_multi_Pauli_rotation_gate({0, 1}, {2, 2}, kaku[ind++]);
+    // Rzz
+    kairo.add_parametric_multi_Pauli_rotation_gate({0, 1}, {3, 3}, kaku[ind++]);
+
+    kairo.add_parametric_RX_gate(0, kaku[ind++]);
+    kairo.add_parametric_RY_gate(0, kaku[ind++]);
+    kairo.add_parametric_RZ_gate(0, kaku[ind++]);
+    kairo.add_parametric_RX_gate(1, kaku[ind++]);
+    kairo.add_parametric_RY_gate(1, kaku[ind++]);
+    kairo.add_parametric_RZ_gate(1, kaku[ind++]);
+
+    Observable observable(2);
+    observable.add_operator(1, "X 0");
+
+    GradCalculator wrakln;
+    auto bibun = wrakln.calculate_grad(kairo, observable, kaku);
+    // culculate_gradした後は、パラメータがぐちゃぐちゃになるので、再セット
+
+    for (int i = 0; i < kaku.size(); i++) {
+        kairo.set_parameter(i, kaku[i]);
+    }
+    auto bk = kairo.backprop(&observable);
+    // 数値微分との比較
+    for (int i = 0; i < 9; i++) {
+        cerr << bk[i] << " " << bibun[i].real() << endl;
+        ASSERT_NEAR(bk[i], bibun[i].real(), 1e-10);
+    }
+}
