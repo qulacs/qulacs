@@ -9,16 +9,16 @@ on:
       - "*.md"
     branches:
       - "dev"
-  pull_request:
-    paths-ignore:
-      - ".devcontainer/**"
-      - ".vscode/**"
-      - "doc/**"
-      - "*.md"
+    tags:
+      - "v*"
+  pull_request_review:
+    types: [submitted, edited]
+  workflow_dispatch:
 
 jobs:
   wheel-build:
     name: Python wheel build
+    if: github.event.review.state == "approved"
     strategy:
       matrix:
         python-version: ["3.7.5"]
