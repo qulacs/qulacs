@@ -70,7 +70,7 @@ Benchmark inculde Yao can be found [here](https://github.com/Roger-luo/quantum-b
 - C++ compiler (gcc or VisualStudio)
     - gcc/g++ >= 7.0.0 (checked in Linux, MacOS, cygwin, MinGW, and WSL)
     - Microsoft VisualStudio C++ 2015 or later
-- [Boost](https://github.com/boostorg/boost) >= 1.71.0
+- [Boost](https://github.com/boostorg/boost) >= 1.71.0 (Minimum version tested in CI)
 - python 2.7 or 3.x
 - cmake >= 3.0
 - git

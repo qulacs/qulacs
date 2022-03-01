@@ -69,6 +69,7 @@ include(${CMAKE_SOURCE_DIR}/cmake_script/FetchContent.cmake)
 set(Boost_USE_STATIC_LIBS    ON)
 set(Boost_USE_MULTITHREADED  ON)
 set(Boost_USE_STATIC_RUNTIME ON)
+# The minimum version tested in CI is 1.71.0.
 find_package(Boost 1.71.0 REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 if(NOT Boost_FOUND)
