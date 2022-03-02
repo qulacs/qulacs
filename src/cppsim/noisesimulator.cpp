@@ -157,7 +157,7 @@ void NoiseSimulator::apply_gates(const std::vector<UINT>& chosen_gate,
     const UINT gate_size = (UINT)circuit->gate_list.size();
     for (UINT q = StartPos; q < gate_size; ++q) {
         auto gate = circuit->gate_list[q];
-        if (gate->is_noise() == false) {
+        if (!gate->is_noise()) {
             gate->update_quantum_state(sampling_state);
         } else {
             gate->get_gate_list()[chosen_gate[q]]->update_quantum_state(
