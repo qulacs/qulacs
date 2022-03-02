@@ -128,7 +128,7 @@ std::vector<ITYPE> NoiseSimulator::execute_sampling(
     // shuffle result because near sampling result may be sampled from same
     // merged state.
     std::mt19937 randomizer(random.int32());
-    std::shuffle(begin(sampling_result), end(sampling_result), Randomizer);
+    std::shuffle(begin(sampling_result), end(sampling_result), randomizer);
 
     return sampling_result;
 }
