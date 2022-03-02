@@ -157,7 +157,7 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText) {
     res = observable->get_expectation_value(&state);
     test_res = func(text, &state);
 
-    ASSERT_EQ(test_res, res);
+    ASSERT_LE(abs(test_res - res), eps);
 
     state.set_Haar_random_state();
 
