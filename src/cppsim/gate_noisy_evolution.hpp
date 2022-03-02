@@ -129,9 +129,11 @@ public:
      * @param matrix 行列をセットする変数の参照
      */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
-        std::cerr << "* Warning : Gate-matrix of noisy evolution cannot be "
-                     "defined. Nothing has been done."
-                  << std::endl;
+        std::stringstream error_message_stream;
+        error_message_stream
+            << "* Warning : Gate-matrix of noisy evolution cannot be "
+               "defined. Nothing has been done.";
+        throw std::invalid_argument(error_message_stream.str());
     }
 
     /**
