@@ -16,7 +16,7 @@ on:
 jobs:
   gcc8-build:
     name: GCC8 build
-    if: github.event.review.state == "approved"
+    if: github.event.review.state == 'approved'
     strategy:
       matrix:
         python-version: ["3.7.5"]

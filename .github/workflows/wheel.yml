@@ -18,7 +18,7 @@ on:
 jobs:
   wheel-build:
     name: Python wheel build
-    if: github.event.review.state == "approved"
+    if: github.event.review.state == 'approved'
     strategy:
       matrix:
         python-version: ["3.7.5"]
