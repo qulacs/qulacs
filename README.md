@@ -2,7 +2,7 @@
 # Qulacs-Osaka
 
 [![Ubuntu & Windows CI](https://github.com/Qulacs-Osaka/qulacs-osaka/actions/workflows/ci.yml/badge.svg)](https://github.com/Qulacs-Osaka/qulacs-osaka/actions/workflows/ci.yml)
-[![Downloads](https://pepy.tech/badge/qulacs)](https://pepy.tech/project/qulacs)
+[![Downloads](https://pepy.tech/badge/qulacs-osaka)](https://pepy.tech/project/qulacs-osaka)
 
 Qulacs-Osaka is a python/C++ library for fast simulation of large, noisy, or parametric quantum circuits. This project is (implicitly) forked from [Qulacs](https://github.com/qulacs/qulacs) and developed at Osaka University. 
 
