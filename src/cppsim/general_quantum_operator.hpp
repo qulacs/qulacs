@@ -169,7 +169,7 @@ public:
      * ランダムなパウリ演算子をもつ observable を生成する
      * @param [in] observable パウリ演算子を追加する observable
      * @param [in] operator_count observable に追加するパウリ演算子数
-     * @return ランダムなパウリ演算子を operator_count 個もつ　observable
+     * @return ランダムなパウリ演算子を operator_count 個もつ observable
      */
     void add_random_operator(const UINT operator_count);
 
