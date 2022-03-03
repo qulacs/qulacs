@@ -18,7 +18,9 @@ on:
 jobs:
   wheel-build:
     name: Python wheel build
-    if: github.event.review.state == 'approved'
+    # Only the third condition, this job is not executed because the condition is always false
+    # if this job is triggered by 'push' or workflow_dispatch.
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
     strategy:
       matrix:
         python-version: ["3.7.5"]
