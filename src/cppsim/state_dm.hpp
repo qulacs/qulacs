@@ -440,7 +440,7 @@ public:
 };
 
 typedef DensityMatrixCpu
-    DensityMatrix; /**< QuantumState is an alias of QuantumStateCpu */
+    DensityMatrix; /**< DensityMatrix is an alias of DensityMatrixCpu */
 
 namespace state {
 DllExport DensityMatrixCpu* tensor_product(
