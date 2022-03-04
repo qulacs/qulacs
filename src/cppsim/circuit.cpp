@@ -422,7 +422,7 @@ void QuantumCircuit::add_multi_Pauli_rotation_gate(
         std::stringstream error_message_stream;
         error_message_stream
             << "Error: QuantumCircuit::add_multi_Pauli_rotation_gate(const "
-               "PauliOperator& pauli_operator): not impremented for non "
+               "PauliOperator& pauli_operator): not implemented for non "
                "hermitian";
         throw NonHermitianException(error_message_stream.str());
     }
