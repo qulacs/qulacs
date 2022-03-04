@@ -358,16 +358,12 @@ void GeneralQuantumOperator::_apply_pauli_to_state(
                 state->device_number);
             // _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
             // state->data(), state->dim);
-        } else {
-            multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
-                pauli_id_list.data(), (UINT)target_index_list.size(),
-                state->data_c(), state->dim);
+            return;
         }
-#else
+#endif
         multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
             pauli_id_list.data(), (UINT)target_index_list.size(),
             state->data_c(), state->dim);
-#endif
     } else {
         dm_multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
             pauli_id_list.data(), (UINT)target_index_list.size(),
@@ -389,16 +385,12 @@ void GeneralQuantumOperator::_apply_pauli_to_state_single_thread(
                 state->device_number);
             // _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
             // state->data(), state->dim);
-        } else {
-            multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
-                pauli_id_list.data(), (UINT)target_index_list.size(),
-                state->data_c(), state->dim);
+            return;
         }
-#else
+#endif
         multi_qubit_Pauli_gate_partial_list_single_thread(
             target_index_list.data(), pauli_id_list.data(),
             (UINT)target_index_list.size(), state->data_c(), state->dim);
-#endif
     } else {
         throw std::runtime_error(
             "apply single thread is not implemented for density matrix");
