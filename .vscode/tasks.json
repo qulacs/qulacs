@@ -36,7 +36,7 @@
             "command": "find ./src ./test ./benchmark -regex '.*\\.\\(cu\\|cuh\\|cpp\\|h\\|hpp\\)' -exec clang-format -style=file -i {} \\;"
         },
         {
-            "label": "generate stub",
+            "label": "update stub",
             "type": "shell",
             "command": "script/update_stubs.sh",
             "dependsOn": [
