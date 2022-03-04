@@ -1343,8 +1343,8 @@ TEST(GateTest, DuplicateIndex) {
         auto gate1 = gate::SWAP(10, 13);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        ASSERT_THROW(
-            { auto gate2 = gate::SWAP(21, 21); }, InvalidControlQubitException);
+        ASSERT_THROW({ auto gate2 = gate::SWAP(21, 21); },
+            DuplicatedQubitIndexException);
     }
     {
         auto gate1 = gate::Pauli({2, 1, 0, 3, 7, 9, 4}, {0, 0, 0, 0, 0, 0, 0});
