@@ -1390,7 +1390,7 @@ TEST(GateTest, DuplicateIndex) {
             {
                 auto gate2 = gate::SparseMatrix({21, 21}, matrix);
             },
-            InvalidControlQubitException);
+            DuplicatedQubitIndexException);
     }
     {
         UINT n = 2;
@@ -1403,7 +1403,7 @@ TEST(GateTest, DuplicateIndex) {
             {
                 auto gate2 = gate::DiagonalMatrix({21, 21}, test_state_eigen);
             },
-            InvalidControlQubitException);
+            DuplicatedQubitIndexException);
     }
     {
         auto gate1 = gate::RandomUnitary({10, 13});
@@ -1413,7 +1413,7 @@ TEST(GateTest, DuplicateIndex) {
             {
                 auto gate2 = gate::RandomUnitary({21, 21});
             },
-            InvalidControlQubitException);
+            DuplicatedQubitIndexException);
     }
     {
         auto ident = [](ITYPE a, ITYPE dim) { return a; };
@@ -1424,7 +1424,7 @@ TEST(GateTest, DuplicateIndex) {
             {
                 auto gate2 = gate::ReversibleBoolean({21, 21}, ident);
             },
-            InvalidControlQubitException);
+            DuplicatedQubitIndexException);
     }
     {
         auto gate1 = gate::TwoQubitDepolarizingNoise(10, 13, 0.1);
@@ -1432,6 +1432,6 @@ TEST(GateTest, DuplicateIndex) {
         delete gate1;
         ASSERT_THROW(
             { auto gate2 = gate::TwoQubitDepolarizingNoise(21, 21, 0.1); },
-            InvalidControlQubitException);
+            DuplicatedQubitIndexException);
     }
 }
