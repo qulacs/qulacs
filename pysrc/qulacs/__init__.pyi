@@ -138,8 +138,11 @@ class GeneralQuantumOperator():
     pass
 class GradCalculator():
     def __init__(self) -> None: ...
-    def calculate_grad(self, arg0: ParametricQuantumCircuit, arg1: Observable, arg2: typing.List[float]) -> typing.List[complex]: 
+    @staticmethod
+    def calculate_grad(*args, **kwargs) -> typing.Any: 
         """
+        Calculate Grad
+
         Calculate Grad
         """
     pass
