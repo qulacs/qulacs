@@ -38,17 +38,7 @@ TEST(Backprop, BackpropCircuit) {
     vector<double> kaku = {2.2, 0, 1.4, 1, -1, 1, 1, -1, 1};
     GradCalculator wrakln;
     auto bibun = wrakln.calculate_grad(kairo, observable, kaku);
-    // culculate_gradした後は、パラメータがぐちゃぐちゃになるので、再セット
 
-    kairo.set_parameter(0, 2.2);
-    kairo.set_parameter(1, 0);
-    kairo.set_parameter(2, 1.4);
-    kairo.set_parameter(3, 1);
-    kairo.set_parameter(4, -1);
-    kairo.set_parameter(5, 1);
-    kairo.set_parameter(6, 1);
-    kairo.set_parameter(7, -1);
-    kairo.set_parameter(8, 1);
     auto bk = kairo.backprop(&observable);
     for (int i = 0; i < 9; i++) {
         cerr << bk[i] << " " << bibun[i].real() << endl;
