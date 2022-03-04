@@ -92,6 +92,20 @@ public:
 };
 
 /**
+ * \~japanese-en Observableがdiagonalでないなど条件を満たさない例外
+ */
+class InvalidObservableException : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    InvalidObservableException(const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
  * \~japanese-en
  * hermitianにしか使えない演算にhermitianでないOperatorやObservableを渡した例外
  */
@@ -174,6 +188,20 @@ public:
      * @param message エラーメッセージ
      */
     QubitIndexOutOfRangeException(const std::string& message)
+        : std::out_of_range(message) {}
+};
+
+/**
+ * \~japanese-en 行列中の対象の要素のインデックスが範囲外という例外
+ */
+class MatrixIndexOutOfRangeException : public std::out_of_range {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    MatrixIndexOutOfRangeException(const std::string& message)
         : std::out_of_range(message) {}
 };
 

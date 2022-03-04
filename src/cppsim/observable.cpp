@@ -12,6 +12,7 @@
 #include <fstream>
 #include <iostream>
 
+#include "exception.hpp"
 #include "state.hpp"
 #include "utility.hpp"
 
@@ -21,7 +22,7 @@ void HermitianQuantumOperator::add_operator(const PauliOperator* mpt) {
         error_message_stream
             << "Error: HermitianQuantumOperator::add_operator(const "
                "PauliOperator* mpt): PauliOperator must be Hermitian.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw NonHermitianException(error_message_stream.str());
     }
     GeneralQuantumOperator::add_operator(mpt);
 }
@@ -33,7 +34,7 @@ void HermitianQuantumOperator::add_operator(
         error_message_stream
             << "Error: HermitianQuantumOperator::add_operator(const "
                "PauliOperator* mpt): PauliOperator must be Hermitian.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw NonHermitianException(error_message_stream.str());
     }
     GeneralQuantumOperator::add_operator(coef, pauli_string);
 }
@@ -55,7 +56,7 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
                "by_lanczos_method("
                "QuantumStateBase * state, const UINT iter_count, const "
                "CPPCTYPE mu): At least one PauliOperator is required.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw InvalidQuantumOperatorException(error_message_stream.str());
     }
 
     // Implemented based on
@@ -201,7 +202,7 @@ HermitianQuantumOperator* create_observable_from_openfermion_file(
     if (!ifs) {
         std::stringstream error_message_stream;
         error_message_stream << "ERROR: Cannot open file";
-        throw std::runtime_error(error_message_stream.str());
+        throw IOException(error_message_stream.str());
     }
 
     // loading lines and check qubit_count
@@ -229,7 +230,7 @@ HermitianQuantumOperator* create_observable_from_openfermion_file(
     if (!ifs.eof()) {
         std::stringstream error_message_stream;
         error_message_stream << "ERROR: Invalid format";
-        throw std::runtime_error(error_message_stream.str());
+        throw InvalidOpenfermionFormatException(error_message_stream.str());
     }
     ifs.close();
 
@@ -294,7 +295,7 @@ create_split_observable(std::string file_path) {
     if (!ifs) {
         std::stringstream error_message_stream;
         error_message_stream << "ERROR: Cannot open file";
-        throw std::runtime_error(error_message_stream.str());
+        throw InvalidOpenfermionFormatException(error_message_stream.str());
     }
 
     // loading lines and check qubit_count
@@ -322,7 +323,7 @@ create_split_observable(std::string file_path) {
     if (!ifs.eof()) {
         std::stringstream error_message_stream;
         error_message_stream << "ERROR: Invalid format";
-        throw std::runtime_error(error_message_stream.str());
+        throw InvalidOpenfermionFormatException(error_message_stream.str());
     }
     ifs.close();
 

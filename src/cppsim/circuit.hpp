@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "exception.hpp"
 #include "type.hpp"
 
 class QuantumStateBase;
@@ -138,7 +139,7 @@ public:
      */
     virtual void merge_circuit(const QuantumCircuit* circuit) {
         if (this->qubit_count != circuit->qubit_count) {
-            throw std::invalid_argument(
+            throw InvalidQubitCountException(
                 "Error: "
                 "QuantumCircuit::add_circuit(QuantumCircuit*):"
                 "Qubit count doesn't match!");
