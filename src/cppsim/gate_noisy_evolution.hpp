@@ -6,6 +6,7 @@
 #include "observable.hpp"
 #include "state.hpp"
 #include "utility.hpp"
+using namespace std;
 
 class ClsNoisyEvolution : public QuantumGateBase {
 private:
@@ -25,28 +26,89 @@ private:
      * \~japanese-en collapse が起こるタイミング (norm = rになるタイミング)
      * を見つける。 この関数内で norm=rになるタイミングまでの evolution
      * が行われる。
+     * normは時間に対して、広義単調減少であることが必要。
      */
     virtual double _find_collapse(QuantumStateBase* k1, QuantumStateBase* k2,
         QuantumStateBase* k3, QuantumStateBase* k4,
         QuantumStateBase* prev_state, QuantumStateBase* now_state,
         double target_norm, double dt) {
+        auto mae_norm = prev_state->get_squared_norm();
         auto now_norm = now_state->get_squared_norm();
-        auto prev_norm = prev_state->get_squared_norm();
-        auto t_guess = dt;
-        int search_count = 0;
-        while (std::abs(now_norm - target_norm) > _norm_tol) {
-            // we expect norm to reduce as Ae^-a*dt, so we first calculate the
-            // coefficient a
-            auto a = std::log(now_norm / prev_norm) / t_guess;
-            // then guess the time to become target norm as (target_norm) =
-            // (prev_norm)e^-a*(t_guess) which means -a*t_guess =
-            // log(target_norm/prev_norm)
-            t_guess = std::log(target_norm / prev_norm) / a;
-            // evolve by time t_guess
-            now_state->load(prev_state);
-            _evolve_one_step(k1, k2, k3, k4, prev_state, now_state, t_guess);
-            now_norm = now_state->get_squared_norm();
+        double t_mae = 0;
+        double t_now = dt;
 
+        // mae now で挟み撃ちする
+        int search_count = 0;
+
+        if (std::abs(mae_norm - target_norm) < _norm_tol) {
+            now_state->load(prev_state);
+            return 0;
+        }
+        if (std::abs(now_norm - target_norm) < _norm_tol) {
+            return dt;
+        }
+        if (mae_norm < target_norm) {
+            throw std::runtime_error(
+                "must be prev_state.norm() >= target_norm. ");
+        }
+        if (now_norm > target_norm) {
+            throw std::runtime_error(
+                "must be now_state.norm() <= target_norm. ");
+        }
+
+        QuantumStateBase* mae_state = prev_state->copy();
+        double target_norm_log = std::log(target_norm);
+        double mae_norm_log = std::log(mae_norm);
+        double now_norm_log = std::log(now_norm);
+        QuantumStateBase* buf_state = prev_state->copy();
+
+        while (true) {
+            //  we expect norm to reduce as Ae^-a*dt, so use log.
+            cout<<search_count<<endl;
+            double t_guess = 0;
+            if (search_count <= 20) {
+                t_guess = t_mae + (t_now - t_mae) *
+                                      (mae_norm_log - target_norm_log) /
+                                      (mae_norm_log - now_norm_log);
+            } else {
+                t_guess = (t_mae + t_now) / 2;
+            }
+
+            // evolve by time t_guess
+            buf_state->load(prev_state);
+            cout<<"de prev qubit count"<<prev_state->qubit_count<<endl;
+            cout<<"de buf qubit count"<<buf_state->qubit_count<<endl;
+            cout<<"de mae qubit count"<<mae_state->qubit_count<<endl;
+            cout<<"de now qubit count"<<now_state->qubit_count<<endl;
+            _evolve_one_step(k1, k2, k3, k4, buf_state, prev_state, t_guess);
+
+            QuantumStateBase* swap_itizi=prev_state;
+            prev_state=buf_state;
+            buf_state=swap_itizi;
+            
+            cout<<"de prev qubit count"<<prev_state->qubit_count<<endl;
+            cout<<"de buf qubit count"<<buf_state->qubit_count<<endl;
+            cout<<"de mae qubit count"<<mae_state->qubit_count<<endl;
+            cout<<"de now qubit count"<<now_state->qubit_count<<endl;
+            double buf_norm = buf_state->get_squared_norm();
+            if (std::abs(buf_norm - target_norm) < _norm_tol) {
+                now_state -> load(buf_state);
+                delete mae_state;
+                delete buf_state;
+                cout<<"fin count="<<search_count<<endl;
+                return t_guess;
+            } else if (buf_norm < target_norm) {
+                now_state->load(buf_state);
+                t_now = t_guess;
+                now_norm = now_state->get_squared_norm();
+                now_norm_log = std::log(now_norm);
+            } else {
+                mae_state->load(buf_state);
+                t_mae = t_guess;
+                mae_norm = mae_state->get_squared_norm();
+                mae_norm_log = std::log(mae_norm);
+            }
+            cout<<search_count<<endl;
             search_count++;
             // avoid infinite loop
             // It sometimes fails to find t_guess to reach the target norm.
@@ -58,7 +120,7 @@ private:
                     "smaller dt.");
             }
         }
-        return t_guess;
+        //ここには来ない
     }
 
     /**
