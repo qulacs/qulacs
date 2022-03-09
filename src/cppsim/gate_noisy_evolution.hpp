@@ -6,7 +6,6 @@
 #include "observable.hpp"
 #include "state.hpp"
 #include "utility.hpp"
-using namespace std;
 
 class ClsNoisyEvolution : public QuantumGateBase {
 private:
