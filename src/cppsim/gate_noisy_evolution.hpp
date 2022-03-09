@@ -64,7 +64,7 @@ private:
         QuantumStateBase* bufB_state = prev_state->copy();
         while (true) {
             //  we expect norm to reduce as Ae^-a*dt, so use log.
-            cout<<search_count<<endl;
+
             double t_guess = 0;
             if (search_count <= 20) {
                 t_guess = t_mae + (t_now - t_mae) *
@@ -76,16 +76,16 @@ private:
 
             // evolve by time t_guess
             buf_state->load(prev_state);
-            
+
             _evolve_one_step(k1, k2, k3, k4, bufB_state, buf_state, t_guess);
-            
+
             double buf_norm = buf_state->get_squared_norm();
             if (std::abs(buf_norm - target_norm) < _norm_tol) {
-                now_state -> load(buf_state);
+                now_state->load(buf_state);
                 delete mae_state;
                 delete buf_state;
                 delete bufB_state;
-                cout<<"fin count="<<search_count<<endl;
+
                 return t_guess;
             } else if (buf_norm < target_norm) {
                 now_state->load(buf_state);
@@ -98,7 +98,7 @@ private:
                 mae_norm = mae_state->get_squared_norm();
                 mae_norm_log = std::log(mae_norm);
             }
-            cout<<search_count<<endl;
+
             search_count++;
             // avoid infinite loop
             // It sometimes fails to find t_guess to reach the target norm.
