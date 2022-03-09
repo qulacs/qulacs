@@ -61,7 +61,7 @@ private:
         double mae_norm_log = std::log(mae_norm);
         double now_norm_log = std::log(now_norm);
         QuantumStateBase* buf_state = prev_state->copy();
-
+        QuantumStateBase* bufB_state = prev_state->copy();
         while (true) {
             //  we expect norm to reduce as Ae^-a*dt, so use log.
             cout<<search_count<<endl;
@@ -76,25 +76,15 @@ private:
 
             // evolve by time t_guess
             buf_state->load(prev_state);
-            cout<<"de prev qubit count"<<prev_state->qubit_count<<endl;
-            cout<<"de buf qubit count"<<buf_state->qubit_count<<endl;
-            cout<<"de mae qubit count"<<mae_state->qubit_count<<endl;
-            cout<<"de now qubit count"<<now_state->qubit_count<<endl;
-            _evolve_one_step(k1, k2, k3, k4, buf_state, prev_state, t_guess);
-
-            QuantumStateBase* swap_itizi=prev_state;
-            prev_state=buf_state;
-            buf_state=swap_itizi;
             
-            cout<<"de prev qubit count"<<prev_state->qubit_count<<endl;
-            cout<<"de buf qubit count"<<buf_state->qubit_count<<endl;
-            cout<<"de mae qubit count"<<mae_state->qubit_count<<endl;
-            cout<<"de now qubit count"<<now_state->qubit_count<<endl;
+            _evolve_one_step(k1, k2, k3, k4, bufB_state, buf_state, t_guess);
+            
             double buf_norm = buf_state->get_squared_norm();
             if (std::abs(buf_norm - target_norm) < _norm_tol) {
                 now_state -> load(buf_state);
                 delete mae_state;
                 delete buf_state;
+                delete bufB_state;
                 cout<<"fin count="<<search_count<<endl;
                 return t_guess;
             } else if (buf_norm < target_norm) {
