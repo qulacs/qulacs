@@ -74,6 +74,12 @@ class CMakeBuild(build_ext):
         if opt_flags:
             cmake_args += ["-DOPT_FLAGS=" + opt_flags]
 
+        if os.getenv("USE_GPU"):
+            cmake_args += ["-DUSE_GPU:STR=" + os.getenv("USE_GPU")]
+        
+        if os.getenv("USE_OMP"):
+            cmake_args += ["-DUSE_OMP:STR=" + os.getenv("USE_OMP")]
+
         env = os.environ.copy()
         env["CXXFLAGS"] = '{} -DVERSION_INFO=\\"{}\\"'.format(
             env.get("CXXFLAGS", ""), self.distribution.get_version()
