@@ -7,16 +7,16 @@ on:
       - ".vscode/**"
       - "doc/**"
       - "*.md"
-  pull_request:
-    paths-ignore:
-      - ".devcontainer/**"
-      - ".vscode/**"
-      - "doc/**"
-      - "*.md"
+    branches:
+      - "dev"
+  pull_request_review:
+    types: [submitted, edited]
+  workflow_dispatch:
 
 jobs:
   gcc8-build:
     name: GCC8 build
+    if: github.event.review.state == 'approved'
     strategy:
       matrix:
         python-version: ["3.7.5"]
