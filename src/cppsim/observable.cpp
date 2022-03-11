@@ -133,7 +133,7 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     // So, an eigenvector of A for λ is Vq.
     // q_0 = init_state
     work_states.at(1).load(init_state);
-    init_state->multiply_coef(0.0);
+    init_state->set_zero_norm_state();
     assert(eigenvector_in_krylov.size() == iter_count);
     for (UINT i = 0; i < iter_count; i++) {
         // q += v_i * q_i, where q is eigenvector to compute
