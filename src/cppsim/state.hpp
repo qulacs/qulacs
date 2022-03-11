@@ -380,7 +380,7 @@ public:
                 << "Error: QuantumStateCpu::set_computational_basis(ITYPE): "
                    "index of "
                    "computational basis must be smaller than 2^qubit_count";
-            throw std::invalid_argument(error_message_stream.str());
+            throw MatrixIndexOutOfRangeException(error_message_stream.str());
         }
         set_zero_state();
         _state_vector[0] = 0.;
@@ -416,7 +416,7 @@ public:
             error_message_stream
                 << "Error: QuantumStateCpu::get_zero_probability(UINT): index "
                    "of target qubit must be smaller than qubit_count";
-            throw std::invalid_argument(error_message_stream.str());
+            throw QubitIndexOutOfRangeException(error_message_stream.str());
         }
         return M0_prob(target_qubit_index, this->data_c(), _dim);
     }
@@ -435,7 +435,7 @@ public:
                 << "Error: "
                    "QuantumStateCpu::get_marginal_probability(vector<UINT>): "
                    "the length of measured_values must be equal to qubit_count";
-            throw std::invalid_argument(error_message_stream.str());
+            throw InvalidQubitCountException(error_message_stream.str());
         }
 
         std::vector<UINT> target_index;
@@ -529,7 +529,7 @@ public:
             error_message_stream
                 << "Error: QuantumStateCpu::load(const QuantumStateBase*): "
                    "invalid qubit count";
-            throw std::invalid_argument(error_message_stream.str());
+            throw InvalidQubitCountException(error_message_stream.str());
         }
 
         this->_classical_register = _state->classical_register;
@@ -551,7 +551,7 @@ public:
             error_message_stream
                 << "Error: QuantumStateCpu::load(vector<Complex>&): invalid "
                    "length of state";
-            throw std::invalid_argument(error_message_stream.str());
+            throw InvalidStateVectorSizeException(error_message_stream.str());
         }
         memcpy(
             this->data_cpp(), _state.data(), (size_t)(sizeof(CPPCTYPE) * _dim));
@@ -612,7 +612,7 @@ public:
             std::stringstream error_message_stream;
             error_message_stream
                 << "State vector on GPU cannot be added to that on CPU";
-            throw std::invalid_argument(error_message_stream.str());
+            throw QuantumStateProcessorException(error_message_stream.str());
         }
         state_add(state->data_c(), this->data_c(), this->dim);
     }

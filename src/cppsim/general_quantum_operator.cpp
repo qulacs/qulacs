@@ -8,6 +8,7 @@
 #include <fstream>
 #include <numeric>
 
+#include "exception.hpp"
 #include "gate_factory.hpp"
 #include "pauli_operator.hpp"
 #include "state.hpp"
@@ -35,7 +36,7 @@ void GeneralQuantumOperator::add_operator(const PauliOperator* mpt) {
             << "Error: GeneralQuantumOperator::add_operator(const "
                "PauliOperator*): pauli_operator applies target qubit of "
                "which the index is larger than qubit_count";
-        throw std::invalid_argument(error_message_stream.str());
+        throw QubitIndexOutOfRangeException(error_message_stream.str());
     }
     if (this->_is_hermitian && std::abs(_mpt->get_coef().imag()) > 0) {
         this->_is_hermitian = false;
@@ -53,7 +54,7 @@ void GeneralQuantumOperator::add_operator(
                "GeneralQuantumOperator::add_operator(double,std::string):"
                " pauli_operator applies target qubit of which the index "
                "is larger than qubit_count";
-        throw std::invalid_argument(error_message_stream.str());
+        throw QubitIndexOutOfRangeException(error_message_stream.str());
     }
     if (this->_is_hermitian && std::abs(coef.imag()) > 0) {
         this->_is_hermitian = false;
@@ -69,7 +70,7 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
         error_message_stream
             << "Error: GeneralQuantumOperator::get_expectation_value(const "
                "QuantumStateBase*): invalid qubit count";
-        throw std::invalid_argument(error_message_stream.str());
+        throw InvalidQubitCountException(error_message_stream.str());
     }
     auto sum = std::accumulate(this->_operator_list.cbegin(),
         this->_operator_list.cend(), (CPPCTYPE)0.0,
@@ -106,7 +107,7 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
             << "Error: GeneralQuantumOperator::get_transition_amplitude(const "
                "QuantumStateBase*, const QuantumStateBase*): invalid qubit "
                "count";
-        throw std::invalid_argument(error_message_stream.str());
+        throw InvalidQubitCountException(error_message_stream.str());
     }
 
     auto sum = std::accumulate(this->_operator_list.cbegin(),
@@ -148,7 +149,7 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
                "arnoldi_method("
                "QuantumStateBase * state, const UINT iter_count, const "
                "CPPCTYPE mu): At least one PauliOperator is required.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw InvalidQuantumOperatorException(error_message_stream.str());
     }
 
     // Implemented based on
@@ -238,7 +239,7 @@ CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
                "power_method("
                "QuantumStateBase * state, const UINT iter_count, const "
                "CPPCTYPE mu): At least one PauliOperator is required.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw InvalidQuantumOperatorException(error_message_stream.str());
     }
 
     CPPCTYPE mu_;
@@ -271,7 +272,7 @@ void GeneralQuantumOperator::apply_to_state(QuantumStateBase* work_state,
     const QuantumStateBase& state_to_be_multiplied,
     QuantumStateBase* dst_state) const {
     if (state_to_be_multiplied.qubit_count != dst_state->qubit_count) {
-        throw std::invalid_argument(
+        throw InvalidQubitCountException(
             "Qubit count of state_to_be_multiplied and dst_state must be the "
             "same");
     }
@@ -293,7 +294,7 @@ void GeneralQuantumOperator::apply_to_state(QuantumStateBase* work_state,
 void GeneralQuantumOperator::apply_to_state(
     QuantumStateBase* state, QuantumStateBase* dst_state) const {
     if (state->qubit_count != dst_state->qubit_count) {
-        throw std::invalid_argument(
+        throw InvalidQubitCountException(
             "Qubit count of state_to_be_multiplied and dst_state must be the "
             "same");
     }
@@ -313,7 +314,7 @@ void GeneralQuantumOperator::apply_to_state(
 void GeneralQuantumOperator::apply_to_state_single_thread(
     QuantumStateBase* state, QuantumStateBase* dst_state) const {
     if (state->qubit_count != dst_state->qubit_count) {
-        throw std::invalid_argument(
+        throw InvalidQubitCountException(
             "Qubit count of state_to_be_multiplied and dst_state must be the "
             "same");
     }
@@ -706,7 +707,7 @@ GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(
     if (!ifs.eof()) {
         std::stringstream error_message_stream;
         error_message_stream << "ERROR: Invalid format";
-        throw std::runtime_error(error_message_stream.str());
+        throw InvalidOpenfermionFormatException(error_message_stream.str());
     }
     ifs.close();
 
@@ -772,7 +773,7 @@ create_split_general_quantum_operator(std::string file_path) {
     if (!ifs) {
         std::stringstream error_message_stream;
         error_message_stream << "ERROR: Cannot open file";
-        throw std::runtime_error(error_message_stream.str());
+        throw IOException(error_message_stream.str());
     }
 
     // loading lines and check qubit_count
@@ -802,7 +803,7 @@ create_split_general_quantum_operator(std::string file_path) {
     if (!ifs.eof()) {
         std::stringstream error_message_stream;
         error_message_stream << "ERROR: Invalid format";
-        throw std::runtime_error(error_message_stream.str());
+        throw InvalidOpenfermionFormatException(error_message_stream.str());
     }
     ifs.close();
 

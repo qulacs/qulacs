@@ -6,6 +6,7 @@
 #include <utility>
 #include <vector>
 
+#include "exception.hpp"
 #include "type.hpp"
 class PauliOperator;
 class QuantumStateBase;
@@ -116,7 +117,7 @@ public:
             error_message_stream
                 << "Error: GeneralQuantumOperator::get_term(UINT): index out "
                    "of range";
-            throw std::out_of_range(error_message_stream.str());
+            throw OperatorIndexOutOfRangeException(error_message_stream.str());
         }
         return _operator_list[index];
     }

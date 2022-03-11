@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <cppsim/exception.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/state_dm.hpp>
 #include <vqcsim/GradCalculator.hpp>
@@ -218,13 +219,13 @@ TEST(ParametricGate, DuplicateIndex) {
             auto gate3 = gate::ParametricPauliRotation(
                 {0, 1, 3, 1, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
         },
-        std::invalid_argument);
+        DuplicatedQubitIndexException);
     ASSERT_THROW(
         {
             auto gate4 = gate::ParametricPauliRotation(
                 {0, 3, 5, 2, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
         },
-        std::invalid_argument);
+        DuplicatedQubitIndexException);
 }
 
 TEST(GradCalculator, BasicCheck) {

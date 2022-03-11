@@ -55,7 +55,7 @@ public:
                 << "Error: DensityMatrixCpu::set_computational_basis(ITYPE): "
                    "index "
                    "of computational basis must be smaller than 2^qubit_count";
-            throw std::invalid_argument(error_message_stream.str());
+            throw MatrixIndexOutOfRangeException(error_message_stream.str());
         }
         set_zero_state();
         _density_matrix[0] = 0.;
@@ -94,7 +94,7 @@ public:
             error_message_stream
                 << "Error: DensityMatrixCpu::get_zero_probability(UINT): index "
                    "of target qubit must be smaller than qubit_count";
-            throw std::invalid_argument(error_message_stream.str());
+            throw QubitIndexOutOfRangeException(error_message_stream.str());
         }
         return dm_M0_prob(target_qubit_index, this->data_c(), _dim);
     }
@@ -113,7 +113,7 @@ public:
                 << "Error: "
                    "DensityMatrixCpu::get_marginal_probability(vector<UINT>): "
                    "the length of measured_values must be equal to qubit_count";
-            throw std::invalid_argument(error_message_stream.str());
+            throw InvalidQubitCountException(error_message_stream.str());
         }
 
         std::vector<UINT> target_index;
@@ -208,7 +208,7 @@ public:
             error_message_stream
                 << "Error: DensityMatrixCpu::load(const QuantumStateBase*): "
                    "invalid qubit count";
-            throw std::invalid_argument(error_message_stream.str());
+            throw InvalidQubitCountException(error_message_stream.str());
         }
         if (_state->is_state_vector()) {
             if (_state->get_device_name() == "gpu") {
@@ -234,7 +234,7 @@ public:
             error_message_stream
                 << "Error: DensityMatrixCpu::load(vector<Complex>&): invalid "
                    "length of state";
-            throw std::invalid_argument(error_message_stream.str());
+            throw InvalidStateVectorSizeException(error_message_stream.str());
         }
         if (_state.size() == _dim) {
             dm_initialize_with_pure_state(
@@ -252,7 +252,7 @@ public:
             error_message_stream
                 << "Error: DensityMatrixCpu::load(vector<Complex>&): invalid "
                    "length of state";
-            throw std::invalid_argument(error_message_stream.str());
+            throw InvalidStateVectorSizeException(error_message_stream.str());
         }
         if (arg_dim == _dim) {
             dm_initialize_with_pure_state(
@@ -271,7 +271,7 @@ public:
             error_message_stream
                 << "Error: DensityMatrixCpu::load(ComplexMatrix&): invalid "
                    "length of state";
-            throw std::invalid_argument(error_message_stream.str());
+            throw InvalidStateVectorSizeException(error_message_stream.str());
         }
         memcpy(this->data_cpp(), _state.data(),
             (size_t)(sizeof(CPPCTYPE) * _dim * _dim));
@@ -337,7 +337,7 @@ public:
             error_message_stream
                 << "add state between density matrix and state vector is not "
                    "implemented";
-            throw std::invalid_argument(error_message_stream.str());
+            throw NotImplementedException(error_message_stream.str());
         }
         dm_state_add(state->data_c(), this->data_c(), this->dim);
     }
@@ -352,7 +352,7 @@ public:
             error_message_stream
                 << "add state between density matrix and state vector is not "
                    "implemented";
-            throw std::invalid_argument(error_message_stream.str());
+            throw NotImplementedException(error_message_stream.str());
         }
         dm_state_add_with_coef(
             coef, state->data_c(), this->data_c(), this->dim);
@@ -368,7 +368,7 @@ public:
             error_message_stream
                 << "add state between density matrix and state vector is not "
                    "implemented";
-            throw std::invalid_argument(error_message_stream.str());
+            throw NotImplementedException(error_message_stream.str());
         }
         dm_state_add_with_coef(
             coef, state->data_c(), this->data_c(), this->dim);
@@ -387,7 +387,7 @@ public:
         error_message_stream
             << "multiply_elementwise_function between density matrix and "
                "state vector is not implemented";
-        throw std::invalid_argument(error_message_stream.str());
+        throw NotImplementedException(error_message_stream.str());
     }
 
     /**

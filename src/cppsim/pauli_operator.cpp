@@ -20,6 +20,7 @@
 #include <csim/stat_ops.hpp>
 #include <csim/stat_ops_dm.hpp>
 
+#include "exception.hpp"
 #include "gate_factory.hpp"
 #include "pauli_operator.hpp"
 #include "state.hpp"
@@ -43,7 +44,7 @@ PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef) : _coef(coef) {
             std::stringstream error_message_stream;
             error_message_stream << "invalid Pauli string is given : "
                                  << pauli_str;
-            throw std::invalid_argument(error_message_stream.str());
+            throw InvalidPauliIdentifierException(error_message_stream.str());
         }
         if (pauli_type != 0) this->add_single_Pauli(index, pauli_type);
     }
@@ -70,7 +71,7 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list,
         } else {
             std::stringstream error_message_stream;
             error_message_stream << "invalid Pauli string is given : ";
-            throw std::invalid_argument(error_message_stream.str());
+            throw InvalidPauliIdentifierException(error_message_stream.str());
         }
 
         if (pauli_type != 0)
@@ -210,7 +211,7 @@ CPPCTYPE PauliOperator::get_transition_amplitude(
         std::stringstream error_message_stream;
         error_message_stream
             << "get_transition_amplitude for density matrix is not implemented";
-        throw std::invalid_argument(error_message_stream.str());
+        throw NotImplementedException(error_message_stream.str());
     }
 #ifdef _USE_GPU
     if (state_ket->get_device_name() == "gpu" &&
