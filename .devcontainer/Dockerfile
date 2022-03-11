@@ -63,6 +63,6 @@ RUN git clone https://github.com/USCiLab/cereal.git -b v1.3.0 --depth 1 /tmp/cer
     && rm -rf /tmp/cereal
 
 # Install Eigen
-RUN git clone https://gitlab.com/libeigen/eigen.git -b 3.4.0 --depth 1 /tmp/eigen \
+RUN git clone https://gitlab.com/libeigen/eigen.git -b 3.3.7 --depth 1 /tmp/eigen \
     && cp -r /tmp/eigen/Eigen /usr/local/include \
     && rm -rf /tmp/eigen
