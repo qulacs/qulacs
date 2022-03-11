@@ -56,3 +56,11 @@ RUN git clone https://github.com/pyenv/pyenv.git ${PYENV_ROOT} \
     && python -m pip install --upgrade pip \
     && pip install black flake8 mypy numpy openfermion pybind11-stubgen scipy wheel \
     && chmod -R 777 /.pyenv
+
+# Install cereal
+Run git clone https://github.com/USCiLab/cereal.git /tmp/cereal \
+    && cp -r /tmp/cereal/include/cereal /usr/local/include
+
+# Install Eigen
+Run git clone https://gitlab.com/libeigen/eigen.git /tmp/eigen \
+    && cp -r /tmp/eigen/Eigen /usr/local/include
