@@ -198,15 +198,8 @@ public:
                 if (norm <= r) {  // jump occured
                     // evolve the state to the time such that norm=r
                     double dt_target_norm;
-                    try {
-                        dt_target_norm = _find_collapse(
-                            k1, k2, k3, k4, buffer, state, r, dt);
-                    } catch (std::runtime_error& e) {
-                        throw std::runtime_error(
-                            "_find_collapse failed. Result is "
-                            "unreliable.");
-                        return;
-                    }
+                    dt_target_norm =
+                        _find_collapse(k1, k2, k3, k4, buffer, state, r, dt);
 
                     // get cumulative distribution
                     prob_sum = 0.;
