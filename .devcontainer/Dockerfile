@@ -58,7 +58,7 @@ RUN git clone https://github.com/pyenv/pyenv.git ${PYENV_ROOT} \
     && chmod -R 777 /.pyenv
 
 # Install cereal
-RUN git clone https://github.com/USCiLab/cereal.git -b v1.3.0 /tmp/cereal \
+RUN git clone https://github.com/USCiLab/cereal.git -b v1.3.0 --depth 1 /tmp/cereal \
     && cp -r /tmp/cereal/include/cereal /usr/local/include \
     && rm -rf /tmp/cereal
 
