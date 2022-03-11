@@ -71,7 +71,9 @@ jobs:
 
       - name: Test if stub is working
         run: |
-          mypy python/stub-test/mypy-import-test-qulacs.py python/stub-test/mypy-import-test-qulacs-osaka.py
+          python python/stub-test/generate_mypy_tester.py qulacs_osaka
+          python python/stub-test/generate_mypy_tester.py qulacs
+          mypy python/stub-test/names_qulacs_osaka.py python/stub-test/names_qulacs.py
 
       - name: Test in Ubuntu
         run: |
@@ -127,7 +129,7 @@ jobs:
         run: ./script/build_gcc_with_gpu.sh
 
       - name: Install qulacs Python module
-        run: python setup_gpu.py install
+        run: USE_GPU=Yes python setup.py install
 
       # Testing is removed because GPU is not available for GitHub-Hosted Runner.
 
@@ -137,17 +139,23 @@ jobs:
     container:
       image: ghcr.io/qulacs-osaka/qulacs-ubuntu-clang-format:latest
     steps:
+      # This job is running on a docker container.
+      # We can't use actions/checkout because Node.js is not installed on the container.
+      # Therefore, we use `git clone` instead of actions/checkout.
       - name: clone /qulacs-osaka (pull_request)
         if: ${{ github.event_name == 'pull_request' }}
+        env:
+          # We use $REPOSITORY to support PR from the forked repository of Qulacs-Osaka/qulacs-osaka.
+          REPOSITORY: ${{ github.event.pull_request.head.repo.full_name }}
         run: |
           cd /
-          git clone -b "${GITHUB_HEAD_REF#refs/heads/}" https://github.com/Qulacs-Osaka/qulacs-osaka
-        
+          git clone -b "${GITHUB_HEAD_REF#refs/heads/}" https://github.com/$REPOSITORY
+
       - name: clone /qulacs-osaka (push)
         if: ${{ github.event_name == 'push' }}
         run: |
           cd /
-          git clone -b "${GITHUB_REF#refs/heads/}" https://github.com/Qulacs-Osaka/qulacs-osaka
+          git clone -b "${GITHUB_REF#refs/heads/}" https://github.com/${GITHUB_REPOSITORY}
 
       - name: format
         run: qulacs_format

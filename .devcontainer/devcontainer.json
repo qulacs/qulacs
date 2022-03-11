@@ -27,7 +27,11 @@
 		},
 		"editor.defaultFormatter": "xaver.clang-format",
 		"python.linting.mypyEnabled": true,
-		"python.terminal.activateEnvironment": false
+		"python.terminal.activateEnvironment": false,
+		// CAVEAT: you need to restart after building qulacs-osaka to take effect.
+		"C_Cpp.default.includePath": [
+			"include"
+		]
 	},
 	// Add the IDs of extensions you want installed when the container is created.
 	"extensions": [

@@ -1,9 +1,7 @@
 import os
 import platform
-import re
 import subprocess
 import sys
-from distutils.version import LooseVersion
 
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
@@ -54,7 +52,7 @@ class CMakeBuild(build_ext):
 
     def run(self):
         try:
-            out = subprocess.check_output(["cmake", "--version"])
+            subprocess.check_output(["cmake", "--version"])
         except OSError:
             raise RuntimeError(
                 "CMake must be installed to build the following extensions: "
@@ -75,6 +73,12 @@ class CMakeBuild(build_ext):
             opt_flags = None
         if opt_flags:
             cmake_args += ["-DOPT_FLAGS=" + opt_flags]
+
+        if os.getenv("USE_GPU"):
+            cmake_args += ["-DUSE_GPU:STR=" + os.getenv("USE_GPU")]
+        
+        if os.getenv("USE_OMP"):
+            cmake_args += ["-DUSE_OMP:STR=" + os.getenv("USE_OMP")]
 
         env = os.environ.copy()
         env["CXXFLAGS"] = '{} -DVERSION_INFO=\\"{}\\"'.format(

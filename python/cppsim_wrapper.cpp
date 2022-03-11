@@ -607,13 +607,15 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("add_parametric_multi_Pauli_rotation_gate", &ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate, "Add parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"))
 
         .def("backprop",&ParametricQuantumCircuit::backprop,"do backprop",py::arg("obs"))
+        .def("backprop_inner_product",&ParametricQuantumCircuit::backprop_inner_product,"do backprop with innder product",py::arg("state"))
 
         .def("__repr__", [](const ParametricQuantumCircuit &p) {return p.to_string(); });
     ;
     
     py::class_<GradCalculator>(m, "GradCalculator")
         .def(py::init<>())
-        .def("calculate_grad",&GradCalculator::calculate_grad,"Calculate Grad");
+        .def("calculate_grad",py::overload_cast<ParametricQuantumCircuit&, Observable&>(&GradCalculator::calculate_grad),"Calculate Grad",py::arg("parametric_circuit"),py::arg("observable"))
+        .def("calculate_grad",py::overload_cast<ParametricQuantumCircuit&, Observable&,std::vector<double>>(&GradCalculator::calculate_grad),"Calculate Grad",py::arg("parametric_circuit"),py::arg("observable"),py::arg("angles of gates"));
        
     auto mcircuit = m.def_submodule("circuit");
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
