@@ -58,9 +58,11 @@ RUN git clone https://github.com/pyenv/pyenv.git ${PYENV_ROOT} \
     && chmod -R 777 /.pyenv
 
 # Install cereal
-Run git clone https://github.com/USCiLab/cereal.git /tmp/cereal \
-    && cp -r /tmp/cereal/include/cereal /usr/local/include
+RUN git clone https://github.com/USCiLab/cereal.git -b v1.3.0 /tmp/cereal \
+    && cp -r /tmp/cereal/include/cereal /usr/local/include \
+    && rm -rf /tmp/cereal
 
 # Install Eigen
-Run git clone https://gitlab.com/libeigen/eigen.git /tmp/eigen \
-    && cp -r /tmp/eigen/Eigen /usr/local/include
+RUN git clone https://gitlab.com/libeigen/eigen.git -b 3.4.0 /tmp/eigen \
+    && cp -r /tmp/eigen/Eigen /usr/local/include \
+    && rm -rf /tmp/eigen
