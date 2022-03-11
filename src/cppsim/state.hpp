@@ -693,7 +693,7 @@ public:
 };
 
 typedef QuantumStateCpu
-    QuantumState; /**< QuantumState is an alias of QuantumStateCPU */
+    QuantumState; /**< QuantumState is an alias of QuantumStateCpu */
 
 namespace state {
 /**

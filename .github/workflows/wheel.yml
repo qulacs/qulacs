@@ -18,7 +18,8 @@ on:
 jobs:
   wheel-build:
     name: Python wheel build
-    if: github.event.review.state == 'approved'
+    # For jobs triggered by pull_request_review, build task should run only if is in `approved` state.
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
     strategy:
       matrix:
         python-version: ["3.7.5"]

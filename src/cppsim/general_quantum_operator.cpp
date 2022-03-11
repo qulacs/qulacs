@@ -72,12 +72,30 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
                "QuantumStateBase*): invalid qubit count";
         throw InvalidQubitCountException(error_message_stream.str());
     }
-    auto sum = std::accumulate(this->_operator_list.cbegin(),
-        this->_operator_list.cend(), (CPPCTYPE)0.0,
-        [&](CPPCTYPE acc, PauliOperator* pauli) {
-            return acc + pauli->get_expectation_value(state);
-        });
-    return sum;
+
+    const size_t n_terms = this->_operator_list.size();
+    if (state->get_device_name() == "gpu") {
+        CPPCTYPE sum = 0;
+        for (UINT i = 0; i < n_terms; ++i) {
+            sum += _operator_list[i]->get_expectation_value(state);
+        }
+        return sum;
+    }
+
+    double sum_real = 0.;
+    double sum_imag = 0.;
+    CPPCTYPE tmp(0., 0.);
+#ifdef _OPENMP
+#pragma omp parallel for reduction(+ : sum_real, sum_imag) private(tmp)
+#endif
+    for (int i = 0; i < (int)n_terms;
+         ++i) {  // this variable (i) has to be signed integer because of OpenMP
+                 // of Windows compiler.
+        tmp = _operator_list[i]->get_expectation_value_single_thread(state);
+        sum_real += tmp.real();
+        sum_imag += tmp.imag();
+    }
+    return CPPCTYPE(sum_real, sum_imag);
 }
 
 CPPCTYPE GeneralQuantumOperator::get_expectation_value_single_thread(
@@ -214,7 +232,7 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     }
 
     // Compose ground state vector and store it to `state`.
-    present_state.multiply_coef(0.0);
+    present_state.set_zero_norm_state();
     for (UINT i = 0; i < state_list.size() - 1; i++) {
         tmp_state.load(state_list[i]);
         tmp_state.multiply_coef(eigenvectors(i, minimum_eigenvalue_index));
@@ -259,7 +277,7 @@ CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
         mu_timed_state.load(state);
         mu_timed_state.multiply_coef(-mu_);
 
-        multiplied_state.multiply_coef(0.0);
+        multiplied_state.set_zero_norm_state();
         this->apply_to_state(&work_state, *state, &multiplied_state);
         state->load(&multiplied_state);
         state->add_state(&mu_timed_state);
@@ -277,17 +295,14 @@ void GeneralQuantumOperator::apply_to_state(QuantumStateBase* work_state,
             "same");
     }
 
-    dst_state->multiply_coef(0.0);
+    dst_state->set_zero_norm_state();
     const auto term_count = this->get_term_count();
     for (UINT i = 0; i < term_count; i++) {
         work_state->load(&state_to_be_multiplied);
         const auto term = this->get_term(i);
-        auto pauli_operator =
-            gate::Pauli(term->get_index_list(), term->get_pauli_id_list());
-        pauli_operator->update_quantum_state(work_state);
-        work_state->multiply_coef(term->get_coef());
-        dst_state->add_state(work_state);
-        delete pauli_operator;
+        _apply_pauli_to_state(
+            term->get_pauli_id_list(), term->get_index_list(), work_state);
+        dst_state->add_state_with_coef(term->get_coef(), work_state);
     }
 }
 
@@ -378,10 +393,8 @@ void GeneralQuantumOperator::_apply_pauli_to_state_single_thread(
             target_index_list.data(), pauli_id_list.data(),
             (UINT)target_index_list.size(), state->data_c(), state->dim);
     } else {
-        // TODO: make it single thread for this function
-        dm_multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
-            pauli_id_list.data(), (UINT)target_index_list.size(),
-            state->data_c(), state->dim);
+        throw std::runtime_error(
+            "apply single thread is not implemented for density matrix");
     }
 }
 
@@ -403,13 +416,6 @@ GeneralQuantumOperator* GeneralQuantumOperator::copy() const {
     return quantum_operator;
 }
 
-GeneralQuantumOperator GeneralQuantumOperator::operator+(
-    const GeneralQuantumOperator& target) const {
-    auto res = this->copy();
-    *res += target;
-    return *res;
-}
-
 GeneralQuantumOperator* GeneralQuantumOperator::get_dagger() const {
     auto quantum_operator = new GeneralQuantumOperator(_qubit_count);
     for (auto pauli : this->_operator_list) {
@@ -417,6 +423,13 @@ GeneralQuantumOperator* GeneralQuantumOperator::get_dagger() const {
             std::conj(pauli->get_coef()), pauli->get_pauli_string());
     }
     return quantum_operator;
+}
+
+GeneralQuantumOperator GeneralQuantumOperator::operator+(
+    const GeneralQuantumOperator& target) const {
+    auto res = this->copy();
+    *res += target;
+    return *res;
 }
 
 GeneralQuantumOperator GeneralQuantumOperator::operator+(
@@ -430,7 +443,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     const GeneralQuantumOperator& target) {
     ITYPE i, j;
     auto terms = target.get_terms();
-#pragma omp parallel for
+    // #pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         for (j = 0; j < terms.size(); j++) {
@@ -483,7 +496,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     const PauliOperator& target) {
     bool flag = true;
     ITYPE i;
-#pragma omp parallel for
+    //#pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         auto pauli_x = pauli_operator->get_x_bits();
@@ -527,7 +540,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
     const GeneralQuantumOperator& target) {
     ITYPE i, j;
     auto terms = target.get_terms();
-#pragma omp parallel for
+    // #pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         for (j = 0; j < terms.size(); j++) {
@@ -635,7 +648,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     auto terms = copy->get_terms();
     auto target_terms = target.get_terms();
     ITYPE i, j;
-#pragma omp parallel for
+    // #pragma omp parallel for
     for (i = 0; i < terms.size(); i++) {
         auto pauli_operator = terms[i];
         for (j = 0; j < target_terms.size(); j++) {
@@ -643,6 +656,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
             PauliOperator* product = new PauliOperator;
             *product = (*pauli_operator) * (*target_operator);
             *this += *product;
+            delete product;
         }
     }
     return *this;
@@ -654,7 +668,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     _operator_list.clear();
     ITYPE i;
     auto terms = copy->get_terms();
-#pragma omp parallel for
+    // #pragma omp parallel for
     for (i = 0; i < terms.size(); i++) {
         auto pauli_operator = terms[i];
         PauliOperator* product = new PauliOperator;
@@ -666,7 +680,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator*=(CPPCTYPE target) {
     ITYPE i;
-#pragma omp parallel for
+    // #pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         *_operator_list[i] *= target;
     }
