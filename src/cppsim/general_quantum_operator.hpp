@@ -113,11 +113,9 @@ public:
      */
     virtual const PauliOperator* get_term(UINT index) const {
         if (index >= _operator_list.size()) {
-            std::stringstream error_message_stream;
-            error_message_stream
-                << "Error: GeneralQuantumOperator::get_term(UINT): index out "
-                   "of range";
-            throw OperatorIndexOutOfRangeException(error_message_stream.str());
+            throw OperatorIndexOutOfRangeException(
+                "Error: GeneralQuantumOperator::get_term(UINT): index out "
+                "of range");
         }
         return _operator_list[index];
     }
