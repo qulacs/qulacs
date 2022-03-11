@@ -198,43 +198,37 @@ TEST(NoisyEvolutionTest, T1T2) {
     UINT n = 2;
     UINT n_samples = 100;
 
-    double avg_diff = 0;
-    for (int i = 0; i < 100; ++i) {
-        Observable observable(n);
-        observable.add_operator(1, "X 0");
-        // create hamiltonian and collapse operator
-        Observable hamiltonian(n);
-        hamiltonian.add_operator(hamiltonian_energy, "Z 0 Z 1");
-        std::vector<GeneralQuantumOperator*> c_ops;
-        for (int k = 0; k < 6; k++)
-            c_ops.push_back(new GeneralQuantumOperator(n));
-        c_ops[0]->add_operator(decay_rate_z, "Z 0");
-        c_ops[1]->add_operator(decay_rate_z, "Z 1");
-        c_ops[2]->add_operator(decay_rate_p / 2, "X 0");
-        c_ops[2]->add_operator(decay_rate_p / 2 * 1.i, "Y 0");
-        c_ops[3]->add_operator(decay_rate_p / 2, "X 1");
-        c_ops[3]->add_operator(decay_rate_p / 2 * 1.i, "Y 1");
-        c_ops[4]->add_operator(decay_rate_m / 2, "X 0");
-        c_ops[4]->add_operator(-decay_rate_m / 2 * 1.i, "Y 0");
-        c_ops[5]->add_operator(decay_rate_m / 2, "X 1");
-        c_ops[5]->add_operator(-decay_rate_m / 2 * 1.i, "Y 1");
+    Observable observable(n);
+    observable.add_operator(1, "X 0");
+    // create hamiltonian and collapse operator
+    Observable hamiltonian(n);
+    hamiltonian.add_operator(hamiltonian_energy, "Z 0 Z 1");
+    std::vector<GeneralQuantumOperator*> c_ops;
+    for (int k = 0; k < 6; k++) c_ops.push_back(new GeneralQuantumOperator(n));
+    c_ops[0]->add_operator(decay_rate_z, "Z 0");
+    c_ops[1]->add_operator(decay_rate_z, "Z 1");
+    c_ops[2]->add_operator(decay_rate_p / 2, "X 0");
+    c_ops[2]->add_operator(decay_rate_p / 2 * 1.i, "Y 0");
+    c_ops[3]->add_operator(decay_rate_p / 2, "X 1");
+    c_ops[3]->add_operator(decay_rate_p / 2 * 1.i, "Y 1");
+    c_ops[4]->add_operator(decay_rate_m / 2, "X 0");
+    c_ops[4]->add_operator(-decay_rate_m / 2 * 1.i, "Y 0");
+    c_ops[5]->add_operator(decay_rate_m / 2, "X 1");
+    c_ops[5]->add_operator(-decay_rate_m / 2 * 1.i, "Y 1");
 
-        QuantumState state(n);
-        QuantumCircuit circuit(n);
-        circuit.add_gate(gate::NoisyEvolution(&hamiltonian, c_ops, time, dt));
-        double exp = 0.;
-        for (int k = 0; k < n_samples; k++) {
-            state.set_zero_state();
-            gate::H(0)->update_quantum_state(&state);
-            gate::H(1)->update_quantum_state(&state);
-            circuit.update_quantum_state(&state);
-            exp += observable.get_expectation_value(&state).real() / n_samples;
-        }
-        std::cout << "NoisyEvolution: " << exp << " ref: " << ref << std::endl;
-        ASSERT_NEAR(exp, ref, .1);
-        avg_diff += abs(exp - ref);
+    QuantumState state(n);
+    QuantumCircuit circuit(n);
+    circuit.add_gate(gate::NoisyEvolution(&hamiltonian, c_ops, time, dt));
+    double exp = 0.;
+    for (int k = 0; k < n_samples; k++) {
+        state.set_zero_state();
+        gate::H(0)->update_quantum_state(&state);
+        gate::H(1)->update_quantum_state(&state);
+        circuit.update_quantum_state(&state);
+        exp += observable.get_expectation_value(&state).real() / n_samples;
     }
-    std::cout << "AVG diff: " << avg_diff / 100.0 << std::endl;
+    std::cout << "NoisyEvolution: " << exp << " ref: " << ref << std::endl;
+    ASSERT_NEAR(exp, ref, .1);
 }
 
 TEST(NoisyEvolutionTest, check_inf_occurence) {
