@@ -71,30 +71,30 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
                "QuantumStateBase*): invalid qubit count";
         throw std::invalid_argument(error_message_stream.str());
     }
-    double sum_real = 0.;
-    double sum_imag = 0.;
-    CPPCTYPE tmp(0., 0.);
-    size_t n_terms = this->_operator_list.size();
 
+    const size_t n_terms = this->_operator_list.size();
     if (state->get_device_name() == "gpu") {
         CPPCTYPE sum = 0;
         for (UINT i = 0; i < n_terms; ++i) {
             sum += _operator_list[i]->get_expectation_value(state);
         }
         return sum;
-    } else {
+    }
+
+    double sum_real = 0.;
+    double sum_imag = 0.;
+    CPPCTYPE tmp(0., 0.);
 #ifdef _OPENMP
 #pragma omp parallel for reduction(+ : sum_real, sum_imag) private(tmp)
 #endif
-        for (int i = 0; i < n_terms;
-             ++i) {  // this variable has to be signed integer because of OpenMP
-                     // of Windows compiler.
-            tmp = _operator_list[i]->get_expectation_value_single_thread(state);
-            sum_real += tmp.real();
-            sum_imag += tmp.imag();
-        }
-        return CPPCTYPE(sum_real, sum_imag);
+    for (int i = 0; i < (int)n_terms;
+         ++i) {  // this variable (i) has to be signed integer because of OpenMP
+                 // of Windows compiler.
+        tmp = _operator_list[i]->get_expectation_value_single_thread(state);
+        sum_real += tmp.real();
+        sum_imag += tmp.imag();
     }
+    return CPPCTYPE(sum_real, sum_imag);
 }
 
 CPPCTYPE GeneralQuantumOperator::get_expectation_value_single_thread(
@@ -399,8 +399,8 @@ void GeneralQuantumOperator::_apply_pauli_to_state_single_thread(
             (UINT)target_index_list.size(), state->data_c(), state->dim);
 #endif
     } else {
-        std::cerr << "apply single thread is not implemented for density matrix"
-                  << std::endl;
+        throw std::runtime_error(
+            "apply single thread is not implemented for density matrix");
     }
 }
 
@@ -502,7 +502,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     const PauliOperator& target) {
     bool flag = true;
     ITYPE i;
-    // #pragma omp parallel for
+    //#pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         auto pauli_x = pauli_operator->get_x_bits();

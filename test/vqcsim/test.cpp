@@ -263,8 +263,15 @@ TEST(GradCalculator, BasicCheck) {
     for (int i = 0; i < cnter_parametric_gate; ++i) {
         theta.push_back(rnd.uniform() * 5.0);
     }
-    std::vector<std::complex<double>> GradCalculator_ans =
+    auto GradCalculator_ans_theta_specified =
         hoge.calculate_grad(circuit, observable, theta);
+
+    for (UINT i = 0; i < cnter_parametric_gate; ++i) {
+        ASSERT_EQ(circuit.get_parameter(i), 0);
+        circuit.set_parameter(i, theta[i]);
+    }
+    auto GradCalculator_ans_without_theta =
+        hoge.calculate_grad(circuit, observable);
 
     // Calculate using normal Greedy.
     std::vector<std::complex<double>> Greedy_ans;
@@ -296,8 +303,10 @@ TEST(GradCalculator, BasicCheck) {
             Greedy_ans.push_back((y - z) / 0.002);
         }
     }
-    for (int i = 0; i < GradCalculator_ans.size(); ++i) {
-        ASSERT_LT(abs(GradCalculator_ans[i] - Greedy_ans[i]),
+    for (int i = 0; i < GradCalculator_ans_without_theta.size(); ++i) {
+        ASSERT_LT(abs(GradCalculator_ans_theta_specified[i] - Greedy_ans[i]),
+            1e-6);  // Difference should be lower than 1e-7
+        ASSERT_LT(abs(GradCalculator_ans_without_theta[i] - Greedy_ans[i]),
             1e-6);  // Difference should be lower than 1e-7
     }
 }

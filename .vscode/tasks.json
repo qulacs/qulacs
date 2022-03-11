@@ -36,19 +36,11 @@
             "command": "find ./src ./test ./benchmark -regex '.*\\.\\(cu\\|cuh\\|cpp\\|h\\|hpp\\)' -exec clang-format -style=file -i {} \\;"
         },
         {
-            "label": "generate stub(only qulacs_osaka_core)",
+            "label": "update stub",
             "type": "shell",
-            "command": "stubgen -p qulacs_osaka_core -o typings && pybind11-stubgen qulacs_osaka_core --no-setup-py --root-module-suffix='' --ignore-invalid=all --output-dir='./typings'",
+            "command": "script/update_stubs.sh",
             "dependsOn": [
                 "install"
-            ]
-        },
-        {
-            "label": "generate stub",
-            "type": "shell",
-            "command": "stubgen -p qulacs_osaka -o typings && pybind11-stubgen qulacs_osaka --no-setup-py --root-module-suffix='' --ignore-invalid=all --output-dir='./typings'",
-            "dependsOn": [
-                "generate stub(only qulacs_osaka_core)"
             ]
         }
     ]

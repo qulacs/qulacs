@@ -9,16 +9,17 @@ on:
       - "*.md"
     branches:
       - "dev"
-  pull_request:
-    paths-ignore:
-      - ".devcontainer/**"
-      - ".vscode/**"
-      - "doc/**"
-      - "*.md"
+    tags:
+      - "v*"
+  pull_request_review:
+    types: [submitted, edited]
+  workflow_dispatch:
 
 jobs:
   wheel-build:
     name: Python wheel build
+    # For jobs triggered by pull_request_review, build task should run only if is in `approved` state.
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
     strategy:
       matrix:
         python-version: ["3.7.5"]

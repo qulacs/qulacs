@@ -7,16 +7,17 @@ on:
       - ".vscode/**"
       - "doc/**"
       - "*.md"
-  pull_request:
-    paths-ignore:
-      - ".devcontainer/**"
-      - ".vscode/**"
-      - "doc/**"
-      - "*.md"
+    branches:
+      - "dev"
+  pull_request_review:
+    types: [submitted, edited]
+  workflow_dispatch:
 
 jobs:
   gcc8-build:
     name: GCC8 build
+    # For jobs triggered by pull_request_review, build task should run only if is in `approved` state.
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
     strategy:
       matrix:
         python-version: ["3.7.5"]
@@ -59,7 +60,9 @@ jobs:
 
       - name: Test if stub is working
         run: |
-          mypy python/stub-test/mypy-import-test-qulacs.py python/stub-test/mypy-import-test-qulacs-osaka.py
+          python python/stub-test/generate_mypy_tester.py qulacs_osaka
+          python python/stub-test/generate_mypy_tester.py qulacs
+          mypy python/stub-test/names_qulacs_osaka.py python/stub-test/names_qulacs.py
 
       - name: Test in Windows
         env:

@@ -421,7 +421,7 @@ void QuantumCircuit::add_multi_Pauli_rotation_gate(
         std::stringstream error_message_stream;
         error_message_stream
             << "Error: QuantumCircuit::add_multi_Pauli_rotation_gate(const "
-               "PauliOperator& pauli_operator): not impremented for non "
+               "PauliOperator& pauli_operator): not implemented for non "
                "hermitian";
         throw std::invalid_argument(error_message_stream.str());
     }
@@ -435,7 +435,7 @@ void QuantumCircuit::add_diagonal_observable_rotation_gate(
         error_message_stream
             << "Error: QuantumCircuit::add_observable_rotation_gate(const "
                "Observable& observable, double angle, UINT num_repeats): not "
-               "impremented for non hermitian";
+               "implemented for non hermitian";
         throw std::invalid_argument(error_message_stream.str());
     }
     std::vector<PauliOperator*> operator_list = observable.get_terms();
@@ -457,7 +457,7 @@ void QuantumCircuit::add_observable_rotation_gate(
         error_message_stream
             << "Error: QuantumCircuit::add_observable_rotation_gate(const "
                "Observable& observable, double angle, UINT num_repeats): not "
-               "impremented for non hermitian";
+               "implemented for non hermitian";
         throw std::invalid_argument(error_message_stream.str());
     }
     UINT qubit_count_ = observable.get_qubit_count();
