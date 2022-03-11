@@ -223,6 +223,7 @@ TEST(NoisyEvolutionTest, T1T2) {
         gate::H(0)->update_quantum_state(&state);
         gate::H(1)->update_quantum_state(&state);
         circuit.update_quantum_state(&state);
+        state.normalize(state.get_squared_norm());
         exp += observable.get_expectation_value(&state).real() / n_samples;
     }
     std::cout << "NoisyEvolution: " << exp << " ref: " << ref << std::endl;

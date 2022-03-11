@@ -169,6 +169,7 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) {
+        double initial_squared_norm = state->get_squared_norm();
         double r = _random.uniform();
         std::vector<double> cumulative_dist(_c_ops.size());
         double prob_sum = 0;
@@ -226,7 +227,7 @@ public:
         }
 
         // normalize the state and finish
-        state->normalize(state->get_squared_norm());
+        state->normalize(state->get_squared_norm() / initial_squared_norm);
         delete k1;
         delete k2;
         delete k3;
