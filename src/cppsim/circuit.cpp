@@ -22,12 +22,10 @@ bool check_gate_index(
 
 void QuantumCircuit::update_quantum_state(QuantumStateBase* state) {
     if (state->qubit_count != this->qubit_count) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: "
-               "QuantumCircuit::update_quantum_state(QuantumStateBase) : "
-               "invalid qubit count";
-        throw InvalidQubitCountException(error_message_stream.str());
+        throw InvalidQubitCountException(
+            "Error: "
+            "QuantumCircuit::update_quantum_state(QuantumStateBase) : "
+            "invalid qubit count");
     }
 
     for (const auto& gate : this->_gate_list) {
@@ -38,28 +36,22 @@ void QuantumCircuit::update_quantum_state(QuantumStateBase* state) {
 void QuantumCircuit::update_quantum_state(
     QuantumStateBase* state, UINT start, UINT end) {
     if (state->qubit_count != this->qubit_count) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: "
-               "QuantumCircuit::update_quantum_state(QuantumStateBase,UINT,"
-               "UINT) : invalid qubit count";
-        throw InvalidQubitCountException(error_message_stream.str());
+        throw InvalidQubitCountException(
+            "Error: "
+            "QuantumCircuit::update_quantum_state(QuantumStateBase,UINT,"
+            "UINT) : invalid qubit count");
     }
     if (start > end) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: "
-               "QuantumCircuit::update_quantum_state(QuantumStateBase,UINT,"
-               "UINT) : start must be smaller than or equal to end";
-        throw GateIndexOutOfRangeException(error_message_stream.str());
+        throw GateIndexOutOfRangeException(
+            "Error: "
+            "QuantumCircuit::update_quantum_state(QuantumStateBase,UINT,"
+            "UINT) : start must be smaller than or equal to end");
     }
     if (end > this->_gate_list.size()) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: "
-               "QuantumCircuit::update_quantum_state(QuantumStateBase,UINT,"
-               "UINT) : end must be smaller than or equal to gate_count";
-        throw GateIndexOutOfRangeException(error_message_stream.str());
+        throw GateIndexOutOfRangeException(
+            "Error: "
+            "QuantumCircuit::update_quantum_state(QuantumStateBase,UINT,"
+            "UINT) : end must be smaller than or equal to gate_count");
     }
     for (UINT cursor = start; cursor < end; ++cursor) {
         this->_gate_list[cursor]->update_quantum_state(state);
@@ -104,32 +96,26 @@ bool check_gate_index(
 
 void QuantumCircuit::add_gate(QuantumGateBase* gate) {
     if (!check_gate_index(this, gate)) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: QuatnumCircuit::add_gate(QuantumGateBase*): gate "
-               "must be "
-               "applied to qubits of which the indices are smaller than "
-               "qubit_count";
-        throw InvalidQubitCountException(error_message_stream.str());
+        throw InvalidQubitCountException(
+            "Error: QuatnumCircuit::add_gate(QuantumGateBase*): gate "
+            "must be "
+            "applied to qubits of which the indices are smaller than "
+            "qubit_count");
     }
     this->_gate_list.push_back(gate);
 }
 
 void QuantumCircuit::add_gate(QuantumGateBase* gate, UINT index) {
     if (!check_gate_index(this, gate)) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: QuatnumCircuit::add_gate(QuantumGateBase*, UINT): "
-               "gate must be applied to qubits of which the indices are "
-               "smaller than qubit_count";
-        throw InvalidQubitCountException(error_message_stream.str());
+        throw InvalidQubitCountException(
+            "Error: QuatnumCircuit::add_gate(QuantumGateBase*, UINT): "
+            "gate must be applied to qubits of which the indices are "
+            "smaller than qubit_count");
     }
     if (index > this->_gate_list.size()) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: QuantumCircuit::add_gate(QuantumGateBase*, UINT) : "
-               "insert index must be smaller than or equal to gate_count";
-        throw GateIndexOutOfRangeException(error_message_stream.str());
+        throw GateIndexOutOfRangeException(
+            "Error: QuantumCircuit::add_gate(QuantumGateBase*, UINT) : "
+            "insert index must be smaller than or equal to gate_count");
     }
     this->_gate_list.insert(this->_gate_list.begin() + index, gate);
 }
@@ -158,77 +144,65 @@ void QuantumCircuit::add_noise_gate(
             this->add_gate(
                 gate::TwoQubitDepolarizingNoise(itr[0], itr[1], noise_prob));
         } else {
-            std::stringstream error_message_stream;
-            error_message_stream
-                << "Error: "
-                   "QuantumCircuit::add_noise_gate(QuantumGateBase*,"
-                   "string,double) : "
-                   "depolarizing noise can be used up to 2 qubits, but "
-                   "this gate has "
-                << itr.size() << " qubits.";
-            throw InvalidQubitCountException(error_message_stream.str());
+            throw InvalidQubitCountException(
+                "Error: "
+                "QuantumCircuit::add_noise_gate(QuantumGateBase*,"
+                "string,double) : "
+                "depolarizing noise can be used up to 2 qubits, but "
+                "this gate has " +
+                std::to_string(itr.size()) + " qubits.");
         }
     } else if (noise_type == "BitFlip") {
         if (itr.size() == 1) {
             this->add_gate(gate::BitFlipNoise(itr[0], noise_prob));
         } else {
-            std::stringstream error_message_stream;
-            error_message_stream
-                << "Error: "
-                   "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
-                   "double) : "
-                   "BitFlip noise can be used by 1 qubits, but this gate has "
-                << itr.size() << " qubits.";
-            throw InvalidQubitCountException(error_message_stream.str());
+            throw InvalidQubitCountException(
+                "Error: "
+                "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
+                "double) : "
+                "BitFlip noise can be used by 1 qubits, but this gate has " +
+                std::to_string(itr.size()) + " qubits.");
         }
     } else if (noise_type == "Dephasing") {
         if (itr.size() == 1) {
             this->add_gate(gate::DephasingNoise(itr[0], noise_prob));
         } else {
-            std::stringstream error_message_stream;
-            error_message_stream
-                << "Error: "
-                   "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
-                   "double) : "
-                   "Dephasing noise can be used by 1 qubits, but this gate has "
-                << itr.size() << " qubits.";
-            throw InvalidQubitCountException(error_message_stream.str());
+            throw InvalidQubitCountException(
+                "Error: "
+                "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
+                "double) : "
+                "Dephasing noise can be used by 1 qubits, but this gate has " +
+                std::to_string(itr.size()) + " qubits.");
         }
     } else if (noise_type == "IndependentXZ") {
         if (itr.size() == 1) {
             this->add_gate(gate::IndependentXZNoise(itr[0], noise_prob));
         } else {
-            std::stringstream error_message_stream;
-            error_message_stream
-                << "Error: "
-                   "QuantumCircuit::add_noise_gate(QuantumGateBase*,"
-                   "string,double) : "
-                   "IndependentXZ noise can be used by 1 qubits, but "
-                   "this gate has "
-                << itr.size() << " qubits.";
-            throw InvalidQubitCountException(error_message_stream.str());
+            throw InvalidQubitCountException(
+                "Error: "
+                "QuantumCircuit::add_noise_gate(QuantumGateBase*,"
+                "string,double) : "
+                "IndependentXZ noise can be used by 1 qubits, but "
+                "this gate has " +
+                std::to_string(itr.size()) + " qubits.");
         }
     } else if (noise_type == "AmplitudeDamping") {
         if (itr.size() == 1) {
             this->add_gate(gate::AmplitudeDampingNoise(itr[0], noise_prob));
         } else {
-            std::stringstream error_message_stream;
-            error_message_stream
-                << "Error: "
-                   "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
-                   "double) : AmplitudeDamping noise can be used by 1 qubits, "
-                   "but this gate has "
-                << itr.size() << " qubits.";
-            throw InvalidQubitCountException(error_message_stream.str());
+            throw InvalidQubitCountException(
+                "Error: "
+                "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
+                "double) : AmplitudeDamping noise can be used by 1 qubits, "
+                "but this gate has " +
+                std::to_string(itr.size()) + " qubits.");
         }
     } else {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: "
-               "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
-               "double) : noise_type is undetectable. your noise_type = '"
-            << noise_type << "'.";
-        throw InvalidNoiseTypeIdentifierException(error_message_stream.str());
+        throw InvalidNoiseTypeIdentifierException(
+            "Error: "
+            "QuantumCircuit::add_noise_gate(QuantumGateBase*,string,"
+            "double) : noise_type is undetectable. your noise_type = '" +
+            noise_type + "'.");
     }
 }
 
@@ -239,11 +213,9 @@ void QuantumCircuit::add_noise_gate_copy(
 
 void QuantumCircuit::remove_gate(UINT index) {
     if (index >= this->_gate_list.size()) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: QuantumCircuit::remove_gate(UINT) : index must be "
-               "smaller than gate_count";
-        throw GateIndexOutOfRangeException(error_message_stream.str());
+        throw GateIndexOutOfRangeException(
+            "Error: QuantumCircuit::remove_gate(UINT) : index must be "
+            "smaller than gate_count");
     }
     delete this->_gate_list[index];
     this->_gate_list.erase(this->_gate_list.begin() + index);
@@ -419,12 +391,10 @@ void QuantumCircuit::add_multi_Pauli_rotation_gate(
     const PauliOperator& pauli_operator) {
     const double eps = 1e-14;
     if (std::abs(pauli_operator.get_coef().imag()) > eps) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: QuantumCircuit::add_multi_Pauli_rotation_gate(const "
-               "PauliOperator& pauli_operator): not implemented for non "
-               "hermitian";
-        throw NonHermitianException(error_message_stream.str());
+        throw NonHermitianException(
+            "Error: QuantumCircuit::add_multi_Pauli_rotation_gate(const "
+            "PauliOperator& pauli_operator): not implemented for non "
+            "hermitian");
     }
     this->add_gate(gate::PauliRotation(pauli_operator.get_index_list(),
         pauli_operator.get_pauli_id_list(), pauli_operator.get_coef().real()));
@@ -432,21 +402,18 @@ void QuantumCircuit::add_multi_Pauli_rotation_gate(
 void QuantumCircuit::add_diagonal_observable_rotation_gate(
     const Observable& observable, double angle) {
     if (!observable.is_hermitian()) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: QuantumCircuit::add_observable_rotation_gate(const "
-               "Observable& observable, double angle, UINT num_repeats): not "
-               "implemented for non hermitian";
-        throw NonHermitianException(error_message_stream.str());
+        throw NonHermitianException(
+            "Error: QuantumCircuit::add_observable_rotation_gate(const "
+            "Observable& observable, double angle, UINT num_repeats): not "
+            "implemented for non hermitian");
     }
     std::vector<PauliOperator*> operator_list = observable.get_terms();
     for (auto pauli : operator_list) {
         auto pauli_rotation = gate::PauliRotation(pauli->get_index_list(),
             pauli->get_pauli_id_list(), pauli->get_coef().real() * angle);
         if (!pauli_rotation->is_diagonal()) {
-            std::stringstream error_message_stream;
-            error_message_stream << "ERROR: Observable is not diagonal";
-            throw InvalidObservableException(error_message_stream.str());
+            throw InvalidObservableException(
+                "ERROR: Observable is not diagonal");
         }
         this->add_gate(pauli_rotation);
     }
@@ -454,12 +421,10 @@ void QuantumCircuit::add_diagonal_observable_rotation_gate(
 void QuantumCircuit::add_observable_rotation_gate(
     const Observable& observable, double angle, UINT num_repeats) {
     if (!observable.is_hermitian()) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: QuantumCircuit::add_observable_rotation_gate(const "
-               "Observable& observable, double angle, UINT num_repeats): not "
-               "implemented for non hermitian";
-        throw NonHermitianException(error_message_stream.str());
+        throw NonHermitianException(
+            "Error: QuantumCircuit::add_observable_rotation_gate(const "
+            "Observable& observable, double angle, UINT num_repeats): not "
+            "implemented for non hermitian");
     }
     UINT qubit_count_ = observable.get_qubit_count();
     std::vector<PauliOperator*> operator_list = observable.get_terms();
@@ -478,13 +443,11 @@ void QuantumCircuit::add_observable_rotation_gate(
 void QuantumCircuit::add_dense_matrix_gate(
     UINT target_index, const ComplexMatrix& matrix) {
     if (matrix.cols() != 2 || matrix.rows() != 2) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: add_dense_matrix_gate(UINT, const ComplexMatrix&) "
-               ": matrix "
-               "must be matrix.cols()==2 and matrix.rows()==2 for single "
-               "qubit gate";
-        throw InvalidMatrixGateSizeException(error_message_stream.str());
+        throw InvalidMatrixGateSizeException(
+            "Error: add_dense_matrix_gate(UINT, const ComplexMatrix&) "
+            ": matrix "
+            "must be matrix.cols()==2 and matrix.rows()==2 for single "
+            "qubit gate");
     }
 
     this->add_gate(gate::DenseMatrix(target_index, matrix));
@@ -493,13 +456,11 @@ void QuantumCircuit::add_dense_matrix_gate(
     std::vector<UINT> target_index_list, const ComplexMatrix& matrix) {
     if (matrix.cols() != (1LL << target_index_list.size()) ||
         matrix.rows() != (1LL << target_index_list.size())) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: add_dense_matrix_gate(vector<UINT>, const "
-               "ComplexMatrix&) : "
-               "matrix must be matrix.cols()==(1<<target_count) and "
-               "matrix.rows()==(1<<target_count)";
-        throw InvalidMatrixGateSizeException(error_message_stream.str());
+        throw InvalidMatrixGateSizeException(
+            "Error: add_dense_matrix_gate(vector<UINT>, const "
+            "ComplexMatrix&) : "
+            "matrix must be matrix.cols()==(1<<target_count) and "
+            "matrix.rows()==(1<<target_count)");
     }
 
     this->add_gate(gate::DenseMatrix(target_index_list, matrix));
