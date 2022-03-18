@@ -72,6 +72,7 @@ private:
                                       (mae_norm_log - target_norm_log) /
                                       (mae_norm_log - now_norm_log);
             } else {
+                // use bisection method
                 t_guess = (t_mae + t_now) / 2;
             }
 
