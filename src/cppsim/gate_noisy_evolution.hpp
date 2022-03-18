@@ -110,6 +110,8 @@ private:
             }
         }
         //ここには来ない
+        throw std::runtime_error(
+            "unexpectedly come to end of _find_collapse function.");
     }
 
     /**
