@@ -75,7 +75,6 @@ private:
 
             // evolve by time t_guess
             buf_state->load(prev_state);
-
             _evolve_one_step(k1, k2, k3, k4, bufB_state, buf_state, t_guess);
 
             double buf_norm = buf_state->get_squared_norm();
