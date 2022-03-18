@@ -67,6 +67,7 @@ private:
 
             double t_guess = 0;
             if (search_count <= 20) {
+                // use secant method
                 t_guess = t_mae + (t_now - t_mae) *
                                       (mae_norm_log - target_norm_log) /
                                       (mae_norm_log - now_norm_log);
