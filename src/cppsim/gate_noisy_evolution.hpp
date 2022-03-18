@@ -26,6 +26,7 @@ private:
      * を見つける。 この関数内で norm=rになるタイミングまでの evolution
      * が行われる。
      * normは時間に対して、広義単調減少であることが必要。
+     * 内部では割線法を利用している。
      */
     virtual double _find_collapse(QuantumStateBase* k1, QuantumStateBase* k2,
         QuantumStateBase* k3, QuantumStateBase* k4,
