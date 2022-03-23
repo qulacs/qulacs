@@ -36,8 +36,8 @@ private:
             return _find_collapse_original(
                 k1, k2, k3, k4, prev_state, now_state, target_norm, dt);
         }
-        auto mae_norm = prev_state->get_squared_norm();
-        auto now_norm = now_state->get_squared_norm();
+        auto mae_norm = prev_state->get_squared_norm_single_thread();
+        auto now_norm = now_state->get_squared_norm_single_thread();
         double t_mae = 0;
         double t_now = dt;
 
@@ -84,7 +84,7 @@ private:
             buf_state->load(prev_state);
             _evolve_one_step(k1, k2, k3, k4, bufB_state, buf_state, t_guess);
 
-            double buf_norm = buf_state->get_squared_norm();
+            double buf_norm = buf_state->get_squared_norm_single_thread();
             if (std::abs(buf_norm - target_norm) < _norm_tol) {
                 now_state->load(buf_state);
                 delete mae_state;
@@ -95,12 +95,12 @@ private:
             } else if (buf_norm < target_norm) {
                 now_state->load(buf_state);
                 t_now = t_guess;
-                now_norm = now_state->get_squared_norm();
+                now_norm = now_state->get_squared_norm_single_thread();
                 now_norm_log = std::log(now_norm);
             } else {
                 mae_state->load(buf_state);
                 t_mae = t_guess;
-                mae_norm = mae_state->get_squared_norm();
+                mae_norm = mae_state->get_squared_norm_single_thread();
                 mae_norm_log = std::log(mae_norm);
             }
 
@@ -131,8 +131,8 @@ private:
         QuantumStateBase* k2, QuantumStateBase* k3, QuantumStateBase* k4,
         QuantumStateBase* prev_state, QuantumStateBase* now_state,
         double target_norm, double dt) {
-        auto now_norm = now_state->get_squared_norm();
-        auto prev_norm = prev_state->get_squared_norm();
+        auto now_norm = now_state->get_squared_norm_single_thread();
+        auto prev_norm = prev_state->get_squared_norm_single_thread();
         auto t_guess = dt;
         int search_count = 0;
         while (std::abs(now_norm - target_norm) > _norm_tol) {
@@ -146,7 +146,7 @@ private:
             // evolve by time t_guess
             now_state->load(prev_state);
             _evolve_one_step(k1, k2, k3, k4, prev_state, now_state, t_guess);
-            now_norm = now_state->get_squared_norm();
+            now_norm = now_state->get_squared_norm_single_thread();
 
             search_count++;
             // avoid infinite loop
@@ -171,31 +171,31 @@ private:
         QuantumStateBase* state, double dt) {
         // Runge-Kutta evolution
         // k1
-        _effective_hamiltonian->apply_to_state(state, k1);
+        _effective_hamiltonian->apply_to_state_single_thread(state, k1);
 
         // k2
         buffer->load(state);
-        buffer->add_state_with_coef(-1.i * dt / 2., k1);
-        _effective_hamiltonian->apply_to_state(buffer, k2);
+        buffer->add_state_with_coef_single_thread(-1.i * dt / 2., k1);
+        _effective_hamiltonian->apply_to_state_single_thread(buffer, k2);
 
         // k3
         buffer->load(state);
-        buffer->add_state_with_coef(-1.i * dt / 2., k2);
-        _effective_hamiltonian->apply_to_state(buffer, k3);
+        buffer->add_state_with_coef_single_thread(-1.i * dt / 2., k2);
+        _effective_hamiltonian->apply_to_state_single_thread(buffer, k3);
 
         // k4
         buffer->load(state);
-        buffer->add_state_with_coef(-1.i * dt, k3);
-        _effective_hamiltonian->apply_to_state(buffer, k4);
+        buffer->add_state_with_coef_single_thread(-1.i * dt, k3);
+        _effective_hamiltonian->apply_to_state_single_thread(buffer, k4);
 
         // store the previous state in buffer
         buffer->load(state);
 
         // add them together
-        state->add_state_with_coef(-1.i * dt / 6., k1);
-        state->add_state_with_coef(-1.i * dt / 3., k2);
-        state->add_state_with_coef(-1.i * dt / 3., k3);
-        state->add_state_with_coef(-1.i * dt / 6., k4);
+        state->add_state_with_coef_single_thread(-1.i * dt / 6., k1);
+        state->add_state_with_coef_single_thread(-1.i * dt / 3., k2);
+        state->add_state_with_coef_single_thread(-1.i * dt / 3., k3);
+        state->add_state_with_coef_single_thread(-1.i * dt / 6., k4);
     }
 
 public:
@@ -301,8 +301,9 @@ public:
                 // get cumulative distribution
                 prob_sum = 0.;
                 for (size_t k = 0; k < _c_ops.size(); k++) {
-                    _c_ops[k]->apply_to_state(state, buffer);
-                    cumulative_dist[k] = buffer->get_squared_norm() + prob_sum;
+                    _c_ops[k]->apply_to_state_single_thread(state, buffer);
+                    cumulative_dist[k] =
+                        buffer->get_squared_norm_single_thread() + prob_sum;
                     prob_sum = cumulative_dist[k];
                 }
 
@@ -313,8 +314,8 @@ public:
                 auto index = std::distance(cumulative_dist.begin(), ite);
 
                 // apply the collapse operator and normalize the state
-                _c_ops[index]->apply_to_state(state, buffer);
-                buffer->normalize(buffer->get_squared_norm());
+                _c_ops[index]->apply_to_state_single_thread(state, buffer);
+                buffer->normalize(buffer->get_squared_norm_single_thread());
                 state->load(buffer);
 
                 // update dt to be consistent with the step size
@@ -328,7 +329,8 @@ public:
         }
 
         // normalize the state and finish
-        state->normalize(state->get_squared_norm() / initial_squared_norm);
+        state->normalize_single_thread(
+            state->get_squared_norm_single_thread() / initial_squared_norm);
         delete k1;
         delete k2;
         delete k3;
