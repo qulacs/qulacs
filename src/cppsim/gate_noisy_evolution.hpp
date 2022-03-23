@@ -25,13 +25,17 @@ private:
      * \~japanese-en collapse が起こるタイミング (norm = rになるタイミング)
      * を見つける。 この関数内で norm=rになるタイミングまでの evolution
      * が行われる。
-     * normは時間に対して、広義単調減少であることが必要。
-     * 内部では割線法を利用している。
+     *
+     * 割線法を利用する場合、normは時間に対して広義単調減少であることが必要。
      */
     virtual double _find_collapse(QuantumStateBase* k1, QuantumStateBase* k2,
         QuantumStateBase* k3, QuantumStateBase* k4,
         QuantumStateBase* prev_state, QuantumStateBase* now_state,
-        double target_norm, double dt) {
+        double target_norm, double dt, bool use_secant_method = true) {
+        if (!use_secant_method) {
+            return _find_collapse_original(
+                k1, k2, k3, k4, prev_state, now_state, target_norm, dt);
+        }
         auto mae_norm = prev_state->get_squared_norm();
         auto now_norm = now_state->get_squared_norm();
         double t_mae = 0;
@@ -114,6 +118,48 @@ private:
         //ここには来ない
         throw std::runtime_error(
             "unexpectedly come to end of _find_collapse function.");
+    }
+
+    /**
+     * \~japanese-en collapse が起こるタイミング (norm = rになるタイミング)
+     * を見つける。 この関数内で norm=rになるタイミングまでの evolution
+     * が行われる。
+     *
+     * 割線法を利用する場合、normは時間に対して広義単調減少であることが必要。
+     */
+    virtual double _find_collapse_original(QuantumStateBase* k1,
+        QuantumStateBase* k2, QuantumStateBase* k3, QuantumStateBase* k4,
+        QuantumStateBase* prev_state, QuantumStateBase* now_state,
+        double target_norm, double dt) {
+        auto now_norm = now_state->get_squared_norm();
+        auto prev_norm = prev_state->get_squared_norm();
+        auto t_guess = dt;
+        int search_count = 0;
+        while (std::abs(now_norm - target_norm) > _norm_tol) {
+            // we expect norm to reduce as Ae^-a*dt, so we first calculate the
+            // coefficient a
+            auto a = std::log(now_norm / prev_norm) / t_guess;
+            // then guess the time to become target norm as (target_norm) =
+            // (prev_norm)e^-a*(t_guess) which means -a*t_guess =
+            // log(target_norm/prev_norm)
+            t_guess = std::log(target_norm / prev_norm) / a;
+            // evolve by time t_guess
+            now_state->load(prev_state);
+            _evolve_one_step(k1, k2, k3, k4, prev_state, now_state, t_guess);
+            now_norm = now_state->get_squared_norm();
+
+            search_count++;
+            // avoid infinite loop
+            // It sometimes fails to find t_guess to reach the target norm.
+            // More likely to happen when dt is not small enough compared to the
+            // relaxation times
+            if (search_count >= _find_collapse_max_steps) {
+                throw std::runtime_error(
+                    "Failed to find the exact jump time. Try with "
+                    "smaller dt.");
+            }
+        }
+        return t_guess;
     }
 
     /**
