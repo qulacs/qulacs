@@ -25,9 +25,110 @@ private:
      * \~japanese-en collapse が起こるタイミング (norm = rになるタイミング)
      * を見つける。 この関数内で norm=rになるタイミングまでの evolution
      * が行われる。
+     *
+     * 割線法を利用する場合、normは時間に対して広義単調減少であることが必要。
      */
     virtual double _find_collapse(QuantumStateBase* k1, QuantumStateBase* k2,
         QuantumStateBase* k3, QuantumStateBase* k4,
+        QuantumStateBase* prev_state, QuantumStateBase* now_state,
+        double target_norm, double dt, bool use_secant_method = true) {
+        if (!use_secant_method) {
+            return _find_collapse_original(
+                k1, k2, k3, k4, prev_state, now_state, target_norm, dt);
+        }
+        auto mae_norm = prev_state->get_squared_norm();
+        auto now_norm = now_state->get_squared_norm();
+        double t_mae = 0;
+        double t_now = dt;
+
+        // mae now で挟み撃ちする
+        int search_count = 0;
+
+        if (std::abs(mae_norm - target_norm) < _norm_tol) {
+            now_state->load(prev_state);
+            return 0;
+        }
+        if (std::abs(now_norm - target_norm) < _norm_tol) {
+            return dt;
+        }
+        if (mae_norm < target_norm) {
+            throw std::runtime_error(
+                "must be prev_state.norm() >= target_norm. ");
+        }
+        if (now_norm > target_norm) {
+            throw std::runtime_error(
+                "must be now_state.norm() <= target_norm. ");
+        }
+
+        QuantumStateBase* mae_state = prev_state->copy();
+        double target_norm_log = std::log(target_norm);
+        double mae_norm_log = std::log(mae_norm);
+        double now_norm_log = std::log(now_norm);
+        QuantumStateBase* buf_state = prev_state->copy();
+        QuantumStateBase* bufB_state = prev_state->copy();
+        while (true) {
+            //  we expect norm to reduce as Ae^-a*dt, so use log.
+
+            double t_guess = 0;
+            if (search_count <= 20) {
+                // use secant method
+                t_guess = t_mae + (t_now - t_mae) *
+                                      (mae_norm_log - target_norm_log) /
+                                      (mae_norm_log - now_norm_log);
+            } else {
+                // use bisection method
+                t_guess = (t_mae + t_now) / 2;
+            }
+
+            // evolve by time t_guess
+            buf_state->load(prev_state);
+            _evolve_one_step(k1, k2, k3, k4, bufB_state, buf_state, t_guess);
+
+            double buf_norm = buf_state->get_squared_norm();
+            if (std::abs(buf_norm - target_norm) < _norm_tol) {
+                now_state->load(buf_state);
+                delete mae_state;
+                delete buf_state;
+                delete bufB_state;
+
+                return t_guess;
+            } else if (buf_norm < target_norm) {
+                now_state->load(buf_state);
+                t_now = t_guess;
+                now_norm = now_state->get_squared_norm();
+                now_norm_log = std::log(now_norm);
+            } else {
+                mae_state->load(buf_state);
+                t_mae = t_guess;
+                mae_norm = mae_state->get_squared_norm();
+                mae_norm_log = std::log(mae_norm);
+            }
+
+            search_count++;
+            // avoid infinite loop
+            // It sometimes fails to find t_guess to reach the target norm.
+            // More likely to happen when dt is not small enough compared to the
+            // relaxation times
+            if (search_count >= _find_collapse_max_steps) {
+                throw std::runtime_error(
+                    "Failed to find the exact jump time. Try with "
+                    "smaller dt.");
+            }
+        }
+        //ここには来ない
+        throw std::runtime_error(
+            "unexpectedly come to end of _find_collapse function.");
+    }
+
+    /**
+     * \~japanese-en collapse が起こるタイミング (norm = rになるタイミング)
+     * を見つける。 この関数内で norm=rになるタイミングまでの evolution
+     * が行われる。
+     *
+     * 割線法を利用する場合、normは時間に対して広義単調減少であることが必要。
+     */
+    virtual double _find_collapse_original(QuantumStateBase* k1,
+        QuantumStateBase* k2, QuantumStateBase* k3, QuantumStateBase* k4,
         QuantumStateBase* prev_state, QuantumStateBase* now_state,
         double target_norm, double dt) {
         auto now_norm = now_state->get_squared_norm();
