@@ -326,7 +326,8 @@ enum class CalculationMethod {
 
 // Test calculating eigenvalue.
 // Actual test code calls this function with prepared observable.
-void test_eigenvalue(Observable& observable, const UINT iter_count,
+// Return an error message if failed, an empty string if passed.
+std::string test_eigenvalue(Observable& observable, const UINT iter_count,
     const double eps, const CalculationMethod method) {
     auto observable_matrix = convert_observable_to_matrix(observable);
     const auto eigenvalues = observable_matrix.eigenvalues();
@@ -354,8 +355,10 @@ void test_eigenvalue(Observable& observable, const UINT iter_count,
             observable.solve_ground_state_eigenvalue_by_lanczos_method(
                 &state, iter_count);
     }
-    ASSERT_NEAR(ground_state_eigenvalue.real(),
+    std::string err_message;
+    err_message = _CHECK_NEAR(ground_state_eigenvalue.real(),
         test_ground_state_eigenvalue.real(), eps);
+    if (err_message != "") return err_message;
 
     QuantumState multiplied_state(qubit_count);
     QuantumState work_state(qubit_count);
@@ -367,17 +370,21 @@ void test_eigenvalue(Observable& observable, const UINT iter_count,
     state.normalize(state.get_squared_norm());
 
     for (UINT i = 0; i < state.dim; i++) {
-        ASSERT_NEAR(multiplied_state.data_cpp()[i].real(),
+        err_message = _CHECK_NEAR(multiplied_state.data_cpp()[i].real(),
             state.data_cpp()[i].real(), eps);
-        ASSERT_NEAR(multiplied_state.data_cpp()[i].imag(),
+        if (err_message != "") return err_message;
+        err_message = _CHECK_NEAR(multiplied_state.data_cpp()[i].imag(),
             state.data_cpp()[i].imag(), eps);
+        if (err_message != "") return err_message;
     }
+    return "";
 }
 
 TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
     constexpr double eps = 1e-2;
     constexpr UINT qubit_count = 4;
     constexpr UINT test_count = 5;
+    UINT pass_count = 0;
     Random random;
 
     for (UINT i = 0; i < test_count; i++) {
@@ -385,13 +392,20 @@ TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
             random.int32() % 10 + 2;  // 2 <= operator_count <= 11
         auto observable = Observable(qubit_count);
         observable.add_random_operator(operator_count);
-        test_eigenvalue(observable, 500, eps, CalculationMethod::PowerMethod);
+        std::string err_message = test_eigenvalue(
+            observable, 500, eps, CalculationMethod::PowerMethod);
+        if (err_message == "")
+            pass_count++;
+        else
+            std::cerr << err_message;
     }
+    ASSERT_GE(pass_count, 4);
 }
 
 TEST(ObservableTest, MinimumEigenvalueByArnoldiMethod) {
     constexpr double eps = 1e-6;
     constexpr UINT test_count = 10;
+    UINT pass_count = 0;
     Random random;
 
     for (UINT i = 0; i < test_count; i++) {
@@ -401,8 +415,14 @@ TEST(ObservableTest, MinimumEigenvalueByArnoldiMethod) {
         const auto operator_count = random.int32() % 10 + 2;
         auto observable = Observable(qubit_count);
         observable.add_random_operator(operator_count);
-        test_eigenvalue(observable, 60, eps, CalculationMethod::ArnoldiMethod);
+        std::string err_message = test_eigenvalue(
+            observable, 60, eps, CalculationMethod::ArnoldiMethod);
+        if (err_message == "")
+            pass_count++;
+        else
+            std::cerr << err_message;
     }
+    ASSERT_GE(pass_count, 4);
 }
 
 void add_identity(Observable* observable, Random random) {
@@ -421,6 +441,7 @@ void add_identity(Observable* observable, Random random) {
 TEST(ObservableTest, MinimumEigenvalueByArnoldiMethodWithIdentity) {
     constexpr double eps = 1e-6;
     constexpr UINT test_count = 10;
+    UINT pass_count = 0;
     Random random;
 
     for (UINT i = 0; i < test_count; i++) {
@@ -431,13 +452,20 @@ TEST(ObservableTest, MinimumEigenvalueByArnoldiMethodWithIdentity) {
         auto observable = Observable(qubit_count);
         observable.add_random_operator(operator_count);
         add_identity(&observable, random);
-        test_eigenvalue(observable, 70, eps, CalculationMethod::ArnoldiMethod);
+        std::string err_message = test_eigenvalue(
+            observable, 70, eps, CalculationMethod::ArnoldiMethod);
+        if (err_message == "")
+            pass_count++;
+        else
+            std::cerr << err_message;
     }
+    ASSERT_GE(pass_count, 4);
 }
 
 TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
     constexpr double eps = 1e-6;
     constexpr UINT test_count = 10;
+    UINT pass_count = 0;
     Random random;
 
     for (UINT i = 0; i < test_count; i++) {
@@ -447,8 +475,14 @@ TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
         const auto operator_count = random.int32() % 10 + 2;
         auto observable = Observable(qubit_count);
         observable.add_random_operator(operator_count);
-        test_eigenvalue(observable, 70, eps, CalculationMethod::LanczosMethod);
+        std::string err_message = test_eigenvalue(
+            observable, 70, eps, CalculationMethod::LanczosMethod);
+        if (err_message == "")
+            pass_count++;
+        else
+            std::cerr << err_message;
     }
+    ASSERT_GE(pass_count, 4);
 }
 
 TEST(ObservableTest, GetDaggerTest) {
