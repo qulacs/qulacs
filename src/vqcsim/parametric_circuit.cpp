@@ -1,14 +1,14 @@
 #define _USE_MATH_DEFINES
 #include "parametric_circuit.hpp"
 
+#include <cppsim/exception.hpp>
+#include <cppsim/gate_factory.hpp>
+#include <cppsim/gate_matrix.hpp>
+#include <cppsim/gate_merge.hpp>
+#include <cppsim/state.hpp>
+#include <cppsim/type.hpp>
 #include <iostream>
 
-#include "cppsim/exception.hpp"
-#include "cppsim/gate_factory.hpp"
-#include "cppsim/gate_matrix.hpp"
-#include "cppsim/gate_merge.hpp"
-#include "cppsim/state.hpp"
-#include "cppsim/type.hpp"
 #include "parametric_gate.hpp"
 #include "parametric_gate_factory.hpp"
 
