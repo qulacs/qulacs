@@ -42,11 +42,9 @@ public:
 #ifdef _USE_GPU
             if (state->get_device_name() !=
                 reflection_state->get_device_name()) {
-                std::stringstream error_message_stream;
-                error_message_stream
-                    << "Quantum state on CPU (GPU) cannot be reflected using "
-                       "quantum state on GPU (CPU)";
-                throw NotImplementedException(error_message_stream.str());
+                throw NotImplementedException(
+                    "Quantum state on CPU (GPU) cannot be reflected using "
+                    "quantum state on GPU (CPU)");
             }
             if (state->get_device_name() == "gpu") {
                 std::stringstream error_message_stream;
@@ -64,9 +62,7 @@ public:
                 reflection_state->data_c(), state->data_c(), state->dim);
 #endif
         } else {
-            std::stringstream error_message_stream;
-            error_message_stream << "not implemented";
-            throw NotImplementedException(error_message_stream.str());
+            throw NotImplementedException("not implemented");
         }
     };
     /**
@@ -84,8 +80,7 @@ public:
      * @param matrix �s����Z�b�g����ϐ��̎Q��
      */
     virtual void set_matrix(ComplexMatrix&) const override {
-        std::stringstream error_message_stream;
-        error_message_stream << "ReflectionGate::set_matrix is not implemented";
-        throw NotImplementedException(error_message_stream.str());
+        throw NotImplementedException(
+            "ReflectionGate::set_matrix is not implemented");
     }
 };
