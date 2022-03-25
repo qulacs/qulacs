@@ -383,7 +383,7 @@ std::string test_eigenvalue(Observable& observable, const UINT iter_count,
 TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
     constexpr double eps = 1e-2;
     constexpr UINT qubit_count = 4;
-    constexpr UINT test_count = 5;
+    constexpr UINT test_count = 10;
     UINT pass_count = 0;
     Random random;
 
@@ -399,7 +399,7 @@ TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
         else
             std::cerr << err_message;
     }
-    ASSERT_GE(pass_count, 4);
+    ASSERT_GE(pass_count, test_count - 1);
 }
 
 TEST(ObservableTest, MinimumEigenvalueByArnoldiMethod) {
@@ -422,7 +422,7 @@ TEST(ObservableTest, MinimumEigenvalueByArnoldiMethod) {
         else
             std::cerr << err_message;
     }
-    ASSERT_GE(pass_count, 4);
+    ASSERT_GE(pass_count, test_count - 1);
 }
 
 void add_identity(Observable* observable, Random random) {
@@ -459,7 +459,7 @@ TEST(ObservableTest, MinimumEigenvalueByArnoldiMethodWithIdentity) {
         else
             std::cerr << err_message;
     }
-    ASSERT_GE(pass_count, 4);
+    ASSERT_GE(pass_count, test_count - 1);
 }
 
 TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
@@ -482,7 +482,7 @@ TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
         else
             std::cerr << err_message;
     }
-    ASSERT_GE(pass_count, 4);
+    ASSERT_GE(pass_count, test_count - 1);
 }
 
 TEST(ObservableTest, GetDaggerTest) {
