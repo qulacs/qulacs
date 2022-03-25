@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 
+#include "exception.hpp"
 #include "type.hpp"
 
 class QuantumStateBase;
@@ -41,11 +42,9 @@ public:
     SinglePauliOperator(UINT index_, UINT pauli_id_)
         : _index(index_), _pauli_id(pauli_id_) {
         if (pauli_id_ > 3) {
-            std::stringstream error_message_stream;
-            error_message_stream
-                << "Error: SinglePauliOperator(UINT, UINT): index must be "
-                   "either of 0,1,2,3";
-            throw std::invalid_argument(error_message_stream.str());
+            throw InvalidPauliIdentifierException(
+                "Error: SinglePauliOperator(UINT, UINT): index must be "
+                "either of 0,1,2,3");
         }
     };
 

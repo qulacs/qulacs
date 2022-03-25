@@ -1,5 +1,6 @@
 #pragma once
 
+#include "exception.hpp"
 #include "state.hpp"
 
 #ifdef _USE_GPU
@@ -61,11 +62,9 @@ public:
      * TODO: implement this
      */
     virtual void set_zero_norm_state() override {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "set_zero_norm_state for QuantumStateGpu is not implemented "
-               "yet";
-        throw std::invalid_argument(error_message_stream.str());
+        throw NotImplementedException(
+            "set_zero_norm_state for QuantumStateGpu is not implemented "
+            "yet");
     }
     /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
@@ -246,7 +245,7 @@ public:
      * @return 複素ベクトルのポインタ
      */
     virtual CPPCTYPE* data_cpp() const override {
-        throw std::runtime_error(
+        throw NotImplementedException(
             "Cannot reinterpret state vector on GPU to cpp complex "
             "vector. Use duplicate_data_cpp instead.");
     }
@@ -258,7 +257,7 @@ public:
      * @return 複素ベクトルのポインタ
      */
     virtual CTYPE* data_c() const override {
-        throw std::runtime_error(
+        throw NotImplementedException(
             "Cannot reinterpret state vector on GPU to C complex vector. "
             "Use duplicate_data_cpp instead.");
     }

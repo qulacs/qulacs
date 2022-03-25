@@ -20,6 +20,7 @@
 #include <csim/stat_ops.hpp>
 #include <csim/stat_ops_dm.hpp>
 
+#include "exception.hpp"
 #include "gate_factory.hpp"
 #include "pauli_operator.hpp"
 #include "state.hpp"
@@ -40,10 +41,8 @@ PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef) : _coef(coef) {
         else if (pauli_str == "Z" || pauli_str == "z")
             pauli_type = 3;
         else {
-            std::stringstream error_message_stream;
-            error_message_stream << "invalid Pauli string is given : "
-                                 << pauli_str;
-            throw std::invalid_argument(error_message_stream.str());
+            throw InvalidPauliIdentifierException(
+                "invalid Pauli string is given : " + pauli_str);
         }
         if (pauli_type != 0) this->add_single_Pauli(index, pauli_type);
     }
@@ -68,9 +67,9 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list,
                    Pauli_operator_type_list[term_index] == 'Z') {
             pauli_type = 3;
         } else {
-            std::stringstream error_message_stream;
-            error_message_stream << "invalid Pauli string is given : ";
-            throw std::invalid_argument(error_message_stream.str());
+            throw InvalidPauliIdentifierException(
+                "invalid Pauli string is given : " +
+                Pauli_operator_type_list[term_index]);
         }
 
         if (pauli_type != 0)
@@ -207,10 +206,8 @@ CPPCTYPE PauliOperator::get_transition_amplitude(
     const QuantumStateBase* state_bra,
     const QuantumStateBase* state_ket) const {
     if ((!state_bra->is_state_vector()) || (!state_ket->is_state_vector())) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "get_transition_amplitude for density matrix is not implemented";
-        throw std::invalid_argument(error_message_stream.str());
+        throw NotImplementedException(
+            "get_transition_amplitude for density matrix is not implemented");
     }
 #ifdef _USE_GPU
     if (state_ket->get_device_name() == "gpu" &&

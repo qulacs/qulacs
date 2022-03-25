@@ -6,6 +6,7 @@
 #include "parametric_gate_factory.hpp"
 
 #include <cmath>
+#include <cppsim/exception.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/utility.hpp>
 #include <cstdlib>
@@ -29,7 +30,7 @@ QuantumGate_SingleParameter* ParametricRZ(
 QuantumGate_SingleParameter* ParametricPauliRotation(std::vector<UINT> target,
     std::vector<UINT> pauli_id, double initial_angle) {
     if (!check_is_unique_index_list(target)) {
-        throw std::invalid_argument(
+        throw DuplicatedQubitIndexException(
             "Error: gate::ParametricPauliRotation(std::vector<UINT>, "
             "std::vector<UINT>, double): target qubit list contains "
             "duplicated values."
