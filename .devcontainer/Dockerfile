@@ -66,3 +66,8 @@ RUN git clone https://github.com/USCiLab/cereal.git -b v1.3.0 --depth 1 /tmp/cer
 RUN git clone https://gitlab.com/libeigen/eigen.git -b 3.3.7 --depth 1 /tmp/eigen \
     && cp -r /tmp/eigen/Eigen /usr/local/include \
     && rm -rf /tmp/eigen
+
+# Install Google Test
+RUN git clone https://github.com/google/googletest.git -b release-1.8.1 --depth 1 /tmp/gtest \
+    && cp -r /tmp/gtest/googletest/include/gtest /usr/local/include \
+    && rm -rf /tmp/gtest
