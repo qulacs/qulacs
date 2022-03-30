@@ -4,6 +4,7 @@
 #include <csim/update_ops.hpp>
 #include <csim/update_ops_cpp.hpp>
 
+#include "exception.hpp"
 #include "gate.hpp"
 #include "state.hpp"
 
@@ -41,16 +42,14 @@ public:
 #ifdef _USE_GPU
             if (state->get_device_name() !=
                 reflection_state->get_device_name()) {
-                std::stringstream error_message_stream;
-                error_message_stream
-                    << "Quantum state on CPU (GPU) cannot be reflected using "
-                       "quantum state on GPU (CPU)";
-                throw std::invalid_argument(error_message_stream.str());
+                throw NotImplementedException(
+                    "Quantum state on CPU (GPU) cannot be reflected using "
+                    "quantum state on GPU (CPU)");
             }
             if (state->get_device_name() == "gpu") {
                 std::stringstream error_message_stream;
                 error_message_stream << "Not Implemented";
-                throw std::invalid_argument(error_message_stream.str());
+                throw NotImplementedException(error_message_stream.str());
                 // reversible_boolean_gate_gpu(target_index.data(),
                 // target_index.size(), function_ptr, state->data_c(),
                 // state->dim);
@@ -63,9 +62,7 @@ public:
                 reflection_state->data_c(), state->data_c(), state->dim);
 #endif
         } else {
-            std::stringstream error_message_stream;
-            error_message_stream << "not implemented";
-            throw std::invalid_argument(error_message_stream.str());
+            throw NotImplementedException("not implemented");
         }
     };
     /**
@@ -83,8 +80,7 @@ public:
      * @param matrix �s����Z�b�g����ϐ��̎Q��
      */
     virtual void set_matrix(ComplexMatrix&) const override {
-        std::stringstream error_message_stream;
-        error_message_stream << "ReflectionGate::set_matrix is not implemented";
-        throw std::invalid_argument(error_message_stream.str());
+        throw NotImplementedException(
+            "ReflectionGate::set_matrix is not implemented");
     }
 };
