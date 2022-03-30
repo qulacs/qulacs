@@ -367,6 +367,7 @@ void GeneralQuantumOperator::_apply_pauli_to_state_single_thread(
     if (state->is_state_vector()) {
 #ifdef _USE_GPU
         if (state->get_device_name() == "gpu") {
+            // TODO: make this single_thread
             multi_qubit_Pauli_gate_partial_list_host(target_index_list.data(),
                 pauli_id_list.data(), (UINT)target_index_list.size(),
                 state->data(), state->dim, state->get_cuda_stream(),
