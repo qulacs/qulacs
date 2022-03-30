@@ -194,7 +194,8 @@ static std::string _check_near(double val1, double val2, double eps,
     double diff = std::abs(val1 - val2);
     if (diff <= eps) return "";
     std::stringstream error_message_stream;
-    error_message_stream << "The difference between " << val1_name << " and "
+    error_message_stream << file << ":" << line << " Failure\n"
+                         << "The difference between " << val1_name << " and "
                          << val2_name << " is " << diff << ", which exceeds "
                          << eps_name << ", where\n"
                          << val1_name << " evaluates to " << val1 << ",\n"
