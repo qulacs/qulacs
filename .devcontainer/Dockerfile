@@ -56,3 +56,18 @@ RUN git clone https://github.com/pyenv/pyenv.git ${PYENV_ROOT} \
     && python -m pip install --upgrade pip \
     && pip install black flake8 mypy numpy openfermion pybind11-stubgen scipy wheel \
     && chmod -R 777 /.pyenv
+
+# Install cereal
+RUN git clone https://github.com/USCiLab/cereal.git -b v1.3.0 --depth 1 /tmp/cereal \
+    && cp -r /tmp/cereal/include/cereal /usr/local/include \
+    && rm -rf /tmp/cereal
+
+# Install Eigen
+RUN git clone https://gitlab.com/libeigen/eigen.git -b 3.3.7 --depth 1 /tmp/eigen \
+    && cp -r /tmp/eigen/Eigen /usr/local/include \
+    && rm -rf /tmp/eigen
+
+# Install Google Test
+RUN git clone https://github.com/google/googletest.git -b release-1.8.1 --depth 1 /tmp/gtest \
+    && cp -r /tmp/gtest/googletest/include/gtest /usr/local/include \
+    && rm -rf /tmp/gtest

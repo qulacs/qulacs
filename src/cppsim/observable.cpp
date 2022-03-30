@@ -12,16 +12,15 @@
 #include <fstream>
 #include <iostream>
 
+#include "exception.hpp"
 #include "state.hpp"
 #include "utility.hpp"
 
 void HermitianQuantumOperator::add_operator(const PauliOperator* mpt) {
     if (std::abs(mpt->get_coef().imag()) > 0) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: HermitianQuantumOperator::add_operator(const "
-               "PauliOperator* mpt): PauliOperator must be Hermitian.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw NonHermitianException(
+            "Error: HermitianQuantumOperator::add_operator(const "
+            "PauliOperator* mpt): PauliOperator must be Hermitian.");
     }
     GeneralQuantumOperator::add_operator(mpt);
 }
@@ -29,11 +28,9 @@ void HermitianQuantumOperator::add_operator(const PauliOperator* mpt) {
 void HermitianQuantumOperator::add_operator(
     CPPCTYPE coef, std::string pauli_string) {
     if (std::abs(coef.imag()) > 0) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: HermitianQuantumOperator::add_operator(const "
-               "PauliOperator* mpt): PauliOperator must be Hermitian.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw NonHermitianException(
+            "Error: HermitianQuantumOperator::add_operator(const "
+            "PauliOperator* mpt): PauliOperator must be Hermitian.");
     }
     GeneralQuantumOperator::add_operator(coef, pauli_string);
 }
@@ -48,14 +45,12 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     QuantumStateBase* init_state, const UINT iter_count,
     const CPPCTYPE mu) const {
     if (this->get_term_count() == 0) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: "
-               "HermitianQuantumOperator::solve_ground_state_eigenvalue_"
-               "by_lanczos_method("
-               "QuantumStateBase * state, const UINT iter_count, const "
-               "CPPCTYPE mu): At least one PauliOperator is required.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw InvalidQuantumOperatorException(
+            "Error: "
+            "HermitianQuantumOperator::solve_ground_state_eigenvalue_"
+            "by_lanczos_method("
+            "QuantumStateBase * state, const UINT iter_count, const "
+            "CPPCTYPE mu): At least one PauliOperator is required.");
     }
 
     // Implemented based on
@@ -199,9 +194,7 @@ HermitianQuantumOperator* create_observable_from_openfermion_file(
     ifs.open(file_path);
 
     if (!ifs) {
-        std::stringstream error_message_stream;
-        error_message_stream << "ERROR: Cannot open file";
-        throw std::runtime_error(error_message_stream.str());
+        throw IOException("ERROR: Cannot open file");
     }
 
     // loading lines and check qubit_count
@@ -227,9 +220,7 @@ HermitianQuantumOperator* create_observable_from_openfermion_file(
         }
     }
     if (!ifs.eof()) {
-        std::stringstream error_message_stream;
-        error_message_stream << "ERROR: Invalid format";
-        throw std::runtime_error(error_message_stream.str());
+        throw InvalidOpenfermionFormatException("ERROR: Invalid format");
     }
     ifs.close();
 
@@ -292,9 +283,7 @@ create_split_observable(std::string file_path) {
     ifs.open(file_path);
 
     if (!ifs) {
-        std::stringstream error_message_stream;
-        error_message_stream << "ERROR: Cannot open file";
-        throw std::runtime_error(error_message_stream.str());
+        throw InvalidOpenfermionFormatException("ERROR: Cannot open file");
     }
 
     // loading lines and check qubit_count
@@ -320,9 +309,7 @@ create_split_observable(std::string file_path) {
         }
     }
     if (!ifs.eof()) {
-        std::stringstream error_message_stream;
-        error_message_stream << "ERROR: Invalid format";
-        throw std::runtime_error(error_message_stream.str());
+        throw InvalidOpenfermionFormatException("ERROR: Invalid format");
     }
     ifs.close();
 

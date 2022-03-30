@@ -1,13 +1,14 @@
 #define _USE_MATH_DEFINES
 #include "parametric_circuit.hpp"
 
+#include <cppsim/exception.hpp>
+#include <cppsim/gate_factory.hpp>
+#include <cppsim/gate_matrix.hpp>
+#include <cppsim/gate_merge.hpp>
+#include <cppsim/state.hpp>
+#include <cppsim/type.hpp>
 #include <iostream>
 
-#include "cppsim/gate_factory.hpp"
-#include "cppsim/gate_matrix.hpp"
-#include "cppsim/gate_merge.hpp"
-#include "cppsim/state.hpp"
-#include "cppsim/type.hpp"
 #include "parametric_gate.hpp"
 #include "parametric_gate_factory.hpp"
 
@@ -231,7 +232,7 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
                 error_message_stream
                     << "Error: " << gate_now->get_name()
                     << " does not support backprop in parametric";
-                throw std::invalid_argument(error_message_stream.str());
+                throw NotImplementedException(error_message_stream.str());
             }
             RcPI->update_quantum_state(Astate);
             ans[inverse_parametric_gate_position[i]] =

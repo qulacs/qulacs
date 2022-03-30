@@ -25,9 +25,110 @@ private:
      * \~japanese-en collapse が起こるタイミング (norm = rになるタイミング)
      * を見つける。 この関数内で norm=rになるタイミングまでの evolution
      * が行われる。
+     *
+     * 割線法を利用する場合、normは時間に対して広義単調減少であることが必要。
      */
     virtual double _find_collapse(QuantumStateBase* k1, QuantumStateBase* k2,
         QuantumStateBase* k3, QuantumStateBase* k4,
+        QuantumStateBase* prev_state, QuantumStateBase* now_state,
+        double target_norm, double dt, bool use_secant_method = true) {
+        if (!use_secant_method) {
+            return _find_collapse_original(
+                k1, k2, k3, k4, prev_state, now_state, target_norm, dt);
+        }
+        auto mae_norm = prev_state->get_squared_norm_single_thread();
+        auto now_norm = now_state->get_squared_norm_single_thread();
+        double t_mae = 0;
+        double t_now = dt;
+
+        // mae now で挟み撃ちする
+        int search_count = 0;
+
+        if (std::abs(mae_norm - target_norm) < _norm_tol) {
+            now_state->load(prev_state);
+            return 0;
+        }
+        if (std::abs(now_norm - target_norm) < _norm_tol) {
+            return dt;
+        }
+        if (mae_norm < target_norm) {
+            throw std::runtime_error(
+                "must be prev_state.norm() >= target_norm. ");
+        }
+        if (now_norm > target_norm) {
+            throw std::runtime_error(
+                "must be now_state.norm() <= target_norm. ");
+        }
+
+        QuantumStateBase* mae_state = prev_state->copy();
+        double target_norm_log = std::log(target_norm);
+        double mae_norm_log = std::log(mae_norm);
+        double now_norm_log = std::log(now_norm);
+        QuantumStateBase* buf_state = prev_state->copy();
+        QuantumStateBase* bufB_state = prev_state->copy();
+        while (true) {
+            //  we expect norm to reduce as Ae^-a*dt, so use log.
+
+            double t_guess = 0;
+            if (search_count <= 20) {
+                // use secant method
+                t_guess = t_mae + (t_now - t_mae) *
+                                      (mae_norm_log - target_norm_log) /
+                                      (mae_norm_log - now_norm_log);
+            } else {
+                // use bisection method
+                t_guess = (t_mae + t_now) / 2;
+            }
+
+            // evolve by time t_guess
+            buf_state->load(prev_state);
+            _evolve_one_step(k1, k2, k3, k4, bufB_state, buf_state, t_guess);
+
+            double buf_norm = buf_state->get_squared_norm_single_thread();
+            if (std::abs(buf_norm - target_norm) < _norm_tol) {
+                now_state->load(buf_state);
+                delete mae_state;
+                delete buf_state;
+                delete bufB_state;
+
+                return t_guess;
+            } else if (buf_norm < target_norm) {
+                now_state->load(buf_state);
+                t_now = t_guess;
+                now_norm = now_state->get_squared_norm_single_thread();
+                now_norm_log = std::log(now_norm);
+            } else {
+                mae_state->load(buf_state);
+                t_mae = t_guess;
+                mae_norm = mae_state->get_squared_norm_single_thread();
+                mae_norm_log = std::log(mae_norm);
+            }
+
+            search_count++;
+            // avoid infinite loop
+            // It sometimes fails to find t_guess to reach the target norm.
+            // More likely to happen when dt is not small enough compared to the
+            // relaxation times
+            if (search_count >= _find_collapse_max_steps) {
+                throw std::runtime_error(
+                    "Failed to find the exact jump time. Try with "
+                    "smaller dt.");
+            }
+        }
+        //ここには来ない
+        throw std::runtime_error(
+            "unexpectedly come to end of _find_collapse function.");
+    }
+
+    /**
+     * \~japanese-en collapse が起こるタイミング (norm = rになるタイミング)
+     * を見つける。 この関数内で norm=rになるタイミングまでの evolution
+     * が行われる。
+     *
+     * 割線法を利用する場合、normは時間に対して広義単調減少であることが必要。
+     */
+    virtual double _find_collapse_original(QuantumStateBase* k1,
+        QuantumStateBase* k2, QuantumStateBase* k3, QuantumStateBase* k4,
         QuantumStateBase* prev_state, QuantumStateBase* now_state,
         double target_norm, double dt) {
         auto now_norm = now_state->get_squared_norm_single_thread();
@@ -42,20 +143,20 @@ private:
             // (prev_norm)e^-a*(t_guess) which means -a*t_guess =
             // log(target_norm/prev_norm)
             t_guess = std::log(target_norm / prev_norm) / a;
-            // evole by time t_guess
+            // evolve by time t_guess
             now_state->load(prev_state);
             _evolve_one_step(k1, k2, k3, k4, prev_state, now_state, t_guess);
             now_norm = now_state->get_squared_norm_single_thread();
+
             search_count++;
             // avoid infinite loop
             // It sometimes fails to find t_guess to reach the target norm.
             // More likely to happen when dt is not small enough compared to the
             // relaxation times
-            if (search_count > _find_collapse_max_steps) {
-                std::cerr << "Failed to find the exact jump time. Try with "
-                             "smaller dt."
-                          << std::endl;
-                return -1.;
+            if (search_count >= _find_collapse_max_steps) {
+                throw std::runtime_error(
+                    "Failed to find the exact jump time. Try with "
+                    "smaller dt.");
             }
         }
         return t_guess;
@@ -129,9 +230,11 @@ public:
      * @param matrix 行列をセットする変数の参照
      */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
-        throw std::invalid_argument(
-            "Error: Gate-matrix of noisy evolution cannot be "
-            "defined.");
+        std::stringstream error_message_stream;
+        error_message_stream
+            << "* Warning : Gate-matrix of noisy evolution cannot be "
+               "defined. Nothing has been done.";
+        throw std::invalid_argument(error_message_stream.str());
     }
 
     /**
@@ -167,6 +270,7 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) {
+        double initial_squared_norm = state->get_squared_norm();
         double r = _random.uniform();
         std::vector<double> cumulative_dist(_c_ops.size());
         double prob_sum = 0;
@@ -185,61 +289,48 @@ public:
             if (t + _dt > _time) {
                 dt = _time - t;
             }
-            while (std::abs(dt) >
-                   1e-10 * _dt) {  // dt is decreased by dt_target_norm if jump
-                                   // occurs and if jump did not occure dt will
-                                   // be set to zero.
-                // evolve the state by dt
-                _evolve_one_step(k1, k2, k3, k4, buffer, state, dt);
-                // check if the jump should occur or not
-                auto norm = state->get_squared_norm_single_thread();
-                if (norm <= r) {  // jump occured
-                    // evolve the state to the time such that norm=r
-                    auto dt_target_norm =
-                        _find_collapse(k1, k2, k3, k4, buffer, state, r, dt);
-                    if (dt_target_norm < 0) {
-                        std::cerr
-                            << "_find_collapse failed. Result is unreliable."
-                            << std::endl;
-                        return;
-                    }
-                    // get cumulative distribution
-                    prob_sum = 0.;
-                    for (size_t k = 0; k < _c_ops.size(); k++) {
-                        _c_ops[k]->apply_to_state_single_thread(state, buffer);
-                        cumulative_dist[k] =
-                            buffer->get_squared_norm_single_thread() + prob_sum;
-                        prob_sum = cumulative_dist[k];
-                    }
+            _evolve_one_step(k1, k2, k3, k4, buffer, state, dt);
+            // check if the jump should occur or not
+            auto norm = state->get_squared_norm();
+            if (norm <= r) {  // jump occured
+                // evolve the state to the time such that norm=r
+                double dt_target_norm;
+                dt_target_norm =
+                    _find_collapse(k1, k2, k3, k4, buffer, state, r, dt);
 
-                    // determine which collapse operator to be applied
-                    auto jump_r = _random.uniform() * prob_sum;
-                    auto ite = std::lower_bound(
-                        cumulative_dist.begin(), cumulative_dist.end(), jump_r);
-                    auto index = std::distance(cumulative_dist.begin(), ite);
-
-                    // apply the collapse operator and normalize the state
-                    _c_ops[index]->apply_to_state_single_thread(state, buffer);
-                    buffer->normalize_single_thread(
-                        buffer->get_squared_norm_single_thread());
-                    state->load(buffer);
-
-                    // update dt to be consistent with the step size
-                    t += dt_target_norm;
-                    dt -= dt_target_norm;
-
-                    // update random variable
-                    r = _random.uniform();
-                } else {  // if jump did not occur, update t to the next time
-                          // and break the loop
-                    t += dt;
-                    dt = 0.;
+                // get cumulative distribution
+                prob_sum = 0.;
+                for (size_t k = 0; k < _c_ops.size(); k++) {
+                    _c_ops[k]->apply_to_state_single_thread(state, buffer);
+                    cumulative_dist[k] =
+                        buffer->get_squared_norm_single_thread() + prob_sum;
+                    prob_sum = cumulative_dist[k];
                 }
+
+                // determine which collapse operator to be applied
+                auto jump_r = _random.uniform() * prob_sum;
+                auto ite = std::lower_bound(
+                    cumulative_dist.begin(), cumulative_dist.end(), jump_r);
+                auto index = std::distance(cumulative_dist.begin(), ite);
+
+                // apply the collapse operator and normalize the state
+                _c_ops[index]->apply_to_state_single_thread(state, buffer);
+                buffer->normalize(buffer->get_squared_norm_single_thread());
+                state->load(buffer);
+
+                // update dt to be consistent with the step size
+                t += dt_target_norm;
+
+                // update random variable
+                r = _random.uniform();
+            } else {  // if jump did not occur, update t to the next time
+                t += dt;
             }
         }
 
         // normalize the state and finish
-        state->normalize_single_thread(state->get_squared_norm_single_thread());
+        state->normalize_single_thread(
+            state->get_squared_norm_single_thread() / initial_squared_norm);
         delete k1;
         delete k2;
         delete k3;

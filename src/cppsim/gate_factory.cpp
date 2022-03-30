@@ -11,6 +11,7 @@
 #include <cstring>
 #include <iostream>
 
+#include "exception.hpp"
 #include "gate.hpp"
 #include "gate_matrix.hpp"
 #include "gate_matrix_diagonal.hpp"
@@ -97,50 +98,42 @@ QuantumGateBase* U3(UINT qubit_index, double theta, double phi, double lambda) {
 
 QuantumGateBase* CNOT(UINT control_qubit_index, UINT target_qubit_index) {
     if (control_qubit_index == target_qubit_index) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: gate::CNOT(UINT, UINT): control_qubit_index and "
-               "target_qubit_index has the same value."
-               "\nInfo: NULL used to be returned, "
-               "but it changed to throw exception.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw InvalidControlQubitException(
+            "Error: gate::CNOT(UINT, UINT): control_qubit_index and "
+            "target_qubit_index has the same value."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
     }
     return new ClsCNOTGate(control_qubit_index, target_qubit_index);
 }
 QuantumGateBase* CZ(UINT control_qubit_index, UINT target_qubit_index) {
     if (control_qubit_index == target_qubit_index) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: gate::CZ(UINT, UINT): control_qubit_index and "
-               "target_qubit_index has the same value."
-               "\nInfo: NULL used to be returned, "
-               "but it changed to throw exception.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw InvalidControlQubitException(
+            "Error: gate::CZ(UINT, UINT): control_qubit_index and "
+            "target_qubit_index has the same value."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
     }
     return new ClsCZGate(control_qubit_index, target_qubit_index);
 }
 QuantumGateBase* SWAP(UINT qubit_index1, UINT qubit_index2) {
     if (qubit_index1 == qubit_index2) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: gate::SWAP(UINT, UINT): two indices have the same value."
-               "\nInfo: NULL used to be returned, "
-               "but it changed to throw exception.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw DuplicatedQubitIndexException(
+            "Error: gate::SWAP(UINT, UINT): two indices have the same value."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
     }
     return new ClsSWAPGate(qubit_index1, qubit_index2);
 }
 
 QuantumGateBase* Pauli(std::vector<UINT> target, std::vector<UINT> pauli_id) {
     if (!check_is_unique_index_list(target)) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: gate::Pauli(std::vector<UINT> target, "
-               "std::vector<UINT>pauli_id): target list contains "
-               "duplicated values."
-               "\nInfo: NULL used to be returned, "
-               "but it changed to throw exception.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw DuplicatedQubitIndexException(
+            "Error: gate::Pauli(std::vector<UINT> target, "
+            "std::vector<UINT>pauli_id): target list contains "
+            "duplicated values."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
     }
     auto pauli = new PauliOperator(target, pauli_id);
     return new ClsPauliGate(pauli);
@@ -148,14 +141,12 @@ QuantumGateBase* Pauli(std::vector<UINT> target, std::vector<UINT> pauli_id) {
 QuantumGateBase* PauliRotation(
     std::vector<UINT> target, std::vector<UINT> pauli_id, double angle) {
     if (!check_is_unique_index_list(target)) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: gate::PauliRotation(std::vector<UINT> target, "
-               "std::vector<UINT>pauli_id, double angle): target list "
-               "contains duplicated values."
-               "\nInfo: NULL used to be returned, "
-               "but it changed to throw exception.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw DuplicatedQubitIndexException(
+            "Error: gate::PauliRotation(std::vector<UINT> target, "
+            "std::vector<UINT>pauli_id, double angle): target list "
+            "contains duplicated values."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
     }
     auto pauli = new PauliOperator(target, pauli_id, angle);
     return new ClsPauliRotationGate(angle, pauli);
@@ -168,13 +159,11 @@ QuantumGateMatrix* DenseMatrix(UINT target_index, ComplexMatrix matrix) {
 QuantumGateMatrix* DenseMatrix(
     std::vector<UINT> target_list, ComplexMatrix matrix) {
     if (!check_is_unique_index_list(target_list)) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: gate::DenseMatrix(std::vector<UINT> target_list, "
-               "ComplexMatrix matrix): target list contains duplicated values."
-               "\nInfo: NULL used to be returned, "
-               "but it changed to throw exception.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw DuplicatedQubitIndexException(
+            "Error: gate::DenseMatrix(std::vector<UINT> target_list, "
+            "ComplexMatrix matrix): target list contains duplicated values."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
     }
     return new QuantumGateMatrix(target_list, matrix);
 }
@@ -182,41 +171,35 @@ QuantumGateMatrix* DenseMatrix(
 QuantumGateBase* SparseMatrix(
     std::vector<UINT> target_list, SparseComplexMatrix matrix) {
     if (!check_is_unique_index_list(target_list)) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: gate::SparseMatrix(std::vector<UINT> target_list, "
-               "SparseComplexMatrix matrix): target list contains duplicated "
-               "values."
-               "\nInfo: NULL used to be returned, "
-               "but it changed to throw exception.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw DuplicatedQubitIndexException(
+            "Error: gate::SparseMatrix(std::vector<UINT> target_list, "
+            "SparseComplexMatrix matrix): target list contains duplicated "
+            "values."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
     }
     return new QuantumGateSparseMatrix(target_list, matrix);
 }
 QuantumGateBase* DiagonalMatrix(
     std::vector<UINT> target_list, ComplexVector diagonal_element) {
     if (!check_is_unique_index_list(target_list)) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: gate::DiagonalMatrix(std::vector<UINT> target_list, "
-               "ComplexVector diagonal_element): target list contains "
-               "duplicated values."
-               "\nInfo: NULL used to be returned, "
-               "but it changed to throw exception.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw DuplicatedQubitIndexException(
+            "Error: gate::DiagonalMatrix(std::vector<UINT> target_list, "
+            "ComplexVector diagonal_element): target list contains "
+            "duplicated values."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
     }
     return new QuantumGateDiagonalMatrix(target_list, diagonal_element);
 }
 
 QuantumGateMatrix* RandomUnitary(std::vector<UINT> target_list) {
     if (!check_is_unique_index_list(target_list)) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: gate::RandomUnitary(std::vector<UINT> target_list): "
-               "target list contains duplicated values."
-               "\nInfo: NULL used to be returned, "
-               "but it changed to throw exception.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw DuplicatedQubitIndexException(
+            "Error: gate::RandomUnitary(std::vector<UINT> target_list): "
+            "target list contains duplicated values."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
     }
     Random random;
     UINT qubit_count = (UINT)target_list.size();
@@ -242,14 +225,12 @@ QuantumGateMatrix* RandomUnitary(std::vector<UINT> target_list) {
 QuantumGateBase* ReversibleBoolean(std::vector<UINT> target_qubit_index_list,
     std::function<ITYPE(ITYPE, ITYPE)> function_ptr) {
     if (!check_is_unique_index_list(target_qubit_index_list)) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: gate::ReversibleBoolean(std::vector<UINT> "
-               "target_qubit_index_list, std::function<ITYPE(ITYPE,ITYPE)> "
-               "function_ptr): target list contains duplicated values."
-               "\nInfo: NULL used to be returned, "
-               "but it changed to throw exception.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw DuplicatedQubitIndexException(
+            "Error: gate::ReversibleBoolean(std::vector<UINT> "
+            "target_qubit_index_list, std::function<ITYPE(ITYPE,ITYPE)> "
+            "function_ptr): target list contains duplicated values."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
     }
     return new ClsReversibleBooleanGate(target_qubit_index_list, function_ptr);
 }
@@ -305,13 +286,11 @@ QuantumGateBase* DepolarizingNoise(UINT target_index, double prob) {
 QuantumGateBase* TwoQubitDepolarizingNoise(
     UINT target_index1, UINT target_index2, double prob) {
     if (target_index1 == target_index2) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Error: gate::TwoQubitDepolarizingNoise(UINT, UINT, double): "
-               "target list contains duplicated values."
-               "\nInfo: NULL used to be returned, "
-               "but it changed to throw exception.";
-        throw std::invalid_argument(error_message_stream.str());
+        throw DuplicatedQubitIndexException(
+            "Error: gate::TwoQubitDepolarizingNoise(UINT, UINT, double): "
+            "target list contains duplicated values."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
     }
     std::vector<QuantumGateBase*> gate_list;
     for (int i = 0; i < 16; ++i) {
@@ -355,6 +334,7 @@ QuantumGateBase* Measurement(
     delete gate1;
     return new_gate;
 }
+
 QuantumGateBase* NoisyEvolution(Observable* hamiltonian,
     std::vector<GeneralQuantumOperator*> c_ops, double time, double dt) {
     return new ClsNoisyEvolution(hamiltonian, c_ops, time, dt);

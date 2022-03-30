@@ -6,6 +6,7 @@
 #include <csim/utility.hpp>
 #include <numeric>
 
+#include "exception.hpp"
 #include "state.hpp"
 #include "type.hpp"
 #ifdef _USE_GPU
@@ -70,10 +71,8 @@ void QuantumGateSparseMatrix::update_quantum_state(QuantumStateBase* state) {
     ITYPE dim = 1ULL << state->qubit_count;
 
     if (this->_control_qubit_list.size() > 0) {
-        std::stringstream error_message_stream;
-        error_message_stream
-            << "Control qubit in sparse matrix gate is not supported";
-        throw std::invalid_argument(error_message_stream.str());
+        throw InvalidControlQubitException(
+            "Control qubit in sparse matrix gate is not supported");
     }
 
     std::vector<UINT> target_index;
@@ -84,10 +83,8 @@ void QuantumGateSparseMatrix::update_quantum_state(QuantumStateBase* state) {
     if (state->is_state_vector()) {
 #ifdef _USE_GPU
         if (state->get_device_name() == "gpu") {
-            std::stringstream error_message_stream;
-            error_message_stream
-                << "Sparse matrix gate is not supported on GPU";
-            throw std::invalid_argument(error_message_stream.str());
+            throw NotImplementedException(
+                "Sparse matrix gate is not supported on GPU");
         } else {
             multi_qubit_sparse_matrix_gate_eigen(target_index.data(),
                 (UINT)(target_index.size()), this->_matrix_element,
@@ -99,9 +96,7 @@ void QuantumGateSparseMatrix::update_quantum_state(QuantumStateBase* state) {
             dim);
 #endif
     } else {
-        std::stringstream error_message_stream;
-        error_message_stream << "not implemented";
-        throw std::invalid_argument(error_message_stream.str());
+        throw NotImplementedException("not implemented");
     }
 }
 
