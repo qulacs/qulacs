@@ -284,6 +284,9 @@ public:
 	}
 };
 
+/**
+ * Utility functions for hadling QuantumStateGpu objects.
+ */
 namespace state {
 	/**
 	* \~japanese-en 量子状態間の内積を計算する

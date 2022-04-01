@@ -3,7 +3,9 @@
 #include <cppsim/type.hpp>
 #include <vector>
 
-// loss functions 
+/**
+ * Loss functions.
+ */
 namespace loss_function {
     template<typename T>
     double L2_distance(const std::vector<T>& s1, const std::vector<T>& s2);

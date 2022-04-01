@@ -5,6 +5,9 @@
 #include <vector>
 #include <string>
 
+/**
+ * Factory functions for creating parametric gate objects.
+ */
 namespace gate {
     DllExport QuantumGateBase* create_parametric_quantum_gate_from_string(std::string gate_string);
     DllExport QuantumGate_SingleParameter* ParametricRX(UINT qubit_index, double initial_angle = 0.);

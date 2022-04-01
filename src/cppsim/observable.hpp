@@ -1,5 +1,5 @@
 /**
- * @file Observable.hpp
+ * @file observable.hpp
  * @brief Definition and basic functions for HermitianQuantumOperator
  */
 
@@ -63,6 +63,9 @@ public:
     CPPCTYPE get_expectation_value(const QuantumStateBase* state) const ;
 };
 
+/**
+ * Factory functions for creating Hermitian operators.
+ */
 namespace observable{
     /**
      * \~japanese-en

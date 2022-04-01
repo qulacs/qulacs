@@ -572,6 +572,9 @@ public:
 
 typedef QuantumStateCpu QuantumState; /**< QuantumState is an alias of QuantumStateCPU */
 
+/**
+ * Utility functions for hadling QuantumState objects.
+ */
 namespace state {
     /**
      * \~japanese-en 量子状態間の内積を計算する

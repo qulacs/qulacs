@@ -12,6 +12,9 @@
 #include <vector>
 #include <string>
 
+/**
+ * Factory functions for creating gate objects.
+ */
 namespace gate{
     /**
      * \~japanese-en 量子ゲートを文字列から生成する。

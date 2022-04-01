@@ -123,6 +123,9 @@ public:
 
 };
 
+/**
+ * Factory functions for creating quantum operators.
+ */
 namespace quantum_operator{
     /**
      * \~japanese-en

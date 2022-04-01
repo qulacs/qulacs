@@ -336,6 +336,9 @@ public:
 
 typedef DensityMatrixCpu DensityMatrix; /**< QuantumState is an alias of QuantumStateCPU */
 
+/**
+ * Utility functions for hadling DensityMatrixCpu and QuantumStateCpu objects.
+ */
 namespace state{
     DllExport DensityMatrixCpu* tensor_product(const DensityMatrixCpu* state_left, const DensityMatrixCpu* state_right);
     DllExport DensityMatrixCpu* permutate_qubit(const DensityMatrixCpu* state, std::vector<UINT> qubit_order);

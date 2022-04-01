@@ -237,12 +237,12 @@ void get_extended_matrix(const QuantumGateBase* gate, const std::vector<TargetQu
     
 }
 
-/**
- * This function generate merged quantum gate with two given gates.
- * 
- * Currently, this is lazy two-step implementation. 
- */
 namespace gate {
+    /**
+    * This function generate merged quantum gate with two given gates.
+    * 
+    * Currently, this is lazy two-step implementation. 
+    */
     QuantumGateMatrix* merge(const QuantumGateBase* gate_first, const QuantumGateBase* gate_second) {
         // obtain updated qubit information
         std::vector<TargetQubitInfo> new_target_list;

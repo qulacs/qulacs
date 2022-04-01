@@ -9,6 +9,9 @@
 #include "gate.hpp"
 #include "gate_matrix.hpp"
 
+/**
+ * Utilities for merging multiple gates.
+ */
 namespace gate {
     /**
      * \~japanese-en 二つのゲートが連続して作用する新たなゲートを作成する。
