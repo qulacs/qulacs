@@ -19,7 +19,7 @@ extern "C" {
 #include <iostream>
 
 /**
- * \~japanese-en ‰Â‹tŒÃ“T‰ñ˜H‚Ì‚ğ•\‚·ƒNƒ‰ƒX
+ * \~japanese-en å¯é€†å¤å…¸å›è·¯ã®ã‚’è¡¨ã™ã‚¯ãƒ©ã‚¹
  */
 class ClsReversibleBooleanGate : public QuantumGateBase {
 private:
@@ -33,9 +33,9 @@ public:
 	};
 
 	/**
-	 * \~japanese-en —Êqó‘Ô‚ğXV‚·‚é
+	 * \~japanese-en é‡å­çŠ¶æ…‹ã‚’æ›´æ–°ã™ã‚‹
 	 *
-	 * @param state XV‚·‚é—Êqó‘Ô
+	 * @param state æ›´æ–°ã™ã‚‹é‡å­çŠ¶æ…‹
 	 */
 	virtual void update_quantum_state(QuantumStateBase* state) override {
 		std::vector<UINT> target_index;
@@ -62,17 +62,17 @@ public:
 
 	};
 	/**
-	 * \~japanese-en ©g‚ÌƒfƒB[ƒvƒRƒs[‚ğ¶¬‚·‚é
+	 * \~japanese-en è‡ªèº«ã®ãƒ‡ã‚£ãƒ¼ãƒ—ã‚³ãƒ”ãƒ¼ã‚’ç”Ÿæˆã™ã‚‹
 	 *
-	 * @return ©g‚ÌƒfƒB[ƒvƒRƒs[
+	 * @return è‡ªèº«ã®ãƒ‡ã‚£ãƒ¼ãƒ—ã‚³ãƒ”ãƒ¼
 	 */
 	virtual QuantumGateBase* copy() const override {
 		return new ClsReversibleBooleanGate(*this);
 	};
 	/**
-	 * \~japanese-en ©g‚ÌƒQ[ƒgs—ñ‚ğƒZƒbƒg‚·‚é
+	 * \~japanese-en è‡ªèº«ã®ã‚²ãƒ¼ãƒˆè¡Œåˆ—ã‚’ã‚»ãƒƒãƒˆã™ã‚‹
 	 *
-	 * @param matrix s—ñ‚ğƒZƒbƒg‚·‚é•Ï”‚ÌQÆ
+	 * @param matrix è¡Œåˆ—ã‚’ã‚»ãƒƒãƒˆã™ã‚‹å¤‰æ•°ã®å‚ç…§
 	 */
 	virtual void set_matrix(ComplexMatrix& matrix) const override {
 		ITYPE matrix_dim = 1ULL << this->_target_qubit_list.size();
