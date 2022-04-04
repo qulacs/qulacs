@@ -1146,7 +1146,7 @@ int型のリストを引数として受け取り、bool型を返す関数でな�
    n = 5
    coef = 2.0
    Pauli_string = "X 0 X 1 Y 2 Z 4"
-   pauli = Pauli(Pauli_string,coef)
+   pauli = PauliOperator(Pauli_string,coef)
 
    # 期待値の計算 <a|H|a>
    state = QuantumState(n)
@@ -1181,7 +1181,7 @@ int型のリストを引数として受け取り、bool型を返す関数でな�
    # pauli演算子を追加できる
    coef = 2.0+0.5j
    Pauli_string = "X 0 X 1 Y 2 Z 4"
-   pauli = Pauli(Pauli_string,coef)
+   pauli = PauliOperator(Pauli_string,coef)
    operator.add_operator(pauli)
    # 直接係数と文字列から追加することもできる
    operator.add_operator(0.5j, "Y 1 Z 4")
