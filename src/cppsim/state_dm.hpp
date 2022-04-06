@@ -342,6 +342,7 @@ public:
 
     /**
      * \~japanese-en 量子状態を足しこむ
+     * TODO: implement this in single_thread
      */
     virtual void add_state_with_coef_single_thread(
         CPPCTYPE coef, const QuantumStateBase* state) override {

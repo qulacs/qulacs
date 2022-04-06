@@ -111,6 +111,10 @@ class GeneralQuantumOperator():
         """
         Get expectation value
         """
+    def get_expectation_value_single_thread(self, state: QuantumStateBase) -> complex: 
+        """
+        Get expectation value
+        """
     def get_qubit_count(self) -> int: 
         """
         Get qubit count
@@ -186,6 +190,10 @@ class Observable(GeneralQuantumOperator):
         Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.
         """
     def get_expectation_value(self, state: QuantumStateBase) -> float: 
+        """
+        Get expectation value
+        """
+    def get_expectation_value_single_thread(self, state: QuantumStateBase) -> float: 
         """
         Get expectation value
         """
@@ -452,6 +460,10 @@ class PauliOperator():
         Get coefficient of Pauli term
         """
     def get_expectation_value(self, state: QuantumStateBase) -> complex: 
+        """
+        Get expectation value
+        """
+    def get_expectation_value_single_thread(self, state: QuantumStateBase) -> complex: 
         """
         Get expectation value
         """

@@ -49,6 +49,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("get_coef", &PauliOperator::get_coef, "Get coefficient of Pauli term")
         .def("add_single_Pauli", &PauliOperator::add_single_Pauli, "Add Pauli operator to this term", py::arg("index"), py::arg("pauli_string"))
         .def("get_expectation_value", &PauliOperator::get_expectation_value, "Get expectation value", py::arg("state"))
+        .def("get_expectation_value_single_thread", &PauliOperator::get_expectation_value_single_thread, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &PauliOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         .def("copy", &PauliOperator::copy, pybind11::return_value_policy::take_ownership, "Create copied instance of Pauli operator class")
         .def("get_pauli_string", &PauliOperator::get_pauli_string, "get pauli string")
@@ -78,6 +79,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             return quantum_operator.get_term(index)->copy();
         }, pybind11::return_value_policy::take_ownership, "Get Pauli term", py::arg("index"))
         .def("get_expectation_value", &GeneralQuantumOperator::get_expectation_value, "Get expectation value", py::arg("state"))
+        .def("get_expectation_value_single_thread", &GeneralQuantumOperator::get_expectation_value, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &GeneralQuantumOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         .def("__str__", &GeneralQuantumOperator::to_string, "to string")
         //.def_static("get_split_GeneralQuantumOperator", &(GeneralQuantumOperator::get_split_observable));
@@ -117,6 +119,9 @@ PYBIND11_MODULE(qulacs_core, m) {
         // .def("get_expectation_value", &HermitianQuantumOperator::get_expectation_value)
         .def("get_expectation_value", [](const HermitianQuantumOperator& observable, const QuantumStateBase* state) {
                                           double res = observable.get_expectation_value(state).real();
+                                          return res;}, "Get expectation value", py::arg("state"))
+        .def("get_expectation_value_single_thread", [](const HermitianQuantumOperator& observable, const QuantumStateBase* state) {
+                                          double res = observable.get_expectation_value_single_thread(state).real();
                                           return res;}, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &HermitianQuantumOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         //.def_static("get_split_Observable", &(HermitianQuantumOperator::get_split_observable));
@@ -165,7 +170,6 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("to_string",&QuantumState::to_string, "Get string representation")
         .def("sampling", (std::vector<ITYPE> (QuantumState::*)(UINT))&QuantumState::sampling, "Sampling measurement results", py::arg("count"))
         .def("sampling", (std::vector<ITYPE>(QuantumState::*)(UINT, UINT))&QuantumState::sampling, "Sampling measurement results", py::arg("count"), py::arg("seed"))
-
         .def("get_vector", [](const QuantumState& state) {
         Eigen::VectorXcd vec = Eigen::Map<Eigen::VectorXcd>(state.data_cpp(), state.dim);
         return vec;
@@ -507,6 +511,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     mgate.def("Instrument", &gate::Instrument, pybind11::return_value_policy::take_ownership, "Create instruments", py::arg("kraus_list"), py::arg("register"));
     mgate.def("Adaptive", py::overload_cast<QuantumGateBase *, std::function<bool(const std::vector<unsigned int>&)>> (&gate::Adaptive), pybind11::return_value_policy::take_ownership, "Create adaptive gate", py::arg("gate"), py::arg("condition"));
     mgate.def("Adaptive",  py::overload_cast<QuantumGateBase *, std::function<bool(const std::vector<unsigned int>&, unsigned int)>, unsigned int> (&gate::Adaptive), pybind11::return_value_policy::take_ownership, "Create adaptive gate", py::arg("gate"), py::arg("condition"),py::arg("id"));
+    mgate.def("NoisyEvolution", &gate::NoisyEvolution, pybind11::return_value_policy::take_ownership, "Create noisy evolution", py::arg("hamiltonian"), py::arg("c_ops"), py::arg("time"), py::arg("dt"));
 
     py::class_<QuantumGate_SingleParameter, QuantumGateBase>(m, "QuantumGate_SingleParameter")
         .def("get_parameter_value", &QuantumGate_SingleParameter::get_parameter_value, "Get parameter value")

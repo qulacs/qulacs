@@ -24,6 +24,7 @@ __all__ = [
     "IndependentXZNoise",
     "Instrument",
     "Measurement",
+    "NoisyEvolution",
     "P0",
     "P1",
     "ParametricPauliRotation",
@@ -143,6 +144,10 @@ def Instrument(kraus_list: typing.List[qulacs_core.QuantumGateBase], register: i
 def Measurement(index: int, register: int) -> qulacs_core.QuantumGateBase:
     """
     Create measurement gate
+    """
+def NoisyEvolution(hamiltonian: qulacs_core.Observable, c_ops: typing.List[qulacs_core.GeneralQuantumOperator], time: float, dt: float) -> qulacs_core.QuantumGateBase:
+    """
+    Create noisy evolution
     """
 def P0(index: int) -> qulacs_core.QuantumGateBase:
     """
