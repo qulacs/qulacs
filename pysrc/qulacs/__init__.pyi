@@ -181,10 +181,15 @@ class Observable(GeneralQuantumOperator):
         """
     @typing.overload
     def add_operator(self, pauli_operator: PauliOperator) -> None: ...
+    @typing.overload
     def add_random_operator(self, operator_count: int) -> None: 
         """
         Add random pauli operator
+
+        Add random pauli operator
         """
+    @typing.overload
+    def add_random_operator(self, operator_count: int, seed: int) -> None: ...
     def apply_to_state(self, work_state: QuantumStateBase, state_to_be_multiplied: QuantumStateBase, dst_state: QuantumStateBase) -> None: 
         """
         Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.
@@ -363,10 +368,15 @@ class QuantumCircuit():
         """
         Add observable rotation gate
         """
+    @typing.overload
     def add_random_unitary_gate(self, index_list: typing.List[int]) -> None: 
         """
         Add random unitary gate
+
+        Add random unitary gate
         """
+    @typing.overload
+    def add_random_unitary_gate(self, index_list: typing.List[int], seed: int) -> None: ...
     def add_sqrtX_gate(self, index: int) -> None: 
         """
         Add pi/4 Pauli-X rotation gate
@@ -592,10 +602,15 @@ class QuantumCircuitSimulator():
         """
         Get gate count
         """
+    @typing.overload
     def initialize_random_state(self) -> None: 
         """
         Initialize state with random pure state
+
+        Initialize state with random pure state
         """
+    @typing.overload
+    def initialize_random_state(self, seed: int) -> None: ...
     def initialize_state(self, arg0: int) -> None: 
         """
         Initialize state

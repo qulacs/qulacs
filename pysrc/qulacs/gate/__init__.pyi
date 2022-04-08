@@ -201,10 +201,16 @@ def RZ(index: int, angle: float) -> qulacs_core.QuantumGateBase:
     """
     Create Pauli-Z rotation gate
     """
+@typing.overload
 def RandomUnitary(index_list: typing.List[int]) -> qulacs_core.QuantumGateMatrix:
     """
     Create random unitary gate
+
+    Create random unitary gate
     """
+@typing.overload
+def RandomUnitary(index_list: typing.List[int], seed: int) -> qulacs_core.QuantumGateMatrix:
+    pass
 def ReversibleBoolean(index_list: typing.List[int], func: typing.Callable[[int, int], int]) -> qulacs_core.QuantumGateBase:
     """
     Create reversible boolean gate
