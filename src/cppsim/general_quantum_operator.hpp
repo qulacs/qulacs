@@ -8,6 +8,7 @@
 
 #include "exception.hpp"
 #include "type.hpp"
+#include "utility.hpp"
 class PauliOperator;
 class QuantumStateBase;
 
