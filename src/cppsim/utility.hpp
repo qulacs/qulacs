@@ -13,7 +13,6 @@
 #include <tuple>
 #include <vector>
 
-#include "observable.hpp"
 #include "type.hpp"
 
 /**
@@ -42,15 +41,6 @@ inline static UINT count_population_cpp(ITYPE x) {
  */
 void DllExport get_Pauli_matrix(
     ComplexMatrix& matrix, const std::vector<UINT>& pauli_id_list);
-
-/**
- * \~japanese-en
- * observable を対応する行列に変換する
- * @param [in] observable 行列に変換する observable
- * @return observable に対応する行列
- */
-ComplexMatrix DllExport convert_observable_to_matrix(
-    const Observable& observable);
 
 /**
  * \~japanese-en 乱数を管理するクラス

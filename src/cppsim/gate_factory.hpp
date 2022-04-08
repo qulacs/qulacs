@@ -10,6 +10,7 @@
 
 #include "gate.hpp"
 #include "gate_general.hpp"
+#include "observable.hpp"
 #include "type.hpp"
 
 namespace gate {

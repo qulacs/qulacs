@@ -7,6 +7,7 @@
 #include <iostream>
 #include <vector>
 
+#include "exception.hpp"
 #include "type.hpp"
 #include "utility.hpp"
 
