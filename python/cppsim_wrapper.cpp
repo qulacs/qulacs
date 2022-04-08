@@ -125,7 +125,8 @@ PYBIND11_MODULE(qulacs_core, m) {
                                           return res;}, "Get expectation value", py::arg("state"))
         .def("get_transition_amplitude", &HermitianQuantumOperator::get_transition_amplitude, "Get transition amplitude", py::arg("state_bra"), py::arg("state_ket"))
         //.def_static("get_split_Observable", &(HermitianQuantumOperator::get_split_observable));
-        .def("add_random_operator", &HermitianQuantumOperator::add_random_operator, "Add random pauli operator", py::arg("operator_count"))
+        .def("add_random_operator", (void (GeneralQuantumOperator::*)(UINT))&HermitianQuantumOperator::add_random_operator, "Add random pauli operator", py::arg("operator_count"))
+        .def("add_random_operator", (void (GeneralQuantumOperator::*)(UINT, UINT))&HermitianQuantumOperator::add_random_operator, "Add random pauli operator", py::arg("operator_count"), py::arg("seed"))
         .def("solve_ground_state_eigenvalue_by_arnoldi_method", &HermitianQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method,
             "Compute ground state eigenvalue by arnoldi method", py::arg("state"), py::arg("iter_count"), py::arg("mu") = 0.0)
         .def("solve_ground_state_eigenvalue_by_power_method", &HermitianQuantumOperator::solve_ground_state_eigenvalue_by_power_method,
@@ -468,6 +469,11 @@ PYBIND11_MODULE(qulacs_core, m) {
         if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to RandomUnitary.");
         return ptr;
     }, pybind11::return_value_policy::take_ownership, "Create random unitary gate", py::arg("index_list")); 
+    mgate.def("RandomUnitary", [](std::vector<unsigned int> target_qubit_index_list, UINT seed) {
+        auto ptr = gate::RandomUnitary(target_qubit_index_list, seed);
+        if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to RandomUnitary.");
+        return ptr;
+    }, pybind11::return_value_policy::take_ownership, "Create random unitary gate", py::arg("index_list"), py::arg("seed")); 
     mgate.def("ReversibleBoolean", [](std::vector<UINT> target_qubit_list, std::function<ITYPE(ITYPE,ITYPE)> function_py) {
         auto ptr = gate::ReversibleBoolean(target_qubit_list, function_py);
         if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to ReversibleBoolean.");
@@ -586,7 +592,8 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("add_multi_Pauli_rotation_gate", (void (QuantumCircuit::*)(const PauliOperator&))&QuantumCircuit::add_multi_Pauli_rotation_gate, "Add multi-qubit Pauli gate", py::arg("pauli"))
         .def("add_dense_matrix_gate", (void (QuantumCircuit::*)(unsigned int, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate, "Add dense matrix gate", py::arg("index"), py::arg("matrix"))
         .def("add_dense_matrix_gate", (void (QuantumCircuit::*)(std::vector<unsigned int>, const ComplexMatrix&))&QuantumCircuit::add_dense_matrix_gate, "Add dense matrix gate", py::arg("index_list"), py::arg("matrix"))
-        .def("add_random_unitary_gate", &QuantumCircuit::add_random_unitary_gate, "Add random unitary gate", py::arg("index_list"))
+        .def("add_random_unitary_gate", (void (QuantumCircuit::*)(std::vector<UINT>))&QuantumCircuit::add_random_unitary_gate, "Add random unitary gate", py::arg("index_list"))
+        .def("add_random_unitary_gate", (void (QuantumCircuit::*)(std::vector<UINT>, UINT))&QuantumCircuit::add_random_unitary_gate, "Add random unitary gate", py::arg("index_list"), py::arg("seed"))
         .def("add_diagonal_observable_rotation_gate", &QuantumCircuit::add_diagonal_observable_rotation_gate, "Add diagonal observable rotation gate", py::arg("observable"), py::arg("angle"))
         .def("add_observable_rotation_gate", &QuantumCircuit::add_observable_rotation_gate, "Add observable rotation gate", py::arg("observable"), py::arg("angle"), py::arg("repeat"))
             
@@ -633,7 +640,8 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<QuantumCircuitSimulator>(m, "QuantumCircuitSimulator")
         .def(py::init<QuantumCircuit*, QuantumStateBase*>(), "Constructor", py::arg("circuit"), py::arg("state"))
         .def("initialize_state", &QuantumCircuitSimulator::initialize_state, "Initialize state")
-        .def("initialize_random_state", &QuantumCircuitSimulator::initialize_random_state, "Initialize state with random pure state")
+        .def("initialize_random_state", (void (QuantumCircuitSimulator::*)(void))&QuantumCircuitSimulator::initialize_random_state, "Initialize state with random pure state")
+        .def("initialize_random_state", (void (QuantumCircuitSimulator::*)(UINT))&QuantumCircuitSimulator::initialize_random_state, "Initialize state with random pure state", py::arg("seed"))
         .def("simulate", &QuantumCircuitSimulator::simulate, "Simulate circuit")
         .def("simulate_range", &QuantumCircuitSimulator::simulate_range, "Simulate circuit", py::arg("start"), py::arg("end"))
         .def("get_expectation_value", &QuantumCircuitSimulator::get_expectation_value, "Get expectation value", py::arg("observable"))
