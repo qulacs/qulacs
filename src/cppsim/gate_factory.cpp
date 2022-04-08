@@ -222,6 +222,36 @@ QuantumGateMatrix* RandomUnitary(std::vector<UINT> target_list) {
     }
     return new QuantumGateMatrix(target_list, Q);
 }
+QuantumGateMatrix* RandomUnitary(std::vector<UINT> target_list, UINT seed) {
+    if (!check_is_unique_index_list(target_list)) {
+        throw DuplicatedQubitIndexException(
+            "Error: gate::RandomUnitary(std::vector<UINT> target_list): "
+            "target list contains duplicated values."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
+    }
+    Random random;
+    random.set_seed(seed);
+    UINT qubit_count = (UINT)target_list.size();
+    ITYPE dim = 1ULL << qubit_count;
+    ComplexMatrix matrix(dim, dim);
+    for (ITYPE i = 0; i < dim; ++i) {
+        for (ITYPE j = 0; j < dim; ++j) {
+            matrix(i, j) = (random.normal() + 1.i * random.normal()) / sqrt(2.);
+        }
+    }
+    Eigen::HouseholderQR<ComplexMatrix> qr_solver(matrix);
+    ComplexMatrix Q = qr_solver.householderQ();
+    // actual R matrix is upper-right triangle of matrixQR
+    auto R = qr_solver.matrixQR();
+    for (ITYPE i = 0; i < dim; ++i) {
+        CPPCTYPE phase = R(i, i) / abs(R(i, i));
+        for (ITYPE j = 0; j < dim; ++j) {
+            Q(j, i) *= phase;
+        }
+    }
+    return new QuantumGateMatrix(target_list, Q);
+}
 QuantumGateBase* ReversibleBoolean(std::vector<UINT> target_qubit_index_list,
     std::function<ITYPE(ITYPE, ITYPE)> function_ptr) {
     if (!check_is_unique_index_list(target_qubit_index_list)) {

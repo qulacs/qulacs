@@ -338,10 +338,13 @@ DllExport QuantumGateBase* DiagonalMatrix(
  * \f$n\f$-qubit のランダムユニタリゲートを作成する。
  *
  * @param[in] target_qubit_index_list ターゲットとなる量子ビットの添え字
+ * @param[in] seed 乱数のシード値
  * @return 作成されたゲートのインスタンス
  */
 DllExport QuantumGateMatrix* RandomUnitary(
     std::vector<UINT> target_qubit_index_list);
+DllExport QuantumGateMatrix* RandomUnitary(
+    std::vector<UINT> target_qubit_index_list, UINT seed);
 
 /**
  * \f$n\f$-qubit の可逆古典回路を作用する。
