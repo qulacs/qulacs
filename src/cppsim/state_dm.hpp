@@ -365,8 +365,8 @@ public:
     virtual void multiply_elementwise_function(
         const std::function<CPPCTYPE(ITYPE)>&) override {
         throw NotImplementedException(
-            "multiply_elementwise_function between density matrix and "
-            "state vector is not implemented");
+            "multiply_elementwise_function for density matrix is not "
+            "implemented");
     }
 
     /**
