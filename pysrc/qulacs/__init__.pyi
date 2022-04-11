@@ -94,8 +94,6 @@ class GeneralQuantumOperator():
     def add_operator(self, coef: complex, pauli_string: str) -> None: 
         """
         Add Pauli operator
-
-        Add Pauli operator
         """
     @typing.overload
     def add_operator(self, pauli_operator: PauliOperator) -> None: ...
@@ -147,8 +145,6 @@ class GradCalculator():
     def calculate_grad(*args, **kwargs) -> typing.Any: 
         """
         Calculate Grad
-
-        Calculate Grad
         """
     @typing.overload
     def calculate_grad(self, parametric_circuit: ParametricQuantumCircuit, observable: Observable) -> typing.List[complex]: ...
@@ -176,16 +172,12 @@ class Observable(GeneralQuantumOperator):
     def add_operator(self, coef: complex, string: str) -> None: 
         """
         Add Pauli operator
-
-        Add Pauli operator
         """
     @typing.overload
     def add_operator(self, pauli_operator: PauliOperator) -> None: ...
     @typing.overload
     def add_random_operator(self, operator_count: int) -> None: 
         """
-        Add random pauli operator
-
         Add random pauli operator
         """
     @typing.overload
@@ -324,8 +316,6 @@ class QuantumCircuit():
     def add_dense_matrix_gate(self, index: int, matrix: numpy.ndarray[numpy.complex128, _Shape[m, n]]) -> None: 
         """
         Add dense matrix gate
-
-        Add dense matrix gate
         """
     @typing.overload
     def add_dense_matrix_gate(self, index_list: typing.List[int], matrix: numpy.ndarray[numpy.complex128, _Shape[m, n]]) -> None: ...
@@ -337,16 +327,12 @@ class QuantumCircuit():
     def add_gate(self, gate: QuantumGateBase) -> None: 
         """
         Add gate with copy
-
-        Add gate with copy
         """
     @typing.overload
     def add_gate(self, gate: QuantumGateBase, position: int) -> None: ...
     @typing.overload
     def add_multi_Pauli_gate(self, index_list: typing.List[int], pauli_ids: typing.List[int]) -> None: 
         """
-        Add multi-qubit Pauli gate
-
         Add multi-qubit Pauli gate
         """
     @typing.overload
@@ -355,8 +341,6 @@ class QuantumCircuit():
     def add_multi_Pauli_rotation_gate(self, index_list: typing.List[int], pauli_ids: typing.List[int], angle: float) -> None: 
         """
         Add multi-qubit Pauli rotation gate
-
-        Add multi-qubit Pauli gate
         """
     @typing.overload
     def add_multi_Pauli_rotation_gate(self, pauli: PauliOperator) -> None: ...
@@ -371,8 +355,6 @@ class QuantumCircuit():
     @typing.overload
     def add_random_unitary_gate(self, index_list: typing.List[int]) -> None: 
         """
-        Add random unitary gate
-
         Add random unitary gate
         """
     @typing.overload
@@ -425,8 +407,6 @@ class QuantumCircuit():
     @typing.overload
     def update_quantum_state(self, state: QuantumStateBase) -> None: 
         """
-        Update quantum state
-
         Update quantum state
         """
     @typing.overload
@@ -518,8 +498,6 @@ class ParametricQuantumCircuit(QuantumCircuit):
     def add_gate(self, gate: QuantumGateBase) -> None: 
         """
         Add gate
-
-        Add gate
         """
     @typing.overload
     def add_gate(self, gate: QuantumGateBase, position: int) -> None: ...
@@ -538,8 +516,6 @@ class ParametricQuantumCircuit(QuantumCircuit):
     @typing.overload
     def add_parametric_gate(self, gate: QuantumGate_SingleParameter) -> None: 
         """
-        Add parametric gate
-
         Add parametric gate
         """
     @typing.overload
@@ -605,8 +581,6 @@ class QuantumCircuitSimulator():
     @typing.overload
     def initialize_random_state(self) -> None: 
         """
-        Initialize state with random pure state
-
         Initialize state with random pure state
         """
     @typing.overload
@@ -782,8 +756,6 @@ class QuantumState(QuantumStateBase):
     def load(self, state: QuantumStateBase) -> None: 
         """
         Load quantum state vector
-
-        Load quantum state vector
         """
     @typing.overload
     def load(self, state: typing.List[complex]) -> None: ...
@@ -803,16 +775,12 @@ class QuantumState(QuantumStateBase):
     def sampling(self, count: int) -> typing.List[int]: 
         """
         Sampling measurement results
-
-        Sampling measurement results
         """
     @typing.overload
     def sampling(self, count: int, seed: int) -> typing.List[int]: ...
     @typing.overload
     def set_Haar_random_state(self) -> None: 
         """
-        Set Haar random state
-
         Set Haar random state
         """
     @typing.overload
@@ -883,11 +851,7 @@ class DensityMatrix(QuantumStateBase):
     @typing.overload
     def load(self, state: QuantumStateBase) -> None: 
         """
-        Load quantum state vector
-
         Load quantum state vector or density matrix
-
-        Load density matrix
         """
     @typing.overload
     def load(self, state: numpy.ndarray[numpy.complex128, _Shape[m, n]]) -> None: ...
@@ -905,16 +869,12 @@ class DensityMatrix(QuantumStateBase):
     def sampling(self, count: int) -> typing.List[int]: 
         """
         Sampling measurement results
-
-        Sampling measurement results
         """
     @typing.overload
     def sampling(self, count: int, seed: int) -> typing.List[int]: ...
     @typing.overload
     def set_Haar_random_state(self) -> None: 
         """
-        Set Haar random state
-
         Set Haar random state
         """
     @typing.overload
