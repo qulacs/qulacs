@@ -337,6 +337,8 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("__repr__", [](const QuantumGateBase &p) {return p.to_string(); })
         .def("get_target_index_list", &QuantumGateBase::get_target_index_list, "Get target qubit index list")
         .def("get_control_index_list", &QuantumGateBase::get_control_index_list, "Get control qubit index list")
+        .def("get_control_value_list", &QuantumGateBase::get_control_value_list, "Get control qubit value list")
+        .def("get_control_index_value_list", &QuantumGateBase::get_control_index_value_list, "Get control qubit pair index value list")
         .def("get_name", &QuantumGateBase::get_name, "Get gate name")
         .def("is_commute", &QuantumGateBase::is_commute, "Check this gate commutes with a given gate", py::arg("gate"))
         .def("is_Pauli", &QuantumGateBase::is_Pauli, "Check this gate is element of Pauli group")
