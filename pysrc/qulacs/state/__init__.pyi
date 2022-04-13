@@ -24,8 +24,6 @@ def inner_product(state_bra: qulacs_core.QuantumState, state_ket: qulacs_core.Qu
 def partial_trace(state: qulacs_core.DensityMatrix, target_traceout: typing.List[int]) -> qulacs_core.DensityMatrix:
     """
     Take partial trace
-
-    Take partial trace
     """
 @typing.overload
 def partial_trace(state: qulacs_core.QuantumState, target_traceout: typing.List[int]) -> qulacs_core.DensityMatrix:
@@ -34,8 +32,6 @@ def partial_trace(state: qulacs_core.QuantumState, target_traceout: typing.List[
 def permutate_qubit(state: qulacs_core.DensityMatrix, order: typing.List[int]) -> qulacs_core.DensityMatrix:
     """
     Permutate qubits from state
-
-    Permutate qubits from state
     """
 @typing.overload
 def permutate_qubit(state: qulacs_core.QuantumState, order: typing.List[int]) -> qulacs_core.QuantumState:
@@ -43,8 +39,6 @@ def permutate_qubit(state: qulacs_core.QuantumState, order: typing.List[int]) ->
 @typing.overload
 def tensor_product(state_left: qulacs_core.DensityMatrix, state_right: qulacs_core.DensityMatrix) -> qulacs_core.DensityMatrix:
     """
-    Get tensor product of states
-
     Get tensor product of states
     """
 @typing.overload
