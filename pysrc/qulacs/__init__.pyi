@@ -623,6 +623,14 @@ class QuantumGateBase():
         """
         Get control qubit index list
         """
+    def get_control_index_value_list(self) -> typing.List[typing.Tuple[int, int]]: 
+        """
+        Get control qubit pair index value list
+        """
+    def get_control_value_list(self) -> typing.List[int]: 
+        """
+        Get control qubit value list
+        """
     def get_matrix(self) -> numpy.ndarray[numpy.complex128, _Shape[m, n]]: 
         """
         Get gate matrix
