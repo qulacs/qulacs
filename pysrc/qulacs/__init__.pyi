@@ -430,10 +430,6 @@ class PauliOperator():
     def __init__(*args, **kwargs) -> typing.Any: 
         """
         Constructor
-
-        Constructor
-
-        Constructor
         """
     @typing.overload
     def __init__(self, coef: complex) -> None: ...

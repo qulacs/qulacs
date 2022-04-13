@@ -54,8 +54,6 @@ class FermionOperator():
     def add_term(self, coef: complex, action_string: str) -> None: 
         """
         Add Fermion operator
-
-        Add Fermion operator
         """
     @typing.overload
     def add_term(self, coef: complex, fermion_operator: SingleFermionOperator) -> None: ...
@@ -112,8 +110,6 @@ class Observable():
     @typing.overload
     def add_term(self, coef: complex, pauli_operator: PauliOperator) -> None: 
         """
-        Add Pauli operator
-
         Add Pauli operator
         """
     @typing.overload
@@ -196,8 +192,6 @@ class QuantumCircuit():
     def add_gate(self, gate: QuantumGateBase) -> None: 
         """
         Add gate with copy
-
-        Add gate with copy
         """
     @typing.overload
     def add_gate(self, gate: QuantumGateBase, position: int) -> None: ...
@@ -241,8 +235,6 @@ class QuantumCircuit():
     @typing.overload
     def update_quantum_state(self, state: QuantumStateBase) -> None: 
         """
-        Update quantum state
-
         Update quantum state
         """
     @typing.overload
@@ -398,11 +390,7 @@ class DensityMatrix(QuantumStateBase):
     @typing.overload
     def load(self, state: QuantumStateBase) -> None: 
         """
-        Load quantum state vector
-
         Load quantum state vector or density matrix
-
-        Load density matrix
         """
     @typing.overload
     def load(self, state: numpy.ndarray[numpy.complex128, _Shape[m, n]]) -> None: ...
@@ -420,16 +408,12 @@ class DensityMatrix(QuantumStateBase):
     def sampling(self, count: int) -> typing.List[int]: 
         """
         Sampling measurement results
-
-        Sampling measurement results
         """
     @typing.overload
     def sampling(self, count: int, seed: int) -> typing.List[int]: ...
     @typing.overload
     def set_Haar_random_state(self) -> None: 
         """
-        Set Haar random state
-
         Set Haar random state
         """
     @typing.overload
@@ -456,10 +440,6 @@ class SingleFermionOperator():
     @typing.overload
     def __init__(self) -> None: 
         """
-        Constructor
-
-        Constructor
-
         Constructor
         """
     @typing.overload
@@ -534,8 +514,6 @@ class StateVectorCpu(QuantumStateBase):
     def load(self, state: QuantumStateBase) -> None: 
         """
         Load quantum state vector
-
-        Load quantum state vector
         """
     @typing.overload
     def load(self, state: typing.List[complex]) -> None: ...
@@ -555,16 +533,12 @@ class StateVectorCpu(QuantumStateBase):
     def sampling(self, count: int) -> typing.List[int]: 
         """
         Sampling measurement results
-
-        Sampling measurement results
         """
     @typing.overload
     def sampling(self, count: int, seed: int) -> typing.List[int]: ...
     @typing.overload
     def set_Haar_random_state(self) -> None: 
         """
-        Set Haar random state
-
         Set Haar random state
         """
     @typing.overload
