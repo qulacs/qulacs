@@ -498,7 +498,6 @@ public:
      * \~japanese-en multi qubitのランダムユニタリゲートを追加する。
      *
      * @param[in] target_index_list 作用するtarget qubitの添え字のリスト
-     * @param[in] matrix 作用する行列
      * @param[in] seed 乱数のseed値
      */
     virtual void add_random_unitary_gate(std::vector<UINT> target_index_list);
