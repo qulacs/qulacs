@@ -52,6 +52,7 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list,
     std::string Pauli_operator_type_list, CPPCTYPE coef)
     : _coef(coef) {
     UINT term_count = (UINT)(strlen(Pauli_operator_type_list.c_str()));
+    assert((UINT)target_qubit_list.size() == term_count);
     UINT pauli_type = 0;
     for (UINT term_index = 0; term_index < term_count; ++term_index) {
         if (Pauli_operator_type_list[term_index] == 'i' ||
