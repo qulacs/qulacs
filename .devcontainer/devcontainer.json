@@ -30,7 +30,8 @@
 		"python.terminal.activateEnvironment": false,
 		// CAVEAT: you need to restart after building qulacs-osaka to take effect.
 		"C_Cpp.default.includePath": [
-			"include"
+			"include",
+			"/.pyenv/versions/${PYTHON_VERSION}/include/python3.9"
 		]
 	},
 	// Add the IDs of extensions you want installed when the container is created.
