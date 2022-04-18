@@ -254,7 +254,7 @@ std::string PauliOperator::get_pauli_string() const {
     UINT size = _pauli_list.size();
     UINT target_index, pauli_id;
     if (size == 0) {
-        return "I";
+        return "";
     }
     for (UINT index = 0; index < size; index++) {
         target_index = _pauli_list[index].index();
