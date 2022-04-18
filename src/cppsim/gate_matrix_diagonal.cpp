@@ -69,11 +69,6 @@ QuantumGateDiagonalMatrix::QuantumGateDiagonalMatrix(
 void QuantumGateDiagonalMatrix::update_quantum_state(QuantumStateBase* state) {
     ITYPE dim = 1ULL << state->qubit_count;
 
-    if (this->_control_qubit_list.size() > 0) {
-        std::cerr << "Control qubit in sparse matrix gate is not supported"
-                  << std::endl;
-    }
-
     const CTYPE* diagonal_ptr =
         reinterpret_cast<const CTYPE*>(this->_diagonal_element.data());
     // convert list of QubitInfo to list of UINT
