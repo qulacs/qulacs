@@ -1435,3 +1435,18 @@ TEST(GateTest, DuplicateIndex) {
             DuplicatedQubitIndexException);
     }
 }
+
+TEST(GateTest, GetControlList) {
+    auto gateA = gate::to_matrix_gate(gate::sqrtXdag(0));
+    gateA->add_control_qubit(1, 0);
+    gateA->add_control_qubit(2, 1);
+    gateA->add_control_qubit(3, 0);
+    auto index_list = gateA->get_control_index_list();
+    EXPECT_EQ(index_list, std::vector<unsigned int>({1, 2, 3}));
+    auto value_list = gateA->get_control_value_list();
+    EXPECT_EQ(value_list, std::vector<unsigned int>({0, 1, 0}));
+    auto index_value_list = gateA->get_control_index_value_list();
+    std::vector<std::pair<unsigned int, unsigned int>> true_ivl = {
+        {1, 0}, {2, 1}, {3, 0}};
+    EXPECT_EQ(index_value_list, true_ivl);
+}
