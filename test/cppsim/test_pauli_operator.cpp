@@ -11,6 +11,13 @@ TEST(PauliOperatorTest, ContainsExtraWhitespace) {
     EXPECT_EQ(expected.get_pauli_string(), pauli_whitespace.get_pauli_string());
 }
 
+TEST(PauliOperatorTest, EmptyStringConstructsIdentity) {
+    const auto identity = PauliOperator("", 1.0);
+    ASSERT_EQ(0, identity.get_index_list().size());
+    ASSERT_EQ(0, identity.get_pauli_id_list().size());
+    ASSERT_EQ("", identity.get_pauli_string());
+}
+
 struct PauliTestParam {
     std::string test_name;
     PauliOperator op1;
