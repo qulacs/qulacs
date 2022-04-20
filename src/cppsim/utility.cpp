@@ -131,12 +131,12 @@ std::tuple<double, double, std::string> parse_openfermion_line(
 bool check_is_unique_index_list(const std::vector<UINT>& index_list) {
     std::vector<UINT> index_list_sorted(index_list.begin(), index_list.end());
     sort(index_list_sorted.begin(), index_list_sorted.end());
-    bool flag = true;
+    bool is_unique = true;
     for (UINT i = 0; i + 1 < index_list_sorted.size(); ++i) {
-        flag = flag & (index_list_sorted[i] != index_list_sorted[i + 1]);
-        if (!flag) break;
+        is_unique &= (index_list_sorted[i] != index_list_sorted[i + 1]);
+        if (!is_unique) break;
     }
-    return flag;
+    return is_unique;
 }
 
 std::string& rtrim(std::string& str) {
