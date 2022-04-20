@@ -73,8 +73,6 @@ def CZ(control: int, target: int) -> qulacs_osaka_core.QuantumGateBasic:
 def DenseMatrix(index: int, matrix: numpy.ndarray[numpy.complex128, _Shape[m, n]]) -> qulacs_osaka_core.QuantumGateBasic:
     """
     Create dense matrix gate
-
-    Create dense matrix gate
     """
 @typing.overload
 def DenseMatrix(index_list: typing.List[int], matrix: numpy.ndarray[numpy.complex128, _Shape[m, n]]) -> qulacs_osaka_core.QuantumGateBasic:
