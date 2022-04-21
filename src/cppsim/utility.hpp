@@ -212,7 +212,7 @@ DllExport std::tuple<double, double, std::string> parse_openfermion_line(
  * @param[in] index_list チェックする配列
  * @return 重複がある場合にtrue、ない場合にfalse
  */
-bool check_is_unique_index_list(std::vector<UINT> index_list);
+bool check_is_unique_index_list(const std::vector<UINT>& index_list);
 
 /**
  * \~japanese-en 与えられた文字列の末尾の空白文字を削除します。

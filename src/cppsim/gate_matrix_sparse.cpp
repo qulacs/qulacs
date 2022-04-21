@@ -71,7 +71,7 @@ void QuantumGateSparseMatrix::update_quantum_state(QuantumStateBase* state) {
     ITYPE dim = 1ULL << state->qubit_count;
 
     if (this->_control_qubit_list.size() > 0) {
-        throw InvalidControlQubitException(
+        throw NotImplementedException(
             "Control qubit in sparse matrix gate is not supported");
     }
 
@@ -96,7 +96,9 @@ void QuantumGateSparseMatrix::update_quantum_state(QuantumStateBase* state) {
             dim);
 #endif
     } else {
-        throw NotImplementedException("not implemented");
+        throw NotImplementedException(
+            "QuantumGateSparseMatrix::update_quantum_state for density "
+            "matrix is not implemented");
     }
 }
 
