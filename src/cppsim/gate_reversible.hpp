@@ -14,7 +14,7 @@
 #include <iostream>
 
 /**
- * \~japanese-en �t�ÓT��H�̂�\���N���X
+ * \~japanese-en 可逆古典回路のを表すクラス
  */
 class ClsReversibleBooleanGate : public QuantumGateBase {
 private:
@@ -31,9 +31,9 @@ public:
     };
 
     /**
-     * \~japanese-en �ʎq��Ԃ��X�V����
+     * \~japanese-en 量子状態を更新する
      *
-     * @param state �X�V����ʎq���
+     * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
         std::vector<UINT> target_index;
@@ -63,17 +63,17 @@ public:
     };
     /**
      * \~japanese-en
-     * ���g�̃f�B�[�v�R�s�[�𐶐�����
+     * 自身のディープコピーを生成する
      *
-     * @return ���g�̃f�B�[�v�R�s�[
+     * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
         return new ClsReversibleBooleanGate(*this);
     };
     /**
-     * \~japanese-en ���g�̃Q�[�g�s����Z�b�g����
+     * \~japanese-en 自身のゲート行列をセットする
      *
-     * @param matrix �s����Z�b�g����ϐ��̎Q��
+     * @param matrix 行列をセットする変数の参照
      */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         ITYPE matrix_dim = 1ULL << this->_target_qubit_list.size();

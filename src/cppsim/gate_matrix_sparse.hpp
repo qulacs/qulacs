@@ -4,7 +4,7 @@
 #include "type.hpp"
 
 /**
- * \~japanese-en �s��v�f�Ŏ��g����p������e��ێ�����N���X
+ * \~japanese-en 行列要素で自身が作用する内容を保持するクラス
  */
 class DllExport QuantumGateSparseMatrix : public QuantumGateBase {
 private:
@@ -14,39 +14,39 @@ private:
 
 public:
     /**
-     * \~japanese-en �R���X�g���N�^
+     * \~japanese-en コンストラクタ
      *
-     * �s��v�f�̓R�s�[����邽�߁Amatrix�͍ė��p�ł��邪�ᑬ�ł���
-     * @param target_qubit_index_list �^�[�Q�b�g�ƂȂ�ʎq�r�b�g�̓Y�����̃��X�g
-     * @param matrix_element �s��v�f
-     * @param control_qubit_index_list �R���g���[���ƂȂ�ʎq�r�b�g�̃��X�g
-     * <code>control_value</code>�͂��ׂ�1�ɂȂ�B
+     * 行列要素はコピーされるため、matrixは再利用できるが低速である
+     * @param target_qubit_index_list ターゲットとなる量子ビットの添え字のリスト
+     * @param matrix_element 行列要素
+     * @param control_qubit_index_list コントロールとなる量子ビットのリスト
+     * <code>control_value</code>はすべて1になる。
      */
     QuantumGateSparseMatrix(const std::vector<UINT>& target_qubit_index_list,
         const SparseComplexMatrix& matrix_element,
         const std::vector<UINT>& control_qubit_index_list = {});
 
     /**
-     * \~japanese-en �R���X�g���N�^
+     * \~japanese-en コンストラクタ
      *
-     * �s��v�f��swap����邽�߁Amatrix�͍ė��p�ł��Ȃ��������ł���B
-     * @param target_qubit_index_list �^�[�Q�b�g�ƂȂ�ʎq�r�b�g�̓Y�����̃��X�g
-     * @param matrix_element �s��v�f
-     * @param control_qubit_index_list �R���g���[���ƂȂ�ʎq�r�b�g�̃��X�g
-     * <code>control_value</code>�͂��ׂ�1�ɂȂ�B
+     * 行列要素はswapされるため、matrixは再利用できないが高速である。
+     * @param target_qubit_index_list ターゲットとなる量子ビットの添え字のリスト
+     * @param matrix_element 行列要素
+     * @param control_qubit_index_list コントロールとなる量子ビットのリスト
+     * <code>control_value</code>はすべて1になる。
      */
     QuantumGateSparseMatrix(const std::vector<UINT>& target_qubit_index_list,
         SparseComplexMatrix* matrix_element,
         const std::vector<UINT>& control_qubit_index_list = {});
 
     /**
-     * \~japanese-en �R���X�g���N�^
+     * \~japanese-en コンストラクタ
      *
-     * �s��v�f�̓R�s�[����邽�߁Amatrix�͍ė��p�ł��邪�ᑬ�ł���
-     * @param target_qubit_index_list �^�[�Q�b�g�ƂȂ�ʎq�r�b�g�̏��̃��X�g
-     * @param matrix_element �s��v�f
+     * 行列要素はコピーされるため、matrixは再利用できるが低速である
+     * @param target_qubit_index_list ターゲットとなる量子ビットの情報のリスト
+     * @param matrix_element 行列要素
      * @param control_qubit_index_list
-     * �R���g���[���ƂȂ�ʎq�r�b�g�̏��̃��X�g
+     * コントロールとなる量子ビットの情報のリスト
      */
     QuantumGateSparseMatrix(
         const std::vector<TargetQubitInfo>& target_qubit_index_list,
@@ -54,13 +54,13 @@ public:
         const std::vector<ControlQubitInfo>& control_qubit_index_list = {});
 
     /**
-     * \~japanese-en �R���X�g���N�^
+     * \~japanese-en コンストラクタ
      *
-     * �s��v�f��swap����邽�߁Amatrix�͍ė��p�ł��Ȃ��������ł���B
-     * @param target_qubit_index_list �^�[�Q�b�g�ƂȂ�ʎq�r�b�g�̏��̃��X�g
-     * @param matrix_element �s��v�f
+     * 行列要素はswapされるため、matrixは再利用できないが高速である。
+     * @param target_qubit_index_list ターゲットとなる量子ビットの情報のリスト
+     * @param matrix_element 行列要素
      * @param control_qubit_index_list
-     * �R���g���[���ƂȂ�ʎq�r�b�g�̏��̃��X�g
+     * コントロールとなる量子ビットの情報のリスト
      */
     QuantumGateSparseMatrix(
         const std::vector<TargetQubitInfo>& target_qubit_index_list,
@@ -68,85 +68,84 @@ public:
         const std::vector<ControlQubitInfo>& control_qubit_index_list = {});
 
     /**
-     * \~japanese-en �f�X�g���N�^
+     * \~japanese-en デストラクタ
      */
     virtual ~QuantumGateSparseMatrix(){};
 
     /**
-     * \~japanese-en �R���g���[���̗ʎq�r�b�g��ǉ�����
+     * \~japanese-en コントロールの量子ビットを追加する
      *
-     * <code>qubit_index</code>�̓Q�[�g�̃^�[�Q�b�g��R���g���[���̒l�Ɋ܂܂�Ă͂����Ȃ��B
-     * @param[in] qubit_index �R���g���[���̗ʎq�r�b�g�̓Y����
+     * <code>qubit_index</code>はゲートのターゲットやコントロールの値に含まれてはいけない。
+     * @param[in] qubit_index コントロールの量子ビットの添え字
      * @param[in] control_value
-     * ����<code>qubit_index</code>��<code>control_value</code>�ł���ꍇ�ɂ̂݃Q�[�g����p����B
+     * 基底の<code>qubit_index</code>が<code>control_value</code>である場合にのみゲートが作用する。
      */
     virtual void add_control_qubit(UINT qubit_index, UINT control_value);
 
     /**
-     * \~japanese-en �Q�[�g�s��ɃX�J���[�l��������
+     * \~japanese-en ゲート行列にスカラー値をかける
      *
-     * @param[in] value ������l
+     * @param[in] value かける値
      */
     virtual void multiply_scalar(CPPCTYPE value) { _matrix_element *= value; }
 
     /**
-     * \~japanese-en �Q�[�g�̃v���p�e�B��ݒ肷��
+     * \~japanese-en ゲートのプロパティを設定する
      *
-     * @param[in] gate_property_ �Q�[�g�̃v���p�e�B�l
+     * @param[in] gate_property_ ゲートのプロパティ値
      */
     virtual void set_gate_property(UINT gate_property_) {
         _gate_property = gate_property_;
     }
 
     /**
-     * \~japanese-en �ʎq��Ԃɍ�p����
+     * \~japanese-en 量子状態に作用する
      *
-     * @param[in,out] state �X�V����ʎq���
+     * @param[in,out] state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override;
 
-    /**
-     * \~japanese-en ���g�̃R�s�[���쐬����
+     /**
+     * \~japanese-en 自身のコピーを作成する
      *
-     * @return �R�s�[���ꂽ�Q�[�g�̃C���X�^���X
+     * @return コピーされたゲートのインスタンス
      */
     virtual QuantumGateBase* copy() const override {
         return new QuantumGateSparseMatrix(*this);
     };
 
     /**
-     * \~japanese-en ���g�̍s��v�f���Z�b�g����
+     * \~japanese-en 自身の行列要素をセットする
      *
-     * @param[out] matrix �s��v�f���Z�b�g����s��̎Q��
+     * @param[out] matrix 行列要素をセットする行列の参照
      */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         matrix = this->_matrix_element.toDense();
     }
 
     /**
-     * \~japanese-en
-     * �ʎq��H�̃f�o�b�O���̕�����𐶐�����
+     * \~japanese-en 量子回路のデバッグ情報の文字列を生成する
      *
-     * @return ��������������
+     * @return 生成した文字列
      */
     virtual std::string to_string() const override;
 
     /**
-     * \~japanese-en �Q�[�g�̏��𕶎���ŏo�͂���
+     * \~japanese-en ゲートの情報を文字列で出力する
      *
-     * @param os �o�͂���X�g���[��
-     * @param gate ���̏o�͂��s���Q�[�g
-     * @return �󂯎�����X�g���[��
+     * @param os 出力するストリーム
+     * @param gate 情報の出力を行うゲート
+     * @return 受け取ったストリーム
      */
     friend DllExport std::ostream& operator<<(
         std::ostream& os, const QuantumGateSparseMatrix& gate);
 
     /**
-     * \~japanese-en �Q�[�g�̏��𕶎���ŏo�͂���
+     * \~japanese-en ゲートの情報を文字列で出力する
      *
-     * @param os �o�͂���X�g���[��
-     * @param gate ���̏o�͂��s���Q�[�g
-     * @return �󂯎�����X�g���[��
+     * @param os 出力するストリーム
+     * @param gate 情報の出力を行うゲート
+     * @return 受け取ったストリーム
      */
     friend DllExport std::ostream& operator<<(
         std::ostream& os, QuantumGateSparseMatrix* gate);

@@ -15,7 +15,7 @@
 
 /**
  * \~japanese-en
- * �ʎq��Ԃ��A�ʂ̗ʎq��Ԃɑ΂��Ĕ��˂���Q�[�g�̃N���X
+ * 量子状態を、別の量子状態に対して反射するゲートのクラス
  */
 class ClsStateReflectionGate : public QuantumGateBase {
 private:
@@ -33,9 +33,9 @@ public:
     virtual ~ClsStateReflectionGate() { delete reflection_state; }
 
     /**
-     * \~japanese-en �ʎq��Ԃ��X�V����
+     * \~japanese-en 量子状態を更新する
      *
-     * @param state �X�V����ʎq���
+     * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
         if (state->is_state_vector()) {
@@ -67,17 +67,17 @@ public:
     };
     /**
      * \~japanese-en
-     * ���g�̃f�B�[�v�R�s�[�𐶐�����
+     * 自身のディープコピーを生成する
      *
-     * @return ���g�̃f�B�[�v�R�s�[
+     * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
         return new ClsStateReflectionGate(this->reflection_state);
     };
     /**
-     * \~japanese-en ���g�̃Q�[�g�s����Z�b�g����
+     * \~japanese-en 自身のゲート行列をセットする
      *
-     * @param matrix �s����Z�b�g����ϐ��̎Q��
+     * @param matrix 行列をセットする変数の参照
      */
     virtual void set_matrix(ComplexMatrix&) const override {
         throw NotImplementedException(
