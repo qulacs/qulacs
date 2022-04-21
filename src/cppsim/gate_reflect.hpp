@@ -75,7 +75,8 @@ public:
         return new ClsStateReflectionGate(this->reflection_state);
     };
     /**
-     * \~japanese-en 自身のゲート行列をセットする
+     * \~japanese-en 自身のゲート行列をセットする ことになっているが、実際はnot
+     * implemented
      *
      * @param matrix 行列をセットする変数の参照
      */

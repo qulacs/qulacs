@@ -105,7 +105,7 @@ public:
      */
     virtual void update_quantum_state(QuantumStateBase* state) override;
 
-     /**
+    /**
      * \~japanese-en 自身のコピーを作成する
      *
      * @return コピーされたゲートのインスタンス
