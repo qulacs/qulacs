@@ -139,7 +139,7 @@ TEST(NoisyEvolutionTest, EffectiveHamiltonian) {
     auto gate = dynamic_cast<ClsNoisyEvolution*>(
         gate::NoisyEvolution(&hamiltonian, c_ops, time, dt));
     ASSERT_EQ(gate->get_effective_hamiltonian()->to_string(),
-        "(1,0) Z 0 Z 1 + (0,-1) I");
+        "(1,0) Z 0 Z 1 + (0,-1) ");
 }
 
 TEST(NoisyEvolutionTest, dephasing) {

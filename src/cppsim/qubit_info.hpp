@@ -95,7 +95,7 @@ public:
  */
 class DllExport TargetQubitInfo : public QubitInfo {
 private:
-    // \~japanese-en この量子ビットがパウリ演算子と可換か同課を保持する値
+    // \~japanese-en この量子ビットがパウリ演算子と可換かどうかを保持する値
     UINT _commutation_property;
 
 public:

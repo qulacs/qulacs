@@ -69,11 +69,6 @@ QuantumGateDiagonalMatrix::QuantumGateDiagonalMatrix(
 void QuantumGateDiagonalMatrix::update_quantum_state(QuantumStateBase* state) {
     ITYPE dim = 1ULL << state->qubit_count;
 
-    if (this->_control_qubit_list.size() > 0) {
-        std::cerr << "Control qubit in sparse matrix gate is not supported"
-                  << std::endl;
-    }
-
     const CTYPE* diagonal_ptr =
         reinterpret_cast<const CTYPE*>(this->_diagonal_element.data());
     // convert list of QubitInfo to list of UINT
@@ -91,8 +86,8 @@ void QuantumGateDiagonalMatrix::update_quantum_state(QuantumStateBase* state) {
     if (state->is_state_vector()) {
 #ifdef _USE_GPU
         if (state->get_device_name() == "gpu") {
-            std::cerr << "Diagonal matrix gate is not supported on GPU"
-                      << std::endl;
+            throw NotImplementedException(
+                "Diagonal matrix gate is not supported on GPU");
         } else {
             if (control_index.size() == 0) {
                 if (target_index.size() == 1) {
@@ -130,7 +125,9 @@ void QuantumGateDiagonalMatrix::update_quantum_state(QuantumStateBase* state) {
         }
 #endif
     } else {
-        std::cerr << "not implemented" << std::endl;
+        throw NotImplementedException(
+            "QuantumGateDiagonalMatrix::update_quantum_state for density "
+            "matrix is not implemented");
     }
 }
 
