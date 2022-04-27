@@ -2,7 +2,7 @@
 #pragma once
 
 #ifndef _MSC_VER
-extern "C"{
+extern "C++"{
 #include <csim/memory_ops.h>
 #include <csim/stat_ops.h>
 #include <csim/update_ops.h>

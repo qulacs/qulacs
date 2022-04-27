@@ -26,10 +26,12 @@ elif [ "$GXX_VERSION" -lt 90000 ]; then
   GXX_COMMAND=g++-8
 fi
 
+GCC_COMMAND="emcc"
+GXX_COMMAND="em++"
+
 mkdir ./build
 cd ./build
-cmake -G "Unix Makefiles" -D CMAKE_C_COMPILER=$GCC_COMMAND -D CMAKE_CXX_COMPILER=$GXX_COMMAND -D CMAKE_BUILD_TYPE=Release ..
+emcmake cmake .
 make
-make python
-cd ../
 
+cd ../

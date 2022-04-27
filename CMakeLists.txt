@@ -11,13 +11,13 @@ endif()
 
 
 ##### Set default behavior #####
-set(DEFAULT_USE_OMP Yes)
+set(DEFAULT_USE_OMP No)
 set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)
 set(DEFAULT_USE_TEST Yes)
 if(("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "^x86.*") OR ("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "AMD64"))
 	message(STATUS "SIMD SUPPORT: Yes")
-	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native -mfpmath=both")
+	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native")
 	set(DEFAULT_USE_SIMD Yes)
 else()
 	message(STATUS "SIMD SUPPORT: No")
@@ -100,41 +100,6 @@ else()
 	message(STATUS "Skip downloding googletest")
 endif()
 
-# Pybind11
-if(USE_PYTHON)
-	if(MSYS OR MINGW OR CYGWIN)
-		set(PYBIND11_BUILD_DIR   ${CMAKE_BINARY_DIR}/pybind11)
-		set(PYBIND11_INSTALL_DIR ${CMAKE_SOURCE_DIR}/python/pybind11)
-		set(PYBIND11_INCLUDE_DIR ${PYBIND11_INSTALL_DIR}/include)
-		ExternalProject_Add(
-			pybind11_pop
-			URL http://github.com/pybind/pybind11/archive/v2.5.0.tar.gz
-			PREFIX ${PYBIND11_BUILD_DIR}
-			CONFIGURE_COMMAND ""
-			BUILD_COMMAND ""
-			INSTALL_COMMAND
-			${CMAKE_COMMAND} -E copy_directory ${PYBIND11_BUILD_DIR}/src/pybind11_pop ${PYBIND11_INSTALL_DIR}
-			TEST_COMMAND ""
-		)
-		include_directories(SYSTEM ${PYBIND11_INCLUDE_DIR})
-	else()
-		FetchContent_Declare(
-			pybind11_fetch
-			GIT_REPOSITORY https://github.com/pybind/pybind11
-			GIT_TAG v2.5.0
-		)
-		FetchContent_GetProperties(pybind11_fetch)
-		if(NOT pybind11_fetch_POPULATED)
-			message(STATUS "Fetch pybind11 for python-binding")
-			FetchContent_Populate(pybind11_fetch)
-			add_subdirectory(${pybind11_fetch_SOURCE_DIR})
-		endif()
-	endif()
-else()
-	message(STATUS "Skip downloding pybind11")
-endif()
-
-
 ##### set warnings #####
 if(NOT USE_GPU)
 	set(WARNING_C "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
@@ -213,10 +178,6 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${OPT_FLAGS}")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OPT_FLAGS}")
 
-	if(8.0.0 VERSION_LESS ${CMAKE_CXX_COMPILER_VERSION})
-		set(PYBIND11_CPP_STANDARD -std=gnu++14)
-	endif()
-
 elseif(MSVC)
 	SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
 
@@ -277,9 +238,6 @@ add_subdirectory(src)
 
 if(USE_TEST)
 	add_subdirectory(test)
-endif()
-if(USE_PYTHON)
-	add_subdirectory(python)
 endif()
 
 add_subdirectory(benchmark)
