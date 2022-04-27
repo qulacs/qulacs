@@ -43,8 +43,7 @@ public:
                 "QuantumGate_Probabilistic::get_marginal_probability("
                 "vector<double>, vector<QuantumGateBase*>): sum of "
                 "probability distribution must be equal to or less than 1.0, "
-                "which "
-                "is " +
+                "which is " +
                 std::to_string(sum));
         }
         std::transform(gate_list.cbegin(), gate_list.cend(),
