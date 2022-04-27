@@ -119,3 +119,12 @@ create_split_observable(std::string file_path);
 }  // namespace observable
 
 typedef HermitianQuantumOperator Observable;
+
+/**
+ * \~japanese-en
+ * observable を対応する行列に変換する
+ * @param [in] observable 行列に変換する observable
+ * @return observable に対応する行列
+ */
+ComplexMatrix DllExport convert_observable_to_matrix(
+    const HermitianQuantumOperator& observable);

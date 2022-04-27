@@ -8,6 +8,7 @@
 
 #include "exception.hpp"
 #include "type.hpp"
+#include "utility.hpp"
 class PauliOperator;
 class QuantumStateBase;
 
@@ -18,6 +19,7 @@ private:
     //! the number of qubits
     UINT _qubit_count;
     bool _is_hermitian;
+    Random random;
 
 protected:
     /**
@@ -169,9 +171,11 @@ public:
      * ランダムなパウリ演算子をもつ observable を生成する
      * @param [in] observable パウリ演算子を追加する observable
      * @param [in] operator_count observable に追加するパウリ演算子数
+     * @param [in] seed 乱数のシード値
      * @return ランダムなパウリ演算子を operator_count 個もつ observable
      */
     void add_random_operator(const UINT operator_count);
+    void add_random_operator(const UINT operator_count, UINT seed);
 
     /**
      * \~japanese-en

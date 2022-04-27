@@ -26,6 +26,10 @@ void QuantumCircuitSimulator::initialize_random_state() {
     _state->set_Haar_random_state();
 }
 
+void QuantumCircuitSimulator::initialize_random_state(UINT seed) {
+    _state->set_Haar_random_state(seed);
+}
+
 void QuantumCircuitSimulator::simulate() {
     _circuit->update_quantum_state(_state);
 }

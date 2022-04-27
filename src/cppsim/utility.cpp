@@ -33,29 +33,6 @@ void get_Pauli_matrix(
     }
 }
 
-ComplexMatrix convert_observable_to_matrix(const Observable& observable) {
-    const auto dim = observable.get_state_dim();
-    const auto qubit_count = observable.get_qubit_count();
-    ComplexMatrix observable_matrix = ComplexMatrix::Zero(dim, dim);
-    for (UINT term_index = 0; term_index < observable.get_term_count();
-         ++term_index) {
-        const auto pauli_operator = observable.get_term(term_index);
-        auto coef = pauli_operator->get_coef();
-        auto target_index_list = pauli_operator->get_index_list();
-        auto pauli_id_list = pauli_operator->get_pauli_id_list();
-
-        std::vector<UINT> whole_pauli_id_list(qubit_count, 0);
-        for (UINT i = 0; i < target_index_list.size(); ++i) {
-            whole_pauli_id_list[target_index_list[i]] = pauli_id_list[i];
-        }
-
-        ComplexMatrix pauli_matrix;
-        get_Pauli_matrix(pauli_matrix, whole_pauli_id_list);
-        observable_matrix += coef * pauli_matrix;
-    }
-    return observable_matrix;
-}
-
 std::vector<std::string> split(const std::string& s, const std::string& delim) {
     std::vector<std::string> elements;
 

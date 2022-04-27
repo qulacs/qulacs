@@ -130,7 +130,6 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
 
 void GeneralQuantumOperator::add_random_operator(const UINT operator_count) {
     const auto qubit_count = this->get_qubit_count();
-    Random random;
     for (UINT operator_index = 0; operator_index < operator_count;
          operator_index++) {
         auto target_qubit_index_list = std::vector<UINT>(qubit_count, 0);
@@ -146,6 +145,12 @@ void GeneralQuantumOperator::add_random_operator(const UINT operator_count) {
             target_qubit_index_list, target_qubit_pauli_list, coef);
         this->add_operator(&pauli_operator);
     }
+}
+
+void GeneralQuantumOperator::add_random_operator(
+    const UINT operator_count, UINT seed) {
+    random.set_seed(seed);
+    add_random_operator(operator_count);
 }
 
 CPPCTYPE

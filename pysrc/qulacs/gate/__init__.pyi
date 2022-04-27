@@ -69,8 +69,6 @@ __all__ = [
 def Adaptive(gate: qulacs_core.QuantumGateBase, condition: typing.Callable[[typing.List[int], int], bool], id: int) -> qulacs_core.QuantumGateBase:
     """
     Create adaptive gate
-
-    Create adaptive gate
     """
 @typing.overload
 def Adaptive(gate: qulacs_core.QuantumGateBase, condition: typing.Callable[[typing.List[int]], bool]) -> qulacs_core.QuantumGateBase:
@@ -102,8 +100,6 @@ def CZ(control: int, target: int) -> qulacs_core.QuantumGateBase:
 @typing.overload
 def DenseMatrix(index: int, matrix: numpy.ndarray[numpy.complex128, _Shape[m, n]]) -> qulacs_core.QuantumGateMatrix:
     """
-    Create dense matrix gate
-
     Create dense matrix gate
     """
 @typing.overload
@@ -201,10 +197,14 @@ def RZ(index: int, angle: float) -> qulacs_core.QuantumGateBase:
     """
     Create Pauli-Z rotation gate
     """
+@typing.overload
 def RandomUnitary(index_list: typing.List[int]) -> qulacs_core.QuantumGateMatrix:
     """
     Create random unitary gate
     """
+@typing.overload
+def RandomUnitary(index_list: typing.List[int], seed: int) -> qulacs_core.QuantumGateMatrix:
+    pass
 def ReversibleBoolean(index_list: typing.List[int], func: typing.Callable[[int, int], int]) -> qulacs_core.QuantumGateBase:
     """
     Create reversible boolean gate
@@ -282,9 +282,7 @@ def add(gate_list: typing.List[qulacs_core.QuantumGateBase]) -> qulacs_core.Quan
 @typing.overload
 def merge(gate1: qulacs_core.QuantumGateBase, gate2: qulacs_core.QuantumGateBase) -> qulacs_core.QuantumGateMatrix:
     """
-    Merge two quantum gate
-
-    Merge quantum gate list
+    Merge two quantum gate or gate list
     """
 @typing.overload
 def merge(gate_list: typing.List[qulacs_core.QuantumGateBase]) -> qulacs_core.QuantumGateMatrix:

@@ -470,3 +470,8 @@ void QuantumCircuit::add_random_unitary_gate(
     std::vector<UINT> target_index_list) {
     this->add_gate(gate::RandomUnitary(target_index_list));
 }
+
+void QuantumCircuit::add_random_unitary_gate(
+    std::vector<UINT> target_index_list, UINT seed) {
+    this->add_gate(gate::RandomUnitary(target_index_list, seed));
+}
