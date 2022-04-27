@@ -234,6 +234,20 @@ public:
 };
 
 /**
+ * \~japanese-en ゲートの名前が不適切という例外
+ */
+class InvalidGateIdentifierException : public std::domain_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    InvalidGateIdentifierException(const std::string& message)
+        : std::domain_error(message) {}
+};
+
+/**
  * \~japanese-en ノイズの種類の名前が不適切という例外
  */
 class InvalidNoiseTypeIdentifierException : public std::domain_error {
