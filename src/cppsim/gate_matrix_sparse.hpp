@@ -5,6 +5,7 @@
 
 /**
  * \~japanese-en 行列要素で自身が作用する内容を保持するクラス
+ * 疎行列を持つ。
  */
 class DllExport QuantumGateSparseMatrix : public QuantumGateBase {
 private:

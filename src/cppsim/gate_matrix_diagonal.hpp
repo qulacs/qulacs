@@ -5,6 +5,7 @@
 
 /**
  * \~japanese-en 行列要素で自身が作用する内容を保持するクラス
+ * 対角行列を持つ。
  */
 class DllExport QuantumGateDiagonalMatrix : public QuantumGateBase {
 private:
