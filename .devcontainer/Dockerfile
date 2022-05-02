@@ -76,3 +76,10 @@ RUN git clone https://github.com/google/googletest.git -b release-1.8.1 --depth 
 RUN git clone https://github.com/pybind/pybind11.git -b v2.7.1 --depth 1 /tmp/pybind11 \
     && cp -r /tmp/pybind11/include/pybind11 /usr/local/include \
     && rm -rf /tmp/pybind11
+
+# Install lcov
+RUN git clone https://github.com/linux-test-project/lcov.git -b v1.15 --depth 1 /tmp/lcov \
+    && cd /tmp/lcov \
+    && make install \
+    && cd - \
+    && rm -rf /tmp/lcov
