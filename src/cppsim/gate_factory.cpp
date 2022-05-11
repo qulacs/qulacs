@@ -476,6 +476,12 @@ QuantumGateBase* create_quantum_gate_from_string(std::string gate_string) {
             matrix(i / dim, i % dim) += CPPCTYPE(0, 1) * atof(token);
         }
         gate = gate::DenseMatrix(targets, matrix);
+    } else {
+        throw InvalidGateIdentifierException(
+            "Error: "
+            "gate::create_quantum_gate_from_string(string): invalid gate "
+            "name " +
+            std::string(sbuf));
     }
     free(buf);
     return gate;

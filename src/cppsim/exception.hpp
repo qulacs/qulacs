@@ -163,6 +163,20 @@ public:
 };
 
 /**
+ * \~japanese-en 確率分布が不適切という例外
+ */
+class InvalidProbabilityDistributionException : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    InvalidProbabilityDistributionException(const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
  * \~japanese-en
  * GeneralQuantumOperator中のPauliOperatorのインデックスが範囲外という例外
  */
@@ -230,6 +244,20 @@ public:
      * @param message エラーメッセージ
      */
     InvalidPauliIdentifierException(const std::string& message)
+        : std::domain_error(message) {}
+};
+
+/**
+ * \~japanese-en ゲートの名前が不適切という例外
+ */
+class InvalidGateIdentifierException : public std::domain_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    InvalidGateIdentifierException(const std::string& message)
         : std::domain_error(message) {}
 };
 

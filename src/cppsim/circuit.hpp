@@ -186,7 +186,7 @@ public:
      * \~japanese-en 量子回路がFermionic Gaussianかどうかを判定する。
      *
      * 全ての量子ゲートがFermionic Gaussianである場合にtrueと判定される。
-     * Non-Cliffordゲートが複数あり、結果としてCliffordとなっている場合もNon-Cliffordとして判定される点に注意。
+     * Non-Gaussianゲートが複数あり、結果としてGaussianとなっている場合もNon-Gaussianとして判定される点に注意。
      * @retval true Fermionic Gaussian
      * @retval false Non-fermionic Gaussian
      */
