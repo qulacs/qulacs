@@ -34,6 +34,7 @@ public:
             std::back_inserter(_gate_list),
             [](auto gate) { return gate->copy(); });
         FLAG_NOISE = true;
+        this->_name = "Probabilistic";
     };
 
     virtual ~QuantumGate_Probabilistic() {
@@ -177,6 +178,8 @@ public:
         std::transform(gate_list.cbegin(), gate_list.cend(),
             std::back_inserter(_gate_list),
             [](auto gate) { return gate->copy(); });
+        FLAG_NOISE = true;
+        this->_name = "ProbabilisticInstrument";
     };
 
     virtual ~QuantumGate_ProbabilisticInstrument() {
@@ -244,6 +247,7 @@ public:
         std::transform(gate_list.cbegin(), gate_list.cend(),
             std::back_inserter(_gate_list),
             [](auto gate) { return gate->copy(); });
+        this->_name = "CPTP";
     };
     virtual ~QuantumGate_CPTP() {
         for (unsigned int i = 0; i < _gate_list.size(); ++i) {
@@ -349,6 +353,7 @@ public:
         std::transform(gate_list.cbegin(), gate_list.cend(),
             std::back_inserter(_gate_list),
             [](auto gate) { return gate->copy(); });
+        this->_name = "CP";
     };
     virtual ~QuantumGate_CP() {
         for (unsigned int i = 0; i < _gate_list.size(); ++i) {
@@ -467,6 +472,7 @@ public:
         std::transform(gate_list.cbegin(), gate_list.cend(),
             std::back_inserter(_gate_list),
             [](auto gate) { return gate->copy(); });
+        this->_name = "Instrument";
     };
     virtual ~QuantumGate_Instrument() {
         for (unsigned int i = 0; i < _gate_list.size(); ++i) {
@@ -555,7 +561,9 @@ public:
         UINT id)
         : _gate(gate->copy()),
           _func_with_id(func_with_id),
-          _id(static_cast<int>(id)){};
+          _id(static_cast<int>(id)) {
+        this->_name = "Adaptive";
+    };
     virtual ~QuantumGate_Adaptive() { delete _gate; }
 
     /**
