@@ -54,7 +54,8 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     }
 
     // Implemented based on
-    // https://files.transtutors.com/cdn/uploadassignments/472339_1_-numerical-linear-aljebra.pdf
+    // https://en.wikipedia.org/wiki/Lanczos_algorithm
+    // https://math.berkeley.edu/~mgu/MA128BSpring2018/Lanczos.pdf
     CPPCTYPE mu_;
     if (mu == 0.0) {
         // mu is not changed from default value.
