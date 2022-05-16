@@ -14,4 +14,4 @@ lcov \
 
 lcov -r coverage/coverage.info "*/include/*" -o coverage/coverageFiltered.info
 
-genhtml -o coverage/html --num-spaces 4 -s --legend coverage/coverageFiltered.info
+genhtml -o coverage/html --num-spaces 4 --legend coverage/coverageFiltered.info
