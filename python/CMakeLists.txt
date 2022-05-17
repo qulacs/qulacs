@@ -56,8 +56,4 @@ else()
 	#add_subdirectory(pybind11)
 	pybind11_add_module(qulacs_core SHARED EXCLUDE_FROM_ALL cppsim_wrapper.cpp)
 	target_link_libraries(qulacs_core PUBLIC vqcsim_static)
-
-	pybind11_add_module(qulacs_osaka_core SHARED EXCLUDE_FROM_ALL qulacs_osaka_wrapper.cpp)
-	target_link_libraries(qulacs_osaka_core PUBLIC cppsim_exp_static)
 endif()
-
