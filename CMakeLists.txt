@@ -347,6 +347,9 @@ if(USE_TEST)
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_exp_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
+		)
+		add_custom_target(coverage
+			DEPENDS test
 			COMMAND mkdir -p coverage
 			COMMAND lcov -d "build/src/csim/CMakeFiles/csim_static.dir" -d "build/src/cppsim/CMakeFiles/cppsim_static.dir" -d "build/src/cppsim_experimental/CMakeFiles/cppsim_exp_static.dir" -d "build/src/vqcsim/CMakeFiles/vqcsim_static.dir" -c -o "coverage/coverage.info"
 			COMMAND lcov -r "coverage/coverage.info" "*/include/*" -o "coverage/coverageFiltered.info"
