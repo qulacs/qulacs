@@ -127,11 +127,9 @@ unsigned long xor128(unsigned long* state) {
     return (state[3] = (state[3] ^ (state[3] >> 19)) ^ (t ^ (t >> 8)));
 }
 double random_uniform(unsigned long* state) {
-    return xor128(state) / ((float)ULONG_MAX);
+    return xor128(state) / ((float)ULONG_MAX + 1);
 }
 double random_normal(unsigned long* state) {
-    double uniform_randstate = random_uniform(state);
-    if (uniform_randstate == 0.) return 0.;
-    return sqrt(-1.0 * log(uniform_randstate)) *
-           sin(2.0 * M_PI * uniform_randstate);
+    return sqrt(-1.0 * log(1 - random_uniform(state))) *
+           sin(2.0 * M_PI * random_uniform(state));
 }
