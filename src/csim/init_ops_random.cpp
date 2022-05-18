@@ -131,7 +131,7 @@ double random_uniform(unsigned long* state) {
 }
 double random_normal(unsigned long* state) {
     double uniform_randstate = random_uniform(state);
-    if(uniform_randstate == 0.) return 0.;
-    return sqrt(-1.0 * log(uniform_randstate)) * sin(2.0 * M_PI * uniform_randstate);
-
+    if (uniform_randstate == 0.) return 0.;
+    return sqrt(-1.0 * log(uniform_randstate)) *
+           sin(2.0 * M_PI * uniform_randstate);
 }
