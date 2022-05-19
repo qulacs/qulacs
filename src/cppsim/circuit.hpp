@@ -138,12 +138,6 @@ public:
      * @param[in] circuit マージする量子回路
      */
     virtual void merge_circuit(const QuantumCircuit* circuit) {
-        if (this->qubit_count != circuit->qubit_count) {
-            throw InvalidQubitCountException(
-                "Error: "
-                "QuantumCircuit::add_circuit(QuantumCircuit*):"
-                "Qubit count doesn't match!");
-        }
         for (auto gate : circuit->gate_list) {
             this->add_gate_copy(gate);
         }
