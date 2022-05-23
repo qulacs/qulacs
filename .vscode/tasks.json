@@ -15,6 +15,14 @@
             ]
         },
         {
+            "label": "test and generate coverage",
+            "type": "shell",
+            "command": "make coverage -C build -j $(nproc)",
+            "dependsOn": [
+                "build gcc"
+            ]
+        },
+        {
             "label": "pythontest",
             "type": "shell",
             "command": "make pythontest -C build -j $(nproc)",
