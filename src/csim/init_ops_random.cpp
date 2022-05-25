@@ -10,7 +10,7 @@
 #endif
 
 // state randomization
-unsigned long xor128(unsigned long* state);
+unsigned long xor_shift(unsigned long* state);
 double random_uniform(unsigned long* state);
 double random_normal(unsigned long* state);
 void initialize_Haar_random_state_with_seed_single(
@@ -46,7 +46,7 @@ void initialize_Haar_random_state_with_seed_single(
     random_state[1] = rand();
     random_state[2] = rand();
     random_state[3] = rand();
-    for (int i = 0; i < ignore_first; ++i) xor128(random_state);
+    for (int i = 0; i < ignore_first; ++i) xor_shift(random_state);
     for (ITYPE index = 0; index < dim; ++index) {
         double r1, r2;
         r1 = random_normal(random_state);
@@ -91,7 +91,7 @@ void initialize_Haar_random_state_with_seed_parallel(
         ITYPE index;
 
         // ignore first randoms
-        for (int i = 0; i < ignore_first; ++i) xor128(my_random_state);
+        for (int i = 0; i < ignore_first; ++i) xor_shift(my_random_state);
 
         for (index = start_index; index < end_index; ++index) {
             double r1, r2;
@@ -118,7 +118,7 @@ void initialize_Haar_random_state_with_seed_parallel(
 }
 #endif
 
-unsigned long xor128(unsigned long* state) {
+unsigned long xor_shift(unsigned long* state) {
     unsigned long t;
     t = (state[0] ^ (state[0] << 11));
     state[0] = state[1];
@@ -127,7 +127,7 @@ unsigned long xor128(unsigned long* state) {
     return (state[3] = (state[3] ^ (state[3] >> 19)) ^ (t ^ (t >> 8)));
 }
 double random_uniform(unsigned long* state) {
-    return xor128(state) / ((double)ULONG_MAX + 1);
+    return xor_shift(state) / ((double)ULONG_MAX + 1);
 }
 double random_normal(unsigned long* state) {
     return sqrt(-1.0 * log(1 - random_uniform(state))) *
