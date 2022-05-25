@@ -86,39 +86,49 @@ TEST(StateTest, SetState) {
     }
 }
 
-TEST(StateTest, SetHaarRandomState) {
-    auto same_state = [](QuantumState* s1, QuantumState* s2) -> bool {
-        const double eps = 1e-10;
-        assert(s1->qubit_count == s2->qubit_count);
-        auto s1_data = s1->data_cpp();
-        auto s2_data = s2->data_cpp();
-        for (ITYPE i = 0; i < s1->dim; ++i) {
-            if (abs(s1_data[i] - s2_data[i]) > eps) return false;
-        }
-        return true;
-    };
-    {
-        const UINT n = 10, m = 5;
-        std::vector<QuantumState*> states(m);
-        for (UINT i = 0; i < m; ++i) {
-            states[i] = new QuantumState(n);
-            states[i]->set_Haar_random_state();
-            ASSERT_NEAR(states[i]->get_squared_norm_single_thread(), 1., 1e-10);
-        }
-        for (UINT i = 0; i < m - 1; ++i) {
-            for (UINT j = i + 1; j < m; ++j) {
-                ASSERT_FALSE(same_state(states[i], states[j]));
-            }
+TEST(StateTest, HaarRandomStateNorm) {
+    const UINT n_max = 5, m = 10;
+    for (UINT n = 1; n <= n_max; n++) {
+        for (UINT i = 0; i < m; i++) {
+            QuantumState state(n);
+            state.set_Haar_random_state();
+            ASSERT_NEAR(state.get_squared_norm_single_thread(), 1., 1e-10);
         }
     }
-    {
-        const UINT n = 10, m = 5;
-        for (UINT i = 0; i < m; ++i) {
-            QuantumState state1(n), state2(n);
-            state1.set_Haar_random_state(i);
-            state2.set_Haar_random_state(i);
-            ASSERT_TRUE(same_state(&state1, &state2));
+}
+
+bool same_state(QuantumState* s1, QuantumState* s2) {
+    const double eps = 1e-10;
+    assert(s1->qubit_count == s2->qubit_count);
+    auto s1_data = s1->data_cpp();
+    auto s2_data = s2->data_cpp();
+    for (ITYPE i = 0; i < s1->dim; ++i) {
+        if (abs(s1_data[i] - s2_data[i]) > eps) return false;
+    }
+    return true;
+};
+
+TEST(StateTest, HaarRandomStateWithoutSeed) {
+    const UINT n = 10, m = 5;
+    std::vector<QuantumState*> states(m);
+    for (UINT i = 0; i < m; ++i) {
+        states[i] = new QuantumState(n);
+        states[i]->set_Haar_random_state();
+    }
+    for (UINT i = 0; i < m - 1; ++i) {
+        for (UINT j = i + 1; j < m; ++j) {
+            ASSERT_FALSE(same_state(states[i], states[j]));
         }
+    }
+}
+
+TEST(StateTest, StateTest_HaarRandomStateSameSeed) {
+    const UINT n = 10, m = 5;
+    for (UINT i = 0; i < m; ++i) {
+        QuantumState state1(n), state2(n);
+        state1.set_Haar_random_state(i);
+        state2.set_Haar_random_state(i);
+        ASSERT_TRUE(same_state(&state1, &state2));
     }
 }
 
