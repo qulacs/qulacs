@@ -50,21 +50,21 @@ TEST(StateTest, SamplingSuperpositionState) {
     const UINT n = 10;
     const UINT nshot = 1024;
     QuantumState state(n);
-    state.set_computational_basis(1);
-    for (ITYPE i = 2; i <= 5; ++i) {
+    state.set_computational_basis(0);
+    for (ITYPE i = 1; i <= 4; ++i) {
         QuantumState tmp_state(n);
         tmp_state.set_computational_basis(i);
         state.add_state_with_coef_single_thread(1 << i, &tmp_state);
     }
     state.normalize_single_thread(state.get_squared_norm_single_thread());
     auto res = state.sampling(nshot);
-    std::array<UINT, 6> cnt = {};
+    std::array<UINT, 5> cnt = {};
     for (UINT i = 0; i < nshot; ++i) {
-        ASSERT_GE(res[i], 1);
-        ASSERT_LE(res[i], 5);
+        ASSERT_GE(res[i], 0);
+        ASSERT_LE(res[i], 4);
         cnt[res[i]] += 1;
     }
-    for (UINT i = 1; i < 5; i++) {
+    for (UINT i = 0; i < 4; i++) {
         ASSERT_GT(cnt[i + 1], cnt[i]);
     }
 }
