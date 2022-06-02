@@ -79,12 +79,11 @@ public:
         } else {
             auto org_state = state->copy();
             auto temp_state = state->copy();
+
+            state->multiply_coef(1.0 - _cumulative_distribution.back());
             for (UINT gate_index = 0; gate_index < _gate_list.size();
                  ++gate_index) {
-                if (gate_index == 0) {
-                    _gate_list[gate_index]->update_quantum_state(state);
-                    state->multiply_coef(_distribution[gate_index]);
-                } else if (gate_index + 1 < _gate_list.size()) {
+                if (gate_index + 1 < _gate_list.size()) {
                     temp_state->load(org_state);
                     _gate_list[gate_index]->update_quantum_state(temp_state);
                     temp_state->multiply_coef(_distribution[gate_index]);
