@@ -345,22 +345,18 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("is_Gaussian", &QuantumGateBase::is_Gaussian, "Check this gate is element of Gaussian group")
         .def("is_parametric", &QuantumGateBase::is_parametric, "Check this gate is parametric gate")
         .def("is_diagonal", &QuantumGateBase::is_diagonal, "Check the gate matrix is diagonal")
+
+        .def("get_gate_list", &QuantumGateBase::get_gate_list, "get_gate_list")
+        .def("optimize_ProbablisticGate", &QuantumGateBase::optimize_ProbablisticGate, "optimize_ProbablisticGate")
+        .def("get_distribution", &QuantumGateBase::get_distribution, "get_distribution")
+        .def("get_cumulative_distribution", &QuantumGateBase::get_cumulative_distribution, "get_cumulative_distribution")
         ;
 
     py::class_<QuantumGateMatrix,QuantumGateBase>(m, "QuantumGateMatrix")
-        .def("update_quantum_state", &QuantumGateMatrix::update_quantum_state, "Update quantum state", py::arg("state"))
         .def("add_control_qubit", &QuantumGateMatrix::add_control_qubit, "Add control qubit", py::arg("index"), py::arg("control_value"))
         .def("multiply_scalar", &QuantumGateMatrix::multiply_scalar, "Multiply scalar value to gate matrix", py::arg("value"))
-        .def("copy", &QuantumGateMatrix::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
-        .def("to_string", &QuantumGateMatrix::to_string, "Get string representation")
-
-        .def("get_matrix", [](const QuantumGateMatrix& gate) {
-        ComplexMatrix mat;
-        gate.set_matrix(mat);
-        return mat;
-        }, "Get gate matrix")
-        .def("__repr__", [](const QuantumGateMatrix &p) {return p.to_string(); });
         ;
+
 
     auto mgate = m.def_submodule("gate");
     mgate.def("Identity", &gate::Identity, pybind11::return_value_policy::take_ownership, "Create identity gate", py::arg("index"));
