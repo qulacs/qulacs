@@ -133,36 +133,34 @@ TEST(StateTest, StateTest_HaarRandomStateSameSeed) {
 }
 
 TEST(StateTest, GetZeroProbability) {
-    {
-        const UINT n = 10;
-        const double eps = 1e-10;
-        QuantumState state(n);
-        state.set_computational_basis(1);
-        for (ITYPE i = 2; i <= 10; ++i) {
-            QuantumState tmp_state(n);
-            tmp_state.set_computational_basis(i);
-            state.add_state_with_coef_single_thread(std::sqrt(i), &tmp_state);
-        }
-        state.normalize_single_thread(state.get_squared_norm_single_thread());
-        ASSERT_NEAR(state.get_zero_probability(0), 30.0 / 55.0, eps);
-        ASSERT_NEAR(state.get_zero_probability(1), 27.0 / 55.0, eps);
-        ASSERT_NEAR(state.get_zero_probability(2), 33.0 / 55.0, eps);
-        ASSERT_NEAR(state.get_zero_probability(3), 28.0 / 55.0, eps);
-
-        std::vector<UINT> measured_values(n, 2);
-        measured_values[0] = measured_values[1] = 0;
-        ASSERT_NEAR(
-            state.get_marginal_probability(measured_values), 12.0 / 55.0, eps);
-        measured_values[0] = 1;
-        ASSERT_NEAR(
-            state.get_marginal_probability(measured_values), 15.0 / 55.0, eps);
-        measured_values[1] = 1;
-        ASSERT_NEAR(
-            state.get_marginal_probability(measured_values), 10.0 / 55.0, eps);
-        measured_values[0] = 0;
-        ASSERT_NEAR(
-            state.get_marginal_probability(measured_values), 18.0 / 55.0, eps);
+    const UINT n = 10;
+    const double eps = 1e-10;
+    QuantumState state(n);
+    state.set_computational_basis(1);
+    for (ITYPE i = 2; i <= 10; ++i) {
+        QuantumState tmp_state(n);
+        tmp_state.set_computational_basis(i);
+        state.add_state_with_coef_single_thread(std::sqrt(i), &tmp_state);
     }
+    state.normalize_single_thread(state.get_squared_norm_single_thread());
+    ASSERT_NEAR(state.get_zero_probability(0), 30.0 / 55.0, eps);
+    ASSERT_NEAR(state.get_zero_probability(1), 27.0 / 55.0, eps);
+    ASSERT_NEAR(state.get_zero_probability(2), 33.0 / 55.0, eps);
+    ASSERT_NEAR(state.get_zero_probability(3), 28.0 / 55.0, eps);
+
+    std::vector<UINT> measured_values(n, 2);
+    measured_values[0] = measured_values[1] = 0;
+    ASSERT_NEAR(
+        state.get_marginal_probability(measured_values), 12.0 / 55.0, eps);
+    measured_values[0] = 1;
+    ASSERT_NEAR(
+        state.get_marginal_probability(measured_values), 15.0 / 55.0, eps);
+    measured_values[1] = 1;
+    ASSERT_NEAR(
+        state.get_marginal_probability(measured_values), 10.0 / 55.0, eps);
+    measured_values[0] = 0;
+    ASSERT_NEAR(
+        state.get_marginal_probability(measured_values), 18.0 / 55.0, eps);
 }
 
 TEST(StateTest, GetMarginalProbability) {
