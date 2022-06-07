@@ -147,20 +147,6 @@ TEST(StateTest, GetZeroProbability) {
     ASSERT_NEAR(state.get_zero_probability(1), 27.0 / 55.0, eps);
     ASSERT_NEAR(state.get_zero_probability(2), 33.0 / 55.0, eps);
     ASSERT_NEAR(state.get_zero_probability(3), 28.0 / 55.0, eps);
-
-    std::vector<UINT> measured_values(n, 2);
-    measured_values[0] = measured_values[1] = 0;
-    ASSERT_NEAR(
-        state.get_marginal_probability(measured_values), 12.0 / 55.0, eps);
-    measured_values[0] = 1;
-    ASSERT_NEAR(
-        state.get_marginal_probability(measured_values), 15.0 / 55.0, eps);
-    measured_values[1] = 1;
-    ASSERT_NEAR(
-        state.get_marginal_probability(measured_values), 10.0 / 55.0, eps);
-    measured_values[0] = 0;
-    ASSERT_NEAR(
-        state.get_marginal_probability(measured_values), 18.0 / 55.0, eps);
 }
 
 TEST(StateTest, GetMarginalProbability) {
