@@ -216,3 +216,6 @@ dkms.conf
 
 # ignore names_* for stub test
 /python/stub-test/names_*
+
+# ignore coverage
+/coverage/

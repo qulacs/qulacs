@@ -1,4 +1,3 @@
- 
 # Qulacs-Osaka
 
 [![Ubuntu & Windows CI](https://github.com/Qulacs-Osaka/qulacs-osaka/actions/workflows/ci.yml/badge.svg)](https://github.com/Qulacs-Osaka/qulacs-osaka/actions/workflows/ci.yml)
@@ -12,7 +11,7 @@ Qulacs-Osaka is licensed under the [MIT license](https://github.com/qulacs/qulac
 The commits in Qulacs are merged into Qulacs-Osaka up to the pull request corresponding to the commit  `987474b31a6e60eba116d2e40ab538dcf8086038` ([link to the corresponding commit in Qulacs](https://github.com/qulacs/qulacs/commit/987474b31a6e60eba116d2e40ab538dcf8086038) and [in Qulacs-Osaka](https://github.com/qulacs/qulacs/commit/987474b31a6e60eba116d2e40ab538dcf8086038)). After that commit, this project is developed independently from Qulacs and has many new features that have not been available in Qulacs.
 
 
-## Feature
+## Features
 - Fast quantum circuit simulation with parallelized C/C++ backend
 - Noisy quantum gate for simulation of NISQ devices
 - Parametric quantum gates for variational methods
@@ -39,18 +38,18 @@ The commits in Qulacs are merged into Qulacs-Osaka up to the pull request corres
   - Tesla V100 PCIE (driver 440.33.01)
 
 ### What is Benchmarked
-   for each qubit number N:
-   - Apply simultaneous random single-qubit Pauli-X rotation  
-   
-   and then repeat:
-   - Apply CNOT(i,(i+1)%N) for all i in [0..N-1]
-   - Apply simultaneous random single-qubit Pauli-X rotation  
-   
-   for N times.
-   
+For each qubit number N:
+- Apply simultaneous random single-qubit Pauli-X rotation  
+
+and then repeat:
+- Apply CNOT(i,(i+1)%N) for all i in [0..N-1]
+- Apply simultaneous random single-qubit Pauli-X rotation  
+
+for N times.
+
 #### Note
- - execution time include time for creating quantum circuit
- - benchmark was done with float64 precision (qsim was done with float32)
+- Execution time include time for creating quantum circuit
+- Benchmark was done with float64 precision (qsim was done with float32)
 
 ### Single thread benchmark
 
@@ -65,48 +64,50 @@ This benchmark was done with majour quantum circuit simulators with python inter
 Benchmark inculde Yao can be found [here](https://github.com/Roger-luo/quantum-benchmarks/blob/master/RESULTS.md).  
 
 
-## Requirement
+## Requirements
 
 - C++ compiler (gcc or VisualStudio)
-    - gcc/g++ >= 7.0.0 (checked in Linux, MacOS, cygwin, MinGW, and WSL)
-    - Microsoft VisualStudio C++ 2015 or later
+  - gcc/g++ >= 7.0.0 (checked in Linux, MacOS, cygwin, MinGW, and WSL)
+  - Microsoft VisualStudio C++ 2015 or later
 - [Boost](https://github.com/boostorg/boost) >= 1.71.0 (Minimum version tested in CI)
-- python 2.7 or 3.x
-- cmake >= 3.0
+- Python >= 3.7
+- CMake >= 3.0
 - git
 - (option) CUDA >= 8.0
 - (option) AVX2 support
 
 If your system supports AVX2 instructions, SIMD optimization is automatically enabled. 
-If you want to enable GPU simulator, install qulacs through <code>qulacs-gpu</code> package or build from source.
-Note that <code>qulacs-gpu</code> includes CPU simulator. You don't need to install both.
+If you want to enable GPU simulator, install qulacs through `qulacs-gpu` package or build from source.
+Note that `qulacs-gpu` includes CPU simulator. You don't need to install both.
 
 Qulacs is tested on the following systems.
 
-- Ubuntu 16.04 / 18.04
-- MacOS X Sierra
-- Windows 10
+- Ubuntu 20.04
+- macOS Big Sur 11
+- Windows Server 2019
+
+
+## Install via pip
+You can install the Python package via pip.
+```bash
+pip install qulacs-osaka
+```
 
 
 ## Install from Source
 If you encounter some troubles, see [troubleshooting](http://qulacs.org/md_4__trouble_shooting.html).
 
 
-### Install python libs from source
+### Install Python library from source
 
 Install (Multi-thread without GPU)
 ```
 python setup.py install
 ```
 
-Install (Multithread with GPU. CUDA is required)
+Install (Multi-thread with GPU. CUDA is required)
 ```
-python setup_gpu.py install
-```
-
-Install (Single-thread without GPU. For launching multiple qulacs processes.)
-```
-python setup_singlethread.py install
+USE_GPU=Yes python setup.py install
 ```
 
 Uninstall
@@ -114,25 +115,25 @@ Uninstall
 pip uninstall qulacs
 ```
 
-### Build C++ and python library
+### Build C++ library
 
 #### GCC
 ```
-git clone https://github.com/qulacs/qulacs.git
-cd qulacs
+git clone https://github.com/Qulacs-Osaka/qulacs-osaka.git
+cd qulacs-osaka
 ./script/build_gcc.sh
 ```
 
-When you want to build with GPU, use <code>build_gcc_with_gpu.sh</code>.
+When you want to build with GPU, use `build_gcc_with_gpu.sh`.
 
 #### MSVC
 ```
-git clone https://github.com/qulacs/qulacs.git
-cd qulacs
-script/build_msvc_2017.bat
+git clone https://github.com/Qulacs-Osaka/qulacs-osaka.git
+cd qulacs-osaka
+./script/build_msvc_2017.bat
 ```
 
-When you want to build with GPU, use <code>build_msvc_2017_with_gpu.bat</code>. If you use MSVC2015, replace "2017" in file names to "2015".
+When you want to build with GPU, use `build_msvc_2017_with_gpu.bat`. If you use MSVC2015, replace "2017" in file names to "2015".
 
 ## Tutorial and API document
 
@@ -166,7 +167,7 @@ value = observable.get_expectation_value(state)
 print(value)
 ```
 
-If you want to run it on GPU, install GPU-enabled qulacs and replace <code>QuantumState</code> in the above codes to <code>QuantumStateGpu</code>.
+If you want to run it on GPU, install GPU-enabled qulacs and replace `QuantumState` in the above codes to `QuantumStateGpu`.
 
 ### C++
 
@@ -200,10 +201,10 @@ int main(){
 
 Build command for g++:
 ```sh
-g++ -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -fopenmp -lcppsim_static -lcsim_static
+g++ -O2 -I ./include -L ./lib main.cpp -fopenmp -lcppsim_static -lcsim_static
 ```
 
-If you want to run it on GPU, include <code>cppsim/state_gpu.hpp</code> and replace <code>QuantumState</code> with <code>QuantumStateGpu</code>.
+If you want to run it on GPU, include `cppsim/state_gpu.hpp` and replace `QuantumState` with `QuantumStateGpu`.
 
 ## How to cite
 

@@ -14,7 +14,7 @@ ENV PYENV_ROOT="/.pyenv"
 ENV PATH="${PYENV_ROOT}/shims:${PYENV_ROOT}/bin:${PATH}"
 ENV PWD="/workspaces/qulacs-osaka"
 ENV QULACS_OSAKA_PACKAGE="qulacs_osaka"
-ENV QULACS_OSAKA_VERSION="0.3.0"
+ENV QULACS_OSAKA_VERSION="0.3.1"
 # Add build artifact to PYTHONPATH and python can find qulacs.
 # Egg file name might vary depending on qulacs and python version.
 ENV PYTHONPATH="${PWD}/dist/${QULACS_OSAKA_PACKAGE}-${QULACS_OSAKA_VERSION}-cp39-cp39-linux_x86_64.whl:${PYTHONPATH}"
@@ -76,3 +76,10 @@ RUN git clone https://github.com/google/googletest.git -b release-1.8.1 --depth 
 RUN git clone https://github.com/pybind/pybind11.git -b v2.7.1 --depth 1 /tmp/pybind11 \
     && cp -r /tmp/pybind11/include/pybind11 /usr/local/include \
     && rm -rf /tmp/pybind11
+
+# Install lcov
+RUN git clone https://github.com/linux-test-project/lcov.git -b v1.15 --depth 1 /tmp/lcov \
+    && cd /tmp/lcov \
+    && make install \
+    && cd - \
+    && rm -rf /tmp/lcov
