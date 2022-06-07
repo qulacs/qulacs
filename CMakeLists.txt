@@ -328,12 +328,10 @@ if(USE_TEST)
 		add_custom_target(test
 			DEPENDS csim_test
 			DEPENDS cppsim_test
-			DEPENDS cppsim_exp_test
 			DEPENDS gpusim_test
 			DEPENDS vqcsim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/csim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_test
-			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_exp_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/gpusim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
 		)
@@ -341,11 +339,9 @@ if(USE_TEST)
 		add_custom_target(test
 			DEPENDS csim_test
 			DEPENDS cppsim_test
-			DEPENDS cppsim_exp_test
 			DEPENDS vqcsim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/csim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_test
-			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_exp_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
 		)
 		add_custom_target(coverage
@@ -397,13 +393,10 @@ add_custom_target(shared
 if(USE_PYTHON)
 	add_custom_target(python
 		DEPENDS qulacs_core
-		DEPENDS qulacs_osaka_core
 	)
 	add_custom_target(pythontest
 		DEPENDS qulacs_core
-		DEPENDS qulacs_osaka_core
 		COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_qulacs.py
-		COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_qulacs_osaka.py
 	)
 endif()
 
