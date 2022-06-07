@@ -182,7 +182,8 @@ public:
     QuantumGate_ProbabilisticInstrument(std::vector<double> distribution,
         std::vector<QuantumGateBase*> gate_list,
         UINT classical_register_address)
-        : QuantumGate_Probabilistic(distribution,gate_list),_classical_register_address(classical_register_address) {
+        : QuantumGate_Probabilistic(distribution, gate_list),
+          _classical_register_address(classical_register_address) {
         _distribution = distribution;
         if (distribution.size() != gate_list.size()) {
             throw InvalidProbabilityDistributionException(
