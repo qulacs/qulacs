@@ -35,14 +35,38 @@ TEST(StateTest, GenerateAndRelease) {
     }
 }
 
-TEST(StateTest, Sampling) {
-    UINT n = 10;
+TEST(StateTest, SamplingComputationalBasis) {
+    const UINT n = 10;
+    const UINT nshot = 1024;
     QuantumState state(n);
-    state.set_Haar_random_state();
     state.set_computational_basis(100);
-    auto res1 = state.sampling(1024);
-    state.set_computational_basis(100);
-    auto res2 = state.sampling(1024);
+    auto res = state.sampling(nshot);
+    for (UINT i = 0; i < nshot; ++i) {
+        ASSERT_TRUE(res[i] == 100);
+    }
+}
+
+TEST(StateTest, SamplingSuperpositionState) {
+    const UINT n = 10;
+    const UINT nshot = 1024;
+    QuantumState state(n);
+    state.set_computational_basis(0);
+    for (ITYPE i = 1; i <= 4; ++i) {
+        QuantumState tmp_state(n);
+        tmp_state.set_computational_basis(i);
+        state.add_state_with_coef_single_thread(1 << i, &tmp_state);
+    }
+    state.normalize_single_thread(state.get_squared_norm_single_thread());
+    auto res = state.sampling(nshot);
+    std::array<UINT, 5> cnt = {};
+    for (UINT i = 0; i < nshot; ++i) {
+        ASSERT_GE(res[i], 0);
+        ASSERT_LE(res[i], 4);
+        cnt[res[i]] += 1;
+    }
+    for (UINT i = 0; i < 4; i++) {
+        ASSERT_GT(cnt[i + 1], cnt[i]);
+    }
 }
 
 TEST(StateTest, SetState) {
@@ -60,6 +84,69 @@ TEST(StateTest, SetState) {
         ASSERT_NEAR(state.data_cpp()[i].real(), state_vector[i].real(), eps);
         ASSERT_NEAR(state.data_cpp()[i].imag(), state_vector[i].imag(), eps);
     }
+}
+
+TEST(StateTest, HaarRandomStateNorm) {
+    const UINT n_max = 5, m = 10;
+    for (UINT n = 1; n <= n_max; n++) {
+        for (UINT i = 0; i < m; i++) {
+            QuantumState state(n);
+            state.set_Haar_random_state();
+            ASSERT_NEAR(state.get_squared_norm_single_thread(), 1., 1e-10);
+        }
+    }
+}
+
+bool same_state(QuantumState* s1, QuantumState* s2) {
+    const double eps = 1e-10;
+    assert(s1->qubit_count == s2->qubit_count);
+    auto s1_data = s1->data_cpp();
+    auto s2_data = s2->data_cpp();
+    for (ITYPE i = 0; i < s1->dim; ++i) {
+        if (abs(s1_data[i] - s2_data[i]) > eps) return false;
+    }
+    return true;
+};
+
+TEST(StateTest, HaarRandomStateWithoutSeed) {
+    const UINT n = 10, m = 5;
+    std::vector<QuantumState*> states(m);
+    for (UINT i = 0; i < m; ++i) {
+        states[i] = new QuantumState(n);
+        states[i]->set_Haar_random_state();
+    }
+    for (UINT i = 0; i < m - 1; ++i) {
+        for (UINT j = i + 1; j < m; ++j) {
+            ASSERT_FALSE(same_state(states[i], states[j]));
+        }
+    }
+}
+
+TEST(StateTest, StateTest_HaarRandomStateSameSeed) {
+    const UINT n = 10, m = 5;
+    for (UINT i = 0; i < m; ++i) {
+        QuantumState state1(n), state2(n);
+        state1.set_Haar_random_state(i);
+        state2.set_Haar_random_state(i);
+        ASSERT_TRUE(same_state(&state1, &state2));
+    }
+}
+
+TEST(StateTest, GetZeroProbability) {
+    const UINT n = 10;
+    const double eps = 1e-10;
+    QuantumState state(n);
+    state.set_computational_basis(1);
+    for (ITYPE i = 2; i <= 10; ++i) {
+        QuantumState tmp_state(n);
+        tmp_state.set_computational_basis(i);
+        state.add_state_with_coef_single_thread(std::sqrt(i), &tmp_state);
+    }
+    state.normalize_single_thread(state.get_squared_norm_single_thread());
+    ASSERT_NEAR(state.get_zero_probability(0), 30.0 / 55.0, eps);
+    ASSERT_NEAR(state.get_zero_probability(1), 27.0 / 55.0, eps);
+    ASSERT_NEAR(state.get_zero_probability(2), 33.0 / 55.0, eps);
+    ASSERT_NEAR(state.get_zero_probability(3), 28.0 / 55.0, eps);
 }
 
 TEST(StateTest, GetMarginalProbability) {
