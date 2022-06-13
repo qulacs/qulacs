@@ -3,5 +3,5 @@ if not defined USE_TEST (
 )
 mkdir visualstudio
 cd visualstudio
-cmake -G "Visual Studio 15 2017 Win64" -D USE_GPU:STR=No -D USE_TEST=%USE_TEST ..
+cmake -G "Visual Studio 15 2017 Win64" -D USE_GPU:STR=No -D USE_TEST=%USE_TEST% ..
 cd ..
