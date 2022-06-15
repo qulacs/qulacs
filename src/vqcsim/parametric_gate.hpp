@@ -1,6 +1,7 @@
 
 #pragma once
 
+#include <cppsim/exception.hpp>
 #include <cppsim/gate.hpp>
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/state.hpp>
@@ -19,7 +20,7 @@ protected:
 
 public:
     QuantumGate_SingleParameter(double angle) : _angle(angle) {
-        _gate_property ^= FLAG_PARAMETRIC;
+        _gate_property |= FLAG_PARAMETRIC;
         _parameter_type = 0;
     }
     virtual void set_parameter_value(double value) { _angle = value; }
@@ -37,27 +38,53 @@ protected:
     T_GPU_UPDATE_FUNC* _update_func_gpu;
 
     QuantumGate_SingleParameterOneQubitRotation(double angle)
-        : QuantumGate_SingleParameter(angle) {
-        _angle = angle;
-    };
+        : QuantumGate_SingleParameter(angle) {}
 
 public:
     virtual void update_quantum_state(QuantumStateBase* state) override {
         if (state->is_state_vector()) {
 #ifdef _USE_GPU
             if (state->get_device_name() == "gpu") {
+                if (_update_func_gpu == NULL) {
+                    UndefinedUpdateFuncException(
+                        "Error: "
+                        "QuantumGate_SingleParameterOneQubitRotation::update_"
+                        "quantum_state(QuantumStateBase) : update function is "
+                        "undefined");
+                }
                 _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
                     state->data(), state->dim, state->get_cuda_stream(),
                     state->device_number);
             } else {
+                if (_update_func == NULL) {
+                    UndefinedUpdateFuncException(
+                        "Error: "
+                        "QuantumGate_SingleParameterOneQubitRotation::update_"
+                        "quantum_state(QuantumStateBase) : update function is "
+                        "undefined");
+                }
                 _update_func(this->_target_qubit_list[0].index(), _angle,
                     state->data_c(), state->dim);
             }
 #else
+            if (_update_func == NULL) {
+                UndefinedUpdateFuncException(
+                    "Error: "
+                    "QuantumGate_SingleParameterOneQubitRotation::update_"
+                    "quantum_state(QuantumStateBase) : update function is "
+                    "undefined");
+            }
             _update_func(this->_target_qubit_list[0].index(), _angle,
                 state->data_c(), state->dim);
 #endif
         } else {
+            if (_update_func_dm == NULL) {
+                UndefinedUpdateFuncException(
+                    "Error: "
+                    "QuantumGate_SingleParameterOneQubitRotation::update_"
+                    "quantum_state(QuantumStateBase) : update function is "
+                    "undefined");
+            }
             _update_func_dm(this->_target_qubit_list[0].index(), _angle,
                 state->data_c(), state->dim);
         }

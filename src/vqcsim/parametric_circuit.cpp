@@ -18,10 +18,13 @@ ParametricQuantumCircuit::ParametricQuantumCircuit(UINT qubit_count_)
 ParametricQuantumCircuit* ParametricQuantumCircuit::copy() const {
     ParametricQuantumCircuit* new_circuit =
         new ParametricQuantumCircuit(this->qubit_count);
+    UINT pos = 0;
     for (UINT gate_pos = 0; gate_pos < this->gate_list.size(); gate_pos++) {
-        auto pos = std::find(this->_parametric_gate_position.begin(),
-            this->_parametric_gate_position.end(), gate_pos);
-        bool is_parametric = (pos != this->_parametric_gate_position.end());
+        while (pos < _parametric_gate_position.size() &&
+               _parametric_gate_position[pos] < gate_pos)
+            pos++;
+        bool is_parametric = (pos < _parametric_gate_position.size() &&
+                              _parametric_gate_position[pos] == gate_pos);
 
         if (is_parametric) {
             new_circuit->add_parametric_gate(
@@ -67,21 +70,18 @@ UINT ParametricQuantumCircuit::get_parameter_count() const {
 }
 double ParametricQuantumCircuit::get_parameter(UINT index) const {
     if (index >= this->_parametric_gate_list.size()) {
-        std::cerr << "Error: ParametricQuantumCircuit::get_parameter(UINT): "
-                     "parameter index is out of range"
-                  << std::endl;
-        return 0.;
+        throw ParameterIndexOutOfRangeException(
+            "Error: ParametricQuantumCircuit::get_parameter(UINT): parameter "
+            "index is out of range");
     }
 
     return _parametric_gate_list[index]->get_parameter_value();
 }
 void ParametricQuantumCircuit::set_parameter(UINT index, double value) {
     if (index >= this->_parametric_gate_list.size()) {
-        std::cerr
-            << "Error: ParametricQuantumCircuit::set_parameter(UINT,double): "
-               "parameter index is out of range"
-            << std::endl;
-        return;
+        throw ParameterIndexOutOfRangeException(
+            "Error: ParametricQuantumCircuit::set_parameter(UINT,double): "
+            "parameter index is out of range");
     }
 
     _parametric_gate_list[index]->set_parameter_value(value);
@@ -108,11 +108,10 @@ std::ostream& operator<<(
 
 UINT ParametricQuantumCircuit::get_parametric_gate_position(UINT index) const {
     if (index >= this->_parametric_gate_list.size()) {
-        std::cerr
-            << "Error: "
-               "ParametricQuantumCircuit::get_parametric_gate_position(UINT):"
-               " parameter index is out of range"
-            << std::endl;
+        throw ParameterIndexOutOfRangeException(
+            "Error: "
+            "ParametricQuantumCircuit::get_parametric_gate_position(UINT): "
+            "parameter index is out of range");
         return 0;
     }
 
