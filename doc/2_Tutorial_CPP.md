@@ -74,11 +74,11 @@ int main() {
 	// registerの書き込み
 	int register_position = 3;
 	int register_value = 1;
-	state.set_classical_bit(register_position, register_value);
+	state.set_classical_value(register_position, register_value);
 
 	// registerの読み出し
 	int obtained_value;
-	obtained_value = state.get_classical_bit(register_position);
+	obtained_value = state.get_classical_value(register_position);
 	return 0;
 }
 ```
