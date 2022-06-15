@@ -51,7 +51,13 @@ jobs:
 
       - name: Install boost
         run: sudo apt install libboost-dev
-      
+
+      - name: Install LCOV
+        run: |
+          git clone -b v1.15 --depth 1 https://github.com/linux-test-project/lcov.git
+          cd lcov
+          sudo make install
+
       - name: Install Python dependencies
         run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion mypy pybind11-stubgen
 
@@ -77,8 +83,11 @@ jobs:
       - name: Test in Ubuntu
         run: |
           cd ./build
-          make test
+          make coverage
           make pythontest
+
+      - name: Upload coverage to codecov
+        uses: codecov/codecov-action@v3
 
       - name: Show cache stats
         run: ccache -s
