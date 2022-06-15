@@ -690,7 +690,7 @@ class TestNoiseSimulator(unittest.TestCase):
                     num_heavy_output += 1
             return num_heavy_output / shots
 
-        self.assertGreater(get_heavy_output_probability(10, 100, 0.0001), 2 / 3)
+        self.assertGreater(get_heavy_output_probability(10, 100, 1e-5), 2 / 3)
         self.assertLess(get_heavy_output_probability(10, 100, 0.01), 2 / 3)
 
 
