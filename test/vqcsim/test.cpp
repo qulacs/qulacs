@@ -313,6 +313,7 @@ TEST(GradCalculator, BasicCheck) {
 }
 
 TEST(ParametricCircuit,ParametricMergeCircuits){
+
     ParametricQuantumCircuit circuit1(3), circuit2(3), circuit3(3);
     Random random;
 
@@ -349,6 +350,7 @@ TEST(ParametricCircuit,ParametricMergeCircuits){
 
     circuit1.merge_circuit(&circuit2);
     
+    // circuit1.merge(circuit2) should be equal to circuit3
     ASSERT_EQ(circuit1.get_parameter_count(), circuit3.get_parameter_count());
     for (int i = 0; i < circuit1.get_parameter_count(); ++i) {
         ASSERT_EQ(circuit1.get_parameter(i), circuit3.get_parameter(i));
