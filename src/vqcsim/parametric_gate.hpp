@@ -46,7 +46,7 @@ public:
 #ifdef _USE_GPU
             if (state->get_device_name() == "gpu") {
                 if (_update_func_gpu == NULL) {
-                    UndefinedUpdateFuncException(
+                    throw UndefinedUpdateFuncException(
                         "Error: "
                         "QuantumGate_SingleParameterOneQubitRotation::update_"
                         "quantum_state(QuantumStateBase) : update function is "
@@ -57,7 +57,7 @@ public:
                     state->device_number);
             } else {
                 if (_update_func == NULL) {
-                    UndefinedUpdateFuncException(
+                    throw UndefinedUpdateFuncException(
                         "Error: "
                         "QuantumGate_SingleParameterOneQubitRotation::update_"
                         "quantum_state(QuantumStateBase) : update function is "
@@ -68,7 +68,7 @@ public:
             }
 #else
             if (_update_func == NULL) {
-                UndefinedUpdateFuncException(
+                throw UndefinedUpdateFuncException(
                     "Error: "
                     "QuantumGate_SingleParameterOneQubitRotation::update_"
                     "quantum_state(QuantumStateBase) : update function is "
@@ -79,7 +79,7 @@ public:
 #endif
         } else {
             if (_update_func_dm == NULL) {
-                UndefinedUpdateFuncException(
+                throw UndefinedUpdateFuncException(
                     "Error: "
                     "QuantumGate_SingleParameterOneQubitRotation::update_"
                     "quantum_state(QuantumStateBase) : update function is "
