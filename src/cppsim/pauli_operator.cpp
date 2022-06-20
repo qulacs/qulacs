@@ -161,6 +161,13 @@ CPPCTYPE PauliOperator::get_expectation_value(
                        (UINT)this->get_index_list().size(), state->data(),
                        state->dim, state->get_cuda_stream(),
                        state->device_number);
+        } else {
+            return _coef *
+                   expectation_value_multi_qubit_Pauli_operator_partial_list(
+                       this->get_index_list().data(),
+                       this->get_pauli_id_list().data(),
+                       (UINT)this->get_index_list().size(), state->data_c(),
+                       state->dim);
         }
 #else
         return _coef *
