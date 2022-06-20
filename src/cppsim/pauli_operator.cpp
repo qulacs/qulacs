@@ -141,7 +141,7 @@ void PauliOperator::add_single_Pauli(UINT qubit_index, UINT pauli_type) {
 CPPCTYPE PauliOperator::get_expectation_value(
     const QuantumStateBase* state) const {
     if (state->qubit_count < this->get_qubit_count()) {
-        throw std::invalid_argument(
+        throw InvalidPauliIdentifierException(
             "Error: "
             "PauliOperator::get_expectation_value(QuantumStateBase*):" 
             "The number of qubit in PauliOperator is greater than QuantumState."
