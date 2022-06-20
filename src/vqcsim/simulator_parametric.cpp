@@ -1,4 +1,3 @@
-
 #include "parametric_circuit.hpp"
 #include "parametric_simulator.hpp"
 

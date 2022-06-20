@@ -2,15 +2,22 @@
 
 #include <Eigen/Dense>
 #include <csim/stat_ops.hpp>
+#include <csim/update_ops.hpp>
+#include <csim/update_ops_dm.hpp>
 #include <cstring>
 #include <fstream>
 #include <numeric>
 
+#include "exception.hpp"
 #include "gate_factory.hpp"
 #include "pauli_operator.hpp"
 #include "state.hpp"
 #include "type.hpp"
 #include "utility.hpp"
+
+#ifdef _USE_GPU
+#include <gpusim/update_ops_cuda.h>
+#endif
 
 GeneralQuantumOperator::GeneralQuantumOperator(const UINT qubit_count)
     : _qubit_count(qubit_count), _is_hermitian(true) {}
@@ -24,11 +31,10 @@ GeneralQuantumOperator::~GeneralQuantumOperator() {
 void GeneralQuantumOperator::add_operator(const PauliOperator* mpt) {
     PauliOperator* _mpt = mpt->copy();
     if (!check_Pauli_operator(this, _mpt)) {
-        std::cerr << "Error: GeneralQuantumOperator::add_operator(const "
-                     "PauliOperator*): pauli_operator applies target qubit of "
-                     "which the index is larger than qubit_count"
-                  << std::endl;
-        return;
+        throw QubitIndexOutOfRangeException(
+            "Error: GeneralQuantumOperator::add_operator(const "
+            "PauliOperator*): pauli_operator applies target qubit of "
+            "which the index is larger than qubit_count");
     }
     if (this->_is_hermitian && std::abs(_mpt->get_coef().imag()) > 0) {
         this->_is_hermitian = false;
@@ -40,12 +46,11 @@ void GeneralQuantumOperator::add_operator(
     CPPCTYPE coef, std::string pauli_string) {
     PauliOperator* _mpt = new PauliOperator(pauli_string, coef);
     if (!check_Pauli_operator(this, _mpt)) {
-        std::cerr << "Error: "
-                     "GeneralQuantumOperator::add_operator(double,std::string):"
-                     " pauli_operator applies target qubit of which the index "
-                     "is larger than qubit_count"
-                  << std::endl;
-        return;
+        throw QubitIndexOutOfRangeException(
+            "Error: "
+            "GeneralQuantumOperator::add_operator(double,std::string):"
+            " pauli_operator applies target qubit of which the index "
+            "is larger than qubit_count");
     }
     if (this->_is_hermitian && std::abs(coef.imag()) > 0) {
         this->_is_hermitian = false;
@@ -56,7 +61,40 @@ void GeneralQuantumOperator::add_operator(
 
 CPPCTYPE GeneralQuantumOperator::get_expectation_value(
     const QuantumStateBase* state) const {
-    if (this->_qubit_count != state->qubit_count) {
+    if (this->_qubit_count > state->qubit_count) {
+        throw InvalidQubitCountException(
+            "Error: GeneralQuantumOperator::get_expectation_value(const "
+            "QuantumStateBase*): invalid qubit count");
+    }
+
+    const size_t n_terms = this->_operator_list.size();
+    if (state->get_device_name() == "gpu") {
+        CPPCTYPE sum = 0;
+        for (UINT i = 0; i < n_terms; ++i) {
+            sum += _operator_list[i]->get_expectation_value(state);
+        }
+        return sum;
+    }
+
+    double sum_real = 0.;
+    double sum_imag = 0.;
+    CPPCTYPE tmp(0., 0.);
+#ifdef _OPENMP
+#pragma omp parallel for reduction(+ : sum_real, sum_imag) private(tmp)
+#endif
+    for (int i = 0; i < (int)n_terms;
+         ++i) {  // this variable (i) has to be signed integer because of OpenMP
+                 // of Windows compiler.
+        tmp = _operator_list[i]->get_expectation_value_single_thread(state);
+        sum_real += tmp.real();
+        sum_imag += tmp.imag();
+    }
+    return CPPCTYPE(sum_real, sum_imag);
+}
+
+CPPCTYPE GeneralQuantumOperator::get_expectation_value_single_thread(
+    const QuantumStateBase* state) const {
+    if (this->_qubit_count > state->qubit_count) {
         std::cerr
             << "Error: GeneralQuantumOperator::get_expectation_value(const "
                "QuantumStateBase*): invalid qubit count"
@@ -66,7 +104,7 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
     auto sum = std::accumulate(this->_operator_list.cbegin(),
         this->_operator_list.cend(), (CPPCTYPE)0.0,
         [&](CPPCTYPE acc, PauliOperator* pauli) {
-            return acc + pauli->get_expectation_value(state);
+            return acc + pauli->get_expectation_value_single_thread(state);
         });
     return sum;
 }
@@ -74,14 +112,12 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
 CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
     const QuantumStateBase* state_bra,
     const QuantumStateBase* state_ket) const {
-    if (this->_qubit_count != state_bra->qubit_count ||
-        this->_qubit_count != state_ket->qubit_count) {
-        std::cerr
-            << "Error: GeneralQuantumOperator::get_transition_amplitude(const "
-               "QuantumStateBase*, const QuantumStateBase*): invalid qubit "
-               "count"
-            << std::endl;
-        return 0.;
+    if (this->_qubit_count > state_bra->qubit_count ||
+        state_bra->qubit_count != state_ket->qubit_count) {
+        throw InvalidQubitCountException(
+            "Error: GeneralQuantumOperator::get_transition_amplitude(const "
+            "QuantumStateBase*, const QuantumStateBase*): invalid qubit "
+            "count");
     }
 
     auto sum = std::accumulate(this->_operator_list.cbegin(),
@@ -94,7 +130,6 @@ CPPCTYPE GeneralQuantumOperator::get_transition_amplitude(
 
 void GeneralQuantumOperator::add_random_operator(const UINT operator_count) {
     const auto qubit_count = this->get_qubit_count();
-    Random random;
     for (UINT operator_index = 0; operator_index < operator_count;
          operator_index++) {
         auto target_qubit_index_list = std::vector<UINT>(qubit_count, 0);
@@ -112,16 +147,22 @@ void GeneralQuantumOperator::add_random_operator(const UINT operator_count) {
     }
 }
 
+void GeneralQuantumOperator::add_random_operator(
+    const UINT operator_count, UINT seed) {
+    random.set_seed(seed);
+    add_random_operator(operator_count);
+}
+
 CPPCTYPE
 GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
     if (this->get_term_count() == 0) {
-        std::cerr << "Error: "
-                     "GeneralQuantumOperator::solve_ground_state_eigenvalue_by_"
-                     "arnoldi_method("
-                     "QuantumStateBase * state, const UINT iter_count, const "
-                     "CPPCTYPE mu): At least one PauliOperator is required.";
-        return 0;
+        throw InvalidQuantumOperatorException(
+            "Error: "
+            "GeneralQuantumOperator::solve_ground_state_eigenvalue_by_"
+            "arnoldi_method("
+            "QuantumStateBase * state, const UINT iter_count, const "
+            "CPPCTYPE mu): At least one PauliOperator is required.");
     }
 
     // Implemented based on
@@ -174,7 +215,6 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     Eigen::ComplexEigenSolver<ComplexMatrix> eigen_solver(hessenberg_matrix);
     const auto eigenvalues = eigen_solver.eigenvalues();
     const auto eigenvectors = eigen_solver.eigenvectors();
-    assert(state_list.size() == eigenvectors.cols());
 
     // Find ground state eigenvalue and eigenvector.
     UINT minimum_eigenvalue_index = 0;
@@ -187,7 +227,7 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
     }
 
     // Compose ground state vector and store it to `state`.
-    present_state.multiply_coef(0.0);
+    present_state.set_zero_norm_state();
     for (UINT i = 0; i < state_list.size() - 1; i++) {
         tmp_state.load(state_list[i]);
         tmp_state.multiply_coef(eigenvectors(i, minimum_eigenvalue_index));
@@ -205,12 +245,12 @@ GeneralQuantumOperator::solve_ground_state_eigenvalue_by_arnoldi_method(
 CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
     QuantumStateBase* state, const UINT iter_count, const CPPCTYPE mu) const {
     if (this->get_term_count() == 0) {
-        std::cerr << "Error: "
-                     "GeneralQuantumOperator::solve_ground_state_eigenvalue_by_"
-                     "power_method("
-                     "QuantumStateBase * state, const UINT iter_count, const "
-                     "CPPCTYPE mu): At least one PauliOperator is required.";
-        return 0;
+        throw InvalidQuantumOperatorException(
+            "Error: "
+            "GeneralQuantumOperator::solve_ground_state_eigenvalue_by_"
+            "power_method("
+            "QuantumStateBase * state, const UINT iter_count, const "
+            "CPPCTYPE mu): At least one PauliOperator is required.");
     }
 
     CPPCTYPE mu_;
@@ -230,7 +270,7 @@ CPPCTYPE GeneralQuantumOperator::solve_ground_state_eigenvalue_by_power_method(
         mu_timed_state.load(state);
         mu_timed_state.multiply_coef(-mu_);
 
-        multiplied_state.multiply_coef(0.0);
+        multiplied_state.set_zero_norm_state();
         this->apply_to_state(&work_state, *state, &multiplied_state);
         state->load(&multiplied_state);
         state->add_state(&mu_timed_state);
@@ -243,22 +283,111 @@ void GeneralQuantumOperator::apply_to_state(QuantumStateBase* work_state,
     const QuantumStateBase& state_to_be_multiplied,
     QuantumStateBase* dst_state) const {
     if (state_to_be_multiplied.qubit_count != dst_state->qubit_count) {
-        throw std::invalid_argument(
+        throw InvalidQubitCountException(
             "Qubit count of state_to_be_multiplied and dst_state must be the "
             "same");
     }
 
-    dst_state->multiply_coef(0.0);
+    dst_state->set_zero_norm_state();
     const auto term_count = this->get_term_count();
     for (UINT i = 0; i < term_count; i++) {
         work_state->load(&state_to_be_multiplied);
         const auto term = this->get_term(i);
-        auto pauli_operator =
-            gate::Pauli(term->get_index_list(), term->get_pauli_id_list());
-        pauli_operator->update_quantum_state(work_state);
-        work_state->multiply_coef(term->get_coef());
-        dst_state->add_state(work_state);
-        delete pauli_operator;
+        _apply_pauli_to_state(
+            term->get_pauli_id_list(), term->get_index_list(), work_state);
+        dst_state->add_state_with_coef(term->get_coef(), work_state);
+    }
+}
+
+void GeneralQuantumOperator::apply_to_state(
+    QuantumStateBase* state, QuantumStateBase* dst_state) const {
+    if (state->qubit_count != dst_state->qubit_count) {
+        throw InvalidQubitCountException(
+            "Qubit count of state_to_be_multiplied and dst_state must be the "
+            "same");
+    }
+
+    dst_state->set_zero_norm_state();
+    const auto term_count = this->get_term_count();
+    for (UINT i = 0; i < term_count; i++) {
+        const auto term = this->get_term(i);
+        _apply_pauli_to_state(
+            term->get_pauli_id_list(), term->get_index_list(), state);
+        dst_state->add_state_with_coef(term->get_coef(), state);
+        _apply_pauli_to_state(
+            term->get_pauli_id_list(), term->get_index_list(), state);
+    }
+}
+
+void GeneralQuantumOperator::apply_to_state_single_thread(
+    QuantumStateBase* state, QuantumStateBase* dst_state) const {
+    if (state->qubit_count != dst_state->qubit_count) {
+        throw InvalidQubitCountException(
+            "Qubit count of state_to_be_multiplied and dst_state must be the "
+            "same");
+    }
+
+    dst_state->set_zero_norm_state();
+    const auto term_count = this->get_term_count();
+    for (UINT i = 0; i < term_count; i++) {
+        const auto term = this->get_term(i);
+        _apply_pauli_to_state_single_thread(
+            term->get_pauli_id_list(), term->get_index_list(), state);
+        dst_state->add_state_with_coef_single_thread(term->get_coef(), state);
+        _apply_pauli_to_state_single_thread(
+            term->get_pauli_id_list(), term->get_index_list(), state);
+    }
+}
+
+void GeneralQuantumOperator::_apply_pauli_to_state(
+    std::vector<UINT> pauli_id_list, std::vector<UINT> target_index_list,
+    QuantumStateBase* state) const {
+    // this function is same as the gate::Pauli update quantum state
+    if (state->is_state_vector()) {
+#ifdef _USE_GPU
+        if (state->get_device_name() == "gpu") {
+            multi_qubit_Pauli_gate_partial_list_host(target_index_list.data(),
+                pauli_id_list.data(), (UINT)target_index_list.size(),
+                state->data(), state->dim, state->get_cuda_stream(),
+                state->device_number);
+            // _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
+            // state->data(), state->dim);
+            return;
+        }
+#endif
+        multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
+            pauli_id_list.data(), (UINT)target_index_list.size(),
+            state->data_c(), state->dim);
+    } else {
+        dm_multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
+            pauli_id_list.data(), (UINT)target_index_list.size(),
+            state->data_c(), state->dim);
+    }
+}
+
+void GeneralQuantumOperator::_apply_pauli_to_state_single_thread(
+    std::vector<UINT> pauli_id_list, std::vector<UINT> target_index_list,
+    QuantumStateBase* state) const {
+    // this function is same as the gate::Pauli update quantum state
+    if (state->is_state_vector()) {
+#ifdef _USE_GPU
+        if (state->get_device_name() == "gpu") {
+            // TODO: make it single thread for this function
+            multi_qubit_Pauli_gate_partial_list_host(target_index_list.data(),
+                pauli_id_list.data(), (UINT)target_index_list.size(),
+                state->data(), state->dim, state->get_cuda_stream(),
+                state->device_number);
+            // _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
+            // state->data(), state->dim);
+            return;
+        }
+#endif
+        multi_qubit_Pauli_gate_partial_list_single_thread(
+            target_index_list.data(), pauli_id_list.data(),
+            (UINT)target_index_list.size(), state->data_c(), state->dim);
+    } else {
+        throw std::runtime_error(
+            "apply single thread is not implemented for density matrix");
     }
 }
 
@@ -276,6 +405,15 @@ GeneralQuantumOperator* GeneralQuantumOperator::copy() const {
     auto quantum_operator = new GeneralQuantumOperator(_qubit_count);
     for (auto pauli : this->_operator_list) {
         quantum_operator->add_operator(pauli->copy());
+    }
+    return quantum_operator;
+}
+
+GeneralQuantumOperator* GeneralQuantumOperator::get_dagger() const {
+    auto quantum_operator = new GeneralQuantumOperator(_qubit_count);
+    for (auto pauli : this->_operator_list) {
+        quantum_operator->add_operator(
+            std::conj(pauli->get_coef()), pauli->get_pauli_string());
     }
     return quantum_operator;
 }
@@ -298,7 +436,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     const GeneralQuantumOperator& target) {
     ITYPE i, j;
     auto terms = target.get_terms();
-#pragma omp parallel for
+    // #pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         for (j = 0; j < terms.size(); j++) {
@@ -351,7 +489,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     const PauliOperator& target) {
     bool flag = true;
     ITYPE i;
-#pragma omp parallel for
+    //#pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         auto pauli_x = pauli_operator->get_x_bits();
@@ -395,7 +533,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
     const GeneralQuantumOperator& target) {
     ITYPE i, j;
     auto terms = target.get_terms();
-#pragma omp parallel for
+    // #pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         for (j = 0; j < terms.size(); j++) {
@@ -503,7 +641,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     auto terms = copy->get_terms();
     auto target_terms = target.get_terms();
     ITYPE i, j;
-#pragma omp parallel for
+    // #pragma omp parallel for
     for (i = 0; i < terms.size(); i++) {
         auto pauli_operator = terms[i];
         for (j = 0; j < target_terms.size(); j++) {
@@ -511,6 +649,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
             PauliOperator* product = new PauliOperator;
             *product = (*pauli_operator) * (*target_operator);
             *this += *product;
+            delete product;
         }
     }
     return *this;
@@ -522,7 +661,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     _operator_list.clear();
     ITYPE i;
     auto terms = copy->get_terms();
-#pragma omp parallel for
+    // #pragma omp parallel for
     for (i = 0; i < terms.size(); i++) {
         auto pauli_operator = terms[i];
         PauliOperator* product = new PauliOperator;
@@ -534,13 +673,12 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator*=(CPPCTYPE target) {
     ITYPE i;
-#pragma omp parallel for
+    // #pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         *_operator_list[i] *= target;
     }
     return *this;
 }
-
 namespace quantum_operator {
 GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(
     std::string file_path) {
@@ -574,8 +712,7 @@ GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(
         }
     }
     if (!ifs.eof()) {
-        std::cerr << "ERROR: Invalid format" << std::endl;
-        return (GeneralQuantumOperator*)NULL;
+        throw InvalidOpenfermionFormatException("ERROR: Invalid format");
     }
     ifs.close();
 
@@ -639,9 +776,7 @@ create_split_general_quantum_operator(std::string file_path) {
     ifs.open(file_path);
 
     if (!ifs) {
-        std::cerr << "ERROR: Cannot open file" << std::endl;
-        return std::make_pair(
-            (GeneralQuantumOperator*)NULL, (GeneralQuantumOperator*)NULL);
+        throw IOException("ERROR: Cannot open file");
     }
 
     // loading lines and check qubit_count
@@ -669,9 +804,7 @@ create_split_general_quantum_operator(std::string file_path) {
         }
     }
     if (!ifs.eof()) {
-        std::cerr << "ERROR: Invalid format" << std::endl;
-        return std::make_pair(
-            (GeneralQuantumOperator*)NULL, (GeneralQuantumOperator*)NULL);
+        throw InvalidOpenfermionFormatException("ERROR: Invalid format");
     }
     ifs.close();
 

@@ -44,7 +44,7 @@ class ControlQubitInfo;
 class DllExport ControlQubitInfo : public QubitInfo {
 private:
     // \~japanese-en
-    // コントロール値　量子ビットの添字がコントロール値のときのみゲートが作用する
+    // コントロール値 量子ビットの添字がコントロール値のときのみゲートが作用する
     UINT _control_value;
 
 public:
@@ -95,7 +95,7 @@ public:
  */
 class DllExport TargetQubitInfo : public QubitInfo {
 private:
-    // \~japanese-en この量子ビットがパウリ演算子と可換か同課を保持する値
+    // \~japanese-en この量子ビットがパウリ演算子と可換かどうかを保持する値
     UINT _commutation_property;
 
 public:

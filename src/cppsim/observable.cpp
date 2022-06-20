@@ -12,15 +12,15 @@
 #include <fstream>
 #include <iostream>
 
+#include "exception.hpp"
 #include "state.hpp"
 #include "utility.hpp"
 
 void HermitianQuantumOperator::add_operator(const PauliOperator* mpt) {
     if (std::abs(mpt->get_coef().imag()) > 0) {
-        std::cerr << "Error: HermitianQuantumOperator::add_operator(const "
-                     "PauliOperator* mpt): PauliOperator must be Hermitian."
-                  << std::endl;
-        return;
+        throw NonHermitianException(
+            "Error: HermitianQuantumOperator::add_operator(const "
+            "PauliOperator* mpt): PauliOperator must be Hermitian.");
     }
     GeneralQuantumOperator::add_operator(mpt);
 }
@@ -28,10 +28,9 @@ void HermitianQuantumOperator::add_operator(const PauliOperator* mpt) {
 void HermitianQuantumOperator::add_operator(
     CPPCTYPE coef, std::string pauli_string) {
     if (std::abs(coef.imag()) > 0) {
-        std::cerr << "Error: HermitianQuantumOperator::add_operator(const "
-                     "PauliOperator* mpt): PauliOperator must be Hermitian."
-                  << std::endl;
-        return;
+        throw NonHermitianException(
+            "Error: HermitianQuantumOperator::add_operator(const "
+            "PauliOperator* mpt): PauliOperator must be Hermitian.");
     }
     GeneralQuantumOperator::add_operator(coef, pauli_string);
 }
@@ -46,16 +45,17 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     QuantumStateBase* init_state, const UINT iter_count,
     const CPPCTYPE mu) const {
     if (this->get_term_count() == 0) {
-        std::cerr << "Error: "
-                     "HermitianQuantumOperator::solve_ground_state_eigenvalue_"
-                     "by_lanczos_method("
-                     "QuantumStateBase * state, const UINT iter_count, const "
-                     "CPPCTYPE mu): At least one PauliOperator is required.";
-        return 0;
+        throw InvalidQuantumOperatorException(
+            "Error: "
+            "HermitianQuantumOperator::solve_ground_state_eigenvalue_"
+            "by_lanczos_method("
+            "QuantumStateBase * state, const UINT iter_count, const "
+            "CPPCTYPE mu): At least one PauliOperator is required.");
     }
 
     // Implemented based on
-    // https://files.transtutors.com/cdn/uploadassignments/472339_1_-numerical-linear-aljebra.pdf
+    // https://en.wikipedia.org/wiki/Lanczos_algorithm
+    // https://math.berkeley.edu/~mgu/MA128BSpring2018/Lanczos.pdf
     CPPCTYPE mu_;
     if (mu == 0.0) {
         // mu is not changed from default value.
@@ -134,7 +134,7 @@ HermitianQuantumOperator::solve_ground_state_eigenvalue_by_lanczos_method(
     // So, an eigenvector of A for λ is Vq.
     // q_0 = init_state
     work_states.at(1).load(init_state);
-    init_state->multiply_coef(0.0);
+    init_state->set_zero_norm_state();
     assert(eigenvector_in_krylov.size() == iter_count);
     for (UINT i = 0; i < iter_count; i++) {
         // q += v_i * q_i, where q is eigenvector to compute
@@ -195,8 +195,7 @@ HermitianQuantumOperator* create_observable_from_openfermion_file(
     ifs.open(file_path);
 
     if (!ifs) {
-        std::cerr << "ERROR: Cannot open file" << std::endl;
-        return NULL;
+        throw IOException("ERROR: Cannot open file");
     }
 
     // loading lines and check qubit_count
@@ -222,8 +221,7 @@ HermitianQuantumOperator* create_observable_from_openfermion_file(
         }
     }
     if (!ifs.eof()) {
-        std::cerr << "ERROR: Invalid format" << std::endl;
-        return NULL;
+        throw InvalidOpenfermionFormatException("ERROR: Invalid format");
     }
     ifs.close();
 
@@ -286,9 +284,7 @@ create_split_observable(std::string file_path) {
     ifs.open(file_path);
 
     if (!ifs) {
-        std::cerr << "ERROR: Cannot open file" << std::endl;
-        return std::make_pair(
-            (HermitianQuantumOperator*)NULL, (HermitianQuantumOperator*)NULL);
+        throw InvalidOpenfermionFormatException("ERROR: Cannot open file");
     }
 
     // loading lines and check qubit_count
@@ -314,9 +310,7 @@ create_split_observable(std::string file_path) {
         }
     }
     if (!ifs.eof()) {
-        std::cerr << "ERROR: Invalid format" << std::endl;
-        return std::make_pair(
-            (HermitianQuantumOperator*)NULL, (HermitianQuantumOperator*)NULL);
+        throw InvalidOpenfermionFormatException("ERROR: Invalid format");
     }
     ifs.close();
 
@@ -339,3 +333,26 @@ create_split_observable(std::string file_path) {
     return std::make_pair(observable_diag, observable_non_diag);
 }
 }  // namespace observable
+
+ComplexMatrix convert_observable_to_matrix(const Observable& observable) {
+    const auto dim = observable.get_state_dim();
+    const auto qubit_count = observable.get_qubit_count();
+    ComplexMatrix observable_matrix = ComplexMatrix::Zero(dim, dim);
+    for (UINT term_index = 0; term_index < observable.get_term_count();
+         ++term_index) {
+        const auto pauli_operator = observable.get_term(term_index);
+        auto coef = pauli_operator->get_coef();
+        auto target_index_list = pauli_operator->get_index_list();
+        auto pauli_id_list = pauli_operator->get_pauli_id_list();
+
+        std::vector<UINT> whole_pauli_id_list(qubit_count, 0);
+        for (UINT i = 0; i < target_index_list.size(); ++i) {
+            whole_pauli_id_list[target_index_list[i]] = pauli_id_list[i];
+        }
+
+        ComplexMatrix pauli_matrix;
+        get_Pauli_matrix(pauli_matrix, whole_pauli_id_list);
+        observable_matrix += coef * pauli_matrix;
+    }
+    return observable_matrix;
+}

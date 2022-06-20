@@ -1,4 +1,4 @@
-
+#pragma once
 /**
  * @file pauli_operator.hpp
  * @brief Definition and basic functions for MultiPauliTerm
@@ -11,6 +11,7 @@
 #include <iostream>
 #include <vector>
 
+#include "exception.hpp"
 #include "type.hpp"
 
 class QuantumStateBase;
@@ -41,10 +42,9 @@ public:
     SinglePauliOperator(UINT index_, UINT pauli_id_)
         : _index(index_), _pauli_id(pauli_id_) {
         if (pauli_id_ > 3) {
-            std::cerr
-                << "Error: SinglePauliOperator(UINT, UINT): index must be "
-                   "either of 0,1,2,3"
-                << std::endl;
+            throw InvalidPauliIdentifierException(
+                "Error: SinglePauliOperator(UINT, UINT): index must be "
+                "either of 0,1,2,3");
         }
     };
 
@@ -250,6 +250,18 @@ public:
 
     /**
      * \~japanese-en
+     * added by myself
+     * 量子状態に対応するパウリ演算子の期待値を計算する
+     * get_expectation_value の 1 スレッドバージョン
+     *
+     * @param[in] state 期待値をとるときの量子状態
+     * @return stateに対応する期待値
+     */
+    virtual CPPCTYPE get_expectation_value_single_thread(
+        const QuantumStateBase* state) const;
+
+    /**
+     * \~japanese-en
      * 量子状態に対応するパウリ演算子の遷移振幅を計算する
      *
      * @param[in] state_bra 遷移先の量子状態
@@ -274,6 +286,12 @@ public:
      * パウリ演算子に対応する文字列を返す
      */
     virtual std::string get_pauli_string() const;
+    /**
+     * \~japanese-en
+     * このオブザーバブルに入っているものを、ゲートとしてstateに作用させる
+     * @param [in] state 入力
+     */
+    virtual void update_quantum_state(QuantumStateBase* instate);
 
     PauliOperator operator*(const PauliOperator& target) const;
 

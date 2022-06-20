@@ -1,4 +1,3 @@
-
 #include "gate_merge.hpp"
 
 #include <algorithm>
@@ -443,6 +442,38 @@ QuantumGateMatrix* to_matrix_gate(const QuantumGateBase* gate) {
         gate->target_qubit_list, &mat, gate->control_qubit_list);
 }
 
+/*QuantumGateMatrix* go_matrix_gate(const QuantumGateBase* gate) {
+    ComplexMatrix mat;
+    gate->set_matrix(mat);
+    return new QuantumGateMatrix(
+        gate->target_qubit_list, &mat, gate->control_qubit_list);
+}*/
+
+QuantumGateMatrix* get_transpose_gate(const QuantumGateBase* gate) {
+    // tenti
+    ComplexMatrix mat;
+    gate->set_matrix(mat);
+    ComplexMatrix amat = mat.transpose();
+    return new QuantumGateMatrix(
+        gate->target_qubit_list, &amat, gate->control_qubit_list);
+}
+QuantumGateMatrix* get_conjugate_gate(const QuantumGateBase* gate) {
+    // kyoueki
+    ComplexMatrix mat;
+    gate->set_matrix(mat);
+    ComplexMatrix amat = mat.conjugate();
+    return new QuantumGateMatrix(
+        gate->target_qubit_list, &amat, gate->control_qubit_list);
+}
+QuantumGateMatrix* get_adjoint_gate(const QuantumGateBase* gate) {
+    // zuihan
+    ComplexMatrix mat;
+    gate->set_matrix(mat);
+    ComplexMatrix amat = mat.adjoint();
+    return new QuantumGateMatrix(
+        gate->target_qubit_list, &amat, gate->control_qubit_list);
+}
+
 QuantumGateBase* Probabilistic(
     std::vector<double> distribution, std::vector<QuantumGateBase*> gate_list) {
     return new QuantumGate_Probabilistic(distribution, gate_list);
@@ -479,4 +510,5 @@ QuantumGateBase* Adaptive(QuantumGateBase* gate,
     std::function<bool(const std::vector<UINT>&, const UINT)> func, UINT id) {
     return new QuantumGate_Adaptive(gate, func, id);
 }
+
 }  // namespace gate

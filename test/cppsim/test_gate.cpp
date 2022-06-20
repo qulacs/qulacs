@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
+#include <cppsim/exception.hpp>
 #include <cppsim/gate.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_matrix.hpp>
@@ -1328,45 +1329,56 @@ TEST(GateTest, DuplicateIndex) {
         auto gate1 = gate::CNOT(10, 13);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::CNOT(21, 21);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            { auto gate2 = gate::CNOT(21, 21); }, InvalidControlQubitException);
     }
     {
         auto gate1 = gate::CZ(10, 13);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::CZ(21, 21);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            { auto gate2 = gate::CZ(21, 21); }, InvalidControlQubitException);
     }
     {
         auto gate1 = gate::SWAP(10, 13);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::SWAP(21, 21);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW({ auto gate2 = gate::SWAP(21, 21); },
+            DuplicatedQubitIndexException);
     }
     {
         auto gate1 = gate::Pauli({2, 1, 0, 3, 7, 9, 4}, {0, 0, 0, 0, 0, 0, 0});
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::Pauli({0, 1, 3, 1, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0});
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            {
+                auto gate2 =
+                    gate::Pauli({0, 1, 3, 1, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0});
+            },
+            DuplicatedQubitIndexException);
     }
     {
         auto gate1 = gate::PauliRotation(
             {2, 1, 0, 3, 7, 9, 4}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::PauliRotation(
-            {0, 1, 3, 1, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            {
+                auto gate2 = gate::PauliRotation(
+                    {0, 1, 3, 1, 5, 6, 2}, {0, 0, 0, 0, 0, 0, 0}, 0.0);
+            },
+            DuplicatedQubitIndexException);
     }
     {
         auto gate1 = gate::DenseMatrix({10, 13}, ComplexMatrix::Identity(4, 4));
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::DenseMatrix({21, 21}, ComplexMatrix::Identity(4, 4));
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            {
+                auto gate2 =
+                    gate::DenseMatrix({21, 21}, ComplexMatrix::Identity(4, 4));
+            },
+            DuplicatedQubitIndexException);
     }
     {
         auto matrix = SparseComplexMatrix(4, 4);
@@ -1374,29 +1386,67 @@ TEST(GateTest, DuplicateIndex) {
         auto gate1 = gate::SparseMatrix({10, 13}, matrix);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::SparseMatrix({21, 21}, matrix);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            {
+                auto gate2 = gate::SparseMatrix({21, 21}, matrix);
+            },
+            DuplicatedQubitIndexException);
+    }
+    {
+        UINT n = 2;
+        ITYPE dim = 1ULL << n;
+        ComplexVector test_state_eigen(dim);
+        auto gate1 = gate::DiagonalMatrix({10, 13}, test_state_eigen);
+        EXPECT_TRUE(gate1 != NULL);
+        delete gate1;
+        ASSERT_THROW(
+            {
+                auto gate2 = gate::DiagonalMatrix({21, 21}, test_state_eigen);
+            },
+            DuplicatedQubitIndexException);
     }
     {
         auto gate1 = gate::RandomUnitary({10, 13});
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::RandomUnitary({21, 21});
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            {
+                auto gate2 = gate::RandomUnitary({21, 21});
+            },
+            DuplicatedQubitIndexException);
     }
     {
         auto ident = [](ITYPE a, ITYPE dim) { return a; };
         auto gate1 = gate::ReversibleBoolean({10, 13}, ident);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::ReversibleBoolean({21, 21}, ident);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            {
+                auto gate2 = gate::ReversibleBoolean({21, 21}, ident);
+            },
+            DuplicatedQubitIndexException);
     }
     {
         auto gate1 = gate::TwoQubitDepolarizingNoise(10, 13, 0.1);
         EXPECT_TRUE(gate1 != NULL);
         delete gate1;
-        auto gate2 = gate::TwoQubitDepolarizingNoise(21, 21, 0.1);
-        ASSERT_EQ(NULL, gate2);
+        ASSERT_THROW(
+            { auto gate2 = gate::TwoQubitDepolarizingNoise(21, 21, 0.1); },
+            DuplicatedQubitIndexException);
     }
+}
+
+TEST(GateTest, GetControlList) {
+    auto gateA = gate::to_matrix_gate(gate::sqrtXdag(0));
+    gateA->add_control_qubit(1, 0);
+    gateA->add_control_qubit(2, 1);
+    gateA->add_control_qubit(3, 0);
+    auto index_list = gateA->get_control_index_list();
+    EXPECT_EQ(index_list, std::vector<unsigned int>({1, 2, 3}));
+    auto value_list = gateA->get_control_value_list();
+    EXPECT_EQ(value_list, std::vector<unsigned int>({0, 1, 0}));
+    auto index_value_list = gateA->get_control_index_value_list();
+    std::vector<std::pair<unsigned int, unsigned int>> true_ivl = {
+        {1, 0}, {2, 1}, {3, 0}};
+    EXPECT_EQ(index_value_list, true_ivl);
 }

@@ -1,4 +1,5 @@
 from qulacs_core import *
+
 import qulacs.observable._get_matrix
 
 Observable.get_matrix = \

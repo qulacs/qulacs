@@ -4,6 +4,8 @@
 
 #include "utility.hpp"
 
+#include <cctype>
+
 void get_Pauli_matrix(
     ComplexMatrix& matrix, const std::vector<UINT>& pauli_id_list) {
     ITYPE matrix_dim = 1ULL << pauli_id_list.size();
@@ -29,29 +31,6 @@ void get_Pauli_matrix(
         double sign = 1. - 2. * (count_population_cpp(index & phase_mask) % 2);
         matrix(index, index ^ flip_mask) = rot[rot90_count % 4] * sign;
     }
-}
-
-ComplexMatrix convert_observable_to_matrix(const Observable& observable) {
-    const auto dim = observable.get_state_dim();
-    const auto qubit_count = observable.get_qubit_count();
-    ComplexMatrix observable_matrix = ComplexMatrix::Zero(dim, dim);
-    for (UINT term_index = 0; term_index < observable.get_term_count();
-         ++term_index) {
-        const auto pauli_operator = observable.get_term(term_index);
-        auto coef = pauli_operator->get_coef();
-        auto target_index_list = pauli_operator->get_index_list();
-        auto pauli_id_list = pauli_operator->get_pauli_id_list();
-
-        std::vector<UINT> whole_pauli_id_list(qubit_count, 0);
-        for (UINT i = 0; i < target_index_list.size(); ++i) {
-            whole_pauli_id_list[target_index_list[i]] = pauli_id_list[i];
-        }
-
-        ComplexMatrix pauli_matrix;
-        get_Pauli_matrix(pauli_matrix, whole_pauli_id_list);
-        observable_matrix += coef * pauli_matrix;
-    }
-    return observable_matrix;
 }
 
 std::vector<std::string> split(const std::string& s, const std::string& delim) {
@@ -126,14 +105,22 @@ std::tuple<double, double, std::string> parse_openfermion_line(
     return std::make_tuple(coef_real, coef_imag, str_buf);
 }
 
-bool check_is_unique_index_list(std::vector<UINT> index_list) {
-    sort(index_list.begin(), index_list.end());
-    bool flag = true;
-    for (UINT i = 0; i + 1 < index_list.size(); ++i) {
-        flag = flag & (index_list[i] != index_list[i + 1]);
-        if (!flag) break;
+bool check_is_unique_index_list(const std::vector<UINT>& index_list) {
+    std::vector<UINT> index_list_sorted(index_list.begin(), index_list.end());
+    sort(index_list_sorted.begin(), index_list_sorted.end());
+    bool is_unique = true;
+    for (UINT i = 0; i + 1 < index_list_sorted.size(); ++i) {
+        is_unique &= (index_list_sorted[i] != index_list_sorted[i + 1]);
+        if (!is_unique) break;
     }
-    return flag;
+    return is_unique;
+}
+
+std::string& rtrim(std::string& str) {
+    auto it = std::find_if(str.rbegin(), str.rend(),
+        [](unsigned char c) { return !std::isspace(c); });
+    str.erase(it.base(), str.end());
+    return str;
 }
 
 std::string& rtrim(std::string& str) {

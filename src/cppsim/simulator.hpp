@@ -42,8 +42,10 @@ public:
     void initialize_state(ITYPE computationl_basis = 0);
     /**
      * \~japanese-en ランダムな量子状態に初期化する。
+     * @param seed 乱数のシード値
      */
     void initialize_random_state();
+    void initialize_random_state(UINT seed);
 
     /**
      * \~japanese-en 量子回路全体シミュレートする。

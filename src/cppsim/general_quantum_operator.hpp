@@ -6,8 +6,9 @@
 #include <utility>
 #include <vector>
 
+#include "exception.hpp"
 #include "type.hpp"
-
+#include "utility.hpp"
 class PauliOperator;
 class QuantumStateBase;
 
@@ -18,6 +19,28 @@ private:
     //! the number of qubits
     UINT _qubit_count;
     bool _is_hermitian;
+    Random random;
+
+protected:
+    /**
+     * \~japanese-en
+     * state にパウリ演算子を作用させる
+     * @param [in] pauli_id_list パウリ演算子の ID
+     * @param [in] target_index_list パウリ演算子が作用する量子ビットの番号
+     * @param [in] state 作用を受ける状態
+     */
+    void _apply_pauli_to_state(std::vector<UINT> pauli_id_list,
+        std::vector<UINT> target_index_list, QuantumStateBase* state) const;
+
+    /**
+     * \~japanese-en
+     * state にパウリ演算子を作用させる
+     * @param [in] pauli_id_list パウリ演算子の ID
+     * @param [in] target_index_list パウリ演算子が作用する量子ビットの番号
+     * @param [in] state 作用を受ける状態
+     */
+    void _apply_pauli_to_state_single_thread(std::vector<UINT> pauli_id_list,
+        std::vector<UINT> target_index_list, QuantumStateBase* state) const;
 
 public:
     /**
@@ -92,10 +115,9 @@ public:
      */
     virtual const PauliOperator* get_term(UINT index) const {
         if (index >= _operator_list.size()) {
-            std::cerr
-                << "Error: PauliOperator::get_term(UINT): index out of range"
-                << std::endl;
-            return NULL;
+            throw OperatorIndexOutOfRangeException(
+                "Error: GeneralQuantumOperator::get_term(UINT): index out "
+                "of range");
         }
         return _operator_list[index];
     }
@@ -111,6 +133,13 @@ public:
 
     /**
      * \~japanese-en
+     * エルミート共役を返す
+     * @return GeneralQuantumOperator
+     */
+    virtual GeneralQuantumOperator* get_dagger() const;
+
+    /**
+     * \~japanese-en
      * 文字列に変換する。
      */
     virtual std::string to_string() const;
@@ -123,6 +152,8 @@ public:
      * @return 入力で与えた量子状態に対応するGeneralQuantumOperatorの期待値
      */
     virtual CPPCTYPE get_expectation_value(const QuantumStateBase* state) const;
+    virtual CPPCTYPE get_expectation_value_single_thread(
+        const QuantumStateBase* state) const;
 
     /**
      * \~japanese-en
@@ -140,9 +171,11 @@ public:
      * ランダムなパウリ演算子をもつ observable を生成する
      * @param [in] observable パウリ演算子を追加する observable
      * @param [in] operator_count observable に追加するパウリ演算子数
-     * @return ランダムなパウリ演算子を operator_count 個もつ　observable
+     * @param [in] seed 乱数のシード値
+     * @return ランダムなパウリ演算子を operator_count 個もつ observable
      */
     void add_random_operator(const UINT operator_count);
+    void add_random_operator(const UINT operator_count, UINT seed);
 
     /**
      * \~japanese-en
@@ -182,6 +215,28 @@ public:
     void apply_to_state(QuantumStateBase* work_state,
         const QuantumStateBase& state_to_be_multiplied,
         QuantumStateBase* dst_state) const;
+
+    /**
+     * \~japanese-en
+     * state_to_be_multiplied に GeneralQuantumOperator を作用させる．
+     * 結果は dst_state に格納される．dst_state
+     * はすべての要素を0に初期化してから計算するため， 任意の状態を渡してよい．
+     * @param [in] state_to_be_multiplied 作用を受ける状態
+     * @param [in] dst_state 結果を格納する状態
+     */
+    void apply_to_state(
+        QuantumStateBase* state, QuantumStateBase* dst_state) const;
+
+    /**
+     * \~japanese-en
+     * state_to_be_multiplied に GeneralQuantumOperator を作用させる．
+     * 結果は dst_state に格納される．dst_state
+     * はすべての要素を0に初期化してから計算するため， 任意の状態を渡してよい．
+     * @param [in] state_to_be_multiplied 作用を受ける状態
+     * @param [in] dst_state 結果を格納する状態
+     */
+    void apply_to_state_single_thread(
+        QuantumStateBase* state, QuantumStateBase* dst_state) const;
 
     virtual GeneralQuantumOperator* copy() const;
 

@@ -5,6 +5,7 @@
 #include <functional>
 #include <sstream>
 
+#include "exception.hpp"
 #include "gate_matrix.hpp"
 
 bool QuantumGateBase::is_commute(const QuantumGateBase* gate) const {
@@ -63,8 +64,7 @@ bool QuantumGateBase::commute_Pauli_at(
     UINT qubit_index, UINT pauli_type) const {
     if (pauli_type == 0) return true;
     if (pauli_type >= 4) {
-        fprintf(stderr, "invalid Pauli id is given\n");
-        assert(false);
+        throw InvalidPauliIdentifierException("invalid Pauli id is given");
     }
     auto ite_target = std::find_if(this->_target_qubit_list.begin(),
         this->_target_qubit_list.end(),

@@ -1,16 +1,16 @@
+#pragma once
 /**
  * ゲートを生成するための関数
  *
  * @file gate_factory.hpp
  */
 
-#pragma once
-
 #include <string>
 #include <vector>
 
 #include "gate.hpp"
 #include "gate_general.hpp"
+#include "observable.hpp"
 #include "type.hpp"
 
 namespace gate {
@@ -339,10 +339,13 @@ DllExport QuantumGateBase* DiagonalMatrix(
  * \f$n\f$-qubit のランダムユニタリゲートを作成する。
  *
  * @param[in] target_qubit_index_list ターゲットとなる量子ビットの添え字
+ * @param[in] seed 乱数のシード値
  * @return 作成されたゲートのインスタンス
  */
 DllExport QuantumGateMatrix* RandomUnitary(
     std::vector<UINT> target_qubit_index_list);
+DllExport QuantumGateMatrix* RandomUnitary(
+    std::vector<UINT> target_qubit_index_list, UINT seed);
 
 /**
  * \f$n\f$-qubit の可逆古典回路を作用する。
@@ -433,5 +436,16 @@ DllExport QuantumGateBase* AmplitudeDampingNoise(
  */
 DllExport QuantumGateBase* Measurement(
     UINT target_index, UINT classical_register_address);
+
+/**
+ * Noisy Evolution
+ * TODO: do this comment
+ *
+ * @param[in] target_index ターゲットとなる量子ビットの添え字
+ * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
+ * @return 作成されたゲートのインスタンス
+ */
+DllExport QuantumGateBase* NoisyEvolution(Observable* hamiltonian,
+    std::vector<GeneralQuantumOperator*> c_ops, double time, double dt = 1e-6);
 
 }  // namespace gate

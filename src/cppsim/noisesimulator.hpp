@@ -13,12 +13,61 @@
 
 class DllExport NoiseSimulator {
 private:
+    Random random;
     QuantumCircuit* circuit;
     QuantumStateBase* initial_state;
-    std::vector<std::pair<UINT, UINT>> noise_info;
 
-    void evaluate_gates(const std::vector<UINT>& chosen_gate,
+    /**
+     * \~japanese-en
+     *
+     * サンプリングのリクエストに関する構造体
+     */
+    struct SamplingRequest {
+        /**
+         * \~japanese-en
+         * 1つのゲート内で複数のゲートのうちどれかが選ばれる時、どのゲートを選んでサンプリングすべきかを示す値のvector。
+         */
+        std::vector<UINT> gate_pos;
+        /**
+         * \~japanese-en
+         *
+         * サンプリング回数。
+         */
+        UINT num_of_sampling;
+        SamplingRequest(
+            std::vector<UINT> init_gate_pos, UINT init_num_of_sampling)
+            : gate_pos(init_gate_pos), num_of_sampling(init_num_of_sampling) {}
+    };
+
+    void apply_gates(const std::vector<UINT>& chosen_gate,
         QuantumState* sampling_state, const int StartPos);
+
+    /**
+     * \~japanese-en
+     *
+     * サンプリングの回数だけを入力して、実際にどうゲートを適用してサンプリングするかの計画であるSamplingRequestのvectorを生成する関数。
+     * @param[in] sample_count 行うサンプリングの回数
+     */
+    std::vector<SamplingRequest> generate_sampling_request(
+        const UINT sample_count);
+
+    /**
+     * \~japanese-en
+     *
+     * ノイズゲートの場合、ノイズあり/なしで複数個のゲートのうちどれか一つが選ばれる。
+     * どちらを選ぶかを決めて適用するゲートの番号を返す関数。
+     * @param[in] gate 入力ゲート
+     */
+    UINT randomly_select_which_gate_pos_to_apply(QuantumGateBase* gate);
+
+    /**
+     * \~japanese-en
+     *
+     * SamplingRequestの計画通りにサンプリングを行い、結果を配列で返す。
+     * @param[in] sampling_request_vector SamplingRequestのvector
+     */
+    std::vector<ITYPE> execute_sampling(
+        std::vector<SamplingRequest> sampling_request_vector);
 
 public:
     /**
@@ -27,9 +76,8 @@ public:
      *
      * NoiseSimulatorを作成する。
      * @param[in] init_circuit  シミュレータに使用する量子回路。
-     * @param[in] Noise_itr
-     * ノイズを乗せ**ない**ゲートの先頭からの番号(0-indexed)のvector<UINT>。指定されなかった場合はすべてのゲートにノイズを乗せるものとする。
-     * @param[in] init_state 最初の状態。指定されなかった場合は0で初期化される。
+     * @param[in] init_state
+     * 最初の状態。指定されなかった場合は|00...0>で初期化される。
      * @return NoiseSimulatorのインスタンス
      */
     explicit NoiseSimulator(const QuantumCircuit* init_circuit,
@@ -44,8 +92,7 @@ public:
      * \~japanese-en
      *
      * サンプリングを行い、結果を配列で返す。
-     * @param[in] prob ノイズが乗る確率
      * @param[in] sample_count 行うsamplingの回数
      */
-    virtual std::vector<UINT> execute(const UINT sample_count);
+    virtual std::vector<ITYPE> execute(const UINT sample_count);
 };

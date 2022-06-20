@@ -34,6 +34,15 @@ public:
     virtual void set_zero_state() override {
         dm_initialize_quantum_state(this->data_c(), _dim);
     }
+
+    /**
+     * \~japanese-en ノルム0の状態 (すべての要素が0の行列にする)
+     */
+    virtual void set_zero_norm_state() override {
+        set_zero_state();
+        _density_matrix[0] = 0.;
+    }
+
     /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
      *
@@ -41,12 +50,10 @@ public:
      */
     virtual void set_computational_basis(ITYPE comp_basis) override {
         if (comp_basis >= (ITYPE)(1ULL << this->qubit_count)) {
-            std::cerr
-                << "Error: DensityMatrixCpu::set_computational_basis(ITYPE): "
-                   "index "
-                   "of computational basis must be smaller than 2^qubit_count"
-                << std::endl;
-            return;
+            throw MatrixIndexOutOfRangeException(
+                "Error: DensityMatrixCpu::set_computational_basis(ITYPE): "
+                "index "
+                "of computational basis must be smaller than 2^qubit_count");
         }
         set_zero_state();
         _density_matrix[0] = 0.;
@@ -81,11 +88,9 @@ public:
     virtual double get_zero_probability(
         UINT target_qubit_index) const override {
         if (target_qubit_index >= this->qubit_count) {
-            std::cerr
-                << "Error: DensityMatrixCpu::get_zero_probability(UINT): index "
-                   "of target qubit must be smaller than qubit_count"
-                << std::endl;
-            return 0.;
+            throw QubitIndexOutOfRangeException(
+                "Error: DensityMatrixCpu::get_zero_probability(UINT): index "
+                "of target qubit must be smaller than qubit_count");
         }
         return dm_M0_prob(target_qubit_index, this->data_c(), _dim);
     }
@@ -99,12 +104,10 @@ public:
     virtual double get_marginal_probability(
         std::vector<UINT> measured_values) const override {
         if (measured_values.size() != this->qubit_count) {
-            std::cerr
-                << "Error: "
-                   "DensityMatrixCpu::get_marginal_probability(vector<UINT>): "
-                   "the length of measured_values must be equal to qubit_count"
-                << std::endl;
-            return 0.;
+            throw InvalidQubitCountException(
+                "Error: "
+                "DensityMatrixCpu::get_marginal_probability(vector<UINT>): "
+                "the length of measured_values must be equal to qubit_count");
         }
 
         std::vector<UINT> target_index;
@@ -119,6 +122,7 @@ public:
         return dm_marginal_prob(target_index.data(), target_value.data(),
             (UINT)target_index.size(), this->data_c(), _dim);
     }
+
     /**
      * \~japanese-en
      * 計算基底で測定した時得られる確率分布のエントロピーを計算する。
@@ -140,11 +144,30 @@ public:
     }
 
     /**
+     * \~japanese-en 量子状態のノルムを計算する
+     *
+     * 量子状態のノルムは非ユニタリなゲートを作用した時に小さくなる。
+     * @return ノルム
+     */
+    virtual double get_squared_norm_single_thread() const override {
+        return dm_state_norm_squared(this->data_c(), _dim);
+    }
+
+    /**
      * \~japanese-en 量子状態を正規化する
      *
      * @param norm 自身のノルム
      */
     virtual void normalize(double squared_norm) override {
+        dm_normalize(squared_norm, this->data_c(), _dim);
+    }
+
+    /**
+     * \~japanese-en 量子状態を正規化する
+     *
+     * @param norm 自身のノルム
+     */
+    virtual void normalize_single_thread(double squared_norm) override {
         dm_normalize(squared_norm, this->data_c(), _dim);
     }
 
@@ -175,11 +198,9 @@ public:
      */
     virtual void load(const QuantumStateBase* _state) {
         if (_state->qubit_count != this->qubit_count) {
-            std::cerr
-                << "Error: DensityMatrixCpu::load(const QuantumStateBase*): "
-                   "invalid qubit count"
-                << std::endl;
-            return;
+            throw InvalidQubitCountException(
+                "Error: DensityMatrixCpu::load(const QuantumStateBase*): "
+                "invalid qubit count");
         }
         if (_state->is_state_vector()) {
             if (_state->get_device_name() == "gpu") {
@@ -201,11 +222,9 @@ public:
      */
     virtual void load(const std::vector<CPPCTYPE>& _state) {
         if (_state.size() != _dim && _state.size() != _dim * _dim) {
-            std::cerr
-                << "Error: DensityMatrixCpu::load(vector<Complex>&): invalid "
-                   "length of state"
-                << std::endl;
-            return;
+            throw InvalidStateVectorSizeException(
+                "Error: DensityMatrixCpu::load(vector<Complex>&): invalid "
+                "length of state");
         }
         if (_state.size() == _dim) {
             dm_initialize_with_pure_state(
@@ -219,11 +238,9 @@ public:
     virtual void load(const Eigen::VectorXcd& _state) {
         ITYPE arg_dim = _state.size();
         if (arg_dim != _dim && arg_dim != _dim * _dim) {
-            std::cerr
-                << "Error: DensityMatrixCpu::load(vector<Complex>&): invalid "
-                   "length of state"
-                << std::endl;
-            return;
+            throw InvalidStateVectorSizeException(
+                "Error: DensityMatrixCpu::load(vector<Complex>&): invalid "
+                "length of state");
         }
         if (arg_dim == _dim) {
             dm_initialize_with_pure_state(
@@ -238,11 +255,9 @@ public:
         ITYPE arg_cols = _state.cols();
         ITYPE arg_rows = _state.rows();
         if (arg_cols != _dim && arg_rows != _dim * _dim) {
-            std::cerr
-                << "Error: DensityMatrixCpu::load(ComplexMatrix&): invalid "
-                   "length of state"
-                << std::endl;
-            return;
+            throw InvalidStateVectorSizeException(
+                "Error: DensityMatrixCpu::load(ComplexMatrix&): invalid "
+                "length of state");
         }
         memcpy(this->data_cpp(), _state.data(),
             (size_t)(sizeof(CPPCTYPE) * _dim * _dim));
@@ -304,14 +319,42 @@ public:
      */
     virtual void add_state(const QuantumStateBase* state) override {
         if (state->is_state_vector()) {
-            std::cerr
-                << "add state between density matrix and state vector is not "
-                   "implemented"
-                << std::endl;
-            return;
+            throw NotImplementedException(
+                "add state between density matrix and state vector is not "
+                "implemented");
         }
         dm_state_add(state->data_c(), this->data_c(), this->dim);
     }
+
+    /**
+     * \~japanese-en 量子状態を足しこむ
+     */
+    virtual void add_state_with_coef(
+        CPPCTYPE coef, const QuantumStateBase* state) override {
+        if (state->is_state_vector()) {
+            throw NotImplementedException(
+                "add state between density matrix and state vector is not "
+                "implemented");
+        }
+        dm_state_add_with_coef(
+            coef, state->data_c(), this->data_c(), this->dim);
+    }
+
+    /**
+     * \~japanese-en 量子状態を足しこむ
+     * TODO: implement this in single_thread
+     */
+    virtual void add_state_with_coef_single_thread(
+        CPPCTYPE coef, const QuantumStateBase* state) override {
+        if (state->is_state_vector()) {
+            throw NotImplementedException(
+                "add state between density matrix and state vector is not "
+                "implemented");
+        }
+        dm_state_add_with_coef(
+            coef, state->data_c(), this->data_c(), this->dim);
+    }
+
     /**
      * \~japanese-en 複素数をかける
      */
@@ -321,9 +364,9 @@ public:
 
     virtual void multiply_elementwise_function(
         const std::function<CPPCTYPE(ITYPE)>&) override {
-        std::cerr << "multiply_elementwise_function between density matrix and "
-                     "state vector is not implemented"
-                  << std::endl;
+        throw NotImplementedException(
+            "multiply_elementwise_function for density matrix is not "
+            "implemented");
     }
 
     /**
@@ -376,7 +419,7 @@ public:
 };
 
 typedef DensityMatrixCpu
-    DensityMatrix; /**< QuantumState is an alias of QuantumStateCPU */
+    DensityMatrix; /**< DensityMatrix is an alias of DensityMatrixCpu */
 
 namespace state {
 DllExport DensityMatrixCpu* tensor_product(

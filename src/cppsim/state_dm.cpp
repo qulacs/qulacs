@@ -1,6 +1,7 @@
 
 
 #include "state_dm.hpp"
+
 #include <csim/stat_ops_dm.hpp>
 #include <iostream>
 
@@ -16,10 +17,9 @@ DensityMatrixCpu* tensor_product(
 DensityMatrixCpu* permutate_qubit(
     const DensityMatrixCpu* state, std::vector<UINT> qubit_order) {
     if (state->qubit_count != (UINT)qubit_order.size()) {
-        std::cerr << "Error: permutate_qubit(const QuantumState*, "
-                     "std::vector<UINT>): invalid qubit count"
-                  << std::endl;
-        return NULL;
+        throw InvalidQubitCountException(
+            "Error: permutate_qubit(const QuantumState*, "
+            "std::vector<UINT>): invalid qubit count");
     }
     UINT qubit_count = state->qubit_count;
     DensityMatrixCpu* qs = new DensityMatrixCpu(qubit_count);
@@ -30,10 +30,9 @@ DensityMatrixCpu* permutate_qubit(
 DensityMatrixCpu* partial_trace(
     const QuantumStateCpu* state, std::vector<UINT> target) {
     if (state->qubit_count <= target.size()) {
-        std::cerr << "Error: drop_qubit(const QuantumState*, "
-                     "std::vector<UINT>): invalid qubit count"
-                  << std::endl;
-        return NULL;
+        throw InvalidQubitCountException(
+            "Error: drop_qubit(const QuantumState*, "
+            "std::vector<UINT>): invalid qubit count");
     }
     UINT qubit_count = state->qubit_count - (UINT)target.size();
     DensityMatrixCpu* qs = new DensityMatrixCpu(qubit_count);
@@ -44,10 +43,9 @@ DensityMatrixCpu* partial_trace(
 DensityMatrixCpu* partial_trace(
     const DensityMatrixCpu* state, std::vector<UINT> target) {
     if (state->qubit_count <= target.size()) {
-        std::cerr << "Error: drop_qubit(const QuantumState*, "
-                     "std::vector<UINT>): invalid qubit count"
-                  << std::endl;
-        return NULL;
+        throw InvalidQubitCountException(
+            "Error: drop_qubit(const QuantumState*, "
+            "std::vector<UINT>): invalid qubit count");
     }
     UINT qubit_count = state->qubit_count - (UINT)target.size();
     DensityMatrixCpu* qs = new DensityMatrixCpu(qubit_count);

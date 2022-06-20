@@ -459,6 +459,28 @@ DllExport void normalize(double squared_norm, CTYPE* state, ITYPE dim);
 
 /**
  * \~english
+ * Normalize the quantum state.
+ *
+ * Normalize the quantum state by multiplying the normalization factor
+ * 1/sqrt(norm).
+ * @param[in] norm norm of the state
+ * @param[in,out] state quantum state
+ * @param[in] dim dimension
+ *
+ * \~japanese-en
+ * 状態を規格化
+ *
+ * 状態に対して 1/sqrt(norm) 倍をする。norm
+ * が量子状態のノルムである場合にはノルムが1になるように規格化される。
+ * @param[in] norm ノルム
+ * @param[in,out] state 量子状態
+ * @param[in] dim 次元
+ */
+DllExport void normalize_single_thread(
+    double squared_norm, CTYPE* state, ITYPE dim);
+
+/**
+ * \~english
  * Apply a X rotation gate by angle to the quantum state.
  *
  * Apply a X rotation gate by angle to the quantum state.
@@ -856,6 +878,40 @@ DllExport void multi_qubit_Pauli_gate_whole_list(
 
 /**
  * \~english
+ * Apply multi-qubit Pauli operator to the quantum state with a whole list.
+ *
+ * Apply multi-qubit Pauli operator to the quantum state with a whole list of
+ * the Pauli operators. Pauli_operator_type_list must be a list of n single
+ * Pauli operators.
+ *
+ * @param[in] Pauli_operator_type_list list of {0,1,2,3} corresponding to I, X,
+ * Y, Z for all qubits
+ * @param[in] qubit_count the number of the qubits
+ * @param[in,out] state quantum state
+ * @param[in] dim dimension
+ *
+ *
+ * \~japanese-en
+ * すべての量子ビットに多体のパウリ演算子を作用させて状態を更新
+ *
+ * 全ての量子ビットに対するパウリ演算子を与えて、多体のパウリ演算子を作用させて状態を更新。Pauli_operator_type_list
+ * には全ての量子ビットに対するパウリ演算子を指定。
+ *
+ * 例）５量子ビット系の３つめの量子ビットへのX演算、４つめの量子ビットへのZ演算、IZXII：{0,0,1,3,0}（量子ビットの順番は右から数えている）
+ *
+ * @param[in] Pauli_operator_type_list 長さ qubit_count の {0,1,2,3} のリスト。
+ * 0,1,2,3 はそれぞれパウリ演算子 I, X, Y, Z に対応。
+ * @param[in] qubit_count 量子ビットの数
+ * @param[in,out] state 量子状態
+ * @param[in] dim 次元
+ *
+ */
+DllExport void multi_qubit_Pauli_gate_whole_list_single_thread(
+    const UINT* Pauli_operator_type_list, UINT qubit_count, CTYPE* state,
+    ITYPE dim_);
+
+/**
+ * \~english
  * Apply multi-qubit Pauli operator to the quantum state with a partial list.
  *
  * Apply multi-qubit Pauli operator to the quantum state with a partial list of
@@ -891,6 +947,46 @@ DllExport void multi_qubit_Pauli_gate_whole_list(
  *
  */
 DllExport void multi_qubit_Pauli_gate_partial_list(
+    const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
+    UINT target_qubit_index_count, CTYPE* state, ITYPE dim);
+
+/**
+ * \~english
+ * Apply multi-qubit Pauli operator to the quantum state with a partial list.
+ *
+ * Apply multi-qubit Pauli operator to the quantum state with a partial list of
+ * the Pauli operators. Pauli_operator_type_list must be a list of n single
+ * Pauli operators.
+ *
+ * @param[in] target_qubit_index_list list of the target qubits
+ * @param[in] Pauli_operator_type_list list of {0,1,2,3} corresponding to I, X,
+ * Y, Z for the target qubits
+ * @param[in] target_qubit_index_count the number of the target qubits
+ * @param[in,out] state quantum state
+ * @param[in] dim dimension
+ *
+ *
+ * \~japanese-en
+ * すべての量子ビットに多体のパウリ演算子を作用させて状態を更新
+ *
+ * 全ての量子ビットに対するパウリ演算子を与えて、多体のパウリ演算子を作用させて状態を更新。Pauli_operator_type_list
+ * には全ての量子ビットに対するパウリ演算子を指定。
+ *
+ * 例）５量子ビット系の３つめの量子ビットへのX演算、４つめの量子ビットへのZ演算、IZXII：Pauli_operator_type_list
+ * ={2,3}, Pauli_operator_type_list
+ * ={1,3}（量子ビットの順番は右から数えている）.
+ *
+ * @param[in] target_qubit_index_list 作用する量子ビットのインデックスのリスト。
+ * @param[in] Pauli_operator_type_list
+ * 作用する量子ビットのみに対するパウリ演算子を指定する、長さ
+ * target_qubit_index_count の{0,1,2,3}のリスト。0,1,2,3 はそれぞれパウリ演算子
+ * I, X, Y, Z に対応。
+ * @param[in] target_qubit_index_count 作用する量子ビットの数
+ * @param[in,out] state 量子状態
+ * @param[in] dim 次元
+ *
+ */
+DllExport void multi_qubit_Pauli_gate_partial_list_single_thread(
     const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
     UINT target_qubit_index_count, CTYPE* state, ITYPE dim);
 
@@ -941,6 +1037,51 @@ DllExport void multi_qubit_Pauli_rotation_gate_whole_list(
 
 /**
  * \~english
+ * Apply multi-qubit Pauli rotation operator to the quantum state with a whole
+ * list.
+ *
+ * Apply multi-qubit Pauli rotation operator to state with a whole list of the
+ * Pauli operators. Pauli_operator_type_list must be a list of n single Pauli
+ * operators. Update a quantum state with a mutliple qubits Pauli rotation, cos
+ * (angle/2 ) I + i sin ( angle/2 ) A, where A is the Pauli operator specified
+ * by Pauli_operator.
+ *
+ * @param[in] Pauli_operator_type_list array of {0,1,2,3} of the length
+ * n_qubits. 0,1,2,3 corresponds to i,x,y,z
+ * @param[in] qubit_count number of the qubits
+ * @param[in] angle rotation angle
+ * @param[in,out] state quantum state
+ * @param[in] dim dimension
+ *
+ *
+ * \~japanese-en
+ * 複数量子ビット（全て指定）のパウリ演算子による回転演算を用いて状態を更新。
+ *
+ * 複数量子ビット（全て指定）のパウリ演算子 A による回転演算
+ *
+ * cos ( angle/2 ) I + i sin ( angle/2 ) A
+ *
+ * を用いて状態を更新。Pauli_operator_type_list
+ * は全ての量子ビットに対するパウリ演算子のリスト。パウリ演算子はI, X, Y,
+ * Zがそれぞれ 0,1,2,3 に対応。
+ *
+ * 例) ５量子ビットに対する YIZXI
+ * の場合は、{0,1,3,0,2}（量子ビットの順番は右から数えている）。
+ *
+ * @param[in] Pauli_operator_type_list 長さ qubit_count の {0,1,2,3} のリスト。
+ * 0,1,2,3 はそれぞれパウリ演算子 I, X, Y, Z に対応。
+ * @param[in] qubit_count 量子ビットの数
+ * @param[in] angle 回転角度
+ * @param[in,out] state 量子状態
+ * @param[in] dim 次元
+ *
+ */
+DllExport void multi_qubit_Pauli_rotation_gate_whole_list_single_thread(
+    const UINT* Pauli_operator_type_list, UINT qubit_count, double angle,
+    CTYPE* state, ITYPE dim_);
+
+/**
+ * \~english
  * Apply multi-qubit Pauli rotation operator to the quantum state with a partial
  * list.
  *
@@ -983,6 +1124,53 @@ DllExport void multi_qubit_Pauli_rotation_gate_whole_list(
  *
  */
 DllExport void multi_qubit_Pauli_rotation_gate_partial_list(
+    const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
+    UINT target_qubit_index_count, double angle, CTYPE* state, ITYPE dim);
+
+/**
+ * \~english
+ * Apply multi-qubit Pauli rotation operator to the quantum state with a partial
+ * list.
+ *
+ * Apply multi-qubit Pauli rotation operator to state with a partial list of the
+ * Pauli operators.
+ *
+ * @param[in] target_qubit_index_list list of the target qubits
+ * @param[in] Pauli_operator_type_list list of {0,1,2,3} of length
+ * target_qubit_index_count. {0,1,2,3} corresponds to I, X, Y, Z for the target
+ * qubits.
+ * @param[in] target_qubit_index_count the number of the target qubits
+ * @param[in] angle rotation angle
+ * @param[in,out] state quantum state
+ * @param[in] dim dimension
+ *
+ *
+ * \~japanese-en
+ * 複数量子ビット（部分的に指定）のパウリ演算子による回転演算を用いて状態を更新。
+ *
+ * 複数量子ビット（部分的に指定）のパウリ演算子 A による回転演算
+ *
+ * cos ( angle/2 ) I + i sin ( angle/2 ) A
+ *
+ * を用いて状態を更新。パウリ演算子Aは、target_qubit_index_list
+ * で指定される一部の量子ビットに対するパウリ演算子のリスト
+ * Pauli_operator_type_list
+ * によって定義。回転角には(1/2)の因子はついていない。パウリ演算子はI, X, Y,
+ * Zがそれぞれ 0,1,2,3 に対応。
+ *
+ * 例) ５量子ビットに対する YIZXI の場合は、target_qubit_index_list = {1,2,4},
+ * Pauli_operator_type_list = {1,3,2}（量子ビットの順番は右から数えている）。
+ *
+ * @param[in] target_qubit_index_list 作用する量子ビットのインデックス
+ * @param[in] Pauli_operator_type_list 長さ target_qubit_index_countの {0,1,2,3}
+ * のリスト。0,1,2,3は、それぞれパウリ演算子 I, X, Y, Z 対応。
+ * @param[in] target_qubit_index_count 作用する量子ビットの数
+ * @param[in] angle 回転角
+ * @param[in,out] state 量子状態
+ * @param[in] dim 次元
+ *
+ */
+DllExport void multi_qubit_Pauli_rotation_gate_partial_list_single_thread(
     const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
     UINT target_qubit_index_count, double angle, CTYPE* state, ITYPE dim);
 
@@ -1219,6 +1407,10 @@ DllExport void reflection_gate(
     const CTYPE* reflection_state, CTYPE* state, ITYPE dim);
 
 DllExport void state_add(const CTYPE* state_added, CTYPE* state, ITYPE dim);
+DllExport void state_add_with_coef(
+    CTYPE coef, const CTYPE* state_added, CTYPE* state, ITYPE dim);
+DllExport void state_add_with_coef_single_thread(
+    CTYPE coef, const CTYPE* state_added, CTYPE* state, ITYPE dim);
 DllExport void state_multiply(CTYPE coef, CTYPE* state, ITYPE dim);
 
 ////////////////////////////////

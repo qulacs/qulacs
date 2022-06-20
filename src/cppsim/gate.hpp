@@ -137,6 +137,21 @@ public:
         return res;
     }
 
+    std::vector<UINT> get_control_value_list() const {
+        std::vector<UINT> res(control_qubit_list.size());
+        for (UINT i = 0; i < control_qubit_list.size(); ++i)
+            res[i] = control_qubit_list[i].control_value();
+        return res;
+    }
+
+    std::vector<std::pair<UINT, UINT>> get_control_index_value_list() const {
+        std::vector<std::pair<UINT, UINT>> res(control_qubit_list.size());
+        for (UINT i = 0; i < control_qubit_list.size(); ++i)
+            res[i] = std::make_pair(control_qubit_list[i].index(),
+                control_qubit_list[i].control_value());
+        return res;
+    }
+
     /**
      * \~japanese-en 量子状態を更新する
      *

@@ -20,19 +20,19 @@
 #include <csim/stat_ops.hpp>
 #include <csim/stat_ops_dm.hpp>
 
+#include "exception.hpp"
+#include "gate_factory.hpp"
 #include "pauli_operator.hpp"
 #include "state.hpp"
 
 PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef) : _coef(coef) {
-    std::string trimmed_string = rtrim(strings);
-    if (trimmed_string.length() == 0) return;
-    std::stringstream ss(trimmed_string);
+    std::stringstream ss(rtrim(strings));
     std::string pauli_str;
     UINT index, pauli_type = 0;
     while (!ss.eof()) {
         ss >> pauli_str >> index;
         if (ss.fail()) {
-            throw std::invalid_argument(
+            throw InvalidPauliIdentifierException(
                 "Error: "
                 "PauliOperator::PauliOperator(std::string, CPPCTYPE):"
                 "Detected pauli_str without indices. Maybe mistyped? "
@@ -48,11 +48,8 @@ PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef) : _coef(coef) {
         else if (pauli_str == "Z" || pauli_str == "z")
             pauli_type = 3;
         else {
-            throw std::invalid_argument(
-                "Error: "
-                "PauliOperator::PauliOperator(std::string, CPPCTYPE):"
-                "Invalid Pauli string: " + pauli_str
-                );
+            throw InvalidPauliIdentifierException(
+                "invalid Pauli string is given : " + pauli_str);
         }
         if (pauli_type != 0) this->add_single_Pauli(index, pauli_type);
     }
@@ -62,6 +59,7 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list,
     std::string Pauli_operator_type_list, CPPCTYPE coef)
     : _coef(coef) {
     UINT term_count = (UINT)(strlen(Pauli_operator_type_list.c_str()));
+    assert((UINT)target_qubit_list.size() == term_count);
     UINT pauli_type = 0;
     for (UINT term_index = 0; term_index < term_count; ++term_index) {
         if (Pauli_operator_type_list[term_index] == 'i' ||
@@ -77,8 +75,9 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list,
                    Pauli_operator_type_list[term_index] == 'Z') {
             pauli_type = 3;
         } else {
-            fprintf(stderr, "invalid Pauli string is given\n");
-            assert(false);
+            throw InvalidPauliIdentifierException(
+                "invalid Pauli string is given : " +
+                Pauli_operator_type_list[term_index]);
         }
 
         if (pauli_type != 0)
@@ -179,13 +178,46 @@ CPPCTYPE PauliOperator::get_expectation_value(
     }
 }
 
+CPPCTYPE PauliOperator::get_expectation_value_single_thread(
+    const QuantumStateBase* state) const {
+    if (state->is_state_vector()) {
+#ifdef _USE_GPU
+        if (state->get_device_name() == "gpu") {
+            // TODO: implement single_thread version of
+            // expectation_value_multi_qubit_Pauli_operator_partial_list_host
+            return _coef *
+                   expectation_value_multi_qubit_Pauli_operator_partial_list_host(
+                       this->get_index_list().data(),
+                       this->get_pauli_id_list().data(),
+                       (UINT)this->get_index_list().size(), state->data(),
+                       state->dim, state->get_cuda_stream(),
+                       state->device_number);
+        }
+#endif
+        return _coef *
+               expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
+                   this->get_index_list().data(),
+                   this->get_pauli_id_list().data(),
+                   (UINT)this->get_index_list().size(), state->data_c(),
+                   state->dim);
+    } else {
+        // TODO: implement single_thread version of
+        // dm_expectation_value_multi_qubit_Pauli_operator_partial_list
+        return _coef *
+               dm_expectation_value_multi_qubit_Pauli_operator_partial_list(
+                   this->get_index_list().data(),
+                   this->get_pauli_id_list().data(),
+                   (UINT)this->get_index_list().size(), state->data_c(),
+                   state->dim);
+    }
+}
+
 CPPCTYPE PauliOperator::get_transition_amplitude(
     const QuantumStateBase* state_bra,
     const QuantumStateBase* state_ket) const {
     if ((!state_bra->is_state_vector()) || (!state_ket->is_state_vector())) {
-        std::cerr
-            << "get_transition_amplitude for density matrix is not implemented"
-            << std::endl;
+        throw NotImplementedException(
+            "get_transition_amplitude for density matrix is not implemented");
     }
 #ifdef _USE_GPU
     if (state_ket->get_device_name() == "gpu" &&
@@ -231,7 +263,7 @@ std::string PauliOperator::get_pauli_string() const {
     UINT size = _pauli_list.size();
     UINT target_index, pauli_id;
     if (size == 0) {
-        return "I";
+        return "";
     }
     for (UINT index = 0; index < size; index++) {
         target_index = _pauli_list[index].index();
@@ -258,7 +290,7 @@ PauliOperator PauliOperator::operator*(const PauliOperator& target) const {
     auto x = _x;
     auto z = _z;
     auto target_x = target.get_x_bits();
-    auto target_z = target.get_x_bits();
+    auto target_z = target.get_z_bits();
     if (target_x.size() != _x.size()) {
         ITYPE max_size = std::max(_x.size(), target_x.size());
         x.resize(max_size);
@@ -267,23 +299,22 @@ PauliOperator PauliOperator::operator*(const PauliOperator& target) const {
         target_z.resize(max_size);
     }
     ITYPE i;
-#pragma omp parallel for
     for (i = 0; i < x.size(); i++) {
-        if (x[i] && !z[i]) {  // X
-            if (!target_x[i] && target_z[i]) {
-                bits_coef = bits_coef * -I;
-            } else if (target_x[i] && target_z[i]) {
-                bits_coef = bits_coef * I;
-            }
-        } else if (!x[i] && z[i]) {             // Z
-            if (target_x[i] && !target_z[i]) {  // X
+        if (x[i] && !z[i]) {                    // X
+            if (!target_x[i] && target_z[i]) {  // Z
                 bits_coef = bits_coef * -I;
             } else if (target_x[i] && target_z[i]) {  // Y
                 bits_coef = bits_coef * I;
             }
-        } else if (x[i] && z[i]) {              // Y
+        } else if (!x[i] && z[i]) {             // Z
             if (target_x[i] && !target_z[i]) {  // X
                 bits_coef = bits_coef * I;
+            } else if (target_x[i] && target_z[i]) {  // Y
+                bits_coef = bits_coef * -I;
+            }
+        } else if (x[i] && z[i]) {              // Y
+            if (target_x[i] && !target_z[i]) {  // X
+                bits_coef = bits_coef * -I;
             } else if (!target_x[i] && target_z[i]) {  // Z
                 bits_coef = bits_coef * I;
             }
@@ -312,23 +343,22 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
         target_z.resize(max_size);
     }
     ITYPE i;
-#pragma omp parallel for
     for (i = 0; i < _x.size(); i++) {
-        if (_x[i] && !_z[i]) {  // X
-            if (!target_x[i] && target_z[i]) {
-                _coef *= -I;
-            } else if (target_x[i] && target_z[i]) {
-                _coef *= I;
-            }
-        } else if (!_x[i] && _z[i]) {           // Z
-            if (target_x[i] && !target_z[i]) {  // X
+        if (_x[i] && !_z[i]) {                  // X
+            if (!target_x[i] && target_z[i]) {  // Z
                 _coef *= -I;
             } else if (target_x[i] && target_z[i]) {  // Y
                 _coef *= I;
             }
-        } else if (_x[i] && _z[i]) {            // Y
+        } else if (!_x[i] && _z[i]) {           // Z
             if (target_x[i] && !target_z[i]) {  // X
                 _coef *= I;
+            } else if (target_x[i] && target_z[i]) {  // Y
+                _coef *= -I;
+            }
+        } else if (_x[i] && _z[i]) {            // Y
+            if (target_x[i] && !target_z[i]) {  // X
+                _coef *= -I;
             } else if (!target_x[i] && target_z[i]) {  // Z
                 _coef *= I;
             }
@@ -341,7 +371,6 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
     _pauli_list.clear();
     _x.resize(max_size);
     _z.resize(max_size);
-#pragma omp parallel for
     for (i = 0; i < x_bit.size(); i++) {
         ITYPE pauli_type = 0;
         if (x_bit[i] && !z_bit[i]) {
@@ -361,4 +390,28 @@ PauliOperator& PauliOperator::operator*=(const PauliOperator& target) {
 PauliOperator& PauliOperator::operator*=(CPPCTYPE target) {
     _coef *= target;
     return *this;
+}
+
+// made by watle
+void PauliOperator::update_quantum_state(QuantumStateBase* instate) {
+    // PauliOperator wo gate tosite kanngaeru
+    std::vector<UINT> index_list = this->get_index_list();
+    std::vector<UINT> pauli_list = this->get_pauli_id_list();
+    for (size_t ii = 0; ii < index_list.size(); ii++) {
+        if (pauli_list[ii] == 1) {
+            auto x_gate = gate::X(index_list[ii]);
+            x_gate->update_quantum_state(instate);
+            delete x_gate;
+        } else if (pauli_list[ii] == 2) {
+            auto y_gate = gate::Y(index_list[ii]);
+            y_gate->update_quantum_state(instate);
+            delete y_gate;
+        } else if (pauli_list[ii] == 3) {
+            auto z_gate = gate::Z(index_list[ii]);
+            z_gate->update_quantum_state(instate);
+            delete z_gate;
+        }
+    }
+    instate->multiply_coef(this->get_coef());
+    return;
 }

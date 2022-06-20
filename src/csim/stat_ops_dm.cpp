@@ -109,6 +109,17 @@ void dm_state_add(const CTYPE* state_added, CTYPE* state, ITYPE dim) {
     }
 }
 
+void dm_state_add_with_coef(
+    CTYPE coef, const CTYPE* state_added, CTYPE* state, ITYPE dim) {
+    ITYPE index;
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (index = 0; index < dim * dim; ++index) {
+        state[index] += coef * state_added[index];
+    }
+}
+
 void dm_state_multiply(CTYPE coef, CTYPE* state, ITYPE dim) {
     ITYPE index;
 #ifdef _OPENMP
@@ -159,7 +170,6 @@ double dm_expectation_value_multi_qubit_Pauli_operator_partial_list(
     free((ITYPE*)matrix_mask_list);
     return _creal(sum);
 }
-
 
 void dm_state_tensor_product(const CTYPE* state_left, ITYPE dim_left,
     const CTYPE* state_right, ITYPE dim_right, CTYPE* state_dst) {

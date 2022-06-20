@@ -1,6 +1,10 @@
 
 cmake_minimum_required(VERSION 2.8)
 
+if (POLICY CMP0048)
+  cmake_policy(SET CMP0048 NEW)
+endif (POLICY CMP0048)
+
 project(qulacs)
 
 ##### Check GCC version #####
@@ -15,7 +19,6 @@ endif()
 ##### Set default behavior #####
 set(DEFAULT_USE_SIMD Yes)
 set(DEFAULT_USE_OMP Yes)
-set(DEFAULT_USE_MPI No)
 set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)
 set(DEFAULT_USE_TEST Yes)
@@ -26,9 +29,6 @@ if(NOT DEFINED USE_SIMD)
 endif()
 if(NOT DEFINED USE_OMP)
 	set(USE_OMP ${DEFAULT_USE_OMP})
-endif()
-if(NOT DEFINED USE_MPI)
-	set(USE_MPI ${DEFAULT_USE_MPI})
 endif()
 if(NOT DEFINED USE_GPU)
 	set(USE_GPU ${DEFAULT_USE_GPU})
@@ -45,12 +45,10 @@ endif()
 
 message(STATUS "USE_SIMD = ${USE_SIMD}")
 message(STATUS "USE_OMP = ${USE_OMP}")
-message(STATUS "USE_MPI = ${USE_MPI}")
 message(STATUS "USE_GPU = ${USE_GPU}")
 message(STATUS "USE_TEST = ${USE_TEST}")
 message(STATUS "USE_PYTHON = ${USE_PYTHON}")
 message(STATUS "OPT_FLAGS = ${OPT_FLAGS}")
-
 
 ##### configure include files #####
 file(GLOB_RECURSE header_files ${CMAKE_CURRENT_SOURCE_DIR}/src/*.hpp  ${CMAKE_CURRENT_SOURCE_DIR}/src/*.h)
@@ -70,7 +68,8 @@ include(${CMAKE_SOURCE_DIR}/cmake_script/FetchContent.cmake)
 set(Boost_USE_STATIC_LIBS    ON)
 set(Boost_USE_MULTITHREADED  ON)
 set(Boost_USE_STATIC_RUNTIME ON)
-find_package(Boost 1.36.0 REQUIRED)
+# The minimum version tested in CI is 1.71.0.
+find_package(Boost 1.71.0 REQUIRED)
 include_directories(${Boost_INCLUDE_DIRS})
 if(NOT Boost_FOUND)
         message(FATAL_ERROR "Boost not found. Please install boost.")
@@ -135,7 +134,7 @@ if(USE_PYTHON)
 		set(PYBIND11_INCLUDE_DIR ${PYBIND11_INSTALL_DIR}/include)
 		ExternalProject_Add(
 			pybind11_pop
-			URL http://github.com/pybind/pybind11/archive/v2.5.0.tar.gz
+			URL http://github.com/pybind/pybind11/archive/v2.7.1.tar.gz
 			PREFIX ${PYBIND11_BUILD_DIR}
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND ""
@@ -148,7 +147,7 @@ if(USE_PYTHON)
 		FetchContent_Declare(
 			pybind11_fetch
 			GIT_REPOSITORY https://github.com/pybind/pybind11
-			GIT_TAG v2.5.0
+			GIT_TAG v2.7.1
 		)
 		FetchContent_GetProperties(pybind11_fetch)
 		if(NOT pybind11_fetch_POPULATED)
@@ -158,7 +157,7 @@ if(USE_PYTHON)
 		endif()
 	endif()
 else()
-	message(STATUS "Skip downloding pybind11")
+	message(STATUS "Skip downloading pybind11")
 endif()
 
 
@@ -179,29 +178,20 @@ if(NOT USE_GPU)
 	 # -Werror=undef is eliminated due to conflict with boost
 endif()
 
-
-
 ##### set output directory #####
+# PYTHON_SETUP_FLAG is set if you have run setup.py previously.
 if(NOT DEFINED PYTHON_SETUP_FLAG)
 	message(STATUS "Install from cmakebuild")
 	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../lib)
-	set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 
 	if(MSVC)
 	        set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/../lib)
-	        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/../bin)
 	        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/../bin)
 	endif()
 else()
 	message(STATUS "Install from pip")
 endif()
-
-message(STATUS "OUTDIR = ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}")
-if(NOT DEFINED CMAKE_LIBRARY_OUTPUT_DIRECTORY)
-        set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../lib)
-endif()
-
 
 ##### set flags #####
 if(MSYS OR MINGW OR UNIX OR APPLE)
@@ -211,7 +201,7 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
 	set(PYBIND11_CPP_STANDARD -std=c++14)
-	
+
 	# Enable pthread
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pthread")
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
@@ -225,11 +215,6 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 	if(USE_OMP)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
-	endif()
-
-	# Enable mpi
-	if(USE_MPI)
-		add_compile_options("-D _USE_MPI")
 	endif()
 
 	# Enable gpu
@@ -254,6 +239,13 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 	# Add optimization flags
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${OPT_FLAGS}")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OPT_FLAGS}")
+	
+	# Add coverage flags
+	if(USE_TEST)
+		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} --coverage")
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+	endif()
 
 
 elseif(MSVC)
@@ -284,18 +276,13 @@ elseif(MSVC)
 		add_compile_options("/openmp")
 	endif()
 
-	# enable mpi
-	if(USE_MPI)
-		add_compile_options("/D_USE_MPI")
-	endif()
-	
 	# enable gpu
 	if(USE_GPU)
 		add_compile_options("/D_USE_GPU")
 	endif()
 
 	# Static link to multithread runtimes
-	set(variables 
+	set(variables
 		CMAKE_CXX_FLAGS_DEBUG
 		CMAKE_CXX_FLAGS_RELEASE
 		CMAKE_CXX_FLAGS_RELWITHDEBINFO
@@ -341,12 +328,10 @@ if(USE_TEST)
 		add_custom_target(test
 			DEPENDS csim_test
 			DEPENDS cppsim_test
-			DEPENDS cppsim_exp_test
 			DEPENDS gpusim_test
 			DEPENDS vqcsim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/csim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_test
-			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_exp_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/gpusim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
 		)
@@ -354,12 +339,17 @@ if(USE_TEST)
 		add_custom_target(test
 			DEPENDS csim_test
 			DEPENDS cppsim_test
-			DEPENDS cppsim_exp_test
 			DEPENDS vqcsim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/csim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_test
-			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_exp_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
+		)
+		add_custom_target(coverage
+			DEPENDS test
+			COMMAND mkdir -p "${CMAKE_CURRENT_SOURCE_DIR}/coverage"
+			COMMAND lcov -d "${CMAKE_CURRENT_SOURCE_DIR}/build/src/csim/CMakeFiles/csim_static.dir" -d "${CMAKE_CURRENT_SOURCE_DIR}/build/src/cppsim/CMakeFiles/cppsim_static.dir" -d "${CMAKE_CURRENT_SOURCE_DIR}/build/src/vqcsim/CMakeFiles/vqcsim_static.dir" -c -o "${CMAKE_CURRENT_SOURCE_DIR}/coverage/coverage.info"
+			COMMAND lcov -r "${CMAKE_CURRENT_SOURCE_DIR}/coverage/coverage.info" "*/include/*" -o "${CMAKE_CURRENT_SOURCE_DIR}/coverage/coverageFiltered.info"
+			COMMAND genhtml -o "${CMAKE_CURRENT_SOURCE_DIR}/coverage/html" --num-spaces 4 -s --legend "${CMAKE_CURRENT_SOURCE_DIR}/coverage/coverageFiltered.info"
 		)
 	endif()
 endif()
@@ -403,11 +393,10 @@ add_custom_target(shared
 if(USE_PYTHON)
 	add_custom_target(python
 		DEPENDS qulacs_core
-		DEPENDS qulacs_osaka_core
 	)
 	add_custom_target(pythontest
 		DEPENDS qulacs_core
-		COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_qulacs.py ${CMAKE_LIBRARY_OUTPUT_DIRECTORY} ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}
+		COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_qulacs.py
 	)
 endif()
 

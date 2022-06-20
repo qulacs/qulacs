@@ -157,7 +157,8 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText) {
     res = observable->get_expectation_value(&state);
     test_res = func(text, &state);
 
-    ASSERT_EQ(test_res, res);
+    ASSERT_NEAR(test_res.real(), res.real(), eps);
+    ASSERT_NEAR(test_res.imag(), res.imag(), eps);
 
     state.set_Haar_random_state();
 
@@ -325,7 +326,8 @@ enum class CalculationMethod {
 
 // Test calculating eigenvalue.
 // Actual test code calls this function with prepared observable.
-void test_eigenvalue(Observable& observable, const UINT iter_count,
+// Return an error message if failed, an empty string if passed.
+std::string test_eigenvalue(Observable& observable, const UINT iter_count,
     const double eps, const CalculationMethod method) {
     auto observable_matrix = convert_observable_to_matrix(observable);
     const auto eigenvalues = observable_matrix.eigenvalues();
@@ -353,8 +355,10 @@ void test_eigenvalue(Observable& observable, const UINT iter_count,
             observable.solve_ground_state_eigenvalue_by_lanczos_method(
                 &state, iter_count);
     }
-    ASSERT_NEAR(ground_state_eigenvalue.real(),
+    std::string err_message;
+    err_message = _CHECK_NEAR(ground_state_eigenvalue.real(),
         test_ground_state_eigenvalue.real(), eps);
+    if (err_message != "") return err_message;
 
     QuantumState multiplied_state(qubit_count);
     QuantumState work_state(qubit_count);
@@ -366,18 +370,22 @@ void test_eigenvalue(Observable& observable, const UINT iter_count,
     state.normalize(state.get_squared_norm());
 
     for (UINT i = 0; i < state.dim; i++) {
-        ASSERT_NEAR(multiplied_state.data_cpp()[i].real(),
+        err_message = _CHECK_NEAR(multiplied_state.data_cpp()[i].real(),
             state.data_cpp()[i].real(), eps);
-        ASSERT_NEAR(multiplied_state.data_cpp()[i].imag(),
+        if (err_message != "") return err_message;
+        err_message = _CHECK_NEAR(multiplied_state.data_cpp()[i].imag(),
             state.data_cpp()[i].imag(), eps);
+        if (err_message != "") return err_message;
     }
+    return "";
 }
 
 /*
 TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
     constexpr double eps = 1e-2;
     constexpr UINT qubit_count = 4;
-    constexpr UINT test_count = 5;
+    constexpr UINT test_count = 10;
+    UINT pass_count = 0;
     Random random;
 
     for (UINT i = 0; i < test_count; i++) {
@@ -385,13 +393,20 @@ TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
             random.int32() % 10 + 2;  // 2 <= operator_count <= 11
         auto observable = Observable(qubit_count);
         observable.add_random_operator(operator_count);
-        test_eigenvalue(observable, 500, eps, CalculationMethod::PowerMethod);
+        std::string err_message = test_eigenvalue(
+            observable, 500, eps, CalculationMethod::PowerMethod);
+        if (err_message == "")
+            pass_count++;
+        else
+            std::cerr << err_message;
     }
+    ASSERT_GE(pass_count, test_count - 1);
 }
 
 TEST(ObservableTest, MinimumEigenvalueByArnoldiMethod) {
     constexpr double eps = 1e-6;
     constexpr UINT test_count = 10;
+    UINT pass_count = 0;
     Random random;
 
     for (UINT i = 0; i < test_count; i++) {
@@ -401,8 +416,14 @@ TEST(ObservableTest, MinimumEigenvalueByArnoldiMethod) {
         const auto operator_count = random.int32() % 10 + 2;
         auto observable = Observable(qubit_count);
         observable.add_random_operator(operator_count);
-        test_eigenvalue(observable, 60, eps, CalculationMethod::ArnoldiMethod);
+        std::string err_message = test_eigenvalue(
+            observable, 60, eps, CalculationMethod::ArnoldiMethod);
+        if (err_message == "")
+            pass_count++;
+        else
+            std::cerr << err_message;
     }
+    ASSERT_GE(pass_count, test_count - 1);
 }
 
 void add_identity(Observable* observable, Random random) {
@@ -421,6 +442,7 @@ void add_identity(Observable* observable, Random random) {
 TEST(ObservableTest, MinimumEigenvalueByArnoldiMethodWithIdentity) {
     constexpr double eps = 1e-6;
     constexpr UINT test_count = 10;
+    UINT pass_count = 0;
     Random random;
 
     for (UINT i = 0; i < test_count; i++) {
@@ -431,13 +453,20 @@ TEST(ObservableTest, MinimumEigenvalueByArnoldiMethodWithIdentity) {
         auto observable = Observable(qubit_count);
         observable.add_random_operator(operator_count);
         add_identity(&observable, random);
-        test_eigenvalue(observable, 70, eps, CalculationMethod::ArnoldiMethod);
+        std::string err_message = test_eigenvalue(
+            observable, 70, eps, CalculationMethod::ArnoldiMethod);
+        if (err_message == "")
+            pass_count++;
+        else
+            std::cerr << err_message;
     }
+    ASSERT_GE(pass_count, test_count - 1);
 }
 
 TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
     constexpr double eps = 1e-6;
     constexpr UINT test_count = 10;
+    UINT pass_count = 0;
     Random random;
 
     for (UINT i = 0; i < test_count; i++) {
@@ -447,7 +476,100 @@ TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
         const auto operator_count = random.int32() % 10 + 2;
         auto observable = Observable(qubit_count);
         observable.add_random_operator(operator_count);
-        test_eigenvalue(observable, 70, eps, CalculationMethod::LanczosMethod);
+        std::string err_message = test_eigenvalue(
+            observable, 70, eps, CalculationMethod::LanczosMethod);
+        if (err_message == "")
+            pass_count++;
+        else
+            std::cerr << err_message;
     }
+    ASSERT_GE(pass_count, test_count - 1);
+}
+
+TEST(ObservableTest, GetDaggerTest) {
+    constexpr double eps = 1e-2;
+    constexpr UINT qubit_count = 4;
+
+    auto observable = Observable(qubit_count);
+    observable.add_operator(1.0, "X 0");
+    auto dagger_observable = observable.get_dagger();
+    std::string s = dagger_observable->to_string();
+    ASSERT_TRUE(s == "(1,-0) X 0" || s == "(1,0) X 0");
+}
+
+TEST(ObservableTest, ObservableAndStateHaveDifferentQubitCountTest) {
+    auto func = [](const std::string str,
+                    const QuantumStateBase* state) -> CPPCTYPE {
+        CPPCTYPE energy = 0;
+
+        std::vector<std::string> lines = split(str, "\n");
+
+        for (std::string line : lines) {
+            std::vector<std::string> elems;
+            elems = split(line, "()j[]+");
+            chfmt(elems[3]);
+            CPPCTYPE coef(std::stod(elems[0]), std::stod(elems[1]));
+            PauliOperator mpt(elems[3].c_str(), coef.real());
+            energy += mpt.get_expectation_value(state);
+        }
+        return energy;
+    };
+
+    const double eps = 1e-14;
+    const std::string text =
+        "(-0.8126100000000005+0j) [] +\n"
+        "(0.04532175+0j) [X0 Z1 X2] +\n"
+        "(0.04532175+0j) [X0 Z1 X2 Z3] +\n"
+        "(0.04532175+0j) [Y0 Z1 Y2] +\n"
+        "(0.04532175+0j) [Y0 Z1 Y2 Z3] +\n"
+        "(0.17120100000000002+0j) [Z0] +\n"
+        "(0.17120100000000002+0j) [Z0 Z1] +\n"
+        "(0.165868+0j) [Z0 Z1 Z2] +\n"
+        "(0.165868+0j) [Z0 Z1 Z2 Z3] +\n"
+        "(0.12054625+0j) [Z0 Z2] +\n"
+        "(0.12054625+0j) [Z0 Z2 Z3] +\n"
+        "(0.16862325+0j) [Z1] +\n"
+        "(-0.22279649999999998+0j) [Z1 Z2 Z3] +\n"
+        "(0.17434925+0j) [Z1 Z3] +\n"
+        "(-0.22279649999999998+0j) [Z2]";
+
+    CPPCTYPE res, test_res;
+
+    Observable* observable;
+    observable = observable::create_observable_from_openfermion_text(text);
+    ASSERT_NE(observable, (Observable*)NULL);
+    UINT qubit_count = observable->get_qubit_count();
+
+    QuantumState state(qubit_count + 2);  // +2 is point. diff test
+    state.set_computational_basis(0);
+
+    res = observable->get_expectation_value(&state);
+    test_res = func(text, &state);
+
+    ASSERT_NEAR(res.real(), test_res.real(), eps);
+    ASSERT_NEAR(res.imag(), test_res.imag(), eps);
+
+    state.set_Haar_random_state();
+
+    res = observable->get_expectation_value(&state);
+    test_res = func(text, &state);
+
+    ASSERT_NEAR(res.real(), test_res.real(), eps);
+    ASSERT_NEAR(0, test_res.imag(), eps);
+    ASSERT_NEAR(0, res.imag(), eps);
+}
+
+TEST(ObservableTest, ApplyIdentityToState) {
+    const double eps = 1e-14;
+
+    double coef = .5;
+    int n_qubits = 3;
+    Observable obs(n_qubits);
+    obs.add_operator(coef, "I");
+    QuantumState state(n_qubits);
+    QuantumState dst_state(n_qubits);
+    obs.apply_to_state(&state, &dst_state);
+    state.add_state_with_coef(-1 / coef, &dst_state);
+    ASSERT_NEAR(0., state.get_squared_norm(), eps);
 }
 */

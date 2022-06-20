@@ -24,16 +24,33 @@ public:
     QuantumGate_Probabilistic(std::vector<double> distribution,
         std::vector<QuantumGateBase*> gate_list)
         : _distribution(distribution) {
+        if (distribution.size() != gate_list.size()) {
+            throw InvalidProbabilityDistributionException(
+                "Error: "
+                "QuantumGate_Probabilistic::get_marginal_probability(vector<"
+                "double>, vector<QuantumGateBase*>): gate_list.size() must be "
+                "equal to distribution.size() or distribution.size()+1");
+        }
         double sum = 0.;
         _cumulative_distribution.push_back(0.);
         for (auto val : distribution) {
             sum += val;
             _cumulative_distribution.push_back(sum);
         }
+        if (sum - 1. > 1e-6) {
+            throw InvalidProbabilityDistributionException(
+                "Error: "
+                "QuantumGate_Probabilistic::get_marginal_probability("
+                "vector<double>, vector<QuantumGateBase*>): sum of "
+                "probability distribution must be equal to or less than 1.0, "
+                "which is " +
+                std::to_string(sum));
+        }
         std::transform(gate_list.cbegin(), gate_list.cend(),
             std::back_inserter(_gate_list),
             [](auto gate) { return gate->copy(); });
         FLAG_NOISE = true;
+        this->_name = "Probabilistic";
     };
 
     virtual ~QuantumGate_Probabilistic() {
@@ -50,7 +67,7 @@ public:
     virtual void update_quantum_state(QuantumStateBase* state) override {
         if (state->is_state_vector()) {
             double r = random.uniform();
-            auto ite = std::lower_bound(_cumulative_distribution.begin(),
+            auto ite = std::upper_bound(_cumulative_distribution.begin(),
                 _cumulative_distribution.end(), r);
             assert(ite != _cumulative_distribution.begin());
             size_t gate_index =
@@ -164,15 +181,33 @@ public:
         UINT classical_register_address)
         : _distribution(distribution),
           _classical_register_address(classical_register_address) {
+        if (distribution.size() != gate_list.size()) {
+            throw InvalidProbabilityDistributionException(
+                "Error: "
+                "QuantumGate_ProbabilisticInstrument::get_marginal_probability("
+                "vector<double>, vector<QuantumGateBase*>): gate_list.size() "
+                "must be equal to distribution.size()");
+        }
         double sum = 0.;
         _cumulative_distribution.push_back(0.);
         for (auto val : distribution) {
             sum += val;
             _cumulative_distribution.push_back(sum);
         }
+        if (sum - 1. > 1e-6) {
+            throw InvalidProbabilityDistributionException(
+                "Error: "
+                "QuantumGate_ProbabilisticInstrument::get_marginal_probability("
+                "vector<double>, vector<QuantumGateBase*>): sum of "
+                "probability distribution must be equal to 1.0, which "
+                "is " +
+                std::to_string(sum));
+        }
         std::transform(gate_list.cbegin(), gate_list.cend(),
             std::back_inserter(_gate_list),
             [](auto gate) { return gate->copy(); });
+        FLAG_NOISE = true;
+        this->_name = "ProbabilisticInstrument";
     };
 
     virtual ~QuantumGate_ProbabilisticInstrument() {
@@ -188,7 +223,7 @@ public:
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
         double r = random.uniform();
-        auto ite = std::lower_bound(_cumulative_distribution.begin(),
+        auto ite = std::upper_bound(_cumulative_distribution.begin(),
             _cumulative_distribution.end(), r);
         assert(ite != _cumulative_distribution.begin());
         size_t gate_index =
@@ -236,6 +271,7 @@ public:
         std::transform(gate_list.cbegin(), gate_list.cend(),
             std::back_inserter(_gate_list),
             [](auto gate) { return gate->copy(); });
+        this->_name = "CPTP";
     };
     virtual ~QuantumGate_CPTP() {
         for (unsigned int i = 0; i < _gate_list.size(); ++i) {
@@ -337,6 +373,7 @@ public:
         std::transform(gate_list.cbegin(), gate_list.cend(),
             std::back_inserter(_gate_list),
             [](auto gate) { return gate->copy(); });
+        this->_name = "CP";
     };
     virtual ~QuantumGate_CP() {
         for (unsigned int i = 0; i < _gate_list.size(); ++i) {
@@ -451,6 +488,7 @@ public:
         std::transform(gate_list.cbegin(), gate_list.cend(),
             std::back_inserter(_gate_list),
             [](auto gate) { return gate->copy(); });
+        this->_name = "Instrument";
     };
     virtual ~QuantumGate_Instrument() {
         for (unsigned int i = 0; i < _gate_list.size(); ++i) {
@@ -535,7 +573,9 @@ public:
         UINT id)
         : _gate(gate->copy()),
           _func_with_id(func_with_id),
-          _id(static_cast<int>(id)){};
+          _id(static_cast<int>(id)) {
+        this->_name = "Adaptive";
+    };
     virtual ~QuantumGate_Adaptive() { delete _gate; }
 
     /**

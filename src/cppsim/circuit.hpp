@@ -10,6 +10,7 @@
 #include <string>
 #include <vector>
 
+#include "exception.hpp"
 #include "type.hpp"
 
 class QuantumStateBase;
@@ -137,12 +138,6 @@ public:
      * @param[in] circuit マージする量子回路
      */
     virtual void merge_circuit(const QuantumCircuit* circuit) {
-        if (this->qubit_count != circuit->qubit_count) {
-            throw std::invalid_argument(
-                "Error: "
-                "QuantumCircuit::add_circuit(QuantumCircuit*):"
-                "Qubit count doesn't match!");
-        }
         for (auto gate : circuit->gate_list) {
             this->add_gate_copy(gate);
         }
@@ -185,7 +180,7 @@ public:
      * \~japanese-en 量子回路がFermionic Gaussianかどうかを判定する。
      *
      * 全ての量子ゲートがFermionic Gaussianである場合にtrueと判定される。
-     * Non-Cliffordゲートが複数あり、結果としてCliffordとなっている場合もNon-Cliffordとして判定される点に注意。
+     * Non-Gaussianゲートが複数あり、結果としてGaussianとなっている場合もNon-Gaussianとして判定される点に注意。
      * @retval true Fermionic Gaussian
      * @retval false Non-fermionic Gaussian
      */
@@ -497,7 +492,9 @@ public:
      * \~japanese-en multi qubitのランダムユニタリゲートを追加する。
      *
      * @param[in] target_index_list 作用するtarget qubitの添え字のリスト
-     * @param[in] matrix 作用する行列
+     * @param[in] seed 乱数のseed値
      */
     virtual void add_random_unitary_gate(std::vector<UINT> target_index_list);
+    virtual void add_random_unitary_gate(
+        std::vector<UINT> target_index_list, UINT seed);
 };

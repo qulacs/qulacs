@@ -14,7 +14,6 @@
 #include <tuple>
 #include <vector>
 
-#include "observable.hpp"
 #include "type.hpp"
 
 /**
@@ -43,15 +42,6 @@ inline static UINT count_population_cpp(ITYPE x) {
  */
 void DllExport get_Pauli_matrix(
     ComplexMatrix& matrix, const std::vector<UINT>& pauli_id_list);
-
-/**
- * \~japanese-en
- * observable を対応する行列に変換する
- * @param [in] observable 行列に変換する observable
- * @return observable に対応する行列
- */
-ComplexMatrix DllExport convert_observable_to_matrix(
-    const Observable& observable);
 
 /**
  * \~japanese-en 乱数を管理するクラス
@@ -140,7 +130,7 @@ public:
      * \~japanese-en 現在の経過時間を取得する
      *
      * 経過時間を取得する。単位は秒で返される。一時停止を用いて時間を積算している場合は、積算している時間も併せた値が帰る。
-     * @return 経過時間　単位は秒
+     * @return 経過時間 単位は秒
      */
     double elapsed() {
         if (is_stop)
@@ -213,7 +203,7 @@ DllExport std::tuple<double, double, std::string> parse_openfermion_line(
  * @param[in] index_list チェックする配列
  * @return 重複がある場合にtrue、ない場合にfalse
  */
-bool check_is_unique_index_list(std::vector<UINT> index_list);
+bool check_is_unique_index_list(const std::vector<UINT>& index_list);
 
 /**
  * \~japanese-en 与えられた文字列の末尾の空白文字を削除します。
