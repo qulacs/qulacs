@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Eigen/Core>
+#include <array>
 #include <csim/type.hpp>
 #include <string>
-#include <array>
 
 #ifdef __GNUC__
 #if __GNUC__ >= 8

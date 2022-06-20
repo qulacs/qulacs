@@ -27,15 +27,15 @@ TEST(PauliOperatorTest, PauliQubitOverflow) {
     QuantumState state = QuantumState(n);
     state.set_Haar_random_state();
     EXPECT_THROW(
-        pauli.get_expectation_value(&state),
-        InvalidPauliIdentifierException);
+        pauli.get_expectation_value(&state), InvalidPauliIdentifierException);
 }
 
 TEST(PauliOperatorTest, BrokenPauliString) {
     int n = 5;
     double coef = 2.0;
     std::string Pauli_string = "X 0 X Z 1 Y 2";
-    EXPECT_THROW(PauliOperator(Pauli_string, coef), InvalidPauliIdentifierException);
+    EXPECT_THROW(
+        PauliOperator(Pauli_string, coef), InvalidPauliIdentifierException);
 }
 
 TEST(PauliOperatorTest, SpacedPauliString) {
@@ -51,7 +51,8 @@ TEST(PauliOperatorTest, PartedPauliString) {
     int n = 5;
     double coef = 2.0;
     std::string Pauli_string = "X 0 Y ";
-    EXPECT_THROW(PauliOperator(Pauli_string, coef), InvalidPauliIdentifierException);
+    EXPECT_THROW(
+        PauliOperator(Pauli_string, coef), InvalidPauliIdentifierException);
 }
 
 struct PauliTestParam {

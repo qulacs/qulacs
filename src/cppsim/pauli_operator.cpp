@@ -39,7 +39,7 @@ PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef) : _coef(coef) {
                 "PauliOperator::PauliOperator(std::string, CPPCTYPE):"
                 "Detected pauli_str without indices. Maybe mistyped? "
                 "Original Pauli string: " +
-                strings);        
+                strings);
         }
         if (pauli_str == "I" || pauli_str == "i")
             pauli_type = 0;
@@ -145,11 +145,11 @@ CPPCTYPE PauliOperator::get_expectation_value(
     if (state->qubit_count < this->get_qubit_count()) {
         throw InvalidPauliIdentifierException(
             "Error: "
-            "PauliOperator::get_expectation_value(QuantumStateBase*):" 
+            "PauliOperator::get_expectation_value(QuantumStateBase*):"
             "The number of qubit in PauliOperator is greater than QuantumState."
-            "PauliOperator: " + std::to_string(this->get_qubit_count()) + 
-            " QuantumState: " + std::to_string(state->qubit_count)
-        );
+            "PauliOperator: " +
+            std::to_string(this->get_qubit_count()) +
+            " QuantumState: " + std::to_string(state->qubit_count));
     }
     if (state->is_state_vector()) {
 #ifdef _USE_GPU
