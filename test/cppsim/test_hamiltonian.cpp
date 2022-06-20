@@ -373,6 +373,7 @@ void test_eigenvalue(Observable& observable, const UINT iter_count,
     }
 }
 
+/*
 TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
     constexpr double eps = 1e-2;
     constexpr UINT qubit_count = 4;
@@ -449,3 +450,4 @@ TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
         test_eigenvalue(observable, 70, eps, CalculationMethod::LanczosMethod);
     }
 }
+*/

@@ -88,11 +88,7 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        std::vector<QuantumGateBase*> new_gate_list;
-        std::transform(_gate_list.cbegin(), _gate_list.cend(),
-            std::back_inserter(new_gate_list),
-            [](auto gate) { return gate->copy(); });
-        return new QuantumGate_Probabilistic(_distribution, new_gate_list);
+        return new QuantumGate_Probabilistic(_distribution, _gate_list);
     };
 
     /**
@@ -210,12 +206,8 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        std::vector<QuantumGateBase*> new_gate_list;
-        std::transform(_gate_list.cbegin(), _gate_list.cend(),
-            std::back_inserter(new_gate_list),
-            [](auto gate) { return gate->copy(); });
         return new QuantumGate_ProbabilisticInstrument(
-            _distribution, new_gate_list, _classical_register_address);
+            _distribution, _gate_list, _classical_register_address);
     };
 
     /**
@@ -309,11 +301,7 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        std::vector<QuantumGateBase*> new_gate_list;
-        std::transform(_gate_list.cbegin(), _gate_list.cend(),
-            std::back_inserter(new_gate_list),
-            [](auto gate) { return gate->copy(); });
-        return new QuantumGate_CPTP(new_gate_list);
+        return new QuantumGate_CPTP(_gate_list);
     };
     /**
      * \~japanese-en 自身のゲート行列をセットする
@@ -431,11 +419,7 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        std::vector<QuantumGateBase*> new_gate_list;
-        std::transform(_gate_list.cbegin(), _gate_list.cend(),
-            std::back_inserter(new_gate_list),
-            [](auto gate) { return gate->copy(); });
-        return new QuantumGate_CP(new_gate_list, _state_normalize,
+        return new QuantumGate_CP(_gate_list, _state_normalize,
             _probability_normalize, _assign_zero_if_not_matched);
     };
     /**
@@ -515,12 +499,8 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        std::vector<QuantumGateBase*> new_gate_list;
-        std::transform(_gate_list.cbegin(), _gate_list.cend(),
-            std::back_inserter(new_gate_list),
-            [](auto gate) { return gate->copy(); });
         return new QuantumGate_Instrument(
-            new_gate_list, _classical_register_address);
+            _gate_list, _classical_register_address);
     };
     /**
      * \~japanese-en 自身のゲート行列をセットする
@@ -581,9 +561,9 @@ public:
      */
     virtual QuantumGateBase* copy() const override {
         if (_id == -1) {
-            return new QuantumGate_Adaptive(_gate->copy(), _func_without_id);
+            return new QuantumGate_Adaptive(_gate, _func_without_id);
         } else {
-            return new QuantumGate_Adaptive(_gate->copy(), _func_with_id, _id);
+            return new QuantumGate_Adaptive(_gate, _func_with_id, _id);
         }
     };
     /**

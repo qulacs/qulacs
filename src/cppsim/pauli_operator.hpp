@@ -99,6 +99,18 @@ public:
 
     /**
      * \~japanese-en
+     * 自身の保持するパウリ演算子が添え字のうち、最大の添え字を返す
+     *
+     * @return 自身の保持するパウリ演算子が作用する添字のうち最大の整数
+     */
+    UINT get_qubit_count() const {
+        std::vector<UINT> index_list = get_index_list();
+        if (index_list.size() == 0) return 0;
+        return *std::max_element(index_list.begin(), index_list.end()) + 1;
+    }
+
+    /**
+     * \~japanese-en
      * 自身が保持するパウリ演算子を返す。
      *
      * それぞれが作用するqubitは

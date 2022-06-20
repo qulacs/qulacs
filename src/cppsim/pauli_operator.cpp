@@ -24,12 +24,21 @@
 #include "state.hpp"
 
 PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef) : _coef(coef) {
-    std::stringstream ss(strings);
+    std::string trimmed_string = rtrim(strings);
+    if (trimmed_string.length() == 0) return;
+    std::stringstream ss(trimmed_string);
     std::string pauli_str;
     UINT index, pauli_type = 0;
     while (!ss.eof()) {
         ss >> pauli_str >> index;
-        if (pauli_str.length() == 0) break;
+        if (ss.fail()) {
+            throw std::invalid_argument(
+                "Error: "
+                "PauliOperator::PauliOperator(std::string, CPPCTYPE):"
+                "Detected pauli_str without indices. Maybe mistyped? "
+                "Original Pauli string: " +
+                strings);        
+        }
         if (pauli_str == "I" || pauli_str == "i")
             pauli_type = 0;
         else if (pauli_str == "X" || pauli_str == "x")
@@ -39,9 +48,11 @@ PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef) : _coef(coef) {
         else if (pauli_str == "Z" || pauli_str == "z")
             pauli_type = 3;
         else {
-            fprintf(stderr, "invalid Pauli string is given : %s\n ",
-                pauli_str.c_str());
-            assert(false);
+            throw std::invalid_argument(
+                "Error: "
+                "PauliOperator::PauliOperator(std::string, CPPCTYPE):"
+                "Invalid Pauli string: " + pauli_str
+                );
         }
         if (pauli_type != 0) this->add_single_Pauli(index, pauli_type);
     }
@@ -130,6 +141,15 @@ void PauliOperator::add_single_Pauli(UINT qubit_index, UINT pauli_type) {
 
 CPPCTYPE PauliOperator::get_expectation_value(
     const QuantumStateBase* state) const {
+    if (state->qubit_count < this->get_qubit_count()) {
+        throw std::invalid_argument(
+            "Error: "
+            "PauliOperator::get_expectation_value(QuantumStateBase*):" 
+            "The number of qubit in PauliOperator is greater than QuantumState."
+            "PauliOperator: " + std::to_string(this->get_qubit_count()) + 
+            " QuantumState: " + std::to_string(state->qubit_count)
+        );
+    }
     if (state->is_state_vector()) {
 #ifdef _USE_GPU
         if (state->get_device_name() == "gpu") {
@@ -140,13 +160,6 @@ CPPCTYPE PauliOperator::get_expectation_value(
                        (UINT)this->get_index_list().size(), state->data(),
                        state->dim, state->get_cuda_stream(),
                        state->device_number);
-        } else {
-            return _coef *
-                   expectation_value_multi_qubit_Pauli_operator_partial_list(
-                       this->get_index_list().data(),
-                       this->get_pauli_id_list().data(),
-                       (UINT)this->get_index_list().size(), state->data_c(),
-                       state->dim);
         }
 #else
         return _coef *

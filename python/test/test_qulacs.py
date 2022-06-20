@@ -524,6 +524,32 @@ class TestDensityMatrixHandling(unittest.TestCase):
         del dm2
         del dm3
 
+    def test_tensor_product_different_size_sv(self):
+        num_qubit = 4
+        sv1 = qulacs.StateVector(num_qubit)
+        sv2 = qulacs.StateVector(num_qubit + 1)
+        sv1.set_Haar_random_state(seed=0)
+        sv2.set_Haar_random_state(seed=1)
+        sv3 = qulacs.state.tensor_product(sv1, sv2)
+        sv3_test = np.kron(sv1.get_vector(), sv2.get_vector())
+        self.assertTrue(np.allclose(sv3_test, sv3.get_vector()), msg="check pure state tensor product")
+        del sv1
+        del sv2
+        del sv3
+
+    def test_tensor_product_different_size_dm(self):
+        num_qubit = 4
+        dm1 = qulacs.DensityMatrix(num_qubit)
+        dm2 = qulacs.DensityMatrix(num_qubit + 1)
+        dm1.set_Haar_random_state(seed=0)
+        dm2.set_Haar_random_state(seed=1)
+        dm3 = qulacs.state.tensor_product(dm1, dm2)
+        dm3_test = np.kron(dm1.get_matrix(), dm2.get_matrix())
+        self.assertTrue(np.allclose(dm3_test, dm3.get_matrix()), msg="check density matrix tensor product")
+        del dm1
+        del dm2
+        del dm3
+        
     def test_permutate_qubit_sv(self):
         num_qubit = 8
         sv = qulacs.StateVector(num_qubit)
