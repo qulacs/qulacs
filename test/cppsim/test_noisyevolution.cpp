@@ -26,9 +26,11 @@ TEST(NoisyEvolutionTest, simple_check) {
     double time = 1.;
     double dt = .01;
     auto gate = gate::NoisyEvolution(&hamiltonian, c_ops, time, dt);
-    circuit.add_gate(gate);
+    auto gate2 = gate->copy();
+    circuit.add_gate(gate2);
     QuantumState state(n);
     circuit.update_quantum_state(&state);
+    //std::cout << state << std::endl;
 }
 
 TEST(NoisyEvolutionTest, unitary_evolution) {
