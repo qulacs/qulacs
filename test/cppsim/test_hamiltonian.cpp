@@ -380,7 +380,6 @@ std::string test_eigenvalue(Observable& observable, const UINT iter_count,
     return "";
 }
 
-/*
 TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
     constexpr double eps = 1e-2;
     constexpr UINT qubit_count = 4;
@@ -572,4 +571,3 @@ TEST(ObservableTest, ApplyIdentityToState) {
     state.add_state_with_coef(-1 / coef, &dst_state);
     ASSERT_NEAR(0., state.get_squared_norm(), eps);
 }
-*/

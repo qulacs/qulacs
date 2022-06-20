@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <cppsim/pauli_operator.hpp>
+#include <cppsim/state.hpp>
 
 TEST(PauliOperatorTest, ContainsExtraWhitespace) {
     PauliOperator expected = PauliOperator("X 0", 1.0);

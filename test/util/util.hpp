@@ -3,6 +3,7 @@
 #include <Eigen/Core>
 #include <csim/type.hpp>
 #include <string>
+#include <array>
 
 #ifdef __GNUC__
 #if __GNUC__ >= 8
