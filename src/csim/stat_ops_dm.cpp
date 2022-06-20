@@ -175,7 +175,6 @@ void dm_state_tensor_product(const CTYPE* state_left, ITYPE dim_left,
                     ITYPE x_new = x_left * dim_right + x_right;
                     ITYPE y_new = y_left * dim_right + y_right;
                     state_dst[y_new * dim_new + x_new] = val_right * val_left;
-                    std::cout << y_new * dim_new + x_new << std::endl;
                 }
             }
         }
