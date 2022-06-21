@@ -113,40 +113,32 @@ void dm_state_multiply(CTYPE coef, CTYPE *state, ITYPE dim) {
 
 
 double dm_expectation_value_multi_qubit_Pauli_operator_partial_list(const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list, UINT target_qubit_index_count, const CTYPE* state, ITYPE dim) {
-	const ITYPE matrix_dim = 1ULL << target_qubit_index_count;
-	CTYPE* matrix = (CTYPE*)malloc(sizeof(CTYPE)*matrix_dim*matrix_dim);
-	for (ITYPE y = 0; y < matrix_dim; ++y) {
-		for (ITYPE x = 0; x < matrix_dim; ++x) {
-			CTYPE coef = 1.0;
-			for (UINT i = 0; i < target_qubit_index_count; ++i) {
-				ITYPE xi = (x >> i) % 2;
-				ITYPE yi = (y >> i) % 2;
-				coef *= PAULI_MATRIX[Pauli_operator_type_list[i]][yi * 2 + xi];
-			}
-			matrix[y*matrix_dim + x] = coef;
-		}
-	}
-	const ITYPE* matrix_mask_list = create_matrix_mask_list(target_qubit_index_list, target_qubit_index_count);
-
-	CTYPE sum = 0;
-	for (ITYPE state_index = 0; state_index< dim; ++state_index) {
-		ITYPE small_dim_index = 0;
-		ITYPE basis_0 = state_index;
-		for (UINT i = 0; i < target_qubit_index_count; ++i) {
-			UINT target_qubit_index = target_qubit_index_list[i];
-			if (state_index & (1ULL << target_qubit_index)) {
-				small_dim_index += (1ULL << i);
-				basis_0 ^= (1ULL << target_qubit_index);
-			}
-		}
-		for (ITYPE i = 0; i < matrix_dim; ++i) {
-			sum += matrix[small_dim_index*matrix_dim + i] * state[state_index*dim + (basis_0 ^ matrix_mask_list[i])];
-		}
-	}
-
-	free(matrix);
-	free((ITYPE*)matrix_mask_list);
-	return creal(sum);
+    CTYPE sum = 0;
+    for (ITYPE state_index = 0; state_index < dim; ++state_index) {
+        CTYPE coef = 1.0;
+        ITYPE state_index_sub = state_index;
+        for (UINT i = 0; i < target_qubit_index_count; ++i) {
+            UINT pauli_type = Pauli_operator_type_list[i];
+            UINT target_qubit_index = target_qubit_index_list[i];
+            if (pauli_type == 1) {
+                state_index_sub ^= ((1ULL) << target_qubit_index);
+            }
+            else if (pauli_type == 2) {
+                coef *= 1.i;
+                if (state_index_sub & ((1ULL) << target_qubit_index)) {
+                    coef *= -1.;
+                }
+                state_index_sub ^= ((1ULL) << target_qubit_index);
+            }
+            else if (pauli_type == 3) {
+                if (state_index_sub & ((1ULL) << target_qubit_index)) {
+                    coef *= -1.;
+                }
+            }
+        }
+        sum += coef * state[state_index * dim + state_index_sub];
+    }
+    return creal(sum);
 }
 
 
