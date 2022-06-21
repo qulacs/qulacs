@@ -720,8 +720,7 @@ GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(
         new GeneralQuantumOperator(qubit_count);
 
     for (UINT i = 0; i < ops.size(); ++i) {
-        general_quantum_operator->add_operator(
-            coefs[i], ops[i].c_str());
+        general_quantum_operator->add_operator(coefs[i], ops[i].c_str());
     }
 
     return general_quantum_operator;
@@ -759,8 +758,7 @@ GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_text(
         new GeneralQuantumOperator(qubit_count);
 
     for (UINT i = 0; i < ops.size(); ++i) {
-        general_quantum_operator->add_operator(
-            coefs[i], ops[i].c_str());
+        general_quantum_operator->add_operator(coefs[i], ops[i].c_str());
     }
 
     return general_quantum_operator;
