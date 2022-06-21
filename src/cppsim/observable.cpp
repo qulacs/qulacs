@@ -75,7 +75,7 @@ namespace observable{
         HermitianQuantumOperator* observable = new HermitianQuantumOperator(qubit_count);
 
         for (UINT i = 0; i < ops.size(); ++i){
-            observable->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
+            observable->add_operator(coefs[i], ops[i].c_str());
         }
 
         return observable;
@@ -114,7 +114,7 @@ namespace observable{
         HermitianQuantumOperator* hermitian_quantum_operator = new HermitianQuantumOperator(qubit_count);
 
         for (UINT i = 0; i < ops.size(); ++i){
-            hermitian_quantum_operator->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
+            hermitian_quantum_operator->add_operator(coefs[i], ops[i].c_str());
         }
 
         return hermitian_quantum_operator;
@@ -169,9 +169,9 @@ namespace observable{
 
         for (UINT i = 0; i < ops.size(); ++i){
             if (ops[i].find("X") != std::string::npos || ops[i].find("Y") != std::string::npos){
-                observable_non_diag->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
+                observable_non_diag->add_operator(coefs[i], ops[i].c_str());
             }else{
-                observable_diag->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
+                observable_diag->add_operator(coefs[i], ops[i].c_str());
             }
         }
 
