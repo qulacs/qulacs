@@ -229,7 +229,7 @@ HermitianQuantumOperator* create_observable_from_openfermion_file(
         new HermitianQuantumOperator(qubit_count);
 
     for (UINT i = 0; i < ops.size(); ++i) {
-        observable->add_operator(new PauliOperator(ops[i].c_str(), coefs[i]));
+        observable->add_operator(coefs[i], ops[i].c_str());
     }
 
     return observable;
@@ -268,7 +268,7 @@ HermitianQuantumOperator* create_observable_from_openfermion_text(
 
     for (UINT i = 0; i < ops.size(); ++i) {
         hermitian_quantum_operator->add_operator(
-            new PauliOperator(ops[i].c_str(), coefs[i]));
+            coefs[i], ops[i].c_str());
     }
 
     return hermitian_quantum_operator;
@@ -323,10 +323,10 @@ create_split_observable(std::string file_path) {
         if (ops[i].find("X") != std::string::npos ||
             ops[i].find("Y") != std::string::npos) {
             observable_non_diag->add_operator(
-                new PauliOperator(ops[i].c_str(), coefs[i]));
+                coefs[i], ops[i].c_str());
         } else {
             observable_diag->add_operator(
-                new PauliOperator(ops[i].c_str(), coefs[i]));
+                coefs[i], ops[i].c_str());
         }
     }
 
