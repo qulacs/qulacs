@@ -1,4 +1,4 @@
-# See here for image contents: https://github.com/microsoft/vscode-dev-containers/tree/v0.209.6/containers/cpp/.devcontainer/base.Dockerfile
+# See here for image contents: https://github.com/microsoft/vscode-dev-containers/blob/main/containers/python-3/.devcontainer/base.Dockerfile
 
 ARG VARIANT
 FROM mcr.microsoft.com/vscode/devcontainers/python:0-${VARIANT}
@@ -16,6 +16,7 @@ ENV PYTHONPATH="${PWD}/build/lib.linux-x86_64-3.9:${PYTHONPATH}"
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     clang-format \
+    gdb \
     cmake \
     libboost-dev \
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
