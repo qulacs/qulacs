@@ -18,13 +18,10 @@ ParametricQuantumCircuit::ParametricQuantumCircuit(UINT qubit_count_)
 ParametricQuantumCircuit* ParametricQuantumCircuit::copy() const {
     ParametricQuantumCircuit* new_circuit =
         new ParametricQuantumCircuit(this->qubit_count);
-    UINT pos = 0;
     for (UINT gate_pos = 0; gate_pos < this->gate_list.size(); gate_pos++) {
-        while (pos < _parametric_gate_position.size() &&
-               _parametric_gate_position[pos] < gate_pos)
-            pos++;
-        bool is_parametric = (pos < _parametric_gate_position.size() &&
-                              _parametric_gate_position[pos] == gate_pos);
+        auto pos = std::find(this->_parametric_gate_position.begin(),
+            this->_parametric_gate_position.end(), gate_pos);
+        bool is_parametric = (pos != this->_parametric_gate_position.end());
 
         if (is_parametric) {
             new_circuit->add_parametric_gate(
