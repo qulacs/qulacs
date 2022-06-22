@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -ex
+
 GCC_COMMAND="$C_COMPILER"
 GXX_COMMAND="$CXX_COMPILER"
 

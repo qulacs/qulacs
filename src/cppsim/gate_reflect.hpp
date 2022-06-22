@@ -19,7 +19,7 @@ extern "C" {
 #include <iostream>
 
 /**
- * \~japanese-en —Êqó‘Ô‚ğA•Ê‚Ì—Êqó‘Ô‚É‘Î‚µ‚Ä”½Ë‚·‚éƒQ[ƒg‚ÌƒNƒ‰ƒX
+ * \~japanese-en é‡å­çŠ¶æ…‹ã‚’ã€åˆ¥ã®é‡å­çŠ¶æ…‹ã«å¯¾ã—ã¦åå°„ã™ã‚‹ã‚²ãƒ¼ãƒˆã®ã‚¯ãƒ©ã‚¹
  */
 class ClsStateReflectionGate : public QuantumGateBase {
 private:
@@ -38,9 +38,9 @@ public:
 	}
 
 	/**
-	 * \~japanese-en —Êqó‘Ô‚ğXV‚·‚é
+	 * \~japanese-en é‡å­çŠ¶æ…‹ã‚’æ›´æ–°ã™ã‚‹
 	 *
-	 * @param state XV‚·‚é—Êqó‘Ô
+	 * @param state æ›´æ–°ã™ã‚‹é‡å­çŠ¶æ…‹
 	 */
 	virtual void update_quantum_state(QuantumStateBase* state) override {
 		if (state->is_state_vector()) {
@@ -66,17 +66,17 @@ public:
 		}
 	};
 	/**
-	 * \~japanese-en ©g‚ÌƒfƒB[ƒvƒRƒs[‚ğ¶¬‚·‚é
+	 * \~japanese-en è‡ªèº«ã®ãƒ‡ã‚£ãƒ¼ãƒ—ã‚³ãƒ”ãƒ¼ã‚’ç”Ÿæˆã™ã‚‹
 	 *
-	 * @return ©g‚ÌƒfƒB[ƒvƒRƒs[
+	 * @return è‡ªèº«ã®ãƒ‡ã‚£ãƒ¼ãƒ—ã‚³ãƒ”ãƒ¼
 	 */
 	virtual QuantumGateBase* copy() const override {
 		return new ClsStateReflectionGate(this->reflection_state);
 	};
 	/**
-	 * \~japanese-en ©g‚ÌƒQ[ƒgs—ñ‚ğƒZƒbƒg‚·‚é
+	 * \~japanese-en è‡ªèº«ã®ã‚²ãƒ¼ãƒˆè¡Œåˆ—ã‚’ã‚»ãƒƒãƒˆã™ã‚‹
 	 *
-	 * @param matrix s—ñ‚ğƒZƒbƒg‚·‚é•Ï”‚ÌQÆ
+	 * @param matrix è¡Œåˆ—ã‚’ã‚»ãƒƒãƒˆã™ã‚‹å¤‰æ•°ã®å‚ç…§
 	 */
 	virtual void set_matrix(ComplexMatrix&) const override {
 		std::cerr << "ReflectionGate::set_matrix is not implemented" << std::endl;
