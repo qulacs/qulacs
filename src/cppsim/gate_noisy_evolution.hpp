@@ -10,7 +10,7 @@
 class ClsNoisyEvolution : public QuantumGateBase {
 private:
     Random _random;
-    Observable* _hamiltonian;
+    GeneralQuantumOperator* _hamiltonian;
     GeneralQuantumOperator* _effective_hamiltonian;
     std::vector<GeneralQuantumOperator*> _c_ops;  // collapse operator
     std::vector<GeneralQuantumOperator*>
@@ -199,10 +199,10 @@ private:
     }
 
 public:
-    ClsNoisyEvolution(Observable* hamiltonian,
+    ClsNoisyEvolution(GeneralQuantumOperator* hamiltonian,
         std::vector<GeneralQuantumOperator*> c_ops, double time,
         double dt = 1e-6) {
-        _hamiltonian = dynamic_cast<Observable*>(hamiltonian->copy());
+        _hamiltonian = hamiltonian->copy();
         for (auto const& op : c_ops) {
             _c_ops.push_back(op->copy());
             _c_ops_dagger.push_back(op->get_dagger());
