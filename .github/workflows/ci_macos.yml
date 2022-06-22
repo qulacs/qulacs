@@ -58,7 +58,7 @@ jobs:
           key: ${{ runner.os }}-${{ env.CACHE_NAME }}
 
       - name: Install qulacs for macOS
-        run: ./script/build_gcc.sh
+        run: USE_TEST=Yes ./script/build_gcc.sh
 
       - name: Install qulacs Python module
         run: python setup.py install
