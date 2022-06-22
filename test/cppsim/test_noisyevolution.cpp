@@ -30,7 +30,6 @@ TEST(NoisyEvolutionTest, simple_check) {
     circuit.add_gate(gate2);
     QuantumState state(n);
     circuit.update_quantum_state(&state);
-    //std::cout << state << std::endl;
 }
 
 TEST(NoisyEvolutionTest, unitary_evolution) {
