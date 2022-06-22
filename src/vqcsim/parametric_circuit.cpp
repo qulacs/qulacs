@@ -110,7 +110,6 @@ UINT ParametricQuantumCircuit::get_parametric_gate_position(UINT index) const {
             "Error: "
             "ParametricQuantumCircuit::get_parametric_gate_position(UINT): "
             "parameter index is out of range");
-        return 0;
     }
 
     return _parametric_gate_position[index];

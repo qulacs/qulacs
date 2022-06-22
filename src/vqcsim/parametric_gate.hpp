@@ -55,29 +55,9 @@ public:
                 _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
                     state->data(), state->dim, state->get_cuda_stream(),
                     state->device_number);
-            } else {
-                if (_update_func == NULL) {
-                    throw UndefinedUpdateFuncException(
-                        "Error: "
-                        "QuantumGate_SingleParameterOneQubitRotation::update_"
-                        "quantum_state(QuantumStateBase) : update function is "
-                        "undefined");
-                }
-                _update_func(this->_target_qubit_list[0].index(), _angle,
-                    state->data_c(), state->dim);
             }
-#else
-            if (_update_func == NULL) {
-                throw UndefinedUpdateFuncException(
-                    "Error: "
-                    "QuantumGate_SingleParameterOneQubitRotation::update_"
-                    "quantum_state(QuantumStateBase) : update function is "
-                    "undefined");
-            }
-            _update_func(this->_target_qubit_list[0].index(), _angle,
-                state->data_c(), state->dim);
+            return;
 #endif
-        } else {
             if (_update_func_dm == NULL) {
                 throw UndefinedUpdateFuncException(
                     "Error: "
