@@ -564,7 +564,7 @@ TEST(ObservableTest, ApplyIdentityToState) {
     double coef = .5;
     int n_qubits = 3;
     Observable obs(n_qubits);
-    obs.add_operator(coef, "I");
+    obs.add_operator(coef, "I 0");
     QuantumState state(n_qubits);
     QuantumState dst_state(n_qubits);
     obs.apply_to_state(&state, &dst_state);
