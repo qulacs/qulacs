@@ -70,6 +70,29 @@ TEST(ParametricCircuit, GateApplyDM) {
     delete circuit;
 }
 
+TEST(ParametricCircuit, ParametricGatePosition) {
+    auto circuit = ParametricQuantumCircuit(3);
+    circuit.add_parametric_RX_gate(0, 0.);
+    circuit.add_H_gate(0);
+    circuit.add_parametric_RZ_gate(0, 0.);
+    circuit.add_CNOT_gate(0, 1);
+    circuit.add_parametric_RY_gate(1, 0.);
+    circuit.add_parametric_gate(gate::ParametricRY(2), 2);
+    circuit.add_parametric_gate(gate::ParametricRZ(0), 2);
+    circuit.add_parametric_gate(gate::ParametricRZ(1), 0);
+    circuit.remove_gate(4);
+    circuit.remove_gate(5);
+    circuit.add_parametric_gate(gate::ParametricPauliRotation({1}, {0}, 0.), 6);
+
+    ASSERT_EQ(circuit.get_parameter_count(), 6);
+    ASSERT_EQ(circuit.get_parametric_gate_position(0), 1);
+    ASSERT_EQ(circuit.get_parametric_gate_position(1), 4);
+    ASSERT_EQ(circuit.get_parametric_gate_position(2), 5);
+    ASSERT_EQ(circuit.get_parametric_gate_position(3), 3);
+    ASSERT_EQ(circuit.get_parametric_gate_position(4), 0);
+    ASSERT_EQ(circuit.get_parametric_gate_position(5), 6);
+}
+
 class MyRandomCircuit : public ParametricCircuitBuilder {
     ParametricQuantumCircuit* create_circuit(
         UINT output_dim, UINT param_count) const override {
