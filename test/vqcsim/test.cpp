@@ -82,7 +82,8 @@ TEST(ParametricCircuit, ParametricGatePosition) {
     circuit.add_parametric_gate(gate::ParametricRZ(1), 0);
     circuit.remove_gate(4);
     circuit.remove_gate(5);
-    circuit.add_parametric_gate(gate::ParametricPauliRotation({1}, {0}, 0.), 6);
+    circuit.add_parametric_gate_copy(
+        gate::ParametricPauliRotation({1}, {0}, 0.), 6);
 
     ASSERT_EQ(circuit.get_parameter_count(), 5);
     ASSERT_EQ(circuit.get_parametric_gate_position(0), 1);
