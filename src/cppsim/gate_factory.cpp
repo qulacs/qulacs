@@ -365,7 +365,7 @@ QuantumGateBase* Measurement(
     return new_gate;
 }
 
-QuantumGateBase* NoisyEvolution(Observable* hamiltonian,
+QuantumGateBase* NoisyEvolution(GeneralQuantumOperator* hamiltonian,
     std::vector<GeneralQuantumOperator*> c_ops, double time, double dt) {
     return new ClsNoisyEvolution(hamiltonian, c_ops, time, dt);
 }

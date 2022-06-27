@@ -445,7 +445,7 @@ DllExport QuantumGateBase* Measurement(
  * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* NoisyEvolution(Observable* hamiltonian,
+DllExport QuantumGateBase* NoisyEvolution(GeneralQuantumOperator* hamiltonian,
     std::vector<GeneralQuantumOperator*> c_ops, double time, double dt = 1e-6);
 
 }  // namespace gate
