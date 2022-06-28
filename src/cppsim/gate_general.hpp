@@ -128,6 +128,9 @@ public:
     virtual std::vector<double> get_cumulative_distribution() override {
         return _cumulative_distribution;
     };
+    virtual std::vector<double> get_distribution() override {
+        return _distribution;
+    };
     virtual std::vector<QuantumGateBase*> get_gate_list() override {
         return _gate_list;
     }
@@ -159,12 +162,8 @@ public:
 /**
  * \~japanese-en 選択内容を保存する確率的な操作
  */
-class QuantumGate_ProbabilisticInstrument : public QuantumGateBase {
+class QuantumGate_ProbabilisticInstrument : public QuantumGate_Probabilistic {
 protected:
-    Random random;
-    std::vector<double> _distribution;
-    std::vector<double> _cumulative_distribution;
-    std::vector<QuantumGateBase*> _gate_list;
     UINT _classical_register_address;
 
 public:
@@ -178,42 +177,11 @@ public:
     QuantumGate_ProbabilisticInstrument(std::vector<double> distribution,
         std::vector<QuantumGateBase*> gate_list,
         UINT classical_register_address)
-        : _distribution(distribution),
+        : QuantumGate_Probabilistic(distribution, gate_list),
           _classical_register_address(classical_register_address) {
-        if (distribution.size() != gate_list.size()) {
-            throw InvalidProbabilityDistributionException(
-                "Error: "
-                "QuantumGate_ProbabilisticInstrument::get_marginal_probability("
-                "vector<double>, vector<QuantumGateBase*>): gate_list.size() "
-                "must be equal to distribution.size()");
-        }
-        double sum = 0.;
-        _cumulative_distribution.push_back(0.);
-        for (auto val : distribution) {
-            sum += val;
-            _cumulative_distribution.push_back(sum);
-        }
-        if (sum - 1. > 1e-6) {
-            throw InvalidProbabilityDistributionException(
-                "Error: "
-                "QuantumGate_ProbabilisticInstrument::get_marginal_probability("
-                "vector<double>, vector<QuantumGateBase*>): sum of "
-                "probability distribution must be equal to 1.0, which "
-                "is " +
-                std::to_string(sum));
-        }
-        std::transform(gate_list.cbegin(), gate_list.cend(),
-            std::back_inserter(_gate_list),
-            [](auto gate) { return gate->copy(); });
-        FLAG_NOISE = true;
+        _distribution = distribution;
         this->_name = "ProbabilisticInstrument";
     };
-
-    virtual ~QuantumGate_ProbabilisticInstrument() {
-        for (unsigned int i = 0; i < _gate_list.size(); ++i) {
-            delete _gate_list[i];
-        }
-    }
 
     /**
      * \~japanese-en 量子状態を更新する
@@ -243,18 +211,6 @@ public:
         return new QuantumGate_ProbabilisticInstrument(
             _distribution, _gate_list, _classical_register_address);
     };
-
-    /**
-     * \~japanese-en 自身のゲート行列をセットする
-     *
-     * @param matrix 行列をセットする変数の参照
-     */
-    virtual void set_matrix(ComplexMatrix& matrix) const override {
-        std::cerr << "* Warning : Gate-matrix of probabilistic gate cannot be "
-                     "obtained. Identity matrix is returned."
-                  << std::endl;
-        matrix = Eigen::MatrixXcd::Ones(1, 1);
-    }
 };
 
 /**

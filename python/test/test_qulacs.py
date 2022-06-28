@@ -284,6 +284,7 @@ class TestPointerHandling(unittest.TestCase):
         ref = None
         for gate in gates:
             qc.add_gate(gate)
+            gate.update_quantum_state(qs)
 
         for gate in gates:
             qc.add_gate(gate)
