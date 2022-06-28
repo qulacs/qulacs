@@ -87,8 +87,8 @@ TEST(DensityMatrixObservableTest, CheckExpectationValue) {
         vector_state.set_Haar_random_state();
         density_matrix.load(&vector_state);
 
-        res_vec = observable.get_expectation_value(&vector_state);
-        res_mat = observable.get_expectation_value(&density_matrix);
+        res_vec = rand_observable.get_expectation_value(&vector_state);
+        res_mat = rand_observable.get_expectation_value(&density_matrix);
         ASSERT_NEAR(res_vec.real(), res_mat.real(), eps);
         ASSERT_NEAR(res_vec.imag(), 0, eps);
         ASSERT_NEAR(res_mat.imag(), 0, eps);

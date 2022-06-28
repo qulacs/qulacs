@@ -26,12 +26,21 @@
 #include "state.hpp"
 
 PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef) : _coef(coef) {
-    std::stringstream ss(rtrim(strings));
+    std::string trimmed_string = rtrim(strings);
+    if (trimmed_string.length() == 0) return;
+    std::stringstream ss(trimmed_string);
     std::string pauli_str;
     UINT index, pauli_type = 0;
     while (!ss.eof()) {
         ss >> pauli_str >> index;
-        if (pauli_str.length() == 0) break;
+        if (ss.fail()) {
+            throw InvalidPauliIdentifierException(
+                "Error: "
+                "PauliOperator::PauliOperator(std::string, CPPCTYPE):"
+                "Detected pauli_str without indices. Maybe mistyped? "
+                "Original Pauli string: " +
+                strings);
+        }
         if (pauli_str == "I" || pauli_str == "i")
             pauli_type = 0;
         else if (pauli_str == "X" || pauli_str == "x")
@@ -133,6 +142,15 @@ void PauliOperator::add_single_Pauli(UINT qubit_index, UINT pauli_type) {
 
 CPPCTYPE PauliOperator::get_expectation_value(
     const QuantumStateBase* state) const {
+    if (state->qubit_count < this->get_qubit_count()) {
+        throw InvalidPauliIdentifierException(
+            "Error: "
+            "PauliOperator::get_expectation_value(QuantumStateBase*):"
+            "The number of qubit in PauliOperator is greater than QuantumState."
+            "PauliOperator: " +
+            std::to_string(this->get_qubit_count()) +
+            " QuantumState: " + std::to_string(state->qubit_count));
+    }
     if (state->is_state_vector()) {
 #ifdef _USE_GPU
         if (state->get_device_name() == "gpu") {

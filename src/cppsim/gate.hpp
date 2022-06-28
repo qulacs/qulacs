@@ -268,6 +268,7 @@ public:
     //ここから勝手にkotamanegiがつくったやつ
     bool is_noise() { return FLAG_NOISE; }
     virtual void set_seed(int) { return; };
+    virtual std::vector<double> get_distribution() { return {}; };
     virtual std::vector<double> get_cumulative_distribution() { return {}; };
     virtual std::vector<QuantumGateBase*> get_gate_list() { return {}; };
     virtual void optimize_ProbablisticGate() { return; }

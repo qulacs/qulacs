@@ -616,6 +616,18 @@ class QuantumGateBase():
         """
         Get control qubit value list
         """
+    def get_cumulative_distribution(self) -> typing.List[float]: 
+        """
+        get_cumulative_distribution
+        """
+    def get_distribution(self) -> typing.List[float]: 
+        """
+        get_distribution
+        """
+    def get_gate_list(self) -> typing.List[QuantumGateBase]: 
+        """
+        get_gate_list
+        """
     def get_matrix(self) -> numpy.ndarray[numpy.complex128, _Shape[m, n]]: 
         """
         Get gate matrix
@@ -652,6 +664,10 @@ class QuantumGateBase():
         """
         Check this gate is parametric gate
         """
+    def optimize_ProbablisticGate(self) -> None: 
+        """
+        optimize_ProbablisticGate
+        """
     def to_string(self) -> str: 
         """
         Get string representation
@@ -662,30 +678,13 @@ class QuantumGateBase():
         """
     pass
 class QuantumGateMatrix(QuantumGateBase):
-    def __repr__(self) -> str: ...
     def add_control_qubit(self, index: int, control_value: int) -> None: 
         """
         Add control qubit
         """
-    def copy(self) -> QuantumGateBase: 
-        """
-        Create copied instance
-        """
-    def get_matrix(self) -> numpy.ndarray[numpy.complex128, _Shape[m, n]]: 
-        """
-        Get gate matrix
-        """
     def multiply_scalar(self, value: complex) -> None: 
         """
         Multiply scalar value to gate matrix
-        """
-    def to_string(self) -> str: 
-        """
-        Get string representation
-        """
-    def update_quantum_state(self, state: QuantumStateBase) -> None: 
-        """
-        Update quantum state
         """
     pass
 class QuantumGate_SingleParameter(QuantumGateBase):
