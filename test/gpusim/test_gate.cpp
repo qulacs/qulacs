@@ -75,7 +75,7 @@ TEST(GateTest, ApplySingleQubitGate) {
 
     const UINT n = 5;
     const ITYPE dim = 1ULL << n;
-    double eps = 1e-15;
+    double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -141,7 +141,7 @@ TEST(GateTest, ApplySingleQubitRotationGate) {
 
     const UINT n = 5;
     const ITYPE dim = 1ULL << n;
-    double eps = 1e-15;
+    double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -190,7 +190,7 @@ TEST(GateTest, ApplySingleQubitRotationGate) {
 TEST(GateTest, ApplyTwoQubitGate) {
     const UINT n = 5;
     const ITYPE dim = 1ULL << n;
-    double eps = 1e-15;
+    double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -279,7 +279,7 @@ TEST(GateTest, ApplyTwoQubitGate) {
 TEST(GateTest, ApplyMultiQubitGate) {
     const UINT n = 1;
     const ITYPE dim = 1ULL << n;
-    double eps = 1e-15;
+    double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -360,7 +360,7 @@ TEST(GateTest, ApplyMultiQubitGate) {
 TEST(GateTest, MergeTensorProduct) {
     UINT n = 2;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
+    const double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -396,7 +396,7 @@ TEST(GateTest, MergeTensorProduct) {
 TEST(GateTest, MergeMultiply) {
     UINT n = 1;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
+    const double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -431,7 +431,7 @@ TEST(GateTest, MergeMultiply) {
 TEST(GateTest, MergeTensorProductAndMultiply) {
     UINT n = 2;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
+    const double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -472,7 +472,7 @@ TEST(GateTest, MergeTensorProductAndMultiply) {
 TEST(GateTest, RandomPauliMerge) {
     UINT n = 5;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
+    const double eps = 1e-12;
 
     UINT gate_count = 10;
     UINT max_repeat = 3;
@@ -580,7 +580,7 @@ TEST(GateTest, RandomPauliMerge) {
 TEST(GateTest, RandomPauliRotationMerge) {
     UINT n = 5;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
+    const double eps = 1e-12;
 
     UINT gate_count = 10;
     UINT max_repeat = 3;
@@ -683,7 +683,7 @@ TEST(GateTest, RandomPauliRotationMerge) {
 TEST(GateTest, RandomUnitaryMerge) {
     UINT n = 5;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
+    const double eps = 1e-12;
 
     UINT gate_count = 10;
     UINT max_repeat = 3;
@@ -785,7 +785,7 @@ TEST(GateTest, RandomUnitaryMerge) {
 TEST(GateTest, RandomUnitaryMergeLarge) {
     UINT n = 5;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
+    const double eps = 1e-12;
 
     UINT gate_count = 5;
     UINT max_repeat = 2;
@@ -898,7 +898,7 @@ TEST(GateTest, U3MergeIBMQGate) {
 TEST(GateTest, ControlMerge) {
     UINT n = 2;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
+    const double eps = 1e-12;
 
     {
         auto x0 = gate::X(0);
@@ -1069,7 +1069,7 @@ TEST(GateTest, ControlMerge) {
 TEST(GateTest, RandomControlMergeSmall) {
     UINT n = 4;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
+    const double eps = 1e-12;
 
     UINT gate_count = 10;
     Random random;
@@ -1114,7 +1114,7 @@ TEST(GateTest, RandomControlMergeSmall) {
 TEST(GateTest, RandomControlMergeLarge) {
     UINT n = 4;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
+    const double eps = 1e-12;
 
     UINT gate_count = 10;
     Random random;

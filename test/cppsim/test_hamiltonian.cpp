@@ -17,7 +17,7 @@
 TEST(ObservableTest, CheckExpectationValue) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;
-    const double eps = 1e-14;
+    const double eps = 1e-12;
     double coef;
     CPPCTYPE res;
     CPPCTYPE test_res;
@@ -126,7 +126,7 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText) {
         return energy;
     };
 
-    const double eps = 1e-14;
+    const double eps = 1e-12;
     const std::string text =
         "(-0.8126100000000005+0j) [] +\n"
         "(0.04532175+0j) [X0 Z1 X2] +\n"
@@ -211,7 +211,7 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile) {
         return energy;
     };
 
-    const double eps = 1e-14;
+    const double eps = 1e-12;
     const char* filename = "../test/cppsim/H2.txt";
 
     CPPCTYPE res, test_res;
@@ -279,7 +279,7 @@ TEST(ObservableTest, CheckSplitObservable) {
         return energy;
     };
 
-    const double eps = 1e-14;
+    const double eps = 1e-12;
     const char* filename = "../test/cppsim/H2.txt";
 
     CPPCTYPE diag_res, test_res, non_diag_res;
@@ -514,7 +514,7 @@ TEST(ObservableTest, ObservableAndStateHaveDifferentQubitCountTest) {
         return energy;
     };
 
-    const double eps = 1e-14;
+    const double eps = 1e-12;
     const std::string text =
         "(-0.8126100000000005+0j) [] +\n"
         "(0.04532175+0j) [X0 Z1 X2] +\n"
@@ -559,7 +559,7 @@ TEST(ObservableTest, ObservableAndStateHaveDifferentQubitCountTest) {
 }
 
 TEST(ObservableTest, ApplyIdentityToState) {
-    const double eps = 1e-14;
+    const double eps = 1e-12;
 
     double coef = .5;
     int n_qubits = 3;

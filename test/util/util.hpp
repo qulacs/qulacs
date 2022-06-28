@@ -175,7 +175,7 @@ static Eigen::VectorXcd convert_CTYPE_array_to_eigen_vector(
 
 static void state_equal(const CTYPE* state, const Eigen::VectorXcd& test_state,
     ITYPE dim, std::string gate_string) {
-    const double eps = 1e-14;
+    const double eps = 1e-12;
     Eigen::VectorXcd vec = convert_CTYPE_array_to_eigen_vector(state, dim);
     for (ITYPE ind = 0; ind < dim; ++ind) {
         ASSERT_NEAR(abs(vec[ind] - test_state[ind]), 0, eps)

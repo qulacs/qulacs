@@ -19,7 +19,7 @@
 TEST(CircuitTest, CircuitOptimizeLight) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;
-    double eps = 1e-14;
+    double eps = 1e-12;
 
     {
         // merge successive gates
@@ -385,7 +385,7 @@ TEST(CircuitTest, RandomCircuitOptimizeLight) {
     const UINT dim = 1ULL << n;
     const UINT depth = 5;
     Random random;
-    double eps = 1e-14;
+    double eps = 1e-12;
     UINT max_repeat = 3;
     UINT max_block_size = n;
 
@@ -434,7 +434,7 @@ TEST(CircuitTest, RandomCircuitOptimizeLight2) {
     // const UINT depth = 10;
     const UINT depth = 10;
     Random random;
-    double eps = 1e-14;
+    double eps = 1e-12;
     UINT max_repeat = 3;
 
     for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
@@ -504,7 +504,7 @@ TEST(CircuitTest, RandomCircuitOptimizeLight3) {
     const UINT dim = 1ULL << n;
     const UINT depth = 10 * n;
     Random random;
-    double eps = 1e-14;
+    double eps = 1e-12;
     UINT max_repeat = 3;
     UINT max_block_size = n;
 

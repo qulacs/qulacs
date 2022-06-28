@@ -19,7 +19,7 @@ static Eigen::VectorXcd copy_cpu_from_gpu(
 }
 static void state_equal_gpu(void* state, const Eigen::VectorXcd& test_state,
     ITYPE dim, std::string gate_string, void* cuda_stream, UINT device_number) {
-    const double eps = 1e-14;
+    const double eps = 1e-12;
     Eigen::VectorXcd vec =
         copy_cpu_from_gpu(state, dim, cuda_stream, device_number);
     for (ITYPE ind = 0; ind < dim; ++ind) {

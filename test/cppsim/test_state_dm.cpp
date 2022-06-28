@@ -15,7 +15,7 @@
 
 TEST(DensityMatrixTest, GenerateAndRelease) {
     UINT n = 5;
-    double eps = 1e-14;
+    double eps = 1e-12;
     const ITYPE dim = 1ULL << n;
     DensityMatrix state(n);
     ASSERT_EQ(state.qubit_count, n);

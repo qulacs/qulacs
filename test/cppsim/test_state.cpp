@@ -7,7 +7,7 @@
 
 TEST(StateTest, GenerateAndRelease) {
     UINT n = 10;
-    double eps = 1e-14;
+    double eps = 1e-12;
     QuantumState state(n);
     ASSERT_EQ(state.qubit_count, n);
     ASSERT_EQ(state.dim, 1ULL << n);
