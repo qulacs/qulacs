@@ -17,7 +17,7 @@
 TEST(ObservableTest, CheckExpectationValue) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;
-    const double eps = 1e-12;
+
     double coef;
     CPPCTYPE res;
     CPPCTYPE test_res;
@@ -126,7 +126,6 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText) {
         return energy;
     };
 
-    const double eps = 1e-12;
     const std::string text =
         "(-0.8126100000000005+0j) [] +\n"
         "(0.04532175+0j) [X0 Z1 X2] +\n"
@@ -211,7 +210,7 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile) {
         return energy;
     };
 
-    const double eps = 1e-12;
+
     const char* filename = "../test/cppsim/H2.txt";
 
     CPPCTYPE res, test_res;
@@ -279,7 +278,7 @@ TEST(ObservableTest, CheckSplitObservable) {
         return energy;
     };
 
-    const double eps = 1e-12;
+
     const char* filename = "../test/cppsim/H2.txt";
 
     CPPCTYPE diag_res, test_res, non_diag_res;
@@ -381,9 +380,9 @@ std::string test_eigenvalue(Observable& observable, const UINT iter_count,
 }
 
 TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
-    constexpr double eps = 1e-2;
-    constexpr UINT qubit_count = 4;
-    constexpr UINT test_count = 10;
+    const double in_eps = 1e-2;
+    const UINT qubit_count = 4;
+    const UINT test_count = 10;
     UINT pass_count = 0;
     Random random;
 
@@ -393,7 +392,7 @@ TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
         auto observable = Observable(qubit_count);
         observable.add_random_operator(operator_count);
         std::string err_message = test_eigenvalue(
-            observable, 500, eps, CalculationMethod::PowerMethod);
+            observable, 500, in_eps, CalculationMethod::PowerMethod);
         if (err_message == "")
             pass_count++;
         else
@@ -403,8 +402,8 @@ TEST(ObservableTest, MinimumEigenvalueByPowerMethod) {
 }
 
 TEST(ObservableTest, MinimumEigenvalueByArnoldiMethod) {
-    constexpr double eps = 1e-6;
-    constexpr UINT test_count = 10;
+    const double in_eps = 1e-6;
+    const UINT test_count = 10;
     UINT pass_count = 0;
     Random random;
 
@@ -416,7 +415,7 @@ TEST(ObservableTest, MinimumEigenvalueByArnoldiMethod) {
         auto observable = Observable(qubit_count);
         observable.add_random_operator(operator_count);
         std::string err_message = test_eigenvalue(
-            observable, 60, eps, CalculationMethod::ArnoldiMethod);
+            observable, 60, in_eps, CalculationMethod::ArnoldiMethod);
         if (err_message == "")
             pass_count++;
         else
@@ -439,8 +438,8 @@ void add_identity(Observable* observable, Random random) {
 // Test observable with identity pauli operator because calculation was unstable
 // in this situation.
 TEST(ObservableTest, MinimumEigenvalueByArnoldiMethodWithIdentity) {
-    constexpr double eps = 1e-6;
-    constexpr UINT test_count = 10;
+    const double in_eps = 1e-6;
+    const UINT test_count = 10;
     UINT pass_count = 0;
     Random random;
 
@@ -453,7 +452,7 @@ TEST(ObservableTest, MinimumEigenvalueByArnoldiMethodWithIdentity) {
         observable.add_random_operator(operator_count);
         add_identity(&observable, random);
         std::string err_message = test_eigenvalue(
-            observable, 70, eps, CalculationMethod::ArnoldiMethod);
+            observable, 70, in_eps, CalculationMethod::ArnoldiMethod);
         if (err_message == "")
             pass_count++;
         else
@@ -463,8 +462,8 @@ TEST(ObservableTest, MinimumEigenvalueByArnoldiMethodWithIdentity) {
 }
 
 TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
-    constexpr double eps = 1e-6;
-    constexpr UINT test_count = 10;
+    const double in_eps = 1e-6;
+    const UINT test_count = 10;
     UINT pass_count = 0;
     Random random;
 
@@ -476,7 +475,7 @@ TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
         auto observable = Observable(qubit_count);
         observable.add_random_operator(operator_count);
         std::string err_message = test_eigenvalue(
-            observable, 70, eps, CalculationMethod::LanczosMethod);
+            observable, 70, in_eps, CalculationMethod::LanczosMethod);
         if (err_message == "")
             pass_count++;
         else
@@ -486,8 +485,7 @@ TEST(ObservableTest, MinimumEigenvalueByLanczosMethod) {
 }
 
 TEST(ObservableTest, GetDaggerTest) {
-    constexpr double eps = 1e-2;
-    constexpr UINT qubit_count = 4;
+    const UINT qubit_count = 4;
 
     auto observable = Observable(qubit_count);
     observable.add_operator(1.0, "X 0");
@@ -514,7 +512,6 @@ TEST(ObservableTest, ObservableAndStateHaveDifferentQubitCountTest) {
         return energy;
     };
 
-    const double eps = 1e-12;
     const std::string text =
         "(-0.8126100000000005+0j) [] +\n"
         "(0.04532175+0j) [X0 Z1 X2] +\n"
@@ -559,8 +556,6 @@ TEST(ObservableTest, ObservableAndStateHaveDifferentQubitCountTest) {
 }
 
 TEST(ObservableTest, ApplyIdentityToState) {
-    const double eps = 1e-12;
-
     double coef = .5;
     int n_qubits = 3;
     Observable obs(n_qubits);

@@ -48,7 +48,6 @@ TEST(StatOperationTest, ProbTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -93,7 +92,6 @@ TEST(StatOperationTest, MarginalProbTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -149,7 +147,6 @@ TEST(StatOperationTest, EntropyTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -191,7 +188,6 @@ TEST(StatOperationTest, InnerProductTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -237,7 +233,6 @@ TEST(StatOperationTest, SingleQubitExpectationValueTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -296,7 +291,6 @@ TEST(StatOperationTest, MultiQubitExpectationValueWholeTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -357,7 +351,6 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopWholeTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -414,7 +407,7 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopWholeTest) {
 TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
-    const double eps = 1e-12;
+
     const UINT max_repeat = 10;
 
     int ngpus = get_num_device();
@@ -487,7 +480,7 @@ TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
 TEST(StatOperationTest, MultiQubitExpectationValueZopPartialTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
-    const double eps = 1e-12;
+
     const UINT max_repeat = 10;
 
     int ngpus = get_num_device();
@@ -557,7 +550,6 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeWholeTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -639,7 +631,6 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopWholeTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -718,7 +709,6 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudePartialTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -812,7 +802,6 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -900,7 +889,7 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
 
 TEST(StateTest, GenerateAndRelease) {
     UINT n = 10;
-    double eps = 1e-12;
+
     QuantumState state(n);
     ASSERT_EQ(state.qubit_count, n);
     ASSERT_EQ(state.dim, 1ULL << n);
@@ -945,7 +934,6 @@ TEST(StateTest, Sampling) {
 }
 
 TEST(StateTest, SetState) {
-    const double eps = 1e-10;
     const UINT n = 10;
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -963,7 +951,6 @@ TEST(StateTest, SetState) {
 }
 
 TEST(StateTest, CopyState) {
-    const double eps = 1e-10;
     const UINT n = 7;
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -989,7 +976,6 @@ TEST(StateTest, CopyState) {
 }
 
 TEST(StateTest, CopyStateDevice) {
-    const double eps = 1e-10;
     const UINT n = 8;
     const ITYPE dim = 1ULL << n;
     int ngpus = get_num_device();
@@ -1023,7 +1009,6 @@ TEST(StateTest, CopyStateDevice) {
 }
 
 TEST(StateTest, AddState) {
-    const double eps = 1e-10;
     const UINT n = 10;
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {
@@ -1051,7 +1036,6 @@ TEST(StateTest, AddState) {
 }
 
 TEST(StateTest, MultiplyCoef) {
-    const double eps = 1e-10;
     const UINT n = 10;
     const std::complex<double> coef(0.5, 0.2);
     int ngpus = get_num_device();
@@ -1074,7 +1058,6 @@ TEST(StateTest, MultiplyCoef) {
 }
 
 TEST(StateTest, StateCPUtoGPU) {
-    const double eps = 1e-10;
     const UINT n = 10;
     const ITYPE dim = 1ULL << n;
     const std::complex<double> coef(0.5, 0.2);
@@ -1090,7 +1073,6 @@ TEST(StateTest, StateCPUtoGPU) {
 }
 
 TEST(StateTest, StateGPUtoCPU) {
-    const double eps = 1e-10;
     const UINT n = 10;
     const ITYPE dim = 1ULL << n;
     const std::complex<double> coef(0.5, 0.2);

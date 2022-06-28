@@ -36,7 +36,7 @@ TEST(CircuitTest, CircuitBasic) {
 
     const UINT n = 4;
     const UINT dim = 1ULL << n;
-    double eps = 1e-12;
+
     Random random;
 
     QuantumState state(n);
@@ -176,7 +176,6 @@ TEST(CircuitTest, CircuitBasic) {
 TEST(CircuitTest, CircuitOptimize) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;
-    double eps = 1e-12;
 
     {
         // merge successive gates
@@ -548,7 +547,7 @@ TEST(CircuitTest, RandomCircuitOptimize) {
     const UINT dim = 1ULL << n;
     const UINT depth = 5;
     Random random;
-    double eps = 1e-12;
+
     UINT max_repeat = 3;
     UINT max_block_size = n;
 
@@ -598,7 +597,7 @@ TEST(CircuitTest, RandomCircuitOptimize2) {
     const UINT dim = 1ULL << n;
     const UINT depth = 10;
     Random random;
-    double eps = 1e-12;
+
     UINT max_repeat = 3;
     UINT max_block_size = n;
 
@@ -656,7 +655,7 @@ TEST(CircuitTest, RandomCircuitOptimize3) {
     const UINT dim = 1ULL << n;
     const UINT depth = 10 * n;
     Random random;
-    double eps = 1e-12;
+
     UINT max_repeat = 3;
     UINT max_block_size = n;
 
@@ -705,7 +704,6 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
 
     const UINT n = 2;
     const UINT dim = 1ULL << n;
-    const double eps = 1e-12;
 
     double angle;
     std::vector<double> coef;
@@ -790,7 +788,6 @@ TEST(CircuitTest, RotateDiagonalObservable) {
 
     const UINT n = 2;
     const UINT dim = 1ULL << n;
-    const double eps = 1e-12;
 
     double angle, coef1, coef2;
     Random random;

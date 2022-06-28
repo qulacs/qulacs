@@ -113,7 +113,7 @@ void test_projection_gate(
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-12;
+
     UINT target;
     double prob;
     int ngpus = get_num_device();

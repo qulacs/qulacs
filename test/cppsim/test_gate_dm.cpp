@@ -33,7 +33,6 @@ TEST(DensityMatrixGateTest, ApplySingleQubitGate) {
 
     const UINT n = 5;
     const ITYPE dim = 1ULL << n;
-    double eps = 1e-12;
 
     Random random;
     DensityMatrix state(n);
@@ -93,7 +92,6 @@ TEST(DensityMatrixGateTest, ApplySingleQubitRotationGate) {
 
     const UINT n = 5;
     const ITYPE dim = 1ULL << n;
-    double eps = 1e-12;
 
     Random random;
     DensityMatrix state(n);
@@ -135,7 +133,6 @@ TEST(DensityMatrixGateTest, ApplySingleQubitRotationGate) {
 TEST(DensityMatrixGateTest, ApplyTwoQubitGate) {
     const UINT n = 5;
     const ITYPE dim = 1ULL << n;
-    double eps = 1e-12;
 
     Random random;
     DensityMatrix state(n);
@@ -208,7 +205,6 @@ TEST(DensityMatrixGateTest, ApplyTwoQubitGate) {
 TEST(DensityMatrixGateTest, ApplyMultiQubitGate) {
     const UINT n = 4;
     const ITYPE dim = 1ULL << n;
-    double eps = 1e-12;
 
     Random random;
     DensityMatrix state(n);
@@ -272,7 +268,6 @@ TEST(DensityMatrixGateTest, ApplyMultiQubitGate) {
 TEST(DensityMatrixGateTest, MergeTensorProduct) {
     UINT n = 2;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-12;
 
     auto x0 = gate::X(0);
     auto y1 = gate::Y(1);
@@ -302,7 +297,7 @@ TEST(DensityMatrixGateTest, MergeTensorProduct) {
 TEST(DensityMatrixGateTest, MergeMultiply) {
     UINT n = 1;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-12;
+
     auto x0 = gate::X(0);
     auto y0 = gate::Y(0);
 
@@ -334,7 +329,6 @@ TEST(DensityMatrixGateTest, MergeMultiply) {
 TEST(DensityMatrixGateTest, MergeTensorProductAndMultiply) {
     UINT n = 2;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-12;
 
     auto x0 = gate::X(0);
     auto y1 = gate::Y(1);
@@ -368,7 +362,6 @@ TEST(DensityMatrixGateTest, MergeTensorProductAndMultiply) {
 TEST(DensityMatrixGateTest, RandomPauliMerge) {
     UINT n = 5;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-12;
 
     UINT gate_count = 10;
     UINT max_repeat = 3;
@@ -431,7 +424,6 @@ TEST(DensityMatrixGateTest, RandomPauliMerge) {
 TEST(DensityMatrixGateTest, RandomPauliRotationMerge) {
     UINT n = 5;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-12;
 
     UINT gate_count = 10;
     UINT max_repeat = 3;
@@ -492,7 +484,6 @@ TEST(DensityMatrixGateTest, RandomPauliRotationMerge) {
 TEST(DensityMatrixGateTest, RandomUnitaryMerge) {
     UINT n = 5;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-12;
 
     UINT gate_count = 10;
     UINT max_repeat = 3;
@@ -561,7 +552,6 @@ TEST(DensityMatrixGateTest, RandomUnitaryMerge) {
 TEST(DensityMatrixGateTest, RandomUnitaryMergeLarge) {
     UINT n = 5;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-12;
 
     UINT gate_count = 5;
     UINT max_repeat = 2;
@@ -674,7 +664,6 @@ TEST(DensityMatrixGateTest, RandomUnitaryMergeLarge) {
 TEST(DensityMatrixGateTest, RandomControlMergeSmall) {
     UINT n = 4;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-12;
 
     UINT gate_count = 10;
     Random random;
@@ -719,7 +708,6 @@ TEST(DensityMatrixGateTest, RandomControlMergeSmall) {
 TEST(DensityMatrixGateTest, RandomControlMergeLarge) {
     UINT n = 4;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-12;
 
     UINT gate_count = 10;
     Random random;
@@ -785,7 +773,7 @@ TEST(DensityMatrixGateTest, RandomControlMergeLarge) {
 TEST(DensityMatrixGateTest, MultiTarget) {
     const UINT n = 8;
     const ITYPE dim = 1ULL << n;
-    double eps = 1e-12;
+
     const UINT target_count = 5;
 
     Random random;
@@ -821,7 +809,7 @@ TEST(DensityMatrixGateTest, MultiTarget) {
 TEST(DensityMatrixGateTest, MultiControlSingleTarget) {
     const UINT n = 8;
     const ITYPE dim = 1ULL << n;
-    double eps = 1e-12;
+
     const UINT control_count = 3;
 
     Random random;
@@ -860,7 +848,7 @@ TEST(DensityMatrixGateTest, MultiControlSingleTarget) {
 TEST(DensityMatrixGateTest, SingleControlMultiTarget) {
     const UINT n = 8;
     const ITYPE dim = 1ULL << n;
-    double eps = 1e-12;
+
     const UINT target_count = 3;
 
     Random random;
@@ -899,7 +887,7 @@ TEST(DensityMatrixGateTest, SingleControlMultiTarget) {
 TEST(DensityMatrixGateTest, MultiControlMultiTarget) {
     const UINT n = 8;
     const ITYPE dim = 1ULL << n;
-    double eps = 1e-12;
+
     const UINT control_count = 3;
     const UINT target_count = 3;
 

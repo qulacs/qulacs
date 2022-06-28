@@ -7,7 +7,7 @@
 
 TEST(StateTest, GenerateAndRelease) {
     UINT n = 10;
-    double eps = 1e-12;
+
     QuantumState state(n);
     ASSERT_EQ(state.qubit_count, n);
     ASSERT_EQ(state.dim, 1ULL << n);
@@ -70,7 +70,6 @@ TEST(StateTest, SamplingSuperpositionState) {
 }
 
 TEST(StateTest, SetState) {
-    const double eps = 1e-10;
     const UINT n = 10;
     QuantumState state(n);
     const ITYPE dim = 1ULL << n;
@@ -98,7 +97,6 @@ TEST(StateTest, HaarRandomStateNorm) {
 }
 
 bool same_state(QuantumState* s1, QuantumState* s2) {
-    const double eps = 1e-10;
     assert(s1->qubit_count == s2->qubit_count);
     auto s1_data = s1->data_cpp();
     auto s2_data = s2->data_cpp();
@@ -134,7 +132,7 @@ TEST(StateTest, StateTest_HaarRandomStateSameSeed) {
 
 TEST(StateTest, GetZeroProbability) {
     const UINT n = 10;
-    const double eps = 1e-10;
+
     QuantumState state(n);
     state.set_computational_basis(1);
     for (ITYPE i = 2; i <= 10; ++i) {
@@ -150,7 +148,6 @@ TEST(StateTest, GetZeroProbability) {
 }
 
 TEST(StateTest, GetMarginalProbability) {
-    const double eps = 1e-10;
     const UINT n = 2;
     const ITYPE dim = 1 << n;
     QuantumState state(n);
@@ -175,7 +172,6 @@ TEST(StateTest, GetMarginalProbability) {
 }
 
 TEST(StateTest, AddState) {
-    const double eps = 1e-10;
     const UINT n = 10;
     QuantumState state1(n);
     QuantumState state2(n);
@@ -203,7 +199,6 @@ TEST(StateTest, AddState) {
 }
 
 TEST(StateTest, AddStateWithCoef) {
-    const double eps = 1e-10;
     const std::complex<double> coef(2.5, 1.3);
     const UINT n = 10;
     QuantumState state1(n);
@@ -236,7 +231,6 @@ TEST(StateTest, AddStateWithCoef) {
 }
 
 TEST(StateTest, MultiplyCoef) {
-    const double eps = 1e-10;
     const UINT n = 10;
     const std::complex<double> coef(0.5, 0.2);
 
@@ -257,7 +251,6 @@ TEST(StateTest, MultiplyCoef) {
 }
 
 TEST(StateTest, TensorProduct) {
-    const double eps = 1e-10;
     const UINT n = 5;
 
     QuantumState state1(n), state2(n);
@@ -277,7 +270,6 @@ TEST(StateTest, TensorProduct) {
 }
 
 TEST(StateTest, DropQubit) {
-    const double eps = 1e-10;
     const UINT n = 4;
 
     QuantumState state(n);
@@ -296,7 +288,6 @@ TEST(StateTest, DropQubit) {
 }
 
 TEST(StateTest, PermutateQubit) {
-    const double eps = 1e-10;
     const UINT n = 3;
 
     QuantumState state(n);

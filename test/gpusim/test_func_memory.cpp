@@ -18,7 +18,6 @@ TEST(MemoryOperationTest, AllocateAndRelease) {
 TEST(MemoryOperationTest, MemoryZeroCheck) {
     const UINT n = 10;
     const ITYPE dim = 1ULL << n;
-    const double eps = 1e-12;
 
     int ngpus = get_num_device();
     for (int i = 0; i < ngpus; ++i) {

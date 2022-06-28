@@ -15,7 +15,7 @@
 
 TEST(DensityMatrixTest, GenerateAndRelease) {
     UINT n = 5;
-    double eps = 1e-12;
+
     const ITYPE dim = 1ULL << n;
     DensityMatrix state(n);
     ASSERT_EQ(state.qubit_count, n);
@@ -75,12 +75,9 @@ TEST(DensityMatrixTest, Probabilistic) {
     auto res_noI = observable.get_expectation_value(&state_noI);
     auto res_yesI = observable.get_expectation_value(&state_yesI);
 
-    const double eps = 1e-8;
-
     ASSERT_NEAR(res_noI.real(), res_yesI.real(), eps);
 }
 TEST(DensityMatrixTest, SetState) {
-    const double eps = 1e-10;
     const UINT n = 5;
     DensityMatrix state(n);
     const ITYPE dim = 1ULL << n;
@@ -104,7 +101,6 @@ TEST(DensityMatrixTest, SetState) {
 }
 
 TEST(DensityMatrixTest, GetMarginalProbability) {
-    const double eps = 1e-10;
     const UINT n = 2;
     const ITYPE dim = 1 << n;
     DensityMatrix state(n);
@@ -129,7 +125,6 @@ TEST(DensityMatrixTest, GetMarginalProbability) {
 }
 
 TEST(DensityMatrixTest, AddState) {
-    const double eps = 1e-10;
     const UINT n = 5;
     DensityMatrix state1(n);
     DensityMatrix state2(n);
@@ -167,7 +162,6 @@ TEST(DensityMatrixTest, AddState) {
 }
 
 TEST(DensityMatrixTest, MultiplyCoef) {
-    const double eps = 1e-10;
     const UINT n = 10;
     const std::complex<double> coef(0.5, 0.2);
 
