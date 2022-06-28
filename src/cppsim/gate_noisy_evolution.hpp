@@ -208,10 +208,17 @@ public:
             _c_ops_dagger.push_back(op->get_dagger());
         }
 
-        // HermitianQuantumOperatorのチェックを回避するため、
-        // GeneralQuantumOperatorに作り直す。（GeneralQuantumOperatorへのキャストではダメ）
-        // _effective_hamiltonian =
-        //     dynamic_cast<GeneralQuantumOperator*>(hamiltonian->copy());
+        // HermitianQuantumOperatorは、add_operatorの呼び出し時に、
+        // 追加するPauliOperatorがHermitianであるかのチェックが入る。
+        // _effective_hamiltonianに追加するPauliOperatorはHermitianとは限らないので、
+        // チェックに失敗してしまう可能性がある。
+        // したがって、このチェックを回避するためにGeneralQuantumOperatorを生成し、
+        // hamiltonianの中身をコピーする。
+        //
+        // HermitianQuantumOperatorをGeneralQuantumOperatorにキャストする方法では、
+        // インスタンスがHermitianQuantumOperatorのままであるため、
+        // HermitianQuantumOperator側のadd_operatorが呼び出されてしまい、問題が解決できない。
+        // したがって、GeneralQuantumOperatorを実際に作成する必要がある。
         _effective_hamiltonian =
             new GeneralQuantumOperator(hamiltonian->get_qubit_count());
         for (auto pauli : hamiltonian->get_terms()) {
