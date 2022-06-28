@@ -11,6 +11,7 @@ using namespace std::complex_literals;
 #endif
 #endif
 
+const double eps = 1e-12;
 // random
 static UINT rand_int(UINT max) { return rand() % max; }
 
