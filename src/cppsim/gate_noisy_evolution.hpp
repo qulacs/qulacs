@@ -10,7 +10,7 @@
 class ClsNoisyEvolution : public QuantumGateBase {
 private:
     Random _random;
-    GeneralQuantumOperator* _hamiltonian;
+    Observable* _hamiltonian;
     GeneralQuantumOperator* _effective_hamiltonian;
     std::vector<GeneralQuantumOperator*> _c_ops;  // collapse operator
     std::vector<GeneralQuantumOperator*>
@@ -199,7 +199,7 @@ private:
     }
 
 public:
-    ClsNoisyEvolution(GeneralQuantumOperator* hamiltonian,
+    ClsNoisyEvolution(Observable* hamiltonian,
         std::vector<GeneralQuantumOperator*> c_ops, double time,
         double dt = 1e-6) {
         _hamiltonian = hamiltonian->copy();
@@ -207,7 +207,17 @@ public:
             _c_ops.push_back(op->copy());
             _c_ops_dagger.push_back(op->get_dagger());
         }
-        _effective_hamiltonian = hamiltonian->copy();
+
+        // HermitianQuantumOperatorのチェックを回避するため、
+        // GeneralQuantumOperatorに作り直す。（GeneralQuantumOperatorへのキャストではダメ）
+        // _effective_hamiltonian =
+        //     dynamic_cast<GeneralQuantumOperator*>(hamiltonian->copy());
+        _effective_hamiltonian =
+            new GeneralQuantumOperator(hamiltonian->get_qubit_count());
+        for (auto pauli : hamiltonian->get_terms()) {
+            _effective_hamiltonian->add_operator(pauli->copy());
+        }
+
         for (size_t k = 0; k < _c_ops.size(); k++) {
             auto cdagc = (*_c_ops_dagger[k]) * (*_c_ops[k]) * (-.5i);
             *_effective_hamiltonian += cdagc;

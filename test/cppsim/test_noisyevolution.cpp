@@ -15,7 +15,7 @@ TEST(NoisyEvolutionTest, simple_check) {
     // just check runtime error
     UINT n = 4;
     QuantumCircuit circuit(n);
-    GeneralQuantumOperator hamiltonian(n);
+    Observable hamiltonian(n);
     hamiltonian.add_operator(1., "Z 0 Z 1");
     GeneralQuantumOperator op(n), op2(n);
     std::vector<GeneralQuantumOperator*> c_ops;
@@ -26,8 +26,8 @@ TEST(NoisyEvolutionTest, simple_check) {
     double time = 1.;
     double dt = .01;
     auto gate = gate::NoisyEvolution(&hamiltonian, c_ops, time, dt);
-    auto gate2 = gate->copy();
-    circuit.add_gate(gate2);
+    // auto gate2 = gate->copy();
+    circuit.add_gate(gate);
     QuantumState state(n);
     circuit.update_quantum_state(&state);
 }
@@ -40,7 +40,7 @@ TEST(NoisyEvolutionTest, unitary_evolution) {
     observable.add_operator(1, "X 0");
 
     // create hamiltonian and collapse operator
-    GeneralQuantumOperator hamiltonian(n);
+    Observable hamiltonian(n);
     hamiltonian.add_operator(1., "Z 0 Z 1");
     GeneralQuantumOperator op(n);
     std::vector<GeneralQuantumOperator*> c_ops;
@@ -83,7 +83,7 @@ TEST(NoisyEvolutionTest, error_scaling) {
     observable.add_operator(1, "X 0");
 
     // create hamiltonian and collapse operator
-    GeneralQuantumOperator hamiltonian(n);
+    Observable hamiltonian(n);
     hamiltonian.add_operator(1., "Z 0 Z 1");
     GeneralQuantumOperator op(n);
     std::vector<GeneralQuantumOperator*> c_ops;
@@ -126,7 +126,7 @@ TEST(NoisyEvolutionTest, EffectiveHamiltonian) {
     double dt = 0.01;
     UINT n = 2;
     // create hamiltonian and collapse operator
-    GeneralQuantumOperator hamiltonian(n);
+    Observable hamiltonian(n);
     hamiltonian.add_operator(1., "Z 0 Z 1");
     GeneralQuantumOperator op(n);
     std::vector<GeneralQuantumOperator*> c_ops;
@@ -157,7 +157,7 @@ TEST(NoisyEvolutionTest, dephasing) {
     Observable observable(n);
     observable.add_operator(1, "X 0");
     // create hamiltonian and collapse operator
-    GeneralQuantumOperator hamiltonian(n);
+    Observable hamiltonian(n);
     hamiltonian.add_operator(hamiltonian_energy, "Z 0 Z 1");
     GeneralQuantumOperator op(n);
     std::vector<GeneralQuantumOperator*> c_ops;
@@ -201,7 +201,7 @@ TEST(NoisyEvolutionTest, T1T2) {
     Observable observable(n);
     observable.add_operator(1, "X 0");
     // create hamiltonian and collapse operator
-    GeneralQuantumOperator hamiltonian(n);
+    Observable hamiltonian(n);
     hamiltonian.add_operator(hamiltonian_energy, "Z 0 Z 1");
     std::vector<GeneralQuantumOperator*> c_ops;
     for (int k = 0; k < 6; k++) c_ops.push_back(new GeneralQuantumOperator(n));
@@ -242,7 +242,7 @@ TEST(NoisyEvolutionTest, check_inf_occurence) {
     Observable observable(n);
     observable.add_operator(1, "X 0");
     // create hamiltonian and collapse operator
-    GeneralQuantumOperator hamiltonian(n);
+    Observable hamiltonian(n);
     hamiltonian.add_operator(hamiltonian_energy, "Z 0 Z 1");
     GeneralQuantumOperator op(n);
     std::vector<GeneralQuantumOperator*> c_ops;

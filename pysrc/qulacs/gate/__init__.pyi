@@ -141,7 +141,7 @@ def Measurement(index: int, register: int) -> qulacs_core.QuantumGateBase:
     """
     Create measurement gate
     """
-def NoisyEvolution(hamiltonian: qulacs_core.GeneralQuantumOperator, c_ops: typing.List[qulacs_core.GeneralQuantumOperator], time: float, dt: float) -> qulacs_core.QuantumGateBase:
+def NoisyEvolution(hamiltonian: qulacs_core.Observable, c_ops: typing.List[qulacs_core.GeneralQuantumOperator], time: float, dt: float) -> qulacs_core.QuantumGateBase:
     """
     Create noisy evolution
     """
