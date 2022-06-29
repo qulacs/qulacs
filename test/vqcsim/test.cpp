@@ -10,6 +10,27 @@
 #include <vqcsim/problem.hpp>
 #include <vqcsim/solver.hpp>
 
+class ClsParametricNullUpdateGate
+    : public QuantumGate_SingleParameterOneQubitRotation {
+public:
+    ClsParametricNullUpdateGate(UINT target_qubit_index, double angle)
+        : QuantumGate_SingleParameterOneQubitRotation(angle) {
+        this->_name = "ParametricNullUpdate";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index));
+    }
+    virtual void set_matrix(ComplexMatrix& matrix) const override {}
+    virtual QuantumGate_SingleParameter* copy() const override {
+        return new ClsParametricNullUpdateGate(*this);
+    };
+};
+
+TEST(ParametricGate, NullUpdateFunc) {
+    ClsParametricNullUpdateGate gate(0, 0.);
+    QuantumState state(1);
+    ASSERT_THROW(
+        gate.update_quantum_state(&state), UndefinedUpdateFuncException);
+}
+
 TEST(ParametricCircuit, GateApply) {
     const UINT n = 3;
     const UINT depth = 10;
