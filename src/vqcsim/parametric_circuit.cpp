@@ -162,11 +162,15 @@ void ParametricQuantumCircuit::merge_circuit(
      *
      * @param[in] circuit マージする量子回路
      */
+    int gate_size = this->gate_list.size();
     for (auto gate : circuit->gate_list) {
         this->add_gate_copy(gate);
     }
-    for (auto gate : circuit->_parametric_gate_list) {
-        this->add_parametric_gate_copy(gate);
+    for (auto gate_position : circuit->_parametric_gate_position) {
+        this->_parametric_gate_position.push_back(gate_size + gate_position);
+        this->_parametric_gate_list.push_back(
+            dynamic_cast<QuantumGate_SingleParameter*>(
+                this->gate_list[gate_size + gate_position]));
     }
     return;
 }

@@ -313,42 +313,38 @@ TEST(GradCalculator, BasicCheck) {
 }
 
 TEST(ParametricCircuit, ParametricMergeCircuits) {
-    ParametricQuantumCircuit circuit1(3), circuit2(3), circuit3(3);
+    ParametricQuantumCircuit base_circuit(3), circuit_for_merge(3),
+        expected_circuit(3);
     Random random;
 
-    for (int i = 0; i < 10; i++) {
-        double angle1 = random.uniform();
-        double angle2 = random.uniform();
-        double angle3 = random.uniform();
-
-        circuit1.add_parametric_RX_gate((i + 1) % 3, angle1);
-        circuit1.add_parametric_RY_gate((i + 2) % 3, angle2);
-        circuit1.add_parametric_RZ_gate((i + 3) % 3, angle3);
-
-        circuit3.add_parametric_RX_gate((i + 1) % 3, angle1);
-        circuit3.add_parametric_RY_gate((i + 2) % 3, angle2);
-        circuit3.add_parametric_RZ_gate((i + 3) % 3, angle3);
+    for (int i = 0; i < 3; ++i) {
+        double initial_angle = random.uniform();
+        base_circuit.add_parametric_RX_gate(i, initial_angle);
+        base_circuit.add_X_gate(i);
+        expected_circuit.add_parametric_RX_gate(i, initial_angle);
+        expected_circuit.add_X_gate(i);
     }
 
-    for (int i = 0; i < 10; i++) {
-        double angle1 = random.uniform();
-        double angle2 = random.uniform();
-        double angle3 = random.uniform();
-
-        circuit2.add_parametric_RX_gate((i + 1) % 3, angle1);
-        circuit2.add_parametric_RY_gate((i + 2) % 3, angle2);
-        circuit2.add_parametric_RZ_gate((i + 3) % 3, angle3);
-
-        circuit3.add_parametric_RX_gate((i + 1) % 3, angle1);
-        circuit3.add_parametric_RY_gate((i + 2) % 3, angle2);
-        circuit3.add_parametric_RZ_gate((i + 3) % 3, angle3);
+    for (int i = 0; i < 3; ++i) {
+        double initial_angle = random.uniform();
+        circuit_for_merge.add_parametric_RX_gate(i, initial_angle);
+        circuit_for_merge.add_X_gate(i);
+        expected_circuit.add_parametric_RX_gate(i, initial_angle);
+        expected_circuit.add_X_gate(i);
     }
 
-    circuit1.merge_circuit(&circuit2);
+    base_circuit.merge_circuit(&circuit_for_merge);
 
-    // circuit1.merge(circuit2) should be equal to circuit3
-    ASSERT_EQ(circuit1.get_parameter_count(), circuit3.get_parameter_count());
-    for (int i = 0; i < circuit1.get_parameter_count(); ++i) {
-        ASSERT_EQ(circuit1.get_parameter(i), circuit3.get_parameter(i));
+    ASSERT_EQ(base_circuit.to_string(), expected_circuit.to_string());
+    UINT parametric_gate_index = 0;
+    for (int i = 0; i < base_circuit.gate_list.size(); ++i) {
+        ASSERT_EQ(base_circuit.gate_list[i]->to_string(),
+            expected_circuit.gate_list[i]->to_string());
+        if (base_circuit.gate_list[i]->is_parametric()) {
+            // Compare parametric_gate angles
+            ASSERT_EQ(base_circuit.get_parameter(parametric_gate_index),
+                expected_circuit.get_parameter(parametric_gate_index));
+            ++parametric_gate_index;
+        }
     }
 }
