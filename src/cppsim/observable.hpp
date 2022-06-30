@@ -78,6 +78,20 @@ public:
         const CPPCTYPE mu = 0.0) const;
 
     /**
+     * \~japanese-en 自身のディープコピーを生成する
+     *
+     * @return 自身のディープコピー
+     */
+    virtual HermitianQuantumOperator* copy() const {
+        auto hermitian_quantum_operator =
+            new HermitianQuantumOperator(this->get_qubit_count());
+        for (auto pauli : this->get_terms()) {
+            hermitian_quantum_operator->add_operator(pauli->copy());
+        }
+        return hermitian_quantum_operator;
+    };
+
+    /**
      * \~japanese-en
      * 文字列に変換する。
      */

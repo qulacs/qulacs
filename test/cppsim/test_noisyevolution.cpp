@@ -26,7 +26,11 @@ TEST(NoisyEvolutionTest, simple_check) {
     double time = 1.;
     double dt = .01;
     auto gate = gate::NoisyEvolution(&hamiltonian, c_ops, time, dt);
-    circuit.add_gate(gate);
+    // NoisyEvolutionのcopy()で内部処理のdynamic_cast時に、
+    // HermitianQuantumOperatorのコピーに失敗しエラーになっていたので
+    // copy()が成功するかテストする。
+    auto gate2 = gate->copy();
+    circuit.add_gate(gate2);
     QuantumState state(n);
     circuit.update_quantum_state(&state);
 }
