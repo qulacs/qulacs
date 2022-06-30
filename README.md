@@ -218,7 +218,7 @@ Scheduled around August 2022.
 
 ### New features
 The main new features are as follows
-- Provision of type hint files for python
+- Providing type hint files for Python
 	- Prevents runtime errors due to wrong argument types.
 	- Configure tools such as mypy to take full advantage of type hint information.
 - Sending exceptions with detailed information
