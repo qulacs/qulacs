@@ -211,7 +211,7 @@ Please cite this arXiv paper: [Qulacs: a fast and versatile quantum circuit simu
 
 ## Infomation
 
-Experimental new features of Qulacs that have been developed in the Osaka University repository [Qulacs-Osaka/qulacs-osaka](https://github.com/Qulacs-Osaka/qulacs-osaka) will be integrated into the original [Qulacs](https:// github.com/qulacs/qulacs). The following new features will be added!!!
+Experimental new features of Qulacs that have been developed in the Osaka University repository [Qulacs-Osaka/qulacs-osaka](https://github.com/Qulacs-Osaka/qulacs-osaka) will be integrated into the original [Qulacs](https://github.com/qulacs/qulacs). The following new features will be added!!!
 
 ### Integration date
 Scheduled around August 2022.
