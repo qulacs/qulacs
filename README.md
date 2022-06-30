@@ -223,7 +223,7 @@ The main new features are as follows
 	- mypy can detect the use of incorrect argument types in the qulacs API.
 - Sending exceptions with detailed information
 	- Makes it easier to understand the cause of the error.
-	- (For jupyter notebook users) kernel is less likely to crash if incorrect input is given.
+	- (For Jupyter Notebook users) kernel is less likely to crash if incorrect input is given.
 - Added backprop (gradient calculation by error back propagation method) to ParametricQuantumCircuit
 	- It is faster than calculating gradients one by one.
 - Gradient Calculator
