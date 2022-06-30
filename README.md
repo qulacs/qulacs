@@ -230,7 +230,7 @@ The main new features are as follows
 
 ### Scope of impact
 The existing functionality has not been changed, so the existing code using Qulacs will continue to work as is. However, since the implementation language of csim has been changed from C to C++, changes may be necessary if you have been using direct calls to csim.
-Due to the C++ change, all complex numbers are now handled by std::complex.
+Due to the C++ change, all complex numbers are now handled by `std::complex`.
 
 ### Add dependency libraries
 This integration adds boost as a dependent library.
