@@ -219,8 +219,8 @@ Scheduled around August 2022.
 ### New features
 The main new features are as follows
 - Providing type hint files for Python
-	- Prevents runtime errors due to wrong argument types.
 	- Configure tools such as mypy to take full advantage of type hint information.
+	- mypy can detect the use of incorrect argument types in the qulacs API.
 - Sending exceptions with detailed information
 	- Makes it easier to understand the cause of the error.
 	- (For jupyter notebook users) kernel is less likely to crash if incorrect input is given.
