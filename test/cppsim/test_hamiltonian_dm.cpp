@@ -16,7 +16,7 @@
 TEST(DensityMatrixObservableTest, CheckExpectationValue) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;
-    const double eps = 1e-14;
+
     double coef;
     CPPCTYPE res_vec, res_mat;
     CPPCTYPE test_res;
@@ -123,7 +123,6 @@ TEST(DensityMatrixObservableTest, CheckParsedObservableFromOpenFermionText) {
         return energy;
     };
 
-    const double eps = 1e-14;
     const std::string text =
         "(-0.8126100000000005+0j) [] +\n"
         "(0.04532175+0j) [X0 Z1 X2] +\n"
