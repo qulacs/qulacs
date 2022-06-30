@@ -233,5 +233,5 @@ The existing functionality has not been changed, so the existing code using Qula
 Due to the C++ change, all complex numbers are now handled by `std::complex`.
 
 ### Add dependency libraries
-This integration adds boost as a dependent library.
+This integration adds boost as a dependency library.
 There will be some changes in the installation procedure.
