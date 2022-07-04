@@ -144,26 +144,16 @@ void ParametricQuantumCircuit::remove_gate(UINT index) {
 }
 void ParametricQuantumCircuit::merge_circuit(
     const ParametricQuantumCircuit* circuit) {
-    /**
-     *  \~japanese-en 量子回路をマージする。
-     *
-     * 引数で与えた量子回路のゲートを後ろに追加していく。
-     * マージされた側の量子回路に変更を加えてもマージした側の量子回路には変更は加わらないことに注意する。
-     * パラメータゲートに対応するため、ParametricQuantumCircuit にも
-     * merge_circuit() を追加する circuit1.add_circuit(circuit2)
-     * circuit2.add_gate(gate) # これをしても、circuit1にgateは追加されない
-     *
-     * @param[in] circuit マージする量子回路
-     */
-    int gate_size = this->gate_list.size();
+    UINT gate_count = this->gate_list.size();
     for (auto gate : circuit->gate_list) {
         this->add_gate_copy(gate);
     }
     for (auto gate_position : circuit->_parametric_gate_position) {
-        this->_parametric_gate_position.push_back(gate_size + gate_position);
+        UINT new_gate_position = gate_position + gate_count;
+        this->_parametric_gate_position.push_back(new_gate_position);
         this->_parametric_gate_list.push_back(
             dynamic_cast<QuantumGate_SingleParameter*>(
-                this->gate_list[gate_size + gate_position]));
+                this->gate_list[new_gate_position]));
     }
     return;
 }
