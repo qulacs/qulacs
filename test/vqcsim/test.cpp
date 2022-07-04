@@ -9,6 +9,7 @@
 #include <vqcsim/parametric_gate_factory.hpp>
 #include <vqcsim/problem.hpp>
 #include <vqcsim/solver.hpp>
+#include <test/util/util.hpp>
 
 class ClsParametricNullUpdateGate
     : public QuantumGate_SingleParameterOneQubitRotation {
@@ -386,8 +387,8 @@ TEST(ParametricCircuit, ParametricMergeCircuits) {
             expected_circuit.gate_list[i]->to_string());
         if (base_circuit.gate_list[i]->is_parametric()) {
             // Compare parametric_gate angles
-            ASSERT_EQ(base_circuit.get_parameter(parametric_gate_index),
-                expected_circuit.get_parameter(parametric_gate_index));
+            ASSERT_NEAR(base_circuit.get_parameter(parametric_gate_index),
+                expected_circuit.get_parameter(parametric_gate_index),eps);
             ++parametric_gate_index;
         }
     }
