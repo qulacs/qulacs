@@ -79,12 +79,11 @@ public:
         } else {
             auto org_state = state->copy();
             auto temp_state = state->copy();
+
+            state->multiply_coef(1.0 - _cumulative_distribution.back());
             for (UINT gate_index = 0; gate_index < _gate_list.size();
                  ++gate_index) {
-                if (gate_index == 0) {
-                    _gate_list[gate_index]->update_quantum_state(state);
-                    state->multiply_coef(_distribution[gate_index]);
-                } else if (gate_index + 1 < _gate_list.size()) {
+                if (gate_index + 1 < _gate_list.size()) {
                     temp_state->load(org_state);
                     _gate_list[gate_index]->update_quantum_state(temp_state);
                     temp_state->multiply_coef(_distribution[gate_index]);
@@ -105,11 +104,7 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        std::vector<QuantumGateBase*> new_gate_list;
-        std::transform(_gate_list.cbegin(), _gate_list.cend(),
-            std::back_inserter(new_gate_list),
-            [](auto gate) { return gate->copy(); });
-        return new QuantumGate_Probabilistic(_distribution, new_gate_list);
+        return new QuantumGate_Probabilistic(_distribution, _gate_list);
     };
 
     /**
@@ -132,6 +127,9 @@ public:
 
     virtual std::vector<double> get_cumulative_distribution() override {
         return _cumulative_distribution;
+    };
+    virtual std::vector<double> get_distribution() override {
+        return _distribution;
     };
     virtual std::vector<QuantumGateBase*> get_gate_list() override {
         return _gate_list;
@@ -164,12 +162,8 @@ public:
 /**
  * \~japanese-en 選択内容を保存する確率的な操作
  */
-class QuantumGate_ProbabilisticInstrument : public QuantumGateBase {
+class QuantumGate_ProbabilisticInstrument : public QuantumGate_Probabilistic {
 protected:
-    Random random;
-    std::vector<double> _distribution;
-    std::vector<double> _cumulative_distribution;
-    std::vector<QuantumGateBase*> _gate_list;
     UINT _classical_register_address;
 
 public:
@@ -183,42 +177,11 @@ public:
     QuantumGate_ProbabilisticInstrument(std::vector<double> distribution,
         std::vector<QuantumGateBase*> gate_list,
         UINT classical_register_address)
-        : _distribution(distribution),
+        : QuantumGate_Probabilistic(distribution, gate_list),
           _classical_register_address(classical_register_address) {
-        if (distribution.size() != gate_list.size()) {
-            throw InvalidProbabilityDistributionException(
-                "Error: "
-                "QuantumGate_ProbabilisticInstrument::get_marginal_probability("
-                "vector<double>, vector<QuantumGateBase*>): gate_list.size() "
-                "must be equal to distribution.size()");
-        }
-        double sum = 0.;
-        _cumulative_distribution.push_back(0.);
-        for (auto val : distribution) {
-            sum += val;
-            _cumulative_distribution.push_back(sum);
-        }
-        if (sum - 1. > 1e-6) {
-            throw InvalidProbabilityDistributionException(
-                "Error: "
-                "QuantumGate_ProbabilisticInstrument::get_marginal_probability("
-                "vector<double>, vector<QuantumGateBase*>): sum of "
-                "probability distribution must be equal to 1.0, which "
-                "is " +
-                std::to_string(sum));
-        }
-        std::transform(gate_list.cbegin(), gate_list.cend(),
-            std::back_inserter(_gate_list),
-            [](auto gate) { return gate->copy(); });
-        FLAG_NOISE = true;
+        _distribution = distribution;
         this->_name = "ProbabilisticInstrument";
     };
-
-    virtual ~QuantumGate_ProbabilisticInstrument() {
-        for (unsigned int i = 0; i < _gate_list.size(); ++i) {
-            delete _gate_list[i];
-        }
-    }
 
     /**
      * \~japanese-en 量子状態を更新する
@@ -245,25 +208,9 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        std::vector<QuantumGateBase*> new_gate_list;
-        std::transform(_gate_list.cbegin(), _gate_list.cend(),
-            std::back_inserter(new_gate_list),
-            [](auto gate) { return gate->copy(); });
         return new QuantumGate_ProbabilisticInstrument(
-            _distribution, new_gate_list, _classical_register_address);
+            _distribution, _gate_list, _classical_register_address);
     };
-
-    /**
-     * \~japanese-en 自身のゲート行列をセットする
-     *
-     * @param matrix 行列をセットする変数の参照
-     */
-    virtual void set_matrix(ComplexMatrix& matrix) const override {
-        std::cerr << "* Warning : Gate-matrix of probabilistic gate cannot be "
-                     "obtained. Identity matrix is returned."
-                  << std::endl;
-        matrix = Eigen::MatrixXcd::Ones(1, 1);
-    }
 };
 
 /**
@@ -345,11 +292,7 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        std::vector<QuantumGateBase*> new_gate_list;
-        std::transform(_gate_list.cbegin(), _gate_list.cend(),
-            std::back_inserter(new_gate_list),
-            [](auto gate) { return gate->copy(); });
-        return new QuantumGate_CPTP(new_gate_list);
+        return new QuantumGate_CPTP(_gate_list);
     };
     /**
      * \~japanese-en 自身のゲート行列をセットする
@@ -468,11 +411,7 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        std::vector<QuantumGateBase*> new_gate_list;
-        std::transform(_gate_list.cbegin(), _gate_list.cend(),
-            std::back_inserter(new_gate_list),
-            [](auto gate) { return gate->copy(); });
-        return new QuantumGate_CP(new_gate_list, _state_normalize,
+        return new QuantumGate_CP(_gate_list, _state_normalize,
             _probability_normalize, _assign_zero_if_not_matched);
     };
     /**
@@ -553,12 +492,8 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGateBase* copy() const override {
-        std::vector<QuantumGateBase*> new_gate_list;
-        std::transform(_gate_list.cbegin(), _gate_list.cend(),
-            std::back_inserter(new_gate_list),
-            [](auto gate) { return gate->copy(); });
         return new QuantumGate_Instrument(
-            new_gate_list, _classical_register_address);
+            _gate_list, _classical_register_address);
     };
     /**
      * \~japanese-en 自身のゲート行列をセットする
@@ -621,9 +556,9 @@ public:
      */
     virtual QuantumGateBase* copy() const override {
         if (_id == -1) {
-            return new QuantumGate_Adaptive(_gate->copy(), _func_without_id);
+            return new QuantumGate_Adaptive(_gate, _func_without_id);
         } else {
-            return new QuantumGate_Adaptive(_gate->copy(), _func_with_id, _id);
+            return new QuantumGate_Adaptive(_gate, _func_with_id, _id);
         }
     };
     /**

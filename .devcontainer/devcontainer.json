@@ -4,10 +4,11 @@
 	"name": "C++",
 	"build": {
 		"dockerfile": "Dockerfile",
-		// Update 'VARIANT' to pick an Debian / Ubuntu OS version: debian-11, debian-10, debian-9, ubuntu-21.04, ubuntu-20.04, ubuntu-18.04
-		// Use Debian 11, Debian 9, Ubuntu 18.04 or Ubuntu 21.04 on local arm64/Apple Silicon
+		// Update 'VARIANT' to pick a Python version: 3, 3.10, 3.9, 3.8, 3.7, 3.6
+		// Append -bullseye or -buster to pin to an OS version.
+		// Use -bullseye variants on local on arm64/Apple Silicon.
 		"args": {
-			"VARIANT": "debian-11"
+			"VARIANT": "3.9-bullseye"
 		}
 	},
 	"runArgs": [
@@ -30,8 +31,7 @@
 		"python.terminal.activateEnvironment": false,
 		// CAVEAT: you need to restart after building qulacs-osaka to take effect.
 		"C_Cpp.default.includePath": [
-			"include",
-			"/.pyenv/versions/${PYTHON_VERSION}/include/python3.9"
+			"include"
 		]
 	},
 	// Add the IDs of extensions you want installed when the container is created.

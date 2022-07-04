@@ -16,7 +16,7 @@
 TEST(DensityMatrixObservableTest, CheckExpectationValue) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;
-    const double eps = 1e-14;
+
     double coef;
     CPPCTYPE res_vec, res_mat;
     CPPCTYPE test_res;
@@ -87,8 +87,8 @@ TEST(DensityMatrixObservableTest, CheckExpectationValue) {
         vector_state.set_Haar_random_state();
         density_matrix.load(&vector_state);
 
-        res_vec = observable.get_expectation_value(&vector_state);
-        res_mat = observable.get_expectation_value(&density_matrix);
+        res_vec = rand_observable.get_expectation_value(&vector_state);
+        res_mat = rand_observable.get_expectation_value(&density_matrix);
         ASSERT_NEAR(res_vec.real(), res_mat.real(), eps);
         ASSERT_NEAR(res_vec.imag(), 0, eps);
         ASSERT_NEAR(res_mat.imag(), 0, eps);
@@ -123,7 +123,6 @@ TEST(DensityMatrixObservableTest, CheckParsedObservableFromOpenFermionText) {
         return energy;
     };
 
-    const double eps = 1e-14;
     const std::string text =
         "(-0.8126100000000005+0j) [] +\n"
         "(0.04532175+0j) [X0 Z1 X2] +\n"

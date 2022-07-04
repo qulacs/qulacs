@@ -23,7 +23,6 @@ TEST(CompatTest, ApplyRandomOrderUnitary) {
     UINT n = 15;
     UINT max_gate_count = 5;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
 
     UINT gate_count = 10;
     UINT max_repeat = 3;
@@ -91,7 +90,6 @@ TEST(CompatTest, SingleControlQubitApplyRandomOrderUnitary) {
     UINT n = 15;
     UINT max_gate_count = 5;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
 
     UINT gate_count = 10;
     UINT max_repeat = 3;
@@ -148,7 +146,6 @@ TEST(CompatTest, DoubleControlQubitApplyRandomOrderUnitary) {
     UINT n = 15;
     UINT max_gate_count = 5;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
 
     UINT gate_count = 10;
     UINT max_repeat = 3;
@@ -207,7 +204,6 @@ TEST(CompatTest, MultiControlQubitApplyRandomOrderUnitary) {
     UINT max_gate_count = 5;
     UINT max_control = 5;
     ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
 
     UINT gate_count = 10;
     UINT max_repeat = 3;

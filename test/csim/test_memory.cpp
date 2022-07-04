@@ -16,7 +16,6 @@ TEST(MemoryOperationTest, AllocateAndRelease) {
 TEST(MemoryOperationTest, MemoryZeroCheck) {
     const UINT n = 10;
     const ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
 
     auto ptr = allocate_quantum_state(dim);
     initialize_quantum_state(ptr, dim);

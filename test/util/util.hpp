@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Eigen/Core>
+#include <array>
 #include <csim/type.hpp>
 #include <string>
 
@@ -10,6 +11,7 @@ using namespace std::complex_literals;
 #endif
 #endif
 
+const double eps = 1e-12;
 // random
 static UINT rand_int(UINT max) { return rand() % max; }
 
@@ -175,7 +177,6 @@ static Eigen::VectorXcd convert_CTYPE_array_to_eigen_vector(
 
 static void state_equal(const CTYPE* state, const Eigen::VectorXcd& test_state,
     ITYPE dim, std::string gate_string) {
-    const double eps = 1e-14;
     Eigen::VectorXcd vec = convert_CTYPE_array_to_eigen_vector(state, dim);
     for (ITYPE ind = 0; ind < dim; ++ind) {
         ASSERT_NEAR(abs(vec[ind] - test_state[ind]), 0, eps)

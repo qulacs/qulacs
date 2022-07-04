@@ -1,13 +1,21 @@
 #include <gtest/gtest.h>
 
+#include <cppsim/exception.hpp>
+#include <cppsim/gate.hpp>
+#include <cppsim/gate_factory.hpp>
+#include <cppsim/gate_matrix.hpp>
+#include <cppsim/gate_merge.hpp>
+#include <cppsim/pauli_operator.hpp>
+#include <cppsim/state.hpp>
 #include <cppsim/state_dm.hpp>
 #include <cppsim/utility.hpp>
+#include <csim/update_ops.hpp>
 
 #include "../util/util.hpp"
 
 TEST(DensityMatrixTest, GenerateAndRelease) {
     UINT n = 5;
-    double eps = 1e-14;
+
     const ITYPE dim = 1ULL << n;
     DensityMatrix state(n);
     ASSERT_EQ(state.qubit_count, n);
@@ -50,9 +58,26 @@ TEST(DensityMatrixTest, Sampling) {
     state.set_computational_basis(10);
     auto res2 = state.sampling(1024);
 }
+TEST(DensityMatrixTest, Probabilistic) {
+    DensityMatrix state_noI(2);
+    DensityMatrix state_yesI(2);
+    auto proba_gate_noI =
+        QuantumGate_Probabilistic({0.2, 0.2}, {gate::X(0), gate::H(1)});
+    auto proba_gate_yesI = QuantumGate_Probabilistic(
+        {0.2, 0.2, 0.6}, {gate::X(0), gate::H(1), gate::Identity(0)});
 
+    proba_gate_noI.update_quantum_state(&state_noI);
+    proba_gate_yesI.update_quantum_state(&state_yesI);
+
+    Observable observable(2);
+    observable.add_operator(1.0, "Z 0 Z 1");
+
+    auto res_noI = observable.get_expectation_value(&state_noI);
+    auto res_yesI = observable.get_expectation_value(&state_yesI);
+
+    ASSERT_NEAR(res_noI.real(), res_yesI.real(), eps);
+}
 TEST(DensityMatrixTest, SetState) {
-    const double eps = 1e-10;
     const UINT n = 5;
     DensityMatrix state(n);
     const ITYPE dim = 1ULL << n;
@@ -76,7 +101,6 @@ TEST(DensityMatrixTest, SetState) {
 }
 
 TEST(DensityMatrixTest, GetMarginalProbability) {
-    const double eps = 1e-10;
     const UINT n = 2;
     const ITYPE dim = 1 << n;
     DensityMatrix state(n);
@@ -101,7 +125,6 @@ TEST(DensityMatrixTest, GetMarginalProbability) {
 }
 
 TEST(DensityMatrixTest, AddState) {
-    const double eps = 1e-10;
     const UINT n = 5;
     DensityMatrix state1(n);
     DensityMatrix state2(n);
@@ -139,7 +162,6 @@ TEST(DensityMatrixTest, AddState) {
 }
 
 TEST(DensityMatrixTest, MultiplyCoef) {
-    const double eps = 1e-10;
     const UINT n = 10;
     const std::complex<double> coef(0.5, 0.2);
 

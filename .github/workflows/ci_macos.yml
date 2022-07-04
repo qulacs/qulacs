@@ -58,16 +58,15 @@ jobs:
           key: ${{ runner.os }}-${{ env.CACHE_NAME }}
 
       - name: Install qulacs for macOS
-        run: ./script/build_gcc.sh
+        run: USE_TEST=Yes ./script/build_gcc.sh
 
       - name: Install qulacs Python module
         run: python setup.py install
 
       - name: Test if stub is working
         run: |
-          python python/stub-test/generate_mypy_tester.py qulacs_osaka
           python python/stub-test/generate_mypy_tester.py qulacs
-          mypy python/stub-test/names_qulacs_osaka.py python/stub-test/names_qulacs.py
+          mypy python/stub-test/names_qulacs.py
 
       - name: Test in macOS
         run: |

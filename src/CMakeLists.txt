@@ -12,5 +12,4 @@ if (USE_GPU)
 endif()
 
 add_subdirectory(cppsim)
-add_subdirectory(cppsim_experimental)
 add_subdirectory(vqcsim)

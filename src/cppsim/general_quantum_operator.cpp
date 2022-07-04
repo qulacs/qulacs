@@ -720,8 +720,7 @@ GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_file(
         new GeneralQuantumOperator(qubit_count);
 
     for (UINT i = 0; i < ops.size(); ++i) {
-        general_quantum_operator->add_operator(
-            new PauliOperator(ops[i].c_str(), coefs[i]));
+        general_quantum_operator->add_operator(coefs[i], ops[i].c_str());
     }
 
     return general_quantum_operator;
@@ -759,8 +758,7 @@ GeneralQuantumOperator* create_general_quantum_operator_from_openfermion_text(
         new GeneralQuantumOperator(qubit_count);
 
     for (UINT i = 0; i < ops.size(); ++i) {
-        general_quantum_operator->add_operator(
-            new PauliOperator(ops[i].c_str(), coefs[i]));
+        general_quantum_operator->add_operator(coefs[i], ops[i].c_str());
     }
 
     return general_quantum_operator;
@@ -817,10 +815,10 @@ create_split_general_quantum_operator(std::string file_path) {
         if (ops[i].find("X") != std::string::npos ||
             ops[i].find("Y") != std::string::npos) {
             general_quantum_operator_non_diag->add_operator(
-                new PauliOperator(ops[i].c_str(), coefs[i]));
+                coefs[i], ops[i].c_str());
         } else {
             general_quantum_operator_diag->add_operator(
-                new PauliOperator(ops[i].c_str(), coefs[i]));
+                coefs[i], ops[i].c_str());
         }
     }
 

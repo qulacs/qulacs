@@ -49,7 +49,9 @@ jobs:
           boost_version: 1.77.0
 
       - name: Install qulacs for Windows
-        run: ./script/build_msvc_2019.bat
+        run: |
+          $env:USE_TEST = "Yes"
+          ./script/build_msvc_2019.bat
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
 
@@ -60,9 +62,8 @@ jobs:
 
       - name: Test if stub is working
         run: |
-          python python/stub-test/generate_mypy_tester.py qulacs_osaka
           python python/stub-test/generate_mypy_tester.py qulacs
-          mypy python/stub-test/names_qulacs_osaka.py python/stub-test/names_qulacs.py
+          mypy python/stub-test/names_qulacs.py
 
       - name: Test in Windows
         env:

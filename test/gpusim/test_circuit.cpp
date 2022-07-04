@@ -81,7 +81,7 @@ TEST(CircuitTest, CircuitBasic) {
 
     const UINT n = 4;
     const UINT dim = 1ULL << n;
-    double eps = 1e-14;
+
     Random random;
 
     int ngpus = get_num_device();
@@ -232,7 +232,6 @@ TEST(CircuitTest, CircuitBasic) {
 TEST(CircuitTest, CircuitOptimize) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;
-    double eps = 1e-14;
 
     {
         // merge successive gates
@@ -643,7 +642,7 @@ TEST(CircuitTest, RandomCircuitOptimize) {
     const UINT dim = 1ULL << n;
     const UINT depth = 5;
     Random random;
-    double eps = 1e-14;
+
     UINT max_repeat = 3;
     UINT max_block_size = n;
 
@@ -697,7 +696,7 @@ TEST(CircuitTest, RandomCircuitOptimizeLarge) {
     const UINT dim = 1ULL << n;
     const UINT depth = 5;
     Random random;
-    double eps = 1e-14;
+
     UINT max_repeat = 3;
     UINT max_block_size = n;
     int ngpus = get_num_device();
@@ -756,7 +755,6 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
     const UINT n = 2;
     UINT num_repeats;
     const UINT dim = 1ULL << n;
-    const double eps = 1e-14;
 
     double angle;
     std::vector<double> coef;
@@ -844,7 +842,6 @@ TEST(CircuitTest, RotateDiagonalObservable) {
 
     const UINT n = 2;
     const UINT dim = 1ULL << n;
-    const double eps = 1e-14;
 
     double angle, coef1, coef2;
     Random random;

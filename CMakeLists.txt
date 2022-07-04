@@ -21,7 +21,7 @@ set(DEFAULT_USE_SIMD Yes)
 set(DEFAULT_USE_OMP Yes)
 set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)
-set(DEFAULT_USE_TEST Yes)
+set(DEFAULT_USE_TEST No)
 set(DEFAULT_OPT_FLAGS "-mtune=native -march=native -mfpmath=both")
 
 if(NOT DEFINED USE_SIMD)
@@ -328,12 +328,10 @@ if(USE_TEST)
 		add_custom_target(test
 			DEPENDS csim_test
 			DEPENDS cppsim_test
-			DEPENDS cppsim_exp_test
 			DEPENDS gpusim_test
 			DEPENDS vqcsim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/csim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_test
-			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_exp_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/gpusim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
 		)
@@ -341,17 +339,15 @@ if(USE_TEST)
 		add_custom_target(test
 			DEPENDS csim_test
 			DEPENDS cppsim_test
-			DEPENDS cppsim_exp_test
 			DEPENDS vqcsim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/csim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_test
-			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_exp_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
 		)
 		add_custom_target(coverage
 			DEPENDS test
 			COMMAND mkdir -p "${CMAKE_CURRENT_SOURCE_DIR}/coverage"
-			COMMAND lcov -d "${CMAKE_CURRENT_SOURCE_DIR}/build/src/csim/CMakeFiles/csim_static.dir" -d "${CMAKE_CURRENT_SOURCE_DIR}/build/src/cppsim/CMakeFiles/cppsim_static.dir" -d "${CMAKE_CURRENT_SOURCE_DIR}/build/src/cppsim_experimental/CMakeFiles/cppsim_exp_static.dir" -d "${CMAKE_CURRENT_SOURCE_DIR}/build/src/vqcsim/CMakeFiles/vqcsim_static.dir" -c -o "${CMAKE_CURRENT_SOURCE_DIR}/coverage/coverage.info"
+			COMMAND lcov -d "${CMAKE_CURRENT_SOURCE_DIR}/build/src/csim/CMakeFiles/csim_static.dir" -d "${CMAKE_CURRENT_SOURCE_DIR}/build/src/cppsim/CMakeFiles/cppsim_static.dir" -d "${CMAKE_CURRENT_SOURCE_DIR}/build/src/vqcsim/CMakeFiles/vqcsim_static.dir" -c -o "${CMAKE_CURRENT_SOURCE_DIR}/coverage/coverage.info"
 			COMMAND lcov -r "${CMAKE_CURRENT_SOURCE_DIR}/coverage/coverage.info" "*/include/*" -o "${CMAKE_CURRENT_SOURCE_DIR}/coverage/coverageFiltered.info"
 			COMMAND genhtml -o "${CMAKE_CURRENT_SOURCE_DIR}/coverage/html" --num-spaces 4 -s --legend "${CMAKE_CURRENT_SOURCE_DIR}/coverage/coverageFiltered.info"
 		)
@@ -397,13 +393,10 @@ add_custom_target(shared
 if(USE_PYTHON)
 	add_custom_target(python
 		DEPENDS qulacs_core
-		DEPENDS qulacs_osaka_core
 	)
 	add_custom_target(pythontest
 		DEPENDS qulacs_core
-		DEPENDS qulacs_osaka_core
 		COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_qulacs.py
-		COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_qulacs_osaka.py
 	)
 endif()
 
