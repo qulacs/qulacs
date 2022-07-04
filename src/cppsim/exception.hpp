@@ -177,6 +177,20 @@ public:
 };
 
 /**
+ * \~japanese-en ParametricGateのupdate_funcが定義されていないという例外
+ */
+class UndefinedUpdateFuncException : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    UndefinedUpdateFuncException(const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
  * \~japanese-en
  * GeneralQuantumOperator中のPauliOperatorのインデックスが範囲外という例外
  */
@@ -230,6 +244,20 @@ public:
      * @param message エラーメッセージ
      */
     GateIndexOutOfRangeException(const std::string& message)
+        : std::out_of_range(message) {}
+};
+
+/**
+ * \~japanese-en ParametricCircuitのパラメータのインデックスが範囲外という例外
+ */
+class ParameterIndexOutOfRangeException : public std::out_of_range {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    ParameterIndexOutOfRangeException(const std::string& message)
         : std::out_of_range(message) {}
 };
 
