@@ -12,7 +12,6 @@
 
 #include "../util/util.hpp"
 
-
 class ClsParametricNullUpdateGate
     : public QuantumGate_SingleParameterOneQubitRotation {
 public:
