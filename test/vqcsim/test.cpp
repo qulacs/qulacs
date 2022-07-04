@@ -3,7 +3,7 @@
 #include <cppsim/exception.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/state_dm.hpp>
-#include <test/util/util.hpp>
+#include <../util/util.hpp>
 #include <vqcsim/GradCalculator.hpp>
 #include <vqcsim/causalcone_simulator.hpp>
 #include <vqcsim/parametric_circuit_builder.hpp>
