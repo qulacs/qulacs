@@ -142,7 +142,21 @@ void ParametricQuantumCircuit::remove_gate(UINT index) {
     for (auto& val : _parametric_gate_position)
         if (val >= index) val--;
 }
-
+void ParametricQuantumCircuit::merge_circuit(
+    const ParametricQuantumCircuit* circuit) {
+    UINT gate_count = this->gate_list.size();
+    for (auto gate : circuit->gate_list) {
+        this->add_gate_copy(gate);
+    }
+    for (auto gate_position : circuit->_parametric_gate_position) {
+        UINT new_gate_position = gate_position + gate_count;
+        this->_parametric_gate_position.push_back(new_gate_position);
+        this->_parametric_gate_list.push_back(
+            dynamic_cast<QuantumGate_SingleParameter*>(
+                this->gate_list[new_gate_position]));
+    }
+    return;
+}
 void ParametricQuantumCircuit::add_parametric_RX_gate(
     UINT target_index, double initial_angle) {
     this->add_parametric_gate(gate::ParametricRX(target_index, initial_angle));
