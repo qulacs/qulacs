@@ -195,12 +195,64 @@ static std::string _check_near(double val1, double val2, double eps,
     double diff = std::abs(val1 - val2);
     if (diff <= eps) return "";
     std::stringstream error_message_stream;
-    error_message_stream << file << ":" << line << " Failure\n"
+    error_message_stream << file << ":" << line << ": Failure\n"
                          << "The difference between " << val1_name << " and "
                          << val2_name << " is " << diff << ", which exceeds "
                          << eps_name << ", where\n"
                          << val1_name << " evaluates to " << val1 << ",\n"
                          << val2_name << " evaluates to " << val2 << ", and\n"
                          << eps_name << " evaluates to " << eps << ".\n";
+    return error_message_stream.str();
+}
+
+#define _CHECK_LT(val1, val2) \
+    _check_lt(val1, val2, #val1, #val2, __FILE__, __LINE__)
+template <typename T>
+static std::string _check_lt(T val1, T val2, std::string val1_name,
+    std::string val2_name, std::string file, UINT line) {
+    if (val1 < val2) return "";
+    std::stringstream error_message_stream;
+    error_message_stream << file << ":" << line << ": Failure\n"
+                         << "Expected: (" << val1_name << ") < (" << val2_name
+                         << "), actual: " << val1 << " vs " << val2 << "\n";
+    return error_message_stream.str();
+}
+
+#define _CHECK_LE(val1, val2) \
+    _check_le(val1, val2, #val1, #val2, __FILE__, __LINE__)
+template <typename T>
+static std::string _check_le(T val1, T val2, std::string val1_name,
+    std::string val2_name, std::string file, UINT line) {
+    if (val1 <= val2) return "";
+    std::stringstream error_message_stream;
+    error_message_stream << file << ":" << line << ": Failure\n"
+                         << "Expected: (" << val1_name << ") <= (" << val2_name
+                         << "), actual: " << val1 << " vs " << val2 << "\n";
+    return error_message_stream.str();
+}
+
+#define _CHECK_GT(val1, val2) \
+    _check_gt(val1, val2, #val1, #val2, __FILE__, __LINE__)
+template <typename T>
+static std::string _check_gt(T val1, T val2, std::string val1_name,
+    std::string val2_name, std::string file, UINT line) {
+    if (val1 > val2) return "";
+    std::stringstream error_message_stream;
+    error_message_stream << file << ":" << line << ": Failure\n"
+                         << "Expected: (" << val1_name << ") > (" << val2_name
+                         << "), actual: " << val1 << " vs " << val2 << "\n";
+    return error_message_stream.str();
+}
+
+#define _CHECK_GE(val1, val2) \
+    _check_ge(val1, val2, #val1, #val2, __FILE__, __LINE__)
+template <typename T>
+static std::string _check_ge(T val1, T val2, std::string val1_name,
+    std::string val2_name, std::string file, UINT line) {
+    if (val1 >= val2) return "";
+    std::stringstream error_message_stream;
+    error_message_stream << file << ":" << line << ": Failure\n"
+                         << "Expected: (" << val1_name << ") >= (" << val2_name
+                         << "), actual: " << val1 << " vs " << val2 << "\n";
     return error_message_stream.str();
 }
