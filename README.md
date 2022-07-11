@@ -8,6 +8,9 @@ Qulacs is a python/C++ library for fast simulation of large, noisy, or parametri
 
 Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob/master/LICENSE).
 
+**Note**
+Qulacs-Osaka/qulacs-osaka will be integrated into the qulacs/qulacs. For more details, please refer to [Information](#Information) section.
+
 ## Quick Install
 
 ```
@@ -222,3 +225,30 @@ If you want to run it on GPU, include <code>cppsim/state_gpu.hpp</code> and repl
 ## How to cite
 
 Please cite this arXiv paper: [Qulacs: a fast and versatile quantum circuit simulator for research purpose](https://arxiv.org/abs/2011.13524)
+
+## Information
+
+Experimental new features of Qulacs that have been developed in the Osaka University repository [Qulacs-Osaka/qulacs-osaka](https://github.com/Qulacs-Osaka/qulacs-osaka) will be integrated into the original [Qulacs](https://github.com/qulacs/qulacs). The following new features will be added!!!
+
+### Integration date
+Scheduled around August 2022.
+
+### New features
+The main new features are as follows
+- Providing type hint files for Python
+	- Configure tools such as mypy to take full advantage of type hint information.
+	- mypy can detect the use of incorrect argument types in the qulacs API.
+- Sending exceptions with detailed information
+	- Makes it easier to understand the cause of the error.
+	- (For Jupyter Notebook users) kernel is less likely to crash if incorrect input is given.
+- Added backprop (gradient calculation by error back propagation method) to ParametricQuantumCircuit
+	- It is faster than calculating gradients one by one.
+- Gradient Calculator
+
+### Scope of impact
+The existing functionality has not been changed, so the existing code using Qulacs will continue to work as is. However, since the implementation language of csim has been changed from C to C++, changes may be necessary if you have been using direct calls to csim.
+Due to the C++ change, all complex numbers are now handled by `std::complex`.
+
+### Add dependency libraries
+This integration adds boost as a dependency library.
+There will be some changes in the installation procedure.
