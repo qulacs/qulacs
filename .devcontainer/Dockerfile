@@ -5,13 +5,13 @@ FROM mcr.microsoft.com/vscode/devcontainers/python:0-${VARIANT}
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-ENV PWD="/workspaces/qulacs-osaka"
-ENV QULACS_OSAKA_PACKAGE="qulacs_osaka"
-ENV QULACS_OSAKA_VERSION="0.4.2"
+ENV PWD="/workspaces/qulacs"
+ENV QULACS_PACKAGE="qulacs"
+ENV QULACS_VERSION="0.4.2"
 ENV USE_TEST="Yes"
 # Add build artifact to PYTHONPATH and python can find qulacs.
 # Egg file name might vary depending on qulacs and python version.
-ENV PYTHONPATH="${PWD}/dist/${QULACS_OSAKA_PACKAGE}-${QULACS_OSAKA_VERSION}-cp39-cp39-linux_x86_64.whl:${PYTHONPATH}"
+ENV PYTHONPATH="${PWD}/dist/${QULACS_PACKAGE}-${QULACS_VERSION}-cp39-cp39-linux_x86_64.whl:${PYTHONPATH}"
 ENV PYTHONPATH="${PWD}/build/lib.linux-x86_64-3.9:${PYTHONPATH}"
 
 RUN apt-get update \
