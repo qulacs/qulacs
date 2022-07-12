@@ -17,12 +17,19 @@ endif()
 
 
 ##### Set default behavior #####
-set(DEFAULT_USE_SIMD Yes)
 set(DEFAULT_USE_OMP Yes)
 set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)
 set(DEFAULT_USE_TEST No)
-set(DEFAULT_OPT_FLAGS "-mtune=native -march=native -mfpmath=both")
+if(("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "^x86.*") OR ("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "AMD64"))
+	message(STATUS "SIMD SUPPORT: Yes")
+	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native -mfpmath=both")
+	set(DEFAULT_USE_SIMD Yes)
+else()
+	message(STATUS "SIMD SUPPORT: No")
+	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native")
+	set(DEFAULT_USE_SIMD No)
+endif()
 
 if(NOT DEFINED USE_SIMD)
 	set(USE_SIMD ${DEFAULT_USE_SIMD})
@@ -43,6 +50,7 @@ if(NOT DEFINED OPT_FLAGS)
 	set(OPT_FLAGS ${DEFAULT_OPT_FLAGS})
 endif()
 
+message(STATUS "CMAKE_HOST_SYSTEM_PROCESSOR = ${CMAKE_HOST_SYSTEM_PROCESSOR}")
 message(STATUS "USE_SIMD = ${USE_SIMD}")
 message(STATUS "USE_OMP = ${USE_OMP}")
 message(STATUS "USE_GPU = ${USE_GPU}")
@@ -87,7 +95,7 @@ ExternalProject_Add(
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND
-      ${CMAKE_COMMAND} -E copy_directory ${EIGEN_BUILD_DIR}/src/eigen/Eigen ${EIGEN_INCLUDE_DIR}/Eigen 
+      ${CMAKE_COMMAND} -E copy_directory ${EIGEN_BUILD_DIR}/src/eigen/Eigen ${EIGEN_INCLUDE_DIR}/Eigen
       && ${CMAKE_COMMAND} -E copy_directory ${EIGEN_BUILD_DIR}/src/eigen/unsupported ${EIGEN_INCLUDE_DIR}/unsupported
     TEST_COMMAND ""
 )

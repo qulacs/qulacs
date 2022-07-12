@@ -7,7 +7,7 @@ from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
 VERSION = "0.4.2"
-PROJECT_NAME = "qulacs-osaka"
+PROJECT_NAME = "qulacs"
 
 
 def _get_n_cpus(platform_name: str) -> str:
