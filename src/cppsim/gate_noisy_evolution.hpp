@@ -202,12 +202,29 @@ public:
     ClsNoisyEvolution(Observable* hamiltonian,
         std::vector<GeneralQuantumOperator*> c_ops, double time,
         double dt = 1e-6) {
-        _hamiltonian = dynamic_cast<Observable*>(hamiltonian->copy());
+        _hamiltonian = hamiltonian->copy();
         for (auto const& op : c_ops) {
             _c_ops.push_back(op->copy());
             _c_ops_dagger.push_back(op->get_dagger());
         }
-        _effective_hamiltonian = hamiltonian->copy();
+
+        // HermitianQuantumOperatorは、add_operatorの呼び出し時に、
+        // 追加するPauliOperatorがHermitianであるかのチェックが入る。
+        // _effective_hamiltonianに追加するPauliOperatorはHermitianとは限らないので、
+        // チェックに失敗してしまう可能性がある。
+        // したがって、このチェックを回避するためにGeneralQuantumOperatorを生成し、
+        // hamiltonianの中身をコピーする。
+        //
+        // HermitianQuantumOperatorをGeneralQuantumOperatorにキャストする方法では、
+        // インスタンスがHermitianQuantumOperatorのままであるため、
+        // HermitianQuantumOperator側のadd_operatorが呼び出されてしまい、問題が解決できない。
+        // したがって、GeneralQuantumOperatorを実際に作成する必要がある。
+        _effective_hamiltonian =
+            new GeneralQuantumOperator(hamiltonian->get_qubit_count());
+        for (auto pauli : hamiltonian->get_terms()) {
+            _effective_hamiltonian->add_operator(pauli->copy());
+        }
+
         for (size_t k = 0; k < _c_ops.size(); k++) {
             auto cdagc = (*_c_ops_dagger[k]) * (*_c_ops[k]) * (-.5i);
             *_effective_hamiltonian += cdagc;

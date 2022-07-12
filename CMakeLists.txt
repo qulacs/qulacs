@@ -21,7 +21,7 @@ set(DEFAULT_USE_SIMD Yes)
 set(DEFAULT_USE_OMP Yes)
 set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)
-set(DEFAULT_USE_TEST Yes)
+set(DEFAULT_USE_TEST No)
 set(DEFAULT_OPT_FLAGS "-mtune=native -march=native -mfpmath=both")
 
 if(NOT DEFINED USE_SIMD)

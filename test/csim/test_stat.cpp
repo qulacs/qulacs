@@ -12,7 +12,6 @@ TEST(StatOperationTest, ProbTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-14;
 
     CTYPE* state = allocate_quantum_state(dim);
     Eigen::MatrixXcd P0(2, 2), P1(2, 2);
@@ -49,7 +48,6 @@ TEST(StatOperationTest, MarginalProbTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-14;
 
     CTYPE* state = allocate_quantum_state(dim);
     Eigen::MatrixXcd P0(2, 2), P1(2, 2), Identity(2, 2);
@@ -99,7 +97,6 @@ TEST(StatOperationTest, EntropyTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-14;
 
     CTYPE* state = allocate_quantum_state(dim);
     for (UINT rep = 0; rep < max_repeat; ++rep) {
@@ -125,7 +122,6 @@ TEST(StatOperationTest, InnerProductTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-14;
 
     CTYPE* state = allocate_quantum_state(dim);
     CTYPE* buffer = allocate_quantum_state(dim);
@@ -155,7 +151,6 @@ TEST(StatOperationTest, SingleQubitExpectationValueTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-14;
 
     CTYPE* state = allocate_quantum_state(dim);
     Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
@@ -203,7 +198,6 @@ TEST(StatOperationTest, MultiQubitExpectationValueWholeTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-14;
 
     CTYPE* state = allocate_quantum_state(dim);
     Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
@@ -254,7 +248,6 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopWholeTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-14;
 
     CTYPE* state = allocate_quantum_state(dim);
     Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
@@ -301,7 +294,7 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopWholeTest) {
 TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
+
     const UINT max_repeat = 10;
 
     CTYPE* state = allocate_quantum_state(dim);
@@ -363,7 +356,7 @@ TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
 TEST(StatOperationTest, MultiQubitExpectationValueZopPartialTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
-    const double eps = 1e-14;
+
     const UINT max_repeat = 10;
 
     CTYPE* state = allocate_quantum_state(dim);
@@ -423,7 +416,6 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeWholeTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-14;
 
     CTYPE* state_ket = allocate_quantum_state(dim);
     CTYPE* state_bra = allocate_quantum_state(dim);
@@ -482,7 +474,6 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopWholeTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-14;
 
     CTYPE* state_ket = allocate_quantum_state(dim);
     CTYPE* state_bra = allocate_quantum_state(dim);
@@ -538,7 +529,6 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudePartialTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-14;
 
     CTYPE* state_ket = allocate_quantum_state(dim);
     CTYPE* state_bra = allocate_quantum_state(dim);
@@ -609,7 +599,6 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
-    const double eps = 1e-14;
 
     CTYPE* state_ket = allocate_quantum_state(dim);
     CTYPE* state_bra = allocate_quantum_state(dim);

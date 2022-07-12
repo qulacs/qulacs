@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <cppsim/pauli_operator.hpp>
+#include <cppsim/state.hpp>
 
 TEST(PauliOperatorTest, ContainsExtraWhitespace) {
     PauliOperator expected = PauliOperator("X 0", 1.0);
@@ -16,6 +17,42 @@ TEST(PauliOperatorTest, EmptyStringConstructsIdentity) {
     ASSERT_EQ(0, identity.get_index_list().size());
     ASSERT_EQ(0, identity.get_pauli_id_list().size());
     ASSERT_EQ("", identity.get_pauli_string());
+}
+
+TEST(PauliOperatorTest, PauliQubitOverflow) {
+    int n = 2;
+    double coef = 2.0;
+    std::string Pauli_string = "X 0 X 1 X 3";
+    PauliOperator pauli = PauliOperator(Pauli_string, coef);
+    QuantumState state = QuantumState(n);
+    state.set_Haar_random_state();
+    EXPECT_THROW(
+        pauli.get_expectation_value(&state), InvalidPauliIdentifierException);
+}
+
+TEST(PauliOperatorTest, BrokenPauliString) {
+    int n = 5;
+    double coef = 2.0;
+    std::string Pauli_string = "X 0 X Z 1 Y 2";
+    EXPECT_THROW(
+        PauliOperator(Pauli_string, coef), InvalidPauliIdentifierException);
+}
+
+TEST(PauliOperatorTest, SpacedPauliString) {
+    int n = 5;
+    double coef = 2.0;
+    std::string Pauli_string = "X 0 Y 1 ";
+    PauliOperator pauli = PauliOperator(Pauli_string, coef);
+    size_t PauliSize = pauli.get_index_list().size();
+    ASSERT_EQ(PauliSize, 2);
+}
+
+TEST(PauliOperatorTest, PartedPauliString) {
+    int n = 5;
+    double coef = 2.0;
+    std::string Pauli_string = "X 0 Y ";
+    EXPECT_THROW(
+        PauliOperator(Pauli_string, coef), InvalidPauliIdentifierException);
 }
 
 struct PauliTestParam {
