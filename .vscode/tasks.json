@@ -4,7 +4,7 @@
         {
             "label": "build gcc",
             "type": "shell",
-            "command": "USE_TEST=Yes ./script/build_gcc.sh",
+            "command": "USE_TEST=Yes ./script/build_gcc.sh"
         },
         {
             "label": "test",
@@ -49,6 +49,9 @@
             "command": "script/update_stubs.sh",
             "dependsOn": [
                 "install"
+            ],
+            "problemMatcher": [
+                "$gcc"
             ]
         }
     ]

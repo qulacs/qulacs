@@ -479,10 +479,6 @@ class PauliOperator():
         """
         get z bits
         """
-    def update_quantum_state(self, arg0: QuantumStateBase) -> None: 
-        """
-        do update
-        """
     pass
 class ParametricQuantumCircuit(QuantumCircuit):
     def __init__(self, qubit_count: int) -> None: 
