@@ -363,8 +363,7 @@ QuantumGateMatrix* merge(
     return new_gate;
 }
 
-DllExport QuantumGateMatrix* merge(
-    std::vector<const QuantumGateBase*> gate_list) {
+DllExport QuantumGateMatrix* merge(std::vector<QuantumGateBase*> gate_list) {
     QuantumGateMatrix* new_gate = NULL;
     for (auto item : gate_list) {
         if (new_gate == NULL) {
@@ -378,8 +377,7 @@ DllExport QuantumGateMatrix* merge(
     return new_gate;
 }
 
-DllExport QuantumGateMatrix* add(
-    std::vector<const QuantumGateBase*> gate_list) {
+DllExport QuantumGateMatrix* add(std::vector<QuantumGateBase*> gate_list) {
     QuantumGateMatrix* new_gate = NULL;
     for (auto item : gate_list) {
         if (new_gate == NULL) {

@@ -57,6 +57,12 @@ public:
     /**
      * \~japanese-en コンストラクタ
      *
+     * 初期化に必要、万が一使われたとき落ちるために9999にしてある
+     */
+    ControlQubitInfo(void) : QubitInfo(9999), _control_value(1){};
+    /**
+     * \~japanese-en コンストラクタ
+     *
      * @param index_ この量子ビットの添え字
      */
     explicit ControlQubitInfo(UINT index_)
@@ -99,6 +105,12 @@ private:
     UINT _commutation_property;
 
 public:
+    /**
+     * \~japanese-en コンストラクタ
+     * 初期化に必要、　万が一使われたとき落ちるように、9999にしてある
+     */
+    TargetQubitInfo(void) : QubitInfo(9999), _commutation_property(0){};
+
     /**
      * \~japanese-en コンストラクタ
      *

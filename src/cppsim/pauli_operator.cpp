@@ -402,6 +402,8 @@ PauliOperator& PauliOperator::operator*=(CPPCTYPE target) {
 }
 
 // made by watle
+// please use apply_pauli_to_state
+/*
 void PauliOperator::update_quantum_state(QuantumStateBase* instate) {
     // PauliOperator wo gate tosite kanngaeru
     std::vector<UINT> index_list = this->get_index_list();
@@ -424,3 +426,4 @@ void PauliOperator::update_quantum_state(QuantumStateBase* instate) {
     instate->multiply_coef(this->get_coef());
     return;
 }
+*/

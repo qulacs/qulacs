@@ -291,7 +291,7 @@ public:
      * このオブザーバブルに入っているものを、ゲートとしてstateに作用させる
      * @param [in] state 入力
      */
-    virtual void update_quantum_state(QuantumStateBase* instate);
+    // virtual void update_quantum_state(QuantumStateBase* instate);
 
     PauliOperator operator*(const PauliOperator& target) const;
 

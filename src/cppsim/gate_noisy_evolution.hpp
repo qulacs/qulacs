@@ -1,10 +1,22 @@
 
 #pragma once
 
+#include <Eigen/Dense>
+#include <csim/stat_ops.hpp>
+#include <csim/update_ops.hpp>
+#include <csim/update_ops_dm.hpp>
+#include <cstring>
+#include <fstream>
+#include <numeric>
+
+#include "exception.hpp"
 #include "gate.hpp"
+#include "gate_factory.hpp"
 #include "general_quantum_operator.hpp"
 #include "observable.hpp"
+#include "pauli_operator.hpp"
 #include "state.hpp"
+#include "type.hpp"
 #include "utility.hpp"
 
 class ClsNoisyEvolution : public QuantumGateBase {
@@ -355,12 +367,15 @@ public:
     }
 };
 
+/*
+元のバージョンで、時間発展をルンゲクッタ法を使っていたところを、　行列を抜き出して対角化で求めます。
+性質上、　
+・　hamiltonianやc_opsに出現するビットの種類数が多いと遅い、　多分3~4ビットあたりが境目？
+・　なので、操作するビットがたくさんある場合、それが独立なビット集合に分けられる場合、　集合ごとにこのクラスを使ってください
+・　ゲートを作るときに重い操作を行うので、同じゲートに対して何回も演算すると速い
+・　dtは計算速度に無関係、　大きいと近似誤差、小さいと計算誤差が発生するので、いい感じに設定してください
 
-
-
-
-
-//「独立なビット集合に分ける」テクは未実装、　人力で独立なビットに分けてください
+*/
 class ClsNoisyEvolution_fast : public QuantumGateBase {
 private:
     Random _random;
@@ -370,17 +385,15 @@ private:
     std::vector<GeneralQuantumOperator*>
         _c_ops_dagger;        // collapse operator dagger
     double _time;             // evolution time
-    double _dt;               // step size for runge kutta evolution
-    double _norm_tol = 1e-3;  // accuracy in solving <psi|psi>=r
-    // rが乱数なら精度不要なので1e-3にした
+    double _dt;               // dt
+    double _norm_tol = 1e-4;  // accuracy in solving <psi|psi>=r
+    // rが乱数なら精度不要なので1e-4にした
     int _find_collapse_max_steps =
         100;  // maximum number of steps for while loop in _find_collapse
-
-    std::vector<UINT> target_qubit_index_list;
-    Vector<complex<double>>eigenvalues;
+    std::vector<double> eigenvalue_abs;
+    std::vector<double> eigenvalue_arg;
     QuantumGateMatrix* eigenMatrixGate;
     QuantumGateMatrix* eigenMatrixRevGate;
-
 
     /**
      * \~japanese-en collapse が起こるタイミング (norm = rになるタイミング)
@@ -389,13 +402,12 @@ private:
      *
      * 割線法を利用する場合、normは時間に対して広義単調減少であることが必要。
      */
-    virtual double _find_collapse(
-        QuantumStateBase* prev_state, QuantumStateBase* now_state,
-        double target_norm, double dt, bool use_secant_method = true) {
+    virtual double _find_collapse(QuantumStateBase* prev_state,
+        QuantumStateBase* now_state, double target_norm, double at) {
         auto mae_norm = prev_state->get_squared_norm_single_thread();
         auto now_norm = now_state->get_squared_norm_single_thread();
         double t_mae = 0;
-        double t_now = dt;
+        double t_now = at;
 
         // mae now で挟み撃ちする
         int search_count = 0;
@@ -405,7 +417,7 @@ private:
             return 0;
         }
         if (std::abs(now_norm - target_norm) < _norm_tol) {
-            return dt;
+            return at;
         }
         if (mae_norm < target_norm) {
             throw std::runtime_error(
@@ -421,18 +433,26 @@ private:
         double mae_norm_log = std::log(mae_norm);
         double now_norm_log = std::log(now_norm);
         QuantumStateBase* buf_state = prev_state->copy();
-        QuantumStateBase* bufB_state = prev_state->copy();
         while (true) {
-            //  we expect norm to reduce as Ae^-a*dt, so use log.
+            //  we expect norm to reduce as Ae^-a*at, so use log.
 
             double t_guess = 0;
             if (search_count <= 20) {
                 // use secant method
-                double mae_kyo=(mae_norm_log - target_norm_log) / (mae_norm_log - now_norm_log);
-                double ato_kyo=(target_norm_log - now_norm_log) / (mae_norm_log - now_norm_log);
-                
-                t_guess = t_mae + (t_now - t_mae) * sqrt(mae_kyo) / (sqrt(mae_kyo)+sqrt(ato_kyo));
-                                      
+                double mae_kyo = (mae_norm_log - target_norm_log) /
+                                 (mae_norm_log - now_norm_log);
+                double ato_kyo = (target_norm_log - now_norm_log) /
+                                 (mae_norm_log - now_norm_log);
+
+                if ((search_count - 2) % 3 !=
+                    2) {  // 5,8,11,14,17は下の式を採用
+                    t_guess =
+                        t_mae + (t_now - t_mae) * mae_kyo / (mae_kyo + ato_kyo);
+                } else {
+                    t_guess = t_mae + (t_now - t_mae) * sqrt(mae_kyo) /
+                                          (sqrt(mae_kyo) + sqrt(ato_kyo));
+                }
+
             } else {
                 // use bisection method
                 t_guess = (t_mae + t_now) / 2;
@@ -440,14 +460,13 @@ private:
 
             // evolve by time t_guess
             buf_state->load(prev_state);
-            _evolve_one_step(bufB_state, buf_state, t_guess);
+            _evolve_one_step(buf_state, t_guess);
 
             double buf_norm = buf_state->get_squared_norm_single_thread();
             if (std::abs(buf_norm - target_norm) < _norm_tol) {
                 now_state->load(buf_state);
                 delete mae_state;
                 delete buf_state;
-                delete bufB_state;
 
                 return t_guess;
             } else if (buf_norm < target_norm) {
@@ -465,12 +484,12 @@ private:
             search_count++;
             // avoid infinite loop
             // It sometimes fails to find t_guess to reach the target norm.
-            // More likely to happen when dt is not small enough compared to the
+            // More likely to happen when at is not small enough compared to the
             // relaxation times
             if (search_count >= _find_collapse_max_steps) {
                 throw std::runtime_error(
                     "Failed to find the exact jump time. Try with "
-                    "smaller dt.");
+                    "smaller at.");
             }
         }
         //ここには来ない
@@ -482,30 +501,60 @@ private:
      * \~japanese-en dt
      * この関数が終わった時点で、時間発展前の状態は buffer に格納される。
      */
-    virtual void _evolve_one_step(QuantumStateBase* buffer,
-        QuantumStateBase* state, double dt) {
-        //このdtはどれだけ大きくてもよい
-
-        double et=1e-5;
-        //etに対しての行列を求めて、行列累乗 or 対角化　で求める?
+    virtual void _evolve_one_step(QuantumStateBase* state, double at) {
+        // dtに対しての行列を求めて対角化　で求める?
         // 対角化したものを持っておき、　ここではそれを使う
+        eigenMatrixRevGate->update_quantum_state(state);
+        UINT dim = eigenvalue_abs.size();
+        ComplexVector eigenvalues(dim);
+        for (UINT i = 0; i < dim; i++) {
+            eigenvalues[i] = std::polar(std::pow(eigenvalue_abs[i], at / _dt),
+                eigenvalue_arg[i] * at / _dt);
+        }
+        // eigenvalues[i] を掛ける必要がある
+        QuantumGateBase* eigenValueGate =
+            gate::DiagonalMatrix(this->get_target_index_list(), eigenvalues);
+        eigenValueGate->update_quantum_state(state);
+        eigenMatrixGate->update_quantum_state(state);
 
-        
+        delete eigenValueGate;
     }
 
 public:
-    ClsNoisyEvolution(Observable* hamiltonian,
+    ClsNoisyEvolution_fast(Observable* hamiltonian,
         std::vector<GeneralQuantumOperator*> c_ops, double time,
-        double dt = 1e-6) {
-        _hamiltonian = dynamic_cast<Observable*>(hamiltonian->copy());
+        double dt = 1e-5) {
+        _hamiltonian = hamiltonian->copy();
 
-        
         for (auto const& op : c_ops) {
             _c_ops.push_back(op->copy());
             _c_ops_dagger.push_back(op->get_dagger());
-            auto aaa = op.get_terms();
+            auto aaa = op->get_terms();
         }
-        _effective_hamiltonian = hamiltonian->copy();
+
+        // HermitianQuantumOperatorは、add_operatorの呼び出し時に、
+        // 追加するPauliOperatorがHermitianであるかのチェックが入る。
+        // _effective_hamiltonianに追加するPauliOperatorはHermitianとは限らないので、
+        // チェックに失敗してしまう可能性がある。
+        // したがって、このチェックを回避するためにGeneralQuantumOperatorを生成し、
+        // hamiltonianの中身をコピーする。
+        //
+        // HermitianQuantumOperatorをGeneralQuantumOperatorにキャストする方法では、
+        // インスタンスがHermitianQuantumOperatorのままであるため、
+        // HermitianQuantumOperator側のadd_operatorが呼び出されてしまい、問題が解決できない。
+        // したがって、GeneralQuantumOperatorを実際に作成する必要がある。
+        _effective_hamiltonian =
+            new GeneralQuantumOperator(hamiltonian->get_qubit_count());
+
+        UINT tooru_bit = 0;
+        //なんでもいいから、このゲートが通るbitを1つ得る必要がある
+
+        for (auto pauli : hamiltonian->get_terms()) {
+            _effective_hamiltonian->add_operator(pauli->copy());
+            if (pauli->get_index_list().size() > 0) {
+                tooru_bit = pauli->get_index_list()[0];
+            }
+        }
         for (size_t k = 0; k < _c_ops.size(); k++) {
             auto cdagc = (*_c_ops_dagger[k]) * (*_c_ops[k]) * (-.5i);
             *_effective_hamiltonian += cdagc;
@@ -513,38 +562,91 @@ public:
         _time = time;
         _dt = dt;
 
-        std::vector<const QuantumGateBase*> gate_list;
-        
-        //effective_hamiltonianをもとに、 -iHdt を求める
-        QuantumGateMatrix miHdt=gate:add(gate_list);        
-        
+        std::vector<QuantumGateBase*> gate_list;
+        gate_list.push_back(gate::Identity(tooru_bit));
+        for (auto pauli : _effective_hamiltonian->get_terms()) {
+            //要素をゲートのマージで作る
+            auto pauli_indexs = pauli->get_index_list();
+            auto pauli_ids = pauli->get_pauli_id_list();
+            UINT pauli_count = pauli_indexs.size();
+            std::vector<QuantumGateBase*> gate_list_pauli(pauli_count);
+            for (UINT k = 0; k < pauli_count; k++) {
+                UINT ind = pauli_indexs[k];
+                if (pauli_ids[k] == 0) {
+                    gate_list_pauli[k] = gate::Identity(ind);
+                }
+                if (pauli_ids[k] == 1) {
+                    gate_list_pauli[k] = gate::X(ind);
+                }
+                if (pauli_ids[k] == 2) {
+                    gate_list_pauli[k] = gate::Y(ind);
+                }
+                if (pauli_ids[k] == 3) {
+                    gate_list_pauli[k] = gate::Z(ind);
+                }
+            }
+
+            if (pauli_count == 0) {
+                gate_list_pauli.push_back(gate::Identity(tooru_bit));
+                pauli_count++;
+            }
+            auto aaaa = gate::merge(gate_list_pauli);
+            if (aaaa == nullptr) {
+            }
+
+            aaaa->multiply_scalar(-pauli->get_coef() * 1.0i * dt);
+
+            gate_list.push_back(aaaa);
+
+            for (UINT k = 0; k < pauli_count; k++) {
+                delete gate_list_pauli[k];
+            }
+        }
+
+        // effective_hamiltonianをもとに、 -iHdt を求める
+        QuantumGateMatrix* miHdt = gate::add(gate_list);
+        this->set_target_index_list(miHdt->get_target_index_list());
+        //注意　このarget_index_listはPや対角行列　に対してのlistである。
+        //このlistに入っていないが、c_opsには入っている　というパターンもありうる。　気を付けて
+
         //ここで、　対角化を求める
-
-
-
-        ComplexMatrix hamilMatrix();
-
+        ComplexMatrix hamilMatrix;
+        miHdt->set_matrix(hamilMatrix);
 
         Eigen::ComplexEigenSolver<ComplexMatrix> eigen_solver(hamilMatrix);
-        eigenvalues = eigen_solver.eigenvalues();
         const auto eigenvectors = eigen_solver.eigenvectors();
 
-        //P^-1 A P = valueの対角
-        //A^n = P 対角^n P-1
-        
+        auto eigenvalues = eigen_solver.eigenvalues();
+        UINT dim = eigenvalues.size();
+        eigenvalue_abs = std::vector<double>(dim);
+        eigenvalue_arg = std::vector<double>(dim);
+        for (UINT i = 0; i < dim; i++) {
+            eigenvalue_abs[i] = abs(eigenvalues[i]);
+            eigenvalue_arg[i] = arg(eigenvalues[i]);
+        }
+
+        // P^-1 A P = valueの対角
+        // A^n = P 対角^n P-1
+
         // P, P^-1 をDenseMatrix　にする
-        eigenMatrixGate = gate::DenseMatrix(target_qubit_index_list,eigenvectors);
-        eigenMatrixRevGate = gate::DenseMatrix(target_qubit_index_list,eigenvectors.inverse());
-
-
+        eigenMatrixGate =
+            gate::DenseMatrix(this->get_target_index_list(), eigenvectors);
+        eigenMatrixRevGate = gate::DenseMatrix(
+            this->get_target_index_list(), eigenvectors.inverse());
+        for (auto it : gate_list) {
+            delete it;
+        }
     };
-    ~ClsNoisyEvolution() {
+
+    ~ClsNoisyEvolution_fast() {
         delete _hamiltonian;
         delete _effective_hamiltonian;
         for (size_t k = 0; k < _c_ops.size(); k++) {
             delete _c_ops[k];
             delete _c_ops_dagger[k];
         }
+        delete eigenMatrixGate;
+        delete eigenMatrixRevGate;
     };
 
     /**
@@ -603,18 +705,15 @@ public:
                1e-10 * _time) {  // For machine precision error.
             // For final time, we modify the step size to match the total
             // execution time
-            auto dt = _dt;
-            if (t + _dt > _time) {
-                dt = _time - t;
-            }
-            _evolve_one_step(buffer, state, dt);
+            auto at = _time - t;
+
+            _evolve_one_step(state, at);
             // check if the jump should occur or not
             auto norm = state->get_squared_norm();
             if (norm <= r) {  // jump occured
                 // evolve the state to the time such that norm=r
-                double dt_target_norm;
-                dt_target_norm =
-                    _find_collapse(buffer, state, r, dt);
+                double at_target_norm;
+                at_target_norm = _find_collapse(buffer, state, r, at);
 
                 // get cumulative distribution
                 prob_sum = 0.;
@@ -637,23 +736,19 @@ public:
                 state->load(buffer);
 
                 // update dt to be consistent with the step size
-                t += dt_target_norm;
+                t += at_target_norm;
 
                 // update random variable
                 r = _random.uniform();
             } else {  // if jump did not occur, update t to the next time
-                t += dt;
+                t += at;
             }
         }
 
         // normalize the state and finish
         state->normalize_single_thread(
             state->get_squared_norm_single_thread() / initial_squared_norm);
-        delete k1;
-        delete k2;
-        delete k3;
-        delete k4;
+
         delete buffer;
     }
 };
-
