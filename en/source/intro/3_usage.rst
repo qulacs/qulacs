@@ -1,5 +1,5 @@
 Usage
--------------
+-----
 
 | See the following documents for more detail.
 
@@ -15,8 +15,7 @@ C++ Libraries
 ~~~~~~~~~~~~~
 
 Add ``./<qulacs_path>/include/`` to include path, and
-``./<qulacs_path>/lib/`` to library path. If you use dynamic link
-library, add ``./<qulacs_path>/bin/`` to library path instead.
+``./<qulacs_path>/lib/`` to library path.
 
 Example of C++ code:
 
@@ -46,18 +45,29 @@ Example of C++ code:
        return 0;
    }
 
-Example of build command:
+GCC
+^^^
 
-.. code:: sh
+You can build your codes with the following gcc commands:
 
-   g++ -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lcppsim.so
+::
+
+   g++ -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cpp -lvqcsim_static -lcppsim_static -lcsim_static -fopenmp
+
+
+If you want to run your codes with GPU, include ``cppsim/state_gpu.hpp`` and use ``QuantumStateGpu`` instead of ``QuantumState`` and build with the following command:
+
+::
+
+   nvcc -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cu -lvqcsim_static -lcppsim_static -lcsim_static -lgpusim_static -D _USE_GPU -lcublas -Xcompiler -fopenmp
+
 
 Python Libraries
 ~~~~~~~~~~~~~~~~
 
 You can use features by simply importing ``qulacs``.
 
-Example of python code:
+Example of Python code:
 
 .. code:: python
 
@@ -79,8 +89,3 @@ Example of python code:
    observable.add_operator(-3.0, "Z 2")
    value = observable.get_expectation_value(state)
    print(value)
-
-.. _C++ Tutorial: 
-.. _Python Tutorial: 
-.. _Examples: https://github.com/qulacs/quantum-circuits
-.. _API document: 
