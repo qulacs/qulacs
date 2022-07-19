@@ -12,9 +12,11 @@
 #include "exception.hpp"
 #include "gate.hpp"
 #include "gate_factory.hpp"
+#include "gate_merge.hpp"
 #include "general_quantum_operator.hpp"
 #include "observable.hpp"
 #include "pauli_operator.hpp"
+#include "gate_named_pauli.hpp"
 #include "state.hpp"
 #include "type.hpp"
 #include "utility.hpp"
@@ -566,47 +568,21 @@ public:
         gate_list.push_back(gate::Identity(tooru_bit));
         for (auto pauli : _effective_hamiltonian->get_terms()) {
             //要素をゲートのマージで作る
-            auto pauli_indexs = pauli->get_index_list();
-            auto pauli_ids = pauli->get_pauli_id_list();
-            UINT pauli_count = pauli_indexs.size();
-            std::vector<QuantumGateBase*> gate_list_pauli(pauli_count);
-            for (UINT k = 0; k < pauli_count; k++) {
-                UINT ind = pauli_indexs[k];
-                if (pauli_ids[k] == 0) {
-                    gate_list_pauli[k] = gate::Identity(ind);
-                }
-                if (pauli_ids[k] == 1) {
-                    gate_list_pauli[k] = gate::X(ind);
-                }
-                if (pauli_ids[k] == 2) {
-                    gate_list_pauli[k] = gate::Y(ind);
-                }
-                if (pauli_ids[k] == 3) {
-                    gate_list_pauli[k] = gate::Z(ind);
-                }
-            }
+            
+            auto pauli_gate = gate::Pauli(pauli->get_index_list(),pauli->get_pauli_id_list());
 
-            if (pauli_count == 0) {
-                gate_list_pauli.push_back(gate::Identity(tooru_bit));
-                pauli_count++;
-            }
-            auto aaaa = gate::merge(gate_list_pauli);
-            if (aaaa == nullptr) {
-            }
+            auto aaaa = gate::to_matrix_gate(pauli_gate);
 
             aaaa->multiply_scalar(-pauli->get_coef() * 1.0i * dt);
 
             gate_list.push_back(aaaa);
-
-            for (UINT k = 0; k < pauli_count; k++) {
-                delete gate_list_pauli[k];
-            }
+            delete pauli_gate;
         }
 
         // effective_hamiltonianをもとに、 -iHdt を求める
         QuantumGateMatrix* miHdt = gate::add(gate_list);
         this->set_target_index_list(miHdt->get_target_index_list());
-        //注意　このarget_index_listはPや対角行列　に対してのlistである。
+        //注意　このtarget_index_listはPや対角行列　に対してのlistである。
         //このlistに入っていないが、c_opsには入っている　というパターンもありうる。　気を付けて
 
         //ここで、　対角化を求める
