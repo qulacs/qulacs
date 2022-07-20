@@ -330,9 +330,11 @@ public:
                 auto index = std::distance(cumulative_dist.begin(), ite);
 
                 // apply the collapse operator and normalize the state
-                _c_ops[index]->apply_to_state_single_thread(state, buffer);
-                buffer->normalize(buffer->get_squared_norm_single_thread());
-                state->load(buffer);
+                if (_c_ops.size() > index) {
+                    _c_ops[index]->apply_to_state_single_thread(state, buffer);
+                    buffer->normalize(buffer->get_squared_norm_single_thread());
+                    state->load(buffer);
+                }
 
                 // update dt to be consistent with the step size
                 t += dt_target_norm;

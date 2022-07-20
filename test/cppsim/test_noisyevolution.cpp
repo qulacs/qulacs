@@ -265,3 +265,35 @@ TEST(NoisyEvolutionTest, check_inf_occurence) {
             std::isinf(observable.get_expectation_value(&state).real()));
     }
 }
+
+TEST(NoisyEvolutionTest, EmptyCops) {
+    double gamma = 0.5474999999999999;
+    double depth = 10;
+    double dt = 0.8;
+    double time = dt * depth;
+
+    UINT n = 4;
+    Observable observable(n);
+    observable.add_operator(1, "X 0");
+    Observable hamiltonian(n);
+    for (UINT i = 0; i < n; i++) {
+        std::string s = "X ";
+        s += std::to_string(i);
+        hamiltonian.add_operator(gamma, s);
+    }
+
+    std::vector<GeneralQuantumOperator*> c_ops;
+
+    QuantumState state(n);
+    QuantumCircuit circuit(n);
+    auto gate = dynamic_cast<ClsNoisyEvolution*>(
+        gate::NoisyEvolution(&hamiltonian, c_ops, time, dt));
+    circuit.add_gate(gate);
+    for (int k = 0; k < n; k++) {
+        std::cout << "set_computational_basis:" << k << std::endl;
+        state.set_computational_basis(k);
+        circuit.update_quantum_state(&state);
+        ASSERT_FALSE(
+            std::isinf(observable.get_expectation_value(&state).real()));
+    }
+}
