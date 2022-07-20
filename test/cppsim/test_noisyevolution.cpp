@@ -282,6 +282,7 @@ TEST(NoisyEvolutionTest, EmptyCops) {
         hamiltonian.add_operator(gamma, s);
     }
 
+    // c_opsが空の場合にセグフォとなっていたので、テストを追加
     std::vector<GeneralQuantumOperator*> c_ops;
 
     QuantumState state(n);
@@ -293,6 +294,7 @@ TEST(NoisyEvolutionTest, EmptyCops) {
         std::cout << "set_computational_basis:" << k << std::endl;
         state.set_computational_basis(k);
         circuit.update_quantum_state(&state);
+        // セグフォとならずに期待値が取れればよい
         ASSERT_FALSE(
             std::isinf(observable.get_expectation_value(&state).real()));
     }
