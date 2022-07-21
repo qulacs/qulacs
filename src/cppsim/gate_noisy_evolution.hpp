@@ -375,9 +375,9 @@ public:
 ・　hamiltonianやc_opsに出現するビットの種類数が多いと遅い、　多分3~4ビットあたりが境目？
 ・　なので、操作するビットがたくさんある場合、それが独立なビット集合に分けられる場合、　集合ごとにこのクラスを使ってください
 ・　ゲートを作るときに重い操作を行うので、同じゲートに対して何回も演算すると速い
-・　dtは計算速度に無関係、　大きいと近似誤差、小さいと計算誤差が発生するので、いい感じに設定してください
 
 */
+
 class ClsNoisyEvolution_fast : public QuantumGateBase {
 private:
     Random _random;
@@ -387,13 +387,10 @@ private:
     std::vector<GeneralQuantumOperator*>
         _c_ops_dagger;        // collapse operator dagger
     double _time;             // evolution time
-    double _dt;               // dt
     double _norm_tol = 1e-4;  // accuracy in solving <psi|psi>=r
     // rが乱数なら精度不要なので1e-4にした
-    int _find_collapse_max_steps =
-        100;  // maximum number of steps for while loop in _find_collapse
-    std::vector<double> eigenvalue_abs;
-    std::vector<double> eigenvalue_arg;
+    int _find_collapse_max_steps = 100;
+    ComplexVector eigenvalue_mto;
     QuantumGateMatrix* eigenMatrixGate;
     QuantumGateMatrix* eigenMatrixRevGate;
 
@@ -403,19 +400,13 @@ private:
      * が行われる。
      *
      * 割線法を利用する場合、normは時間に対して広義単調減少であることが必要。
-     *
-     * 謎の変数 atについて
-     * dtは元のバージョンでは「1ステップの時間」を表し、　小さいほど高精度だが、時間がかかっていた
-     * こっちではdtは内部で行列計算をするときのパラメータ名(近似誤差と小数点誤差でトレードオフ、計算時間無関係)に使っている。
-     * atは、_find_collapseの1ステップの時間であるが、以前のように微小ステップを積み重ねるのではなく、一気に計算を行う方式で、
-     * 微小ではないので「dt」という名前をやめた
      */
     virtual double _find_collapse(QuantumStateBase* prev_state,
-        QuantumStateBase* now_state, double target_norm, double at) {
+        QuantumStateBase* now_state, double target_norm, double t_step) {
         auto mae_norm = prev_state->get_squared_norm_single_thread();
         auto now_norm = now_state->get_squared_norm_single_thread();
         double t_mae = 0;
-        double t_now = at;
+        double t_now = t_step;
 
         // mae now で挟み撃ちする
         int search_count = 0;
@@ -425,7 +416,7 @@ private:
             return 0;
         }
         if (std::abs(now_norm - target_norm) < _norm_tol) {
-            return at;
+            return t_step;
         }
         if (mae_norm < target_norm) {
             throw std::runtime_error(
@@ -442,8 +433,6 @@ private:
         double now_norm_log = std::log(now_norm);
         QuantumStateBase* buf_state = prev_state->copy();
         while (true) {
-            //  we expect norm to reduce as Ae^-a*at, so use log.
-
             double t_guess = 0;
             if (search_count <= 20) {
                 // use secant method
@@ -492,12 +481,12 @@ private:
             search_count++;
             // avoid infinite loop
             // It sometimes fails to find t_guess to reach the target norm.
-            // More likely to happen when at is not small enough compared to the
-            // relaxation times
+            // More likely to happen when t_step is not small enough compared to
+            // the relaxation times
             if (search_count >= _find_collapse_max_steps) {
                 throw std::runtime_error(
                     "Failed to find the exact jump time. Try with "
-                    "smaller at.");
+                    "smaller t_step.");
             }
         }
         //ここには来ない
@@ -506,24 +495,18 @@ private:
     }
 
     /**
-     * \~japanese-en dt
+     * \~japanese-en
      * この関数が終わった時点で、時間発展前の状態は buffer に格納される。
      */
-    virtual void _evolve_one_step(QuantumStateBase* state, double at) {
-        // dtに対しての行列を求めて対角化　で求める?
+    virtual void _evolve_one_step(QuantumStateBase* state, double t_step) {
         // 対角化したものを持っておき、　ここではそれを使う
         eigenMatrixRevGate->update_quantum_state(state);
-        UINT dim = eigenvalue_abs.size();
+        UINT dim = eigenvalue_mto.size();
 
         ComplexVector eigenvalues(dim);
 
         for (UINT i = 0; i < dim; i++) {
-            eigenvalues[i] = std::polar(std::pow(eigenvalue_abs[i], at / _dt),
-                eigenvalue_arg[i] * at / _dt);
-
-            std::cout << std::pow(eigenvalue_abs[i], at / _dt) << " "
-                      << eigenvalues[i] << " " << at / _dt << " "
-                      << eigenvalue_abs[i] << std::endl;
+            eigenvalues[i] = std::exp(eigenvalue_mto[i] * t_step);
         }
         // eigenvalues[i] を掛ける必要がある
         QuantumGateBase* eigenValueGate =
@@ -538,8 +521,7 @@ private:
 
 public:
     ClsNoisyEvolution_fast(Observable* hamiltonian,
-        std::vector<GeneralQuantumOperator*> c_ops, double time,
-        double dt = 1e-5) {
+        std::vector<GeneralQuantumOperator*> c_ops, double time) {
         _hamiltonian = hamiltonian->copy();
 
         for (auto const& op : c_ops) {
@@ -576,10 +558,8 @@ public:
             *_effective_hamiltonian += cdagc;
         }
         _time = time;
-        _dt = dt;
 
         std::vector<QuantumGateBase*> gate_list;
-        gate_list.push_back(gate::Identity(tooru_bit));
         for (auto pauli : _effective_hamiltonian->get_terms()) {
             //要素をゲートのマージで作る
 
@@ -588,40 +568,27 @@ public:
 
             auto aaaa = gate::to_matrix_gate(pauli_gate);
 
-            aaaa->multiply_scalar(-pauli->get_coef() * 1.0i * dt);
+            aaaa->multiply_scalar(-pauli->get_coef() * 1.0i);
 
             gate_list.push_back(aaaa);
             delete pauli_gate;
         }
 
-        // effective_hamiltonianをもとに、 -iHdt を求める
-        QuantumGateMatrix* miHdt = gate::add(gate_list);
-        this->set_target_index_list(miHdt->get_target_index_list());
+        // effective_hamiltonianをもとに、 -iHを求める
+        //(iHという名前だが、実際には-iH)
+        QuantumGateMatrix* iH = gate::add(gate_list);
+        this->set_target_index_list(iH->get_target_index_list());
         //注意　このtarget_index_listはPや対角行列　に対してのlistである。
         //このlistに入っていないが、c_opsには入っている　というパターンもありうる。
-
         //ここで、　対角化を求める
+        // A = PBP^-1 のとき、　e^A = P e^B P^-1 の性質を使って,e^-iHを計算する
         ComplexMatrix hamilMatrix;
-        miHdt->set_matrix(hamilMatrix);
+        iH->set_matrix(hamilMatrix);
 
         Eigen::ComplexEigenSolver<ComplexMatrix> eigen_solver(hamilMatrix);
         const auto eigenvectors = eigen_solver.eigenvectors();
-        std::cout << eigenvectors << std::endl;
-        auto eigenvalues = eigen_solver.eigenvalues();
-        UINT dim = eigenvalues.size();
-        eigenvalue_abs = std::vector<double>(dim);
-        eigenvalue_arg = std::vector<double>(dim);
-        for (UINT i = 0; i < dim; i++) {
-            std::cout << eigenvalues[i] << " ";
-            eigenvalue_abs[i] = abs(eigenvalues[i]);
-            eigenvalue_arg[i] = arg(eigenvalues[i]);
-        }
-        std::cout << std::endl;
+        eigenvalue_mto = eigen_solver.eigenvalues();
 
-        // P^-1 A P = valueの対角
-        // A^n = P 対角^n P-1
-
-        // P, P^-1 をDenseMatrix　にする
         eigenMatrixGate =
             gate::DenseMatrix(this->get_target_index_list(), eigenvectors);
         eigenMatrixRevGate = gate::DenseMatrix(
@@ -663,7 +630,7 @@ public:
     virtual void set_seed(int seed) override { _random.set_seed(seed); };
 
     virtual QuantumGateBase* copy() const override {
-        return new ClsNoisyEvolution(_hamiltonian, _c_ops, _time, _dt);
+        return new ClsNoisyEvolution(_hamiltonian, _c_ops, _time);
     }
 
     /**
@@ -699,16 +666,15 @@ public:
                1e-10 * _time) {  // For machine precision error.
             // For final time, we modify the step size to match the total
             // execution time
-            auto at = _time - t;
+            auto t_step = _time - t;
 
-            _evolve_one_step(state, at);
+            _evolve_one_step(state, t_step);
             // check if the jump should occur or not
             auto norm = state->get_squared_norm();
-            std::cout << "norm=" << norm << std::endl;
             if (norm <= r) {  // jump occured
                 // evolve the state to the time such that norm=r
                 double at_target_norm;
-                at_target_norm = _find_collapse(buffer, state, r, at);
+                at_target_norm = _find_collapse(buffer, state, r, t_step);
 
                 // get cumulative distribution
                 prob_sum = 0.;
@@ -730,13 +696,13 @@ public:
                 buffer->normalize(buffer->get_squared_norm_single_thread());
                 state->load(buffer);
 
-                // update dt to be consistent with the step size
+                // update t_step to be consistent with the step size
                 t += at_target_norm;
 
                 // update random variable
                 r = _random.uniform();
             } else {  // if jump did not occur, update t to the next time
-                t += at;
+                t += t_step;
             }
         }
 

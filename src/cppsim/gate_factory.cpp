@@ -370,8 +370,8 @@ QuantumGateBase* NoisyEvolution(Observable* hamiltonian,
     return new ClsNoisyEvolution(hamiltonian, c_ops, time, dt);
 }
 QuantumGateBase* NoisyEvolution_fast(Observable* hamiltonian,
-    std::vector<GeneralQuantumOperator*> c_ops, double time, double dt) {
-    return new ClsNoisyEvolution_fast(hamiltonian, c_ops, time, dt);
+    std::vector<GeneralQuantumOperator*> c_ops, double time) {
+    return new ClsNoisyEvolution_fast(hamiltonian, c_ops, time);
 }
 
 QuantumGateBase* create_quantum_gate_from_string(std::string gate_string) {

@@ -513,7 +513,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     mgate.def("Adaptive", py::overload_cast<QuantumGateBase *, std::function<bool(const std::vector<unsigned int>&)>> (&gate::Adaptive), pybind11::return_value_policy::take_ownership, "Create adaptive gate", py::arg("gate"), py::arg("condition"));
     mgate.def("Adaptive",  py::overload_cast<QuantumGateBase *, std::function<bool(const std::vector<unsigned int>&, unsigned int)>, unsigned int> (&gate::Adaptive), pybind11::return_value_policy::take_ownership, py::arg("gate"), py::arg("condition"),py::arg("id"));
     mgate.def("NoisyEvolution", &gate::NoisyEvolution, pybind11::return_value_policy::take_ownership, "Create noisy evolution", py::arg("hamiltonian"), py::arg("c_ops"), py::arg("time"), py::arg("dt"));
-    mgate.def("NoisyEvolution_fast", &gate::NoisyEvolution_fast, pybind11::return_value_policy::take_ownership, "Create noisy evolution fast version", py::arg("hamiltonian"), py::arg("c_ops"), py::arg("time"), py::arg("dt"));
+    mgate.def("NoisyEvolution_fast", &gate::NoisyEvolution_fast, pybind11::return_value_policy::take_ownership, "Create noisy evolution fast version", py::arg("hamiltonian"), py::arg("c_ops"), py::arg("time"));
 
     py::class_<QuantumGate_SingleParameter, QuantumGateBase>(m, "QuantumGate_SingleParameter")
         .def("get_parameter_value", &QuantumGate_SingleParameter::get_parameter_value, "Get parameter value")

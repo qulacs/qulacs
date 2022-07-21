@@ -457,6 +457,6 @@ DllExport QuantumGateBase* NoisyEvolution(Observable* hamiltonian,
  * @return 作成されたゲートのインスタンス
  */
 DllExport QuantumGateBase* NoisyEvolution_fast(Observable* hamiltonian,
-    std::vector<GeneralQuantumOperator*> c_ops, double time, double dt = 1e-6);
+    std::vector<GeneralQuantumOperator*> c_ops, double time);
 
 }  // namespace gate
