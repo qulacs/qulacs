@@ -13,10 +13,10 @@
 #include "gate.hpp"
 #include "gate_factory.hpp"
 #include "gate_merge.hpp"
+#include "gate_named_pauli.hpp"
 #include "general_quantum_operator.hpp"
 #include "observable.hpp"
 #include "pauli_operator.hpp"
-#include "gate_named_pauli.hpp"
 #include "state.hpp"
 #include "type.hpp"
 #include "utility.hpp"
@@ -403,6 +403,12 @@ private:
      * が行われる。
      *
      * 割線法を利用する場合、normは時間に対して広義単調減少であることが必要。
+     *
+     * 謎の変数 atについて
+     * dtは元のバージョンでは「1ステップの時間」を表し、　小さいほど高精度だが、時間がかかっていた
+     * こっちではdtは内部で行列計算をするときのパラメータ名(近似誤差と小数点誤差でトレードオフ、計算時間無関係)に使っている。
+     * atは、_find_collapseの1ステップの時間であるが、以前のように微小ステップを積み重ねるのではなく、一気に計算を行う方式で、
+     * 微小ではないので「dt」という名前をやめた
      */
     virtual double _find_collapse(QuantumStateBase* prev_state,
         QuantumStateBase* now_state, double target_norm, double at) {
@@ -508,15 +514,23 @@ private:
         // 対角化したものを持っておき、　ここではそれを使う
         eigenMatrixRevGate->update_quantum_state(state);
         UINT dim = eigenvalue_abs.size();
+
         ComplexVector eigenvalues(dim);
+
         for (UINT i = 0; i < dim; i++) {
             eigenvalues[i] = std::polar(std::pow(eigenvalue_abs[i], at / _dt),
                 eigenvalue_arg[i] * at / _dt);
+
+            std::cout << std::pow(eigenvalue_abs[i], at / _dt) << " "
+                      << eigenvalues[i] << " " << at / _dt << " "
+                      << eigenvalue_abs[i] << std::endl;
         }
         // eigenvalues[i] を掛ける必要がある
         QuantumGateBase* eigenValueGate =
             gate::DiagonalMatrix(this->get_target_index_list(), eigenvalues);
+
         eigenValueGate->update_quantum_state(state);
+
         eigenMatrixGate->update_quantum_state(state);
 
         delete eigenValueGate;
@@ -568,8 +582,9 @@ public:
         gate_list.push_back(gate::Identity(tooru_bit));
         for (auto pauli : _effective_hamiltonian->get_terms()) {
             //要素をゲートのマージで作る
-            
-            auto pauli_gate = gate::Pauli(pauli->get_index_list(),pauli->get_pauli_id_list());
+
+            auto pauli_gate = gate::Pauli(
+                pauli->get_index_list(), pauli->get_pauli_id_list());
 
             auto aaaa = gate::to_matrix_gate(pauli_gate);
 
@@ -583,7 +598,7 @@ public:
         QuantumGateMatrix* miHdt = gate::add(gate_list);
         this->set_target_index_list(miHdt->get_target_index_list());
         //注意　このtarget_index_listはPや対角行列　に対してのlistである。
-        //このlistに入っていないが、c_opsには入っている　というパターンもありうる。　気を付けて
+        //このlistに入っていないが、c_opsには入っている　というパターンもありうる。
 
         //ここで、　対角化を求める
         ComplexMatrix hamilMatrix;
@@ -591,15 +606,17 @@ public:
 
         Eigen::ComplexEigenSolver<ComplexMatrix> eigen_solver(hamilMatrix);
         const auto eigenvectors = eigen_solver.eigenvectors();
-
+        std::cout << eigenvectors << std::endl;
         auto eigenvalues = eigen_solver.eigenvalues();
         UINT dim = eigenvalues.size();
         eigenvalue_abs = std::vector<double>(dim);
         eigenvalue_arg = std::vector<double>(dim);
         for (UINT i = 0; i < dim; i++) {
+            std::cout << eigenvalues[i] << " ";
             eigenvalue_abs[i] = abs(eigenvalues[i]);
             eigenvalue_arg[i] = arg(eigenvalues[i]);
         }
+        std::cout << std::endl;
 
         // P^-1 A P = valueの対角
         // A^n = P 対角^n P-1
@@ -609,6 +626,7 @@ public:
             gate::DenseMatrix(this->get_target_index_list(), eigenvectors);
         eigenMatrixRevGate = gate::DenseMatrix(
             this->get_target_index_list(), eigenvectors.inverse());
+
         for (auto it : gate_list) {
             delete it;
         }
@@ -686,6 +704,7 @@ public:
             _evolve_one_step(state, at);
             // check if the jump should occur or not
             auto norm = state->get_squared_norm();
+            std::cout << "norm=" << norm << std::endl;
             if (norm <= r) {  // jump occured
                 // evolve the state to the time such that norm=r
                 double at_target_norm;

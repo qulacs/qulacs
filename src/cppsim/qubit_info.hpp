@@ -10,6 +10,7 @@
 //! Flags for bit property: diagonal in Z-basis
 #define FLAG_Z_COMMUTE ((UINT)(0x04))
 
+const UINT invalid_qubit = 9999;
 /**
  * \~japanese-en 量子ゲートが対象とする量子ビットの情報を保持するクラス
  */
@@ -57,9 +58,9 @@ public:
     /**
      * \~japanese-en コンストラクタ
      *
-     * 初期化に必要、万が一使われたとき落ちるために9999にしてある
+     * 初期化に必要、万が一使われたとき落ちるためにinvalid_qubitにしてある
      */
-    ControlQubitInfo(void) : QubitInfo(9999), _control_value(1){};
+    ControlQubitInfo(void) : QubitInfo(invalid_qubit), _control_value(1){};
     /**
      * \~japanese-en コンストラクタ
      *
@@ -107,9 +108,10 @@ private:
 public:
     /**
      * \~japanese-en コンストラクタ
-     * 初期化に必要、　万が一使われたとき落ちるように、9999にしてある
+     * 初期化に必要、　万が一使われたとき落ちるように、invalid_qubitにしてある
      */
-    TargetQubitInfo(void) : QubitInfo(9999), _commutation_property(0){};
+    TargetQubitInfo(void)
+        : QubitInfo(invalid_qubit), _commutation_property(0){};
 
     /**
      * \~japanese-en コンストラクタ
