@@ -391,8 +391,9 @@ private:
     // rが乱数なら精度不要なので1e-4にした
     int _find_collapse_max_steps = 100;
     ComplexVector eigenvalue_mto;
-    QuantumGateMatrix* eigenMatrixGate;
-    QuantumGateMatrix* eigenMatrixRevGate;
+    QuantumGateMatrix* eigenMatrixGate = nullptr;
+    QuantumGateMatrix* eigenMatrixRevGate = nullptr;
+    bool gate_none = false;
 
     /**
      * \~japanese-en collapse が起こるタイミング (norm = rになるタイミング)
@@ -562,7 +563,6 @@ public:
         std::vector<QuantumGateBase*> gate_list;
         for (auto pauli : _effective_hamiltonian->get_terms()) {
             //要素をゲートのマージで作る
-
             auto pauli_gate = gate::Pauli(
                 pauli->get_index_list(), pauli->get_pauli_id_list());
 
@@ -574,25 +574,39 @@ public:
             delete pauli_gate;
         }
 
+        if (gate_list.size() == 0) {
+            gate_none = true;
+            return;
+        }
         // effective_hamiltonianをもとに、 -iHを求める
         //(iHという名前だが、実際には-iH)
+
         QuantumGateMatrix* iH = gate::add(gate_list);
         this->set_target_index_list(iH->get_target_index_list());
         //注意　このtarget_index_listはPや対角行列　に対してのlistである。
         //このlistに入っていないが、c_opsには入っている　というパターンもありうる。
         //ここで、　対角化を求める
-        // A = PBP^-1 のとき、　e^A = P e^B P^-1 の性質を使って,e^-iHを計算する
+        // A = PBP^-1 のとき、　e^A = P e^B P^-1
+        // の性質を使って,e^-iHを計算する
+
         ComplexMatrix hamilMatrix;
         iH->set_matrix(hamilMatrix);
-
         Eigen::ComplexEigenSolver<ComplexMatrix> eigen_solver(hamilMatrix);
-        const auto eigenvectors = eigen_solver.eigenvectors();
-        eigenvalue_mto = eigen_solver.eigenvalues();
 
-        eigenMatrixGate =
-            gate::DenseMatrix(this->get_target_index_list(), eigenvectors);
-        eigenMatrixRevGate = gate::DenseMatrix(
-            this->get_target_index_list(), eigenvectors.inverse());
+        auto result = eigen_solver.info();
+
+        if (result != Eigen::Success) {
+            throw std::runtime_error(
+                "sorry, This complex don't have eigenvalue.");
+        } else {
+            const auto eigenvectors = eigen_solver.eigenvectors();
+            eigenvalue_mto = eigen_solver.eigenvalues();
+
+            eigenMatrixGate =
+                gate::DenseMatrix(this->get_target_index_list(), eigenvectors);
+            eigenMatrixRevGate = gate::DenseMatrix(
+                this->get_target_index_list(), eigenvectors.inverse());
+        }
 
         for (auto it : gate_list) {
             delete it;
@@ -655,6 +669,9 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) {
+        if (gate_none) {
+            return;
+        }
         double initial_squared_norm = state->get_squared_norm();
         double r = _random.uniform();
         std::vector<double> cumulative_dist(_c_ops.size());

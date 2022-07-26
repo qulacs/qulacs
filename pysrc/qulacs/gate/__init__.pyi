@@ -146,7 +146,7 @@ def NoisyEvolution(hamiltonian: qulacs_core.Observable, c_ops: typing.List[qulac
     """
     Create noisy evolution
     """
-def NoisyEvolution_fast(hamiltonian: qulacs_core.Observable, c_ops: typing.List[qulacs_core.GeneralQuantumOperator], time: float, dt: float) -> qulacs_core.QuantumGateBase:
+def NoisyEvolution_fast(hamiltonian: qulacs_core.Observable, c_ops: typing.List[qulacs_core.GeneralQuantumOperator], time: float) -> qulacs_core.QuantumGateBase:
     """
     Create noisy evolution fast version
     """
