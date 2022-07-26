@@ -561,6 +561,7 @@ public:
         _time = time;
 
         std::vector<QuantumGateBase*> gate_list;
+        std::vector<bool> bit_list(hamiltonian->get_qubit_count());
         for (auto pauli : _effective_hamiltonian->get_terms()) {
             //要素をゲートのマージで作る
             auto pauli_gate = gate::Pauli(
@@ -571,9 +572,22 @@ public:
             aaaa->multiply_scalar(-pauli->get_coef() * 1.0i);
 
             gate_list.push_back(aaaa);
+            for (auto it : pauli->get_index_list()) {
+                bit_list[it] = true;
+            }
             delete pauli_gate;
         }
-
+        int iH_bit_num = 0;
+        for (UINT i = 0; i < hamiltonian->get_qubit_count(); i++) {
+            if (bit_list[i]) {
+                iH_bit_num++;
+            }
+        }
+        if (iH_bit_num > 8) {
+            throw std::runtime_error(
+                "too much use hamiltonian qubit. "
+                " If there is an independent bit, please separate gate");
+        }
         if (gate_list.size() == 0) {
             gate_none = true;
             return;
