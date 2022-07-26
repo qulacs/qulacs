@@ -204,12 +204,10 @@ TEST(DensityMatrixTest, PermutateQubit) {
 
     DensityMatrix state(n);
     state.set_Haar_random_state();
-    DensityMatrix* state2 = state::permutate_qubit(&state, { 1, 0, 2 });
+    DensityMatrix* state2 = state::permutate_qubit(&state, {1, 0, 2});
     // numerical test is performed in python
     delete state2;
 }
-
-
 
 TEST(DensityMatrixTest, PartialTraceSVtoDM) {
     const UINT n = 5;
@@ -221,13 +219,12 @@ TEST(DensityMatrixTest, PartialTraceSVtoDM) {
     delete state2;
 }
 
-
 TEST(DensityMatrixTest, PartialTraceDMtoDM) {
     const UINT n = 5;
 
     QuantumState state(n);
     state.set_Haar_random_state();
-    DensityMatrix* state2 = state::partial_trace(&state, { 2, 0 });
+    DensityMatrix* state2 = state::partial_trace(&state, {2, 0});
     // numerical test is performed in python
     delete state2;
 }
