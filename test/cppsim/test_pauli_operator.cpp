@@ -30,7 +30,7 @@ TEST(PauliOperatorTest, PauliQubitOverflow) {
         pauli.get_expectation_value(&state), InvalidPauliIdentifierException);
 }
 
-TEST(PauliOperatorTest, BrokenPauliString) {
+TEST(PauliOperatorTest, BrokenPauliStringA) {
     int n = 5;
     double coef = 2.0;
     std::string Pauli_string = "X 0 X Z 1 Y 2";
@@ -38,6 +38,36 @@ TEST(PauliOperatorTest, BrokenPauliString) {
         PauliOperator(Pauli_string, coef), InvalidPauliIdentifierException);
 }
 
+TEST(PauliOperatorTest, BrokenPauliStringB) {
+    int n = 5;
+    double coef = 2.0;
+    std::string Pauli_string = "X {i}";
+    EXPECT_THROW(
+        PauliOperator(Pauli_string, coef), InvalidPauliIdentifierException);
+}
+
+TEST(PauliOperatorTest, BrokenPauliStringC) {
+    int n = 5;
+    double coef = 2.0;
+    std::string Pauli_string = "X 4x";
+    EXPECT_THROW(
+        PauliOperator(Pauli_string, coef), InvalidPauliIdentifierException);
+}
+
+TEST(PauliOperatorTest, BrokenPauliStringD) {
+    int n = 5;
+    double coef = 2.0;
+    std::string Pauli_string = "4 X";
+    EXPECT_THROW(
+        PauliOperator(Pauli_string, coef), InvalidPauliIdentifierException);
+}
+TEST(PauliOperatorTest, BrokenPauliStringE) {
+    int n = 5;
+    double coef = 2.0;
+    std::string Pauli_string = "X 4";
+    EXPECT_THROW(
+        PauliOperator(Pauli_string, coef), InvalidPauliIdentifierException);
+}
 TEST(PauliOperatorTest, SpacedPauliString) {
     int n = 5;
     double coef = 2.0;

@@ -376,6 +376,7 @@ public:
 ・　なので、操作するビットがたくさんある場合、それが独立なビット集合に分けられる場合、　集合ごとにこのクラスを使ってください
 ・　ゲートを作るときに重い操作を行うので、同じゲートに対して何回も演算すると速い
 
+・　判定を自動で行うことに会いました
 */
 
 class ClsNoisyEvolution_fast : public QuantumGateBase {
@@ -658,7 +659,7 @@ public:
     virtual void set_seed(int seed) override { _random.set_seed(seed); };
 
     virtual QuantumGateBase* copy() const override {
-        return new ClsNoisyEvolution(_hamiltonian, _c_ops, _time);
+        return new ClsNoisyEvolution_fast(_hamiltonian, _c_ops, _time);
     }
 
     /**
@@ -676,6 +677,8 @@ public:
     virtual void set_find_collapse_max_steps(int n) {
         this->_find_collapse_max_steps = n;
     }
+
+    virtual void change_time(double time) { _time = time; }
 
     /**
      * \~japanese-en 量子状態を更新する
@@ -744,3 +747,40 @@ public:
         delete buffer;
     }
 };
+
+/*
+noisyEvolution_auto
+c_opsなどの情報から、自動でnoisyEvolution_fastの組に分けます
+*/
+class ClsNoisyEvolution_auto : public QuantumGateBase {
+private:
+    std::vector<ClsNoisyEvolution_fast*> gates;
+    std::vector<UINT> bit_number;
+
+public:
+    ClsNoisyEvolution_auto(Observable* hamiltonian,
+        std::vector<GeneralQuantumOperator*> c_ops, double time) {
+        // hamiltonianをunion-findしつつ、使われているかを確認
+        // bit_numberを決めて、実際に独立なゲートに振り分ける
+    }
+    ~ClsNoisyEvolution_auto() {
+        for (auto it : gates) {
+            delete it;
+        }
+    }
+    virtual void set_matrix(ComplexMatrix& matrix) const override {
+        throw NotImplementedException(
+            "Error: "
+            "ClsNoisyEvolution::set_matrix(ComplexMatrix&): Gate-matrix of "
+            "noisy evolution cannot be defined.");
+    }
+    virtual void set_seed(int seed) override {
+        for (auto it : gates) {
+            it->set_seed(seed);
+        }
+    };
+
+    virtual QuantumGateBase* copy() const override {
+        return new ClsNoisyEvolution(_hamiltonian, _c_ops, _time);
+    }
+}
