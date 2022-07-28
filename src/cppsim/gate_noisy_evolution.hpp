@@ -330,6 +330,10 @@ public:
                 auto index = std::distance(cumulative_dist.begin(), ite);
 
                 // apply the collapse operator and normalize the state
+                // ルンゲクッタ法の誤差により、normが1にならない場合があります。
+                // その場合に本来collapseが起こらないはずなのに起きる分岐に入ってしまいます。
+                // そして、c_opsが空の場合に不正アクセスとなります。
+                // coefが0の場合でも、各collapseが発生する確率は0なので、0除算が発生してしまいます。
                 if (_c_ops.size() > index) {
                     _c_ops[index]->apply_to_state_single_thread(state, buffer);
                     buffer->normalize(buffer->get_squared_norm_single_thread());
