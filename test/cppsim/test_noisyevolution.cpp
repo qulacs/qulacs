@@ -266,6 +266,7 @@ TEST(NoisyEvolutionTest, check_inf_occurence) {
     }
 }
 
+
 TEST(NoisyEvolutionTest_fast, T1T2) {
     // 2 qubit dephasing dynamics with ZZ interaction
     double time = 2.;
@@ -481,4 +482,38 @@ TEST(NoisyEvolutionTest_fast, empty) {
     }
     std::cout << "NoisyEvolution: " << exp << " ref: " << ref << std::endl;
     ASSERT_NEAR(exp, ref, 0.05);
+
+TEST(NoisyEvolutionTest, EmptyCops) {
+    double gamma = 0.5474999999999999;
+    double depth = 10;
+    double dt = 0.8;
+    double time = dt * depth;
+
+    UINT n = 4;
+    Observable observable(n);
+    observable.add_operator(1, "X 0");
+    Observable hamiltonian(n);
+    for (UINT i = 0; i < n; i++) {
+        std::string s = "X ";
+        s += std::to_string(i);
+        hamiltonian.add_operator(gamma, s);
+    }
+
+    // c_opsが空の場合にセグフォとなっていたので、テストを追加
+    std::vector<GeneralQuantumOperator*> c_ops;
+
+    QuantumState state(n);
+    QuantumCircuit circuit(n);
+    auto gate = dynamic_cast<ClsNoisyEvolution*>(
+        gate::NoisyEvolution(&hamiltonian, c_ops, time, dt));
+    circuit.add_gate(gate);
+    for (int k = 0; k < n; k++) {
+        std::cout << "set_computational_basis:" << k << std::endl;
+        state.set_computational_basis(k);
+        circuit.update_quantum_state(&state);
+        // セグフォとならずに期待値が取れればよい
+        ASSERT_FALSE(
+            std::isinf(observable.get_expectation_value(&state).real()));
+    }
+
 }
