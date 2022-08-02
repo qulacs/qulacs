@@ -82,11 +82,6 @@ NoiseSimulator::generate_sampling_request(const UINT sample_count) {
 
 std::vector<ITYPE> NoiseSimulator::execute_sampling(
     std::vector<NoiseSimulator::SamplingRequest> sampling_requests) {
-    const UINT sample_count = std::accumulate(begin(sampling_requests),
-        end(sampling_requests), (UINT)0, [](UINT sum, SamplingRequest req) {
-            return sum + req.num_of_sampling;
-        });
-
     std::sort(begin(sampling_requests), end(sampling_requests),
         [](auto l, auto r) { return l.gate_pos > r.gate_pos; });
 
