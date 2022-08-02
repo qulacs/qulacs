@@ -266,7 +266,6 @@ TEST(NoisyEvolutionTest, check_inf_occurence) {
     }
 }
 
-
 TEST(NoisyEvolutionTest_fast, T1T2) {
     // 2 qubit dephasing dynamics with ZZ interaction
     double time = 2.;
@@ -482,6 +481,7 @@ TEST(NoisyEvolutionTest_fast, empty) {
     }
     std::cout << "NoisyEvolution: " << exp << " ref: " << ref << std::endl;
     ASSERT_NEAR(exp, ref, 0.05);
+}
 
 TEST(NoisyEvolutionTest, EmptyCops) {
     double gamma = 0.5474999999999999;
@@ -515,5 +515,4 @@ TEST(NoisyEvolutionTest, EmptyCops) {
         ASSERT_FALSE(
             std::isinf(observable.get_expectation_value(&state).real()));
     }
-
 }
