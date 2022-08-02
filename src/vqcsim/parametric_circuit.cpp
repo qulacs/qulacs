@@ -36,30 +36,28 @@ ParametricQuantumCircuit* ParametricQuantumCircuit::copy() const {
 
 void ParametricQuantumCircuit::add_parametric_gate(
     QuantumGate_SingleParameter* gate) {
-    _parametric_gate_position.push_back((UINT)gate_list.size());
     this->add_gate(gate);
+    _parametric_gate_position.push_back((UINT)gate_list.size() - 1);
     _parametric_gate_list.push_back(gate);
 };
 void ParametricQuantumCircuit::add_parametric_gate(
     QuantumGate_SingleParameter* gate, UINT index) {
-    _parametric_gate_position.push_back(index);
     this->add_gate(gate, index);
+    _parametric_gate_position.push_back(index);
     _parametric_gate_list.push_back(gate);
 }
 void ParametricQuantumCircuit::add_parametric_gate_copy(
     QuantumGate_SingleParameter* gate) {
-    _parametric_gate_position.push_back((UINT)gate_list.size());
     QuantumGate_SingleParameter* copied_gate = gate->copy();
-    QuantumCircuit::add_gate(copied_gate);
+    this->add_gate(copied_gate);
+    _parametric_gate_position.push_back((UINT)gate_list.size() - 1);
     _parametric_gate_list.push_back(copied_gate);
 };
 void ParametricQuantumCircuit::add_parametric_gate_copy(
     QuantumGate_SingleParameter* gate, UINT index) {
-    for (auto& val : _parametric_gate_position)
-        if (val >= index) val++;
-    _parametric_gate_position.push_back(index);
     QuantumGate_SingleParameter* copied_gate = gate->copy();
-    QuantumCircuit::add_gate(copied_gate, index);
+    this->add_gate(copied_gate, index);
+    _parametric_gate_position.push_back(index);
     _parametric_gate_list.push_back(copied_gate);
 }
 UINT ParametricQuantumCircuit::get_parameter_count() const {
@@ -67,21 +65,18 @@ UINT ParametricQuantumCircuit::get_parameter_count() const {
 }
 double ParametricQuantumCircuit::get_parameter(UINT index) const {
     if (index >= this->_parametric_gate_list.size()) {
-        std::cerr << "Error: ParametricQuantumCircuit::get_parameter(UINT): "
-                     "parameter index is out of range"
-                  << std::endl;
-        return 0.;
+        throw ParameterIndexOutOfRangeException(
+            "Error: ParametricQuantumCircuit::get_parameter(UINT): parameter "
+            "index is out of range");
     }
 
     return _parametric_gate_list[index]->get_parameter_value();
 }
 void ParametricQuantumCircuit::set_parameter(UINT index, double value) {
     if (index >= this->_parametric_gate_list.size()) {
-        std::cerr
-            << "Error: ParametricQuantumCircuit::set_parameter(UINT,double): "
-               "parameter index is out of range"
-            << std::endl;
-        return;
+        throw ParameterIndexOutOfRangeException(
+            "Error: ParametricQuantumCircuit::set_parameter(UINT,double): "
+            "parameter index is out of range");
     }
 
     _parametric_gate_list[index]->set_parameter_value(value);
@@ -108,12 +103,10 @@ std::ostream& operator<<(
 
 UINT ParametricQuantumCircuit::get_parametric_gate_position(UINT index) const {
     if (index >= this->_parametric_gate_list.size()) {
-        std::cerr
-            << "Error: "
-               "ParametricQuantumCircuit::get_parametric_gate_position(UINT):"
-               " parameter index is out of range"
-            << std::endl;
-        return 0;
+        throw ParameterIndexOutOfRangeException(
+            "Error: "
+            "ParametricQuantumCircuit::get_parametric_gate_position(UINT): "
+            "parameter index is out of range");
     }
 
     return _parametric_gate_position[index];
@@ -149,7 +142,21 @@ void ParametricQuantumCircuit::remove_gate(UINT index) {
     for (auto& val : _parametric_gate_position)
         if (val >= index) val--;
 }
-
+void ParametricQuantumCircuit::merge_circuit(
+    const ParametricQuantumCircuit* circuit) {
+    UINT gate_count = this->gate_list.size();
+    for (auto gate : circuit->gate_list) {
+        this->add_gate_copy(gate);
+    }
+    for (auto gate_position : circuit->_parametric_gate_position) {
+        UINT new_gate_position = gate_position + gate_count;
+        this->_parametric_gate_position.push_back(new_gate_position);
+        this->_parametric_gate_list.push_back(
+            dynamic_cast<QuantumGate_SingleParameter*>(
+                this->gate_list[new_gate_position]));
+    }
+    return;
+}
 void ParametricQuantumCircuit::add_parametric_RX_gate(
     UINT target_index, double initial_angle) {
     this->add_parametric_gate(gate::ParametricRX(target_index, initial_angle));

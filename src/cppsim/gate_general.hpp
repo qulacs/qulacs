@@ -21,8 +21,8 @@ public:
      * @param distribution ゲートが現れる確率
      * @param gate_list ゲートのリスト
      */
-    QuantumGate_Probabilistic(std::vector<double> distribution,
-        std::vector<QuantumGateBase*> gate_list)
+    QuantumGate_Probabilistic(const std::vector<double>& distribution,
+        const std::vector<QuantumGateBase*>& gate_list)
         : _distribution(distribution) {
         if (distribution.size() != gate_list.size()) {
             throw InvalidProbabilityDistributionException(
@@ -32,10 +32,10 @@ public:
                 "equal to distribution.size() or distribution.size()+1");
         }
         double sum = 0.;
-        _cumulative_distribution.push_back(0.);
+        this->_cumulative_distribution.push_back(0.);
         for (auto val : distribution) {
             sum += val;
-            _cumulative_distribution.push_back(sum);
+            this->_cumulative_distribution.push_back(sum);
         }
         if (sum - 1. > 1e-6) {
             throw InvalidProbabilityDistributionException(
@@ -47,7 +47,7 @@ public:
                 std::to_string(sum));
         }
         std::transform(gate_list.cbegin(), gate_list.cend(),
-            std::back_inserter(_gate_list),
+            std::back_inserter(this->_gate_list),
             [](auto gate) { return gate->copy(); });
         FLAG_NOISE = true;
         this->_name = "Probabilistic";
