@@ -545,14 +545,8 @@ public:
         _effective_hamiltonian =
             new GeneralQuantumOperator(hamiltonian->get_qubit_count());
 
-        UINT tooru_bit = 0;
-        //なんでもいいから、このゲートが通るbitを1つ得る必要がある
-
         for (auto pauli : hamiltonian->get_terms()) {
             _effective_hamiltonian->add_operator(pauli->copy());
-            if (pauli->get_index_list().size() > 0) {
-                tooru_bit = pauli->get_index_list()[0];
-            }
         }
         for (size_t k = 0; k < _c_ops.size(); k++) {
             auto cdagc = (*_c_ops_dagger[k]) * (*_c_ops[k]) * (-.5i);
