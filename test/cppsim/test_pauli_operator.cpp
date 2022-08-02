@@ -61,13 +61,7 @@ TEST(PauliOperatorTest, BrokenPauliStringD) {
     EXPECT_THROW(
         PauliOperator(Pauli_string, coef), InvalidPauliIdentifierException);
 }
-TEST(PauliOperatorTest, BrokenPauliStringE) {
-    int n = 5;
-    double coef = 2.0;
-    std::string Pauli_string = "X 4";
-    EXPECT_THROW(
-        PauliOperator(Pauli_string, coef), InvalidPauliIdentifierException);
-}
+
 TEST(PauliOperatorTest, SpacedPauliString) {
     int n = 5;
     double coef = 2.0;
