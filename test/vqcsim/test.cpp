@@ -10,6 +10,29 @@
 #include <vqcsim/problem.hpp>
 #include <vqcsim/solver.hpp>
 
+#include "../util/util.hpp"
+
+class ClsParametricNullUpdateGate
+    : public QuantumGate_SingleParameterOneQubitRotation {
+public:
+    ClsParametricNullUpdateGate(UINT target_qubit_index, double angle)
+        : QuantumGate_SingleParameterOneQubitRotation(angle) {
+        this->_name = "ParametricNullUpdate";
+        this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index));
+    }
+    virtual void set_matrix(ComplexMatrix& matrix) const override {}
+    virtual QuantumGate_SingleParameter* copy() const override {
+        return new ClsParametricNullUpdateGate(*this);
+    };
+};
+
+TEST(ParametricGate, NullUpdateFunc) {
+    ClsParametricNullUpdateGate gate(0, 0.);
+    QuantumState state(1);
+    ASSERT_THROW(
+        gate.update_quantum_state(&state), UndefinedUpdateFuncException);
+}
+
 TEST(ParametricCircuit, GateApply) {
     const UINT n = 3;
     const UINT depth = 10;
@@ -68,6 +91,29 @@ TEST(ParametricCircuit, GateApplyDM) {
     // std::cout << state << std::endl;
     // std::cout << circuit << std::endl;
     delete circuit;
+}
+
+TEST(ParametricCircuit, ParametricGatePosition) {
+    auto circuit = ParametricQuantumCircuit(3);
+    circuit.add_parametric_RX_gate(0, 0.);
+    circuit.add_H_gate(0);
+    circuit.add_parametric_gate_copy(gate::ParametricRZ(0, 0.));
+    circuit.add_gate_copy(gate::CNOT(0, 1));
+    circuit.add_parametric_RY_gate(1, 0.);
+    circuit.add_parametric_gate(gate::ParametricRY(2), 2);
+    circuit.add_gate_copy(gate::X(0), 2);
+    circuit.add_parametric_gate(gate::ParametricRZ(1), 0);
+    circuit.remove_gate(4);
+    circuit.remove_gate(5);
+    circuit.add_parametric_gate_copy(
+        gate::ParametricPauliRotation({1}, {0}, 0.), 6);
+
+    ASSERT_EQ(circuit.get_parameter_count(), 5);
+    ASSERT_EQ(circuit.get_parametric_gate_position(0), 1);
+    ASSERT_EQ(circuit.get_parametric_gate_position(1), 4);
+    ASSERT_EQ(circuit.get_parametric_gate_position(2), 5);
+    ASSERT_EQ(circuit.get_parametric_gate_position(3), 0);
+    ASSERT_EQ(circuit.get_parametric_gate_position(4), 6);
 }
 
 class MyRandomCircuit : public ParametricCircuitBuilder {
@@ -309,5 +355,42 @@ TEST(GradCalculator, BasicCheck) {
             1e-6);  // Difference should be lower than 1e-7
         ASSERT_LT(abs(GradCalculator_ans_without_theta[i] - Greedy_ans[i]),
             1e-6);  // Difference should be lower than 1e-7
+    }
+}
+
+TEST(ParametricCircuit, ParametricMergeCircuits) {
+    ParametricQuantumCircuit base_circuit(3), circuit_for_merge(3),
+        expected_circuit(3);
+    Random random;
+
+    for (int i = 0; i < 3; ++i) {
+        double initial_angle = random.uniform();
+        base_circuit.add_parametric_RX_gate(i, initial_angle);
+        base_circuit.add_X_gate(i);
+        expected_circuit.add_parametric_RX_gate(i, initial_angle);
+        expected_circuit.add_X_gate(i);
+    }
+
+    for (int i = 0; i < 3; ++i) {
+        double initial_angle = random.uniform();
+        circuit_for_merge.add_parametric_RX_gate(i, initial_angle);
+        circuit_for_merge.add_X_gate(i);
+        expected_circuit.add_parametric_RX_gate(i, initial_angle);
+        expected_circuit.add_X_gate(i);
+    }
+
+    base_circuit.merge_circuit(&circuit_for_merge);
+
+    ASSERT_EQ(base_circuit.to_string(), expected_circuit.to_string());
+    UINT parametric_gate_index = 0;
+    for (int i = 0; i < base_circuit.gate_list.size(); ++i) {
+        ASSERT_EQ(base_circuit.gate_list[i]->to_string(),
+            expected_circuit.gate_list[i]->to_string());
+        if (base_circuit.gate_list[i]->is_parametric()) {
+            // Compare parametric_gate angles
+            ASSERT_NEAR(base_circuit.get_parameter(parametric_gate_index),
+                expected_circuit.get_parameter(parametric_gate_index), eps);
+            ++parametric_gate_index;
+        }
     }
 }

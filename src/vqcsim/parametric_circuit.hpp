@@ -32,7 +32,18 @@ public:
     virtual void add_gate_copy(
         const QuantumGateBase* gate, UINT index) override;
     virtual void remove_gate(UINT index) override;
-
+    /**
+     *  \~japanese-en 量子回路をマージする。
+     *
+     * 引数で与えた量子回路のゲートを後ろに追加していく。
+     * マージされた側の量子回路に変更を加えてもマージした側の量子回路には変更は加わらないことに注意する。
+     * パラメータゲートに対応するため、ParametricQuantumCircuit にも
+     * merge_circuit() を追加する circuit1.add_circuit(circuit2)
+     * circuit2.add_gate(gate) # これをしても、circuit1にgateは追加されない
+     *
+     * @param[in] circuit マージする量子回路
+     */
+    virtual void merge_circuit(const ParametricQuantumCircuit* circuit);
     virtual std::string to_string() const;
     friend DllExport std::ostream& operator<<(
         std::ostream& os, const ParametricQuantumCircuit&);

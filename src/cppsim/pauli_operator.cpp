@@ -400,30 +400,3 @@ PauliOperator& PauliOperator::operator*=(CPPCTYPE target) {
     _coef *= target;
     return *this;
 }
-
-// made by watle
-// please use apply_pauli_to_state
-/*
-void PauliOperator::update_quantum_state(QuantumStateBase* instate) {
-    // PauliOperator wo gate tosite kanngaeru
-    std::vector<UINT> index_list = this->get_index_list();
-    std::vector<UINT> pauli_list = this->get_pauli_id_list();
-    for (size_t ii = 0; ii < index_list.size(); ii++) {
-        if (pauli_list[ii] == 1) {
-            auto x_gate = gate::X(index_list[ii]);
-            x_gate->update_quantum_state(instate);
-            delete x_gate;
-        } else if (pauli_list[ii] == 2) {
-            auto y_gate = gate::Y(index_list[ii]);
-            y_gate->update_quantum_state(instate);
-            delete y_gate;
-        } else if (pauli_list[ii] == 3) {
-            auto z_gate = gate::Z(index_list[ii]);
-            z_gate->update_quantum_state(instate);
-            delete z_gate;
-        }
-    }
-    instate->multiply_coef(this->get_coef());
-    return;
-}
-*/
