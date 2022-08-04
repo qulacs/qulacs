@@ -26,8 +26,7 @@ DllExport QuantumGateMatrix* merge(const QuantumGateBase* gate_applied_first,
  * @param gate_list 作用するゲート列。先頭要素から順番に状態に作用する。
  * @return 合成したゲート
  */
-DllExport QuantumGateMatrix* merge(
-    std::vector<const QuantumGateBase*> gate_list);
+DllExport QuantumGateMatrix* merge(std::vector<QuantumGateBase*> gate_list);
 
 /**
  * \~japanese-en 二つのゲートのゲート行列を足して新たなゲートを作成する。
@@ -47,7 +46,7 @@ DllExport QuantumGateMatrix* add(
  * @param gate_list 足すゲート列
  * @return 足したゲート
  */
-DllExport QuantumGateMatrix* add(std::vector<const QuantumGateBase*> gate_list);
+DllExport QuantumGateMatrix* add(std::vector<QuantumGateBase*> gate_list);
 
 /**
  * \~japanese-en

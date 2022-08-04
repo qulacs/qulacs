@@ -275,16 +275,32 @@ public:
 
     //ここから勝手にjupiroがつくったやつ
     void set_target_index_list(const std::vector<UINT>& target_index_list) {
-        for (UINT i = 0; i < target_qubit_list.size(); ++i)
+        if (target_qubit_list.size() < target_index_list.size()) {
+            target_qubit_list.resize(target_index_list.size());
+        }
+        for (UINT i = 0; i < target_qubit_list.size(); ++i) {
             target_qubit_list[i].set_index(target_index_list[i]);
-        for (UINT i = 0; i < target_qubit_list.size(); ++i)
+        }
+        if (target_qubit_list.size() < target_index_list.size()) {
+            _target_qubit_list.resize(target_index_list.size());
+        }
+        for (UINT i = 0; i < target_qubit_list.size(); ++i) {
             _target_qubit_list[i].set_index(target_index_list[i]);
+        }
     }
 
     void set_control_index_list(const std::vector<UINT>& control_index_list) {
-        for (UINT i = 0; i < control_qubit_list.size(); ++i)
+        if (control_qubit_list.size() < control_index_list.size()) {
+            control_qubit_list.resize(control_index_list.size());
+        }
+        for (UINT i = 0; i < control_qubit_list.size(); ++i) {
             control_qubit_list[i].set_index(control_index_list[i]);
-        for (UINT i = 0; i < control_qubit_list.size(); ++i)
+        }
+        if (control_qubit_list.size() < control_index_list.size()) {
+            _control_qubit_list.resize(control_index_list.size());
+        }
+        for (UINT i = 0; i < control_qubit_list.size(); ++i) {
             _control_qubit_list[i].set_index(control_index_list[i]);
+        }
     }
 };

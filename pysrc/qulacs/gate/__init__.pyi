@@ -25,6 +25,7 @@ __all__ = [
     "Instrument",
     "Measurement",
     "NoisyEvolution",
+    "NoisyEvolution_fast",
     "P0",
     "P1",
     "ParametricPauliRotation",
@@ -144,6 +145,10 @@ def Measurement(index: int, register: int) -> qulacs_core.QuantumGateBase:
 def NoisyEvolution(hamiltonian: qulacs_core.Observable, c_ops: typing.List[qulacs_core.GeneralQuantumOperator], time: float, dt: float) -> qulacs_core.QuantumGateBase:
     """
     Create noisy evolution
+    """
+def NoisyEvolution_fast(hamiltonian: qulacs_core.Observable, c_ops: typing.List[qulacs_core.GeneralQuantumOperator], time: float) -> qulacs_core.QuantumGateBase:
+    """
+    Create noisy evolution fast version
     """
 def P0(index: int) -> qulacs_core.QuantumGateBase:
     """
