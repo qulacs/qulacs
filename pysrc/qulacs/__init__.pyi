@@ -540,6 +540,10 @@ class ParametricQuantumCircuit(QuantumCircuit):
         """
         Get parametric gate position
         """
+    def merge_circuit(self, circuit: ParametricQuantumCircuit) -> None: 
+        """
+        Merge another ParametricQuantumCircuit
+        """
     def remove_gate(self, position: int) -> None: 
         """
         Remove gate
