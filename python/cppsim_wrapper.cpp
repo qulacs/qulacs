@@ -608,7 +608,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("set_parameter", &ParametricQuantumCircuit::set_parameter, "Set parameter", py::arg("index"), py::arg("parameter"))
         .def("get_parametric_gate_position", &ParametricQuantumCircuit::get_parametric_gate_position, "Get parametric gate position", py::arg("index"))
         .def("remove_gate", &ParametricQuantumCircuit::remove_gate, "Remove gate", py::arg("position"))
-        .def("merge_circuit", &ParametricQuantumCircuit::merge_circuit, "merge another ParametricQuantumCircuit", py::arg("circuit"))
+        .def("merge_circuit", &ParametricQuantumCircuit::merge_circuit, "Merge another ParametricQuantumCircuit", py::arg("circuit"))
 
         .def("add_parametric_RX_gate", &ParametricQuantumCircuit::add_parametric_RX_gate, "Add parametric Pauli-X rotation gate", py::arg("index"), py::arg("angle"))
         .def("add_parametric_RY_gate", &ParametricQuantumCircuit::add_parametric_RY_gate, "Add parametric Pauli-Y rotation gate", py::arg("index"), py::arg("angle"))
