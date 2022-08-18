@@ -344,9 +344,15 @@ public:
                 auto index = std::distance(cumulative_dist.begin(), ite);
 
                 // apply the collapse operator and normalize the state
-                _c_ops[index]->apply_to_state_single_thread(state, buffer);
-                buffer->normalize(buffer->get_squared_norm_single_thread());
-                state->load(buffer);
+                // ルンゲクッタ法の誤差により、normが1にならない場合があります。
+                // その場合に本来collapseが起こらないはずなのに起きる分岐に入ってしまいます。
+                // そして、c_opsが空の場合に不正アクセスとなります。
+                // coefが0の場合でも、各collapseが発生する確率は0なので、0除算が発生してしまいます。
+                if (_c_ops.size() > index) {
+                    _c_ops[index]->apply_to_state_single_thread(state, buffer);
+                    buffer->normalize(buffer->get_squared_norm_single_thread());
+                    state->load(buffer);
+                }
 
                 // update dt to be consistent with the step size
                 t += dt_target_norm;
@@ -376,7 +382,6 @@ public:
 ・　なので、操作するビットがたくさんある場合、それが独立なビット集合に分けられる場合、　集合ごとにこのクラスを使ってください
 ・　ゲートを作るときに重い操作を行うので、同じゲートに対して何回も演算すると速い
 
-・　判定を自動で行うことに会いました
 */
 
 class ClsNoisyEvolution_fast : public QuantumGateBase {
@@ -743,7 +748,7 @@ public:
 };
 
 // noisyEvolution_auto
-// c_opsなどの情報から、自動でnoisyEvolution_fastの組に分けます
+// c_opsなどの情報から、いろんなゲートが混在していても内部で自動的にfastの組に分けられ、最適化される
 
 class ClsNoisyEvolution_auto : public QuantumGateBase {
 private:

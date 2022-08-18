@@ -40,6 +40,7 @@ namespace gate {
  * DifRot Y     :   RDY \<index\>
  * DifRot Z     :   RDZ \<index\>
  * MultiRot     :   RM \<paulistr\> \<index1\> \<index2\> ... \<theta\> (for
+ * どれにも合致しない場合はNULLを返す
  * example: "RM XYZ 2 3 1 0.123") DifMultiRot  :   RDM \<paulistr\> \<index1\>
  * \<index2\> ...  (for example: "RDM XYZ 2 3 1") general U    :   U
  * \<index_count\> \<index1\> \<index2\> ... \<element1_real\> \<element1_imag\>
