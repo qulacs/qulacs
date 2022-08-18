@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include <Eigen/Eigenvalues>
+#include <Eigen/Eigen>
 
 #include "gate.hpp"
 #include "gate_factory.hpp"
@@ -83,13 +83,20 @@ so4_to_magic_su2s(Eigen::Matrix4cd mat) {
 }
 std::tuple<Eigen::Matrix4cd, Eigen::Vector4d, Eigen::Matrix4cd>
 bidiagonalize_unitary_with_special_orthogonals(Eigen::Matrix4cd mat) {
-    Eigen::JacobiSVD<Eigen::Matrix4cd> svd(mat);
+    mat(0, 1) += 1.0;
+    std::cout << "mat=" << mat << std::endl;
+    Eigen::JacobiSVD<Eigen::Matrix4cd,
+        Eigen::ComputeThinU | Eigen::ComputeThinV>
+        svd(mat);
+
+    svd.computeU();
+    svd.computeU();
 
     auto left = svd.matrixU();
     auto d = svd.singularValues();
     auto right = svd.matrixV();
 
-    std::cout << "left=" << left << std::endl;
+    std::cout << "left=" << svd.matrixU() << std::endl;
     std::cout << "d=" << d << std::endl;
     std::cout << "right=" << right << std::endl;
 
@@ -104,7 +111,7 @@ KAK_data KAK_decomposition(QuantumGateBase* target_gate) {
 
     ComplexMatrix mat_moto;
     target_gate->set_matrix(mat_moto);
-    Eigen::Matrix4cd mat;
+    Eigen::Matrix4cd mat = mat_moto;
 
     std::tie(left, d, right) = bidiagonalize_unitary_with_special_orthogonals(
         KAK_MAGIC_DAG * mat * KAK_MAGIC);
