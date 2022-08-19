@@ -54,7 +54,7 @@ jobs:
       - name: Setup cache
         uses: actions/cache@v2
         with:
-          path: ~/.ccache
+          path: /Users/runner/Library/Caches/ccache
           key: ${{ runner.os }}-${{ env.CACHE_NAME }}
 
       - name: Install qulacs for macOS
