@@ -1,20 +1,20 @@
-# Contributing to qulacs-osaka
+# Contributing to qulacs
 
-Thank you for your interest in qulacs-osaka!
+Thank you for your interest in qulacs!
 
 There are many ways to contribute not only for writing code.
 This document provides a overview for contributing.
 ## Asking Questions
-If you have questions to qulacs-osaka, feel free to ask in Issue and community will assist you! Your question will be a knowledge to others seeking for help.
+If you have questions to qulacs, feel free to ask in Issue and community will assist you! Your question will be a knowledge to others seeking for help.
 Issue title should be prefixed with `[Question]` so that community can identify question.
 ## Report bugs
 Reporting problems are always welcome! Post in Issue and we'll understand caveats.
 Issue title should be prefixed with `[Bug]`.
 Please include following details if you have:
 - Reproducible steps to cause the issue
-- What qulacs-osaka expected to do, and actually done
+- What qulacs expected to do, and actually done
 - code snippet to demonstorate issue
-- Version of qulacs-osaka, OS info, etc...
+- Version of qulacs, OS info, etc...
 
 ## Create feature requests
 Have a feature request you want? Post it in Issue!
