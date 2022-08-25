@@ -27,10 +27,10 @@ Eigen::Matrix4cd KAK_MAGIC = (Eigen::Matrix4cd() <<
 
 
 Eigen::Matrix4cd KAK_MAGIC_DAG = (Eigen::Matrix4cd() <<
-                                1,  0,  0,-1i,
-                                0,-1i,  1,  0,
-                                0,-1i, -1,  0,
-                                1,  0,  0, 1i)
+                                1,  0,  0,  1,
+                                0,-1i,-1i,  0,
+                                0,  1, -1,  0,
+                                -1i,0,  0, 1i)
                             .finished() *sqrt(0.5);
 
 Eigen::Matrix4cd KAK_GAMMA = (Eigen::Matrix4cd() <<
@@ -81,33 +81,110 @@ so4_to_magic_su2s(Eigen::Matrix4cd mat) {
     }
     return make_pair(fa, fb);
 }
-std::tuple<Eigen::Matrix4cd, Eigen::Vector4d, Eigen::Matrix4cd>
+
+std::tuple<Eigen::Matrix4d, Eigen::Matrix4d>
+bidiagonalize_real_matrix_pair_with_symmetric_products(
+    Eigen::Matrix4d matA, Eigen::Matrix4d matB) {
+    //両方が実数の場合の、同時特異値分解します
+    Eigen::JacobiSVD<Eigen::Matrix4d> svd(
+        matA, Eigen::ComputeThinU | Eigen::ComputeThinV);
+
+    int rank = 4;
+    while (rank > 0 && abs(svd.singularValues()(rank - 1, rank - 1)) < 1e-8) {
+        rank--;
+    }
+
+    auto semi_corrected =
+        svd.matrixU().transpose() * matB * svd.matrixV().transpose();
+
+    std::cout << "semi=" << semi_corrected << std::endl;
+
+    Eigen::EigenSolver<Eigen::Matrix4d> eigen_solver(semi_corrected);
+
+    Eigen::Matrix4d left_adjust = eigen_solver.eigenvectors().real();
+    std::cout << "left=" << eigen_solver.eigenvectors() << std::endl;
+    auto right_adjust = left_adjust.transpose();
+
+    Eigen::Matrix4d left = left_adjust.transpose() * svd.matrixU().transpose();
+    Eigen::Matrix4d right =
+        svd.matrixV().transpose() * right_adjust.transpose();
+
+    return std::make_tuple(left, right);
+
+    // semi_correctedを分解します
+}
+
+std::tuple<Eigen::Matrix4cd, Eigen::Vector4cd, Eigen::Matrix4cd>
 bidiagonalize_unitary_with_special_orthogonals(Eigen::Matrix4cd mat) {
-    mat(0, 1) += 1.0;
-    std::cout << "mat=" << mat << std::endl;
-    Eigen::JacobiSVD<Eigen::Matrix4cd,
-        Eigen::ComputeThinU | Eigen::ComputeThinV>
-        svd(mat);
+    Eigen::Matrix4d matA, matB;
 
-    svd.computeU();
-    svd.computeU();
+    matA = mat.real();
+    matB = mat.imag();
+    auto aaa =
+        bidiagonalize_real_matrix_pair_with_symmetric_products(matA, matB);
+    auto left = std::get<0>(aaa);
+    auto right = std::get<1>(aaa);
 
-    auto left = svd.matrixU();
-    auto d = svd.singularValues();
-    auto right = svd.matrixV();
+    if (left.determinant() < 0) {
+        for (int i = 0; i < 4; i++) {
+            left(i, 0) *= -1;
+        }
+    }
+    if (right.determinant() < 0) {
+        for (int i = 0; i < 4; i++) {
+            right(i, 0) *= -1;
+        }
+    }
+    auto diag = left * mat * right;
+    std::cout << left << std::endl;
+    std::cout << mat << std::endl;
+    std::cout << right << std::endl;
+    std::cout << diag << std::endl;
 
-    std::cout << "left=" << svd.matrixU() << std::endl;
+    return std::make_tuple(left, diag.diagonal(), right);
+}
+
+/*
+std::cout << "mat=" << mat << std::endl;
+    Eigen::JacobiSVD<Eigen::Matrix4cd> svdR(
+        (mat + mat.conjugate()) / 2, Eigen::ComputeThinU | Eigen::ComputeThinV);
+
+    auto left = KAK_MAGIC * svdR.matrixU() * KAK_MAGIC_DAG;
+    auto d = svdR.singularValues();
+    auto right = KAK_MAGIC_DAG * svdR.matrixV().transpose() * KAK_MAGIC;
+
+    auto Id = svdR.matrixU().transpose() * mat * svdR.matrixV();
+
+    std::cout << "left=" << left << std::endl;
     std::cout << "d=" << d << std::endl;
     std::cout << "right=" << right << std::endl;
+    std::cout << "U*UT=" << svdR.matrixU() * svdR.matrixU().transpose()
+              << std::endl;
+    std::cout << "L*D*R=" << svdR.matrixU() * Id * svdR.matrixV().transpose()
+              << std::endl;
 
-    return std::make_tuple(left, d, right);
-}
+    Eigen::JacobiSVD<Eigen::Matrix4cd> svdI(
+        (mat - mat.conjugate()) / 2, Eigen::ComputeThinU | Eigen::ComputeThinV);
+
+    std::cout << "RU" << svdR.matrixU() << std::endl;
+    std::cout << "IU" << svdI.matrixU() << std::endl;
+    std::cout << "Rd" << svdR.singularValues() << std::endl;
+    std::cout << "Id" << svdI.singularValues() << std::endl;
+
+    Eigen::Vector4cd Vd;
+    Vd[0] = Id(0, 0);
+    Vd[1] = Id(1, 1);
+    Vd[2] = Id(2, 2);
+    Vd[3] = Id(3, 3);
+
+    return std::make_tuple(left, Vd, right);
+*/
 
 KAK_data KAK_decomposition(QuantumGateBase* target_gate) {
     // 入力は4*4 のゲート
 
     Eigen::Matrix4cd left, right;
-    Eigen::Vector4d d;
+    Eigen::Vector4cd d;
 
     ComplexMatrix mat_moto;
     target_gate->set_matrix(mat_moto);
