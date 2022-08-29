@@ -1115,13 +1115,57 @@ print(operator.get_qubit_count())
 ```python
 from qulacs.observable import create_split_observable, create_observable_from_openfermion_file
 
-# 事前にH2.txtをopenfermonの形式で配置する必要があります。
+# 事前にH2.txtをopenfermionの形式で配置する必要があります。
 operator = create_observable_from_openfermion_file("./H2.txt")
 diag, nondiag = create_split_observable("./H2.txt")
 print(operator.get_term_count(), diag.get_term_count(), nondiag.get_term_count())
 print(operator.get_qubit_count(), diag.get_qubit_count(), nondiag.get_qubit_count())
 ```
 
+#### 基底状態を求める
+power method あるいは arnoldi method を用いて演算子の基底状態を求めることができます。
+計算後に引数の <code>state</code> には対応する基底状態が代入されます。
+power method:
+```python
+from qulacs import Observable, QuantumState
+from qulacs.observable import create_observable_from_openfermion_file
+
+n = 4
+operator = create_observable_from_openfermion_file("./H2.txt")
+state = QuantumState(n)
+state.set_Haar_random_state()
+value = operator.solve_ground_state_eigenvalue_by_power_method(state, 50)
+print(value)
+```
+
+arnoldi method:
+```python
+from qulacs import Observable, QuantumState
+from qulacs.observable import create_observable_from_openfermion_file
+
+n = 4
+operator = create_observable_from_openfermion_file("./H2.txt")
+state = QuantumState(n)
+state.set_Haar_random_state()
+value = operator.solve_ground_state_eigenvalue_by_arnoldi_method(state, 50)
+print(value)
+```
+
+### 量子状態に適用する
+演算子を量子状態に適用することができます。
+```python
+from qulacs import Observable, QuantumState
+from qulacs.observable import create_observable_from_openfermion_file
+
+n = 4
+operator = create_observable_from_openfermion_file("./H2.txt")
+state = QuantumState(n)
+state.set_Haar_random_state()
+result = QuantumState(n)
+work_state = QuantumState(n)
+value = operator.apply_to_state(work_state, state, result)
+print(result)
+```
 
 ## 量子回路
 

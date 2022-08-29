@@ -1,0 +1,91 @@
+name: Wheel build
+
+on:
+  push:
+    paths-ignore:
+      - ".devcontainer/**"
+      - ".vscode/**"
+      - "doc/**"
+      - "*.md"
+    branches:
+      - "dev"
+    tags:
+      - "v*"
+  pull_request_review:
+    types: [submitted, edited]
+  workflow_dispatch:
+
+jobs:
+  wheel-build:
+    name: Python wheel build
+    # For jobs triggered by pull_request_review, build task should run only if is in `approved` state.
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
+    strategy:
+      matrix:
+        python-version: ["3.7.5"]
+        os: ["ubuntu-20.04", "windows-2019", "macos-11"]
+    runs-on: ${{ matrix.os }}
+    env:
+      CXX_COMPILER: "g++-8"
+      C_COMPILER: "gcc-8"
+      PYTHON: ${{ matrix.python-version }}
+      COVERAGE: "ON"
+      CIBW_TEST_COMMAND: "python {project}/python/test/test_qulacs.py"
+      CIBW_TEST_REQUIRES: "numpy scipy openfermion"
+      CIBW_BEFORE_BUILD: "pip install cmake"
+      CIBW_BEFORE_BUILD_LINUX:
+        "pip install cmake && yum install wget -y && wget -q https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz && tar -zxf boost_1_76_0.tar.gz &&
+        cd boost_1_76_0 && ./bootstrap.sh && ./b2 headers && cp -r boost /usr/local/include" #install boost and cmake
+      # In GitHub Actions virtual environment macos-10.15/20201115.1,
+      # linking some functions from libgomp fails since the linker cannot find
+      # some library files from gcc-8 installed via Homebrew.
+      # The following command fixes this issue by (brew) re-linking files from gcc-8.
+      # cf. https://stackoverflow.com/a/55500164
+      CIBW_BEFORE_BUILD_MACOS: "brew install gcc@8 && brew link --overwrite gcc@8 && pip install cmake && brew upgrade && brew install -f boost && brew link boost"
+      CIBW_BUILD: "cp3*-macosx_x86_64 cp3*-manylinux_x86_64 cp3*-win_amd64"
+      CIBW_SKIP: "cp311-*"
+
+      # necessary for compiling python pillow library required to install numpy,scipy,openfermion.
+      CIBW_BEFORE_TEST_LINUX: "yum install libjpeg-devel -y"
+
+      CIBW_BUILD_VERBOSITY: "1"
+      CIBW_ENVIRONMENT: 'QULACS_OPT_FLAGS="-mtune=haswell -mfpmath=both"'
+      CIBW_REPAIR_WHEEL_COMMAND_MACOS: "delocate-listdeps {wheel} && script/fix_wheel_osx.sh {wheel} {dest_dir} && delocate-listdeps {wheel}"
+      TWINE_USERNAME: "__token__"
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Install Python dependencies
+        run: python -m pip install cibuildwheel twine
+
+      - name: Install boost if windows
+        if: ${{ contains(matrix.os, 'windows') }}
+        uses: MarkusJx/install-boost@v2.0.0
+        id: install-boost
+        with:
+          boost_version: 1.77.0
+
+      - name: Run cibuildwheel for Windows
+        if: ${{ contains(matrix.os, 'windows') }}
+        run: python -m cibuildwheel --output-dir wheels
+        env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+
+      - name: Run cibuildwheel for Mac, Linux
+        if: ${{ !contains(matrix.os, 'windows') }}
+        run: python -m cibuildwheel --output-dir wheels
+
+      - name: Upload wheel data if the Git tag is set
+        run: python -m twine upload wheels/*.whl
+        if: ${{ contains(github.ref, '/tags/') }}
+        env:
+          TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS }}

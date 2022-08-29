@@ -1,22 +1,14 @@
 #!/bin/sh
 
-GCC_COMMAND=gcc
-GXX_COMMAND=g++
+set -ex
 
-# if gcc/g++ version is less than 7, use gcc-7/g++-7
-GCC_VERSION=$(gcc -dumpfullversion -dumpversion | awk -F. '{printf "%2d%02d%02d", $1,$2,$3}')
-if [ "$GCC_VERSION" -lt 70000 ]; then
-  GCC_COMMAND=gcc-7
-fi
-GXX_VERSION=$(g++ -dumpfullversion -dumpversion | awk -F. '{printf "%2d%02d%02d", $1,$2,$3}')
-if [ "$GXX_VERSION" -lt 70000 ]; then
-  GXX_COMMAND=g++-7
-fi
+GCC_COMMAND=${C_COMPILER:-"gcc"}
+GXX_COMMAND=${CXX_COMPILER:-"g++"}
+OPT_FLAGS=${QULACS_OPT_FLAGS:-"-mtune=native -march=native -mfpmath=both"}
 
-mkdir ./build
+mkdir -p ./build
 cd ./build
-cmake -G "Unix Makefiles" -D CMAKE_C_COMPILER=$GCC_COMMAND -D CMAKE_CXX_COMPILER=$GXX_COMMAND -D CMAKE_BUILD_TYPE=Release -D USE_GPU:STR=Yes ..
-make
-make python
+cmake -G "Unix Makefiles" -D CMAKE_C_COMPILER=$GCC_COMMAND -D CMAKE_CXX_COMPILER=$GXX_COMMAND -D OPT_FLAGS="$OPT_FLAGS" -D CMAKE_BUILD_TYPE=Release -D USE_GPU:STR=Yes -D USE_TEST="${USE_TEST:-No}" ..
+make -j $(nproc)
+make python -j $(nproc)
 cd ../
-
