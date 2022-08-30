@@ -78,7 +78,7 @@ TEST(KAKTest, random1x1bit) {
 
 TEST(KAKTest, CXgate) {
     for (int i = 0; i < 5; i++) {
-        QuantumGateBase* random_gate = gate::merge(gate::RandomUnitary({0}),gate::CZ(0,1));
+        QuantumGateBase* random_gate = gate::CNOT(0,1);
         auto KAK_ret = KAK_decomposition(random_gate);
 
         QuantumCircuit circuit(2);
@@ -104,4 +104,3 @@ TEST(KAKTest, CXgate) {
         ASSERT_NEAR(inpro,1.0,0.001);
     }
 }
-
