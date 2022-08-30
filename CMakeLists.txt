@@ -142,20 +142,20 @@ if(USE_PYTHON)
 		set(PYBIND11_INCLUDE_DIR ${PYBIND11_INSTALL_DIR}/include)
 		ExternalProject_Add(
 			pybind11_pop
-			URL http://github.com/pybind/pybind11/archive/v2.7.1.tar.gz
+			URL http://github.com/pybind/pybind11/archive/v2.10.0.tar.gz
 			PREFIX ${PYBIND11_BUILD_DIR}
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND ""
 			INSTALL_COMMAND
 			${CMAKE_COMMAND} -E copy_directory ${PYBIND11_BUILD_DIR}/src/pybind11_pop ${PYBIND11_INSTALL_DIR}
-			TEST_COMMAND ""
+			TEST_COMMAND "",
 		)
 		include_directories(SYSTEM ${PYBIND11_INCLUDE_DIR})
 	else()
 		FetchContent_Declare(
 			pybind11_fetch
 			GIT_REPOSITORY https://github.com/pybind/pybind11
-			GIT_TAG v2.7.1
+			GIT_TAG v2.10.0
 		)
 		FetchContent_GetProperties(pybind11_fetch)
 		if(NOT pybind11_fetch_POPULATED)
