@@ -7,7 +7,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 ENV PWD="/workspaces/qulacs-osaka"
 ENV QULACS_OSAKA_PACKAGE="qulacs_osaka"
-ENV QULACS_OSAKA_VERSION="0.4.2"
+ENV QULACS_OSAKA_VERSION="0.4.3"
 ENV USE_TEST="Yes"
 # Add build artifact to PYTHONPATH and python can find qulacs.
 # Egg file name might vary depending on qulacs and python version.
