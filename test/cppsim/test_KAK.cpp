@@ -2,6 +2,7 @@
 
 #include <Eigen/Eigen>
 #include <cppsim/KAK.hpp>
+#include <cppsim/circuit.hpp>
 #include <cppsim/gate.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_matrix.hpp>
@@ -17,25 +18,33 @@
 
 using namespace Eigen;
 TEST(KAKTest, random2bit) {
-    MatrixXf m = MatrixXf::Random(3, 2);
-    std::cout << "Here is the matrix m:" << std::endl << m << std::endl;
-    JacobiSVD<MatrixXf> svd(m, ComputeThinU | ComputeThinV);
-    std::cout << "Its singular values are:" << std::endl
-              << svd.singularValues() << std::endl;
-    std::cout
-        << "Its left singular vectors are the columns of the thin U matrix:"
-        << std::endl
-        << svd.matrixU() << std::endl;
-    std::cout
-        << "Its right singular vectors are the columns of the thin V matrix:"
-        << std::endl
-        << svd.matrixV() << std::endl;
-    Vector3f rhs(1, 0, 0);
-    std::cout << "Now consider this rhs vector:" << std::endl
-              << rhs << std::endl;
-    std::cout << "A least-squares solution of m*x = rhs is:" << std::endl
-              << svd.solve(rhs) << std::endl;
+    
+    int inprocount=0;
+    for (int i = 0; i < 5; i++) {
+        QuantumGateBase* random_gate = gate::RandomUnitary({0, 1});
+        auto KAK_ret = KAK_decomposition(random_gate);
 
-    QuantumGateBase* random_gate = gate::RandomUnitary({0, 1});
-    auto KAK_ret = KAK_decomposition(random_gate);
+        QuantumCircuit circuit(2);
+        circuit.add_gate(KAK_ret.single_qubit_operations_before[0]);
+        circuit.add_gate(KAK_ret.single_qubit_operations_before[1]);
+        
+    
+        circuit.add_gate(gate::PauliRotation(
+            {0, 1}, {1, 1}, KAK_ret.interaction_coefficients[0]));
+        circuit.add_gate(gate::PauliRotation(
+            {0, 1}, {2, 2}, KAK_ret.interaction_coefficients[1]));
+        circuit.add_gate(gate::PauliRotation(
+            {0, 1}, {3, 3}, KAK_ret.interaction_coefficients[2]));
+        circuit.add_gate(KAK_ret.single_qubit_operations_after[0]);
+        circuit.add_gate(KAK_ret.single_qubit_operations_after[1]);
+        QuantumState stateA(2);
+        stateA.set_zero_state();
+        QuantumState stateB(2);
+        stateB.set_zero_state();
+        random_gate->update_quantum_state(&stateA);
+        circuit.update_quantum_state(&stateB);
+        double inpro = abs(state::inner_product(&stateA, &stateB));
+        if(inpro<0.999){std::cout<<"inprobug"<<std::endl;inprocount++;}
+    }
+    ASSERT_EQ(inprocount,0);
 }
