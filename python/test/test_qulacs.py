@@ -878,10 +878,23 @@ class TestNoiseSimulator(unittest.TestCase):
             for sample in noisy_sample:
                 if sample in heavy_output:
                     num_heavy_output += 1
-            return num_heavy_output / shots
+            return num_heavy_output / shots, heavy_output, noisy_sample
 
-        self.assertGreater(get_heavy_output_probability(10, 100, 1e-5), 2 / 3)
-        self.assertLess(get_heavy_output_probability(10, 100, 0.01), 2 / 3)
+        low_noise_prob, low_noise_heavy_output,low_noise_result = get_heavy_output_probability(10, 100, 1e-5)
+        high_noise_prob, high_noise_heavy_output,high_noise_result = get_heavy_output_probability(10, 100, 0.01)
+        if low_noise_prob < 2/3:
+            print(f"[ERROR] On low noise environment Heavy Output percentage should be > 0.666, but was {low_noise_prob}")
+            print("Telemetry Information:")
+            print(f"Sampling Result: {low_noise_result}")
+            print(f"Heavy Output: {low_noise_heavy_output}")
+        if high_noise_prob > 2/3:
+            print(f"[ERROR] On high noise environment Heavy Output percentage should be < 0.666, but was {high_noise_prob}")
+            print("Telemetry Information:")
+            print(f"Sampling Result: {high_noise_result}")
+            print(f"Heavy Output: {high_noise_heavy_output}")
+        
+        self.assertGreater(low_noise_prob, 2 / 3)
+        self.assertLess(high_noise_prob, 2 / 3)
 
 
 if __name__ == "__main__":

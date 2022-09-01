@@ -60,7 +60,6 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("__mul__", [](const PauliOperator &a, std::complex<double> &b) { return a * b; }, py::is_operator())
         .def(py::self *= py::self)
         .def("__IMUL__", [](PauliOperator &a, std::complex<double> &b) { return a *= b; }, py::is_operator())
-        .def("update_quantum_state", &PauliOperator::update_quantum_state, "do update")
         ;
 
     py::class_<GeneralQuantumOperator>(m, "GeneralQuantumOperator")
@@ -496,13 +495,13 @@ PYBIND11_MODULE(qulacs_core, m) {
     QuantumGateMatrix*(*ptr3)(const QuantumGateBase*, const QuantumGateBase*) = &gate::merge;
     mgate.def("merge", ptr3, pybind11::return_value_policy::take_ownership, "Merge two quantum gate or gate list", py::arg("gate1"), py::arg("gate2"));
 
-    QuantumGateMatrix*(*ptr4)(std::vector<const QuantumGateBase*>) = &gate::merge;
+    QuantumGateMatrix*(*ptr4)(std::vector<QuantumGateBase*>) = &gate::merge;
     mgate.def("merge", ptr4, pybind11::return_value_policy::take_ownership, py::arg("gate_list"));
 
     QuantumGateMatrix*(*ptr5)(const QuantumGateBase*, const QuantumGateBase*) = &gate::add;
     mgate.def("add", ptr5, pybind11::return_value_policy::take_ownership, "Add quantum gate matrices", py::arg("gate1"), py::arg("gate2"));
 
-    QuantumGateMatrix*(*ptr6)(std::vector<const QuantumGateBase*>) = &gate::add;
+    QuantumGateMatrix*(*ptr6)(std::vector<QuantumGateBase*>) = &gate::add;
     mgate.def("add", ptr6, pybind11::return_value_policy::take_ownership, "Add quantum gate matrices", py::arg("gate_list"));
 
     mgate.def("to_matrix_gate", &gate::to_matrix_gate, pybind11::return_value_policy::take_ownership, "Convert named gate to matrix gate", py::arg("gate"));
@@ -514,6 +513,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     mgate.def("Adaptive", py::overload_cast<QuantumGateBase *, std::function<bool(const std::vector<unsigned int>&)>> (&gate::Adaptive), pybind11::return_value_policy::take_ownership, "Create adaptive gate", py::arg("gate"), py::arg("condition"));
     mgate.def("Adaptive",  py::overload_cast<QuantumGateBase *, std::function<bool(const std::vector<unsigned int>&, unsigned int)>, unsigned int> (&gate::Adaptive), pybind11::return_value_policy::take_ownership, py::arg("gate"), py::arg("condition"),py::arg("id"));
     mgate.def("NoisyEvolution", &gate::NoisyEvolution, pybind11::return_value_policy::take_ownership, "Create noisy evolution", py::arg("hamiltonian"), py::arg("c_ops"), py::arg("time"), py::arg("dt"));
+    mgate.def("NoisyEvolution_fast", &gate::NoisyEvolution_fast, pybind11::return_value_policy::take_ownership, "Create noisy evolution fast version", py::arg("hamiltonian"), py::arg("c_ops"), py::arg("time"));
 
     py::class_<QuantumGate_SingleParameter, QuantumGateBase>(m, "QuantumGate_SingleParameter")
         .def("get_parameter_value", &QuantumGate_SingleParameter::get_parameter_value, "Get parameter value")

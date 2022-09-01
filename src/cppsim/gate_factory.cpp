@@ -369,6 +369,10 @@ QuantumGateBase* NoisyEvolution(Observable* hamiltonian,
     std::vector<GeneralQuantumOperator*> c_ops, double time, double dt) {
     return new ClsNoisyEvolution(hamiltonian, c_ops, time, dt);
 }
+QuantumGateBase* NoisyEvolution_fast(Observable* hamiltonian,
+    std::vector<GeneralQuantumOperator*> c_ops, double time) {
+    return new ClsNoisyEvolution_fast(hamiltonian, c_ops, time);
+}
 
 QuantumGateBase* create_quantum_gate_from_string(std::string gate_string) {
     const char* gateString = gate_string.c_str();
@@ -476,12 +480,6 @@ QuantumGateBase* create_quantum_gate_from_string(std::string gate_string) {
             matrix(i / dim, i % dim) += CPPCTYPE(0, 1) * atof(token);
         }
         gate = gate::DenseMatrix(targets, matrix);
-    } else {
-        throw InvalidGateIdentifierException(
-            "Error: "
-            "gate::create_quantum_gate_from_string(string): invalid gate "
-            "name " +
-            std::string(sbuf));
     }
     free(buf);
     return gate;
