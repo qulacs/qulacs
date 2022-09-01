@@ -20,13 +20,12 @@ using namespace Eigen;
 TEST(KAKTest, random2bit) {
     for (int i = 0; i < 5; i++) {
         QuantumGateBase* random_gate = gate::RandomUnitary({0, 1});
-        auto KAK_ret = KAK_decomposition(random_gate);
+        auto KAK_ret = KAK_decomposition(random_gate, {0, 1});
 
         QuantumCircuit circuit(2);
         circuit.add_gate(KAK_ret.single_qubit_operations_before[0]);
         circuit.add_gate(KAK_ret.single_qubit_operations_before[1]);
-        
-    
+
         circuit.add_gate(gate::PauliRotation(
             {0, 1}, {1, 1}, KAK_ret.interaction_coefficients[0]));
         circuit.add_gate(gate::PauliRotation(
@@ -42,20 +41,20 @@ TEST(KAKTest, random2bit) {
         random_gate->update_quantum_state(&stateA);
         circuit.update_quantum_state(&stateB);
         double inpro = abs(state::inner_product(&stateA, &stateB));
-        ASSERT_NEAR(inpro,1.0,0.001);
+        ASSERT_NEAR(inpro, 1.0, 0.001);
     }
 }
 
 TEST(KAKTest, random1x1bit) {
     for (int i = 0; i < 5; i++) {
-        QuantumGateBase* random_gate = gate::merge(gate::RandomUnitary({0}),gate::RandomUnitary({1}));
-        auto KAK_ret = KAK_decomposition(random_gate);
+        QuantumGateBase* random_gate =
+            gate::merge(gate::RandomUnitary({0}), gate::RandomUnitary({1}));
+        auto KAK_ret = KAK_decomposition(random_gate, {0, 1});
 
         QuantumCircuit circuit(2);
         circuit.add_gate(KAK_ret.single_qubit_operations_before[0]);
         circuit.add_gate(KAK_ret.single_qubit_operations_before[1]);
-        
-    
+
         circuit.add_gate(gate::PauliRotation(
             {0, 1}, {1, 1}, KAK_ret.interaction_coefficients[0]));
         circuit.add_gate(gate::PauliRotation(
@@ -71,21 +70,30 @@ TEST(KAKTest, random1x1bit) {
         random_gate->update_quantum_state(&stateA);
         circuit.update_quantum_state(&stateB);
         double inpro = abs(state::inner_product(&stateA, &stateB));
-        ASSERT_NEAR(inpro,1.0,0.001);
+        ASSERT_NEAR(inpro, 1.0, 0.001);
     }
 }
 
-
 TEST(KAKTest, CXgate) {
+    // clang-format off
+    Eigen::Matrix4cd CXmat = (Eigen::Matrix4cd() <<  
+                                1,  0,  0,  0,
+                                0,  1,  0,  0,
+                                0,  0,  0,  1,
+                                0,  0,  1,  0)
+                            .finished();
+    // clang-format on
+
     for (int i = 0; i < 5; i++) {
-        QuantumGateBase* random_gate = gate::CNOT(0,1);
-        auto KAK_ret = KAK_decomposition(random_gate);
+        // QuantumGateBase* random_gate = gate::DenseMatrix({0, 1}, CXmat);
+        QuantumGateBase* random_gate = gate::CNOT(0, 1);
+
+        auto KAK_ret = KAK_decomposition(random_gate, {0, 1});
 
         QuantumCircuit circuit(2);
         circuit.add_gate(KAK_ret.single_qubit_operations_before[0]);
         circuit.add_gate(KAK_ret.single_qubit_operations_before[1]);
-        
-    
+
         circuit.add_gate(gate::PauliRotation(
             {0, 1}, {1, 1}, KAK_ret.interaction_coefficients[0]));
         circuit.add_gate(gate::PauliRotation(
@@ -101,6 +109,6 @@ TEST(KAKTest, CXgate) {
         random_gate->update_quantum_state(&stateA);
         circuit.update_quantum_state(&stateB);
         double inpro = abs(state::inner_product(&stateA, &stateB));
-        ASSERT_NEAR(inpro,1.0,0.001);
+        ASSERT_NEAR(inpro, 1.0, 0.001);
     }
 }
