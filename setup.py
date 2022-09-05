@@ -6,7 +6,7 @@ import sys
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
-VERSION = "0.5.0"
+VERSION = "0.4.2"
 PROJECT_NAME = "qulacs"
 
 
