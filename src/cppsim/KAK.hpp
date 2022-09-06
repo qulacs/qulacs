@@ -12,7 +12,6 @@
 
 class KAK_data {
 public:
-    CPPCTYPE global_phase;
     QuantumGateMatrix* single_qubit_operations_before[2];
     double interaction_coefficients[3];
     QuantumGateMatrix* single_qubit_operations_after[2];
@@ -81,7 +80,7 @@ bidiagonalize_real_matrix_pair_with_symmetric_products(
     Eigen::JacobiSVD<Eigen::Matrix4d> svd(
         matA, Eigen::ComputeFullU | Eigen::ComputeFullV);
 
-    if (abs(svd.singularValues()(3)) < 1e-8) {
+    if (abs(svd.singularValues()(3)) < 1e-11) {
         throw std::runtime_error("rank fusoku Internal error");
     }
 
@@ -150,11 +149,11 @@ KAK_data KAK_decomposition_beta(QuantumGateBase* target_gate) {
     wxyz = KAK_GAMMA * d_diag_angle;
 
     KAK_data ans;
-    ans.global_phase = std::exp(1.0i * wxyz[0]);
     ans.interaction_coefficients[0] = wxyz[1].real() * 2;
     ans.interaction_coefficients[1] = wxyz[2].real() * 2;
     ans.interaction_coefficients[2] = wxyz[3].real() * 2;
     // matrixの正当性を確認したほうがいいな
+    a0 *= std::exp(1.0i * wxyz[0]);
     QuantumGateMatrix* a0_gate =
         gate::DenseMatrix({target_gate->get_target_index_list()[0]}, a0);
     QuantumGateMatrix* a1_gate =
@@ -199,5 +198,138 @@ KAK_data KAK_decomposition(
     delete ans.single_qubit_operations_after[1];
     ans.single_qubit_operations_after[1] = aaa_gate1;
     delete grgate1;
+    return ans;
+}
+
+void CSD_beta(ComplexMatrix mat, std::vector<UINT> CQs,
+    std::vector<UINT> CQlist, int ban, std::vector<QuantumGateBase*>& gates) {
+    UINT siz = mat.cols(), hsiz = siz / 2;
+    if (siz == 4) {
+        auto KAK_gate = gate::DenseMatrix({CQlist[0], CQlist[1]}, mat);
+        auto Kdata = KAK_decomposition(KAK_gate, {CQlist[0], CQlist[1]});
+        for (auto it : CQs) {
+            Kdata.single_qubit_operations_before[0]->add_control_qubit(it, 1);
+        }
+        gates.push_back(Kdata.single_qubit_operations_before[0]);
+        for (auto it : CQs) {
+            Kdata.single_qubit_operations_before[1]->add_control_qubit(it, 1);
+        }
+        gates.push_back(Kdata.single_qubit_operations_before[1]);
+
+        auto itiXX = gate::PauliRotation(
+            {CQlist[0], CQlist[1]}, {1, 1}, Kdata.interaction_coefficients[0]);
+        auto matXX = gate::to_matrix_gate(itiXX);
+        for (auto it : CQs) {
+            matXX->add_control_qubit(it, 1);
+        }
+        gates.push_back(matXX);
+
+        auto itiYY = gate::PauliRotation(
+            {CQlist[0], CQlist[1]}, {2, 2}, Kdata.interaction_coefficients[1]);
+        auto matYY = gate::to_matrix_gate(itiYY);
+        for (auto it : CQs) {
+            matYY->add_control_qubit(it, 1);
+        }
+        gates.push_back(matYY);
+
+        auto itiZZ = gate::PauliRotation(
+            {CQlist[0], CQlist[1]}, {3, 3}, Kdata.interaction_coefficients[2]);
+        auto matZZ = gate::to_matrix_gate(itiZZ);
+        for (auto it : CQs) {
+            matZZ->add_control_qubit(it, 1);
+        }
+        gates.push_back(matZZ);
+
+        for (auto it : CQs) {
+            Kdata.single_qubit_operations_after[0]->add_control_qubit(it, 1);
+        }
+        gates.push_back(Kdata.single_qubit_operations_after[0]);
+        for (auto it : CQs) {
+            Kdata.single_qubit_operations_after[1]->add_control_qubit(it, 1);
+        }
+        gates.push_back(Kdata.single_qubit_operations_after[1]);
+
+        delete itiXX;
+        delete itiYY;
+        delete itiZZ;
+
+        delete KAK_gate;
+        return;
+    }
+    ComplexMatrix Q11 = mat.block(0, 0, hsiz, hsiz);
+    Eigen::JacobiSVD<ComplexMatrix> svd(
+        Q11, Eigen::ComputeFullU | Eigen::ComputeFullV);
+    ComplexMatrix Q12 = mat.block(0, hsiz, hsiz, hsiz);
+    ComplexMatrix Q21 = mat.block(hsiz, 0, hsiz, hsiz);
+    ComplexMatrix Q22 = mat.block(hsiz, hsiz, hsiz, hsiz);
+
+    Eigen::HouseholderQR<ComplexMatrix> QR1(Q21 * svd.matrixV());
+    Eigen::HouseholderQR<ComplexMatrix> QR2(Q12.adjoint() * svd.matrixU());
+    ComplexMatrix U1 = svd.matrixU();
+    ComplexMatrix U2 = QR1.householderQ();
+    ComplexMatrix V1 = svd.matrixV();
+    ComplexMatrix V2 = QR2.householderQ();
+
+    ComplexMatrix R12 = V2.adjoint() * Q12.adjoint() * svd.matrixU();  //右上
+    ComplexMatrix R21 = U2.adjoint() * Q21 * svd.matrixV();            //左下
+
+    for (UINT i = 0; i < hsiz; i++) {
+        if ((R12(i, i) * R21(i, i)).real() > 0) {
+            R12(i, i) *= -1;
+            for (UINT j = 0; j < hsiz; j++) {
+                V2(j, i) *= -1;
+            }
+        }
+    }
+
+    auto CQss = CQs;
+    CQss.push_back(CQlist[ban]);
+    CSD_beta(V1.adjoint(), CQs, CQlist, ban - 1, gates);
+    CSD_beta(V2.adjoint() * V1, CQss, CQlist, ban - 1, gates);
+    //ここにCSのやつが入る
+    std::vector<double> args(hsiz);
+    for (UINT i = 0; i < hsiz; i++) {
+        args[i] = asin(R12(i, i).real()) * 2;
+    }
+    // argsに関して高速メビウス変換する
+    for (UINT h = 0; h < ban; h++) {
+        for (UINT i = 0; i < hsiz; i++) {
+            if (i & (1 << h)) {
+                args[i] -= args[i - (1 << h)];
+            }
+        }
+    }
+    for (UINT i = 0; i < hsiz; i++) {
+        auto CQg = CQs;
+        for (UINT j = 0; j < ban; j++) {
+            if (i & (1 << j)) {
+                CQg.push_back(CQlist[j]);
+            }
+        }
+        auto itiRY = gate::RY(CQlist[ban], args[i]);
+        auto matRY = gate::to_matrix_gate(itiRY);
+        for (auto it : CQg) {
+            matRY->add_control_qubit(it, 1);
+        }
+        gates.push_back(matRY);
+        delete itiRY;
+    }
+    CSD_beta(U1, CQs, CQlist, ban - 1, gates);
+    CSD_beta(U2 * U1.adjoint(), CQss, CQlist, ban - 1, gates);
+}
+
+std::vector<QuantumGateBase*> CSD(QuantumGateBase* target_gate) {
+    if (target_gate->get_control_index_list().size() > 0) {
+        throw InvalidQubitCountException(
+            "dont target_gate includes control qubit.");
+    }
+    if (target_gate->get_target_index_list().size() < 2) {
+        throw InvalidQubitCountException("CSD qubit size>=2 please.");
+    }
+    std::vector<QuantumGateBase*> ans;
+    ComplexMatrix mat;
+    target_gate->set_matrix(mat);
+    CSD_beta(mat, {}, target_gate->get_target_index_list(),
+        target_gate->get_target_index_list().size() - 1, ans);
     return ans;
 }

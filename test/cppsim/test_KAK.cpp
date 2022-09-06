@@ -75,17 +75,7 @@ TEST(KAKTest, random1x1bit) {
 }
 
 TEST(KAKTest, CXgate) {
-    // clang-format off
-    Eigen::Matrix4cd CXmat = (Eigen::Matrix4cd() <<  
-                                1,  0,  0,  0,
-                                0,  1,  0,  0,
-                                0,  0,  0,  1,
-                                0,  0,  1,  0)
-                            .finished();
-    // clang-format on
-
     for (int i = 0; i < 5; i++) {
-        // QuantumGateBase* random_gate = gate::DenseMatrix({0, 1}, CXmat);
         QuantumGateBase* random_gate = gate::CNOT(0, 1);
 
         auto KAK_ret = KAK_decomposition(random_gate, {0, 1});
@@ -111,4 +101,47 @@ TEST(KAKTest, CXgate) {
         double inpro = abs(state::inner_product(&stateA, &stateB));
         ASSERT_NEAR(inpro, 1.0, 0.001);
     }
+}
+
+TEST(CSDTest, random4bit) {
+    // QuantumGateBase* random_gate = gate::DenseMatrix({0, 1}, CXmat);
+    QuantumGateBase* random_gate = gate::RandomUnitary({0, 1, 2, 3});
+
+    auto CSD_ret = CSD(random_gate);
+
+    QuantumCircuit circuit(4);
+    for (auto it : CSD_ret) {
+        // std::cerr << (*it) << std::endl;
+        circuit.add_gate(it);
+    }
+    QuantumState stateA(4);
+    stateA.set_Haar_random_state();
+    QuantumState stateB(4);
+    stateB.load(&stateA);
+    random_gate->update_quantum_state(&stateA);
+    circuit.update_quantum_state(&stateB);
+    double inpro = abs(state::inner_product(&stateA, &stateB));
+    ASSERT_NEAR(inpro, 1.0, 0.001);
+}
+
+TEST(CSDTest, empty3gate) {
+    // QuantumGateBase* random_gate = gate::DenseMatrix({0, 1}, CXmat);
+    QuantumGateBase* random_gate =
+        gate::merge(gate::merge(gate::Identity({0}), gate::Identity({1})),
+            gate::Identity({2}));
+    auto CSD_ret = CSD(random_gate);
+
+    QuantumCircuit circuit(4);
+    for (auto it : CSD_ret) {
+        // std::cerr << (*it) << std::endl;
+        circuit.add_gate(it);
+    }
+    QuantumState stateA(4);
+    stateA.set_Haar_random_state();
+    QuantumState stateB(4);
+    stateB.load(&stateA);
+    random_gate->update_quantum_state(&stateA);
+    circuit.update_quantum_state(&stateB);
+    double inpro = abs(state::inner_product(&stateA, &stateB));
+    ASSERT_NEAR(inpro, 1.0, 0.001);
 }
