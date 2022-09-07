@@ -30,27 +30,6 @@ jobs:
       C_COMPILER: "gcc-8"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
-      CIBW_TEST_COMMAND: "python {project}/python/test/test_qulacs.py"
-      CIBW_TEST_REQUIRES: "numpy scipy openfermion"
-      CIBW_BEFORE_BUILD_WINDOWS: "pip install cmake && rm -rf {project}/build"
-      CIBW_BEFORE_BUILD_LINUX:
-        "pip install cmake && yum install wget -y && wget -q https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz && tar -zxf boost_1_76_0.tar.gz &&
-        cd boost_1_76_0 && ./bootstrap.sh && ./b2 headers && cp -r boost /usr/local/include && rm -rf {project}/build" #install boost and cmake
-      # In GitHub Actions virtual environment macos-10.15/20201115.1,
-      # linking some functions from libgomp fails since the linker cannot find
-      # some library files from gcc-8 installed via Homebrew.
-      # The following command fixes this issue by (brew) re-linking files from gcc-8.
-      # cf. https://stackoverflow.com/a/55500164
-      CIBW_BEFORE_BUILD_MACOS: "brew install gcc@8 && brew link --overwrite gcc@8 && pip install cmake && brew upgrade && brew install -f boost && brew link boost && rm -rf {project}/build"
-      CIBW_BUILD: "cp3*-macosx_x86_64 cp3*-manylinux_x86_64 cp3*-win_amd64"
-      CIBW_SKIP: "cp311-*"
-
-      # necessary for compiling python pillow library required to install numpy,scipy,openfermion.
-      CIBW_BEFORE_TEST_LINUX: "yum install libjpeg-devel -y"
-
-      CIBW_BUILD_VERBOSITY: "1"
-      CIBW_ENVIRONMENT: 'QULACS_OPT_FLAGS="-mtune=haswell -mfpmath=both"'
-      CIBW_REPAIR_WHEEL_COMMAND_MACOS: "delocate-listdeps {wheel} && script/fix_wheel_osx.sh {wheel} {dest_dir} && delocate-listdeps {wheel}"
       TWINE_USERNAME: "__token__"
     steps:
       - uses: actions/checkout@v2
