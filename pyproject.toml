@@ -30,6 +30,17 @@ classifiers = [
 [project.urls]
 homepage = "http://www.qulacs.org"
 
+[project.optional-dependencies]
+test = [
+    "openfermion"
+]
+
+ci = [
+    "openfermion",
+    "mypy",
+    "pybind11-stubgen"
+]
+
 [tool.setuptools]
 include-package-data = true
 zip-safe = false
