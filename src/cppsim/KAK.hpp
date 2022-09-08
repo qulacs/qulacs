@@ -119,7 +119,7 @@ bidiagonalize_unitary_with_special_orthogonals(Eigen::Matrix4cd mat) {
 // left_su2 = KAK_MAGIC * left^T * KAK_MAGIC_DAG
 // target = left_su2 * KAK_MAGIC*diag*KAK_MAGIC_DAG * right_su2
 // diag = KAK_MAGIC_DAG *so4_XXYYZZ * KAK_MAGIC
-KAK_data KAK_decomposition_beta(QuantumGateBase* target_gate) {
+KAK_data KAK_decomposition_internal(QuantumGateBase* target_gate) {
     // 入力は4*4 のゲート
     if (target_gate->get_target_index_list().size() != 2) {
         throw InvalidQubitCountException("target_gate index count must 2.");
@@ -152,7 +152,7 @@ KAK_data KAK_decomposition_beta(QuantumGateBase* target_gate) {
     ans.interaction_coefficients[0] = wxyz[1].real() * 2;
     ans.interaction_coefficients[1] = wxyz[2].real() * 2;
     ans.interaction_coefficients[2] = wxyz[3].real() * 2;
-    // matrixの正当性を確認したほうがいいな
+
     a0 *= std::exp(1.0i * wxyz[0]);
     QuantumGateMatrix* a0_gate =
         gate::DenseMatrix({target_gate->get_target_index_list()[0]}, a0);
@@ -180,74 +180,90 @@ KAK_data KAK_decomposition(
         throw InvalidQubitCountException("sort please");
     }
 
+    /*
+    上のKAK分解は実装を省略しているため、そのままだと縮退?
+    などにより、正しい値が出ない可能性がありました。
+    それを解消するため、分解したい行列に対して、各ビットにランダムユニタリを掛けてからKAK分解し、　その結果にさっきかけたランダムユニタリの逆行列を掛けることで対処しています.
+
+    */
+
     QuantumGateBase* rand_gate0 = gate::RandomUnitary({target_bits[0]});
     QuantumGateBase* rand_gate1 = gate::RandomUnitary({target_bits[1]});
     QuantumGateBase* rand_gate01 = gate::merge(rand_gate0, rand_gate1);
     QuantumGateBase* merged_gate = gate::merge(target_gate, rand_gate01);
     delete rand_gate01;
-    auto ans = KAK_decomposition_beta(merged_gate);
+    auto ans = KAK_decomposition_internal(merged_gate);
     delete merged_gate;
     auto grgate0 = gate::get_adjoint_gate(rand_gate0);
     auto aaa_gate0 = gate::merge(ans.single_qubit_operations_after[0], grgate0);
     delete ans.single_qubit_operations_after[0];
     ans.single_qubit_operations_after[0] = aaa_gate0;
     delete grgate0;
+    delete rand_gate0;
 
     auto grgate1 = gate::get_adjoint_gate(rand_gate1);
     auto aaa_gate1 = gate::merge(ans.single_qubit_operations_after[1], grgate1);
     delete ans.single_qubit_operations_after[1];
     ans.single_qubit_operations_after[1] = aaa_gate1;
     delete grgate1;
+    delete rand_gate1;
+
     return ans;
 }
 
-void CSD_beta(ComplexMatrix mat, std::vector<UINT> CQs,
-    std::vector<UINT> CQlist, int ban, std::vector<QuantumGateBase*>& gates) {
+void CSD_internal(ComplexMatrix mat, std::vector<UINT> now_control_qubits,
+    std::vector<UINT> all_control_qubits, int ban,
+    std::vector<QuantumGateBase*>& CSD_gate_list) {
     UINT siz = mat.cols(), hsiz = siz / 2;
     if (siz == 4) {
-        auto KAK_gate = gate::DenseMatrix({CQlist[0], CQlist[1]}, mat);
-        auto Kdata = KAK_decomposition(KAK_gate, {CQlist[0], CQlist[1]});
-        for (auto it : CQs) {
+        auto KAK_gate = gate::DenseMatrix(
+            {all_control_qubits[0], all_control_qubits[1]}, mat);
+        auto Kdata = KAK_decomposition(
+            KAK_gate, {all_control_qubits[0], all_control_qubits[1]});
+        for (auto it : now_control_qubits) {
             Kdata.single_qubit_operations_before[0]->add_control_qubit(it, 1);
         }
-        gates.push_back(Kdata.single_qubit_operations_before[0]);
-        for (auto it : CQs) {
+        CSD_gate_list.push_back(Kdata.single_qubit_operations_before[0]);
+        for (auto it : now_control_qubits) {
             Kdata.single_qubit_operations_before[1]->add_control_qubit(it, 1);
         }
-        gates.push_back(Kdata.single_qubit_operations_before[1]);
+        CSD_gate_list.push_back(Kdata.single_qubit_operations_before[1]);
 
-        auto itiXX = gate::PauliRotation(
-            {CQlist[0], CQlist[1]}, {1, 1}, Kdata.interaction_coefficients[0]);
+        auto itiXX =
+            gate::PauliRotation({all_control_qubits[0], all_control_qubits[1]},
+                {1, 1}, Kdata.interaction_coefficients[0]);
         auto matXX = gate::to_matrix_gate(itiXX);
-        for (auto it : CQs) {
+        for (auto it : now_control_qubits) {
             matXX->add_control_qubit(it, 1);
         }
-        gates.push_back(matXX);
+        CSD_gate_list.push_back(matXX);
 
-        auto itiYY = gate::PauliRotation(
-            {CQlist[0], CQlist[1]}, {2, 2}, Kdata.interaction_coefficients[1]);
+        auto itiYY =
+            gate::PauliRotation({all_control_qubits[0], all_control_qubits[1]},
+                {2, 2}, Kdata.interaction_coefficients[1]);
         auto matYY = gate::to_matrix_gate(itiYY);
-        for (auto it : CQs) {
+        for (auto it : now_control_qubits) {
             matYY->add_control_qubit(it, 1);
         }
-        gates.push_back(matYY);
+        CSD_gate_list.push_back(matYY);
 
-        auto itiZZ = gate::PauliRotation(
-            {CQlist[0], CQlist[1]}, {3, 3}, Kdata.interaction_coefficients[2]);
+        auto itiZZ =
+            gate::PauliRotation({all_control_qubits[0], all_control_qubits[1]},
+                {3, 3}, Kdata.interaction_coefficients[2]);
         auto matZZ = gate::to_matrix_gate(itiZZ);
-        for (auto it : CQs) {
+        for (auto it : now_control_qubits) {
             matZZ->add_control_qubit(it, 1);
         }
-        gates.push_back(matZZ);
+        CSD_gate_list.push_back(matZZ);
 
-        for (auto it : CQs) {
+        for (auto it : now_control_qubits) {
             Kdata.single_qubit_operations_after[0]->add_control_qubit(it, 1);
         }
-        gates.push_back(Kdata.single_qubit_operations_after[0]);
-        for (auto it : CQs) {
+        CSD_gate_list.push_back(Kdata.single_qubit_operations_after[0]);
+        for (auto it : now_control_qubits) {
             Kdata.single_qubit_operations_after[1]->add_control_qubit(it, 1);
         }
-        gates.push_back(Kdata.single_qubit_operations_after[1]);
+        CSD_gate_list.push_back(Kdata.single_qubit_operations_after[1]);
 
         delete itiXX;
         delete itiYY;
@@ -282,10 +298,12 @@ void CSD_beta(ComplexMatrix mat, std::vector<UINT> CQs,
         }
     }
 
-    auto CQss = CQs;
-    CQss.push_back(CQlist[ban]);
-    CSD_beta(V1.adjoint(), CQs, CQlist, ban - 1, gates);
-    CSD_beta(V2.adjoint() * V1, CQss, CQlist, ban - 1, gates);
+    auto added_control_qubits = now_control_qubits;
+    added_control_qubits.push_back(all_control_qubits[ban]);
+    CSD_internal(V1.adjoint(), now_control_qubits, all_control_qubits, ban - 1,
+        CSD_gate_list);
+    CSD_internal(V2.adjoint() * V1, added_control_qubits, all_control_qubits,
+        ban - 1, CSD_gate_list);
     //ここにCSのやつが入る
     std::vector<double> args(hsiz);
     for (UINT i = 0; i < hsiz; i++) {
@@ -300,22 +318,24 @@ void CSD_beta(ComplexMatrix mat, std::vector<UINT> CQs,
         }
     }
     for (UINT i = 0; i < hsiz; i++) {
-        auto CQg = CQs;
+        auto CSD_control_qubits = now_control_qubits;
         for (UINT j = 0; j < ban; j++) {
             if (i & (1 << j)) {
-                CQg.push_back(CQlist[j]);
+                CSD_control_qubits.push_back(all_control_qubits[j]);
             }
         }
-        auto itiRY = gate::RY(CQlist[ban], args[i]);
+        auto itiRY = gate::RY(all_control_qubits[ban], args[i]);
         auto matRY = gate::to_matrix_gate(itiRY);
-        for (auto it : CQg) {
+        for (auto it : CSD_control_qubits) {
             matRY->add_control_qubit(it, 1);
         }
-        gates.push_back(matRY);
+        CSD_gate_list.push_back(matRY);
         delete itiRY;
     }
-    CSD_beta(U1, CQs, CQlist, ban - 1, gates);
-    CSD_beta(U2 * U1.adjoint(), CQss, CQlist, ban - 1, gates);
+    CSD_internal(
+        U1, now_control_qubits, all_control_qubits, ban - 1, CSD_gate_list);
+    CSD_internal(U2 * U1.adjoint(), added_control_qubits, all_control_qubits,
+        ban - 1, CSD_gate_list);
 }
 
 std::vector<QuantumGateBase*> CSD(QuantumGateBase* target_gate) {
@@ -329,7 +349,7 @@ std::vector<QuantumGateBase*> CSD(QuantumGateBase* target_gate) {
     std::vector<QuantumGateBase*> ans;
     ComplexMatrix mat;
     target_gate->set_matrix(mat);
-    CSD_beta(mat, {}, target_gate->get_target_index_list(),
+    CSD_internal(mat, {}, target_gate->get_target_index_list(),
         target_gate->get_target_index_list().size() - 1, ans);
     return ans;
 }
