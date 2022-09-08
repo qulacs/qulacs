@@ -2,15 +2,22 @@
 
 #include <Eigen/Eigenvalues>
 #include <cppsim/circuit.hpp>
+#include <cppsim/gate.hpp>
 #include <cppsim/gate_factory.hpp>
+#include <cppsim/gate_matrix.hpp>
+#include <cppsim/gate_merge.hpp>
 #include <cppsim/gate_named_pauli.hpp>
+#include <cppsim/gate_to_gqo.hpp>
 #include <cppsim/observable.hpp>
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/state.hpp>
+#include <cppsim/state_dm.hpp>
 #include <cppsim/type.hpp>
 #include <cppsim/utility.hpp>
 #include <csim/constant.hpp>
+#include <csim/update_ops.hpp>
 #include <fstream>
+#include <functional>
 
 #include "../util/util.hpp"
 
@@ -565,4 +572,46 @@ TEST(ObservableTest, ApplyIdentityToState) {
     obs.apply_to_state(&state, &dst_state);
     state.add_state_with_coef(-1 / coef, &dst_state);
     ASSERT_NEAR(0., state.get_squared_norm(), eps);
+}
+
+TEST(gate_to_gqoTest, Random4bit) {
+    QuantumGateBase* random_gate = gate::RandomUnitary({0, 1, 2, 3});
+
+    auto GQO_ret = to_gqo(random_gate, 4);
+    QuantumState stateA(4);
+    stateA.set_Haar_random_state();
+    QuantumState stateB(4);
+    GQO_ret->apply_to_state(&stateA, &stateB);
+    random_gate->update_quantum_state(&stateA);
+
+    double inpro = state::inner_product(&stateA, &stateB).real();
+    ASSERT_NEAR(inpro, 1.0, 0.001);
+}
+
+TEST(gate_to_gqoTest, Random1bit) {
+    QuantumGateBase* random_gate = gate::RandomUnitary({0});
+
+    auto GQO_ret = to_gqo(random_gate, 1);
+    QuantumState stateA(1);
+    stateA.set_Haar_random_state();
+    QuantumState stateB(1);
+    GQO_ret->apply_to_state(&stateA, &stateB);
+    random_gate->update_quantum_state(&stateA);
+
+    double inpro = state::inner_product(&stateA, &stateB).real();
+
+    ASSERT_NEAR(inpro, 1.0, 0.001);
+}
+TEST(gate_to_gqoTest, XYgate) {
+    QuantumGateBase* random_gate = gate::merge(gate::X(0), gate::Y(1));
+
+    auto GQO_ret = to_gqo(random_gate, 2);
+    QuantumState stateA(2);
+    stateA.set_Haar_random_state();
+    QuantumState stateB(2);
+    GQO_ret->apply_to_state(&stateA, &stateB);
+    random_gate->update_quantum_state(&stateA);
+
+    double inpro = state::inner_product(&stateA, &stateB).real();
+    ASSERT_NEAR(inpro, 1.0, 0.001);
 }

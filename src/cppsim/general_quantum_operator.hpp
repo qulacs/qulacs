@@ -85,6 +85,9 @@ public:
      */
     virtual void add_operator(const CPPCTYPE coef, std::string pauli_string);
 
+    virtual void add_operator(const std::vector<UINT>& target_qubit_index_list,
+        const std::vector<UINT>& target_qubit_pauli_list, CPPCTYPE coef);
+
     /**
      * \~japanese-en
      * GeneralQuantumOperatorが掛かるqubit数を返す。

@@ -59,6 +59,25 @@ void GeneralQuantumOperator::add_operator(
     delete _mpt;
 }
 
+void GeneralQuantumOperator::add_operator(
+    const std::vector<UINT>& target_qubit_index_list,
+    const std::vector<UINT>& target_qubit_pauli_list, CPPCTYPE coef = 1.) {
+    PauliOperator* _mpt = new PauliOperator(
+        target_qubit_index_list, target_qubit_pauli_list, coef);
+    if (!check_Pauli_operator(this, _mpt)) {
+        throw QubitIndexOutOfRangeException(
+            "Error: "
+            "GeneralQuantumOperator::add_operator(double,std::string):"
+            " pauli_operator applies target qubit of which the index "
+            "is larger than qubit_count");
+    }
+    if (this->_is_hermitian && std::abs(coef.imag()) > 0) {
+        this->_is_hermitian = false;
+    }
+    this->add_operator(_mpt);
+    delete _mpt;
+}
+
 CPPCTYPE GeneralQuantumOperator::get_expectation_value(
     const QuantumStateBase* state) const {
     if (this->_qubit_count > state->qubit_count) {
