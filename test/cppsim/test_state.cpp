@@ -1,7 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <cppsim/state.hpp>
-#include <cppsim/utility.hpp>
+#include <include_some.hpp>
 
 #include "../util/util.hpp"
 

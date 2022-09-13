@@ -1,16 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <cmath>
-#include <cppsim/exception.hpp>
-#include <cppsim/gate.hpp>
-#include <cppsim/gate_factory.hpp>
-#include <cppsim/gate_matrix.hpp>
-#include <cppsim/gate_merge.hpp>
-#include <cppsim/pauli_operator.hpp>
-#include <cppsim/state.hpp>
-#include <cppsim/utility.hpp>
-#include <csim/update_ops.hpp>
 #include <functional>
+#include <include_some.hpp>
 
 #include "../util/util.hpp"
 

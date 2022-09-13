@@ -1,16 +1,8 @@
 #include <gtest/gtest.h>
 
 #include <Eigen/Eigenvalues>
-#include <cppsim/circuit.hpp>
-#include <cppsim/gate_factory.hpp>
-#include <cppsim/gate_named_pauli.hpp>
-#include <cppsim/observable.hpp>
-#include <cppsim/pauli_operator.hpp>
-#include <cppsim/state.hpp>
-#include <cppsim/type.hpp>
-#include <cppsim/utility.hpp>
-#include <csim/constant.hpp>
 #include <fstream>
+#include <include_some.hpp>
 
 #include "../util/util.hpp"
 

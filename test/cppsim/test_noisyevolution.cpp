@@ -1,13 +1,6 @@
 #include <gtest/gtest.h>
 
-#include <cppsim/circuit.hpp>
-#include <cppsim/gate_factory.hpp>
-#include <cppsim/gate_merge.hpp>
-#include <cppsim/gate_noisy_evolution.hpp>
-#include <cppsim/general_quantum_operator.hpp>
-#include <cppsim/noisesimulator.hpp>
-#include <cppsim/observable.hpp>
-#include <cppsim/state.hpp>
+#include <include_some.hpp>
 
 #include "../util/util.hpp"
 

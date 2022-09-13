@@ -1,16 +1,13 @@
 #include <gtest/gtest.h>
 
-#include <cppsim/exception.hpp>
-#include <cppsim/gate_factory.hpp>
-#include <cppsim/state_dm.hpp>
+#include <include_some.hpp>
 #include <vqcsim/GradCalculator.hpp>
 #include <vqcsim/causalcone_simulator.hpp>
-#include <vqcsim/parametric_circuit_builder.hpp>
-#include <vqcsim/parametric_gate_factory.hpp>
 #include <vqcsim/problem.hpp>
 #include <vqcsim/solver.hpp>
 
 #include "../util/util.hpp"
+
 
 class ClsParametricNullUpdateGate
     : public QuantumGate_SingleParameterOneQubitRotation {

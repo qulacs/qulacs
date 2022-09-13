@@ -1,14 +1,8 @@
 #include <gtest/gtest.h>
 
-#include <cppsim/circuit.hpp>
-#include <cppsim/gate_factory.hpp>
-#include <cppsim/gate_merge.hpp>
-#include <cppsim/observable.hpp>
-#include <cppsim/state.hpp>
-#include <iostream>
+#include <include_some.hpp>
 #include <vqcsim/GradCalculator.hpp>
-#include <vqcsim/parametric_circuit.hpp>
-using namespace std;
+
 TEST(Backprop, BackpropCircuit) {
     ParametricQuantumCircuit kairo(3);
     kairo.add_parametric_RX_gate(0, 2.2);
@@ -35,13 +29,12 @@ TEST(Backprop, BackpropCircuit) {
     observable.add_operator(1.2, "Y 1");
     observable.add_operator(1.5, "Z 2");
 
-    vector<double> kaku = {2.2, 0, 1.4, 1, -1, 1, 1, -1, 1};
+    std::vector<double> kaku = {2.2, 0, 1.4, 1, -1, 1, 1, -1, 1};
     GradCalculator wrakln;
     auto bibun = wrakln.calculate_grad(kairo, observable, kaku);
 
     auto bk = kairo.backprop(&observable);
     for (int i = 0; i < 9; i++) {
-        cerr << bk[i] << " " << bibun[i].real() << endl;
         ASSERT_NEAR(bk[i], bibun[i].real(), 1e-10);
     }
 }
@@ -77,7 +70,7 @@ TEST(Backprop, BackpropCircuitInpro) {
 
     auto bk = kairo.backprop_inner_product(&state_soku);
     state_soku.load(state_hai);
-    vector<double> kaku = {2.2, 0, 1.4, 1, -1, 1, 1, -1, 1};
+    std::vector<double> kaku = {2.2, 0, 1.4, 1, -1, 1, 1, -1, 1};
 
     Astate.set_zero_state();
     kairo.update_quantum_state(&Astate);
@@ -87,8 +80,6 @@ TEST(Backprop, BackpropCircuitInpro) {
         Astate.set_zero_state();
         kairo.update_quantum_state(&Astate);
         CPPCTYPE gen_sco = state::inner_product(&state_soku, &Astate);
-
-        cerr << (gen_sco - mto_sco) * 10000.0 << " " << bk[h] << endl;
         ASSERT_NEAR(((gen_sco - mto_sco) * 10000.0).real(), bk[h], 1e-2);
 
         kairo.set_parameter(h, kaku[h]);
@@ -98,8 +89,8 @@ TEST(Backprop, BackpropCircuitInpro) {
 // PauliRotationのBackpropTest
 TEST(Backprop, BackpropPauliRotationCircuit) {
     ParametricQuantumCircuit kairo(2);
-    vector<double> kaku = {2.2, 0, 1.4, 0.8, -0.4, 1.2, 0.7, -1, 1.3, 0.5, -0.8,
-        -2.1, 1.9, 2.1, 0.3};
+    std::vector<double> kaku = {2.2, 0, 1.4, 0.8, -0.4, 1.2, 0.7, -1, 1.3, 0.5,
+        -0.8, -2.1, 1.9, 2.1, 0.3};
 
     int ind = 0;
     kairo.add_parametric_RX_gate(0, kaku[ind++]);
@@ -133,7 +124,6 @@ TEST(Backprop, BackpropPauliRotationCircuit) {
     auto bk = kairo.backprop(&observable);
     // 数値微分との比較
     for (int i = 0; i < 9; i++) {
-        cerr << bk[i] << " " << bibun[i].real() << endl;
         ASSERT_NEAR(bk[i], bibun[i].real(), 1e-10);
     }
 }

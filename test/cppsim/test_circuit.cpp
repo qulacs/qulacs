@@ -1,17 +1,8 @@
 
 #include <gtest/gtest.h>
 
-#include <cppsim/circuit.hpp>
-#include <cppsim/circuit_optimizer.hpp>
-#include <cppsim/gate_factory.hpp>
-#include <cppsim/gate_matrix.hpp>
-#include <cppsim/gate_merge.hpp>
-#include <cppsim/observable.hpp>
-#include <cppsim/pauli_operator.hpp>
-#include <cppsim/state.hpp>
-#include <cppsim/type.hpp>
-#include <cppsim/utility.hpp>
 #include <csim/constant.hpp>
+#include <include_some.hpp>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <utility>
 
