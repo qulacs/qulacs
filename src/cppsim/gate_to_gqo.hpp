@@ -9,6 +9,9 @@
 GeneralQuantumOperator* to_gqo(
     const QuantumGateBase* gate, UINT GQO_qubits, double tol = 1e-6) {
     //返り値のqubitの数を指定
+    if (gate->get_control_index_list().size() > 0) {
+        throw std::runtime_error("gate must not have control qubit. ");
+    }
     ComplexMatrix mat;
     gate->set_matrix(mat);
     UINT n = gate->get_target_index_list().size();
