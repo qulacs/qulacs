@@ -2,18 +2,20 @@ name: Wheel build
 
 on:
   push:
-    paths-ignore:
-      - ".devcontainer/**"
-      - ".vscode/**"
-      - "doc/**"
-      - "*.md"
-    branches:
-      - "dev"
-    tags:
-      - "v*"
+    # commented out for debug.
+    #paths-ignore:
+    #  - ".devcontainer/**"
+    #  - ".vscode/**"
+    #  - "doc/**"
+    #  - "*.md"
+    #branches:
+    #  - "dev"
+    #tags:
+    #  - "v*"
   pull_request_review:
     types: [submitted, edited]
   workflow_dispatch:
+
 
 jobs:
   wheel-build:
