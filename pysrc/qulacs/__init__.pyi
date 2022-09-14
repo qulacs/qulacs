@@ -140,14 +140,13 @@ class GeneralQuantumOperator():
     pass
 class GradCalculator():
     def __init__(self) -> None: ...
-    @staticmethod
     @typing.overload
-    def calculate_grad(*args, **kwargs) -> typing.Any: 
+    def calculate_grad(self, parametric_circuit: ParametricQuantumCircuit, observable: Observable) -> typing.List[complex]: 
         """
         Calculate Grad
         """
     @typing.overload
-    def calculate_grad(self, parametric_circuit: ParametricQuantumCircuit, observable: Observable) -> typing.List[complex]: ...
+    def calculate_grad(self, parametric_circuit: ParametricQuantumCircuit, observable: Observable, angles_of_gates: typing.List[float]) -> typing.List[complex]: ...
     pass
 class NoiseSimulator():
     def __init__(self, arg0: QuantumCircuit, arg1: QuantumState) -> None: 

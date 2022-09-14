@@ -624,7 +624,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<GradCalculator>(m, "GradCalculator")
         .def(py::init<>())
         .def("calculate_grad",py::overload_cast<ParametricQuantumCircuit&, Observable&>(&GradCalculator::calculate_grad),"Calculate Grad", py::arg("parametric_circuit"),py::arg("observable"))
-        .def("calculate_grad",py::overload_cast<ParametricQuantumCircuit&, Observable&,std::vector<double>>(&GradCalculator::calculate_grad), py::arg("parametric_circuit"),py::arg("observable"),py::arg("angles of gates"));
+        .def("calculate_grad",py::overload_cast<ParametricQuantumCircuit&, Observable&,std::vector<double>>(&GradCalculator::calculate_grad), py::arg("parametric_circuit"),py::arg("observable"),py::arg("angles_of_gates"));
        
     auto mcircuit = m.def_submodule("circuit");
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
