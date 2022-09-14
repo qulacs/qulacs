@@ -65,7 +65,7 @@ test-requires = "numpy scipy openfermion"
 
 [tool.cibuildwheel.linux]
 before-build = """\
-pip install cmake && yum install wget -y && \
+yum install wget -y && \
 wget -q https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz && \
 tar -zxf boost_1_76_0.tar.gz && \
 cd boost_1_76_0 && ./bootstrap.sh && ./b2 headers && \
@@ -73,7 +73,7 @@ cp -r boost /usr/local/include && rm -rf {project}/build \
 """
 
 [tool.cibuildwheel.windows]
-before-test = "pip install cmake && rm -rf {project}/build"
+before-test = "rm -rf {project}/build"
 
 
 [tool.cibuildwheel.macos]
@@ -84,7 +84,7 @@ before-test = "pip install cmake && rm -rf {project}/build"
 # cf. https://stackoverflow.com/a/55500164
 before-build = """\
 brew install gcc@8 && brew link --overwrite gcc@8 && \
-pip install cmake && brew upgrade && brew install -f boost && \
-brew link boost \
+brew upgrade && brew install -f boost && \
+brew link boost && rm -rf {project}/build\
 """
 repair-wheel-command = "delocate-listdeps {wheel} && script/fix_wheel_osx.sh {wheel} {dest_dir} && delocate-listdeps {wheel}"
