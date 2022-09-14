@@ -83,8 +83,8 @@ before-test = "pip install cmake && rm -rf {project}/build"
 # The following command fixes this issue by (brew) re-linking files from gcc-8.
 # cf. https://stackoverflow.com/a/55500164
 before-build = """\
-brew install gcc@8 && brew link --overwrite gcc@8 && \
+rm -rf {project}/build && brew install gcc@8 && brew link --overwrite gcc@8 && \
 pip install cmake && brew upgrade && brew install -f boost && \
-brew link boost && rm -rf {project}/build \
+brew link boost\
 """
 repair-wheel-command = "delocate-listdeps {wheel} && script/fix_wheel_osx.sh {wheel} {dest_dir} && delocate-listdeps {wheel}"
