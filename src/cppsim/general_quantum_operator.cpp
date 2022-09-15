@@ -411,7 +411,7 @@ CPPCTYPE GeneralQuantumOperator::calculate_default_mu() const {
 GeneralQuantumOperator* GeneralQuantumOperator::copy() const {
     auto quantum_operator = new GeneralQuantumOperator(_qubit_count);
     for (auto pauli : this->_operator_list) {
-        quantum_operator->add_operator(pauli->copy());
+        quantum_operator->add_operator_copy(pauli);
     }
     return quantum_operator;
 }
@@ -643,9 +643,9 @@ GeneralQuantumOperator GeneralQuantumOperator::operator*(
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     const GeneralQuantumOperator& target) {
-    auto copy = this->copy();
+    auto this_copy = this->copy();
     _operator_list.clear();
-    auto terms = copy->get_terms();
+    auto terms = this_copy->get_terms();
     auto target_terms = target.get_terms();
     ITYPE i, j;
     // #pragma omp parallel for
@@ -659,15 +659,16 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
             delete product;
         }
     }
+    delete this_copy;
     return *this;
 }
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     const PauliOperator& target) {
-    auto copy = this->copy();
+    auto this_copy = this->copy();
     _operator_list.clear();
     ITYPE i;
-    auto terms = copy->get_terms();
+    auto terms = this_copy->get_terms();
     // #pragma omp parallel for
     for (i = 0; i < terms.size(); i++) {
         auto pauli_operator = terms[i];
@@ -675,6 +676,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
         *product = (*pauli_operator) * (target);
         *this += *product;
     }
+    delete this_copy;
     return *this;
 }
 

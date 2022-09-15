@@ -131,6 +131,7 @@ TEST(CircuitTest, CircuitBasic) {
     circuit.add_RX_gate(target, angle * 2);
     circuit.add_RotInvX_gate(target, angle + 0.5);
     circuit.add_RotX_gate(target, angle * 2 + 0.5);
+    // RX +RotInvX - RotX = angle
     state_eigen = get_expanded_eigen_matrix_with_identity(target,
                       cos(angle / 2) * Identity + 1.i * sin(angle / 2) * X, n) *
                   state_eigen;
