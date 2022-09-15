@@ -41,6 +41,12 @@ __all__ = [
     "RZ",
     "RandomUnitary",
     "ReversibleBoolean",
+    "RotInvX",
+    "RotInvY",
+    "RotInvZ",
+    "RotX",
+    "RotY",
+    "RotZ",
     "S",
     "SWAP",
     "Sdag",
@@ -213,6 +219,30 @@ def RandomUnitary(index_list: typing.List[int], seed: int) -> qulacs_core.Quantu
 def ReversibleBoolean(index_list: typing.List[int], func: typing.Callable[[int, int], int]) -> qulacs_core.QuantumGateBase:
     """
     Create reversible boolean gate
+    """
+def RotInvX(index: int, angle: float) -> qulacs_core.QuantumGateBase:
+    """
+    Create Pauli-X rotation gate
+    """
+def RotInvY(index: int, angle: float) -> qulacs_core.QuantumGateBase:
+    """
+    Create Pauli-Y rotation gate
+    """
+def RotInvZ(index: int, angle: float) -> qulacs_core.QuantumGateBase:
+    """
+    Create Pauli-Z rotation gate
+    """
+def RotX(index: int, angle: float) -> qulacs_core.QuantumGateBase:
+    """
+    Create Pauli-X rotation gate
+    """
+def RotY(index: int, angle: float) -> qulacs_core.QuantumGateBase:
+    """
+    Create Pauli-Y rotation gate
+    """
+def RotZ(index: int, angle: float) -> qulacs_core.QuantumGateBase:
+    """
+    Create Pauli-Z rotation gate
     """
 def S(index: int) -> qulacs_core.QuantumGateBase:
     """

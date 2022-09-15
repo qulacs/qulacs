@@ -30,8 +30,8 @@ int main() {
 
     for (int depth = 0; depth < 5; ++depth) {
         for (int i = 0; i < n; ++i) {
-            circuit.add_parametric_RX_gate(i, 0);
-            circuit.add_parametric_RZ_gate(i, 0);
+            circuit.add_parametric_RotInvX_gate(i, 0);
+            circuit.add_parametric_RotInvZ_gate(i, 0);
         }
 
         for (int i = 0; i + 1 < n; i += 2) {

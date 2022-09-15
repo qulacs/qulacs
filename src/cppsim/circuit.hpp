@@ -366,6 +366,13 @@ public:
      */
     virtual void add_RZ_gate(UINT target_index, double angle);
 
+    virtual void add_RotInvX_gate(UINT target_index, double angle);
+    virtual void add_RotInvY_gate(UINT target_index, double angle);
+    virtual void add_RotInvZ_gate(UINT target_index, double angle);
+    virtual void add_RotX_gate(UINT target_index, double angle);
+    virtual void add_RotY_gate(UINT target_index, double angle);
+    virtual void add_RotZ_gate(UINT target_index, double angle);
+
     /**
      * \~japanese-en OpenQASMのu1 gateを追加する。
      *
