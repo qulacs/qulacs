@@ -76,12 +76,18 @@ so4_to_magic_su2s(Eigen::Matrix4cd mat) {
 std::tuple<Eigen::Matrix4cd, Eigen::Matrix4cd>
 bidiagonalize_real_matrix_pair_with_symmetric_products(
     Eigen::Matrix4d matA, Eigen::Matrix4d matB) {
-    //両方が実数の場合の、同時特異値分解します
+    // Bidiagonalize real matrix pairs
     Eigen::JacobiSVD<Eigen::Matrix4d> svd(
         matA, Eigen::ComputeFullU | Eigen::ComputeFullV);
 
     if (abs(svd.singularValues()(3)) < 1e-11) {
-        throw std::runtime_error("rank fusoku Internal error");
+        throw std::runtime_error(
+            "The above KAK decomposition partially omit the implementation, "
+            "and the function somtimes outputs invalid values. To address this "
+            "problem, we apply a random matrix to the input unitary, perform "
+            "the KAK decomposition, and retrieve the correct answer by "
+            "applying its inverse. We expect that this is due to the "
+            "degeneration of matrix eigenvalues.");
     }
 
     return std::make_tuple(svd.matrixU().transpose(), svd.matrixV());
@@ -93,10 +99,10 @@ bidiagonalize_unitary_with_special_orthogonals(Eigen::Matrix4cd mat) {
 
     matA = mat.real();
     matB = mat.imag();
-    auto aaa =
+    auto left_and_right =
         bidiagonalize_real_matrix_pair_with_symmetric_products(matA, matB);
-    Eigen::Matrix4cd left = std::get<0>(aaa);
-    Eigen::Matrix4cd right = std::get<1>(aaa);
+    Eigen::Matrix4cd left = std::get<0>(left_and_right);
+    Eigen::Matrix4cd right = std::get<1>(left_and_right);
     Eigen::Matrix4cd diag = left * mat * right;
 
     if (left.determinant().real() < 0) {
@@ -113,23 +119,18 @@ bidiagonalize_unitary_with_special_orthogonals(Eigen::Matrix4cd mat) {
     }
     return std::make_tuple(left, diag, right);
 }
-// diag = left * KAK_MAGIC_DAG * taget * KAK_MAGIC * right
-// left^T * diag * right^T = KAK_MAGIC_DAG * target * KAK_MAGIC
 
-// left_su2 = KAK_MAGIC * left^T * KAK_MAGIC_DAG
-// target = left_su2 * KAK_MAGIC*diag*KAK_MAGIC_DAG * right_su2
-// diag = KAK_MAGIC_DAG *so4_XXYYZZ * KAK_MAGIC
 KAK_data KAK_decomposition_internal(QuantumGateBase* target_gate) {
-    // 入力は4*4 のゲート
+    // The input is assumed to be a gate with 4x4 matrix
     if (target_gate->get_target_index_list().size() != 2) {
         throw InvalidQubitCountException("target_gate index count must 2.");
     }
 
     Eigen::Matrix4cd left, diag, right;
 
-    ComplexMatrix mat_moto;
-    target_gate->set_matrix(mat_moto);
-    Eigen::Matrix4cd mat = mat_moto;
+    ComplexMatrix mat_original;
+    target_gate->set_matrix(mat_original);
+    Eigen::Matrix4cd mat = mat_original;
 
     std::tie(left, diag, right) =
         bidiagonalize_unitary_with_special_orthogonals(
@@ -174,10 +175,12 @@ KAK_data KAK_decomposition_internal(QuantumGateBase* target_gate) {
 KAK_data KAK_decomposition(
     QuantumGateBase* target_gate, std::vector<UINT> target_bits) {
     if (target_bits.size() != 2) {
-        throw InvalidQubitCountException("target_bits is 2 please");
+        throw InvalidQubitCountException("Target qubit count must be 2");
     }
     if (target_bits[0] > target_bits[1]) {
-        throw InvalidQubitCountException("sort please");
+        throw InvalidQubitCountException(
+            "KAK decomposition assumes that the provided qubit indices are "
+            "sorted, but unsorted arguments are given.");
     }
 
     /*
@@ -195,16 +198,18 @@ KAK_data KAK_decomposition(
     auto ans = KAK_decomposition_internal(merged_gate);
     delete merged_gate;
     auto grgate0 = gate::get_adjoint_gate(rand_gate0);
-    auto aaa_gate0 = gate::merge(ans.single_qubit_operations_after[0], grgate0);
+    auto after_gate0 =
+        gate::merge(ans.single_qubit_operations_after[0], grgate0);
     delete ans.single_qubit_operations_after[0];
-    ans.single_qubit_operations_after[0] = aaa_gate0;
+    ans.single_qubit_operations_after[0] = after_gate0;
     delete grgate0;
     delete rand_gate0;
 
     auto grgate1 = gate::get_adjoint_gate(rand_gate1);
-    auto aaa_gate1 = gate::merge(ans.single_qubit_operations_after[1], grgate1);
+    auto after_gate1 =
+        gate::merge(ans.single_qubit_operations_after[1], grgate1);
     delete ans.single_qubit_operations_after[1];
-    ans.single_qubit_operations_after[1] = aaa_gate1;
+    ans.single_qubit_operations_after[1] = after_gate1;
     delete grgate1;
     delete rand_gate1;
 
@@ -341,10 +346,11 @@ void CSD_internal(ComplexMatrix mat, std::vector<UINT> now_control_qubits,
 std::vector<QuantumGateBase*> CSD(QuantumGateBase* target_gate) {
     if (target_gate->get_control_index_list().size() > 0) {
         throw InvalidQubitCountException(
-            "dont target_gate includes control qubit.");
+            "do not include control qubits in target_gate");
     }
     if (target_gate->get_target_index_list().size() < 2) {
-        throw InvalidQubitCountException("CSD qubit size>=2 please.");
+        throw InvalidQubitCountException(
+            "CSD qubit size must be no less than 2");
     }
     std::vector<QuantumGateBase*> ans;
     ComplexMatrix mat;

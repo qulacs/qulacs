@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <Eigen/Eigen>
-#include <cppsim/KAK.hpp>
+#include <cppsim/KAKCSD.hpp>
 #include <cppsim/circuit.hpp>
 #include <cppsim/gate.hpp>
 #include <cppsim/gate_factory.hpp>
@@ -11,7 +11,6 @@
 #include <cppsim/state_dm.hpp>
 #include <cppsim/utility.hpp>
 #include <csim/update_ops.hpp>
-#include <fstream>
 #include <functional>
 
 #include "../util/util.hpp"
