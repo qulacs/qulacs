@@ -23,6 +23,7 @@
 #include <vqcsim/causalcone_simulator.hpp>
 #include <cppsim/noisesimulator.hpp>
 #include <cppsim/utility.hpp>
+#include <cppsim/gate_to_gqo.hpp>
 
 #ifdef _USE_GPU
 #include <cppsim/state_gpu.hpp>
@@ -528,6 +529,8 @@ PYBIND11_MODULE(qulacs_core, m) {
         if (ptr == NULL) throw std::invalid_argument("Invalid argument passed to ParametricPauliRotation.");
         return ptr;
     }, pybind11::return_value_policy::take_ownership, "Create parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"));
+
+    m.def("to_general_quantum_operator",&to_general_quantum_operator,py::arg("gate"),py::arg("qubits"),py::arg("tol"));
 
     py::class_<QuantumCircuit>(m, "QuantumCircuit")
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))

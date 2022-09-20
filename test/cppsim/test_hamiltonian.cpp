@@ -574,10 +574,10 @@ TEST(ObservableTest, ApplyIdentityToState) {
     ASSERT_NEAR(0., state.get_squared_norm(), eps);
 }
 
-TEST(gate_to_gqoTest, Random4bit) {
+TEST(gate_to_general_quantum_operatorTest, Random4bit) {
     QuantumGateBase* random_gate = gate::RandomUnitary({0, 1, 2, 3});
 
-    auto GQO_ret = to_gqo(random_gate, 4);
+    auto GQO_ret = to_general_quantum_operator(random_gate, 4);
     QuantumState stateA(4);
     stateA.set_Haar_random_state();
     QuantumState stateB(4);
@@ -588,10 +588,10 @@ TEST(gate_to_gqoTest, Random4bit) {
     ASSERT_NEAR(inpro, 1.0, 0.001);
 }
 
-TEST(gate_to_gqoTest, Random1bit) {
+TEST(gate_to_general_quantum_operatorTest, Random1bit) {
     QuantumGateBase* random_gate = gate::RandomUnitary({0});
 
-    auto GQO_ret = to_gqo(random_gate, 1);
+    auto GQO_ret = to_general_quantum_operator(random_gate, 1);
     QuantumState stateA(1);
     stateA.set_Haar_random_state();
     QuantumState stateB(1);
@@ -602,10 +602,10 @@ TEST(gate_to_gqoTest, Random1bit) {
 
     ASSERT_NEAR(inpro, 1.0, 0.001);
 }
-TEST(gate_to_gqoTest, XYgate) {
+TEST(gate_to_general_quantum_operatorTest, XYgate) {
     QuantumGateBase* random_gate = gate::merge(gate::X(0), gate::Y(1));
 
-    auto GQO_ret = to_gqo(random_gate, 2);
+    auto GQO_ret = to_general_quantum_operator(random_gate, 2);
     QuantumState stateA(2);
     stateA.set_Haar_random_state();
     QuantumState stateB(2);
