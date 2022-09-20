@@ -514,7 +514,7 @@ public:
         for (UINT i = 0; i < _classical_register.size(); ++i) {
             new_state->set_classical_value(i, _classical_register[i]);
         }
-        
+
         return new_state;
     }
     /**
