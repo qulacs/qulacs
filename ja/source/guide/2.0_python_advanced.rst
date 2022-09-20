@@ -1335,7 +1335,7 @@ create_observable_from_openfermion_text create_split_observable
    # 最適化
    opt = QuantumCircuitOptimizer()
    # 作成を許す最大の量子ゲートのサイズ
-   max_block_size = 1
+   max_block_size = 3
    opt.optimize(circuit, max_block_size)
 
    # depthを計算(depth=1へ)
