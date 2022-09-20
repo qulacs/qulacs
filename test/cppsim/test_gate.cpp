@@ -574,11 +574,11 @@ TEST(GateTest, RandomPauliRotationMerge) {
             // UINT new_pauli_id = new_pauli_ids[gate_index];
             // UINT target = targets[gate_index];
             if (new_pauli_id == 1)
-                new_gate = gate::RotInvX(target, angle);
+                new_gate = gate::RotX(target, -angle);
             else if (new_pauli_id == 2)
-                new_gate = gate::RotInvY(target, angle);
+                new_gate = gate::RotY(target, -angle);
             else if (new_pauli_id == 3)
-                new_gate = gate::RotInvZ(target, angle);
+                new_gate = gate::RotZ(target, -angle);
             else
                 FAIL();
 

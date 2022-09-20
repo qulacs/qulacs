@@ -33,9 +33,9 @@ namespace gate {
  * U1           :   U1 \<index\> \<angle1\>
  * U2           :   U2 \<index\> \<angle1\> \<angle2\>
  * U3           :   U3 \<index\> \<angle1\> \<angle2\> \<angle3\>
- * Rot X        :   RotInvX \<index\> \<angle1\>
- * Rot Y        :   RotInvY \<index\> \<angle1\>
- * Rot Z        :   RotInvZ \<index\> \<angle1\>
+ * RX           :   RX \<index\> \<angle1\>
+ * RY           :   RY \<index\> \<angle1\>
+ * RZ           :   RZ \<index\> \<angle1\>
  * DifRot X     :   RDX \<index\>
  * DifRot Y     :   RDY \<index\>
  * DifRot Z     :   RDZ \<index\>

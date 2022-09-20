@@ -70,7 +70,7 @@ public:
     /**
      * \~japanese-en
      * PauliOperatorを内部で保持するリストの末尾に追加する。
-     * 従来通り、copyを行う
+     * 従来通り、引数として与えられたPauliOperatorのcopyを生成し保持する。
      * @param[in] mpt 追加するPauliOperatorのインスタンス
      */
     virtual void add_operator(const PauliOperator* mpt);
@@ -78,7 +78,7 @@ public:
     /**
      * \~japanese-en
      * PauliOperatorを内部で保持するリストの末尾に追加する。
-     * copyを内部で行わないので、mptのメモリの開放はGeneralQuantumOperatorがやる
+     * 引数で与えられたPauliOperatorの所有権はGeneralQuantumOperator側に譲渡(move)される。
      * @param[in] mpt 追加するPauliOperatorのインスタンス
      */
     virtual void add_operator_move(PauliOperator* mpt);
@@ -86,7 +86,7 @@ public:
     /**
      * \~japanese-en
      * PauliOperatorを内部で保持するリストの末尾に追加する。
-     * copyを内部で行うので、mptのメモリの開放は呼び出し側がやる
+     * 引数で与えられたPauliOperatorはGeneralQuantumOperatorに複製(copy)される。
      * @param[in] mpt 追加するPauliOperatorのインスタンス
      */
     virtual void add_operator_copy(const PauliOperator* mpt);
