@@ -36,7 +36,8 @@ dev = [
     "flake8",
     "openfermion",
     "mypy",
-    "pybind11-stubgen"
+    "pybind11-stubgen",
+    "cmake"
 ]
 
 test = [
@@ -46,7 +47,8 @@ test = [
 ci = [
     "openfermion",
     "mypy",
-    "pybind11-stubgen"
+    "pybind11-stubgen",
+    "cmake"
 ]
 
 [tool.setuptools]
