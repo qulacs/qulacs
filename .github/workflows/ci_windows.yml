@@ -36,6 +36,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
 
+      - name: Setup cmake
+        run: pip install cmake
+        
       - name: Install boost
         uses: MarkusJx/install-boost@v2.0.0
         id: install-boost

@@ -37,6 +37,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
 
+      - name: Setup cmake
+        run: pip install cmake
+        
       - name: Install ccache
         run: sudo apt install ccache
 
