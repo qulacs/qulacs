@@ -531,7 +531,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     }, pybind11::return_value_policy::take_ownership, "Create parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"));
 
     m.def("to_general_quantum_operator",&to_general_quantum_operator,py::arg("gate"),py::arg("qubits"),py::arg("tol"));
-
+    
     py::class_<QuantumCircuit>(m, "QuantumCircuit")
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
         .def("copy", &QuantumCircuit::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
