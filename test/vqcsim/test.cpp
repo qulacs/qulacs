@@ -287,12 +287,10 @@ TEST(GradCalculator, BasicCheck) {
     }
 
     ParametricQuantumCircuit circuit(n);
-    int cnter_parametric_gate = 0;
     for (int depth = 0; depth < 2; ++depth) {
         for (int i = 0; i < n; ++i) {
             circuit.add_parametric_RX_gate(i, 0);
             circuit.add_parametric_RZ_gate(i, 0);
-            cnter_parametric_gate += 2;
         }
 
         for (int i = 0; i + 1 < n; i += 2) {
@@ -303,58 +301,61 @@ TEST(GradCalculator, BasicCheck) {
             circuit.add_CNOT_gate(i, i + 1);
         }
     }
-
-    // Calculate using GradCalculator
-    GradCalculator hoge;
+    UINT parameter_count = circuit.get_parameter_count();
     std::vector<double> theta;
-    for (int i = 0; i < cnter_parametric_gate; ++i) {
+    for (int i = 0; i < parameter_count; ++i) {
         theta.push_back(rnd.uniform() * 5.0);
     }
-    auto GradCalculator_ans_theta_specified =
-        hoge.calculate_grad(circuit, observable, theta);
 
-    for (UINT i = 0; i < cnter_parametric_gate; ++i) {
+    GradCalculator grad_calculator;
+    auto grad_calculator_theta_specified_in_function_call_result =
+        grad_calculator.calculate_grad(circuit, observable, theta);
+
+    for (UINT i = 0; i < parameter_count; ++i) {
         ASSERT_EQ(circuit.get_parameter(i), 0);
         circuit.set_parameter(i, theta[i]);
     }
-    auto GradCalculator_ans_without_theta =
-        hoge.calculate_grad(circuit, observable);
+    auto grad_calculator_theta_in_circuit_result =
+        grad_calculator.calculate_grad(circuit, observable);
 
-    // Calculate using normal Greedy.
-    std::vector<std::complex<double>> Greedy_ans;
+    std::vector<std::complex<double>> naive_method_result(parameter_count);
     {
-        for (int i = 0; i < circuit.get_parameter_count(); ++i) {
-            std::complex<double> y, z;
+        const double delta = 0.001;
+        for (int i = 0; i < parameter_count; ++i) {
+            std::complex<double> plus_delta, minus_delta;
             {
-                for (int q = 0; q < circuit.get_parameter_count(); ++q) {
-                    float diff = 0;
+                for (int q = 0; q < parameter_count; ++q) {
                     if (i == q) {
-                        diff = 0.001;
+                        circuit.set_parameter(q, theta[q] + delta);
+                    } else {
+                        circuit.set_parameter(q, theta[q]);
                     }
-                    circuit.set_parameter(q, theta[q] + diff);
                 }
                 CausalConeSimulator cone(circuit, observable);
-                y = cone.get_expectation_value();
+                plus_delta = cone.get_expectation_value();
             }
             {
-                for (int q = 0; q < circuit.get_parameter_count(); ++q) {
-                    float diff = 0;
+                for (int q = 0; q < parameter_count; ++q) {
                     if (i == q) {
-                        diff = 0.001;
+                        circuit.set_parameter(q, theta[q] - delta);
+                    } else {
+                        circuit.set_parameter(q, theta[q]);
                     }
-                    circuit.set_parameter(q, theta[q] - diff);
                 }
                 CausalConeSimulator cone(circuit, observable);
-                z = cone.get_expectation_value();
+                minus_delta = cone.get_expectation_value();
             }
-            Greedy_ans.push_back((y - z) / 0.002);
+            naive_method_result[i] = (plus_delta - minus_delta) / (2.0 * delta);
         }
     }
-    for (int i = 0; i < GradCalculator_ans_without_theta.size(); ++i) {
-        ASSERT_LT(abs(GradCalculator_ans_theta_specified[i] - Greedy_ans[i]),
-            1e-6);  // Difference should be lower than 1e-7
-        ASSERT_LT(abs(GradCalculator_ans_without_theta[i] - Greedy_ans[i]),
-            1e-6);  // Difference should be lower than 1e-7
+    for (int i = 0; i < parameter_count; ++i) {
+        ASSERT_LT(
+            abs(grad_calculator_theta_specified_in_function_call_result[i] -
+                naive_method_result[i]),
+            1e-6);
+        ASSERT_LT(abs(grad_calculator_theta_in_circuit_result[i] -
+                      naive_method_result[i]),
+            1e-6);
     }
 }
 
