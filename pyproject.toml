@@ -1,5 +1,5 @@
 [build-system]
-requires = ["wheel", "setuptools", "setuptools_scm", "cmake"]
+requires = ["wheel", "setuptools", "setuptools_scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -36,8 +36,7 @@ dev = [
     "flake8",
     "openfermion",
     "mypy",
-    "pybind11-stubgen",
-    "cmake"
+    "pybind11-stubgen"
 ]
 
 test = [
@@ -47,8 +46,7 @@ test = [
 ci = [
     "openfermion",
     "mypy",
-    "pybind11-stubgen",
-    "cmake"
+    "pybind11-stubgen"
 ]
 
 [tool.setuptools]
