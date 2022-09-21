@@ -38,7 +38,7 @@ jobs:
           architecture: x64
 
       - name: Setup cmake
-        run: pip install cmake
+        uses: lukka/get-cmake@latest
         
       - name: Install ccache
         run: sudo apt install ccache
