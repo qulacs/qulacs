@@ -38,7 +38,7 @@ jobs:
           architecture: x64
 
       - name: Setup cmake
-        run: pip install cmake wheel setuptools
+        run: pip install cmake
         
       - name: Install ccache
         run: sudo apt install ccache
@@ -62,7 +62,7 @@ jobs:
         run: USE_TEST=Yes ./script/build_gcc.sh
 
       - name: Install qulacs Python module
-        run: pip install --no-build-isolation .[ci]
+        run: pip install .[ci]
       
       - name: Check stubs
         run: |
