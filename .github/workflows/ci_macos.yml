@@ -58,7 +58,7 @@ jobs:
         run: USE_TEST=Yes ./script/build_gcc.sh
 
       - name: Install qulacs Python module
-        run: pip install .[ci]
+        run: pip install --no-build-isolation .[ci]
 
       - name: Test if stub is working
         run: |
@@ -67,8 +67,9 @@ jobs:
 
       - name: Test in macOS
         run: |
-          cmake --build build --target coverage
-          cmake --build build --target pythontest
+          cd ./build
+          make test -j
+          make pythontest -j
 
       - name: Show cache stats
         run: ccache -s -v

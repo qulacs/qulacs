@@ -62,7 +62,7 @@ jobs:
         run: USE_TEST=Yes ./script/build_gcc.sh
 
       - name: Install qulacs Python module
-        run: pip install .[ci]
+        run: pip install --no-build-isolation .[ci]
       
       - name: Check stubs
         run: |
@@ -79,8 +79,9 @@ jobs:
 
       - name: Test in Ubuntu
         run: |
-          cmake --build build --target coverage
-          cmake --build build --target pythontest
+          cd ./build
+          make coverage
+          make pythontest
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3
