@@ -38,7 +38,7 @@ jobs:
           architecture: x64
 
       - name: Setup cmake
-        run: pip install cmake
+        run: pip install cmake wheel setuptools
         
       - name: Install ccache
         run: sudo apt install ccache
