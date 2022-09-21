@@ -37,7 +37,7 @@ jobs:
           architecture: x64
 
       - name: Setup cmake
-        run: pip install cmake
+        uses: lukka/get-cmake@latest
         
       - name: Install boost
         uses: MarkusJx/install-boost@v2.0.0
