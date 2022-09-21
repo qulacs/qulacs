@@ -67,9 +67,8 @@ jobs:
 
       - name: Test in macOS
         run: |
-          cd ./build
-          make test -j
-          make pythontest -j
+          cmake --build build --target coverage
+          cmake --build build --target pythontest
 
       - name: Show cache stats
         run: ccache -s -v

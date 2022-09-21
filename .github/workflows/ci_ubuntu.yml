@@ -79,9 +79,8 @@ jobs:
 
       - name: Test in Ubuntu
         run: |
-          cd ./build
-          make coverage
-          make pythontest
+          cmake --build build --target coverage
+          cmake --build build --target pythontest
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3
