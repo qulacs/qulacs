@@ -30,14 +30,14 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
+        
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
-
-      - name: Setup cmake
-        uses: lukka/get-cmake@latest
         
       - name: Install ccache
         run: brew install ccache
