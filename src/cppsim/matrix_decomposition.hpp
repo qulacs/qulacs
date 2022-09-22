@@ -1,6 +1,9 @@
 
 #pragma once
-
+/*
+This KAK decomposition implementation is based on cirq implementation.
+https://quantumai.google/reference/python/cirq/kak_decomposition
+*/
 #include <Eigen/Eigen>
 
 #include "gate.hpp"
@@ -54,7 +57,7 @@ so4_to_magic_su2s(Eigen::Matrix4cd mat) {
             }
         }
     }
-    // ab[max_r][max_c] が　絶対値最大
+    // ab[max_r][max_c] is abs max
 
     fa((max_r & 1), (max_c & 1)) = ab(max_r, max_c);
     fa((max_r & 1) ^ 1, (max_c & 1)) = ab(max_r ^ 1, max_c);
@@ -188,6 +191,13 @@ KAK_data KAK_decomposition(
     などにより、正しい値が出ない可能性がありました。
     それを解消するため、分解したい行列に対して、各ビットにランダムユニタリを掛けてからKAK分解し、　その結果にさっきかけたランダムユニタリの逆行列を掛けることで対処しています.
 
+    Since the KAK decomposition above omits the implementation, there is a
+    possibility that the correct value will not come out due to degeneration
+    etc. if it is as it is. In order to solve this problem, we deal with the
+    matrix we want to decompose by multiplying each bit by random unitary, KAK
+    decomposition, and multiplying the result by the inverse matrix of random
+    unitary that we just applied.
+
     */
 
     QuantumGateBase* rand_gate0 = gate::RandomUnitary({target_bits[0]});
@@ -291,9 +301,8 @@ void CSD_internal(ComplexMatrix mat, std::vector<UINT> now_control_qubits,
     ComplexMatrix V1 = svd.matrixV();
     ComplexMatrix V2 = QR2.householderQ();
 
-    ComplexMatrix R12 = V2.adjoint() * Q12.adjoint() * svd.matrixU();  //右上
-    ComplexMatrix R21 = U2.adjoint() * Q21 * svd.matrixV();            //左下
-
+    ComplexMatrix R12 = V2.adjoint() * Q12.adjoint() * svd.matrixU();
+    ComplexMatrix R21 = U2.adjoint() * Q21 * svd.matrixV();
     for (UINT i = 0; i < hsiz; i++) {
         if ((R12(i, i) * R21(i, i)).real() > 0) {
             R12(i, i) *= -1;
@@ -309,12 +318,12 @@ void CSD_internal(ComplexMatrix mat, std::vector<UINT> now_control_qubits,
         CSD_gate_list);
     CSD_internal(V2.adjoint() * V1, added_control_qubits, all_control_qubits,
         ban - 1, CSD_gate_list);
-    //ここにCSのやつが入る
+
     std::vector<double> args(hsiz);
     for (UINT i = 0; i < hsiz; i++) {
         args[i] = asin(R12(i, i).real()) * 2;
     }
-    // argsに関して高速メビウス変換する
+    // Fast Mobius transformation
     for (UINT h = 0; h < ban; h++) {
         for (UINT i = 0; i < hsiz; i++) {
             if (i & (1 << h)) {

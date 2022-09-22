@@ -1,12 +1,12 @@
 #include <gtest/gtest.h>
 
 #include <Eigen/Eigen>
-#include <cppsim/KAKCSD.hpp>
 #include <cppsim/circuit.hpp>
 #include <cppsim/gate.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_matrix.hpp>
 #include <cppsim/gate_merge.hpp>
+#include <cppsim/matrix_decomposition.hpp>
 #include <cppsim/pauli_operator.hpp>
 #include <cppsim/state_dm.hpp>
 #include <cppsim/utility.hpp>
@@ -103,7 +103,6 @@ TEST(KAKTest, CXgate) {
 }
 
 TEST(CSDTest, random4bit) {
-    // QuantumGateBase* random_gate = gate::DenseMatrix({0, 1}, CXmat);
     QuantumGateBase* random_gate = gate::RandomUnitary({0, 1, 2, 3});
 
     auto CSD_ret = CSD(random_gate);
@@ -124,7 +123,6 @@ TEST(CSDTest, random4bit) {
 }
 
 TEST(CSDTest, empty3gate) {
-    // QuantumGateBase* random_gate = gate::DenseMatrix({0, 1}, CXmat);
     QuantumGateBase* random_gate =
         gate::merge(gate::merge(gate::Identity({0}), gate::Identity({1})),
             gate::Identity({2}));
@@ -132,7 +130,6 @@ TEST(CSDTest, empty3gate) {
 
     QuantumCircuit circuit(4);
     for (auto it : CSD_ret) {
-        // std::cerr << (*it) << std::endl;
         circuit.add_gate(it);
     }
     QuantumState stateA(4);
