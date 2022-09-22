@@ -104,9 +104,9 @@ TEST(GateTest, ApplySingleQubitRotationGate) {
     std::vector<std::pair<std::function<QuantumGateBase*(UINT, double)>,
         Eigen::MatrixXcd>>
         funclist;
-    funclist.push_back(std::make_pair(gate::RX, X));
-    funclist.push_back(std::make_pair(gate::RY, Y));
-    funclist.push_back(std::make_pair(gate::RZ, Z));
+    funclist.push_back(std::make_pair(gate::RotInvX, X));
+    funclist.push_back(std::make_pair(gate::RotInvY, Y));
+    funclist.push_back(std::make_pair(gate::RotInvZ, Z));
 
     Eigen::VectorXcd test_state1 = Eigen::VectorXcd::Zero(dim);
     Eigen::VectorXcd test_state2 = Eigen::VectorXcd::Zero(dim);
@@ -574,11 +574,11 @@ TEST(GateTest, RandomPauliRotationMerge) {
             // UINT new_pauli_id = new_pauli_ids[gate_index];
             // UINT target = targets[gate_index];
             if (new_pauli_id == 1)
-                new_gate = gate::RX(target, angle);
+                new_gate = gate::RotX(target, -angle);
             else if (new_pauli_id == 2)
-                new_gate = gate::RY(target, angle);
+                new_gate = gate::RotY(target, -angle);
             else if (new_pauli_id == 3)
-                new_gate = gate::RZ(target, angle);
+                new_gate = gate::RotZ(target, -angle);
             else
                 FAIL();
 

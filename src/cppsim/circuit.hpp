@@ -367,6 +367,66 @@ public:
     virtual void add_RZ_gate(UINT target_index, double angle);
 
     /**
+     * \~japanese-en X-rotation gateを追加する。
+     *
+     * ゲートの表記は \f$ R_X(\theta) = \exp(i\theta X) \f$になっている。
+     * 一般的な表記に対して逆向き,qulacsのRXと同じ向きである。
+     * @param[in] target_index 作用するtarget qubitの添え字
+     * @param[in] angle 回転角\f$\theta\f$
+     */
+    virtual void add_RotInvX_gate(UINT target_index, double angle);
+
+    /**
+     * \~japanese-en Y-rotation gateを追加する。
+     *
+     * ゲートの表記は \f$ R_Y(\theta) = \exp(i\theta Y) \f$になっている。
+     * 一般的な表記に対して逆向き,qulacsのRYと同じ向きである。
+     * @param[in] target_index 作用するtarget qubitの添え字
+     * @param[in] angle 回転角\f$\theta\f$
+     */
+    virtual void add_RotInvY_gate(UINT target_index, double angle);
+
+    /**
+     * \~japanese-en Z-rotation gateを追加する。
+     *
+     * ゲートの表記は \f$ R_Z(\theta) = \exp(i\theta Z) \f$になっている。
+     * 一般的な表記に対して逆向き,qulacsのRZと同じ向きである。
+     * @param[in] target_index 作用するtarget qubitの添え字
+     * @param[in] angle 回転角\f$\theta\f$
+     */
+    virtual void add_RotInvZ_gate(UINT target_index, double angle);
+
+    /**
+     * \~japanese-en X-rotation gateを追加する。
+     *
+     * ゲートの表記は \f$ R_X(\theta) = \exp(-i\theta X) \f$になっている。
+     * 一般的な表記と同じ向き,qulacsのRXに対して逆向きである。
+     * @param[in] target_index 作用するtarget qubitの添え字
+     * @param[in] angle 回転角\f$\theta\f$
+     */
+    virtual void add_RotX_gate(UINT target_index, double angle);
+
+    /**
+     * \~japanese-en Y-rotation gateを追加する。
+     *
+     * ゲートの表記は \f$ R_Y(\theta) = \exp(-i\theta Y) \f$になっている。
+     * 一般的な表記と同じ向き,qulacsのRYに対して逆向きである。
+     * @param[in] target_index 作用するtarget qubitの添え字
+     * @param[in] angle 回転角\f$\theta\f$
+     */
+    virtual void add_RotY_gate(UINT target_index, double angle);
+
+    /**
+     * \~japanese-en Z-rotation gateを追加する。
+     *
+     * ゲートの表記は \f$ R_Z(\theta) = \exp(-i\theta Z) \f$になっている。
+     * 一般的な表記と同じ向き,qulacsのRZに対して逆向きである。
+     * @param[in] target_index 作用するtarget qubitの添え字
+     * @param[in] angle 回転角\f$\theta\f$
+     */
+    virtual void add_RotZ_gate(UINT target_index, double angle);
+
+    /**
      * \~japanese-en OpenQASMのu1 gateを追加する。
      *
      * ゲートの表記はIBMQのページを参照。

@@ -99,9 +99,9 @@ TEST(DensityMatrixGateTest, ApplySingleQubitRotationGate) {
     std::vector<std::pair<std::function<QuantumGateBase*(UINT, double)>,
         Eigen::MatrixXcd>>
         funclist;
-    funclist.push_back(std::make_pair(gate::RX, X));
-    funclist.push_back(std::make_pair(gate::RY, Y));
-    funclist.push_back(std::make_pair(gate::RZ, Z));
+    funclist.push_back(std::make_pair(gate::RotInvX, X));
+    funclist.push_back(std::make_pair(gate::RotInvY, Y));
+    funclist.push_back(std::make_pair(gate::RotInvZ, Z));
 
     for (UINT repeat = 0; repeat < 10; ++repeat) {
         for (auto func_mat : funclist) {
@@ -452,11 +452,11 @@ TEST(DensityMatrixGateTest, RandomPauliRotationMerge) {
             UINT target = random.int32() % n;
             double angle = random.uniform() * 3.14159;
             if (new_pauli_id == 1)
-                new_gate = gate::RX(target, angle);
+                new_gate = gate::RotInvX(target, angle);
             else if (new_pauli_id == 2)
-                new_gate = gate::RY(target, angle);
+                new_gate = gate::RotInvY(target, angle);
             else if (new_pauli_id == 3)
-                new_gate = gate::RZ(target, angle);
+                new_gate = gate::RotInvZ(target, angle);
             else
                 FAIL();
 

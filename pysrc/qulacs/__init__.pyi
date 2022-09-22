@@ -97,6 +97,14 @@ class GeneralQuantumOperator():
         """
     @typing.overload
     def add_operator(self, pauli_operator: PauliOperator) -> None: ...
+    def add_operator_copy(self, pauli_operator: PauliOperator) -> None: 
+        """
+        Add Pauli operator
+        """
+    def add_operator_move(self, pauli_operator: PauliOperator) -> None: 
+        """
+        Add Pauli operator
+        """
     def apply_to_state(self, work_state: QuantumStateBase, state_to_be_multiplied: QuantumStateBase, dst_state: QuantumStateBase) -> None: 
         """
         Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.
@@ -175,6 +183,14 @@ class Observable(GeneralQuantumOperator):
         """
     @typing.overload
     def add_operator(self, pauli_operator: PauliOperator) -> None: ...
+    def add_operator_copy(self, pauli_operator: PauliOperator) -> None: 
+        """
+        Add Pauli operator
+        """
+    def add_operator_move(self, pauli_operator: PauliOperator) -> None: 
+        """
+        Add Pauli operator
+        """
     @typing.overload
     def add_random_operator(self, operator_count: int) -> None: 
         """
@@ -262,6 +278,30 @@ class QuantumCircuit():
         Add Pauli-Y rotation gate
         """
     def add_RZ_gate(self, index: int, angle: float) -> None: 
+        """
+        Add Pauli-Z rotation gate
+        """
+    def add_RotInvX_gate(self, index: int, angle: float) -> None: 
+        """
+        Add Pauli-X rotation gate
+        """
+    def add_RotInvY_gate(self, index: int, angle: float) -> None: 
+        """
+        Add Pauli-Y rotation gate
+        """
+    def add_RotInvZ_gate(self, index: int, angle: float) -> None: 
+        """
+        Add Pauli-Z rotation gate
+        """
+    def add_RotX_gate(self, index: int, angle: float) -> None: 
+        """
+        Add Pauli-X rotation gate
+        """
+    def add_RotY_gate(self, index: int, angle: float) -> None: 
+        """
+        Add Pauli-Y rotation gate
+        """
+    def add_RotZ_gate(self, index: int, angle: float) -> None: 
         """
         Add Pauli-Z rotation gate
         """

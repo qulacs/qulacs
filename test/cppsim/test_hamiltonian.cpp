@@ -431,8 +431,8 @@ void add_identity(Observable* observable, Random random) {
         qil.push_back(i);
         qpl.push_back(0);
     }
-    auto op = PauliOperator(qil, qpl, random.uniform());
-    observable->add_operator(&op);
+    auto op = new PauliOperator(qil, qpl, random.uniform());
+    observable->add_operator_move(op);
 }
 
 // Test observable with identity pauli operator because calculation was unstable
