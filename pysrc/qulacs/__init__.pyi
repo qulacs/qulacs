@@ -26,7 +26,8 @@ __all__ = [
     "gate",
     "observable",
     "quantum_operator",
-    "state"
+    "state",
+    "to_general_quantum_operator"
 ]
 
 
@@ -939,3 +940,5 @@ def StateVector(arg0: int) -> QuantumState:
     """
     StateVector
     """
+def to_general_quantum_operator(gate: QuantumGateBase, qubits: int, tol: float) -> GeneralQuantumOperator:
+    pass
