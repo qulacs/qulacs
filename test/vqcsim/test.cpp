@@ -101,8 +101,8 @@ TEST(ParametricCircuit, ParametricGatePosition) {
     circuit.add_parametric_gate_copy(prz0);
     delete prz0;
     auto cz01 = gate::CNOT(0, 1);
-    delete cz01;
     circuit.add_gate_copy(cz01);
+    delete cz01;
     circuit.add_parametric_RY_gate(1, 0.);
     circuit.add_parametric_gate(gate::ParametricRY(2), 2);
     circuit.add_gate_copy(gate::X(0), 2);
@@ -111,6 +111,7 @@ TEST(ParametricCircuit, ParametricGatePosition) {
     circuit.remove_gate(5);
     auto ppr1 = gate::ParametricPauliRotation({1}, {0}, 0.);
     circuit.add_parametric_gate_copy(ppr1, 6);
+    delete ppr1;
 
     ASSERT_EQ(circuit.get_parameter_count(), 5);
     ASSERT_EQ(circuit.get_parametric_gate_position(0), 1);
