@@ -62,6 +62,20 @@ If you want to run your codes with GPU, include ``cppsim/state_gpu.hpp`` and use
    nvcc -O2 -I ./<qulacs_path>/include -L ./<qulacs_path>/lib <your_code>.cu -lvqcsim_static -lcppsim_static -lcsim_static -lgpusim_static -D _USE_GPU -lcublas -Xcompiler -fopenmp
 
 
+MSVC
+^^^^
+
+Your C++ codes can be built with Qulacs with the following process:
+
+#. Create an empty project.
+#. Select ``x64`` as an active solution platform.
+#. Right Click your project name in Solution Explorer, and select ``Properties``.
+#. At ``VC++ Directories`` section, add the full path to ``./qulacs/include`` to ``Include Directories``
+#. At ``VC++ Directories`` section, add the full path to ``./qulacs/lib`` to ``Library Directories``
+#. At ``C/C++`` -> ``Code Generation`` section, change ``Runtime library`` to ``Multi-threaded (/MT)``.
+#. At ``Linker`` -> ``Input`` section, add ``vqcsim_static.lib;cppsim_static.lib;csim_static.lib;`` to ``Additional Dependencies``.
+
+
 Python Libraries
 ~~~~~~~~~~~~~~~~
 
