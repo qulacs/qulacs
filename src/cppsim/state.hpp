@@ -248,7 +248,7 @@ public:
      * \~japanese-en 指定した添え字の古典レジスタの値を取得する。
      *
      * @param index セットするレジスタの添え字
-     * @return 複素ベクトルのポインタ
+     * @return 古典レジスタの値
      */
     virtual UINT get_classical_value(UINT index) {
         if (_classical_register.size() <= index) {
@@ -262,7 +262,6 @@ public:
      *
      * @param index セットするレジスタの添え字
      * @param val セットする値
-     * @return 複素ベクトルのポインタ
      */
     virtual void set_classical_value(UINT index, UINT val) {
         if (_classical_register.size() <= index) {
