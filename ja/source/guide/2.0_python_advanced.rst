@@ -1130,9 +1130,19 @@ int型のリストを引数として受け取り、bool型を返す関数でな�
    full_str = str(coef) + " " + " ".join(terms_str)
    print(full_str)
 
+   # pauliの係数を変更・取得
+   pauli.change_coef(0.5)
+   coef = pauli.get_coef()
+
+   # pauliの文字列表現を取得
+   pauli_strings = pauli.get_pauli_string()
+
+   print(coef, pauli_strings)
+
 ::
 
    (0.1+0j) X0 Y1 Z3 Y3
+   (0.5+0j) X 0 Y 1 Z 3 Y 3
 
 パウリ演算子の期待値
 ^^^^^^^^^^^^^^^^^^^^
