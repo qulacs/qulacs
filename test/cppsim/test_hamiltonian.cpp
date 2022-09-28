@@ -174,6 +174,8 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText) {
     ASSERT_NEAR(test_res.real(), res.real(), eps);
     ASSERT_NEAR(test_res.imag(), 0, eps);
     ASSERT_NEAR(res.imag(), 0, eps);
+
+    delete observable;
 }
 
 /*
@@ -560,6 +562,8 @@ TEST(ObservableTest, ObservableAndStateHaveDifferentQubitCountTest) {
     ASSERT_NEAR(res.real(), test_res.real(), eps);
     ASSERT_NEAR(0, test_res.imag(), eps);
     ASSERT_NEAR(0, res.imag(), eps);
+
+    delete observable;
 }
 
 TEST(ObservableTest, ApplyIdentityToState) {
