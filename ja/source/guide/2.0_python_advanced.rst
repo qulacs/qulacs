@@ -1126,7 +1126,7 @@ int型のリストを引数として受け取り、bool型を返す関数でな�
 
    s = ["I","X","Y","Z"]
    pauli_str = [s[i] for i in pauli_id_list]
-   terms_str = [item[0]+str(item[1]) for item in zip(pauli_str,index_list)]
+   terms_str = [item[0] + " " + str(item[1]) for item in zip(pauli_str,index_list)]
    full_str = str(coef) + " " + " ".join(terms_str)
    print(full_str)
 
@@ -1141,7 +1141,7 @@ int型のリストを引数として受け取り、bool型を返す関数でな�
 
 ::
 
-   (0.1+0j) X0 Y1 Z3 Y3
+   (0.1+0j) X 0 Y 1 Z 3 Y 3
    (0.5+0j) X 0 Y 1 Z 3 Y 3
 
 パウリ演算子の期待値
