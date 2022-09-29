@@ -5,7 +5,7 @@ Qulacs Documentation
    :description lang=en: qulacs documentation
 
 Qulacs is a fast quantum circuit simulator for simulating large, noisy, or parametric quantum circuits.
-Implemented in C/C++ and with python interface, Qulacs achieved both high speed circuit simulation and high usability.
+Implemented in C/C++ and with Python interface, Qulacs achieved both high speed circuit simulation and high usability.
 
 Qulacs was developed in Prof. `Fujii's group <http://quantphys.org/wp/qinfp/>`_. Maintained and developing new features by `QunaSys <http://www.qunasys.com/>`_.
 
@@ -56,12 +56,12 @@ Qulacs was developed in Prof. `Fujii's group <http://quantphys.org/wp/qinfp/>`_.
 Get Started
 -----------
 ::
-  
+
    pip install qulacs
 
 Detailed instructions about installation in :doc:`intro/1_install`.
 Having trouble starting? see :doc:`intro/2_faq`.
-Basic usage of qulacs in Python and C++: :doc:`intro/3_usage`.
+For basic usage of Qulacs in Python and C++, see :doc:`intro/3_usage`.
 
 .. toctree::
    :maxdepth: 1
@@ -76,14 +76,14 @@ Basic usage of qulacs in Python and C++: :doc:`intro/3_usage`.
 .. toctree::
    :maxdepth: 1
    :caption: Tutorials
-   
+
    intro/4.1_python_tutorial
    intro/4.2_cpp_tutorial
 
 .. toctree::
    :maxdepth: 2
    :caption: User Manual
-   
+
    guide/2.0_python_advanced
 
 .. toctree::
@@ -100,7 +100,7 @@ Basic usage of qulacs in Python and C++: :doc:`intro/3_usage`.
 
    pyRef/modules
    api/cpp_library_root
-   
+
 
 
 .. toctree::
@@ -108,6 +108,3 @@ Basic usage of qulacs in Python and C++: :doc:`intro/3_usage`.
    :caption: Contributing
 
    write/0_readme
-   
-
-
