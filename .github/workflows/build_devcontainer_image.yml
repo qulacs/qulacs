@@ -31,8 +31,8 @@ jobs:
         with:
           imageName: ghcr.io/qulacs/qulacs-devcontainer
           push: always
-          # eventFilterForPush: |
-          #   push
-          #   schedule
+          eventFilterForPush: |
+            push
+            schedule
           runCmd: |
             ':'
