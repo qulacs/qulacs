@@ -30,7 +30,6 @@ jobs:
         uses: devcontainers/ci@v0.2
         with:
           imageName: ghcr.io/qulacs/qulacs-devcontainer
-          push: always
           eventFilterForPush: |
             push
             schedule
