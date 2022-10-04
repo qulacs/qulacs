@@ -34,6 +34,5 @@ jobs:
           # eventFilterForPush: |
           #   push
           #   schedule
-          # Commands to run in a devcontainer to check its behavior.
           runCmd: |
-            ''
+            ':'
