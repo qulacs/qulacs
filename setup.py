@@ -6,31 +6,6 @@ import sys
 from setuptools import Extension, find_packages, setup
 from setuptools.command.build_ext import build_ext
 
-VERSION = "0.5.0"
-PROJECT_NAME = "qulacs"
-
-
-def _get_n_cpus(platform_name: str) -> str:
-    """Get the number of logical CPUs.
-
-    Args:
-        platform_name: Assumed to the return value of `platform.system()`.
-    """
-    command = [""]
-    if platform_name == "Linux":
-        command = ["nproc"]
-    elif platform_name == "Darwin":
-        command = ["sysctl", "-n", "hw.ncpu"]
-
-    try:
-        # Output contains newline character, so strip it.
-        n_cpus = subprocess.check_output(command).strip().decode("utf-8")
-    except PermissionError:
-        # A case that the `command` is not available on the machine.
-        # `subprocess.check_output("")` also throws this error.
-        n_cpus = ""
-    return n_cpus
-
 
 class CMakeExtension(Extension):
     def __init__(self, name, sourcedir=""):
@@ -140,37 +115,16 @@ class CMakeBuild(build_ext):
             cmake_args += ["-DCMAKE_CXX_COMPILER=" + gxx]
             cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]
 
-            n_cpus = _get_n_cpus(platform.system())
+            n_cpus = os.cpu_count()
             build_args += ["--", f"-j{n_cpus}"]
 
         return build_args, cmake_args
 
 
 setup(
-    name=PROJECT_NAME,
-    version=VERSION,
-    author="QunaSys",
-    author_email="qulacs@qunasys.com",
-    url="http://www.qulacs.org",
-    description="Quantum circuit simulator for research",
-    long_description="",
     package_dir={"": "pysrc"},
     packages=find_packages(exclude=["test*"]) + find_packages("pysrc"),
     package_data={"": ["py.typed", "*.pyi"]},
-    include_package_data=True,
     ext_modules=[CMakeExtension("qulacs_core")],
     cmdclass=dict(build_ext=CMakeBuild),
-    zip_safe=False,
-    test_suite="test",
-    classifiers=[
-        "Development Status :: 3 - Alpha",
-        "Environment :: Console",
-        "Intended Audience :: Science/Research",
-        "License :: OSI Approved :: MIT License",
-        "Operating System :: MacOS :: MacOS X",
-        "Operating System :: Microsoft :: Windows",
-        "Operating System :: POSIX",
-        "Programming Language :: Python",
-        "Topic :: Communications :: Email",
-    ],
 )
