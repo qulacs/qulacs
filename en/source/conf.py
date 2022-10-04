@@ -49,15 +49,21 @@ exhale_args = {
     # Suggested optional arguments
     "createTreeView":        True,
     # TIP: if using the sphinx-bootstrap-theme, you need
-    "treeViewIsBootstrap": True,
-     "exhaleExecutesDoxygen": True,
-     "exhaleDoxygenStdin": \
-        "INPUT = ../../qulacs-src \n \
+    # "treeViewIsBootstrap": True,
+    "exhaleExecutesDoxygen": True,
+    "exhaleDoxygenStdin": \
+        "INPUT = ../../qulacs/src/cppsim ../../qulacs/src/vqcsim \n \
+        FILE_PATTERNS          = *.hpp \n \
+        WARN_IF_UNDOCUMENTED   = NO \n \
+        ENABLE_PREPROCESSING   = YES \n \
+        MACRO_EXPANSION        = YES \n \
+        PREDEFINED             += __attribute__(x)= \n \
+        PREDEFINED             += DllExport= \n \
         OUTPUT_LANGUAGE = English \n \
         GENERATE_LEGEND        = YES \n \
         GRAPHICAL_HIERARCHY    = YES \n \
-        CLASS_GRAPH            = YES \n\
-        HIDE_UNDOC_RELATIONS   = YES\n\
+        CLASS_GRAPH            = YES \n \
+        HIDE_UNDOC_RELATIONS   = YES\n \
         CLASS_DIAGRAMS         = YES\n"
 }
 

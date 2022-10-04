@@ -1126,13 +1126,23 @@ int型のリストを引数として受け取り、bool型を返す関数でな�
 
    s = ["I","X","Y","Z"]
    pauli_str = [s[i] for i in pauli_id_list]
-   terms_str = [item[0]+str(item[1]) for item in zip(pauli_str,index_list)]
+   terms_str = [item[0] + " " + str(item[1]) for item in zip(pauli_str,index_list)]
    full_str = str(coef) + " " + " ".join(terms_str)
    print(full_str)
 
+   # pauliの係数を変更・取得
+   pauli.change_coef(0.5)
+   coef = pauli.get_coef()
+
+   # pauliの文字列表現を取得
+   pauli_strings = pauli.get_pauli_string()
+
+   print(coef, pauli_strings)
+
 ::
 
-   (0.1+0j) X0 Y1 Z3 Y3
+   (0.1+0j) X 0 Y 1 Z 3 Y 3
+   (0.5+0j) X 0 Y 1 Z 3 Y 3
 
 パウリ演算子の期待値
 ^^^^^^^^^^^^^^^^^^^^
@@ -1181,7 +1191,7 @@ int型のリストを引数として受け取り、bool型を返す関数でな�
    # pauli演算子を追加できる
    coef = 2.0+0.5j
    Pauli_string = "X 0 X 1 Y 2 Z 4"
-   pauli = Pauli(Pauli_string,coef)
+   pauli = PauliOperator(Pauli_string,coef)
    operator.add_operator(pauli)
    # 直接係数と文字列から追加することもできる
    operator.add_operator(0.5j, "Y 1 Z 4")
@@ -1335,7 +1345,7 @@ create_observable_from_openfermion_text create_split_observable
    # 最適化
    opt = QuantumCircuitOptimizer()
    # 作成を許す最大の量子ゲートのサイズ
-   max_block_size = 1
+   max_block_size = 3
    opt.optimize(circuit, max_block_size)
 
    # depthを計算(depth=1へ)
