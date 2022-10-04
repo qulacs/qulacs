@@ -30,6 +30,7 @@ TEST(NoisyEvolutionTest, simple_check) {
     // HermitianQuantumOperatorのコピーに失敗しエラーになっていたので
     // copy()が成功するかテストする。
     auto gate2 = gate->copy();
+    delete gate;
     circuit.add_gate(gate2);
     QuantumState state(n);
     circuit.update_quantum_state(&state);
@@ -63,8 +64,10 @@ TEST(NoisyEvolutionTest, unitary_evolution) {
 
     QuantumState state(n);
     QuantumState state_ref(n);
-    gate::H(0)->update_quantum_state(&state);
-    gate::H(0)->update_quantum_state(&state_ref);
+    auto h0 = gate::H(0);
+    h0->update_quantum_state(&state);
+    h0->update_quantum_state(&state_ref);
+    delete h0;
     for (int k = 0; k < n_steps; k++) {
         circuit.update_quantum_state(&state);
         circuit_ref.update_quantum_state(&state_ref);
@@ -100,14 +103,16 @@ TEST(NoisyEvolutionTest, error_scaling) {
         target_index_list, pauli_id_list, -time * 2);
 
     double prev_error = 1;
-    auto dt = dt_start;
+    double dt = dt_start;
     QuantumState state(n);
     QuantumState state_ref(n);
     for (int k = 0; k < n_dt; k++) {
         state.set_zero_state();
         state_ref.set_zero_state();
-        gate::H(0)->update_quantum_state(&state);
-        gate::H(0)->update_quantum_state(&state_ref);
+        auto h0 = gate::H(0);
+        h0->update_quantum_state(&state);
+        h0->update_quantum_state(&state_ref);
+        delete h0;
         QuantumCircuit circuit(n);
         auto gate = gate::NoisyEvolution(&hamiltonian, c_ops, time, dt);
         circuit.add_gate(gate);
@@ -144,6 +149,7 @@ TEST(NoisyEvolutionTest, EffectiveHamiltonian) {
         gate::NoisyEvolution(&hamiltonian, c_ops, time, dt));
     ASSERT_EQ(gate->get_effective_hamiltonian()->to_string(),
         "(1,0) Z 0 Z 1 + (0,-1) ");
+    delete gate;
 }
 
 TEST(NoisyEvolutionTest, dephasing) {
@@ -172,8 +178,12 @@ TEST(NoisyEvolutionTest, dephasing) {
 
     QuantumState state(n), init_state(n);
     QuantumCircuit circuit(n);
-    gate::H(0)->update_quantum_state(&init_state);
-    gate::H(1)->update_quantum_state(&init_state);
+    auto h0 = gate::H(0);
+    auto h1 = gate::H(1);
+    h0->update_quantum_state(&init_state);
+    h1->update_quantum_state(&init_state);
+    delete h0;
+    delete h1;
     circuit.add_gate(gate::NoisyEvolution(&hamiltonian, c_ops, time, dt));
     double exp = 0.;
     for (int k = 0; k < n_samples; k++) {
@@ -184,8 +194,9 @@ TEST(NoisyEvolutionTest, dephasing) {
     // intrinsic variance is (<P>_withoutnoise^2-<P>_withnoise^2).
     // take 5-sigma for assertion. Correct code should violate this assertion by
     // probabilty of only 3e-4 %.
-    auto fivesigma = 5 * sqrt(ref_withoutnoise * ref_withoutnoise - ref * ref) /
-                     sqrt(n_samples);
+    double fivesigma = 5 *
+                       sqrt(ref_withoutnoise * ref_withoutnoise - ref * ref) /
+                       sqrt(n_samples);
     ASSERT_NEAR(exp, ref, fivesigma);
 }
 
@@ -225,8 +236,12 @@ TEST(NoisyEvolutionTest, T1T2) {
     double exp = 0.;
     for (int k = 0; k < n_samples; k++) {
         state.set_zero_state();
-        gate::H(0)->update_quantum_state(&state);
-        gate::H(1)->update_quantum_state(&state);
+        auto h0 = gate::H(0);
+        auto h1 = gate::H(1);
+        h0->update_quantum_state(&state);
+        h1->update_quantum_state(&state);
+        delete h0;
+        delete h1;
         circuit.update_quantum_state(&state);
         exp += observable.get_expectation_value(&state).real() / n_samples;
     }
@@ -298,11 +313,16 @@ TEST(NoisyEvolutionTest_fast, T1T2) {
     QuantumState state(n);
     QuantumCircuit circuit(n);
     circuit.add_gate(gate::NoisyEvolution_fast(&hamiltonian, c_ops, time));
+    for (auto c_op : c_ops) delete c_op;
     double exp = 0.;
     for (int k = 0; k < n_samples; k++) {
         state.set_zero_state();
-        gate::H(0)->update_quantum_state(&state);
-        gate::H(1)->update_quantum_state(&state);
+        auto h0 = gate::H(0);
+        auto h1 = gate::H(1);
+        h0->update_quantum_state(&state);
+        h1->update_quantum_state(&state);
+        delete h0;
+        delete h1;
         circuit.update_quantum_state(&state);
         exp += observable.get_expectation_value(&state).real() / n_samples;
     }
@@ -351,20 +371,29 @@ TEST(NoisyEvolutionTest_fast, tekitouu) {
     circuit.add_gate(gate::NoisyEvolution_fast(&hamiltonian, c_ops, time));
     QuantumCircuit circuit_old(n);
     circuit_old.add_gate(gate::NoisyEvolution(&hamiltonian, c_ops, time, 0.1));
+    for (auto c_op : c_ops) delete c_op;
     double exp = 0.;
     double exp_old = 0.;
     for (int k = 0; k < n_samples; k++) {
         state.set_zero_state();
-        gate::H(0)->update_quantum_state(&state);
-        gate::H(1)->update_quantum_state(&state);
+        auto h0 = gate::H(0);
+        auto h1 = gate::H(1);
+        h0->update_quantum_state(&state);
+        h1->update_quantum_state(&state);
+        delete h0;
+        delete h1;
         circuit.update_quantum_state(&state);
         exp += observable.get_expectation_value(&state).real() / n_samples;
     }
 
     for (int k = 0; k < n_samples; k++) {
         state.set_zero_state();
-        gate::H(0)->update_quantum_state(&state);
-        gate::H(1)->update_quantum_state(&state);
+        auto h0 = gate::H(0);
+        auto h1 = gate::H(1);
+        h0->update_quantum_state(&state);
+        h1->update_quantum_state(&state);
+        delete h0;
+        delete h1;
         circuit_old.update_quantum_state(&state);
         exp_old += observable.get_expectation_value(&state).real() / n_samples;
     }
@@ -406,11 +435,16 @@ TEST(NoisyEvolutionTest_fast, TX) {
     QuantumState state(n);
     QuantumCircuit circuit(n);
     circuit.add_gate(gate::NoisyEvolution_fast(&hamiltonian, c_ops, time));
+    for (auto c_op : c_ops) delete c_op;
     double exp = 0.;
     for (int k = 0; k < n_samples; k++) {
         state.set_zero_state();
-        gate::H(0)->update_quantum_state(&state);
-        gate::H(1)->update_quantum_state(&state);
+        auto h0 = gate::H(0);
+        auto h1 = gate::H(1);
+        h0->update_quantum_state(&state);
+        h1->update_quantum_state(&state);
+        delete h0;
+        delete h1;
         circuit.update_quantum_state(&state);
         exp += observable.get_expectation_value(&state).real() / n_samples;
     }
@@ -439,11 +473,16 @@ TEST(NoisyEvolutionTest_fast, almost_empty) {
     QuantumState state(n);
     QuantumCircuit circuit(n);
     circuit.add_gate(gate::NoisyEvolution_fast(&hamiltonian, c_ops, time));
+    for (auto c_op : c_ops) delete c_op;
     double exp = 0.;
     for (int k = 0; k < n_samples; k++) {
         state.set_zero_state();
-        gate::H(0)->update_quantum_state(&state);
-        gate::H(1)->update_quantum_state(&state);
+        auto h0 = gate::H(0);
+        auto h1 = gate::H(1);
+        h0->update_quantum_state(&state);
+        h1->update_quantum_state(&state);
+        delete h0;
+        delete h1;
         circuit.update_quantum_state(&state);
         exp += observable.get_expectation_value(&state).real() / n_samples;
     }
@@ -474,8 +513,12 @@ TEST(NoisyEvolutionTest_fast, empty) {
     double exp = 0.;
     for (int k = 0; k < n_samples; k++) {
         state.set_zero_state();
-        gate::H(0)->update_quantum_state(&state);
-        gate::H(1)->update_quantum_state(&state);
+        auto h0 = gate::H(0);
+        auto h1 = gate::H(1);
+        h0->update_quantum_state(&state);
+        h1->update_quantum_state(&state);
+        delete h0;
+        delete h1;
         circuit.update_quantum_state(&state);
         exp += observable.get_expectation_value(&state).real() / n_samples;
     }

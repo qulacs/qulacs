@@ -363,6 +363,24 @@ void QuantumCircuit::add_RY_gate(UINT target_index, double angle) {
 void QuantumCircuit::add_RZ_gate(UINT target_index, double angle) {
     this->add_gate(gate::RZ(target_index, angle));
 }
+void QuantumCircuit::add_RotInvX_gate(UINT target_index, double angle) {
+    this->add_gate(gate::RotInvX(target_index, angle));
+}
+void QuantumCircuit::add_RotInvY_gate(UINT target_index, double angle) {
+    this->add_gate(gate::RotInvY(target_index, angle));
+}
+void QuantumCircuit::add_RotInvZ_gate(UINT target_index, double angle) {
+    this->add_gate(gate::RotInvZ(target_index, angle));
+}
+void QuantumCircuit::add_RotX_gate(UINT target_index, double angle) {
+    this->add_gate(gate::RotX(target_index, angle));
+}
+void QuantumCircuit::add_RotY_gate(UINT target_index, double angle) {
+    this->add_gate(gate::RotY(target_index, angle));
+}
+void QuantumCircuit::add_RotZ_gate(UINT target_index, double angle) {
+    this->add_gate(gate::RotZ(target_index, angle));
+}
 void QuantumCircuit::add_U1_gate(UINT target_index, double lambda) {
     this->add_gate(gate::U1(target_index, lambda));
 }

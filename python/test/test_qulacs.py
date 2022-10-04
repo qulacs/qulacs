@@ -662,6 +662,25 @@ class TestUtils(unittest.TestCase):
         str_qulacs_op = str_qulacs_op.replace("(1,0) Z 0 Y 3", "")
         self.assertEqual(str_qulacs_op, " +  + ")
 
+    def test_GQO(self):
+        self.n = 4
+        self.dim = 2**self.n
+        stateA = qulacs.QuantumState(self.n)
+        stateB = qulacs.QuantumState(self.n)
+        stateC = qulacs.QuantumState(self.n)
+        stateB.set_Haar_random_state()
+        RanGate = qulacs.gate.RandomUnitary([0, 1, 2, 3])
+        GQO_ret = qulacs.to_general_quantum_operator(RanGate, 4, 0.00001)
+        GQO_ret.apply_to_state(stateA, stateB, stateC)
+        RanGate.update_quantum_state(stateB)
+
+        inpro = qulacs.state.inner_product(stateB, stateC).real
+        self.assertTrue(inpro > 0.99, msg="GQO_test")
+
+
+
+
+
 
 class TestDensityMatrixHandling(unittest.TestCase):
     def setUp(self):

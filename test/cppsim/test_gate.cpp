@@ -84,6 +84,8 @@ TEST(GateTest, ApplySingleQubitGate) {
                 ASSERT_NEAR(abs(state.data_cpp()[i] - test_state1[i]), 0, eps);
             for (ITYPE i = 0; i < dim; ++i)
                 ASSERT_NEAR(abs(state.data_cpp()[i] - test_state2[i]), 0, eps);
+
+            delete gate;
         }
     }
 }
@@ -104,9 +106,9 @@ TEST(GateTest, ApplySingleQubitRotationGate) {
     std::vector<std::pair<std::function<QuantumGateBase*(UINT, double)>,
         Eigen::MatrixXcd>>
         funclist;
-    funclist.push_back(std::make_pair(gate::RX, X));
-    funclist.push_back(std::make_pair(gate::RY, Y));
-    funclist.push_back(std::make_pair(gate::RZ, Z));
+    funclist.push_back(std::make_pair(gate::RotInvX, X));
+    funclist.push_back(std::make_pair(gate::RotInvY, Y));
+    funclist.push_back(std::make_pair(gate::RotInvZ, Z));
 
     Eigen::VectorXcd test_state1 = Eigen::VectorXcd::Zero(dim);
     Eigen::VectorXcd test_state2 = Eigen::VectorXcd::Zero(dim);
@@ -140,6 +142,8 @@ TEST(GateTest, ApplySingleQubitRotationGate) {
                 ASSERT_NEAR(abs(state.data_cpp()[i] - test_state1[i]), 0, eps);
             for (ITYPE i = 0; i < dim; ++i)
                 ASSERT_NEAR(abs(state.data_cpp()[i] - test_state2[i]), 0, eps);
+
+            delete gate;
         }
     }
 }
@@ -194,6 +198,8 @@ TEST(GateTest, ApplyTwoQubitGate) {
             for (ITYPE i = 0; i < dim; ++i)
                 ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]),
                     0, eps);
+
+            delete gate;
         }
     }
 
@@ -233,6 +239,8 @@ TEST(GateTest, ApplyTwoQubitGate) {
             for (ITYPE i = 0; i < dim; ++i)
                 ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]),
                     0, eps);
+
+            delete gate;
         }
     }
 }
@@ -282,6 +290,8 @@ TEST(GateTest, ApplyMultiQubitGate) {
 
         for (ITYPE i = 0; i < dim; ++i)
             ASSERT_NEAR(abs(state.data_cpp()[i] - test_state1[i]), 0, eps);
+
+        delete gate;
     }
 
     for (UINT repeat = 0; repeat < 10; ++repeat) {
@@ -313,6 +323,8 @@ TEST(GateTest, ApplyMultiQubitGate) {
 
         for (ITYPE i = 0; i < dim; ++i)
             ASSERT_NEAR(abs(state.data_cpp()[i] - test_state1[i]), 0, eps);
+
+        delete gate;
     }
 }
 
@@ -574,11 +586,11 @@ TEST(GateTest, RandomPauliRotationMerge) {
             // UINT new_pauli_id = new_pauli_ids[gate_index];
             // UINT target = targets[gate_index];
             if (new_pauli_id == 1)
-                new_gate = gate::RX(target, angle);
+                new_gate = gate::RotX(target, -angle);
             else if (new_pauli_id == 2)
-                new_gate = gate::RY(target, angle);
+                new_gate = gate::RotY(target, -angle);
             else if (new_pauli_id == 3)
-                new_gate = gate::RZ(target, angle);
+                new_gate = gate::RotZ(target, -angle);
             else
                 FAIL();
 
@@ -847,6 +859,10 @@ TEST(GateTest, U3MergeIBMQGate) {
     auto gate1 = gate::U3(0, 0.1, 0.1, 0.1);
     auto gate2 = gate::U3(0, 0.1, 0.1, 0.1);
     auto gate3 = gate::merge(gate1, gate2);
+
+    delete gate1;
+    delete gate2;
+    delete gate3;
 }
 
 TEST(GateTest, ControlMerge) {
@@ -893,6 +909,10 @@ TEST(GateTest, ControlMerge) {
                 ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps)
                     << res << "\n\n"
                     << mat_res << std::endl;
+
+        delete x0;
+        delete cx01;
+        delete res;
     }
 
     {
@@ -914,6 +934,10 @@ TEST(GateTest, ControlMerge) {
                 ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps)
                     << res << "\n\n"
                     << mat_res << std::endl;
+
+        delete x1;
+        delete cx01;
+        delete res;
     }
 
     {
@@ -935,6 +959,10 @@ TEST(GateTest, ControlMerge) {
                 ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps)
                     << res << "\n\n"
                     << mat_res << std::endl;
+
+        delete x1;
+        delete cx01;
+        delete res;
     }
 
     {
@@ -954,6 +982,10 @@ TEST(GateTest, ControlMerge) {
                 ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps)
                     << res << "\n\n"
                     << mat_res << std::endl;
+
+        delete cz01;
+        delete cx01;
+        delete res;
     }
 
     {
@@ -972,6 +1004,10 @@ TEST(GateTest, ControlMerge) {
                 ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps)
                     << res << "\n\n"
                     << mat_res << std::endl;
+
+        delete cz10;
+        delete cx01;
+        delete res;
     }
 
     n = 3;
@@ -995,6 +1031,10 @@ TEST(GateTest, ControlMerge) {
                 ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps)
                     << res << "\n\n"
                     << mat_res << std::endl;
+
+        delete x2;
+        delete cx01;
+        delete res;
     }
 
     {
@@ -1016,6 +1056,10 @@ TEST(GateTest, ControlMerge) {
                 ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps)
                     << res << "\n\n"
                     << mat_res << std::endl;
+
+        delete x2;
+        delete cx01;
+        delete res;
     }
 }
 
@@ -1038,19 +1082,22 @@ TEST(GateTest, RandomControlMergeSmall) {
         for (ITYPE i = 0; i < dim; ++i)
             test_state_eigen[i] = state.data_cpp()[i];
         auto merge_gate1 = gate::Identity(0);
-        auto merge_gate2 = gate::Identity(0);
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
             std::random_shuffle(arr.begin(), arr.end());
             UINT target = arr[0];
             UINT control = arr[1];
             auto new_gate = gate::CNOT(control, target);
-            merge_gate1 = gate::merge(merge_gate1, new_gate);
+            auto next_merge_gate1 = gate::merge(merge_gate1, new_gate);
+            delete merge_gate1;
+            merge_gate1 = next_merge_gate1;
 
             new_gate->update_quantum_state(&test_state);
 
             auto cmat = get_eigen_matrix_full_qubit_CNOT(control, target, n);
             mat = cmat * mat;
+
+            delete new_gate;
         }
         merge_gate1->update_quantum_state(&state);
         test_state_eigen = mat * test_state_eigen;
@@ -1062,6 +1109,8 @@ TEST(GateTest, RandomControlMergeSmall) {
             ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps)
                 << state << "\n\n"
                 << test_state_eigen << "\n";
+
+        delete merge_gate1;
     }
 }
 
@@ -1091,10 +1140,14 @@ TEST(GateTest, RandomControlMergeLarge) {
             UINT target = arr[0];
             UINT control = arr[1];
             auto new_gate = gate::CNOT(control, target);
-            merge_gate1 = gate::merge(merge_gate1, new_gate);
+            auto next_merge_gate1 = gate::merge(merge_gate1, new_gate);
+            delete merge_gate1;
+            merge_gate1 = next_merge_gate1;
 
             auto cmat = get_eigen_matrix_full_qubit_CNOT(control, target, n);
             mat = cmat * mat;
+
+            delete new_gate;
         }
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
@@ -1102,10 +1155,14 @@ TEST(GateTest, RandomControlMergeLarge) {
             UINT target = arr[0];
             UINT control = arr[1];
             auto new_gate = gate::CNOT(control, target);
-            merge_gate2 = gate::merge(merge_gate2, new_gate);
+            auto next_merge_gate2 = gate::merge(merge_gate2, new_gate);
+            delete merge_gate2;
+            merge_gate2 = next_merge_gate2;
 
             auto cmat = get_eigen_matrix_full_qubit_CNOT(control, target, n);
             mat = cmat * mat;
+
+            delete new_gate;
         }
 
         auto merge_gate = gate::merge(merge_gate1, merge_gate2);
@@ -1121,6 +1178,10 @@ TEST(GateTest, RandomControlMergeLarge) {
             ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps)
                 << state << "\n\n"
                 << test_state_eigen << "\n";
+
+        delete merge_gate1;
+        delete merge_gate2;
+        delete merge_gate;
     }
 }
 
@@ -1146,6 +1207,10 @@ TEST(GateTest, CPTPGate) {
     auto gate4 = gate::merge(gate::P1(0), gate::P1(1));
 
     auto CPTP = gate::CPTP({gate3, gate2, gate1, gate4});
+    delete gate1;
+    delete gate2;
+    delete gate3;
+    delete gate4;
     QuantumState s(3);
     s.set_computational_basis(0);
     CPTP->update_quantum_state(&s);
@@ -1161,6 +1226,10 @@ TEST(GateTest, InstrumentGate) {
     auto gate4 = gate::merge(gate::P1(0), gate::P1(1));
 
     auto Inst = gate::Instrument({gate3, gate2, gate1, gate4}, 1);
+    delete gate1;
+    delete gate2;
+    delete gate3;
+    delete gate4;
     QuantumState s(3);
     s.set_computational_basis(0);
     Inst->update_quantum_state(&s);
@@ -1176,6 +1245,7 @@ TEST(GateTest, AdaptiveGateWithoutID) {
     auto x = gate::X(0);
     auto adaptive = gate::Adaptive(
         x, [](const std::vector<UINT>& vec) { return vec[2] == 1; });
+    delete x;
     QuantumState s(1);
     s.set_computational_basis(0);
     s.set_classical_value(2, 1);
@@ -1192,6 +1262,7 @@ TEST(GateTest, AdaptiveGateWithID) {
     auto adaptive = gate::Adaptive(
         x, [](const std::vector<UINT>& vec, UINT id) { return vec[id] == 1; },
         2);
+    delete x;
     QuantumState s(1);
     s.set_computational_basis(0);
     s.set_classical_value(2, 1);
@@ -1213,10 +1284,31 @@ TEST(GateTest, GateAdd) {
     auto a2 = gate::add(g1, g3);
     auto a3 = gate::add(g1, g4);
     auto a4 = gate::add(g3, g4);
-    auto a5 = gate::add(gate::P0(0), gate::P1(0));
-    auto a6 = gate::add(gate::merge(gate::P0(0), gate::P0(1)),
-        gate::merge(gate::P1(0), gate::P1(1)));
+    auto p00 = gate::P0(0);
+    auto p01 = gate::P0(1);
+    auto p10 = gate::P1(0);
+    auto p11 = gate::P1(1);
+    auto a5 = gate::add(p00, p10);
+    auto p0_merge = gate::merge(p00, p01);
+    auto p1_merge = gate::merge(p10, p11);
+    auto a6 = gate::add(p0_merge, p1_merge);
     // TODO assert matrix element
+    delete g1;
+    delete g2;
+    delete g3;
+    delete g4;
+    delete a1;
+    delete a2;
+    delete a3;
+    delete a4;
+    delete p00;
+    delete p01;
+    delete p10;
+    delete p11;
+    delete a5;
+    delete p0_merge;
+    delete p1_merge;
+    delete a6;
 }
 
 TEST(GateTest, RandomUnitaryGate) {
@@ -1239,6 +1331,8 @@ TEST(GateTest, RandomUnitaryGate) {
                 }
             }
         }
+
+        delete gate;
     }
 }
 
@@ -1283,6 +1377,8 @@ TEST(GateTest, ReversibleBooleanGate) {
     gate->update_quantum_state(&state);
     std::cout << state.to_string() << std::endl;
     */
+
+    delete gate;
 }
 
 TEST(GateTest, TestNoise) {
@@ -1434,4 +1530,6 @@ TEST(GateTest, GetControlList) {
     std::vector<std::pair<unsigned int, unsigned int>> true_ivl = {
         {1, 0}, {2, 1}, {3, 0}};
     EXPECT_EQ(index_value_list, true_ivl);
+
+    delete gateA;
 }

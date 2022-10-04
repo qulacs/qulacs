@@ -33,9 +33,9 @@ namespace gate {
  * U1           :   U1 \<index\> \<angle1\>
  * U2           :   U2 \<index\> \<angle1\> \<angle2\>
  * U3           :   U3 \<index\> \<angle1\> \<angle2\> \<angle3\>
- * Rot X        :   RX \<index\> \<angle1\>
- * Rot Y        :   RY \<index\> \<angle1\>
- * Rot Z        :   RZ \<index\> \<angle1\>
+ * RX           :   RX \<index\> \<angle1\>
+ * RY           :   RY \<index\> \<angle1\>
+ * RZ           :   RZ \<index\> \<angle1\>
  * DifRot X     :   RDX \<index\>
  * DifRot Y     :   RDY \<index\>
  * DifRot Z     :   RDZ \<index\>
@@ -233,6 +233,12 @@ DllExport QuantumGateBase* RY(UINT qubit_index, double angle);
  */
 DllExport QuantumGateBase* RZ(UINT qubit_index, double angle);
 
+DllExport QuantumGateBase* RotInvX(UINT qubit_index, double angle);
+DllExport QuantumGateBase* RotInvY(UINT qubit_index, double angle);
+DllExport QuantumGateBase* RotInvZ(UINT qubit_index, double angle);
+DllExport QuantumGateBase* RotX(UINT qubit_index, double angle);
+DllExport QuantumGateBase* RotY(UINT qubit_index, double angle);
+DllExport QuantumGateBase* RotZ(UINT qubit_index, double angle);
 /**
  * \~japanese-en CNOTゲートを作成する
  *
