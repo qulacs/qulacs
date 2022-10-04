@@ -456,14 +456,11 @@ class QuantumCircuit():
 class PauliOperator():
     def __IMUL__(self, arg0: complex) -> PauliOperator: ...
     def __imul__(self, arg0: PauliOperator) -> PauliOperator: ...
-    @staticmethod
     @typing.overload
-    def __init__(*args, **kwargs) -> typing.Any: 
+    def __init__(self, coef: complex) -> None: 
         """
         Constructor
         """
-    @typing.overload
-    def __init__(self, coef: complex) -> None: ...
     @typing.overload
     def __init__(self, pauli_string: str, coef: complex) -> None: ...
     @typing.overload
@@ -509,16 +506,6 @@ class PauliOperator():
     def get_transition_amplitude(self, state_bra: QuantumStateBase, state_ket: QuantumStateBase) -> complex: 
         """
         Get transition amplitude
-        """
-    @staticmethod
-    def get_x_bits(*args, **kwargs) -> typing.Any: 
-        """
-        get x bits
-        """
-    @staticmethod
-    def get_z_bits(*args, **kwargs) -> typing.Any: 
-        """
-        get z bits
         """
     pass
 class ParametricQuantumCircuit(QuantumCircuit):
