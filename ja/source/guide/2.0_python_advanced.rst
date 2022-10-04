@@ -40,6 +40,7 @@ complex128の精度で :math:`2^n`
 
 また、get_vectorおよびload関数で量子状態とnumpy
 arrayの相互変換が可能です。ノルムが保存しているかなどは原則チェックされません。
+get_vectorはすべての要素を配列で返しますが、get_amplitudeを用いると単一の要素を高速に取得できます。
 
 .. code:: python
 
@@ -50,11 +51,13 @@ arrayの相互変換が可能です。ノルムが保存しているかなどは
    print(vec)
    state.load([0,1,2,3])
    print(state.get_vector())
+   print(state.get_amplitude(2))
 
 ::
 
    [1.+0.j 0.+0.j 0.+0.j 0.+0.j]
    [0.+0.j 1.+0.j 2.+0.j 3.+0.j]
+   (2+0j)
 
 量子状態間のコピー
 ~~~~~~~~~~~~~~~~~~
@@ -146,6 +149,11 @@ arrayの相互変換が可能です。ノルムが保存しているかなどは
    samples = state.sampling(10)
    print("sampling", samples)
 
+   # 第2引数にseedを与えられる。
+   # 同じseedを指定すると常に同じサンプリング結果が返される。
+   samples_with_seed = state.sampling(10, 314)
+   print("sampling (with seed)", samples_with_seed)
+
    # 状態ベクトルがCPU/GPUのどちらにあるかを文字列で取得する
    dev_type = state.get_device_name()
    print("device", dev_type)
@@ -153,11 +161,12 @@ arrayの相互変換が可能です。ノルムが保存しているかなどは
 ::
 
    qubit_count 5
-   zero_prob_1 0.5151171741097239
-   marginal_prob 0.40401228349316776
-   entropy 3.0788233113265715
+   zero_prob_1 0.46010755964245975
+   marginal_prob 0.20030608663813237
+   entropy 3.108273642412474
    sqaured_norm 1.0
-   sampling [23, 9, 8, 4, 25, 7, 7, 24, 20, 27]
+   sampling [6, 22, 18, 7, 9, 6, 28, 28, 12, 17]
+   sampling (with seed) [23, 18, 28, 14, 17, 30, 9, 17, 16, 10]
    device cpu
 
 量子状態の変形
@@ -188,6 +197,15 @@ arrayの相互変換が可能です。ノルムが保存しているかなどは
    state.multiply_coef(coef)
    print("mul_coef", state.get_vector())
 
+   # 量子状態と、インデックスによって定められる複素数の積
+   # |00>方向にcoef_func(0),|01>方向にcoef_func(1),...を掛けます。
+   # 操作後のノルムは一般に1ではありません。
+   def coef_func(i: int) -> complex:
+       assert 0 <= i < 2**2
+       return 1j**i
+   state.multiply_elementwise_function(coef_func)
+   print("mul_elementwise_func", state.get_vector())
+
    # 量子状態の正規化
    # 引数として現在のsquared normを与える必要があります。
    squared_norm = state.get_squared_norm()
@@ -202,9 +220,10 @@ arrayの相互変換が可能です。ノルムが保存しているかなどは
    buffer [0.+0.j 0.+0.j 1.+0.j 0.+0.j]
    added [1.+0.j 0.+0.j 1.+0.j 0.+0.j]
    mul_coef [0.5+0.1j 0. +0.j  0.5+0.1j 0. +0.j ]
+   mul_elementwise_func [ 0.5+0.1j  0. +0.j  -0.5-0.1j  0. -0.j ]
    sq_norm 0.52
-   normalized [0.69337525+0.13867505j 0.        +0.j         0.69337525+0.13867505j
-    0.        +0.j        ]
+   normalized [ 0.69337525+0.13867505j  0.        +0.j         -0.69337525-0.13867505j
+     0.        -0.j        ]
    sq_norm 0.9999999999999998
 
 古典レジスタの操作
