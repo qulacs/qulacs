@@ -223,6 +223,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             }
             return mat;
         }, "Get density matrix")
+        .def("get_qubit_count", [](const DensityMatrix& state) -> unsigned int {return (unsigned int) state.qubit_count; }, "Get qubit count")
         .def("__repr__", [](const DensityMatrix &p) {return p.to_string(); });
         ;
 
