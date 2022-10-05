@@ -394,7 +394,7 @@ Identityは量子状態を更新しませんが、量子回路に入れると1st
     [[0.99875026+0.j         0.        +0.04997917j]
     [0.        +0.04997917j 0.99875026+0.j        ]]
 
-回転操作の定義は :math:`R_X(\theta) = \exp(irac{\theta}{2} X)` です。
+回転操作の定義は :math:`R_X(\theta) = \exp(i\frac{\theta}{2} X)` です。
 
 IBMQの基底ゲート
 ^^^^^^^^^^^^^^^^
@@ -425,7 +425,7 @@ IBMQのOpenQASMで定義されている、virtual-Z分解に基づくゲート�
 定義はそれぞれ
 
 -  :math:`U_1(\lambda) = R_Z(\lambda)`
--  :math:`U_2(\phi, \lambda) = R_Z(\phi+rac{\pi}{2}) R_X(rac{\pi}{2}) R_Z(\lambda-rac{\pi}{2})`
+-  :math:`U_2(\phi, \lambda) = R_Z(\phi+\frac{\pi}{2}) R_X(\frac{\pi}{2}) R_Z(\lambda-\frac{\pi}{2})`
 -  :math:`U_3(\theta, \phi, \lambda) = R_Z(\phi+3\pi) R_X(\pi/2) R_Z(\theta+\pi) R_X(\pi/2) R_Z(\lambda)`
 
 になります。U3は任意の1qubitユニタリ操作の自由度と一致します。
