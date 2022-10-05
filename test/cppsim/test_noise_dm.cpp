@@ -30,10 +30,14 @@ TEST(DensityMatrixGeneralGateTest, ProbabilisticGate) {
 }
 
 TEST(DensityMatrixGeneralGateTest, CPTPGate) {
-    auto gate1 = gate::merge(gate::P0(0), gate::P0(1));
-    auto gate2 = gate::merge(gate::P0(0), gate::P1(1));
-    auto gate3 = gate::merge(gate::P1(0), gate::P0(1));
-    auto gate4 = gate::merge(gate::P1(0), gate::P1(1));
+    auto p00 = gate::P0(0);
+    auto p01 = gate::P0(1);
+    auto p10 = gate::P1(0);
+    auto p11 = gate::P1(1);
+    auto gate1 = gate::merge(p00, p01);
+    auto gate2 = gate::merge(p00, p11);
+    auto gate3 = gate::merge(p10, p01);
+    auto gate4 = gate::merge(p10, p11);
 
     auto CPTP = gate::CPTP({gate3, gate2, gate1, gate4});
     DensityMatrix s(3);
@@ -41,14 +45,26 @@ TEST(DensityMatrixGeneralGateTest, CPTPGate) {
     CPTP->update_quantum_state(&s);
     s.set_Haar_random_state();
     CPTP->update_quantum_state(&s);
+    delete p00;
+    delete p01;
+    delete p10;
+    delete p11;
+    delete gate1;
+    delete gate2;
+    delete gate3;
+    delete gate4;
     delete CPTP;
 }
 
 TEST(DensityMatrixGeneralGateTest, InstrumentGate) {
-    auto gate1 = gate::merge(gate::P0(0), gate::P0(1));
-    auto gate2 = gate::merge(gate::P0(0), gate::P1(1));
-    auto gate3 = gate::merge(gate::P1(0), gate::P0(1));
-    auto gate4 = gate::merge(gate::P1(0), gate::P1(1));
+    auto p00 = gate::P0(0);
+    auto p01 = gate::P0(1);
+    auto p10 = gate::P1(0);
+    auto p11 = gate::P1(1);
+    auto gate1 = gate::merge(p00, p01);
+    auto gate2 = gate::merge(p00, p11);
+    auto gate3 = gate::merge(p10, p01);
+    auto gate4 = gate::merge(p10, p11);
 
     auto Inst = gate::Instrument({gate3, gate2, gate1, gate4}, 1);
     DensityMatrix s(3);
@@ -59,6 +75,14 @@ TEST(DensityMatrixGeneralGateTest, InstrumentGate) {
     s.set_Haar_random_state();
     Inst->update_quantum_state(&s);
     UINT res2 = s.get_classical_value(1);
+    delete p00;
+    delete p01;
+    delete p10;
+    delete p11;
+    delete gate1;
+    delete gate2;
+    delete gate3;
+    delete gate4;
     delete Inst;
 }
 
@@ -72,6 +96,7 @@ TEST(DensityMatrixGeneralGateTest, AdaptiveGate) {
     adaptive->update_quantum_state(&s);
     s.set_classical_value(2, 0);
     adaptive->update_quantum_state(&s);
+    delete x;
     delete adaptive;
 }
 

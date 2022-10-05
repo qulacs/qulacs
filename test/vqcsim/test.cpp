@@ -97,16 +97,21 @@ TEST(ParametricCircuit, ParametricGatePosition) {
     auto circuit = ParametricQuantumCircuit(3);
     circuit.add_parametric_RX_gate(0, 0.);
     circuit.add_H_gate(0);
-    circuit.add_parametric_gate_copy(gate::ParametricRZ(0, 0.));
-    circuit.add_gate_copy(gate::CNOT(0, 1));
+    auto prz0 = gate::ParametricRZ(0, 0.);
+    circuit.add_parametric_gate_copy(prz0);
+    delete prz0;
+    auto cz01 = gate::CNOT(0, 1);
+    circuit.add_gate_copy(cz01);
+    delete cz01;
     circuit.add_parametric_RY_gate(1, 0.);
     circuit.add_parametric_gate(gate::ParametricRY(2), 2);
     circuit.add_gate_copy(gate::X(0), 2);
     circuit.add_parametric_gate(gate::ParametricRZ(1), 0);
     circuit.remove_gate(4);
     circuit.remove_gate(5);
-    circuit.add_parametric_gate_copy(
-        gate::ParametricPauliRotation({1}, {0}, 0.), 6);
+    auto ppr1 = gate::ParametricPauliRotation({1}, {0}, 0.);
+    circuit.add_parametric_gate_copy(ppr1, 6);
+    delete ppr1;
 
     ASSERT_EQ(circuit.get_parameter_count(), 5);
     ASSERT_EQ(circuit.get_parametric_gate_position(0), 1);
@@ -170,6 +175,8 @@ TEST(EnergyMinimization, SingleQubitClassical) {
     double diag_loss = dems.get_loss();
 
     EXPECT_NEAR(qc_loss, diag_loss, 1e-2);
+
+    delete observable;
 }
 
 TEST(EnergyMinimization, SingleQubitComplex) {
@@ -205,6 +212,8 @@ TEST(EnergyMinimization, SingleQubitComplex) {
     double diag_loss = dems.get_loss();
 
     EXPECT_NEAR(qc_loss, diag_loss, 1e-2);
+
+    delete emp;
 }
 
 TEST(EnergyMinimization, MultiQubit) {
@@ -249,6 +258,8 @@ TEST(EnergyMinimization, MultiQubit) {
     // std::cout << qc_loss << " " << diag_loss << std::endl;
     ASSERT_GT(qc_loss, diag_loss);
     EXPECT_NEAR(qc_loss, diag_loss, 1e-1);
+
+    delete emp;
 }
 
 TEST(ParametricGate, DuplicateIndex) {
