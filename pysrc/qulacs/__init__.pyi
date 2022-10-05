@@ -880,6 +880,10 @@ class DensityMatrix(QuantumStateBase):
         """
         Get density matrix
         """
+    def get_qubit_count(self) -> int: 
+        """
+        Get qubit count
+        """
     def get_squared_norm(self) -> float: 
         """
         Get squared norm
