@@ -823,8 +823,8 @@ be obtained.
 Rotation of Observable
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The rotation of Observable :raw-latex:`\f`\ :math:`H\f`,
-:raw-latex:`\f`\ :math:`e^{i\theta H}\f`, is performed by Trotter
+The rotation of Observable :math:`H`,
+:math:`e^{i\theta H}`, is performed by Trotter
 expansion. num_repeats defaults as the following code, but can be
 specified by user.
 
