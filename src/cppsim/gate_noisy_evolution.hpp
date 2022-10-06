@@ -31,9 +31,9 @@ private:
         _c_ops_dagger;        // collapse operator dagger
     double _time;             // evolution time
     double _dt;               // step size for runge kutta evolution
-    double _norm_tol = 1e-8;  // accuracy in solving <psi|psi>=r
+    double _norm_tol = 1e-6;  // accuracy in solving <psi|psi>=r
     int _find_collapse_max_steps =
-        1000;  // maximum number of steps for while loop in _find_collapse
+        200;  // maximum number of steps for while loop in _find_collapse
 
     /**
      * \~japanese-en collapse が起こるタイミング (norm = rになるタイミング)
@@ -67,11 +67,13 @@ private:
         }
         if (mae_norm < target_norm) {
             throw std::runtime_error(
-                "must be prev_state.norm() >= target_norm. ");
+                "must be prev_state.norm() >= target_norm. If you get this "
+                "error, dt may be too large.");
         }
         if (now_norm > target_norm) {
             throw std::runtime_error(
-                "must be now_state.norm() <= target_norm. ");
+                "must be now_state.norm() <= target_norm.  If you get this "
+                "error, dt may be too large.");
         }
 
         QuantumStateBase* mae_state = prev_state->copy();
@@ -352,6 +354,8 @@ public:
                     _c_ops[index]->apply_to_state_single_thread(state, buffer);
                     buffer->normalize(buffer->get_squared_norm_single_thread());
                     state->load(buffer);
+                } else {
+                    state->normalize(state->get_squared_norm_single_thread());
                 }
 
                 // update dt to be consistent with the step size
