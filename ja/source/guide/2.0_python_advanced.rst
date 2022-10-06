@@ -954,6 +954,73 @@ TwoQubitDepolarizingNoiseゲートが定義されています。それぞれ、�
    [ 0.+0.j -1.+0.j  0.+0.j  0.+0.j]
    [ 0.+0.j -1.+0.j  0.+0.j  0.+0.j]
 
+環境から相互作用を受け、時間発展によって減衰させるゲートとして、NoisyEvolutionとNoisyEvolution_fastがあります。
+環境から相互作用を受けるシステムをハミルトニアンとして設定し、相互作用の演算子を指定します。
+時間発展させる値と微小変化させる時間を指定します。
+NoisyEvolutionはルンゲクッタ法を使用して、微分方程式をときます。
+NoisyEvolution_fastは行列を抜き出して対角化で求めます。そのため微小変化させる時間の指定は不要で、処理も高速です。
+NoisyEvolution_fastを使用することを推奨します。
+
+.. code:: python
+   from qulacs import QuantumState, Observable, GeneralQuantumOperator
+   from qulacs.gate import NoisyEvolution, NoisyEvolution_fast, H
+
+   n = 2
+   observable = Observable(n)
+   observable.add_operator(1, "X 0")
+
+   # create hamiltonian and collapse operator
+   hamiltonian = Observable(n)
+   hamiltonian.add_operator(1., "Z 0 Z 1")
+
+   decay_rate_z = 0.2
+   decay_rate_p = 0.6
+   decay_rate_m = 0.1
+
+   # interacting operator
+   c_ops = [GeneralQuantumOperator(n) for _ in range(3*n)]
+   c_ops[0].add_operator(decay_rate_z, "Z 0")
+   c_ops[1].add_operator(decay_rate_z, "Z 1")
+   c_ops[2].add_operator(decay_rate_p/2, "X 0")
+   c_ops[2].add_operator(decay_rate_p/2*1j, "Y 0")
+   c_ops[3].add_operator(decay_rate_p/2, "X 1")
+   c_ops[3].add_operator(decay_rate_p/2*1j, "Y 1")
+   c_ops[4].add_operator(decay_rate_m/2, "X 0")
+   c_ops[4].add_operator(-decay_rate_m/2*1j, "Y 0")
+   c_ops[5].add_operator(decay_rate_m/2, "X 1")
+   c_ops[5].add_operator(-decay_rate_m/2*1j, "Y 1")
+
+   time = 2
+   gate = NoisyEvolution_fast(hamiltonian, c_ops, time)
+   #dt = .1
+   #gate = NoisyEvolution(hamiltonian, c_ops, time, dt)
+
+   exp = 0.
+   n_samples = 1000
+   state = QuantumState(n)
+   for k in range(n_samples):
+      state.set_zero_state()
+      H(0).update_quantum_state(state)
+      H(1).update_quantum_state(state)
+      gate.update_quantum_state(state)
+      exp += observable.get_expectation_value(state) / n_samples
+      print(f"[{k}] exp: {exp}")
+
+::
+   [0] exp: 0.0
+   [1] exp: -0.0006155544536970823
+   [2] exp: -2.168404344971009e-19
+   [3] exp: -2.168404344971009e-19
+   [4] exp: -2.168404344971009e-19
+   [5] exp: -0.0006155544536970825
+   [6] exp: -4.336808689942018e-19
+   （略）
+   [995] exp: -0.2967070487040435
+   [996] exp: -0.29720105798458607
+   [997] exp: -0.29720105798458607
+   [998] exp: -0.29781661243828317
+   [999] exp: -0.29781661243828317
+
 CPTP写像
 ^^^^^^^^
 
