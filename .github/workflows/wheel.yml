@@ -2,16 +2,15 @@ name: Wheel build
 
 on:
   push:
-    # commented out for debug.
-    #paths-ignore:
-    #  - ".devcontainer/**"
-    #  - ".vscode/**"
-    #  - "doc/**"
-    #  - "*.md"
-    #branches:
-    #  - "dev"
-    #tags:
-    #  - "v*"
+    paths-ignore:
+     - ".devcontainer/**"
+     - ".vscode/**"
+     - "doc/**"
+     - "*.md"
+    branches:
+     - "dev"
+    tags:
+     - "v*"
   pull_request:
   pull_request_review:
     types: [submitted, edited]
