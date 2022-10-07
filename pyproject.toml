@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "qulacs"
-version = "0.5.0"
+version = "0.5.1"
 description = "Quantum circuit simulator for research"
 authors = [ 
     { name = "QunaSys", Email = "qulacs@qunasys.com" }
