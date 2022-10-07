@@ -236,7 +236,7 @@ public:
         _effective_hamiltonian =
             new GeneralQuantumOperator(hamiltonian->get_qubit_count());
         for (auto pauli : hamiltonian->get_terms()) {
-            _effective_hamiltonian->add_operator(pauli->copy());
+            _effective_hamiltonian->add_operator_copy(pauli);
         }
 
         for (size_t k = 0; k < _c_ops.size(); k++) {
@@ -552,7 +552,7 @@ public:
             new GeneralQuantumOperator(hamiltonian->get_qubit_count());
 
         for (auto pauli : hamiltonian->get_terms()) {
-            _effective_hamiltonian->add_operator(pauli->copy());
+            _effective_hamiltonian->add_operator_copy(pauli);
         }
         for (size_t k = 0; k < _c_ops.size(); k++) {
             auto cdagc = (*_c_ops_dagger[k]) * (*_c_ops[k]) * (-.5i);
