@@ -249,3 +249,77 @@ jobs:
           echo -n "$diff"
           # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
           test $(echo -n "$diff" | wc -l) -eq 0
+
+  mpicc-build:
+    name: MPICC build
+    strategy:
+      matrix:
+        python-version: ["3.7.5"]
+    runs-on: "ubuntu-20.04"
+    env:
+      CXX_COMPILER: "ccache mpic++"
+      C_COMPILER: "ccache mpicc"
+      QULACS_OPT_FLAGS: "-mtune=haswell -march=haswell -mfpmath=both"
+      PYTHON: ${{ matrix.python-version }}
+      COVERAGE: "ON"
+      CACHE_NAME: ccache-qulacs-build-v2
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Install mpi-bin
+        run: sudo apt install openmpi-bin
+
+      - name: Install ccache
+        run: sudo apt install ccache
+
+      - name: Setup cache
+        uses: actions/cache@v2
+        with:
+          path: ~/.ccache
+          key: ${{ runner.os }}-${{ env.CACHE_NAME }}
+
+      - name: Install boost
+        run: sudo apt install libboost-dev
+
+      - name: Install LCOV
+        run: |
+          git clone -b v1.15 --depth 1 https://github.com/linux-test-project/lcov.git
+          cd lcov
+          sudo make install
+
+      - name: Install qulacs for Ubuntu
+        run: USE_MPI=Yes USE_TEST=Yes ./script/build_gcc.sh
+
+      - name: Install qulacs Python module
+        run: pip install .[ci]
+
+      - name: Check stubs
+        run: |
+          ./script/update_stubs.sh
+          diff=$(git diff)
+          echo -n "$diff"
+          # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
+          test $(echo -n "$diff" | wc -l) -eq 0
+
+      - name: Test if stub is working
+        run: |
+          python python/stub-test/generate_mypy_tester.py qulacs
+          mypy python/stub-test/names_qulacs.py
+
+      - name: Test in Ubuntu
+        run: |
+          cd ./build
+          make coverage
+          make pythontest
+
+      - name: Upload coverage to codecov
+        uses: codecov/codecov-action@v3
