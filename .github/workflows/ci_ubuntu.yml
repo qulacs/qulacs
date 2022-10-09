@@ -257,8 +257,8 @@ jobs:
         python-version: ["3.7.5"]
     runs-on: "ubuntu-20.04"
     env:
-      CXX_COMPILER: "ccache mpic++"
-      C_COMPILER: "ccache mpicc"
+      CXX_COMPILER: "mpic++"
+      C_COMPILER: "mpicc"
       QULACS_OPT_FLAGS: "-mtune=haswell -march=haswell -mfpmath=both"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
