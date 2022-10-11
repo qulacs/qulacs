@@ -1187,16 +1187,34 @@ TEST(GateTest, RandomControlMergeLarge) {
 
 TEST(GateTest, ProbabilisticGate) {
     auto gate1 = gate::X(0);
-    auto gate2 = gate::X(1);
-    auto gate3 = gate::X(2);
-    auto prob_gate =
-        gate::Probabilistic({0.25, 0.25, 0.25}, {gate1, gate2, gate2});
-    QuantumState s(3);
+    auto gate2 = gate::Y(1);
+    auto gate3 = gate::CNOT(0, 2);
+    auto gate4 = gate::CNOT(3, 2);
+    auto prob_gate = gate::Probabilistic(
+        {0.25, 0.25, 0.25, 0.25}, {gate1, gate2, gate3, gate4});
+    ASSERT_EQ(
+        prob_gate->get_target_index_list(), std::vector<UINT>({0, 1, 2, 3}));
+    QuantumState s(4);
     s.set_computational_basis(0);
     prob_gate->update_quantum_state(&s);
     delete gate1;
     delete gate2;
     delete gate3;
+    delete gate4;
+    delete prob_gate;
+}
+
+TEST(GateTest, ProbabilisticGate_contbit) {
+    auto gate1 = gate::CNOT(0, 1);
+    auto gate2 = gate::CNOT(0, 2);
+    auto prob_gate = gate::Probabilistic({0.5, 0.5}, {gate1, gate2});
+    ASSERT_EQ(prob_gate->get_target_index_list(), std::vector<UINT>({1, 2}));
+    ASSERT_EQ(prob_gate->get_control_index_list(), std::vector<UINT>({0}));
+    QuantumState s(3);
+    s.set_computational_basis(0);
+    prob_gate->update_quantum_state(&s);
+    delete gate1;
+    delete gate2;
     delete prob_gate;
 }
 
@@ -1207,6 +1225,7 @@ TEST(GateTest, CPTPGate) {
     auto gate4 = gate::merge(gate::P1(0), gate::P1(1));
 
     auto CPTP = gate::CPTP({gate3, gate2, gate1, gate4});
+    ASSERT_EQ(CPTP->get_target_index_list(), std::vector<UINT>({0, 1}));
     delete gate1;
     delete gate2;
     delete gate3;
@@ -1226,6 +1245,7 @@ TEST(GateTest, InstrumentGate) {
     auto gate4 = gate::merge(gate::P1(0), gate::P1(1));
 
     auto Inst = gate::Instrument({gate3, gate2, gate1, gate4}, 1);
+    ASSERT_EQ(Inst->get_target_index_list(), std::vector<UINT>({0, 1}));
     delete gate1;
     delete gate2;
     delete gate3;
@@ -1246,6 +1266,7 @@ TEST(GateTest, AdaptiveGateWithoutID) {
     auto adaptive = gate::Adaptive(
         x, [](const std::vector<UINT>& vec) { return vec[2] == 1; });
     delete x;
+    ASSERT_EQ(adaptive->get_target_index_list(), std::vector<UINT>({0}));
     QuantumState s(1);
     s.set_computational_basis(0);
     s.set_classical_value(2, 1);
@@ -1263,6 +1284,7 @@ TEST(GateTest, AdaptiveGateWithID) {
         x, [](const std::vector<UINT>& vec, UINT id) { return vec[id] == 1; },
         2);
     delete x;
+    ASSERT_EQ(adaptive->get_target_index_list(), std::vector<UINT>({0}));
     QuantumState s(1);
     s.set_computational_basis(0);
     s.set_classical_value(2, 1);
