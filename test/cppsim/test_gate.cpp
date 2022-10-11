@@ -1296,6 +1296,16 @@ TEST(GateTest, AdaptiveGateWithID) {
     delete adaptive;
 }
 
+TEST(GateTest, AdaptiveGatecontbit) {
+    auto x = gate::CNOT(0, 1);
+    auto adaptive = gate::Adaptive(
+        x, [](const std::vector<UINT>& vec) { return vec[2] == 1; });
+    delete x;
+    ASSERT_EQ(adaptive->get_target_index_list(), std::vector<UINT>({0, 1}));
+    ASSERT_EQ(adaptive->get_control_index_list(), std::vector<UINT>({}));
+    delete adaptive;
+}
+
 TEST(GateTest, GateAdd) {
     auto g1 = gate::X(0);
     auto g2 = gate::X(0);
