@@ -973,7 +973,7 @@ NoisyEvolution_fastは微小変化させる時間の指定は不要で、処理�
 
    n = 2
    observable = Observable(n)
-   observable.add_operator(1, "X 0")
+   observable.add_operator(1., "X 0")
 
    # create hamiltonian and collapse operator
    hamiltonian = Observable(n)
