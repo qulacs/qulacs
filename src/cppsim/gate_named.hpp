@@ -50,7 +50,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumGateBase* copy() const override {
+    virtual QuantumGate_OneQubit* copy() const override {
         return new QuantumGate_OneQubit(*this);
     };
     /**
@@ -111,7 +111,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumGateBase* copy() const override {
+    virtual QuantumGate_TwoQubit* copy() const override {
         return new QuantumGate_TwoQubit(*this);
     };
     /**
@@ -173,7 +173,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumGateBase* copy() const override {
+    virtual QuantumGate_OneControlOneTarget* copy() const override {
         return new QuantumGate_OneControlOneTarget(*this);
     };
     /**
@@ -232,7 +232,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumGateBase* copy() const override {
+    virtual QuantumGate_OneQubitRotation* copy() const override {
         return new QuantumGate_OneQubitRotation(*this);
     };
     /**

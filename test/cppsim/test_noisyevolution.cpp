@@ -547,8 +547,7 @@ TEST(NoisyEvolutionTest, EmptyCops) {
 
     QuantumState state(n);
     QuantumCircuit circuit(n);
-    auto gate = dynamic_cast<ClsNoisyEvolution*>(
-        gate::NoisyEvolution(&hamiltonian, c_ops, time, dt));
+    auto gate = gate::NoisyEvolution_fast(&hamiltonian, c_ops, time);
     circuit.add_gate(gate);
     for (int k = 0; k < n; k++) {
         std::cout << "set_computational_basis:" << k << std::endl;

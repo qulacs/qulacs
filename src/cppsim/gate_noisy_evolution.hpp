@@ -274,7 +274,7 @@ public:
      */
     virtual void set_seed(int seed) override { _random.set_seed(seed); };
 
-    virtual QuantumGateBase* copy() const override {
+    virtual ClsNoisyEvolution* copy() const override {
         return new ClsNoisyEvolution(_hamiltonian, _c_ops, _time, _dt);
     }
 
@@ -657,7 +657,7 @@ public:
      */
     virtual void set_seed(int seed) override { _random.set_seed(seed); };
 
-    virtual QuantumGateBase* copy() const override {
+    virtual ClsNoisyEvolution_fast* copy() const override {
         return new ClsNoisyEvolution_fast(_hamiltonian, _c_ops, _time);
     }
 
