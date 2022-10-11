@@ -996,7 +996,7 @@ NoisyEvolution_fastは微小変化させる時間の指定は不要で、処理�
    c_ops[5].add_operator(decay_rate_m/2, "X 1")
    c_ops[5].add_operator(-decay_rate_m/2*1j, "Y 1")
 
-   time = 2
+   time = 2.
    gate = NoisyEvolution_fast(hamiltonian, c_ops, time)
    #dt = .1
    #gate = NoisyEvolution(hamiltonian, c_ops, time, dt)
