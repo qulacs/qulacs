@@ -387,7 +387,7 @@ StateVectorは純粋状態のみを保持できますが、DensityMatrixを用�
    state.set_Haar_random_state(0)
    print(state.get_matrix())
 
-   ::
+::
 
    [[1.+0.j 0.+0.j 0.+0.j 0.+0.j]
     [0.+0.j 0.+0.j 0.+0.j 0.+0.j]
