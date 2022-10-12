@@ -538,7 +538,7 @@ Adaptive
 
 Determines whether to perform the operation according to the value
 written to the classical register. Cppsim implements this by specifying
-a function that takes a register of type [unsigned int] as an argument
+a function that takes a register of type std::vector<unsigned int> as an argument
 and returns a bool type.
 
 .. code:: cpp
