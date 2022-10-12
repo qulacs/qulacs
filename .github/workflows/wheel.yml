@@ -20,7 +20,7 @@ on:
 jobs:
   wheel-build:
     name: Python wheel build
-    if: ${{ github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
     strategy:
       matrix:
         python-version: ["3.7.5"]
@@ -33,13 +33,13 @@ jobs:
       COVERAGE: "ON"
       TWINE_USERNAME: "__token__"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
