@@ -207,13 +207,17 @@ inner_product関数で内積を計算できます。
        return 0;
    }
 
-gate名前空間で定義されているゲートは以下の通りです。 - single-qubit
-Pauli operation: Identity, X,Y,Z - single-qubit Clifford operation :
-H,S,Sdag, T,Tdag,sqrtX,sqrtXdag,sqrtY,sqrtYdag - two-qubit Clifford
-operation : CNOT, CZ, SWAP - single-qubit Pauli rotation : RX, RY, RZ -
-General Pauli operation : Pauli, PauliRotation - IBMQ basis-gate : U1,
-U2, U3 - General gate : DenseMatrix - Measurement : Measurement - Noise
-: BitFlipNoise, DephasingNoise, IndepenedentXZNoise, DepolarizingNoise
+gate名前空間で定義されているゲートは以下の通りです。
+
+- single-qubit Pauli operation: Identity, X,Y,Z
+- single-qubit Clifford operation : H,S,Sdag, T,Tdag,sqrtX,sqrtXdag,sqrtY,sqrtYdag
+- two-qubit Clifford operation : CNOT, CZ, SWAP
+- single-qubit Pauli rotation : RX, RY, RZ
+- General Pauli operation : Pauli, PauliRotation
+- IBMQ basis-gate : U1, U2, U3
+- General gate : DenseMatrix
+- Measurement : Measurement
+- Noise : BitFlipNoise, DephasingNoise, IndepenedentXZNoise, DepolarizingNoise
 
 量子ゲートの合成
 ~~~~~~~~~~~~~~~~
@@ -286,8 +290,9 @@ U2, U3 - General gate : DenseMatrix - Measurement : Measurement - Noise
 特殊な量子ゲートと一般の量子ゲート
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-cppsimにおける基本量子ゲートは以下の二つに分けられます。 -
-特殊ゲート：そのゲートの作用について、専用の高速化がなされた関数があるもの。
+cppsimにおける基本量子ゲートは以下の二つに分けられます。
+
+- 特殊ゲート：そのゲートの作用について、専用の高速化がなされた関数があるもの。
 - 一般ゲート：ゲート行列を保持し、行列をかけて作用するもの。
 
 前者は後者に比べ専用の関数が作成されているため高速ですが、コントロール量子ビットを増やすなど、量子ゲートの作用を変更する操作が後から行えません。
