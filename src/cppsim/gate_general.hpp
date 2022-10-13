@@ -6,8 +6,9 @@
 #include "utility.hpp"
 /**
  * ここら辺のtarget listの仕様について
- * ゲートをマージしたときのtargetやcontrolの挙動は　get_new_qubit_list
- * 関数で決められている Identity のゲート + 含まれるすべてのゲート
+ * ゲートをマージしたときのtargetやcontrolの挙動は
+ * get_new_qubit_list 関数で決められている
+ * Identity のゲート + 含まれるすべてのゲート
  * のゲート集合を元に、　get_new_qubit_list で決める
  * ただし、和が1のProbabilistic においてのみ、　Identityなしで求めている
  */
