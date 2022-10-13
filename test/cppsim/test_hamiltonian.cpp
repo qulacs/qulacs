@@ -501,6 +501,7 @@ TEST(ObservableTest, GetDaggerTest) {
     auto dagger_observable = observable.get_dagger();
     std::string s = dagger_observable->to_string();
     ASSERT_TRUE(s == "(1,-0) X 0" || s == "(1,0) X 0");
+    delete dagger_observable;
 }
 
 TEST(ObservableTest, ObservableAndStateHaveDifferentQubitCountTest) {

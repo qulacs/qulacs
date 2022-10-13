@@ -349,6 +349,7 @@ QuantumGateBase* TwoQubitDepolarizingNoise(
                 {target_index1, target_index2}, {pauli_qubit1, pauli_qubit2});
             auto gate_dense = gate::to_matrix_gate(gate_pauli);
             gate_list.push_back(gate_dense);
+            delete gate_pauli;
         } else {
             gate_list.push_back(Identity(target_index1));
         }
@@ -356,7 +357,7 @@ QuantumGateBase* TwoQubitDepolarizingNoise(
     std::vector<double> probabilities(16, prob / 15);
     probabilities[0] = 1 - prob;
     auto new_gate = new QuantumGate_Probabilistic(probabilities, gate_list);
-    for (UINT gate_index = 0; gate_index < 15; ++gate_index) {
+    for (UINT gate_index = 0; gate_index < 16; ++gate_index) {
         delete gate_list[gate_index];
     }
     return new_gate;

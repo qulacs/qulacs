@@ -331,7 +331,6 @@ TEST(DensityMatrixGeneralGateTest, TwoQubitDepolarizingTest) {
             dense_mat(i, j) = dm.data_cpp()[i * dim + j];
     ASSERT_NEAR(dense_mat.norm(), 1., eps);
     ASSERT_NEAR(dm.get_squared_norm(), 1., eps);
-
     // std::cout << dense_mat << std::endl;
     // std::cout << dm << std::endl;
     auto conv_mat =

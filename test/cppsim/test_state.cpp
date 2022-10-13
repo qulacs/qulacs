@@ -118,6 +118,9 @@ TEST(StateTest, HaarRandomStateWithoutSeed) {
             ASSERT_FALSE(same_state(states[i], states[j]));
         }
     }
+    for (UINT i = 0; i < m; i++) {
+        delete states[i];
+    }
 }
 
 TEST(StateTest, StateTest_HaarRandomStateSameSeed) {
