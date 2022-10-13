@@ -24,6 +24,34 @@ C++ 教材
 
 メモリが不足している場合はプログラムが終了します。
 
+
+量子状態のデータの取得
+~~~~~~~~~~~~~~~~~~~~~~
+
+量子状態を表す :raw-latex:`\f`\ :math:`2^n\f` の長さの配列を取得します。
+特にGPUで量子状態を作成したり、大きい :raw-latex:`\f`\ :math:`n\f`
+では非常に重い操作になるので注意してください。
+
+.. code:: cpp
+
+   #include <cppsim/state.hpp>
+
+   int main(){
+       unsigned int n = 5;
+       QuantumState state(n);
+       state.set_zero_state();
+
+       // GNU C++の場合、double _Complex配列を取得
+       // MSVCの場合はstd::complex<double>の配列を取得
+       const CTYPE* raw_data_c = state.data_c();
+
+       // std::complex<double>の配列を取得
+       const CPPCTYPE* raw_data_cpp = state.data_cpp();
+   }
+
+量子状態を直接指定の配列にセットしたい場合などは、該当する量子ゲートを作成し、量子ゲートの作用として行うことを推奨します。
+
+
 量子状態の初期化
 ~~~~~~~~~~~~~~~~
 
@@ -784,7 +812,7 @@ OpenFermionとの連携
        std::string Pauli_string = "X 0 X 1 Y 2 Z 4";
        Observable observable(n);
        observable.add_operator(coef, Pauli_string.c_str());
-       
+
        QuantumState state(n);
        observable.get_expectation_value(&state);
        return 0;
