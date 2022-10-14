@@ -505,7 +505,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
             }
         }
         if (flag) {
-            this->add_operator(target_operator->copy());
+            this->add_operator_copy(target_operator);
         }
     }
     return *this;
@@ -536,7 +536,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
         }
     }
     if (flag) {
-        this->add_operator(target.copy());
+        this->add_operator_copy(&target);
     }
     return *this;
 }
@@ -604,7 +604,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
         if (flag) {
             auto copy = target_operator->copy();
             copy->change_coef(-copy->get_coef());
-            this->add_operator(copy);
+            this->add_operator_move(copy);
         }
     }
     return *this;
@@ -636,7 +636,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
     if (flag) {
         auto copy = target.copy();
         copy->change_coef(-copy->get_coef());
-        this->add_operator(copy);
+        this->add_operator_move(copy);
     }
     return *this;
 }

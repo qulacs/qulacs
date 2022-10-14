@@ -854,9 +854,10 @@ class TestNoiseSimulator(unittest.TestCase):
         pass
     
     def test_noise_simulator(self):
-        def get_heavy_output_probability(n, depth, error_prob, shots=10000):
+        def get_heavy_output_probability(n, depth, error_prob, shots=1000):
             one_qubit_noise = ["Depolarizing", "BitFlip", "Dephasing", "IndependentXZ", "AmplitudeDamping"]
             two_qubit_noise = ["Depolarizing"]
+            from qulacs import NoiseSimulator, QuantumState
             from qulacs.gate import CNOT, CZ, T, sqrtX, sqrtY
             circuit_with_noise = qulacs.QuantumCircuit(n)
             circuit_without_noise = qulacs.QuantumCircuit(n)
@@ -890,17 +891,16 @@ class TestNoiseSimulator(unittest.TestCase):
                 if prob_dist[i] > p_median:
                     heavy_output.add(i)
             
-            noisy_state = qulacs.QuantumState(n)
-            circuit_with_noise.update_quantum_state(noisy_state)
-            noisy_sample = noisy_state.sampling(shots)
+            sim = NoiseSimulator(circuit_with_noise,QuantumState(n))
+            noisy_sample = sim.execute(shots)
             num_heavy_output = 0
             for sample in noisy_sample:
                 if sample in heavy_output:
                     num_heavy_output += 1
             return num_heavy_output / shots, heavy_output, noisy_sample
 
-        low_noise_prob, low_noise_heavy_output,low_noise_result = get_heavy_output_probability(10, 100, 1e-5)
-        high_noise_prob, high_noise_heavy_output,high_noise_result = get_heavy_output_probability(10, 100, 0.01)
+        low_noise_prob, low_noise_heavy_output,low_noise_result = get_heavy_output_probability(7, 100, 1e-5)
+        high_noise_prob, high_noise_heavy_output,high_noise_result = get_heavy_output_probability(7, 100, 0.01)
         if low_noise_prob < 2/3:
             print(f"[ERROR] On low noise environment Heavy Output percentage should be > 0.666, but was {low_noise_prob}")
             print("Telemetry Information:")

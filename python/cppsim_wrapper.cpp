@@ -41,7 +41,6 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<PauliOperator>(m, "PauliOperator")
         .def(py::init<std::complex<double>>(), "Constructor", py::arg("coef"))
         .def(py::init<std::string, std::complex<double>>(), py::arg("pauli_string"), py::arg("coef"))
-        .def(py::init<boost::dynamic_bitset<>, boost::dynamic_bitset<>, std::complex<double>>(), py::arg("x_bits"), py::arg("z_bits"), py::arg("coef"))
         //.def(py::init<std::vector<unsigned int>&, std::string, std::complex<double>>())
         //.def(py::init<std::vector<unsigned int>&, std::vector<unsigned int>&, std::complex<double>>())
         //.def(py::init<std::vector<unsigned int>&, std::complex<double>>())
@@ -55,8 +54,6 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("copy", &PauliOperator::copy, pybind11::return_value_policy::take_ownership, "Create copied instance of Pauli operator class")
         .def("get_pauli_string", &PauliOperator::get_pauli_string, "get pauli string")
         .def("change_coef", &PauliOperator::change_coef, "change coefficient")
-        .def("get_x_bits", &PauliOperator::get_x_bits, "get x bits")
-        .def("get_z_bits", &PauliOperator::get_z_bits, "get z bits")
         .def(py::self * py::self)
         .def("__mul__", [](const PauliOperator &a, std::complex<double> &b) { return a * b; }, py::is_operator())
         .def(py::self *= py::self)
@@ -230,6 +227,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             }
             return mat;
         }, "Get density matrix")
+        .def("get_qubit_count", [](const DensityMatrix& state) -> unsigned int {return (unsigned int) state.qubit_count; }, "Get qubit count")
         .def("__repr__", [](const DensityMatrix &p) {return p.to_string(); });
         ;
 
