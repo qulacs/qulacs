@@ -22,12 +22,11 @@ jobs:
         python-version: ["3.10.6"]
     runs-on: "ubuntu-22.04"
     env:
-      CXX_COMPILER: "/usr/lib/ccache/aarch64-linux-gnu-gcc-11"
-      C_COMPILER: "/usr/lib/ccache/aarch64-linux-gnu-g++-11"
+      CXX_COMPILER: "aarch64-linux-gnu-gcc-11"
+      C_COMPILER: "aarch64-linux-gnu-g++-11"
       QULACS_OPT_FLAGS: "-march=armv8.2-a+sve"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
-      CACHE_NAME: ccache-qulacs-build-v2
       QEMU_LD_PREFIX: "/usr/aarch64-linux-gnu"
       QEMU_CPU: "max,sve512=on"
     steps:
@@ -44,15 +43,6 @@ jobs:
           ../configure --target-list=aarch64-linux-user
           make
           sudo make install
-
-      - name: Install ccache
-        run: sudo apt-get install ccache
-
-      - name: Setup cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.ccache
-          key: ${{ runner.os }}-${{ env.CACHE_NAME }}
 
       - name: Install boost
         run: sudo apt-get install libboost-dev
@@ -90,7 +80,4 @@ jobs:
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3
-
-      - name: Show cache stats
-        run: ccache -s
 
