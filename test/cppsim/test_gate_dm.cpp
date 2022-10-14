@@ -78,6 +78,8 @@ TEST(DensityMatrixGateTest, ApplySingleQubitGate) {
                     ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] -
                                     dm_test.data_cpp()[i * dim + j]),
                         0, eps);
+
+            delete gate;
         }
     }
 }
@@ -126,6 +128,8 @@ TEST(DensityMatrixGateTest, ApplySingleQubitRotationGate) {
                     ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] -
                                     dm_test.data_cpp()[i * dim + j]),
                         0, eps);
+
+            delete gate;
         }
     }
 }
@@ -193,6 +197,7 @@ TEST(DensityMatrixGateTest, ApplyTwoQubitGate) {
                     ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] -
                                     dm_test.data_cpp()[i * dim + j]),
                         0, eps);
+            delete gate;
         }
     }
 }
@@ -704,6 +709,7 @@ TEST(DensityMatrixGateTest, RandomControlMergeSmall) {
                     0, eps);
 
         delete merge_gate1;
+        delete merge_gate2;
     }
 }
 

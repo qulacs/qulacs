@@ -316,6 +316,7 @@ QuantumGateBase* IndependentXZNoise(UINT target_index, double prob) {
     delete gate0;
     delete gate1;
     delete gate2;
+    delete gate3;
     return new_gate;
 }
 QuantumGateBase* DepolarizingNoise(UINT target_index, double prob) {
