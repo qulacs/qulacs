@@ -240,8 +240,9 @@ public:
         }
 
         for (size_t k = 0; k < _c_ops.size(); k++) {
-            auto cdagc = (*_c_ops_dagger[k]) * (*_c_ops[k]) * (-.5i);
-            *_effective_hamiltonian += cdagc;
+            auto cdagc = (*_c_ops_dagger[k]) * (*_c_ops[k]);
+            //*(-.5i);
+            //*_effective_hamiltonian += cdagc;
         }
         _time = time;
         _dt = dt;

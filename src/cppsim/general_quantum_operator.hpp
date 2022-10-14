@@ -55,6 +55,16 @@ public:
 
     /**
      * \~japanese-en
+     * コピーコンストラクタ。
+     *
+     * 与えられたGeneralQuantumOperatorのコピーを作成する。
+     * @param[in] obj コピー元のインスタンス
+     * @return コピーされたObservableのインスタンス
+     */
+
+    GeneralQuantumOperator(const GeneralQuantumOperator& obj);
+    /**
+     * \~japanese-en
      * デストラクタ。このとき、GeneralQuantumOperatorが保持しているPauliOperatorは解放される。
      */
     virtual ~GeneralQuantumOperator();

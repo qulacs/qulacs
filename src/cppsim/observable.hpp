@@ -41,7 +41,7 @@ public:
      * PauliOperatorを内部で保持するリストの末尾に追加する。
      *
      * @param[in] mpt 追加するPauliOperatorのインスタンス
-     */
+     */ 
     void add_operator(const PauliOperator* mpt) override;
 
     /**
