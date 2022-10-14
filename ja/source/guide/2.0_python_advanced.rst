@@ -40,6 +40,7 @@ complex128の精度で :math:`2^n`
 
 また、get_vectorおよびload関数で量子状態とnumpy
 arrayの相互変換が可能です。ノルムが保存しているかなどは原則チェックされません。
+get_vectorはすべての要素を配列で返しますが、get_amplitudeを用いると単一の要素を高速に取得できます。
 
 .. code:: python
 
@@ -50,11 +51,13 @@ arrayの相互変換が可能です。ノルムが保存しているかなどは
    print(vec)
    state.load([0,1,2,3])
    print(state.get_vector())
+   print(state.get_amplitude(2))
 
 ::
 
    [1.+0.j 0.+0.j 0.+0.j 0.+0.j]
    [0.+0.j 1.+0.j 2.+0.j 3.+0.j]
+   (2+0j)
 
 量子状態間のコピー
 ~~~~~~~~~~~~~~~~~~
@@ -146,6 +149,11 @@ arrayの相互変換が可能です。ノルムが保存しているかなどは
    samples = state.sampling(10)
    print("sampling", samples)
 
+   # 第2引数にseedを与えられる。
+   # 同じseedを指定すると常に同じサンプリング結果が返される。
+   samples_with_seed = state.sampling(10, 314)
+   print("sampling (with seed)", samples_with_seed)
+
    # 状態ベクトルがCPU/GPUのどちらにあるかを文字列で取得する
    dev_type = state.get_device_name()
    print("device", dev_type)
@@ -153,11 +161,12 @@ arrayの相互変換が可能です。ノルムが保存しているかなどは
 ::
 
    qubit_count 5
-   zero_prob_1 0.5151171741097239
-   marginal_prob 0.40401228349316776
-   entropy 3.0788233113265715
+   zero_prob_1 0.46010755964245975
+   marginal_prob 0.20030608663813237
+   entropy 3.108273642412474
    sqaured_norm 1.0
-   sampling [23, 9, 8, 4, 25, 7, 7, 24, 20, 27]
+   sampling [6, 22, 18, 7, 9, 6, 28, 28, 12, 17]
+   sampling (with seed) [23, 18, 28, 14, 17, 30, 9, 17, 16, 10]
    device cpu
 
 量子状態の変形
@@ -188,6 +197,15 @@ arrayの相互変換が可能です。ノルムが保存しているかなどは
    state.multiply_coef(coef)
    print("mul_coef", state.get_vector())
 
+   # 量子状態と、インデックスによって定められる複素数の積
+   # |00>方向にcoef_func(0),|01>方向にcoef_func(1),...を掛けます。
+   # 操作後のノルムは一般に1ではありません。
+   def coef_func(i: int) -> complex:
+       assert 0 <= i < 2**2
+       return 1j**i
+   state.multiply_elementwise_function(coef_func)
+   print("mul_elementwise_func", state.get_vector())
+
    # 量子状態の正規化
    # 引数として現在のsquared normを与える必要があります。
    squared_norm = state.get_squared_norm()
@@ -202,9 +220,10 @@ arrayの相互変換が可能です。ノルムが保存しているかなどは
    buffer [0.+0.j 0.+0.j 1.+0.j 0.+0.j]
    added [1.+0.j 0.+0.j 1.+0.j 0.+0.j]
    mul_coef [0.5+0.1j 0. +0.j  0.5+0.1j 0. +0.j ]
+   mul_elementwise_func [ 0.5+0.1j  0. +0.j  -0.5-0.1j  0. -0.j ]
    sq_norm 0.52
-   normalized [0.69337525+0.13867505j 0.        +0.j         0.69337525+0.13867505j
-    0.        +0.j        ]
+   normalized [ 0.69337525+0.13867505j  0.        +0.j         -0.69337525-0.13867505j
+     0.        -0.j        ]
    sq_norm 0.9999999999999998
 
 古典レジスタの操作
@@ -281,6 +300,280 @@ Qulacsをqulacs-gpuパッケージからインストールした場合、Quantum
 get_vector関数はGPU/CPU間のコピーを要するため長い時間がかかります。出来る限りこの関数の利用を回避して計算を行うべきです。
 2.
 CPU/GPUの状態間のinner_productは計算できません。GPUとCPUの状態ベクトルの間で状態ベクトルのloadを行うことは可能ですが、時間がかかるので避けるべきです。
+
+DensityMatrixクラス
+----------
+
+密度行列として量子状態を保持するクラスです。
+StateVectorは純粋状態のみを保持できますが、DensityMatrixを用いると複数の状態が確率的に合わさった混合状態を表すことができます。
+:math:`p_i` の確率で :math:`\ket{\psi_i}` であるとき、:math:`\sum_i p_i\ket{\psi_i}\bra{\psi_i}` という密度行列を用います。
+この章では複数状態が合成された状態は出てこないので冗長に見えますが、後述のProbabilisticゲートなどを用いたときに有用となります。
+基本的にはQuantumStateと同じように操作できます。
+
+生成と破棄
+~~~~~~~~~~
+
+インスタンス生成時に必要なメモリが確保されます。メモリはpythonがインスタンスを破棄した段階で解放されますが、メモリ解放のために明示的に破棄したい場合はdelで解放できます。\__repr_\_関数のオーバーライドにより状態ベクトルのフォーマットされた表示を提供します。
+
+.. code:: python
+
+   from qulacs import QuantumState
+   n = 2
+   state = DensityMatrix(n)
+   print(state)
+   del state
+
+::
+
+    *** Density Matrix ***
+    * Qubit Count : 2
+    * Dimension   : 4
+    * Density matrix :
+   (1,0) (0,0) (0,0) (0,0)
+   (0,0) (0,0) (0,0) (0,0)
+   (0,0) (0,0) (0,0) (0,0)
+   (0,0) (0,0) (0,0) (0,0)
+
+量子状態とnumpy array間の変換
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+また、get_matrixおよびload関数で量子状態とnumpy arrayの相互変換が可能です。arrayが1次元の場合は状態ベクトルから密度行列へ変換し、2次元の場合はそのまま密度行列として読み込みます。ノルムが保存しているかなどは原則チェックされません。
+
+.. code:: python
+
+   from qulacs import DensityMatrix
+
+   state = DensityMatrix(2)
+   mat = state.get_matrix()
+   print(mat)
+   state.load([0,1,2,3])
+   print(state.get_matrix())
+   state.load([[0,1,2,3], [1,2,3,4], [2,3,4,5], [3,4,5,6]])
+   print(state.get_matrix())
+
+::
+
+   [[1.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]]
+   [[0.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 1.+0.j 2.+0.j 3.+0.j]
+    [0.+0.j 2.+0.j 4.+0.j 6.+0.j]
+    [0.+0.j 3.+0.j 6.+0.j 9.+0.j]]
+   [[0.+0.j 1.+0.j 2.+0.j 3.+0.j]
+    [1.+0.j 2.+0.j 3.+0.j 4.+0.j]
+    [2.+0.j 3.+0.j 4.+0.j 5.+0.j]
+    [3.+0.j 4.+0.j 5.+0.j 6.+0.j]]
+
+量子状態間のコピー
+~~~~~~~~~~~~~~~~~~
+
+量子状態はcopyで自身と同じインスタンスを新たに生成できます。またload関数に量子状態を与えることで、既存の量子状態に新たに領域を確保することなく別の量子状態の量子ベクトルや密度行列をコピーすることが出来ます。これにより既に確保した領域を再利用できます。既に持っている量子状態と同じサイズの密度行列を確保して、状態のコピーはしなくてよい場合はallocate_buffer関数を使えます。
+
+.. code:: python
+
+   from qulacs import QuantumState, DensityMatrix
+
+   initial_state = DensityMatrix(3)
+   copied_state = initial_state.copy()
+   buffer = initial_state.allocate_buffer()
+   buffer.load(initial_state)
+   state_vector = QuantumState(3)
+   buffer.load(state_vector)
+
+量子状態の初期化
+~~~~~~~~~~~~~~~~
+
+下記は量子状態を特定の純粋状態に初期化する関数です。
+
+.. code:: python
+
+   from qulacs import DensityMatrix
+
+   n = 2
+   state = DensityMatrix(n)
+   # |0>状態へ初期化
+   state.set_zero_state()
+   print(state.get_matrix())
+
+   # 指定値の二進数表記の計算基底へ初期化
+   state.set_computational_basis(0b10)
+   print(state.get_matrix())
+
+   # 引数の値をシードとしてハール測度でランダムな純粋状態へ初期化
+   # 指定値が無い場合はtime関数がシードとして使われる。疑似乱数はxorshiftを利用。
+   state.set_Haar_random_state(0)
+   print(state.get_matrix())
+
+::
+
+   [[1.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]]
+   [[0.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 1.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]]
+   [[ 0.06955138+0.j         -0.01203783+0.07302921j  0.10872467+0.04574116j
+     -0.14160694+0.15896533j]
+    [-0.01203783-0.07302921j  0.07876443+0.j          0.02921052-0.12207811j
+      0.19142327+0.12117438j]
+    [ 0.10872467-0.04574116j  0.02921052+0.12207811j  0.20004359+0.j
+     -0.11681879+0.3416283j ]
+    [-0.14160694-0.15896533j  0.19142327-0.12117438j -0.11681879-0.3416283j
+      0.6516406 +0.j        ]]
+
+量子状態の検査
+~~~~~~~~~~~~~~
+
+下記は量子状態を変えずに量子状態の情報を調べる関数の一覧です。
+
+.. code:: python
+
+   from qulacs import DensityMatrix
+
+   n = 5
+   state = DensityMatrix(n)
+   state.set_Haar_random_state(0)
+
+   # 量子ビットの数を得る。
+   qubit_count = state.get_qubit_count()
+   print("qubit_count", qubit_count)
+
+   # 指定番目の量子ビットが0に測定される確率を得る
+   prob = state.get_zero_probability(1)
+   print("zero_prob_1", prob)
+
+   # 任意の周辺確率を得る
+   # 引数は量子ビット数と同じ長さの配列
+   # 0,1,2を指定する。0,1はその添え字がその値で測定される確率、
+   # 2はそのビットを周辺化することを意味する。
+   # 例えば、3番目が0で、0番目が1と測定される確率の計算は下記
+   prob = state.get_marginal_probability([1,2,2,0,2])
+   print("marginal_prob", prob)
+
+   # Z基底で測定した時の確率分布のエントロピーを得る
+   ent = state.get_entropy()
+   print("entropy", ent)
+
+   # squared norm (<a|a>)の取得
+   # Trace preservingでない操作が可能なため、状態のノルムが1とは限らない
+   sq_norm = state.get_squared_norm()
+   print("sqaured_norm", sq_norm)
+
+   # 引数で与えた数の回数Z基底で全量子ビットを測定しサンプリングする。
+   # 得られるバイナリを整数値にしたもののリストを得る。
+   samples = state.sampling(10)
+   print("sampling", samples)
+
+   # 第2引数にseedを与えられる。
+   # 同じseedを指定すると常に同じサンプリング結果が返される。
+   samples_with_seed = state.sampling(10, 314)
+   print("sampling (with seed)", samples_with_seed)
+
+   # 状態ベクトルがCPU/GPUのどちらにあるかを文字列で取得する
+   dev_type = state.get_device_name()
+   print("device", dev_type)
+
+::
+
+   qubit_count 5
+   zero_prob_1 0.4601075596424598
+   marginal_prob 0.20030608663813237
+   entropy 3.1082736424124744
+   sqaured_norm 1.0000000000000002
+   sampling [11, 11, 14, 11, 22, 0, 19, 19, 3, 17]
+   sampling (with seed) [23, 18, 28, 14, 17, 30, 9, 17, 16, 10]
+   device cpu
+
+量子状態の変形
+~~~~~~~~~~~~~~
+
+下記の関数は量子状態を書き換える関数です。
+   add_stateやmultiply_coefは密度行列の各成分について演算を行います。
+   **同じ量子状態に対応するQuantumStateでの演算と根本的に意味の違うものになっています。**
+
+   - QuantumStateのadd_stateは量子重ね合わせ状態を作りますが、DensityMatrixのadd_stateは混合状態を作ります
+   - QuantumStateでのmultiply_coef(z)に対応する操作はDensityMatrixではmultiply_coef(abs(z)\*\*2)になります
+
+.. code:: python
+
+   from qulacs import DensityMatrix
+   state = DensityMatrix(2)
+   state.set_computational_basis(0)
+   buffer = DensityMatrix(2)
+   buffer.set_computational_basis(2)
+   print("state" , state.get_matrix())
+   print("buffer", buffer.get_matrix())
+
+   # 量子状態間の和(state <- state+buffer)
+   # stateにbufferの状態を加えて混合状態を作ります。
+   # 操作後のノルムは一般に1ではありません。
+   state.add_state(buffer)
+   print("added", state.get_matrix())
+
+   # 量子状態と複素数の積
+   # 引数の複素数を全要素に掛けます。
+   # 操作後のノルムは一般に1ではありません。
+   coef = 3.0
+   state.multiply_coef(coef)
+   print("mul_coef", state.get_matrix())
+
+   # 量子状態の正規化
+   # 引数として現在のsquared normを与える必要があります。
+   squared_norm = state.get_squared_norm()
+   print("sq_norm", squared_norm)
+   state.normalize(squared_norm)
+   print("normalized", state.get_matrix())
+   print("sq_norm", state.get_squared_norm())
+
+::
+
+   state [[1.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]]
+   buffer [[0.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 1.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]]
+   added [[1.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 1.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]]
+   mul_coef [[3.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 3.+0.j 0.+0.j]
+    [0.+0.j 0.+0.j 0.+0.j 0.+0.j]]
+   sq_norm 6.0
+   normalized [[0.5+0.j 0. +0.j 0. +0.j 0. +0.j]
+    [0. +0.j 0. +0.j 0. +0.j 0. +0.j]
+    [0. +0.j 0. +0.j 0.5+0.j 0. +0.j]
+    [0. +0.j 0. +0.j 0. +0.j 0. +0.j]]
+   sq_norm 1.0
+
+古典レジスタの操作
+~~~~~~~~~~~~~~~~~~
+
+DensityMatrixも可変長の整数配列の古典レジスタを持ちます。
+
+.. code:: python
+
+   from qulacs import DensityMatrix
+   state = DensityMatrix(3)
+   position = 0
+   # position番目にvalueを書き込みます
+   value = 20
+   state.set_classical_value(position, value)
+   # position番目のレジスタ値を得ます
+   obtained = state.get_classical_value(position)
+   print(obtained)
+
+::
+
+   20
 
 量子ゲート
 ----------
@@ -955,6 +1248,80 @@ TwoQubitDepolarizingNoiseゲートが定義されています。それぞれ、�
    [-1.+0.j  0.-0.j  0.+0.j  0.-0.j]
    [ 0.+0.j -1.+0.j  0.+0.j  0.+0.j]
    [ 0.+0.j -1.+0.j  0.+0.j  0.+0.j]
+
+環境から相互作用を受け、時間発展によって減衰させるゲートとして、NoisyEvolutionとNoisyEvolution_fastがあります。
+これらは、以下の手順で利用できます。
+
+#. 環境から相互作用を受けるシステムをハミルトニアンとして設定し、相互作用の演算子を指定する
+#. 時間発展させる値と微小変化させる時間を指定する
+#. 微分方程式を解く
+
+   - NoisyEvolutionはルンゲクッタ法を使用して、微分方程式を解きます。
+   - NoisyEvolution_fastは行列を抜き出して対角化で求めます。
+
+NoisyEvolution_fastは微小変化させる時間の指定は不要で、処理も高速であることから、NoisyEvolution_fastを使用することを推奨します。
+
+.. code:: python
+
+   from qulacs import QuantumState, Observable, GeneralQuantumOperator
+   from qulacs.gate import NoisyEvolution, NoisyEvolution_fast, H
+
+   n = 2
+   observable = Observable(n)
+   observable.add_operator(1., "X 0")
+
+   # create hamiltonian and collapse operator
+   hamiltonian = Observable(n)
+   hamiltonian.add_operator(1., "Z 0 Z 1")
+
+   decay_rate_z = 0.2
+   decay_rate_p = 0.6
+   decay_rate_m = 0.1
+
+   # interacting operator
+   c_ops = [GeneralQuantumOperator(n) for _ in range(3*n)]
+   c_ops[0].add_operator(decay_rate_z, "Z 0")
+   c_ops[1].add_operator(decay_rate_z, "Z 1")
+   c_ops[2].add_operator(decay_rate_p/2, "X 0")
+   c_ops[2].add_operator(decay_rate_p/2*1j, "Y 0")
+   c_ops[3].add_operator(decay_rate_p/2, "X 1")
+   c_ops[3].add_operator(decay_rate_p/2*1j, "Y 1")
+   c_ops[4].add_operator(decay_rate_m/2, "X 0")
+   c_ops[4].add_operator(-decay_rate_m/2*1j, "Y 0")
+   c_ops[5].add_operator(decay_rate_m/2, "X 1")
+   c_ops[5].add_operator(-decay_rate_m/2*1j, "Y 1")
+
+   time = 2.
+   gate = NoisyEvolution_fast(hamiltonian, c_ops, time)
+   #dt = .1
+   #gate = NoisyEvolution(hamiltonian, c_ops, time, dt)
+
+   exp = 0.
+   n_samples = 1000
+   state = QuantumState(n)
+   for k in range(n_samples):
+      state.set_zero_state()
+      H(0).update_quantum_state(state)
+      H(1).update_quantum_state(state)
+      gate.update_quantum_state(state)
+      exp += observable.get_expectation_value(state) / n_samples
+      print(f"[{k}] exp: {exp}")
+
+::
+
+   [0] exp: 0.0
+   [1] exp: -0.0006155544536970823
+   [2] exp: -2.168404344971009e-19
+   [3] exp: -2.168404344971009e-19
+   [4] exp: -2.168404344971009e-19
+   [5] exp: -0.0006155544536970825
+   [6] exp: -4.336808689942018e-19
+   （略）
+   [995] exp: -0.2967070487040435
+   [996] exp: -0.29720105798458607
+   [997] exp: -0.29720105798458607
+   [998] exp: -0.29781661243828317
+   [999] exp: -0.29781661243828317
 
 CPTP写像
 ^^^^^^^^

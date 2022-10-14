@@ -9,3 +9,4 @@ sphinx-copybutton
 ipykernel
 cmake
 qulacs
+scipy
