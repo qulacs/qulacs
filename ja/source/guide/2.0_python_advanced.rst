@@ -1588,7 +1588,7 @@ create_observable_from_openfermion_text create_split_observable
 ^^^^^^^^^^^^^^^^
 
 power method あるいは arnoldi method を用いて演算子の基底状態を求めることができます。
-計算後に引数の <code>state</code> には対応する基底状態が代入されます。
+計算後に引数の ``state`` には対応する基底状態が代入されます。
 
 power method
 """"""""""""""
