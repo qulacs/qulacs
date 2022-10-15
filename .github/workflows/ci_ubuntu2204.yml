@@ -26,7 +26,6 @@ jobs:
       CXX_COMPILER: "aarch64-linux-gnu-g++-11"
       QULACS_OPT_FLAGS: "-march=armv8.2-a+sve"
       PYTHON: ${{ matrix.python-version }}
-      COVERAGE: "ON"
       QEMU_LD_PREFIX: "/usr/aarch64-linux-gnu"
       QEMU_CPU: "max,sve512=on"
     steps:
@@ -47,37 +46,14 @@ jobs:
       - name: Install boost
         run: sudo apt-get install libboost-dev
 
-      - name: Install LCOV
-        run: |
-          git clone -b v1.15 --depth 1 https://github.com/linux-test-project/lcov.git
-          cd lcov
-          sudo make install
-
       - name: Install qulacs for Ubuntu
         run: USE_TEST=Yes ./script/build_gcc.sh
-
-      - name: Install qulacs Python module
-        run: pip install .[ci]
-      
-      - name: Check stubs
-        run: |
-          ./script/update_stubs.sh
-          diff=$(git diff)
-          echo -n "$diff"
-          # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
-          test $(echo -n "$diff" | wc -l) -eq 0
-
-      - name: Test if stub is working
-        run: |
-          python python/stub-test/generate_mypy_tester.py qulacs
-          mypy python/stub-test/names_qulacs.py
 
       - name: Test in Ubuntu
         run: |
           cd ./build
-          make coverage
-          make pythontest
-
-      - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v3
+          make buildtest
+          qemu-aarch64 ../bin/csim_test
+          qemu-aarch64 ../bin/cppsim_test
+          qemu-aarch64 ../bin/vqcsim_test
 
