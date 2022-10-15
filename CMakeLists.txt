@@ -352,6 +352,11 @@ if(USE_TEST)
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/cppsim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
 		)
+		add_custom_target(buildtest
+			DEPENDS csim_test
+			DEPENDS cppsim_test
+			DEPENDS vqcsim_test
+		)
 		add_custom_target(coverage
 			DEPENDS test
 			COMMAND mkdir -p "${CMAKE_CURRENT_SOURCE_DIR}/coverage"
