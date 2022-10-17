@@ -228,3 +228,92 @@ TEST(DensityMatrixTest, PartialTraceDMtoDM) {
     // numerical test is performed in python
     delete state2;
 }
+
+TEST(DensityMatrixTest, MakeMixture) {
+    UINT n = 4;
+    Random random;
+    {
+        QuantumState state1(n);
+        state1.set_Haar_random_state();
+        QuantumState state2(n);
+        state2.set_Haar_random_state();
+        CPPCTYPE coef1(random.uniform(), random.uniform());
+        CPPCTYPE coef2(random.uniform(), random.uniform());
+        DensityMatrixCpu* mixture =
+            state::make_mixture(coef1, &state1, coef2, &state2);
+        for (UINT i = 0; i < (1 << n); ++i) {
+            for (UINT j = 0; j < (1 << n); ++j) {
+                CPPCTYPE val1 =
+                    state1.data_cpp()[i] * conj(state1.data_cpp()[j]);
+                CPPCTYPE val2 =
+                    state2.data_cpp()[i] * conj(state2.data_cpp()[j]);
+                ASSERT_NEAR(abs(coef1 * val1 + coef2 * val2 -
+                                mixture->data_cpp()[i * (1 << n) + j]),
+                    0, 1e-6);
+            }
+        }
+        delete mixture;
+    }
+    {
+        QuantumState state1(n);
+        state1.set_Haar_random_state();
+        DensityMatrixCpu state2(n);
+        state2.set_Haar_random_state();
+        CPPCTYPE coef1(random.uniform(), random.uniform());
+        CPPCTYPE coef2(random.uniform(), random.uniform());
+        DensityMatrixCpu* mixture =
+            state::make_mixture(coef1, &state1, coef2, &state2);
+        for (UINT i = 0; i < (1 << n); ++i) {
+            for (UINT j = 0; j < (1 << n); ++j) {
+                CPPCTYPE val1 =
+                    state1.data_cpp()[i] * conj(state1.data_cpp()[j]);
+                CPPCTYPE val2 = state2.data_cpp()[i * (1 << n) + j];
+                ASSERT_NEAR(abs(coef1 * val1 + coef2 * val2 -
+                                mixture->data_cpp()[i * (1 << n) + j]),
+                    0, 1e-6);
+            }
+        }
+        delete mixture;
+    }
+    {
+        DensityMatrixCpu state1(n);
+        state1.set_Haar_random_state();
+        QuantumState state2(n);
+        state2.set_Haar_random_state();
+        CPPCTYPE coef1(random.uniform(), random.uniform());
+        CPPCTYPE coef2(random.uniform(), random.uniform());
+        DensityMatrixCpu* mixture =
+            state::make_mixture(coef1, &state1, coef2, &state2);
+        for (UINT i = 0; i < (1 << n); ++i) {
+            for (UINT j = 0; j < (1 << n); ++j) {
+                CPPCTYPE val1 = state1.data_cpp()[i * (1 << n) + j];
+                CPPCTYPE val2 =
+                    state2.data_cpp()[i] * conj(state2.data_cpp()[j]);
+                ASSERT_NEAR(abs(coef1 * val1 + coef2 * val2 -
+                                mixture->data_cpp()[i * (1 << n) + j]),
+                    0, 1e-6);
+            }
+        }
+        delete mixture;
+    }
+    {
+        DensityMatrixCpu state1(n);
+        state1.set_Haar_random_state();
+        DensityMatrixCpu state2(n);
+        state2.set_Haar_random_state();
+        CPPCTYPE coef1(random.uniform(), random.uniform());
+        CPPCTYPE coef2(random.uniform(), random.uniform());
+        DensityMatrixCpu* mixture =
+            state::make_mixture(coef1, &state1, coef2, &state2);
+        for (UINT i = 0; i < (1 << n); ++i) {
+            for (UINT j = 0; j < (1 << n); ++j) {
+                CPPCTYPE val1 = state1.data_cpp()[i * (1 << n) + j];
+                CPPCTYPE val2 = state2.data_cpp()[i * (1 << n) + j];
+                ASSERT_NEAR(abs(coef1 * val1 + coef2 * val2 -
+                                mixture->data_cpp()[i * (1 << n) + j]),
+                    0, 1e-6);
+            }
+        }
+        delete mixture;
+    }
+}

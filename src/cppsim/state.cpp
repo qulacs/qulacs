@@ -50,5 +50,18 @@ QuantumState* drop_qubit(const QuantumState* state, std::vector<UINT> target,
         state->data_c(), qs->data_c(), state->dim);
     return qs;
 }
+QuantumState* make_superposition(CPPCTYPE coef1, const QuantumState* state1,
+    CPPCTYPE coef2, const QuantumState* state2) {
+    if (state1->qubit_count != state2->qubit_count) {
+        throw InvalidQubitCountException(
+            "Error: make_superposition(CPPCTYPE, const QuantumState*, "
+            "CPPCTYPE, const QuantumState*): invalid qubit count");
+    }
+    QuantumState* qs = new QuantumState(state1->qubit_count);
+    qs->set_zero_norm_state();
+    qs->add_state_with_coef(coef1, state1);
+    qs->add_state_with_coef(coef2, state2);
+    return qs;
+}
 
 }  // namespace state

@@ -430,4 +430,9 @@ DllExport DensityMatrixCpu* partial_trace(
     const QuantumStateCpu* state, std::vector<UINT> target);
 DllExport DensityMatrixCpu* partial_trace(
     const DensityMatrixCpu* state, std::vector<UINT> target);
+// create a mixed state such that the proportion of state1 is prob1, the
+// proportion of state2 is prob2
+DllExport DensityMatrixCpu* make_mixture(CPPCTYPE prob1,
+    const QuantumStateBase* state1, CPPCTYPE prob2,
+    const QuantumStateBase* state2);
 }  // namespace state
