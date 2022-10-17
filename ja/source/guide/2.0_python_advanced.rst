@@ -687,7 +687,7 @@ Identityは量子状態を更新しませんが、量子回路に入れると1st
     [[0.99875026+0.j         0.        +0.04997917j]
     [0.        +0.04997917j 0.99875026+0.j        ]]
 
-回転操作の定義は:raw-latex:`\f`\ :math:`R_X(\theta) = \exp(i\frac{\theta}{2} X)\f`\ です。
+回転操作の定義は :math:`R_X(\theta) = \exp(i\frac{\theta}{2} X)` です。
 
 IBMQの基底ゲート
 ^^^^^^^^^^^^^^^^
@@ -717,9 +717,9 @@ IBMQのOpenQASMで定義されている、virtual-Z分解に基づくゲート�
 
 定義はそれぞれ
 
--  :raw-latex:`\f`\ :math:`U_1(\lambda) = R_Z(\lambda)\f`
--  :raw-latex:`\f`\ :math:`U_2(\phi, \lambda) = R_Z(\phi+\frac{\pi}{2}) R_X(\frac{\pi}{2}) R_Z(\lambda-\frac{\pi}{2})\f`
--  :raw-latex:`\f`\ :math:`U_3(\theta, \phi, \lambda) = R_Z(\phi+3\pi) R_X(\pi/2) R_Z(\theta+\pi) R_X(\pi/2) R_Z(\lambda)\f`
+-  :math:`U_1(\lambda) = R_Z(\lambda)`
+-  :math:`U_2(\phi, \lambda) = R_Z(\phi+\frac{\pi}{2}) R_X(\frac{\pi}{2}) R_Z(\lambda-\frac{\pi}{2})`
+-  :math:`U_3(\theta, \phi, \lambda) = R_Z(\phi+3\pi) R_X(\pi/2) R_Z(\theta+\pi) R_X(\pi/2) R_Z(\lambda)`
 
 になります。U3は任意の1qubitユニタリ操作の自由度と一致します。
 
@@ -827,7 +827,7 @@ qubitになります。残りのゲートは対称な操作です。
 可逆回路
 ^^^^^^^^
 
-:raw-latex:`\f`\ :math:`2^n\f`\ 個の添え字に対する全単射関数を与えることで、基底間の置換操作を行います。ゲート行列が置換行列になっていることと同義です。全単射でない場合正常に動作しないため注意してください。
+:math:`2^n` 個の添え字に対する全単射関数を与えることで、基底間の置換操作を行います。ゲート行列が置換行列になっていることと同義です。全単射でない場合正常に動作しないため注意してください。
 
 .. code:: python
 
@@ -865,7 +865,9 @@ qubitになります。残りのゲートは対称な操作です。
 状態反射
 ^^^^^^^^
 
-量子状態|a>を引数として定義される、(I-2|a><a|>)というゲートです。これは|a>という量子状態をもとに反射する操作に対応します。グローバー探索で登場するゲートです。このゲートが作用する相手の量子ビット数は、引数として与えた量子状態の量子ビット数と一致しなければいけません。
+量子状態 :math:`|a\rangle` を引数として定義される、 :math:`(I-2|a\rangle \langle a|)` というゲートです。
+これは :math:`|a\rangle` という量子状態をもとに反射する操作に対応します。グローバー探索で登場するゲートです。
+このゲートが作用する相手の量子ビット数は、引数として与えた量子状態の量子ビット数と一致しなければいけません。
 
 .. code:: python
 
@@ -1083,7 +1085,7 @@ qubitが0,1のどちらの場合にtargetに作用が生じるかも指定でき
 ゲートの和
 ^^^^^^^^^^
 
-複数のゲートの和を取り、新たなゲートを作ることが出来ます。例えばパウリ演算子:raw-latex:`\f`\ :math:`P\f`\ に対して:raw-latex:`\f`\ :math:`(I+P)/2\f`\ といった+1固有値空間への射影を作るときに便利です。
+複数のゲートの和を取り、新たなゲートを作ることが出来ます。例えばパウリ演算子 :math:`P` に対して :math:`(I+P)/2` といった+1固有値空間への射影を作るときに便利です。
 
 .. code:: python
 
@@ -1464,7 +1466,7 @@ int型のリストを引数として受け取り、bool型を返す関数でな�
 パウリ演算子
 ~~~~~~~~~~~~
 
-オブザーバブルは実係数を持つパウリ演算子の線形結合として表現されます。PauliOperatorクラスはその中のそれぞれの項を表す、\ :math:`n`-qubitパウリ演算子の元に係数を付与したものを表現するクラスです。ゲートと異なり、量子状態の更新はできません。
+オブザーバブルは実係数を持つパウリ演算子の線形結合として表現されます。PauliOperatorクラスはその中のそれぞれの項を表す、 :math:`n`-qubitパウリ演算子の元に係数を付与したものを表現するクラスです。ゲートと異なり、量子状態の更新はできません。
 
 パウリ演算子の生成と状態の取得
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -1573,6 +1575,8 @@ int型のリストを引数として受け取り、bool型を返す関数でな�
    index = 1
    pauli = operator.get_term(index)
 
+   # ハミルトニアンであるかどうかを判定
+   is_hermitian = operator.is_hermitian()
 
    # 期待値の計算 <a|H|a>
    ## 一般に自己随伴ではないので複素が帰りうる
@@ -1580,6 +1584,11 @@ int型のリストを引数として受け取り、bool型を返す関数でな�
    state.set_Haar_random_state()
    value = operator.get_expectation_value(state)
    print("expect", value)
+
+   # オペレーターを作用させる
+   result = QuantumState(n)
+   work_state = QuantumState(n)
+   operator.apply_to_state(work_state, state, result)
 
    # 遷移モーメントの計算 <a|H|b>
    # 第一引数がブラ側に来る
@@ -1650,6 +1659,62 @@ create_observable_from_openfermion_text create_split_observable
    diag, nondiag = create_split_observable("./H2.txt")
    print(operator.get_term_count(), diag.get_term_count(), nondiag.get_term_count())
    print(operator.get_qubit_count(), diag.get_qubit_count(), nondiag.get_qubit_count())
+
+基底状態を求める
+^^^^^^^^^^^^^^^^
+
+power method あるいは arnoldi method を用いて演算子の基底状態を求めることができます。
+計算後に引数の ``state`` には対応する基底状態が代入されます。
+
+power method
+""""""""""""""
+
+.. code:: python
+
+   from qulacs import Observable, QuantumState
+   from qulacs.observable import create_observable_from_openfermion_file
+
+   n = 4
+   operator = create_observable_from_openfermion_file("./H2.txt")
+   state = QuantumState(n)
+   state.set_Haar_random_state()
+   value = operator.solve_ground_state_eigenvalue_by_power_method(state, 50)
+   print(value)
+
+arnoldi method:
+""""""""""""""""
+
+.. code:: python
+
+   from qulacs import Observable, QuantumState
+   from qulacs.observable import create_observable_from_openfermion_file
+
+   n = 4
+   operator = create_observable_from_openfermion_file("./H2.txt")
+   state = QuantumState(n)
+   state.set_Haar_random_state()
+   value = operator.solve_ground_state_eigenvalue_by_arnoldi_method(state, 50)
+   print(value)
+
+量子状態に適用する
+~~~~~~~~~~~~~~~~~~~
+
+演算子を量子状態に適用することができます。
+
+.. code:: python
+
+   from qulacs import Observable, QuantumState
+   from qulacs.observable import create_observable_from_openfermion_file
+
+   n = 4
+   operator = create_observable_from_openfermion_file("./H2.txt")
+   state = QuantumState(n)
+   state.set_Haar_random_state()
+   result = QuantumState(n)
+   work_state = QuantumState(n)
+   operator.apply_to_state(work_state, state, result)
+   print(result)
+
 
 量子回路
 --------
