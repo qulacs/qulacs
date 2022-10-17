@@ -1575,6 +1575,8 @@ int型のリストを引数として受け取り、bool型を返す関数でな�
    index = 1
    pauli = operator.get_term(index)
 
+   # ハミルトニアンであるかどうかを判定
+   is_hermitian = operator.is_hermitian()
 
    # 期待値の計算 <a|H|a>
    ## 一般に自己随伴ではないので複素が帰りうる
@@ -1582,6 +1584,11 @@ int型のリストを引数として受け取り、bool型を返す関数でな�
    state.set_Haar_random_state()
    value = operator.get_expectation_value(state)
    print("expect", value)
+
+   # オペレーターを作用させる
+   result = QuantumState(n)
+   work_state = QuantumState(n)
+   operator.apply_to_state(work_state, state, result)
 
    # 遷移モーメントの計算 <a|H|b>
    # 第一引数がブラ側に来る
@@ -1652,6 +1659,62 @@ create_observable_from_openfermion_text create_split_observable
    diag, nondiag = create_split_observable("./H2.txt")
    print(operator.get_term_count(), diag.get_term_count(), nondiag.get_term_count())
    print(operator.get_qubit_count(), diag.get_qubit_count(), nondiag.get_qubit_count())
+
+基底状態を求める
+^^^^^^^^^^^^^^^^
+
+power method あるいは arnoldi method を用いて演算子の基底状態を求めることができます。
+計算後に引数の ``state`` には対応する基底状態が代入されます。
+
+power method
+""""""""""""""
+
+.. code:: python
+
+   from qulacs import Observable, QuantumState
+   from qulacs.observable import create_observable_from_openfermion_file
+
+   n = 4
+   operator = create_observable_from_openfermion_file("./H2.txt")
+   state = QuantumState(n)
+   state.set_Haar_random_state()
+   value = operator.solve_ground_state_eigenvalue_by_power_method(state, 50)
+   print(value)
+
+arnoldi method:
+""""""""""""""""
+
+.. code:: python
+
+   from qulacs import Observable, QuantumState
+   from qulacs.observable import create_observable_from_openfermion_file
+
+   n = 4
+   operator = create_observable_from_openfermion_file("./H2.txt")
+   state = QuantumState(n)
+   state.set_Haar_random_state()
+   value = operator.solve_ground_state_eigenvalue_by_arnoldi_method(state, 50)
+   print(value)
+
+量子状態に適用する
+~~~~~~~~~~~~~~~~~~~
+
+演算子を量子状態に適用することができます。
+
+.. code:: python
+
+   from qulacs import Observable, QuantumState
+   from qulacs.observable import create_observable_from_openfermion_file
+
+   n = 4
+   operator = create_observable_from_openfermion_file("./H2.txt")
+   state = QuantumState(n)
+   state.set_Haar_random_state()
+   result = QuantumState(n)
+   work_state = QuantumState(n)
+   operator.apply_to_state(work_state, state, result)
+   print(result)
+
 
 量子回路
 --------
