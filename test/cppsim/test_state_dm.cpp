@@ -254,7 +254,7 @@ TEST(DensityMatrixTest, MakeMixture) {
                     state2.data_cpp()[i] * conj(state2.data_cpp()[j]);
                 ASSERT_NEAR(abs(coef1 * val1 + coef2 * val2 -
                                 mixture->data_cpp()[i * (1 << n) + j]),
-                    0, 1e-6);
+                    0, eps);
             }
         }
         delete mixture;
@@ -275,7 +275,7 @@ TEST(DensityMatrixTest, MakeMixture) {
                 CPPCTYPE val2 = state2.data_cpp()[i * (1 << n) + j];
                 ASSERT_NEAR(abs(coef1 * val1 + coef2 * val2 -
                                 mixture->data_cpp()[i * (1 << n) + j]),
-                    0, 1e-6);
+                    0, eps);
             }
         }
         delete mixture;
@@ -296,7 +296,7 @@ TEST(DensityMatrixTest, MakeMixture) {
                     state2.data_cpp()[i] * conj(state2.data_cpp()[j]);
                 ASSERT_NEAR(abs(coef1 * val1 + coef2 * val2 -
                                 mixture->data_cpp()[i * (1 << n) + j]),
-                    0, 1e-6);
+                    0, eps);
             }
         }
         delete mixture;
@@ -316,7 +316,7 @@ TEST(DensityMatrixTest, MakeMixture) {
                 CPPCTYPE val2 = state2.data_cpp()[i * (1 << n) + j];
                 ASSERT_NEAR(abs(coef1 * val1 + coef2 * val2 -
                                 mixture->data_cpp()[i * (1 << n) + j]),
-                    0, 1e-6);
+                    0, eps);
             }
         }
         delete mixture;
