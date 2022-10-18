@@ -1,8 +1,17 @@
 #pragma once
 
 #include "gate.hpp"
+#include "gate_merge.hpp"
 #include "state.hpp"
 #include "utility.hpp"
+/**
+ * ここら辺のtarget listの仕様について
+ * ゲートをマージしたときのtargetやcontrolの挙動は
+ * get_new_qubit_list 関数で決められている
+ * Identity のゲート + 含まれるすべてのゲート
+ * のゲート集合を元に、　get_new_qubit_list で決める
+ * ただし、和が1のProbabilistic においてのみ、　Identityなしで求めている
+ */
 
 /**
  * \~japanese-en 確率的なユニタリ操作
@@ -51,6 +60,32 @@ public:
             [](auto gate) { return gate->copy(); });
         FLAG_NOISE = true;
         this->_name = "Probabilistic";
+
+        bool fullsum = (sum > 1 - 1e-6);
+
+        if (fullsum && _gate_list.size() > 0) {
+            this->_target_qubit_list = _gate_list[0]->target_qubit_list;
+            this->_control_qubit_list = _gate_list[0]->control_qubit_list;
+        }
+
+        for (UINT i = (fullsum ? 1 : 0); i < _gate_list.size(); i++) {
+            std::vector<TargetQubitInfo> new_target_list;
+            std::vector<ControlQubitInfo> new_control_list;
+            gate::get_new_qubit_list(
+                this, _gate_list[i], new_target_list, new_control_list);
+            this->_target_qubit_list = move(new_target_list);
+            this->_control_qubit_list = move(new_control_list);
+        }
+        std::sort(this->_target_qubit_list.begin(),
+            this->_target_qubit_list.end(),
+            [](const TargetQubitInfo& a, const TargetQubitInfo& b) {
+                return a.index() < b.index();
+            });
+        std::sort(this->_control_qubit_list.begin(),
+            this->_control_qubit_list.end(),
+            [](const ControlQubitInfo& a, const ControlQubitInfo& b) {
+                return a.index() < b.index();
+            });
     };
 
     virtual ~QuantumGate_Probabilistic() {
@@ -227,6 +262,25 @@ public:
             std::back_inserter(_gate_list),
             [](auto gate) { return gate->copy(); });
         this->_name = "CPTP";
+
+        for (UINT i = 0; i < _gate_list.size(); i++) {
+            std::vector<TargetQubitInfo> new_target_list;
+            std::vector<ControlQubitInfo> new_control_list;
+            gate::get_new_qubit_list(
+                this, _gate_list[i], new_target_list, new_control_list);
+            this->_target_qubit_list = move(new_target_list);
+            this->_control_qubit_list = move(new_control_list);
+        }
+        std::sort(this->_target_qubit_list.begin(),
+            this->_target_qubit_list.end(),
+            [](const TargetQubitInfo& a, const TargetQubitInfo& b) {
+                return a.index() < b.index();
+            });
+        std::sort(this->_control_qubit_list.begin(),
+            this->_control_qubit_list.end(),
+            [](const ControlQubitInfo& a, const ControlQubitInfo& b) {
+                return a.index() < b.index();
+            });
     };
     virtual ~QuantumGate_CPTP() {
         for (unsigned int i = 0; i < _gate_list.size(); ++i) {
@@ -329,6 +383,25 @@ public:
             std::back_inserter(_gate_list),
             [](auto gate) { return gate->copy(); });
         this->_name = "CP";
+
+        for (UINT i = 0; i < _gate_list.size(); i++) {
+            std::vector<TargetQubitInfo> new_target_list;
+            std::vector<ControlQubitInfo> new_control_list;
+            gate::get_new_qubit_list(
+                this, _gate_list[i], new_target_list, new_control_list);
+            this->_target_qubit_list = move(new_target_list);
+            this->_control_qubit_list = move(new_control_list);
+        }
+        std::sort(this->_target_qubit_list.begin(),
+            this->_target_qubit_list.end(),
+            [](const TargetQubitInfo& a, const TargetQubitInfo& b) {
+                return a.index() < b.index();
+            });
+        std::sort(this->_control_qubit_list.begin(),
+            this->_control_qubit_list.end(),
+            [](const ControlQubitInfo& a, const ControlQubitInfo& b) {
+                return a.index() < b.index();
+            });
     };
     virtual ~QuantumGate_CP() {
         for (unsigned int i = 0; i < _gate_list.size(); ++i) {
@@ -444,6 +517,25 @@ public:
             std::back_inserter(_gate_list),
             [](auto gate) { return gate->copy(); });
         this->_name = "Instrument";
+
+        for (UINT i = 0; i < _gate_list.size(); i++) {
+            std::vector<TargetQubitInfo> new_target_list;
+            std::vector<ControlQubitInfo> new_control_list;
+            gate::get_new_qubit_list(
+                this, _gate_list[i], new_target_list, new_control_list);
+            this->_target_qubit_list = move(new_target_list);
+            this->_control_qubit_list = move(new_control_list);
+        }
+        std::sort(this->_target_qubit_list.begin(),
+            this->_target_qubit_list.end(),
+            [](const TargetQubitInfo& a, const TargetQubitInfo& b) {
+                return a.index() < b.index();
+            });
+        std::sort(this->_control_qubit_list.begin(),
+            this->_control_qubit_list.end(),
+            [](const ControlQubitInfo& a, const ControlQubitInfo& b) {
+                return a.index() < b.index();
+            });
     };
     virtual ~QuantumGate_Instrument() {
         for (unsigned int i = 0; i < _gate_list.size(); ++i) {
@@ -522,7 +614,26 @@ protected:
 public:
     QuantumGate_Adaptive(QuantumGateBase* gate,
         std::function<bool(const std::vector<UINT>&)> func_without_id)
-        : _gate(gate->copy()), _func_without_id(func_without_id), _id(-1){};
+        : _gate(gate->copy()), _func_without_id(func_without_id), _id(-1) {
+        this->_name = "Adaptive";
+
+        std::vector<TargetQubitInfo> new_target_list;
+        std::vector<ControlQubitInfo> new_control_list;
+        gate::get_new_qubit_list(
+            this, _gate, new_target_list, new_control_list);
+        this->_target_qubit_list = move(new_target_list);
+        this->_control_qubit_list = move(new_control_list);
+        std::sort(this->_target_qubit_list.begin(),
+            this->_target_qubit_list.end(),
+            [](const TargetQubitInfo& a, const TargetQubitInfo& b) {
+                return a.index() < b.index();
+            });
+        std::sort(this->_control_qubit_list.begin(),
+            this->_control_qubit_list.end(),
+            [](const ControlQubitInfo& a, const ControlQubitInfo& b) {
+                return a.index() < b.index();
+            });
+    };
     QuantumGate_Adaptive(QuantumGateBase* gate,
         std::function<bool(const std::vector<UINT>&, UINT)> func_with_id,
         UINT id)
@@ -530,6 +641,24 @@ public:
           _func_with_id(func_with_id),
           _id(static_cast<int>(id)) {
         this->_name = "Adaptive";
+
+        // Identity gate との演算になる
+        std::vector<TargetQubitInfo> new_target_list;
+        std::vector<ControlQubitInfo> new_control_list;
+        gate::get_new_qubit_list(
+            this, _gate, new_target_list, new_control_list);
+        this->_target_qubit_list = move(new_target_list);
+        this->_control_qubit_list = move(new_control_list);
+        std::sort(this->_target_qubit_list.begin(),
+            this->_target_qubit_list.end(),
+            [](const TargetQubitInfo& a, const TargetQubitInfo& b) {
+                return a.index() < b.index();
+            });
+        std::sort(this->_control_qubit_list.begin(),
+            this->_control_qubit_list.end(),
+            [](const ControlQubitInfo& a, const ControlQubitInfo& b) {
+                return a.index() < b.index();
+            });
     };
     virtual ~QuantumGate_Adaptive() { delete _gate; }
 
