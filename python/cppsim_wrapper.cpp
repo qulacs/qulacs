@@ -628,6 +628,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("set_parameter", &ParametricQuantumCircuit::set_parameter, "Set parameter", py::arg("index"), py::arg("parameter"))
         .def("get_parametric_gate_position", &ParametricQuantumCircuit::get_parametric_gate_position, "Get parametric gate position", py::arg("index"))
         .def("remove_gate", &ParametricQuantumCircuit::remove_gate, "Remove gate", py::arg("position"))
+        .def("merge_circuit", &ParametricQuantumCircuit::merge_circuit, "Merge another ParametricQuantumCircuit", py::arg("circuit"))
 
         .def("add_parametric_RX_gate", &ParametricQuantumCircuit::add_parametric_RX_gate, "Add parametric Pauli-X rotation gate", py::arg("index"), py::arg("angle"))
         .def("add_parametric_RY_gate", &ParametricQuantumCircuit::add_parametric_RY_gate, "Add parametric Pauli-Y rotation gate", py::arg("index"), py::arg("angle"))
@@ -643,7 +644,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<GradCalculator>(m, "GradCalculator")
         .def(py::init<>())
         .def("calculate_grad",py::overload_cast<ParametricQuantumCircuit&, Observable&>(&GradCalculator::calculate_grad),"Calculate Grad", py::arg("parametric_circuit"),py::arg("observable"))
-        .def("calculate_grad",py::overload_cast<ParametricQuantumCircuit&, Observable&,std::vector<double>>(&GradCalculator::calculate_grad), py::arg("parametric_circuit"),py::arg("observable"),py::arg("angles of gates"));
+        .def("calculate_grad",py::overload_cast<ParametricQuantumCircuit&, Observable&,std::vector<double>>(&GradCalculator::calculate_grad), py::arg("parametric_circuit"),py::arg("observable"),py::arg("angles_of_gates"));
        
     auto mcircuit = m.def_submodule("circuit");
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
