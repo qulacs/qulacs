@@ -9,12 +9,17 @@
 QuantumCircuitSimulator::QuantumCircuitSimulator(
     QuantumCircuit* circuit, QuantumStateBase* initial_state)
     : _circuit(circuit), _state(initial_state), _buffer(NULL) {
-    if (_state == NULL) _state = new QuantumState(this->_circuit->qubit_count);
+    if (_state == NULL) {
+        _state = new QuantumState(this->_circuit->qubit_count);
+        _own_state = true;
+    }
+    // _circuitはQuantumCircuitSimulatorを継承しているParametricQuantumCircuitSimulatorが
+    // circuitのポインタを共有しておりtestで最適化した回路を使用するので、
+    // 渡されたcircuitをそのまま使用する必要がある。
 };
 
 QuantumCircuitSimulator::~QuantumCircuitSimulator() {
-    if (_circuit != NULL) delete _circuit;
-    if (_state != NULL) delete _state;
+    if (_own_state) delete _state;
     if (_buffer != NULL) delete _buffer;
 }
 
