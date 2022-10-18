@@ -735,11 +735,11 @@ class QuantumState(QuantumStateBase):
         """
         Add state vector to this state
         """
-    def allocate_buffer(self) -> QuantumStateBase: 
+    def allocate_buffer(self) -> QuantumState: 
         """
         Allocate buffer with the same size
         """
-    def copy(self) -> QuantumStateBase: 
+    def copy(self) -> QuantumState: 
         """
         Create copied instance
         """
@@ -839,11 +839,11 @@ class DensityMatrix(QuantumStateBase):
         """
         Add state vector to this state
         """
-    def allocate_buffer(self) -> QuantumStateBase: 
+    def allocate_buffer(self) -> DensityMatrix: 
         """
         Allocate buffer with the same size
         """
-    def copy(self) -> QuantumStateBase: 
+    def copy(self) -> DensityMatrix: 
         """
         Create copied insntace
         """

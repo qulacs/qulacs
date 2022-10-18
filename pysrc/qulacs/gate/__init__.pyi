@@ -88,7 +88,7 @@ def BitFlipNoise(index: int, prob: float) -> qulacs_core.QuantumGateBase:
     """
     Create bit-flip noise
     """
-def CNOT(control: int, target: int) -> qulacs_core.QuantumGateBase:
+def CNOT(control: int, target: int) -> ClsOneControlOneTargetGate:
     """
     Create CNOT gate
     """
@@ -100,7 +100,7 @@ def CPTP(kraus_list: typing.List[qulacs_core.QuantumGateBase]) -> qulacs_core.Qu
     """
     Create completely-positive trace preserving map
     """
-def CZ(control: int, target: int) -> qulacs_core.QuantumGateBase:
+def CZ(control: int, target: int) -> ClsOneControlOneTargetGate:
     """
     Create CZ gate
     """
@@ -128,11 +128,11 @@ def FREDKIN(control: int, target1: int, target2: int) -> qulacs_core.QuantumGate
     """
     Create FREDKIN gate
     """
-def H(index: int) -> qulacs_core.QuantumGateBase:
+def H(index: int) -> ClsOneQubitGate:
     """
     Create Hadamard gate
     """
-def Identity(index: int) -> qulacs_core.QuantumGateBase:
+def Identity(index: int) -> ClsOneQubitGate:
     """
     Create identity gate
     """
@@ -148,19 +148,19 @@ def Measurement(index: int, register: int) -> qulacs_core.QuantumGateBase:
     """
     Create measurement gate
     """
-def NoisyEvolution(hamiltonian: qulacs_core.Observable, c_ops: typing.List[qulacs_core.GeneralQuantumOperator], time: float, dt: float) -> qulacs_core.QuantumGateBase:
+def NoisyEvolution(hamiltonian: qulacs_core.Observable, c_ops: typing.List[qulacs_core.GeneralQuantumOperator], time: float, dt: float) -> ClsNoisyEvolution:
     """
     Create noisy evolution
     """
-def NoisyEvolution_fast(hamiltonian: qulacs_core.Observable, c_ops: typing.List[qulacs_core.GeneralQuantumOperator], time: float) -> qulacs_core.QuantumGateBase:
+def NoisyEvolution_fast(hamiltonian: qulacs_core.Observable, c_ops: typing.List[qulacs_core.GeneralQuantumOperator], time: float) -> ClsNoisyEvolution_fast:
     """
     Create noisy evolution fast version
     """
-def P0(index: int) -> qulacs_core.QuantumGateBase:
+def P0(index: int) -> ClsOneQubitGate:
     """
     Create projection gate to |0> subspace
     """
-def P1(index: int) -> qulacs_core.QuantumGateBase:
+def P1(index: int) -> ClsOneQubitGate:
     """
     Create projection gate to |1> subspace
     """
@@ -196,15 +196,15 @@ def ProbabilisticInstrument(prob_list: typing.List[float], gate_list: typing.Lis
     """
     Create probabilistic instrument gate
     """
-def RX(index: int, angle: float) -> qulacs_core.QuantumGateBase:
+def RX(index: int, angle: float) -> ClsOneQubitRotationGate:
     """
     Create Pauli-X rotation gate
     """
-def RY(index: int, angle: float) -> qulacs_core.QuantumGateBase:
+def RY(index: int, angle: float) -> ClsOneQubitRotationGate:
     """
     Create Pauli-Y rotation gate
     """
-def RZ(index: int, angle: float) -> qulacs_core.QuantumGateBase:
+def RZ(index: int, angle: float) -> ClsOneQubitRotationGate:
     """
     Create Pauli-Z rotation gate
     """
@@ -220,39 +220,39 @@ def ReversibleBoolean(index_list: typing.List[int], func: typing.Callable[[int, 
     """
     Create reversible boolean gate
     """
-def RotInvX(index: int, angle: float) -> qulacs_core.QuantumGateBase:
+def RotInvX(index: int, angle: float) -> ClsOneQubitRotationGate:
     """
     Create Pauli-X rotation gate
     """
-def RotInvY(index: int, angle: float) -> qulacs_core.QuantumGateBase:
+def RotInvY(index: int, angle: float) -> ClsOneQubitRotationGate:
     """
     Create Pauli-Y rotation gate
     """
-def RotInvZ(index: int, angle: float) -> qulacs_core.QuantumGateBase:
+def RotInvZ(index: int, angle: float) -> ClsOneQubitRotationGate:
     """
     Create Pauli-Z rotation gate
     """
-def RotX(index: int, angle: float) -> qulacs_core.QuantumGateBase:
+def RotX(index: int, angle: float) -> ClsOneQubitRotationGate:
     """
     Create Pauli-X rotation gate
     """
-def RotY(index: int, angle: float) -> qulacs_core.QuantumGateBase:
+def RotY(index: int, angle: float) -> ClsOneQubitRotationGate:
     """
     Create Pauli-Y rotation gate
     """
-def RotZ(index: int, angle: float) -> qulacs_core.QuantumGateBase:
+def RotZ(index: int, angle: float) -> ClsOneQubitRotationGate:
     """
     Create Pauli-Z rotation gate
     """
-def S(index: int) -> qulacs_core.QuantumGateBase:
+def S(index: int) -> ClsOneQubitGate:
     """
     Create pi/4-phase gate
     """
-def SWAP(target1: int, target2: int) -> qulacs_core.QuantumGateBase:
+def SWAP(target1: int, target2: int) -> ClsTwoQubitGate:
     """
     Create SWAP gate
     """
-def Sdag(index: int) -> qulacs_core.QuantumGateBase:
+def Sdag(index: int) -> ClsOneQubitGate:
     """
     Create adjoint of pi/4-phase gate
     """
@@ -264,7 +264,7 @@ def StateReflection(state: qulacs_core.QuantumStateBase) -> qulacs_core.QuantumG
     """
     Create state reflection gate
     """
-def T(index: int) -> qulacs_core.QuantumGateBase:
+def T(index: int) -> ClsOneQubitGate:
     """
     Create pi/8-phase gate
     """
@@ -272,7 +272,7 @@ def TOFFOLI(control1: int, control2: int, target: int) -> qulacs_core.QuantumGat
     """
     Create TOFFOLI gate
     """
-def Tdag(index: int) -> qulacs_core.QuantumGateBase:
+def Tdag(index: int) -> ClsOneQubitGate:
     """
     Create adjoint of pi/8-phase gate
     """
@@ -292,15 +292,15 @@ def U3(*args, **kwargs) -> typing.Any:
     """
     Create QASM U3 gate
     """
-def X(index: int) -> qulacs_core.QuantumGateBase:
+def X(index: int) -> ClsOneQubitGate:
     """
     Create Pauli-X gate
     """
-def Y(index: int) -> qulacs_core.QuantumGateBase:
+def Y(index: int) -> ClsOneQubitGate:
     """
     Create Pauli-Y gate
     """
-def Z(index: int) -> qulacs_core.QuantumGateBase:
+def Z(index: int) -> ClsOneQubitGate:
     """
     Create Pauli-Z gate
     """
@@ -322,19 +322,19 @@ def merge(gate1: qulacs_core.QuantumGateBase, gate2: qulacs_core.QuantumGateBase
 @typing.overload
 def merge(gate_list: typing.List[qulacs_core.QuantumGateBase]) -> qulacs_core.QuantumGateMatrix:
     pass
-def sqrtX(index: int) -> qulacs_core.QuantumGateBase:
+def sqrtX(index: int) -> ClsOneQubitGate:
     """
     Create pi/4 Pauli-X rotation gate
     """
-def sqrtXdag(index: int) -> qulacs_core.QuantumGateBase:
+def sqrtXdag(index: int) -> ClsOneQubitGate:
     """
     Create adjoint of pi/4 Pauli-X rotation gate
     """
-def sqrtY(index: int) -> qulacs_core.QuantumGateBase:
+def sqrtY(index: int) -> ClsOneQubitGate:
     """
     Create pi/4 Pauli-Y rotation gate
     """
-def sqrtYdag(index: int) -> qulacs_core.QuantumGateBase:
+def sqrtYdag(index: int) -> ClsOneQubitGate:
     """
     Create adjoint of pi/4 Pauli-Y rotation gate
     """
