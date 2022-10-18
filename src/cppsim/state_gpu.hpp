@@ -195,7 +195,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumStateBase* copy() const override {
+    virtual QuantumStateGpu* copy() const override {
         QuantumStateGpu* new_state =
             new QuantumStateGpu(this->_qubit_count, device_number);
         copy_quantum_state_from_device_to_device(new_state->data(),

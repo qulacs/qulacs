@@ -98,14 +98,6 @@ class GeneralQuantumOperator():
         """
     @typing.overload
     def add_operator(self, pauli_operator: PauliOperator) -> None: ...
-    def add_operator_copy(self, pauli_operator: PauliOperator) -> None: 
-        """
-        Add Pauli operator
-        """
-    def add_operator_move(self, pauli_operator: PauliOperator) -> None: 
-        """
-        Add Pauli operator
-        """
     def apply_to_state(self, work_state: QuantumStateBase, state_to_be_multiplied: QuantumStateBase, dst_state: QuantumStateBase) -> None: 
         """
         Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.
@@ -184,14 +176,6 @@ class Observable(GeneralQuantumOperator):
         """
     @typing.overload
     def add_operator(self, pauli_operator: PauliOperator) -> None: ...
-    def add_operator_copy(self, pauli_operator: PauliOperator) -> None: 
-        """
-        Add Pauli operator
-        """
-    def add_operator_move(self, pauli_operator: PauliOperator) -> None: 
-        """
-        Add Pauli operator
-        """
     @typing.overload
     def add_random_operator(self, operator_count: int) -> None: 
         """
@@ -279,30 +263,6 @@ class QuantumCircuit():
         Add Pauli-Y rotation gate
         """
     def add_RZ_gate(self, index: int, angle: float) -> None: 
-        """
-        Add Pauli-Z rotation gate
-        """
-    def add_RotInvX_gate(self, index: int, angle: float) -> None: 
-        """
-        Add Pauli-X rotation gate
-        """
-    def add_RotInvY_gate(self, index: int, angle: float) -> None: 
-        """
-        Add Pauli-Y rotation gate
-        """
-    def add_RotInvZ_gate(self, index: int, angle: float) -> None: 
-        """
-        Add Pauli-Z rotation gate
-        """
-    def add_RotX_gate(self, index: int, angle: float) -> None: 
-        """
-        Add Pauli-X rotation gate
-        """
-    def add_RotY_gate(self, index: int, angle: float) -> None: 
-        """
-        Add Pauli-Y rotation gate
-        """
-    def add_RotZ_gate(self, index: int, angle: float) -> None: 
         """
         Add Pauli-Z rotation gate
         """
@@ -456,11 +416,14 @@ class QuantumCircuit():
 class PauliOperator():
     def __IMUL__(self, arg0: complex) -> PauliOperator: ...
     def __imul__(self, arg0: PauliOperator) -> PauliOperator: ...
+    @staticmethod
     @typing.overload
-    def __init__(self, coef: complex) -> None: 
+    def __init__(*args, **kwargs) -> typing.Any: 
         """
         Constructor
         """
+    @typing.overload
+    def __init__(self, coef: complex) -> None: ...
     @typing.overload
     def __init__(self, pauli_string: str, coef: complex) -> None: ...
     @typing.overload
@@ -506,6 +469,16 @@ class PauliOperator():
     def get_transition_amplitude(self, state_bra: QuantumStateBase, state_ket: QuantumStateBase) -> complex: 
         """
         Get transition amplitude
+        """
+    @staticmethod
+    def get_x_bits(*args, **kwargs) -> typing.Any: 
+        """
+        get x bits
+        """
+    @staticmethod
+    def get_z_bits(*args, **kwargs) -> typing.Any: 
+        """
+        get z bits
         """
     pass
 class ParametricQuantumCircuit(QuantumCircuit):
@@ -866,10 +839,6 @@ class DensityMatrix(QuantumStateBase):
     def get_matrix(self) -> numpy.ndarray[numpy.complex128, _Shape[m, n]]: 
         """
         Get density matrix
-        """
-    def get_qubit_count(self) -> int: 
-        """
-        Get qubit count
         """
     def get_squared_norm(self) -> float: 
         """

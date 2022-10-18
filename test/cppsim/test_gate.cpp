@@ -463,7 +463,7 @@ TEST(GateTest, RandomPauliMerge) {
             ASSERT_NEAR(
                 abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
 
-        auto merged_gate = gate::Identity(0);
+        QuantumGateBase* merged_gate = gate::Identity(0);
         QuantumGateMatrix* next_merged_gate = NULL;
         QuantumGateBase* new_gate = NULL;
         Eigen::MatrixXcd total_matrix = Eigen::MatrixXcd::Identity(dim, dim);
@@ -572,7 +572,7 @@ TEST(GateTest, RandomPauliRotationMerge) {
             ASSERT_NEAR(
                 abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
 
-        auto merged_gate = gate::Identity(0);
+        QuantumGateBase* merged_gate = gate::Identity(0);
         QuantumGateMatrix* next_merged_gate = NULL;
         QuantumGateBase* new_gate = NULL;
         Eigen::MatrixXcd total_matrix = Eigen::MatrixXcd::Identity(dim, dim);
@@ -676,7 +676,7 @@ TEST(GateTest, RandomUnitaryMerge) {
             ASSERT_NEAR(
                 abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
 
-        auto merged_gate = gate::Identity(0);
+        QuantumGateBase* merged_gate = gate::Identity(0);
         QuantumGateMatrix* next_merged_gate = NULL;
         QuantumGateBase* new_gate = NULL;
         Eigen::MatrixXcd total_matrix = Eigen::MatrixXcd::Identity(dim, dim);
@@ -776,8 +776,8 @@ TEST(GateTest, RandomUnitaryMergeLarge) {
             ASSERT_NEAR(
                 abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
 
-        auto merged_gate1 = gate::Identity(0);
-        auto merged_gate2 = gate::Identity(0);
+        QuantumGateBase* merged_gate1 = gate::Identity(0);
+        QuantumGateBase* merged_gate2 = gate::Identity(0);
         QuantumGateMatrix* next_merged_gate = NULL;
         QuantumGateBase* new_gate = NULL;
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
@@ -1081,7 +1081,7 @@ TEST(GateTest, RandomControlMergeSmall) {
         test_state.load(&state);
         for (ITYPE i = 0; i < dim; ++i)
             test_state_eigen[i] = state.data_cpp()[i];
-        auto merge_gate1 = gate::Identity(0);
+        QuantumGateBase* merge_gate1 = gate::Identity(0);
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
             std::random_shuffle(arr.begin(), arr.end());
@@ -1132,8 +1132,8 @@ TEST(GateTest, RandomControlMergeLarge) {
         test_state.load(&state);
         for (ITYPE i = 0; i < dim; ++i)
             test_state_eigen[i] = state.data_cpp()[i];
-        auto merge_gate1 = gate::Identity(0);
-        auto merge_gate2 = gate::Identity(0);
+        QuantumGateBase* merge_gate1 = gate::Identity(0);
+        QuantumGateBase* merge_gate2 = gate::Identity(0);
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
             std::random_shuffle(arr.begin(), arr.end());
