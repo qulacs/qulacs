@@ -75,7 +75,9 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("apply_to_state", py::overload_cast<QuantumStateBase*, const QuantumStateBase&, QuantumStateBase*>(&GeneralQuantumOperator::apply_to_state, py::const_), "Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.",
             py::arg("work_state"), py::arg("state_to_be_multiplied"), py::arg("dst_state"))
         .def("apply_to_state", [](const GeneralQuantumOperator& self, const QuantumStateBase& state, QuantumStateBase* dst_state) {
-            QuantumState* work_state = new QuantumState(state.qubit_count);
+            QuantumStateBase* work_state;
+            if(state.is_state_vector()) work_state = new QuantumState(state.qubit_count);
+            else work_state = new DensityMatrix(state.qubit_count);
             self.apply_to_state(work_state, state, dst_state);
             delete work_state;
         }, py::arg("state_to_be_multiplied"), py::arg("dst_state"))
