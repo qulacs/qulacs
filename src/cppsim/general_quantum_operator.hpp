@@ -70,10 +70,26 @@ public:
     /**
      * \~japanese-en
      * PauliOperatorを内部で保持するリストの末尾に追加する。
-     *
+     * 従来通り、引数として与えられたPauliOperatorのcopyを生成し保持する。
      * @param[in] mpt 追加するPauliOperatorのインスタンス
      */
     virtual void add_operator(const PauliOperator* mpt);
+
+    /**
+     * \~japanese-en
+     * PauliOperatorを内部で保持するリストの末尾に追加する。
+     * 引数で与えられたPauliOperatorの所有権はGeneralQuantumOperator側に譲渡(move)される。
+     * @param[in] mpt 追加するPauliOperatorのインスタンス
+     */
+    virtual void add_operator_move(PauliOperator* mpt);
+
+    /**
+     * \~japanese-en
+     * PauliOperatorを内部で保持するリストの末尾に追加する。
+     * 引数で与えられたPauliOperatorはGeneralQuantumOperatorに複製(copy)される。
+     * @param[in] mpt 追加するPauliOperatorのインスタンス
+     */
+    virtual void add_operator_copy(const PauliOperator* mpt);
 
     /**
      * \~japanese-en
@@ -84,6 +100,9 @@ public:
      * パウリ演算子と掛かるindexの組からなる文字列。(example: "X 1 Y 2 Z 5")
      */
     virtual void add_operator(const CPPCTYPE coef, std::string pauli_string);
+
+    virtual void add_operator(const std::vector<UINT>& target_qubit_index_list,
+        const std::vector<UINT>& target_qubit_pauli_list, CPPCTYPE coef);
 
     /**
      * \~japanese-en

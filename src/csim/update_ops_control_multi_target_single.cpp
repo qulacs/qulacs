@@ -10,10 +10,12 @@
 #include <omp.h>
 #endif
 
+#ifdef _USE_SIMD
 #ifdef _MSC_VER
 #include <intrin.h>
 #else
 #include <x86intrin.h>
+#endif
 #endif
 
 void create_shift_mask_list_from_list_and_value_buf(const UINT* array,

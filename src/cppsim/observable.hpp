@@ -46,6 +46,22 @@ public:
 
     /**
      * \~japanese-en
+     * PauliOperatorを内部で保持するリストの末尾に追加する。
+     *
+     * @param[in] mpt 追加するPauliOperatorのインスタンス
+     */
+    void add_operator_move(PauliOperator* mpt) override;
+
+    /**
+     * \~japanese-en
+     * PauliOperatorを内部で保持するリストの末尾に追加する。
+     *
+     * @param[in] mpt 追加するPauliOperatorのインスタンス
+     */
+    void add_operator_copy(const PauliOperator* mpt) override;
+
+    /**
+     * \~japanese-en
      * パウリ演算子の文字列と係数の組をオブザーバブルに追加する。
      *
      * @param[in] coef pauli_stringで作られるPauliOperatorの係数
@@ -86,7 +102,7 @@ public:
         auto hermitian_quantum_operator =
             new HermitianQuantumOperator(this->get_qubit_count());
         for (auto pauli : this->get_terms()) {
-            hermitian_quantum_operator->add_operator(pauli->copy());
+            hermitian_quantum_operator->add_operator_copy(pauli);
         }
         return hermitian_quantum_operator;
     };

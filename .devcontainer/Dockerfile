@@ -1,13 +1,15 @@
 # See here for image contents: https://github.com/microsoft/vscode-dev-containers/blob/main/containers/python-3/.devcontainer/base.Dockerfile
 
-ARG VARIANT
-FROM mcr.microsoft.com/vscode/devcontainers/python:0-${VARIANT}
+# Pick a Python version: 3, 3.10, 3.9, 3.8, 3.7, 3.6
+# Append -bullseye or -buster to pin to an OS version.
+# Use -bullseye variants on local on arm64/Apple Silicon.
+FROM mcr.microsoft.com/vscode/devcontainers/python:0-3.9-bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
 
 ENV PWD="/workspaces/qulacs"
 ENV QULACS_PACKAGE="qulacs"
-ENV QULACS_VERSION="0.4.2"
+ENV QULACS_VERSION="0.5.1"
 ENV USE_TEST="Yes"
 # Add build artifact to PYTHONPATH and python can find qulacs.
 # Egg file name might vary depending on qulacs and python version.
@@ -41,7 +43,7 @@ RUN git clone https://github.com/google/googletest.git -b release-1.8.1 --depth 
     && rm -rf /tmp/gtest
 
 # Install pybind11
-RUN git clone https://github.com/pybind/pybind11.git -b v2.7.1 --depth 1 /tmp/pybind11 \
+RUN git clone https://github.com/pybind/pybind11.git -b v2.10.0 --depth 1 /tmp/pybind11 \
     && cp -r /tmp/pybind11/include/pybind11 /usr/local/include \
     && rm -rf /tmp/pybind11
 

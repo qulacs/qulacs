@@ -99,9 +99,9 @@ TEST(DensityMatrixGateTest, ApplySingleQubitRotationGate) {
     std::vector<std::pair<std::function<QuantumGateBase*(UINT, double)>,
         Eigen::MatrixXcd>>
         funclist;
-    funclist.push_back(std::make_pair(gate::RX, X));
-    funclist.push_back(std::make_pair(gate::RY, Y));
-    funclist.push_back(std::make_pair(gate::RZ, Z));
+    funclist.push_back(std::make_pair(gate::RotInvX, X));
+    funclist.push_back(std::make_pair(gate::RotInvY, Y));
+    funclist.push_back(std::make_pair(gate::RotInvZ, Z));
 
     for (UINT repeat = 0; repeat < 10; ++repeat) {
         for (auto func_mat : funclist) {
@@ -137,13 +137,9 @@ TEST(DensityMatrixGateTest, ApplyTwoQubitGate) {
     Random random;
     DensityMatrix state(n);
     QuantumState test_state(n);
-    std::vector<std::pair<std::function<QuantumGateBase*(UINT, UINT)>,
-        std::function<Eigen::MatrixXcd(UINT, UINT, UINT)>>>
-        funclist;
-    funclist.push_back(
-        std::make_pair(gate::CNOT, get_eigen_matrix_full_qubit_CNOT));
-    funclist.push_back(
-        std::make_pair(gate::CZ, get_eigen_matrix_full_qubit_CZ));
+    std::vector<std::function<QuantumGateBase*(UINT, UINT)>> funclist;
+    funclist.push_back(gate::CNOT);
+    funclist.push_back(gate::CZ);
 
     for (UINT repeat = 0; repeat < 10; ++repeat) {
         for (auto func_mat : funclist) {
@@ -151,8 +147,7 @@ TEST(DensityMatrixGateTest, ApplyTwoQubitGate) {
             UINT target = random.int32() % n;
             if (target == control) target = (target + 1) % n;
 
-            auto func = func_mat.first;
-            auto func_eig = func_mat.second;
+            auto func = func_mat;
 
             test_state.set_Haar_random_state();
             state.load(&test_state);
@@ -169,20 +164,20 @@ TEST(DensityMatrixGateTest, ApplyTwoQubitGate) {
                     ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] -
                                     dm_test.data_cpp()[i * dim + j]),
                         0, eps);
+
+            delete gate;
         }
     }
 
     funclist.clear();
-    funclist.push_back(
-        std::make_pair(gate::SWAP, get_eigen_matrix_full_qubit_SWAP));
+    funclist.push_back(gate::SWAP);
     for (UINT repeat = 0; repeat < 10; ++repeat) {
         for (auto func_mat : funclist) {
             UINT control = random.int32() % n;
             UINT target = random.int32() % n;
             if (target == control) target = (target + 1) % n;
 
-            auto func = func_mat.first;
-            auto func_eig = func_mat.second;
+            auto func = func_mat;
 
             test_state.set_Haar_random_state();
             state.load(&test_state);
@@ -209,9 +204,6 @@ TEST(DensityMatrixGateTest, ApplyMultiQubitGate) {
     Random random;
     DensityMatrix state(n);
     QuantumState test_state(n);
-    std::vector<std::pair<std::function<QuantumGateBase*(UINT, UINT)>,
-        std::function<Eigen::MatrixXcd(UINT, UINT, UINT)>>>
-        funclist;
 
     // gate::DenseMatrix
     // gate::Pauli
@@ -237,6 +229,8 @@ TEST(DensityMatrixGateTest, ApplyMultiQubitGate) {
                 ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] -
                                 dm_test.data_cpp()[i * dim + j]),
                     0, eps);
+
+        delete gate;
     }
 
     for (UINT repeat = 0; repeat < 10; ++repeat) {
@@ -262,6 +256,8 @@ TEST(DensityMatrixGateTest, ApplyMultiQubitGate) {
                 ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] -
                                 dm_test.data_cpp()[i * dim + j]),
                     0, eps);
+
+        delete gate;
     }
 }
 
@@ -452,11 +448,11 @@ TEST(DensityMatrixGateTest, RandomPauliRotationMerge) {
             UINT target = random.int32() % n;
             double angle = random.uniform() * 3.14159;
             if (new_pauli_id == 1)
-                new_gate = gate::RX(target, angle);
+                new_gate = gate::RotInvX(target, angle);
             else if (new_pauli_id == 2)
-                new_gate = gate::RY(target, angle);
+                new_gate = gate::RotInvY(target, angle);
             else if (new_pauli_id == 3)
-                new_gate = gate::RZ(target, angle);
+                new_gate = gate::RotInvZ(target, angle);
             else
                 FAIL();
 
@@ -687,10 +683,14 @@ TEST(DensityMatrixGateTest, RandomControlMergeSmall) {
             UINT target = arr[0];
             UINT control = arr[1];
             auto new_gate = gate::CNOT(control, target);
-            merge_gate1 = gate::merge(merge_gate1, new_gate);
+            auto next_merge_gate1 = gate::merge(merge_gate1, new_gate);
+            delete merge_gate1;
+            merge_gate1 = next_merge_gate1;
 
             auto cmat = get_eigen_matrix_full_qubit_CNOT(control, target, n);
             mat = cmat * mat;
+
+            delete new_gate;
         }
         merge_gate1->update_quantum_state(&state);
         merge_gate1->update_quantum_state(&test_state);
@@ -702,6 +702,8 @@ TEST(DensityMatrixGateTest, RandomControlMergeSmall) {
                 ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] -
                                 dm.data_cpp()[i * dim + j]),
                     0, eps);
+
+        delete merge_gate1;
     }
 }
 
@@ -732,10 +734,14 @@ TEST(DensityMatrixGateTest, RandomControlMergeLarge) {
             UINT target = arr[0];
             UINT control = arr[1];
             auto new_gate = gate::CNOT(control, target);
-            merge_gate1 = gate::merge(merge_gate1, new_gate);
+            auto next_merge_gate1 = gate::merge(merge_gate1, new_gate);
+            delete merge_gate1;
+            merge_gate1 = next_merge_gate1;
 
             auto cmat = get_eigen_matrix_full_qubit_CNOT(control, target, n);
             mat = cmat * mat;
+
+            delete new_gate;
         }
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
@@ -743,10 +749,14 @@ TEST(DensityMatrixGateTest, RandomControlMergeLarge) {
             UINT target = arr[0];
             UINT control = arr[1];
             auto new_gate = gate::CNOT(control, target);
-            merge_gate2 = gate::merge(merge_gate2, new_gate);
+            auto next_merge_gate2 = gate::merge(merge_gate2, new_gate);
+            delete merge_gate2;
+            merge_gate2 = next_merge_gate2;
 
             auto cmat = get_eigen_matrix_full_qubit_CNOT(control, target, n);
             mat = cmat * mat;
+
+            delete new_gate;
         }
 
         auto merge_gate = gate::merge(merge_gate1, merge_gate2);
@@ -767,6 +777,10 @@ TEST(DensityMatrixGateTest, RandomControlMergeLarge) {
                 ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] -
                                 state2.data_cpp()[i * dim + j]),
                     0, eps);
+
+        delete merge_gate1;
+        delete merge_gate2;
+        delete merge_gate;
     }
 }
 
