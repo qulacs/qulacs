@@ -442,7 +442,7 @@ __host__ CPPCTYPE inner_product_host(const void* bra_state,
     const void* ket_state, ITYPE dim, void* stream,
     unsigned int device_number) {
     if (dim <= INT_MAX) {
-        // ‚ ‚Æ‚Åcublas”Å‚ðŽg‚¤‚æ‚¤‚É’¼‚·
+        // ã‚ã¨ã§cublasç‰ˆã‚’ä½¿ã†ã‚ˆã†ã«ç›´ã™
         return inner_product_original_host(
             bra_state, ket_state, dim, stream, device_number);
         // return inner_product_cublas_host(bra_state, ket_state, dim, stream,

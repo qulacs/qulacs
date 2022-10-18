@@ -68,7 +68,7 @@ public:
         const std::vector<ControlQubitInfo>& control_qubit_index_list = {});
 
     /**
-     * \~japanese-en �f�X�g���N�^
+     * \~japanese-en デストラクタ
      */
     virtual ~QuantumGateDiagonalMatrix(){};
 

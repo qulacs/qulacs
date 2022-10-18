@@ -42,9 +42,6 @@ jobs:
       - name: Install ccache
         run: brew install ccache
 
-      - name: Install Python dependencies
-        run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion mypy
-
       - name: Install Boost for macOS
         run: |
           brew upgrade
@@ -54,14 +51,14 @@ jobs:
       - name: Setup cache
         uses: actions/cache@v2
         with:
-          path: ~/.ccache
+          path: /Users/runner/Library/Caches/ccache
           key: ${{ runner.os }}-${{ env.CACHE_NAME }}
 
       - name: Install qulacs for macOS
         run: USE_TEST=Yes ./script/build_gcc.sh
 
       - name: Install qulacs Python module
-        run: python setup.py install
+        run: pip install .[ci]
 
       - name: Test if stub is working
         run: |

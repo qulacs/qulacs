@@ -61,10 +61,15 @@ TEST(DensityMatrixTest, Sampling) {
 TEST(DensityMatrixTest, Probabilistic) {
     DensityMatrix state_noI(2);
     DensityMatrix state_yesI(2);
-    auto proba_gate_noI =
-        QuantumGate_Probabilistic({0.2, 0.2}, {gate::X(0), gate::H(1)});
-    auto proba_gate_yesI = QuantumGate_Probabilistic(
-        {0.2, 0.2, 0.6}, {gate::X(0), gate::H(1), gate::Identity(0)});
+    auto x0 = gate::X(0);
+    auto h1 = gate::H(1);
+    auto i0 = gate::Identity(0);
+    auto proba_gate_noI = QuantumGate_Probabilistic({0.2, 0.2}, {x0, h1});
+    auto proba_gate_yesI =
+        QuantumGate_Probabilistic({0.2, 0.2, 0.6}, {x0, h1, i0});
+    delete x0;
+    delete h1;
+    delete i0;
 
     proba_gate_noI.update_quantum_state(&state_noI);
     proba_gate_yesI.update_quantum_state(&state_yesI);
@@ -185,4 +190,46 @@ TEST(DensityMatrixTest, MultiplyCoef) {
                 state_vector[i * dim + j].imag(), eps);
         }
     }
+}
+
+TEST(DensityMatrixTest, TensorProduct) {
+    const UINT n = 4;
+
+    DensityMatrix state1(n), state2(n);
+    state1.set_Haar_random_state();
+    state2.set_Haar_random_state();
+
+    DensityMatrix* state3 = state::tensor_product(&state1, &state2);
+    // numerical test is performed in python
+    delete state3;
+}
+
+TEST(DensityMatrixTest, PermutateQubit) {
+    const UINT n = 3;
+
+    DensityMatrix state(n);
+    state.set_Haar_random_state();
+    DensityMatrix* state2 = state::permutate_qubit(&state, {1, 0, 2});
+    // numerical test is performed in python
+    delete state2;
+}
+
+TEST(DensityMatrixTest, PartialTraceSVtoDM) {
+    const UINT n = 5;
+
+    DensityMatrix state(n);
+    state.set_Haar_random_state();
+    DensityMatrix* state2 = state::partial_trace(&state, {2, 0});
+    // numerical test is performed in python
+    delete state2;
+}
+
+TEST(DensityMatrixTest, PartialTraceDMtoDM) {
+    const UINT n = 5;
+
+    QuantumState state(n);
+    state.set_Haar_random_state();
+    DensityMatrix* state2 = state::partial_trace(&state, {2, 0});
+    // numerical test is performed in python
+    delete state2;
 }

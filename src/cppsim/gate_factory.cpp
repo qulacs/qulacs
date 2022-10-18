@@ -62,6 +62,24 @@ QuantumGateBase* RY(UINT qubit_index, double angle) {
 QuantumGateBase* RZ(UINT qubit_index, double angle) {
     return new ClsRZGate(qubit_index, angle);
 }
+QuantumGateBase* RotInvX(UINT qubit_index, double angle) {
+    return new ClsRXGate(qubit_index, angle);
+}
+QuantumGateBase* RotInvY(UINT qubit_index, double angle) {
+    return new ClsRYGate(qubit_index, angle);
+}
+QuantumGateBase* RotInvZ(UINT qubit_index, double angle) {
+    return new ClsRZGate(qubit_index, angle);
+}
+QuantumGateBase* RotX(UINT qubit_index, double angle) {
+    return new ClsRXGate(qubit_index, -angle);
+}
+QuantumGateBase* RotY(UINT qubit_index, double angle) {
+    return new ClsRYGate(qubit_index, -angle);
+}
+QuantumGateBase* RotZ(UINT qubit_index, double angle) {
+    return new ClsRZGate(qubit_index, -angle);
+}
 
 ComplexMatrix get_IBMQ_matrix(double theta, double phi, double lambda) {
     CPPCTYPE im(0, 1);

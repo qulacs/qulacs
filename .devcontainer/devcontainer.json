@@ -4,12 +4,7 @@
 	"name": "C++",
 	"build": {
 		"dockerfile": "Dockerfile",
-		// Update 'VARIANT' to pick a Python version: 3, 3.10, 3.9, 3.8, 3.7, 3.6
-		// Append -bullseye or -buster to pin to an OS version.
-		// Use -bullseye variants on local on arm64/Apple Silicon.
-		"args": {
-			"VARIANT": "3.9-bullseye"
-		}
+		"cacheFrom": "ghcr.io/qulacs/qulacs-devcontainer:latest"
 	},
 	"runArgs": [
 		"--cap-add=SYS_PTRACE",
@@ -29,9 +24,10 @@
 		"editor.defaultFormatter": "xaver.clang-format",
 		"python.linting.mypyEnabled": true,
 		"python.terminal.activateEnvironment": false,
-		// CAVEAT: you need to restart after building qulacs-osaka to take effect.
+		// CAVEAT: you need to restart after building qulacs to take effect.
 		"C_Cpp.default.includePath": [
-			"include"
+			"include",
+			"/usr/local/include/python3.9"
 		]
 	},
 	// Add the IDs of extensions you want installed when the container is created.
@@ -44,8 +40,8 @@
 	],
 	// Required by `mounts`.
 	// c.f. https://code.visualstudio.com/remote/advancedcontainers/improve-performance#_use-a-targeted-named-volume
-	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/qulacs-osaka,type=bind,consistency=cached",
-	"workspaceFolder": "/workspaces/qulacs-osaka",
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/qulacs,type=bind,consistency=cached",
+	"workspaceFolder": "/workspaces/qulacs",
 	"mounts": [
 		"source=${localWorkspaceFolderBasename}-build,target=${containerWorkspaceFolder}/build,type=volume"
 	],

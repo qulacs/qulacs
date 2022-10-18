@@ -6,37 +6,40 @@
 #include "causalcone_simulator.hpp"
 
 std::vector<std::complex<double>> GradCalculator::calculate_grad(
-    ParametricQuantumCircuit& x, Observable& obs, std::vector<double> theta) {
-    ParametricQuantumCircuit* x_copy = x.copy();
+    ParametricQuantumCircuit& circuit, Observable& obs,
+    std::vector<double> theta) {
+    ParametricQuantumCircuit* circuit_copy = circuit.copy();
+    UINT parameter_count = circuit_copy->get_parameter_count();
 
-    std::vector<std::complex<double>> grad;
-    for (UINT i = 0; i < x.get_parameter_count(); ++i) {
-        std::complex<double> y, z;
+    std::vector<std::complex<double>> grad(parameter_count);
+    for (UINT target_gate_itr = 0; target_gate_itr < parameter_count;
+         target_gate_itr++) {
+        std::complex<double> plus_delta, minus_delta;
         {
-            for (UINT q = 0; q < x.get_parameter_count(); ++q) {
-                double diff = 0;
-                if (i == q) {
-                    diff = M_PI_2;
+            for (UINT q = 0; q < parameter_count; ++q) {
+                if (target_gate_itr == q) {
+                    circuit_copy->set_parameter(q, theta[q] + M_PI_2);
+                } else {
+                    circuit_copy->set_parameter(q, theta[q]);
                 }
-                x_copy->set_parameter(q, theta[q] + diff);
             }
-            CausalConeSimulator hoge(*x_copy, obs);
-            y = hoge.get_expectation_value();
+            CausalConeSimulator tmp(*circuit_copy, obs);
+            plus_delta = tmp.get_expectation_value();
         }
         {
-            for (UINT q = 0; q < x.get_parameter_count(); ++q) {
-                double diff = 0;
-                if (i == q) {
-                    diff = M_PI_2;
+            for (UINT q = 0; q < parameter_count; ++q) {
+                if (target_gate_itr == q) {
+                    circuit_copy->set_parameter(q, theta[q] - M_PI_2);
+                } else {
+                    circuit_copy->set_parameter(q, theta[q]);
                 }
-                x_copy->set_parameter(q, theta[q] - diff);
             }
-            CausalConeSimulator hoge(*x_copy, obs);
-            z = hoge.get_expectation_value();
+            CausalConeSimulator tmp(*circuit_copy, obs);
+            minus_delta = tmp.get_expectation_value();
         }
-        grad.push_back((y - z) / 2.0);
+        grad[target_gate_itr] = (plus_delta - minus_delta) / 2.0;
     }
-    delete x_copy;
+    delete circuit_copy;
     return grad;
 };
 

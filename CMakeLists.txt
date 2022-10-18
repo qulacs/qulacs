@@ -17,12 +17,19 @@ endif()
 
 
 ##### Set default behavior #####
-set(DEFAULT_USE_SIMD Yes)
 set(DEFAULT_USE_OMP Yes)
 set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)
 set(DEFAULT_USE_TEST No)
-set(DEFAULT_OPT_FLAGS "-mtune=native -march=native -mfpmath=both")
+if(("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "^x86.*") OR ("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "AMD64"))
+	message(STATUS "SIMD SUPPORT: Yes")
+	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native -mfpmath=both")
+	set(DEFAULT_USE_SIMD Yes)
+else()
+	message(STATUS "SIMD SUPPORT: No")
+	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native")
+	set(DEFAULT_USE_SIMD No)
+endif()
 
 if(NOT DEFINED USE_SIMD)
 	set(USE_SIMD ${DEFAULT_USE_SIMD})
@@ -43,6 +50,7 @@ if(NOT DEFINED OPT_FLAGS)
 	set(OPT_FLAGS ${DEFAULT_OPT_FLAGS})
 endif()
 
+message(STATUS "CMAKE_HOST_SYSTEM_PROCESSOR = ${CMAKE_HOST_SYSTEM_PROCESSOR}")
 message(STATUS "USE_SIMD = ${USE_SIMD}")
 message(STATUS "USE_OMP = ${USE_OMP}")
 message(STATUS "USE_GPU = ${USE_GPU}")
@@ -87,7 +95,7 @@ ExternalProject_Add(
     CONFIGURE_COMMAND ""
     BUILD_COMMAND ""
     INSTALL_COMMAND
-      ${CMAKE_COMMAND} -E copy_directory ${EIGEN_BUILD_DIR}/src/eigen/Eigen ${EIGEN_INCLUDE_DIR}/Eigen 
+      ${CMAKE_COMMAND} -E copy_directory ${EIGEN_BUILD_DIR}/src/eigen/Eigen ${EIGEN_INCLUDE_DIR}/Eigen
       && ${CMAKE_COMMAND} -E copy_directory ${EIGEN_BUILD_DIR}/src/eigen/unsupported ${EIGEN_INCLUDE_DIR}/unsupported
     TEST_COMMAND ""
 )
@@ -134,7 +142,7 @@ if(USE_PYTHON)
 		set(PYBIND11_INCLUDE_DIR ${PYBIND11_INSTALL_DIR}/include)
 		ExternalProject_Add(
 			pybind11_pop
-			URL http://github.com/pybind/pybind11/archive/v2.7.1.tar.gz
+			URL http://github.com/pybind/pybind11/archive/v2.10.0.tar.gz
 			PREFIX ${PYBIND11_BUILD_DIR}
 			CONFIGURE_COMMAND ""
 			BUILD_COMMAND ""
@@ -147,7 +155,7 @@ if(USE_PYTHON)
 		FetchContent_Declare(
 			pybind11_fetch
 			GIT_REPOSITORY https://github.com/pybind/pybind11
-			GIT_TAG v2.7.1
+			GIT_TAG v2.10.0
 		)
 		FetchContent_GetProperties(pybind11_fetch)
 		if(NOT pybind11_fetch_POPULATED)

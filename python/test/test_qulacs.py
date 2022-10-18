@@ -474,6 +474,169 @@ class TestPointerHandling(unittest.TestCase):
         pqc.remove_gate(3)  # [1, 0, 3, *, 2]
         check(pqc, [1, 0, 4, 2])
 
+class TestDensityMatrixHandling(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_density_matrix(self):
+        num_qubit = 5
+        sv = qulacs.StateVector(num_qubit)
+        dm = qulacs.DensityMatrix(num_qubit)
+        sv.set_Haar_random_state(seed=0)
+        dm.load(sv)
+        svv = np.atleast_2d(sv.get_vector()).T
+        mat = np.dot(svv, svv.T.conj())
+        self.assertTrue(np.allclose(dm.get_matrix(), mat), msg="check pure matrix to density matrix")
+
+
+    def test_tensor_product_sv(self):
+        num_qubit = 4
+        sv1 = qulacs.StateVector(num_qubit)
+        sv2 = qulacs.StateVector(num_qubit)
+        sv1.set_Haar_random_state(seed=0)
+        sv2.set_Haar_random_state(seed=1)
+        sv3 = qulacs.state.tensor_product(sv1, sv2)
+        sv3_test = np.kron(sv1.get_vector(), sv2.get_vector())
+        self.assertTrue(np.allclose(sv3_test, sv3.get_vector()), msg="check pure state tensor product")
+        del sv1
+        del sv2
+        del sv3
+
+    def test_tensor_product_dm(self):
+        num_qubit = 4
+        dm1 = qulacs.DensityMatrix(num_qubit)
+        dm2 = qulacs.DensityMatrix(num_qubit)
+        dm1.set_Haar_random_state(seed=0)
+        dm2.set_Haar_random_state(seed=1)
+        dm3 = qulacs.state.tensor_product(dm1, dm2)
+        dm3_test = np.kron(dm1.get_matrix(), dm2.get_matrix())
+        self.assertTrue(np.allclose(dm3_test, dm3.get_matrix()), msg="check density matrix tensor product")
+        del dm1
+        del dm2
+        del dm3
+
+    def test_tensor_product_different_size_sv(self):
+        num_qubit = 4
+        sv1 = qulacs.StateVector(num_qubit)
+        sv2 = qulacs.StateVector(num_qubit + 1)
+        sv1.set_Haar_random_state(seed=0)
+        sv2.set_Haar_random_state(seed=1)
+        sv3 = qulacs.state.tensor_product(sv1, sv2)
+        sv3_test = np.kron(sv1.get_vector(), sv2.get_vector())
+        self.assertTrue(np.allclose(sv3_test, sv3.get_vector()), msg="check pure state tensor product")
+        del sv1
+        del sv2
+        del sv3
+
+    def test_tensor_product_different_size_dm(self):
+        num_qubit = 4
+        dm1 = qulacs.DensityMatrix(num_qubit)
+        dm2 = qulacs.DensityMatrix(num_qubit + 1)
+        dm1.set_Haar_random_state(seed=0)
+        dm2.set_Haar_random_state(seed=1)
+        dm3 = qulacs.state.tensor_product(dm1, dm2)
+        dm3_test = np.kron(dm1.get_matrix(), dm2.get_matrix())
+        self.assertTrue(np.allclose(dm3_test, dm3.get_matrix()), msg="check density matrix tensor product")
+        del dm1
+        del dm2
+        del dm3
+
+
+    def test_permutate_qubit_sv(self):
+        num_qubit = 8
+        sv = qulacs.StateVector(num_qubit)
+        sv.set_Haar_random_state(seed=0)
+        order = np.arange(num_qubit)
+        np.random.shuffle(order)
+
+        arr = []
+        for ind in range(2**num_qubit):
+            s = format(ind, "0{}b".format(num_qubit))
+            s = np.array(list(s[::-1]))
+            v = np.array(["*"]*num_qubit)
+            for ind in range(len(s)):
+                v[order[ind]] = s[ind]
+            s = ("".join(v))[::-1]
+            arr.append(int(s, 2))
+
+        sv_perm = qulacs.state.permutate_qubit(sv, order)
+        self.assertTrue(np.allclose(sv.get_vector()[arr], sv_perm.get_vector()), msg="check pure state permutation")
+        del sv_perm
+        del sv
+
+    def test_permutate_qubit_dm(self):
+        num_qubit = 3
+        dm = qulacs.DensityMatrix(num_qubit)
+        dm.set_Haar_random_state(seed=0)
+        order = np.arange(num_qubit)
+        np.random.shuffle(order)
+
+        arr = []
+        for ind in range(2**num_qubit):
+            s = format(ind, "0{}b".format(num_qubit))
+            s = np.array(list(s[::-1]))
+            v = np.array(["*"]*num_qubit)
+            for ind in range(len(s)):
+                v[order[ind]] = s[ind]
+            s = ("".join(v))[::-1]
+            arr.append(int(s, 2))
+
+        dm_perm = qulacs.state.permutate_qubit(dm, order)
+        dm_perm_test = dm.get_matrix()
+        dm_perm_test = dm_perm_test[arr, :]
+        dm_perm_test = dm_perm_test[:, arr]
+        self.assertTrue(np.allclose(dm_perm_test, dm_perm.get_matrix()), msg="check density matrix permutation")
+        del dm_perm
+        del dm
+
+    def test_partial_trace_dm(self):
+        num_qubit = 5
+        num_traceout = 2
+        dm = qulacs.DensityMatrix(num_qubit)
+        dm.set_Haar_random_state(seed=0)
+        mat = dm.get_matrix()
+
+        target = np.arange(num_qubit)
+        np.random.shuffle(target)
+        target = target[:num_traceout]
+        target_cor = [num_qubit-1-i for i in target]
+        target_cor.sort()
+
+        dmt = mat.reshape([2,2]*num_qubit)
+        for cnt,val in enumerate(target_cor):
+            ofs = num_qubit - cnt
+            dmt = np.trace(dmt, axis1=val-cnt, axis2=ofs+val-cnt)
+        dmt = dmt.reshape([2**(num_qubit-num_traceout),2**(num_qubit-num_traceout)])
+
+        pdm = qulacs.state.partial_trace(dm, target)
+        self.assertTrue(np.allclose(pdm.get_matrix(), dmt), msg="check density matrix partial trace")
+        del dm,pdm
+
+    def test_partial_trace_sv(self):
+        num_qubit = 6
+        num_traceout = 4
+        sv = qulacs.StateVector(num_qubit)
+        sv.set_Haar_random_state(seed=0)
+        svv = np.atleast_2d(sv.get_vector()).T
+        mat = np.dot(svv, svv.T.conj())
+
+        target = np.arange(num_qubit)
+        np.random.shuffle(target)
+        target = target[:num_traceout]
+        target_cor = [num_qubit-1-i for i in target]
+        target_cor.sort()
+
+        dmt = mat.reshape([2,2]*num_qubit)
+        for cnt,val in enumerate(target_cor):
+            ofs = num_qubit - cnt
+            dmt = np.trace(dmt, axis1=val-cnt, axis2=ofs+val-cnt)
+        dmt = dmt.reshape([2**(num_qubit-num_traceout),2**(num_qubit-num_traceout)])
+
+        pdm = qulacs.state.partial_trace(sv, target)
+        self.assertTrue(np.allclose(pdm.get_matrix(), dmt), msg="check pure state partial trace")
 
 class TestUtils(unittest.TestCase):
     def setUp(self):
@@ -498,6 +661,25 @@ class TestUtils(unittest.TestCase):
         str_qulacs_op = str_qulacs_op.replace("(2,0) Z 0 Y 1", "")
         str_qulacs_op = str_qulacs_op.replace("(1,0) Z 0 Y 3", "")
         self.assertEqual(str_qulacs_op, " +  + ")
+
+    def test_GQO(self):
+        self.n = 4
+        self.dim = 2**self.n
+        stateA = qulacs.QuantumState(self.n)
+        stateB = qulacs.QuantumState(self.n)
+        stateC = qulacs.QuantumState(self.n)
+        stateB.set_Haar_random_state()
+        RanGate = qulacs.gate.RandomUnitary([0, 1, 2, 3])
+        GQO_ret = qulacs.to_general_quantum_operator(RanGate, 4, 0.00001)
+        GQO_ret.apply_to_state(stateA, stateB, stateC)
+        RanGate.update_quantum_state(stateB)
+
+        inpro = qulacs.state.inner_product(stateB, stateC).real
+        self.assertTrue(inpro > 0.99, msg="GQO_test")
+
+
+
+
 
 
 class TestDensityMatrixHandling(unittest.TestCase):
@@ -672,9 +854,10 @@ class TestNoiseSimulator(unittest.TestCase):
         pass
     
     def test_noise_simulator(self):
-        def get_heavy_output_probability(n, depth, error_prob, shots=10000):
+        def get_heavy_output_probability(n, depth, error_prob, shots=1000):
             one_qubit_noise = ["Depolarizing", "BitFlip", "Dephasing", "IndependentXZ", "AmplitudeDamping"]
             two_qubit_noise = ["Depolarizing"]
+            from qulacs import NoiseSimulator, QuantumState
             from qulacs.gate import CNOT, CZ, T, sqrtX, sqrtY
             circuit_with_noise = qulacs.QuantumCircuit(n)
             circuit_without_noise = qulacs.QuantumCircuit(n)
@@ -708,17 +891,16 @@ class TestNoiseSimulator(unittest.TestCase):
                 if prob_dist[i] > p_median:
                     heavy_output.add(i)
             
-            noisy_state = qulacs.QuantumState(n)
-            circuit_with_noise.update_quantum_state(noisy_state)
-            noisy_sample = noisy_state.sampling(shots)
+            sim = NoiseSimulator(circuit_with_noise,QuantumState(n))
+            noisy_sample = sim.execute(shots)
             num_heavy_output = 0
             for sample in noisy_sample:
                 if sample in heavy_output:
                     num_heavy_output += 1
             return num_heavy_output / shots, heavy_output, noisy_sample
 
-        low_noise_prob, low_noise_heavy_output,low_noise_result = get_heavy_output_probability(10, 100, 1e-5)
-        high_noise_prob, high_noise_heavy_output,high_noise_result = get_heavy_output_probability(10, 100, 0.01)
+        low_noise_prob, low_noise_heavy_output,low_noise_result = get_heavy_output_probability(7, 100, 1e-5)
+        high_noise_prob, high_noise_heavy_output,high_noise_result = get_heavy_output_probability(7, 100, 0.01)
         if low_noise_prob < 2/3:
             print(f"[ERROR] On low noise environment Heavy Output percentage should be > 0.666, but was {low_noise_prob}")
             print("Telemetry Information:")
