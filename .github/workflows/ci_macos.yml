@@ -28,13 +28,13 @@ jobs:
       COVERAGE: "ON"
       CACHE_NAME: "ccache-qulacs-build-v2"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup cmake
-        uses: lukka/get-cmake@latest
+        uses: lukka/get-cmake@v3
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -49,7 +49,7 @@ jobs:
           brew link boost
 
       - name: Setup cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /Users/runner/Library/Caches/ccache
           key: ${{ runner.os }}-${{ env.CACHE_NAME }}
