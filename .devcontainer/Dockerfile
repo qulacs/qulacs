@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 ENV PWD="/workspaces/qulacs"
 ENV QULACS_PACKAGE="qulacs"
-ENV QULACS_VERSION="0.5.1"
+ENV QULACS_VERSION="0.5.2"
 ENV USE_TEST="Yes"
 # Add build artifact to PYTHONPATH and python can find qulacs.
 # Egg file name might vary depending on qulacs and python version.
