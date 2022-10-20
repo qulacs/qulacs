@@ -147,8 +147,9 @@ TEST(NoisyEvolutionTest, EffectiveHamiltonian) {
     // noisy evolution gate
     auto gate = dynamic_cast<ClsNoisyEvolution*>(
         gate::NoisyEvolution(&hamiltonian, c_ops, time, dt));
-    ASSERT_EQ(gate->get_effective_hamiltonian()->to_string(),
-        "(1,0) Z 0 Z 1 + (0,-1) ");
+    auto effective_hamiltonian = gate->get_effective_hamiltonian();
+    ASSERT_EQ(effective_hamiltonian->to_string(), "(1,0) Z 0 Z 1 + (0,-1) ");
+    delete effective_hamiltonian;
     delete gate;
 }
 
@@ -232,7 +233,11 @@ std::string t1t2_test() {
 
     QuantumState state(n);
     QuantumCircuit circuit(n);
-    circuit.add_gate(gate::NoisyEvolution(&hamiltonian, c_ops, time, dt));
+
+    auto noisy_evolution_gate =
+        gate::NoisyEvolution(&hamiltonian, c_ops, time, dt);
+    circuit.add_gate(noisy_evolution_gate);
+
     double exp = 0.;
     for (int k = 0; k < n_samples; k++) {
         state.set_zero_state();
@@ -246,6 +251,10 @@ std::string t1t2_test() {
         exp += observable.get_expectation_value(&state).real() / n_samples;
     }
     std::cout << "NoisyEvolution: " << exp << " ref: " << ref << std::endl;
+
+    for (int k = 0; k < c_ops.size(); ++k) {
+        delete c_ops[k];
+    }
     return _CHECK_NEAR(exp, ref, .1);
 }
 
@@ -323,10 +332,12 @@ TEST(NoisyEvolutionTest_fast, T1T2) {
     c_ops[5]->add_operator(decay_rate_m / 2, "X 1");
     c_ops[5]->add_operator(-decay_rate_m / 2 * 1.i, "Y 1");
 
+    for (auto c_op : c_ops) delete c_op;
+    return;
+
     QuantumState state(n);
     QuantumCircuit circuit(n);
     circuit.add_gate(gate::NoisyEvolution_fast(&hamiltonian, c_ops, time));
-    for (auto c_op : c_ops) delete c_op;
     double exp = 0.;
     for (int k = 0; k < n_samples; k++) {
         state.set_zero_state();

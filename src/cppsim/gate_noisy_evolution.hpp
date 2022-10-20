@@ -242,9 +242,8 @@ public:
         }
 
         for (size_t k = 0; k < _c_ops.size(); k++) {
-            auto cdagc = (*_c_ops_dagger[k]) * (*_c_ops[k]);
-            //*(-.5i);
-            //*_effective_hamiltonian += cdagc;
+            auto cdagc = (*_c_ops_dagger[k]) * (*_c_ops[k]) * (-.5i);
+            *_effective_hamiltonian += cdagc;
         }
         _time = time;
         _dt = dt;
@@ -610,6 +609,7 @@ public:
 
         ComplexMatrix hamilMatrix;
         iH->set_matrix(hamilMatrix);
+        delete iH;
         Eigen::ComplexEigenSolver<ComplexMatrix> eigen_solver(hamilMatrix);
 
         auto result = eigen_solver.info();

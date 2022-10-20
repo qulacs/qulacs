@@ -666,9 +666,15 @@ GeneralQuantumOperator GeneralQuantumOperator::operator*(
 GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     const GeneralQuantumOperator& target) {
     auto this_copy = this->copy();
-    _operator_list.clear();
     auto terms = this_copy->get_terms();
     auto target_terms = target.get_terms();
+
+    // initialize (*this) operator to empty.
+    for (auto& term : _operator_list) {
+        delete term;
+    }
+    _operator_list.clear();
+
     ITYPE i, j;
     // #pragma omp parallel for
     for (i = 0; i < terms.size(); i++) {
@@ -686,9 +692,15 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
 GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     const PauliOperator& target) {
     auto this_copy = this->copy();
-    _operator_list.clear();
     ITYPE i;
     auto terms = this_copy->get_terms();
+
+    // initialize (*this) operator to empty.
+    for (auto& term : _operator_list) {
+        delete term;
+    }
+    _operator_list.clear();
+
     // #pragma omp parallel for
     for (i = 0; i < terms.size(); i++) {
         auto pauli_operator = terms[i];
