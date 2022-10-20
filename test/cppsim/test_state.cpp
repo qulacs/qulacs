@@ -49,24 +49,35 @@ TEST(StateTest, SamplingComputationalBasis) {
 TEST(StateTest, SamplingSuperpositionState) {
     const UINT n = 10;
     const UINT nshot = 1024;
-    QuantumState state(n);
-    state.set_computational_basis(0);
-    for (ITYPE i = 1; i <= 4; ++i) {
-        QuantumState tmp_state(n);
-        tmp_state.set_computational_basis(i);
-        state.add_state_with_coef_single_thread(1 << i, &tmp_state);
+    const UINT test_count = 10;
+    UINT pass_count = 0;
+    for (UINT test_i = 0; test_i < test_count; test_i++) {
+        QuantumState state(n);
+        state.set_computational_basis(0);
+        for (ITYPE i = 1; i <= 4; ++i) {
+            QuantumState tmp_state(n);
+            tmp_state.set_computational_basis(i);
+            state.add_state_with_coef_single_thread(1 << i, &tmp_state);
+        }
+        state.normalize_single_thread(state.get_squared_norm_single_thread());
+        auto res = state.sampling(nshot);
+        std::array<UINT, 5> cnt = {};
+        for (UINT i = 0; i < nshot; ++i) {
+            ASSERT_GE(res[i], 0);
+            ASSERT_LE(res[i], 4);
+            cnt[res[i]] += 1;
+        }
+        bool pass = true;
+        for (UINT i = 0; i < 4; i++) {
+            std::string err_message = _CHECK_GT(cnt[i + 1], cnt[i]);
+            if (err_message != "") {
+                pass = false;
+                std::cerr << err_message;
+            }
+        }
+        if (pass) pass_count++;
     }
-    state.normalize_single_thread(state.get_squared_norm_single_thread());
-    auto res = state.sampling(nshot);
-    std::array<UINT, 5> cnt = {};
-    for (UINT i = 0; i < nshot; ++i) {
-        ASSERT_GE(res[i], 0);
-        ASSERT_LE(res[i], 4);
-        cnt[res[i]] += 1;
-    }
-    for (UINT i = 0; i < 4; i++) {
-        ASSERT_GT(cnt[i + 1], cnt[i]);
-    }
+    ASSERT_GE(pass_count, test_count - 1);
 }
 
 TEST(StateTest, SetState) {
