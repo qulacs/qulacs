@@ -83,7 +83,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumGateBase* copy() const override {
+    virtual ClsPauliGate* copy() const override {
         return new ClsPauliGate(_pauli->copy());
     };
 
@@ -173,7 +173,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumGateBase* copy() const override {
+    virtual ClsPauliRotationGate* copy() const override {
         return new ClsPauliRotationGate(_angle, _pauli->copy());
     };
 

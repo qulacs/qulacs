@@ -138,7 +138,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumGateBase* copy() const override {
+    virtual QuantumGate_Probabilistic* copy() const override {
         return new QuantumGate_Probabilistic(_distribution, _gate_list);
     };
 
@@ -242,7 +242,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumGateBase* copy() const override {
+    virtual QuantumGate_ProbabilisticInstrument* copy() const override {
         return new QuantumGate_ProbabilisticInstrument(
             _distribution, _gate_list, _classical_register_address);
     };
@@ -345,7 +345,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumGateBase* copy() const override {
+    virtual QuantumGate_CPTP* copy() const override {
         return new QuantumGate_CPTP(_gate_list);
     };
     /**
@@ -483,7 +483,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumGateBase* copy() const override {
+    virtual QuantumGate_CP* copy() const override {
         return new QuantumGate_CP(_gate_list, _state_normalize,
             _probability_normalize, _assign_zero_if_not_matched);
     };
@@ -583,7 +583,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumGateBase* copy() const override {
+    virtual QuantumGate_Instrument* copy() const override {
         return new QuantumGate_Instrument(
             _gate_list, _classical_register_address);
     };
@@ -683,7 +683,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumGateBase* copy() const override {
+    virtual QuantumGate_Adaptive* copy() const override {
         if (_id == -1) {
             return new QuantumGate_Adaptive(_gate, _func_without_id);
         } else {

@@ -176,7 +176,7 @@ public:
      *
      * @return 生成された量子状態
      */
-    virtual QuantumStateBase* allocate_buffer() const override {
+    virtual DensityMatrixCpu* allocate_buffer() const override {
         DensityMatrixCpu* new_state = new DensityMatrixCpu(this->_qubit_count);
         return new_state;
     }
@@ -185,7 +185,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumStateBase* copy() const override {
+    virtual DensityMatrixCpu* copy() const override {
         DensityMatrixCpu* new_state = new DensityMatrixCpu(this->_qubit_count);
         memcpy(new_state->data_cpp(), _density_matrix,
             (size_t)(sizeof(CPPCTYPE) * _dim * _dim));
