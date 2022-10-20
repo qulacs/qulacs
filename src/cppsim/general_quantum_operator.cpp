@@ -454,16 +454,12 @@ GeneralQuantumOperator* GeneralQuantumOperator::get_dagger() const {
 
 GeneralQuantumOperator GeneralQuantumOperator::operator+(
     const GeneralQuantumOperator& target) const {
-    auto res = this->copy();
-    *res += target;
-    return *res;
+    return GeneralQuantumOperator(*this) += target;
 }
 
 GeneralQuantumOperator GeneralQuantumOperator::operator+(
     const PauliOperator& target) const {
-    auto res = this->copy();
-    *res += target;
-    return *res;
+    return GeneralQuantumOperator(*this) += target;
 }
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
@@ -551,16 +547,12 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
 
 GeneralQuantumOperator GeneralQuantumOperator::operator-(
     const GeneralQuantumOperator& target) const {
-    auto res = this->copy();
-    *res -= target;
-    return *res;
+    return GeneralQuantumOperator(*this) -= target;
 }
 
 GeneralQuantumOperator GeneralQuantumOperator::operator-(
     const PauliOperator& target) const {
-    auto res = this->copy();
-    *res -= target;
-    return *res;
+    return GeneralQuantumOperator(*this) -= target;
 }
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
