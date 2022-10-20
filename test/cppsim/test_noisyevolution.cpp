@@ -26,8 +26,6 @@ TEST(NoisyEvolutionTest, simple_check) {
     double time = 1.;
     double dt = .01;
     auto gate = gate::NoisyEvolution(&hamiltonian, c_ops, time, dt);
-    // NoisyEvolutionのcopy()で内部処理のdynamic_cast時に、
-    // HermitianQuantumOperatorのコピーに失敗しエラーになっていたので
     // copy()が成功するかテストする。
     auto gate2 = gate->copy();
     delete gate;
@@ -145,8 +143,7 @@ TEST(NoisyEvolutionTest, EffectiveHamiltonian) {
     c_ops.push_back(&op2);
 
     // noisy evolution gate
-    auto gate = dynamic_cast<ClsNoisyEvolution*>(
-        gate::NoisyEvolution(&hamiltonian, c_ops, time, dt));
+    auto gate = gate::NoisyEvolution(&hamiltonian, c_ops, time, dt);
     ASSERT_EQ(gate->get_effective_hamiltonian()->to_string(),
         "(1,0) Z 0 Z 1 + (0,-1) ");
     delete gate;
@@ -560,8 +557,7 @@ TEST(NoisyEvolutionTest, EmptyCops) {
 
     QuantumState state(n);
     QuantumCircuit circuit(n);
-    auto gate = dynamic_cast<ClsNoisyEvolution*>(
-        gate::NoisyEvolution(&hamiltonian, c_ops, time, dt));
+    auto gate = gate::NoisyEvolution_fast(&hamiltonian, c_ops, time);
     circuit.add_gate(gate);
     for (int kai = 0; kai < 100; kai++) {
         for (int k = 0; k < n; k++) {
