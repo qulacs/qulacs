@@ -346,7 +346,7 @@ Obtain the gate matrix of the quantum gate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The gate matrix of the generated quantum gate can be obtained, but gate matrices do not include the control qubit.
-Especially, note that gates without gate matrix (ex. n-qubit Pauli rotation gate)
+Especially, note that gates without gate matrix (ex. :math:`n`-qubit Pauli rotation gate)
 require a very long time and memory to obtain the matrix.
 
 .. code:: cpp
