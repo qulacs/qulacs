@@ -4,7 +4,7 @@ set -eux
 
 GCC_COMMAND=${C_COMPILER:-"gcc"}
 GXX_COMMAND=${CXX_COMPILER:-"g++"}
-OPT_FLAGS=${QULACS_OPT_FLAGS:-"-mtune=native -march=native -mfpmath=both"}
+OPT_FLAGS=${QULACS_OPT_FLAGS:-"-mtune=native -march=native -mfpmath=both -fsanitize=address -fno-omit-frame-pointer -g"}
 
 mkdir -p ./build
 cd ./build
