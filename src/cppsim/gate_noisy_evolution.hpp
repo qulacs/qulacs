@@ -31,9 +31,9 @@ private:
         _c_ops_dagger;        // collapse operator dagger
     double _time;             // evolution time
     double _dt;               // step size for runge kutta evolution
-    double _norm_tol = 1e-8;  // accuracy in solving <psi|psi>=r
+    double _norm_tol = 1e-6;  // accuracy in solving <psi|psi>=r
     int _find_collapse_max_steps =
-        1000;  // maximum number of steps for while loop in _find_collapse
+        200;  // maximum number of steps for while loop in _find_collapse
 
     /**
      * \~japanese-en collapse が起こるタイミング (norm = rになるタイミング)
@@ -67,11 +67,13 @@ private:
         }
         if (mae_norm < target_norm) {
             throw std::runtime_error(
-                "must be prev_state.norm() >= target_norm. ");
+                "must be prev_state.norm() >= target_norm. If you get this "
+                "error, dt may be too large.");
         }
         if (now_norm > target_norm) {
             throw std::runtime_error(
-                "must be now_state.norm() <= target_norm. ");
+                "must be now_state.norm() <= target_norm.  If you get this "
+                "error, dt may be too large.");
         }
 
         QuantumStateBase* mae_state = prev_state->copy();
@@ -352,6 +354,8 @@ public:
                     _c_ops[index]->apply_to_state_single_thread(state, buffer);
                     buffer->normalize(buffer->get_squared_norm_single_thread());
                     state->load(buffer);
+                } else {
+                    state->normalize(state->get_squared_norm_single_thread());
                 }
 
                 // update dt to be consistent with the step size
@@ -657,7 +661,7 @@ public:
      */
     virtual void set_seed(int seed) override { _random.set_seed(seed); };
 
-    virtual QuantumGateBase* copy() const override {
+    virtual ClsNoisyEvolution_fast* copy() const override {
         return new ClsNoisyEvolution_fast(_hamiltonian, _c_ops, _time);
     }
 
@@ -676,6 +680,8 @@ public:
     virtual void set_find_collapse_max_steps(int n) {
         this->_find_collapse_max_steps = n;
     }
+
+    virtual void change_time(double time) { _time = time; }
 
     /**
      * \~japanese-en 量子状態を更新する
@@ -742,5 +748,158 @@ public:
             state->get_squared_norm_single_thread() / initial_squared_norm);
 
         delete buffer;
+    }
+};
+
+// noisyEvolution_auto
+// c_opsなどの情報から、いろんなゲートが混在していても内部で自動的にfastの組に分けられ、最適化される
+
+class ClsNoisyEvolution_auto : public QuantumGateBase {
+private:
+    std::vector<ClsNoisyEvolution_fast*> gates;
+    std::vector<int> bit_number;
+
+    void bit_merge(int a, int b) {
+        if (a == b) {
+            return;
+        }
+        int n = bit_number.size();
+        for (int i = 0; i < n; i++) {
+            if (bit_number[i] == b) {
+                bit_number[i] = a;
+            }
+        }
+    }
+
+public:
+    ClsNoisyEvolution_auto() {}
+    ClsNoisyEvolution_auto(Observable* hamiltonian,
+        std::vector<GeneralQuantumOperator*> c_ops, double time) {
+        // hamiltonianをunion-findしつつ、使われているかを確認
+        // 量少ないし、ufじゃなくて普通に実装します
+        // bit_numberを決めて、実際に独立なゲートに振り分ける
+        UINT n_qubit = hamiltonian->get_qubit_count();
+        bit_number = std::vector<int>(n_qubit, -1);
+        int i;
+        for (auto pauli : hamiltonian->get_terms()) {
+            for (int bit : pauli->get_index_list()) {
+                bit_number[bit] = bit;
+            }
+        }
+        for (size_t k = 0; k < c_ops.size(); k++) {
+            for (auto pauli : c_ops[k]->get_terms()) {
+                for (int bit : pauli->get_index_list()) {
+                    bit_number[bit] = bit;
+                }
+            }
+        }
+        //使ってないビットは-1にした
+
+        for (auto pauli : hamiltonian->get_terms()) {
+            int uf_a = -1;
+            for (int bit : pauli->get_index_list()) {
+                if (uf_a == -1) {
+                    uf_a = bit;
+                } else {
+                    bit_merge(uf_a, bit);
+                }
+            }
+        }
+        for (size_t k = 0; k < c_ops.size(); k++) {
+            int uf_a = -1;
+            for (auto pauli : c_ops[k]->get_terms()) {
+                for (int bit : pauli->get_index_list()) {
+                    if (uf_a == -1) {
+                        uf_a = bit;
+                    } else {
+                        bit_merge(uf_a, bit);
+                    }
+                }
+            }
+        }
+
+        std::vector<bool> aru(n_qubit);
+        for (i = 0; i < n_qubit; i++) {
+            if (bit_number[i] == -1) {
+                continue;
+            }
+            aru[bit_number[i]] = true;
+        }
+        std::vector<UINT> taiou(n_qubit);
+        int kaz = 0;
+        for (i = 0; i < n_qubit; i++) {
+            if (aru[i]) {
+                taiou[i] = kaz;
+                kaz++;
+            }
+        }
+        for (i = 0; i < n_qubit; i++) {
+            bit_number[i] = taiou[bit_number[i]];
+        }
+        std::vector<Observable*> hamiltonians(kaz);
+        for (i = 0; i < kaz; i++) {
+            hamiltonians[i] = new Observable(n_qubit);
+        }
+        std::vector<std::vector<GeneralQuantumOperator*>> c_opss(kaz);
+        for (auto pauli : hamiltonian->get_terms()) {
+            int uf_a = -1;
+            for (int bit : pauli->get_index_list()) {
+                if (uf_a == -1) {
+                    uf_a = bit_number[bit];
+                } else if (uf_a != bit_number[bit]) {
+                    throw std::runtime_error("Error: bug");
+                }
+            }
+            (*hamiltonians[uf_a]) += (*pauli);
+        }
+        for (size_t k = 0; k < c_ops.size(); k++) {
+            int uf_a = -1;
+            for (auto pauli : c_ops[k]->get_terms()) {
+                for (int bit : pauli->get_index_list()) {
+                    if (uf_a == -1) {
+                        uf_a = bit_number[bit];
+                    } else if (uf_a != bit_number[bit]) {
+                        throw std::runtime_error("Error: bug");
+                    }
+                }
+            }
+            c_opss[uf_a].push_back(c_ops[k]);
+        }
+        gates.resize(kaz);
+        for (i = 0; i < kaz; i++) {
+            gates[i] =
+                new ClsNoisyEvolution_fast(hamiltonians[i], c_opss[i], time);
+        }
+    }
+    ~ClsNoisyEvolution_auto() {
+        for (auto it : gates) {
+            delete it;
+        }
+    }
+    virtual void set_matrix(ComplexMatrix& matrix) const override {
+        throw NotImplementedException(
+            "Error: "
+            "ClsNoisyEvolution::set_matrix(ComplexMatrix&): Gate-matrix of "
+            "noisy evolution cannot be defined.");
+    }
+    virtual void set_seed(int seed) override {
+        for (auto it : gates) {
+            it->set_seed(seed);
+        }
+    };
+    virtual void update_quantum_state(QuantumStateBase* state) {
+        for (auto gate : gates) {
+            gate->update_quantum_state(state);
+        }
+    }
+
+    virtual QuantumGateBase* copy() const override {
+        auto tar = new ClsNoisyEvolution_auto();
+        tar->gates = std::vector<ClsNoisyEvolution_fast*>(this->gates.size());
+        for (UINT i = 0; i < this->gates.size(); i++) {
+            tar->gates[i] = this->gates[i]->copy();
+        }
+        tar->bit_number = this->bit_number;
+        return tar;
     }
 };

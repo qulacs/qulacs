@@ -149,5 +149,14 @@ DllExport QuantumGateMatrix* get_conjugate_gate(const QuantumGateBase* gate);
 
 DllExport QuantumGateMatrix* get_adjoint_gate(const QuantumGateBase* gate);
 
+void get_new_qubit_list(const QuantumGateBase* gate_first,
+    const QuantumGateBase* gate_second,
+    std::vector<TargetQubitInfo>& new_target_list,
+    std::vector<ControlQubitInfo>& new_control_list);
+void get_extended_matrix(const QuantumGateBase* gate,
+    const std::vector<TargetQubitInfo>& new_target_list,
+    const std::vector<ControlQubitInfo>& new_control_list,
+    ComplexMatrix& matrix);
+
 }  // namespace gate
 // namespace gate
