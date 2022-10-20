@@ -41,14 +41,18 @@ TEST(KAKTest, random2bit) {
         circuit.update_quantum_state(&stateB);
         double inpro = abs(state::inner_product(&stateA, &stateB));
         ASSERT_NEAR(inpro, 1.0, 0.001);
+
+        delete random_gate;
     }
 }
 
 TEST(KAKTest, random1x1bit) {
     for (int i = 0; i < 5; i++) {
-        QuantumGateBase* random_gate =
-            gate::merge(gate::RandomUnitary({0}), gate::RandomUnitary({1}));
-        auto KAK_ret = KAK_decomposition(random_gate, {0, 1});
+        QuantumGateBase* random_gate0 = gate::RandomUnitary({0});
+        QuantumGateBase* random_gate1 = gate::RandomUnitary({1});
+        QuantumGateBase* random_gate_merged =
+            gate::merge(random_gate0, random_gate1);
+        auto KAK_ret = KAK_decomposition(random_gate_merged, {0, 1});
 
         QuantumCircuit circuit(2);
         circuit.add_gate(KAK_ret.single_qubit_operations_before[0]);
@@ -66,10 +70,14 @@ TEST(KAKTest, random1x1bit) {
         stateA.set_Haar_random_state();
         QuantumState stateB(2);
         stateB.load(&stateA);
-        random_gate->update_quantum_state(&stateA);
+        random_gate_merged->update_quantum_state(&stateA);
         circuit.update_quantum_state(&stateB);
         double inpro = abs(state::inner_product(&stateA, &stateB));
         ASSERT_NEAR(inpro, 1.0, 0.001);
+
+        delete random_gate_merged;
+        delete random_gate0;
+        delete random_gate1;
     }
 }
 
@@ -99,6 +107,8 @@ TEST(KAKTest, CXgate) {
         circuit.update_quantum_state(&stateB);
         double inpro = abs(state::inner_product(&stateA, &stateB));
         ASSERT_NEAR(inpro, 1.0, 0.001);
+
+        delete random_gate;
     }
 }
 
@@ -120,13 +130,20 @@ TEST(CSDTest, random4bit) {
     circuit.update_quantum_state(&stateB);
     double inpro = abs(state::inner_product(&stateA, &stateB));
     ASSERT_NEAR(inpro, 1.0, 0.001);
+
+    delete random_gate;
 }
 
 TEST(CSDTest, empty3gate) {
-    QuantumGateBase* random_gate =
-        gate::merge(gate::merge(gate::Identity({0}), gate::Identity({1})),
-            gate::Identity({2}));
-    auto CSD_ret = CSD(random_gate);
+    const UINT n_qubits = 3;
+
+    std::vector<QuantumGateBase*> identity_gate_list;
+    for (UINT i = 0; i < n_qubits; ++i) {
+        identity_gate_list.push_back(gate::Identity(i));
+    }
+
+    QuantumGateBase* identity_gate_merged = gate::merge(identity_gate_list);
+    auto CSD_ret = CSD(identity_gate_merged);
 
     QuantumCircuit circuit(4);
     for (auto it : CSD_ret) {
@@ -136,8 +153,13 @@ TEST(CSDTest, empty3gate) {
     stateA.set_Haar_random_state();
     QuantumState stateB(4);
     stateB.load(&stateA);
-    random_gate->update_quantum_state(&stateA);
+    identity_gate_merged->update_quantum_state(&stateA);
     circuit.update_quantum_state(&stateB);
     double inpro = abs(state::inner_product(&stateA, &stateB));
     ASSERT_NEAR(inpro, 1.0, 0.001);
+
+    delete identity_gate_merged;
+    for (UINT i = 0; i < n_qubits; ++i) {
+        delete identity_gate_list[i];
+    }
 }
