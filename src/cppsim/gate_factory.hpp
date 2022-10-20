@@ -469,4 +469,14 @@ DllExport ClsNoisyEvolution* NoisyEvolution(Observable* hamiltonian,
 DllExport ClsNoisyEvolution_fast* NoisyEvolution_fast(Observable* hamiltonian,
     std::vector<GeneralQuantumOperator*> c_ops, double time);
 
+/**
+ * Noisy Evolution
+ * TODO: do this comment
+ *
+ * @param[in] target_index ターゲットとなる量子ビットの添え字
+ * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
+ * @return 作成されたゲートのインスタンス
+ */
+DllExport QuantumGateBase* NoisyEvolution_auto(Observable* hamiltonian,
+    std::vector<GeneralQuantumOperator*> c_ops, double time);
 }  // namespace gate
