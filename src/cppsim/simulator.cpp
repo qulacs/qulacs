@@ -9,7 +9,7 @@
 QuantumCircuitSimulator::QuantumCircuitSimulator(
     QuantumCircuit* circuit, QuantumStateBase* initial_state)
     : _circuit(circuit), _state(initial_state), _buffer(NULL) {
-    if (_state == NULL) {
+    if (initial_state == NULL) {
         _state = new QuantumState(this->_circuit->qubit_count);
         _own_state = true;
     }
