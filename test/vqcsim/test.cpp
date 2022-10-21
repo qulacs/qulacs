@@ -105,7 +105,9 @@ TEST(ParametricCircuit, ParametricGatePosition) {
     delete cz01;
     circuit.add_parametric_RY_gate(1, 0.);
     circuit.add_parametric_gate(gate::ParametricRY(2), 2);
-    circuit.add_gate_copy(gate::X(0), 2);
+    auto x0 = gate::X(0);
+    circuit.add_gate_copy(x0, 2);
+    delete x0;
     circuit.add_parametric_gate(gate::ParametricRZ(1), 0);
     circuit.remove_gate(4);
     circuit.remove_gate(5);
@@ -176,7 +178,7 @@ TEST(EnergyMinimization, SingleQubitClassical) {
 
     EXPECT_NEAR(qc_loss, diag_loss, 1e-2);
 
-    delete observable;
+    delete emp;
 }
 
 TEST(EnergyMinimization, SingleQubitComplex) {
@@ -296,7 +298,6 @@ TEST(GradCalculator, BasicCheck) {
         Pauli_string += std::to_string(i);
         observable.add_operator(coef, Pauli_string.c_str());
     }
-
     ParametricQuantumCircuit circuit(n);
     for (int depth = 0; depth < 2; ++depth) {
         for (int i = 0; i < n; ++i) {
@@ -317,7 +318,6 @@ TEST(GradCalculator, BasicCheck) {
     for (int i = 0; i < parameter_count; ++i) {
         theta.push_back(rnd.uniform() * 5.0);
     }
-
     GradCalculator grad_calculator;
     auto grad_calculator_theta_specified_in_function_call_result =
         grad_calculator.calculate_grad(circuit, observable, theta);
