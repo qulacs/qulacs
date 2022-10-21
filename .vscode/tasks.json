@@ -54,6 +54,14 @@
             "problemMatcher": [
                 "$gcc"
             ]
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "script/clean.sh",
+            "problemMatcher": [
+                "$gcc"
+            ]
         }
     ]
 }
