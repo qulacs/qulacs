@@ -298,6 +298,7 @@ TEST(GradCalculator, BasicCheck) {
         Pauli_string += std::to_string(i);
         observable.add_operator(coef, Pauli_string.c_str());
     }
+
     ParametricQuantumCircuit circuit(n);
     for (int depth = 0; depth < 2; ++depth) {
         for (int i = 0; i < n; ++i) {
@@ -318,6 +319,7 @@ TEST(GradCalculator, BasicCheck) {
     for (int i = 0; i < parameter_count; ++i) {
         theta.push_back(rnd.uniform() * 5.0);
     }
+
     GradCalculator grad_calculator;
     auto grad_calculator_theta_specified_in_function_call_result =
         grad_calculator.calculate_grad(circuit, observable, theta);
