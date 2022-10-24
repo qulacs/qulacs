@@ -19,8 +19,12 @@ QuantumCircuitSimulator::QuantumCircuitSimulator(
 };
 
 QuantumCircuitSimulator::~QuantumCircuitSimulator() {
-    if (_own_state) delete _state;
     if (_buffer != NULL && !_is_swap) delete _buffer;
+    if (_own_state) {
+        delete _state;
+    } else {
+        if (_is_swap) delete _state;
+    }
 }
 
 void QuantumCircuitSimulator::initialize_state(ITYPE computational_basis) {
