@@ -2039,3 +2039,63 @@ QuantumCircuitSimulatorを使用すると、回路と量子状態を併せて管
    (0.353553,0)
    (0.353553,0)
    (0.353553,0)
+
+NoiseSimulator
+~~~~~~~~~~~~~~~~~~~~
+
+NoiseSimulatorを使用すると、ノイズをシミュレートした環境で回路を実行することができます。
+
+ノイズを設定する場合、add_noise_gate()を使用して、回路にゲートを追加する必要があります。第一引数にゲートを指定し、
+第二引数に追加するノイズの種類（Depolarizing/BitFlip/Dephasing/IndependentXZ/AmplitudeDamping）、第三引数にノイズが発生する確率を指定します。
+2量子ビットゲートの場合は、ノイズの種類は(Depolarizing)のみとなります。
+
+.. code:: python
+
+   import random
+   from qulacs import QuantumState, QuantumCircuit, NoiseSimulator
+   from qulacs.gate import sqrtX, sqrtY, T, CNOT, CZ
+
+   n = 3
+   depth = 10
+   one_qubit_noise = ["Depolarizing", "BitFlip", "Dephasing", "IndependentXZ", "AmplitudeDamping"]
+   circuit = QuantumCircuit(n)
+
+   for d in range(depth):
+      for i in range(n):
+         r = random.randint(0, 4)
+         noise_type = random.randint(0, 4)
+         if r == 0:
+               circuit.add_noise_gate(sqrtX(i), one_qubit_noise[noise_type], 0.01)
+         elif r == 1:
+               circuit.add_noise_gate(sqrtY(i), one_qubit_noise[noise_type], 0.01)
+         elif r == 2:
+               circuit.add_noise_gate(T(i), one_qubit_noise[noise_type], 0.01)
+         elif r == 3:
+               if i + 1 < n:
+                  circuit.add_noise_gate(CNOT(i, i+1), "Depolarizing", 0.01)
+         elif r == 4:
+               if i + 1 < n:
+                  circuit.add_noise_gate(CZ(i, i+1), "Depolarizing", 0.01)
+
+   state = QuantumState(n)
+   state.set_Haar_random_state()
+   sim = NoiseSimulator(circuit, state)
+   sim.execute(100)
+   print(state)
+
+::
+
+   *** Quantum State ***
+   * Qubit Count : 3
+   * Dimension   : 8
+   * State vector : 
+      (0.548785,0.102395)
+   (-0.0927749,0.419762)
+   (-0.256335,0.238385)
+   (0.134217,-0.154723)
+   (0.029416,-0.186135)
+      (0.056051,0.354884)
+   (0.0261743,-0.0779107)
+   (0.282366,-0.296603)
+
+
