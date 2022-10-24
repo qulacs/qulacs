@@ -99,7 +99,7 @@ public:
         matrix << cos(_angle / 2), sin(_angle / 2) * 1.i, sin(_angle / 2) * 1.i,
             cos(_angle / 2);
     }
-    virtual QuantumGate_SingleParameter* copy() const override {
+    virtual ClsParametricRXGate* copy() const override {
         return new ClsParametricRXGate(*this);
     };
 };
@@ -122,7 +122,7 @@ public:
         matrix << cos(_angle / 2), sin(_angle / 2), -sin(_angle / 2),
             cos(_angle / 2);
     }
-    virtual QuantumGate_SingleParameter* copy() const override {
+    virtual ClsParametricRYGate* copy() const override {
         return new ClsParametricRYGate(*this);
     };
 };
@@ -145,7 +145,7 @@ public:
         matrix << cos(_angle / 2) + 1.i * sin(_angle / 2), 0, 0,
             cos(_angle / 2) - 1.i * sin(_angle / 2);
     }
-    virtual QuantumGate_SingleParameter* copy() const override {
+    virtual ClsParametricRZGate* copy() const override {
         return new ClsParametricRZGate(*this);
     };
 };
@@ -203,7 +203,7 @@ public:
                 state->dim);
         }
     };
-    virtual QuantumGate_SingleParameter* copy() const override {
+    virtual ClsParametricPauliRotationGate* copy() const override {
         return new ClsParametricPauliRotationGate(_angle, _pauli->copy());
     };
     virtual void set_matrix(ComplexMatrix& matrix) const override {

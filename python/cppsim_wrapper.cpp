@@ -16,6 +16,8 @@
 #include <cppsim/state_dm.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_matrix.hpp>
+#include <cppsim/gate_matrix_diagonal.hpp>
+#include <cppsim/gate_matrix_sparse.hpp>
 #include <cppsim/gate_merge.hpp>
 #include <cppsim/circuit.hpp>
 #include <cppsim/circuit_optimizer.hpp>
@@ -360,7 +362,21 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("add_control_qubit", &QuantumGateMatrix::add_control_qubit, "Add control qubit", py::arg("index"), py::arg("control_value"))
         .def("multiply_scalar", &QuantumGateMatrix::multiply_scalar, "Multiply scalar value to gate matrix", py::arg("value"))
         ;
-
+    
+    py::class_<ClsOneQubitGate, QuantumGateBase>(m, "ClsOneQubitGate");
+    py::class_<ClsOneQubitRotationGate, QuantumGateBase>(m, "ClsOneQubitRotationGate");
+    py::class_<ClsOneControlOneTargetGate, QuantumGateBase>(m, "ClsOneControlOneTargetGate");
+    py::class_<ClsTwoQubitGate, QuantumGateBase>(m, "ClsTwoQubitGate");
+    py::class_<ClsNoisyEvolution, QuantumGateBase>(m, "ClsNoisyEvolution");
+    py::class_<ClsNoisyEvolution_fast, QuantumGateBase>(m, "ClsNoisyEvolution_fast");
+    py::class_<QuantumGate_Probabilistic, QuantumGateBase>(m, "QuantumGate_Probabilistic");
+    py::class_<QuantumGate_ProbabilisticInstrument, QuantumGate_Probabilistic>(m, "QuantumGate_ProbabilisticInstrument");
+    py::class_<QuantumGate_CPTP, QuantumGateBase>(m, "QuantumGate_CPTP");
+    py::class_<QuantumGate_CP, QuantumGateBase>(m, "QuantumGate_CP");
+    py::class_<QuantumGate_Instrument, QuantumGateBase>(m, "QuantumGate_Instrument");
+    py::class_<QuantumGate_Adaptive, QuantumGateBase>(m, "QuantumGate_Adaptive");
+    py::class_<QuantumGateDiagonalMatrix, QuantumGateBase>(m, "QuantumGateDiagonalMatrix");
+    py::class_<QuantumGateSparseMatrix, QuantumGateBase>(m, "QuantumGateSparseMatrix");
 
     auto mgate = m.def_submodule("gate");
     mgate.def("Identity", &gate::Identity, pybind11::return_value_policy::take_ownership, "Create identity gate", py::arg("index"));
@@ -628,6 +644,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("set_parameter", &ParametricQuantumCircuit::set_parameter, "Set parameter", py::arg("index"), py::arg("parameter"))
         .def("get_parametric_gate_position", &ParametricQuantumCircuit::get_parametric_gate_position, "Get parametric gate position", py::arg("index"))
         .def("remove_gate", &ParametricQuantumCircuit::remove_gate, "Remove gate", py::arg("position"))
+        .def("merge_circuit", &ParametricQuantumCircuit::merge_circuit, "Merge another ParametricQuantumCircuit", py::arg("circuit"))
 
         .def("add_parametric_RX_gate", &ParametricQuantumCircuit::add_parametric_RX_gate, "Add parametric Pauli-X rotation gate", py::arg("index"), py::arg("angle"))
         .def("add_parametric_RY_gate", &ParametricQuantumCircuit::add_parametric_RY_gate, "Add parametric Pauli-Y rotation gate", py::arg("index"), py::arg("angle"))
@@ -643,7 +660,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<GradCalculator>(m, "GradCalculator")
         .def(py::init<>())
         .def("calculate_grad",py::overload_cast<ParametricQuantumCircuit&, Observable&>(&GradCalculator::calculate_grad),"Calculate Grad", py::arg("parametric_circuit"),py::arg("observable"))
-        .def("calculate_grad",py::overload_cast<ParametricQuantumCircuit&, Observable&,std::vector<double>>(&GradCalculator::calculate_grad), py::arg("parametric_circuit"),py::arg("observable"),py::arg("angles of gates"));
+        .def("calculate_grad",py::overload_cast<ParametricQuantumCircuit&, Observable&,std::vector<double>>(&GradCalculator::calculate_grad), py::arg("parametric_circuit"),py::arg("observable"),py::arg("angles_of_gates"));
        
     auto mcircuit = m.def_submodule("circuit");
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
