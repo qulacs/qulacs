@@ -92,7 +92,7 @@ TEST(SimulatorTest, copy_test) {
     sim.copy_state_to_buffer();
     sim.simulate();
     auto after2 = sim.get_expectation_value(&observable);
-    ASSERT_NE(after, after2);
+    ASSERT_EQ(after, after2);
 
     delete state;
 }
