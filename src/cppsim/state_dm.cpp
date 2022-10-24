@@ -69,6 +69,8 @@ DensityMatrixCpu* make_mixture(CPPCTYPE prob1, const QuantumStateBase* state1,
     mixture->set_zero_norm_state();
     mixture->add_state_with_coef(prob1, dm1);
     mixture->add_state_with_coef(prob2, dm2);
+    delete dm1;
+    delete dm2;
     return mixture;
 }
 }  // namespace state
