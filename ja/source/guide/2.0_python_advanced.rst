@@ -1923,3 +1923,119 @@ multi_qubit_pauli_rotation)はパラメトリックな量子ゲートとして�
 
    *** Parameter Info ***
    # of parameter: 151
+
+シミュレータ
+------------
+
+QuantumCircuitSimulator
+~~~~~~~~~~~~~~~~~~~~
+
+QuantumCircuitSimulatorを使用すると、回路と量子状態を併せて管理することができます。
+
+量子状態のバックアップをSimulator内部に持っているため、切り替えて使用することができます。
+
+.. code:: python
+
+   from qulacs import QuantumState, QuantumCircuit, QuantumCircuitSimulator, Observable
+   n = 3
+   state = QuantumState(n)
+
+   # 回路を作成
+   circuit = QuantumCircuit(n)
+   for i in range(n):
+      circuit.add_H_gate(i)
+
+   # シミュレータクラスを作成
+   sim = QuantumCircuitSimulator(circuit, state)
+
+   # 基底を二進数と見た時の整数値を入れて、その状態に初期化
+   sim.initialize_state(0)
+
+   # ゲート数
+   print("gate_count: ", sim.get_gate_count())
+
+   # 実行
+   sim.simulate()
+
+   # 量子状態を表示
+   print(state)
+
+   # 期待値
+   observable = Observable(1)
+   observable.add_operator(1.0, "Z 0")
+   print("expectation_value: ", sim.get_expectation_value(observable))
+
+   # 量子状態を入れ替え
+   print("swap")
+   sim.swap_state_and_buffer()
+   # ランダムな純粋状態へ初期化
+   sim.initialize_random_state(0)
+   sim.simulate()
+   print(state)
+
+   # 量子状態をコピー（現状態->バックアップ）
+   sim.copy_state_from_buffer()
+   sim.simulate()
+   print(state)
+
+   # 量子状態をコピー（バックアップ->現状態）
+   sim.copy_state_to_buffer()
+   sim.simulate()
+   print(state)
+
+::
+
+   gate_count:  3
+   *** Quantum State ***
+   * Qubit Count : 3
+   * Dimension   : 8
+   * State vector : 
+   (0.353553,0)
+   (0.353553,0)
+   (0.353553,0)
+   (0.353553,0)
+   (0.353553,0)
+   (0.353553,0)
+   (0.353553,0)
+   (0.353553,0)
+
+   expectation_value:  0j
+   swap
+   *** Quantum State ***
+   * Qubit Count : 3
+   * Dimension   : 8
+   * State vector : 
+   (-0.298916,0.160953)
+   (0.015405,-0.237144)
+   (-0.215765,0.171064)
+   (-0.257959,-0.0506326)
+   (-0.121612,0.0424348)
+   (-0.0329899,-0.400262)
+   (0.327376,-0.414262)
+      (0.345253,0.327824)
+
+   *** Quantum State ***
+   * Qubit Count : 3
+   * Dimension   : 8
+   * State vector : 
+   (1,0)
+   (0,0)
+   (0,0)
+   (0,0)
+   (0,0)
+   (0,0)
+   (0,0)
+   (0,0)
+
+   *** Quantum State ***
+   * Qubit Count : 3
+   * Dimension   : 8
+   * State vector : 
+   (0.353553,0)
+   (0.353553,0)
+   (0.353553,0)
+   (0.353553,0)
+   (0.353553,0)
+   (0.353553,0)
+   (0.353553,0)
+   (0.353553,0)
