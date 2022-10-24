@@ -1,15 +1,13 @@
 C++ Tutorial
 ============
 
-Quantum States
+Quantum states
 --------------
 
-Creating Quantum States
+Generate quantum states
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-We can use the following codes to create a quantum state representing
-:math:`n` qubits and initialize it to a pure state
-:math:`|0\rangle^{\otimes n}`.
+Generate :math:`n` qubit quantum states using ``QuantumState`` class and initialize it as :math:`|0\rangle^{\otimes n}`.
 
 .. code:: cpp
 
@@ -22,135 +20,16 @@ We can use the following codes to create a quantum state representing
        return 0;
    }
 
-Note: if there is not enough memory the program ends.
+You can not generate the quantum states if the memory is not sufficient.
 
-Initializing Quantum States
-~~~~~~~~~~~~~~~~~~~~~~~~~~~
+With the memory of a typical laptop or desktop computer, the limit of qubits you can create is about 26, 27 qubits.
 
-The generated quantum state can be initialized to a computational basis
-or to a random state.
-
-.. code:: cpp
-
-   #include <cppsim/state.hpp>
-
-   int main() {
-       unsigned int n = 5;
-       QuantumState state(n);
-       state.set_zero_state();
-       // |00101>
-       state.set_computational_basis(0b00101);
-       // random states
-       state.set_Haar_random_state();
-       // random states with a random seed
-       state.set_Haar_random_state(0);
-       return 0;
-   }
-
-Copy and load quantum state data
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-You can duplicate a quantum state or load data of another quantum state.
-
-.. code:: cpp
-
-   #include <cppsim/state.hpp>
-
-   int main(){
-       unsigned int n = 5;
-       QuantumState state(n);
-       state.set_computational_basis(0b00101);
-
-       // Create new quantum state by copying
-       auto second_state = state.copy();
-
-       // Create a new quantum state and copy the existing state vector
-       QuantumState third_state(n);
-       third_state.load(&state);
-       return 0;
-   }
-
-Manipulating classic registers
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Quantum states have classical registers and can be read and written.
-
-.. code:: cpp
-
-   #include <cppsim/state.hpp>
-
-   int main() {
-       unsigned int n = 5;
-       QuantumState state(n);
-       state.set_zero_state();
-
-       // write register
-       int register_position = 3;
-       int register_value = 1;
-       state.set_classical_bit(register_position, register_value);
-
-       // read register
-       int obtained_value;
-       obtained_value = state.get_classical_bit(register_position);
-       return 0;
-   }
-
-Operations upon quantum states
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-Calculations that change the quantum state are always performed via
-quantum gates and quantum circuits. The operations does not change the
-quantum state.
-
-.. code:: cpp
-
-   #include <cppsim/state.hpp>
-
-   int main() {
-       unsigned int n = 5;
-       QuantumState state(n);
-       state.set_zero_state();
-
-       // norm
-       double norm = state.get_squared_norm();
-       // entropy in Z basis
-       double entropy = state.get_entropy();
-
-       // index-th qubit probability of 0 in Z basis
-       unsigned int index = 3;
-       double zero_prob = state.get_zero_probability(index);
-
-       // marginal probabilities
-       std::vector<unsigned int> value_list = { 0,1,1,0,2 };
-       double marginal_prob = state.get_marginal_probability(value_list);
-       return 0;
-   }
-
-Inner product of quantum states
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-.. code:: cpp
-
-   #include <cppsim/state.hpp>
-
-   int main(){
-       unsigned int n = 5;
-       QuantumState state_ket(n);
-       state_ket.set_zero_state();
-
-       QuantumState state_bra(n);
-       state_bra.set_Haar_random_state();
-
-       std::complex<double> value = state::inner_product(&state_ket, &state_bra);
-       return 0;
-   }
 
 Obtain data of quantum states
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The quantum state is expressed as an array of length :math:`2^n`.
-Especially when using GPU, note that, if :math:`n` is large, it can
-become very computationally heavy.
+Note that if the quantum state is formed by GPU, and if the :math:`n` is large, it can become an extremely heavy operation.
 
 .. code:: cpp
 
@@ -173,16 +52,142 @@ If you want to set the quantum state directly to the specified array, it
 is recommended to create the corresponding quantum gate and perform it
 as an operation of the quantum gate.
 
-Quantum Gates
--------------
+Initialize quantum states
+~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Generation and operation of quantum gates
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The generated quantum state can be initialized to a computational basis using the ``set_computational_basis`` or to a random state using the ``set_Harr_random_state``.
 
-The quantum gate implemented by default is generated through the
-function of gate_factory, and the pointer of the quantum state is
-operated as an argument. The quantum gate generated by gate_factory is
-not released automatically, and must be released by the user.
+Note that in Qulacs, the subscripts of the qubits start from 0, and the rightmost bit is the 0-th qubit when written as ``|0000>`` (In other libraries and textbooks, the leftmost bit may be the 0-th qubit).
+
+.. code:: cpp
+
+   #include <cppsim/state.hpp>
+
+   int main() {
+       unsigned int n = 5;
+       QuantumState state(n);
+       state.set_zero_state();
+       // Initialize as |00101>
+       state.set_computational_basis(0b00101);
+       // Generate random initial states
+       state.set_Haar_random_state();
+       // Generate random initial state with specifying seed
+       state.set_Haar_random_state(0);
+       return 0;
+   }
+
+Copy and load quantum state data
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The quantum state can be copied and loaded from other quantum state data.
+
+.. code:: cpp
+
+   #include <cppsim/state.hpp>
+
+   int main(){
+       unsigned int n = 5;
+       QuantumState state(n);
+       state.set_computational_basis(0b00101);
+
+       // Create new quantum state by copying
+       auto second_state = state.copy();
+
+       // Create a new quantum state and copy the existing state vector
+       QuantumState third_state(n);
+       third_state.load(&state);
+       return 0;
+   }
+
+Operate classic registers
+~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The quantum state can be read and written as a classic register.
+
+.. code:: cpp
+
+   #include <cppsim/state.hpp>
+
+   int main() {
+       unsigned int n = 5;
+       QuantumState state(n);
+       state.set_zero_state();
+
+       // Set the 3rd classical register as 1
+       int register_position = 3;
+       int register_value = 1;
+       state.set_classical_bit(register_position, register_value);
+
+       // Obtain the value of the 3rd classical register
+       int obtained_value;
+       obtained_value = state.get_classical_bit(register_position);
+       return 0;
+   }
+
+Calculate quantum states
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+Various calculations can be applied to the quantum state.
+The operations do not change the quantum state.
+
+.. code:: cpp
+
+   #include <cppsim/state.hpp>
+
+   int main() {
+       unsigned int n = 5;
+       QuantumState state(n);
+       state.set_zero_state();
+
+       // Calculate norm
+       double norm = state.get_squared_norm();
+       // Calculate the entropy when measured in z-basis
+       double entropy = state.get_entropy();
+
+       // Calculate the probability that the index-th qubit is 0 when measured in z-basis
+       unsigned int index = 3;
+       double zero_prob = state.get_zero_probability(index);
+
+       // Calculate marginal probabilities
+       // (Here is an example of the probability that 0,3-th qubit is measured as 0 and 1,2-th qubit is measured as 1)
+       std::vector<unsigned int> value_list = { 0,1,1,0,2 };
+       double marginal_prob = state.get_marginal_probability(value_list);
+       return 0;
+   }
+
+Calculate the inner product of quantum states
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The inner product of quantum states can be calculated by the ``inner_product`` function.
+
+.. code:: cpp
+
+   #include <cppsim/state.hpp>
+
+   int main(){
+       unsigned int n = 5;
+       QuantumState state_ket(n);
+       state_ket.set_zero_state();
+
+       QuantumState state_bra(n);
+       state_bra.set_Haar_random_state();
+
+       // Calculate the inner product
+       std::complex<double> value = state::inner_product(&state_ket, &state_bra);
+       return 0;
+   }
+
+
+Quantum Gate
+------------
+
+Generate and operate quantum gates
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The quantum gate implemented by default is generated through the function of ``gate_factory``.
+This quantum gate can operate on the quantum state specified by the argument of ``update_quantum_state``.
+The quantum gate generated by ``gate_factory`` is not released automatically, and must be released by the user.
 
 .. code:: cpp
 
@@ -211,24 +216,25 @@ not released automatically, and must be released by the user.
        return 0;
    }
 
-Gates defined in the gate namespace are as follows:
+Quantum gates defined in the gate namespace are as following:
 
-- single-qubit Pauli operation: Identity, X,Y,Z
-- single-qubit Clifford operation : H,S,Sdag,T,Tdag,sqrtX,sqrtXdag,sqrtY,sqrtYdag
-- two-qubit Clifford operation : CNOT, CZ, SWAP
-- single-qubit Pauli rotation : RX, RY, RZ
-- General Pauli operation : Pauli, PauliRotation
-- IBMQ basis-gate : U1, U2, U3
-- General gate : DenseMatrix
-- Measurement : Measurement
-- Noise : BitFlipNoise, DephasingNoise, IndepenedentXZNoise, DepolarizingNoise
+- Single-qubit Pauli operation: ``Identity``, ``X``, ``Y``, ``Z``
+- Single-qubit Clifford operation: ``H``, ``S``, ``Sdag``, ``T``, ``Tdag``, ``sqrtX``, ``sqrtXdag``, ``sqrtY``, ``sqrtYdag``
+- Two-qubit Clifford operation: ``CNOT``, ``CZ``, ``SWAP``
+- Single-qubit Pauli rotation: ``RX``, ``RY``, ``RZ``
+- General Pauli operation: ``Pauli``, ``PauliRotation``
+- IBMQ basis-gate: ``U1``, ``U2``, ``U3``
+- General gate: ``DenseMatrix``
+- Measurement : ``Measurement``
+- Noise : ``BitFlipNoise``, ``DephasingNoise``, ``IndepenedentXZNoise``, ``DepolarizingNoise``
 
-Combining quantum gates
-~~~~~~~~~~~~~~~~~~~~~~~
+Rotation gates ``RX``, ``RY``, and ``RZ`` operate as Pauli rotation :math:`\exp(i\frac{\theta}{2}P)` based on corresponding Pauli operator :math:`P` and argument :math:`\theta`. Please check the API documents for details of each gate.
 
-By combining successively operating quantum gates, a new single quantum
-gate can be generated. You have to release the synthesized gate
-yourself.
+Merge quantum gates
+~~~~~~~~~~~~~~~~~~~
+
+A new single quantum gate can be generated by merging the quantum gates that continue to operate in sequence.
+You have to release the synthesized gate yourself.
 
 .. code:: cpp
 
@@ -250,7 +256,7 @@ yourself.
        double angle = M_PI / 2.0;
        auto ry_gate = gate::RY(index, angle);
 
-       // combine X, RY in the successive operation order 
+       // combine X, RY in the successive operation order
        auto x_and_ry_gate = gate::merge(x_gate, ry_gate);
 
        x_and_ry_gate->update_quantum_state(&state);
@@ -264,9 +270,7 @@ yourself.
 Sum of quantum gate matrices
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The sum of quantum gate matrices elements can be obtained. (Please don’t
-do this when there is control-qubit, because the operation is undefined
-yet)
+A new gate can be generated by summing gates. (Not available for gates with control-qubit, because that operation is undefined yet.)
 
 .. code:: cpp
 
@@ -296,17 +300,17 @@ yet)
 Special quantum gate and common quantum gate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-In cppsim, the basic quantum gates are devided in two ways: - Special
-gate: There are dedicated speed-up functions for utilizing the special
-gate. - Common gate: The matrices of the gate are consistent in
-operating on other matrix.
+In cppsim, the basic quantum gates are divided into the following two ways:
 
-The special gate is faster than the common gate because of the dedicated
-functions. But in special gate, operations that change the function of a
-quantum gate, such as increasing the number of control qubits, cannot be
-performed later. This kind of change can be made only when the special
-gate is transformed into common gate, which can be realized by
-gate::convert_to_matrix_gate. Here’s an example:
+- Special gate: There are dedicated speed-up functions for utilizing the special gate.
+- Common gate: The gate holds the gate matrix and operates by multiplying the matrix.
+
+The special gate is faster than the common gate because of the dedicated functions.
+But in a special gate, operations that change the function of a quantum gate,
+such as increasing the number of control qubits, cannot be performed later.
+This kind of change can be made only when the special gate is transformed into a common gate, which can be realized by ``gate::to_matrix_gate``.
+
+Here's an example:
 
 .. code:: cpp
 
@@ -336,15 +340,14 @@ gate::convert_to_matrix_gate. Here’s an example:
        return 0;
    }
 
-Please check the API documents for details of speacial quantum gate.
+Please check the API documents for details of the special quantum gate.
 
-Obtain the gate matrix of quantum gate
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Obtain the gate matrix of the quantum gate
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Gate matrix of generated quantum gate can be obtained, but gate matrices
-do not include control qubit. Especially, be careful for those gates who
-don’t have gate matrix (ex. n-qubit Pauli rotation gate), it takes
-extremely long time and memory to obtain the matrix.
+The gate matrix of the generated quantum gate can be obtained, but gate matrices do not include the control qubit.
+Especially, note that gates without gate matrix (ex. n-qubit Pauli rotation gate)
+require a very long time and memory to obtain the matrix.
 
 .. code:: cpp
 
@@ -365,13 +368,12 @@ extremely long time and memory to obtain the matrix.
        return 0;
    }
 
-Obtain information of quantum gate
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Obtain information about quantum gate
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Debug information of quantum gate can be shown by using ostream. Note
-that if the gate matrix of the quantum gate is very large, it takes a
-long time. Quantum gates with dedicated functions do not display their
-own gate matrix.
+Debug information of quantum gate can be shown by using ostream.
+Note that if the gate matrix of the quantum gate is very large, it takes a long time.
+Quantum gates with dedicated functions do not display their gate matrix.
 
 .. code:: cpp
 
@@ -394,19 +396,19 @@ own gate matrix.
 Implement of common quantum gate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-cppsim implements various maps of quantum information in the following
-forms.
+Cppsim implements various maps of quantum information in the following forms.
 
-Unitary operation 
+Unitary operation
 ^^^^^^^^^^^^^^^^^
 
-Implemented as quantum gate.
+Implemented as the quantum gate.
 
 Projection operator and Kraus operator, etc.
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Implemented as quantum gate. In general, the norm of quantum state is not preserved after operation.
-The gate can be generated by DenseMatrix.
+Implemented as the quantum gate. In general, the norm of the quantum state is not preserved after the operation.
+
+The gate can be generated by ``DenseMatrix``.
 
 .. code:: cpp
 
@@ -435,11 +437,11 @@ The gate can be generated by DenseMatrix.
        return 0;
    }
 
-Stochastic unitary operations
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Probabilistic unitary operations
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 With given multiple unitary operations and probability distributions,
-stochastic unitary operations can be created by Probabilistic function.
+stochastic unitary operations can be created by ``Probabilistic`` function.
 
 .. code:: cpp
 
@@ -471,8 +473,7 @@ stochastic unitary operations can be created by Probabilistic function.
 CPTP-map
 ^^^^^^^^
 
-CPTP-map can be created by giving the CPTP function a list of Kraus
-operators satisfying completeness.
+CPTP-map can be created by giving the ``CPTP`` function a list of Kraus operators satisfying completeness.
 
 .. code:: cpp
 
@@ -510,13 +511,9 @@ realized as Instrument.
 Instrument
 ^^^^^^^^^^
 
-In addition to the general CPTP-map operation, Instrument is an operation to get the array
-subscript of the Claus operator that acts randomly. For example, a
-measurement on the Z basis is to operate on the CPTP-map consisting of
-P0 and P1 and knowing which one is operated. In cppsim, this is achieved
-by specifying the information of the CPTP-map and the address of the
-classic register where the subscript of the operated Claus operator is
-written in the Instrument function.
+In addition to the general CPTP-map operation, ``Instrument`` is an operation that obtains the array subscripts of the randomly acting Kraus operator.
+For example, a measurement on the Z basis is to operate on the CPTP-map consisting of ``P0`` and ``P1`` and know which one was operated.
+In cppsim, this is achieved by specifying the information of the CPTP-map and the address of the classic register in which the subscripts of the operated Kraus operator are written in the ``Instrument`` function.
 
 .. code:: cpp
 
@@ -552,10 +549,8 @@ written in the Instrument function.
 Adaptive
 ^^^^^^^^
 
-Determines whether to perform the operation according to the value
-written to the classical register. Cppsim implements this by specifying
-a function that takes a register of type std::vector<unsigned int> as an argument
-and returns a bool type.
+The operation is performed or not performed depending on the value written to the classical register.
+In cppsim, this is achieved by specifying a function that takes a register of type ``std::vector<unsigned int>`` as an argument and returns a ``bool`` type in the ``Adaptive`` function.
 
 .. code:: cpp
 
@@ -590,19 +585,19 @@ and returns a bool type.
 CP-map
 ^^^^^^
 
-If Kraus-rank is 1, please treat it as a single Kraus operator as
-described above. In other cases, please adjust the Kraus operator so
-that it becomes TP, and then adjust it by applying the Identity operator
-multiplied by a constant with the multiply_scalar function.
+If Kraus rank is 1, please treat it as a single Kraus operator as described above.
+In other cases, please adjust the Kraus operator so that it becomes TP,
+and then adjust it by applying the ``Identity`` operator multiplied by a constant with the ``multiply_scalar()`` function.
 
 Quantum Circuits
 ----------------
 
-Constructing a quantum circuit
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Construct the quantum circuit
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-A quantum circuit is represented as a set of quantum gates. For example,
-a quantum circuit can be made as follows:
+A quantum circuit is represented as a set of quantum gates.
+For example, you can construct a quantum circuit as follows:
+
 
 .. code:: cpp
 
@@ -633,23 +628,19 @@ a quantum circuit can be made as follows:
        return 0;
    }
 
-Note: the quantum circuit added by add_gate is released from memory when
+Note: the quantum circuit added by ``add_gate`` is released from memory when
 the quantum circuit is released. Therefore, the assigned gate cannot be
 reused. If you want to reuse the gate given as an argument, make a copy
-of itself using gate.copy or use the add_gate_copy function. But in this
+of itself using ``gate.copy`` or use the ``add_gate_copy`` function. But in this
 case, you have to release the gate by yourself.
 
-Optimizating quantum circuits
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Calculate and optimize the depth of quantum circuits
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-By merging quantum gates into a single quantum gate, the number of
-quantum gates can be reduced and the time required for numerical
-calculations can be reduced. (Of course, when the number of target
-qubits increases, or when a quantum gate with a dedicated function is
-merged into a quantum gate without a dedicated function, the total
-calculation time will not necessarily decrease.)
+By merging quantum gates into a single one, the number of quantum gates can be reduced and the time required for numerical calculations can be reduced.
+(Of course, the total calculation time will not necessarily be reduced if the number of target qubits is increased or if a quantum gate with a dedicated function is merged into a quantum gate without a dedicated function.)
 
-The code below uses the optimize function to repeat merging the quantum
+The code below uses the ``optimize`` function to repeat merging the quantum
 gates of the quantum circuit until the target qubit becomes three by
 greedy algorithm.
 
@@ -677,11 +668,11 @@ greedy algorithm.
        return 0;
    }
 
-Obtaining debug information of quantum circuits
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Obtain debug information of quantum circuits
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The same as quantum gate, debug information of quantum gate can be shown
-by using ostream.
+The same as the quantum gate, debug information of the quantum circuit can be shown
+by using ``ostream``.
 
 .. code:: cpp
 
@@ -707,7 +698,7 @@ by using ostream.
 Observables
 -----------
 
-Creating observables
+Generate observables
 ~~~~~~~~~~~~~~~~~~~~
 
 Observables are represented as a set of Pauli operators. The Pauli
@@ -727,14 +718,13 @@ operator can be defined as follows:
        return 0;
    }
 
-Cooperation with OpenFermion
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Cooperate with OpenFermion
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Observables can be generated from files in the following formats
 generated using OpenFermion. At this time, the observable has the
-minimum size necessary to compose it. For example, it is possible to
-read observables obtained using openfermion as shown below and generate
-observables.
+minimum size necessary to generate it.
+For example, it is possible to generate an observable by reading an observable obtained using OpenFermion such as the following.
 
 .. code:: python
 
@@ -775,7 +765,7 @@ observables.
    fp.write(str(bk_operator))
    fp.close()
 
-The H2.txt </ code> file generated by the above python code has the
+The ``H2.txt`` file generated by the above Python code has the
 following format.
 
 .. code:: txt
@@ -812,11 +802,10 @@ follows:
        return 0;
    }
 
-Evaluation of Observable
-~~~~~~~~~~~~~~~~~~~~~~~~
+Evaluate observable
+~~~~~~~~~~~~~~~~~~~
 
-Evaluation of the expected value of the observable against the state can
-be obtained.
+An evaluation of the expected value of the observable for the state can be obtained.
 
 .. code:: cpp
 
@@ -830,7 +819,7 @@ be obtained.
        std::string Pauli_string = "X 0 X 1 Y 2 Z 4";
        Observable observable(n);
        observable.add_operator(coef, Pauli_string.c_str());
-       
+
        QuantumState state(n);
        observable.get_expectation_value(&state);
        return 0;
@@ -839,10 +828,9 @@ be obtained.
 Rotation of Observable
 ~~~~~~~~~~~~~~~~~~~~~~
 
-The rotation of Observable :math:`H`,
-:math:`e^{i\theta H}`, is performed by Trotter
-expansion. num_repeats defaults as the following code, but can be
-specified by user.
+The rotation of Observable :math:`H`, :math:`e^{i\theta H}`, is performed by Trotter
+expansion. ``num_repeats`` defaults as the following code, but can be optionally
+specified by the user.
 
 .. code:: cpp
 
@@ -874,13 +862,13 @@ specified by user.
 Parametric Quantum Circuits
 ---------------------------
 
-Defining a quantum circuit as the ParametricQuantumCircuit class allows
+Defining a quantum circuit as the ``ParametricQuantumCircuit`` class allows
 you to use some functions that are useful for optimizing quantum
 circuits using variational methods, in addition to the usual functions
-of the QuantumCircuit class.
+of the ``QuantumCircuit`` class.
 
-An example of a parametric quantum circuits
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Examples of parametric quantum circuits
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Quantum gates with one rotation angle (X-rot, Y-rot, Z-rot,
 multi_qubit_pauli_rotation) can be added to quantum circuits as
