@@ -701,4 +701,7 @@ DllExport QuantumState* permutate_qubit(
     const QuantumState* state, std::vector<UINT> qubit_order);
 DllExport QuantumState* drop_qubit(const QuantumState* state,
     std::vector<UINT> target, std::vector<UINT> projection);
+// create superposition of states of coef1|state1>+coef2|state2>
+DllExport QuantumState* make_superposition(CPPCTYPE coef1,
+    const QuantumState* state1, CPPCTYPE coef2, const QuantumState* state2);
 }  // namespace state

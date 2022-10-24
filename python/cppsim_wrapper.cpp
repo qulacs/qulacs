@@ -329,6 +329,13 @@ PYBIND11_MODULE(qulacs_core, m) {
             &state::partial_trace),
         pybind11::return_value_policy::take_ownership,
         py::arg("state"), py::arg("target_traceout"));
+    
+    mstate.def("make_superposition", &state::make_superposition,
+        py::return_value_policy::take_ownership, "Create superposition of states",
+        py::arg("coef1"), py::arg("state1"), py::arg("coef2"), py::arg("state2"));
+    mstate.def("make_mixture", &state::make_mixture,
+        py::return_value_policy::take_ownership, "Create a mixed state",
+        py::arg("prob1"), py::arg("state1"), py::arg("prob2"), py::arg("state2"));
 
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
         .def("update_quantum_state", &QuantumGateBase::update_quantum_state, "Update quantum state", py::arg("state"))
