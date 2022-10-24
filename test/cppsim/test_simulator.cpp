@@ -22,7 +22,8 @@ TEST(SimulatorTest, basic_test) {
 
     // Circuitに適用した量子状態の期待値とSimulatorの期待値が同じであること
     circuit.update_quantum_state(&test_state);
-    ASSERT_EQ(sim.get_expectation_value(&observable), observable.get_expectation_value(&test_state));
+    ASSERT_EQ(sim.get_expectation_value(&observable),
+        observable.get_expectation_value(&test_state));
 }
 
 TEST(SimulatorTest, swap_test) {
