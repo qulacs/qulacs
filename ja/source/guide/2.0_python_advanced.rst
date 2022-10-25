@@ -1932,7 +1932,7 @@ QuantumCircuitSimulator
 
 `QuantumCircuitSimulator`を使用すると、回路と量子状態を併せて管理することができます。
 
-量子状態のバックアップをSimulator内部に持っているため、切り替えて使用することができます。
+量子状態のバッファを1つ持っており、切り替えて使用することができます。
 
 .. code:: python
 
@@ -1969,16 +1969,16 @@ QuantumCircuitSimulator
    print("swap")
    sim.swap_state_and_buffer()
    # ランダムな純粋状態へ初期化
-   sim.initialize_random_state(0)
+   sim.initialize_random_state(seed=0)
    sim.simulate()
    print(state)
 
-   # 量子状態をコピー（現状態->バックアップ）
+   # 量子状態をコピー（バッファ->現状態）
    sim.copy_state_from_buffer()
    sim.simulate()
    print(state)
 
-   # 量子状態をコピー（バックアップ->現状態）
+   # 量子状態をコピー（現状態->バッファ）
    sim.copy_state_to_buffer()
    sim.simulate()
    print(state)
