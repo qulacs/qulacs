@@ -2098,4 +2098,35 @@ NoiseSimulator
    (0.0261743,-0.0779107)
    (0.282366,-0.296603)
 
+CausalConeSimulator
+~~~~~~~~~~~~~~~~~~~~
+
+``CausalConeSimulator`` を使用すると、指定したオブザーバブルに関連するゲートを回路を逆に辿って抽出します。抽出したゲートのみを適用して物理量の期待値を求めることができます。
+
+これにより回路の深さが浅ければ関連するゲートが少なくなるため、大きいサイズの量子ビットの回路の期待値を求めることができます。
+
+.. code:: python
+
+   from qulacs import QuantumState, ParametricQuantumCircuit, CausalConeSimulator, Observable
+   n = 10
+   observable = Observable(1)
+   observable.add_operator(1.0, "Z 0")
+   circuit = ParametricQuantumCircuit(n)
+   for i in range(n):
+      circuit.add_parametric_RX_gate(i, 1.0)
+      circuit.add_parametric_RY_gate(i, 1.0)
+
+   # CausalConeSimulatorの場合
+   ccs = CausalConeSimulator(circuit, observable)
+   print(ccs.get_expectation_value())
+
+   # 通常の場合
+   state = QuantumState(n)
+   circuit.update_quantum_state(state)
+   print(observable.get_expectation_value(state))
+
+::
+
+   (0.2919265817264289+0j)
+   0.2919265817264287
 
