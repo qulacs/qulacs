@@ -2047,7 +2047,7 @@ NoiseSimulator
 
 ノイズを設定する場合、`add_noise_gate()`を使用して、回路にゲートを追加する必要があります。第一引数にゲートを指定し、
 第二引数に追加するノイズの種類（`"Depolarizing"`/`"BitFlip"`/`"Dephasing"`/`"IndependentXZ"`/`"AmplitudeDamping"`）、第三引数にノイズが発生する確率を指定します。
-2量子ビットゲートの場合は、ノイズの種類は(Depolarizing)のみとなります。
+2量子ビットゲートの場合は、ノイズの種類は`"Depolarizing"`のみとなります。
 
 .. code:: python
 
