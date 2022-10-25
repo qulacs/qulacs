@@ -47,7 +47,7 @@ Qulacsは、`藤井研究室 <http://quantphys.org/wp/qinfp/>`_ で開発され�
       </a>
       </div>
    </div>
-   </div>.
+   </div>
 
 
 
