@@ -38,7 +38,7 @@ Requirements
 
 -  Python 2.7 or 3.x
 -  CMake >= 3.0
--  git
+-  Git
 -  (option) CUDA >= 8.0
 -  (option) AVX2 support
 
