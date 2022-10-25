@@ -191,7 +191,8 @@ PYBIND11_MODULE(qulacs_core, m) {
             return state.data_cpp()[index];
         }, "Get state vector", py::arg("index"))
         .def("get_qubit_count", [](const QuantumState& state) -> unsigned int {return (unsigned int) state.qubit_count; }, "Get qubit count")
-        .def("__repr__", [](const QuantumState &p) {return p.to_string();});
+        .def("__repr__", [](const QuantumState &p) {return p.to_string();})
+        
         ;
 
         m.def("StateVector", [](const unsigned int qubit_count) {
@@ -370,6 +371,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("optimize_ProbablisticGate", &QuantumGateBase::optimize_ProbablisticGate, "optimize_ProbablisticGate")
         .def("get_distribution", &QuantumGateBase::get_distribution, "get_distribution")
         .def("get_cumulative_distribution", &QuantumGateBase::get_cumulative_distribution, "get_cumulative_distribution")
+        .def("get_inverse",&QuantumGateBase::get_inverse,"get inverse gate")
         ;
 
     py::class_<QuantumGateMatrix,QuantumGateBase>(m, "QuantumGateMatrix")
@@ -642,6 +644,8 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("add_random_unitary_gate", (void (QuantumCircuit::*)(std::vector<UINT>, UINT))&QuantumCircuit::add_random_unitary_gate, py::arg("index_list"), py::arg("seed"))
         .def("add_diagonal_observable_rotation_gate", &QuantumCircuit::add_diagonal_observable_rotation_gate, "Add diagonal observable rotation gate", py::arg("observable"), py::arg("angle"))
         .def("add_observable_rotation_gate", &QuantumCircuit::add_observable_rotation_gate, "Add observable rotation gate", py::arg("observable"), py::arg("angle"), py::arg("repeat"))
+
+        .def("get_inverse",&QuantumCircuit::get_inverse,"get inverse circuit")
             
         .def("__repr__", [](const QuantumCircuit &p) {return p.to_string(); });
     ;

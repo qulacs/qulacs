@@ -101,6 +101,10 @@ class QuantumGateBase():
         """
         get_gate_list
         """
+    def get_inverse(self) -> QuantumGateBase: 
+        """
+        get inverse gate
+        """
     def get_matrix(self) -> numpy.ndarray[numpy.complex128, _Shape[m, n]]: 
         """
         Get gate matrix
@@ -536,6 +540,10 @@ class QuantumCircuit():
     def get_gate_count(self) -> int: 
         """
         Get gate count
+        """
+    def get_inverse(self) -> QuantumCircuit: 
+        """
+        get inverse circuit
         """
     def get_qubit_count(self) -> int: 
         """
