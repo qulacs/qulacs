@@ -1930,7 +1930,7 @@ multi_qubit_pauli_rotation)はパラメトリックな量子ゲートとして�
 QuantumCircuitSimulator
 ~~~~~~~~~~~~~~~~~~~~
 
-QuantumCircuitSimulatorを使用すると、回路と量子状態を併せて管理することができます。
+`QuantumCircuitSimulator`を使用すると、回路と量子状態を併せて管理することができます。
 
 量子状態のバックアップをSimulator内部に持っているため、切り替えて使用することができます。
 
