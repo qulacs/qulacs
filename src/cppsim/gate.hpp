@@ -303,5 +303,5 @@ public:
         }
     }
 
-    virtual QuantumGateBase* inverse(void);
+    virtual QuantumGateBase* get_inverse(void);
 };

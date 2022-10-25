@@ -557,4 +557,6 @@ public:
     virtual void add_random_unitary_gate(std::vector<UINT> target_index_list);
     virtual void add_random_unitary_gate(
         std::vector<UINT> target_index_list, UINT seed);
+
+    virtual QuantumCircuit* get_inverse(void);
 };

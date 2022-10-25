@@ -247,7 +247,7 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
                 2.0;  //だからここで2で割る
             delete RcPI;
         }
-        auto Agate = gate::get_adjoint_gate(gate_now);
+        auto Agate = gate_now->get_inverse();
         Agate->update_quantum_state(bistate);
         Agate->update_quantum_state(state);
         delete Agate;

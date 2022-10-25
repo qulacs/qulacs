@@ -176,6 +176,107 @@ TEST(CircuitTest, CircuitBasic) {
         ASSERT_NEAR(abs(state_eigen[i] - state.data_cpp()[i]), 0, eps);
 }
 
+TEST(CircuitTest, CircuitRev) {
+    const UINT n = 4;
+    const UINT dim = 1ULL << n;
+
+    Random random;
+
+    QuantumState state(n);
+    ComplexVector state_eigen(dim);
+
+    state.set_Haar_random_state();
+    for (ITYPE i = 0; i < dim; ++i) state_eigen[i] = state.data_cpp()[i];
+
+    QuantumCircuit circuit(n);
+    UINT target, target_sub;
+    double angle;
+
+    target = random.int32() % n;
+    circuit.add_X_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_Y_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_Z_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_H_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_S_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_Sdag_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_T_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_Tdag_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_sqrtX_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_sqrtXdag_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_sqrtY_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_sqrtYdag_gate(target);
+
+    target = random.int32() % n;
+    angle = random.uniform() * 3.14159;
+    circuit.add_RX_gate(target, angle * 2);
+    circuit.add_RotInvX_gate(target, angle + 0.5);
+    circuit.add_RotX_gate(target, angle * 2 + 0.5);
+
+    target = random.int32() % n;
+    angle = random.uniform() * 3.14159;
+    circuit.add_RotInvY_gate(target, angle);
+
+    target = random.int32() % n;
+    angle = random.uniform() * 3.14159;
+    circuit.add_RotZ_gate(target, -angle);
+
+    target = random.int32() % n;
+    target_sub = random.int32() % (n - 1);
+    if (target_sub >= target) target_sub++;
+    circuit.add_CNOT_gate(target, target_sub);
+
+    target = random.int32() % n;
+    target_sub = random.int32() % (n - 1);
+    if (target_sub >= target) target_sub++;
+    circuit.add_CZ_gate(target, target_sub);
+
+    target = random.int32() % n;
+    target_sub = random.int32() % (n - 1);
+    if (target_sub >= target) target_sub++;
+    circuit.add_SWAP_gate(target, target_sub);
+
+    Observable observable(n);
+    angle = 2 * PI * random.uniform();
+
+    observable.add_operator(1.0, "Z 0");
+    observable.add_operator(2.0, "Z 0 Z 1");
+
+    circuit.add_diagonal_observable_rotation_gate(observable, angle);
+
+    circuit.update_quantum_state(&state);
+
+    auto revcircuit = circuit.get_inverse();
+
+    revcircuit->update_quantum_state(&state);
+
+    for (ITYPE i = 0; i < dim; ++i)
+        ASSERT_NEAR(abs(state_eigen[i] - state.data_cpp()[i]), 0, eps);
+
+    delete revcircuit;
+}
+
 TEST(CircuitTest, CircuitOptimize) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;

@@ -64,6 +64,7 @@ TEST(GateTest, ApplySingleQubitGate) {
             UINT target = random.int32() % n;
 
             state.set_Haar_random_state();
+
             for (ITYPE i = 0; i < dim; ++i)
                 test_state1[i] = state.data_cpp()[i];
             for (ITYPE i = 0; i < dim; ++i)
