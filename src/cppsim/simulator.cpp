@@ -70,7 +70,6 @@ void QuantumCircuitSimulator::swap_state_and_buffer() {
         _buffer = new QuantumState(_state->qubit_count);
         _buffer->set_zero_state();
     }
-    _is_swap = !_is_swap;
     auto tmp = new QuantumState(_state->qubit_count);
     tmp->load(_buffer);
     _buffer->load(_state);

@@ -18,7 +18,6 @@ private:
     QuantumStateBase* _state;
     QuantumStateBase* _buffer;
     bool _own_state = false;
-    bool _is_swap = false;
 
 public:
     /**
