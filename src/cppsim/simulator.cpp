@@ -22,7 +22,7 @@ QuantumCircuitSimulator::~QuantumCircuitSimulator() {
     if (_own_state) {
         delete _state;
     }
-    if (_buffer != NULL && !_is_swap) {
+    if (_buffer != NULL) {
         delete _buffer;
     }
 }
@@ -75,4 +75,6 @@ void QuantumCircuitSimulator::swap_state_and_buffer() {
     tmp->load(_buffer);
     _buffer->load(_state);
     _state->load(tmp);
+
+    delete tmp;
 }
