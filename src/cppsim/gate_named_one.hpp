@@ -277,6 +277,8 @@ public:
         this->_matrix_element = ComplexMatrix::Zero(2, 2);
         this->_matrix_element << 0, 0, 0, 1;
     }
+
+    virtual QuantumGateBase* inverse(void);
 };
 
 /**

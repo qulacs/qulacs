@@ -302,4 +302,6 @@ public:
             _control_qubit_list[i].set_index(control_index_list[i]);
         }
     }
+
+    virtual QuantumGateBase* inverse(void);
 };
