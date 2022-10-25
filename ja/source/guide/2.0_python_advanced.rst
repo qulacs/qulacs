@@ -1930,7 +1930,7 @@ multi_qubit_pauli_rotation)はパラメトリックな量子ゲートとして�
 QuantumCircuitSimulator
 ~~~~~~~~~~~~~~~~~~~~
 
-`QuantumCircuitSimulator`を使用すると、回路と量子状態を併せて管理することができます。
+ ``QuantumCircuitSimulator`` を使用すると、回路と量子状態を併せて管理することができます。
 
 量子状態のバッファを1つ持っており、切り替えて使用することができます。
 
@@ -2043,11 +2043,11 @@ QuantumCircuitSimulator
 NoiseSimulator
 ~~~~~~~~~~~~~~~~~~~~
 
-`NoiseSimulator`を使用すると、ノイズをシミュレートした環境で回路を実行することができます。
+ ``NoiseSimulator`` を使用すると、ノイズをシミュレートした環境で回路を実行することができます。
 
-ノイズを設定する場合、`add_noise_gate()`を使用して、回路にゲートを追加する必要があります。第一引数にゲートを指定し、
-第二引数に追加するノイズの種類（`"Depolarizing"`/`"BitFlip"`/`"Dephasing"`/`"IndependentXZ"`/`"AmplitudeDamping"`）、第三引数にノイズが発生する確率を指定します。
-2量子ビットゲートの場合は、ノイズの種類は`"Depolarizing"`のみとなります。
+ノイズを設定する場合、 ``add_noise_gate()`` を使用して、回路にゲートを追加する必要があります。第一引数にゲートを指定し、
+第二引数に追加するノイズの種類（ ``"Depolarizing"`` / ``"BitFlip"`` / ``"Dephasing"`` / ``"IndependentXZ"`` / ``"AmplitudeDamping"`` ）、第三引数にノイズが発生する確率を指定します。
+2量子ビットゲートの場合は、ノイズの種類は ``"Depolarizing"`` のみとなります。
 
 .. code:: python
 
