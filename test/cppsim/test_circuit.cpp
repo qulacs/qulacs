@@ -256,6 +256,7 @@ TEST(CircuitTest, CircuitRev) {
     target_sub = random.int32() % (n - 1);
     if (target_sub >= target) target_sub++;
     circuit.add_SWAP_gate(target, target_sub);
+    
 
     Observable observable(n);
     angle = 2 * PI * random.uniform();
@@ -264,6 +265,7 @@ TEST(CircuitTest, CircuitRev) {
     observable.add_operator(2.0, "Z 0 Z 1");
 
     circuit.add_diagonal_observable_rotation_gate(observable, angle);
+    
 
     circuit.update_quantum_state(&state);
 
