@@ -1927,11 +1927,10 @@ multi_qubit_pauli_rotation)はパラメトリックな量子ゲートとして�
 変分回路の勾配を求める
 ~~~~~~~~~~~~~~~~~~~~
 
- ``GradCalculator`` または ``ParametricQuantumCircuit.backprop()`` を使うと、変分回路の勾配を求めることができます。
+``GradCalculator`` または ``ParametricQuantumCircuit.backprop()`` を使うと、変分回路の勾配を求めることができます。
 
- ``GradCalculator`` では、 ``CausalConeSimulator`` を使用して期待値を求め勾配を計算します。
-
- ``ParametricQuantumCircuit.backprop()`` では、誤差逆伝播法により勾配を計算します。
+- ``GradCalculator`` では、 ``CausalConeSimulator`` を使用して期待値を求め勾配を計算します。
+- ``ParametricQuantumCircuit.backprop()`` では、誤差逆伝播法により勾配を計算します。
 
 .. code:: python
 
