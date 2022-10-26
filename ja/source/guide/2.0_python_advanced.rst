@@ -1924,6 +1924,42 @@ multi_qubit_pauli_rotation)はパラメトリックな量子ゲートとして�
    *** Parameter Info ***
    # of parameter: 151
 
+変分回路の勾配を求める
+~~~~~~~~~~~~~~~~~~~~
+
+``GradCalculator`` または ``ParametricQuantumCircuit.backprop()`` を使うと、変分回路の勾配を求めることができます。
+
+- ``GradCalculator`` では、 ``CausalConeSimulator`` を使用して期待値を求め勾配を計算します。
+- ``ParametricQuantumCircuit.backprop()`` では、誤差逆伝播法により勾配を計算します。
+
+.. code:: python
+
+   from qulacs import ParametricQuantumCircuit, GradCalculator, Observable
+
+   n = 2
+   observable = Observable(n)
+   observable.add_operator(1.0, "X 0")
+   circuit = ParametricQuantumCircuit(n)
+
+   theta = [2.2, 1.4, 0.8]
+   circuit.add_parametric_RX_gate(0, theta[0])
+   circuit.add_parametric_RY_gate(0, theta[1])
+   circuit.add_parametric_RZ_gate(0, theta[2])
+
+   # GradCalculatorの場合
+   gcalc = GradCalculator()
+   print(gcalc.calculate_grad(circuit, observable))
+   # 第三引数に回転角を指定することも可能
+   print(gcalc.calculate_grad(circuit, observable, theta))
+   # Backpropを使って求めた場合
+   print(circuit.backprop(observable))
+
+::
+
+   [(0.13292406112215058+0j), (0.06968868323709171+0j), (0.14726262077628174+0j)]
+   [(0.13292406112215058+0j), (0.06968868323709171+0j), (0.14726262077628174+0j)]
+   [0.1329240611221506, 0.06968868323709165, 0.14726262077628166]
+=======
 シミュレータ
 ------------
 
@@ -2129,4 +2165,3 @@ CausalConeSimulator
 
    (0.2919265817264289+0j)
    0.2919265817264287
-
