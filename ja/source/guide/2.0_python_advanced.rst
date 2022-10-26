@@ -271,6 +271,7 @@ arrayの相互変換が可能です。ノルムが保存しているかなどは
 ``drop_qubit()`` を使うと、指定した量子ビットへの射影を得ることができます。
 
 .. code:: python
+
    from qulacs import QuantumState
    from qulacs.state import permutate_qubit, drop_qubit
 
