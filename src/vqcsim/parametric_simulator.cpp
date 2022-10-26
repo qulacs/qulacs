@@ -1,7 +1,5 @@
 #include "parametric_simulator.hpp"
 
-#include "parametric_circuit.hpp"
-
 ParametricQuantumCircuitSimulator::ParametricQuantumCircuitSimulator(
     ParametricQuantumCircuit* circuit, QuantumStateBase* state)
     : QuantumCircuitSimulator(circuit, state), _parametric_circuit(circuit) {}
