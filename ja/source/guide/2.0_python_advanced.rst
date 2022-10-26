@@ -318,6 +318,7 @@ arrayの相互変換が可能です。ノルムが保存しているかなどは
 変換後の量子ビットのインデックスは変換前の量子ビットの順番をもとに振り直されます。
 
 .. code:: python
+
    from qulacs import QuantumState, DensityMatrix
    from qulacs.gate import H, X
    from qulacs.state import partial_trace
