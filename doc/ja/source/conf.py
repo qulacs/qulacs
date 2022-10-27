@@ -55,7 +55,7 @@ exhale_args = {
     # "treeViewIsBootstrap": True,
     "exhaleExecutesDoxygen": True,
     "exhaleDoxygenStdin": \
-        "INPUT = ../../qulacs/src/cppsim ../../qulacs/src/vqcsim \n \
+        "INPUT = ../../../src/cppsim ../../../src/vqcsim \n \
         OUTPUT_LANGUAGE = Japanese-en \n \
         FILE_PATTERNS          = *.hpp \n \
         WARN_IF_UNDOCUMENTED   = NO \n \
@@ -81,6 +81,7 @@ exhale_args = {
 
 # on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
 import os
+
 on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
 if not on_rtd:  # only import and set the theme if we're building docs locally
