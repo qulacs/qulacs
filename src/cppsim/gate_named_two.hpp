@@ -80,11 +80,12 @@ public:
         this->_matrix_element = ComplexMatrix::Zero(4, 4);
         this->_matrix_element << 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1;
     }
-    virtual QuantumGateBase* get_inverse(void) {
+    virtual ClsTwoQubitGate* get_inverse(void) {
         if (this->_name == "SWAP") {
             return this->copy();
         }
-        return this->QuantumGateBase::get_inverse();
+        throw NotImplementedException(
+            "Inverse of " + this->_name + " gate is not Implemented");
     }
     //現状SWAPゲートしかないので、自身がget_inverseになるが、　そうでないゲートが追加されたときの保険として、　判定をする
 };
@@ -180,11 +181,12 @@ public:
         this->_matrix_element = ComplexMatrix::Zero(2, 2);
         this->_matrix_element << 1, 0, 0, -1;
     }
-    virtual QuantumGateBase* get_inverse(void) {
+    virtual ClsOneControlOneTargetGate* get_inverse(void) {
         if (this->_name == "CZ" || this->_name == "CNOT") {
             return this->copy();
         }
-        return this->QuantumGateBase::get_inverse();
+        throw NotImplementedException(
+            "Inverse of " + this->_name + " gate is not Implemented");
     }
     //現状CZ,CNOTゲートしかないので、自身がinverseになるが、　そうでないゲートが追加されたときの保険として、　判定をする
 };

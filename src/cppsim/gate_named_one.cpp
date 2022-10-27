@@ -1,7 +1,7 @@
 #pragma once
 #include "gate_factory.hpp"
 
-QuantumGateBase* ClsOneQubitGate::get_inverse(void) {
+ClsOneQubitGate* ClsOneQubitGate::get_inverse(void) {
     if (this->_name == "I") {
         return gate::Identity(this->target_qubit_list[0].index());
     }
@@ -41,10 +41,15 @@ QuantumGateBase* ClsOneQubitGate::get_inverse(void) {
     if (this->_name == "sqrtYdag") {
         return gate::sqrtY(this->target_qubit_list[0].index());
     }
+    if (this->_name == "Projection-0" || this->_name == "Projection-1") {
+        throw NotImplementedException("Projection gate hasn't inverse gate");
+    }
+    throw NotImplementedException(
+        "Inverse of " + this->_name + " gate is not Implemented");
 
-    return this->QuantumGateBase::get_inverse();
+    // return this->QuantumGateBase::get_inverse();
 }
-QuantumGateBase* ClsOneQubitRotationGate::get_inverse(void) {
+ClsOneQubitRotationGate* ClsOneQubitRotationGate::get_inverse(void) {
     if (this->_name == "X-rotation") {
         return gate::RX(this->target_qubit_list[0].index(), -this->_angle);
     }
@@ -54,5 +59,6 @@ QuantumGateBase* ClsOneQubitRotationGate::get_inverse(void) {
     if (this->_name == "Z-rotation") {
         return gate::RZ(this->target_qubit_list[0].index(), -this->_angle);
     }
-    return this->QuantumGateBase::get_inverse();
+    throw NotImplementedException(
+        "Inverse of " + this->_name + " gate is not Implemented");
 }

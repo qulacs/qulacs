@@ -496,8 +496,8 @@ public:
         double angle);
 
     /**
-     * \~japanese-en n-qubitパウリ回転ゲートを追加する。
      *
+     * \~japanese-en n-qubitパウリ回転ゲートを追加する。
      * n-qubitパウリ回転ゲートを作用する。
      * 回転角はPauliOperatorの係数を用いる。
      * @param[in] pauli_operator 追加するパウリ演算子

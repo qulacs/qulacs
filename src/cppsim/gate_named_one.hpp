@@ -278,7 +278,7 @@ public:
         this->_matrix_element << 0, 0, 0, 1;
     }
 
-    virtual QuantumGateBase* get_inverse(void);
+    virtual ClsOneQubitGate* get_inverse(void);
 };
 
 /**
@@ -383,7 +383,7 @@ public:
         this->_matrix_element << cos(_angle / 2) + 1.i * sin(_angle / 2), 0, 0,
             cos(_angle / 2) - 1.i * sin(_angle / 2);
     }
-    virtual QuantumGateBase* get_inverse(void);
+    virtual ClsOneQubitRotationGate* get_inverse(void);
 };
 
 typedef ClsOneQubitGate QuantumGate_OneQubit;

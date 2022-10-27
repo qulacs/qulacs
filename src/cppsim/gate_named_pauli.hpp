@@ -188,7 +188,7 @@ public:
                      ComplexMatrix::Identity(matrix.rows(), matrix.cols()) +
                  1.i * sin(_angle / 2) * matrix;
     }
-    virtual QuantumGateBase* get_inverse(void) {
+    virtual ClsPauliRotationGate* get_inverse(void) {
         return new ClsPauliRotationGate(-this->_angle, this->_pauli->copy());
     }
 };
