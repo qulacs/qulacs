@@ -57,7 +57,7 @@ Initialize quantum states
 
 The generated quantum state can be initialized to a computational basis using the ``set_computational_basis`` or to a random state using the ``set_Harr_random_state``.
 
-Note that in Qulacs, the subscripts of the qubits start from 0, and the rightmost bit is the 0-th qubit when written as ``|0000>`` (In other libraries and textbooks, the leftmost bit may be the 0-th qubit).
+Note that in Qulacs, the subscripts of the qubits start from 0, and the rightmost bit is the 0-th qubit when written as :math:`\ket{0000}` (In other libraries and textbooks, the leftmost bit may be the 0-th qubit).
 
 .. code:: cpp
 
