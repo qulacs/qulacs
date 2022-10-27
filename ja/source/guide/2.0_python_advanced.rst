@@ -493,7 +493,7 @@ DensityMatrixクラス
 
 下記の関数は量子状態を書き換える関数です。
    ``add_state`` や ``multiply_coef`` は密度行列の各成分について演算を行います。
-   **同じ量子状態に対応する ``QuantumState`` での演算と根本的に意味の違うものになっています。**
+   **同じ量子状態に対応するQuantumStateでの演算と根本的に意味の違うものになっています。**
 
    - ``QuantumState`` の ``add_state`` は量子重ね合わせ状態を作りますが、``DensityMatrix`` の ``add_state`` は混合状態を作ります
    - ``QuantumState`` での ``multiply_coef(z)`` に対応する操作は ``DensityMatrix`` では ``multiply_coef(abs(z)**2)`` になります
