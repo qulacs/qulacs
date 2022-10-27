@@ -8,7 +8,7 @@ cd qulacs
 Open workspace using devcontainer. Rebuild if needed.
 
 ```bash
-pip install .[dev]
+pip install .[doc]
 cd doc/en
 make html
 ```
