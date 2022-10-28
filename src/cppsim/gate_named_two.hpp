@@ -11,11 +11,11 @@
  */
 class ClsTwoQubitGate : public QuantumGateBase {
 protected:
-    typedef void(T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
-    typedef void(T_GPU_UPDATE_FUNC)(UINT, UINT, void*, ITYPE, void*, UINT);
-    T_UPDATE_FUNC* _update_func;
-    T_UPDATE_FUNC* _update_func_dm;
-    T_GPU_UPDATE_FUNC* _update_func_gpu;
+    using UpdateFunc = void (*)(UINT, UINT, CTYPE*, ITYPE);
+    using UpdateFuncGpu = void (*)(UINT, UINT, void*, ITYPE, void*, UINT);
+    UpdateFunc _update_func;
+    UpdateFunc _update_func_dm;
+    UpdateFuncGpu _update_func_gpu;
     ComplexMatrix _matrix_element;
 
 public:
@@ -88,11 +88,11 @@ public:
  */
 class ClsOneControlOneTargetGate : public QuantumGateBase {
 protected:
-    typedef void(T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
-    typedef void(T_GPU_UPDATE_FUNC)(UINT, UINT, void*, ITYPE, void*, UINT);
-    T_UPDATE_FUNC* _update_func;
-    T_UPDATE_FUNC* _update_func_dm;
-    T_GPU_UPDATE_FUNC* _update_func_gpu;
+    using UpdateFunc = void (*)(UINT, UINT, CTYPE*, ITYPE);
+    using UpdateFuncGpu = void (*)(UINT, UINT, void*, ITYPE, void*, UINT);
+    UpdateFunc _update_func;
+    UpdateFunc _update_func_dm;
+    UpdateFuncGpu _update_func_gpu;
     ComplexMatrix _matrix_element;
 
 public:
