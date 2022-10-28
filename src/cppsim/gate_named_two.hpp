@@ -175,5 +175,5 @@ public:
     }
 };
 
-typedef ClsTwoQubitGate QuantumGate_TwoQubit;
-typedef ClsOneControlOneTargetGate QuantumGate_OneControlOneTarget;
+using QuantumGate_TwoQubit = ClsTwoQubitGate;
+using QuantumGate_OneControlOneTarget = ClsOneControlOneTargetGate;

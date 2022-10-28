@@ -682,8 +682,7 @@ public:
     }
 };
 
-typedef QuantumStateCpu
-    QuantumState; /**< QuantumState is an alias of QuantumStateCpu */
+using QuantumState = QuantumStateCpu;
 
 namespace state {
 /**

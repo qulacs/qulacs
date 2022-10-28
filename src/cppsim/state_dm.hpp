@@ -418,8 +418,7 @@ public:
     }
 };
 
-typedef DensityMatrixCpu
-    DensityMatrix; /**< DensityMatrix is an alias of DensityMatrixCpu */
+using DensityMatrix = DensityMatrixCpu;
 
 namespace state {
 DllExport DensityMatrixCpu* tensor_product(

@@ -383,5 +383,5 @@ public:
     }
 };
 
-typedef ClsOneQubitGate QuantumGate_OneQubit;
-typedef ClsOneQubitRotationGate QuantumGate_OneQubitRotation;
+using QuantumGate_OneQubit = ClsOneQubitGate;
+using QuantumGate_OneQubitRotation = ClsOneQubitRotationGate;
