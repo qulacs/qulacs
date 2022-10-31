@@ -250,12 +250,12 @@ get_vectorはすべての要素を配列で返しますが、get_amplitudeを用
 量子状態間の計算
 ~~~~~~~~~~~~~~~~
 
-量子状態間の内積はinner_productで得られます。
+量子状態間の内積は ``inner_product()`` 、テンソル積は ``tensor_product()`` で得られます。
 
 .. code:: python
 
    from qulacs import QuantumState
-   from qulacs.state import inner_product
+   from qulacs.state import inner_product, tensor_product
 
    n = 5
    state_bra = QuantumState(n)
@@ -267,9 +267,120 @@ get_vectorはすべての要素を配列で返しますが、get_amplitudeを用
    value = inner_product(state_bra, state_ket)
    print(value)
 
+   n1 = 1
+   state_ket1 = QuantumState(n1)
+   state_ket1.set_computational_basis(1)
+   n2 = 2
+   state_ket2 = QuantumState(n2)
+   state_ket2.set_computational_basis(2)
+
+   # テンソル積の計算
+   tensor_product_state = tensor_product(state_ket1, state_ket2)
+   print(tensor_product_state.get_vector())
+
 ::
 
-   (-0.09816013083684771-0.03592414662479273j)
+   (0.05141270657386601-0.076170974450624j)
+   [0.+0.j 0.+0.j 0.+0.j 0.+0.j 0.+0.j 0.+0.j 1.+0.j 0.+0.j]
+
+量子ビットの入れ替えと削除
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+``permutate_qubit()`` を使うと、量子ビットのインデックスを入れ替えることができます。
+``drop_qubit()`` を使うと、指定した量子ビットへの射影を得ることができます。
+
+.. code:: python
+
+   from qulacs import QuantumState
+   from qulacs.state import permutate_qubit, drop_qubit
+
+   n = 3
+   state = QuantumState(n)
+   state.set_Haar_random_state()
+   print("original:", state.get_vector())
+   # new qubit 0 is old qubit 1
+   # new qubit 1 is old qubit 2, 
+   # new qubit 2 is old qubit 0, 
+   permutate = permutate_qubit(state, [1, 2, 0])
+   print("permutate:", permutate.get_vector())
+   print()
+
+   n = 3
+   state = QuantumState(n)
+   state.set_Haar_random_state()
+   print("original:", state.get_vector())
+   state0 = drop_qubit(state, [1], [0])
+   print("projection to 0:", state0.get_vector()) # projection: qubit 1 is 0
+   state1 = drop_qubit(state, [1], [1])
+   print("projection to 1:", state1.get_vector()) # projection: qubit 1 is 1
+
+::
+
+   original: [ 0.47596875+0.24786791j -0.48038246+0.34136556j  0.04879938-0.0561655j
+    -0.12918592-0.19315999j -0.10305096-0.29802319j  0.30209327+0.18230977j
+    -0.03063385+0.19866965j -0.01522536-0.20151271j]
+   permutate: [ 0.47596875+0.24786791j  0.04879938-0.0561655j  -0.10305096-0.29802319j
+    -0.03063385+0.19866965j -0.48038246+0.34136556j -0.12918592-0.19315999j
+     0.30209327+0.18230977j -0.01522536-0.20151271j]
+
+   original: [ 0.28277794-0.01961602j  0.13766219-0.37880092j  0.42393946-0.25863749j
+     0.01986716-0.3834115j   0.21204559-0.12505476j -0.35120314+0.27877264j
+    -0.06469476+0.08324203j  0.12606491+0.27299608j]
+   projection to 0: [ 0.28277794-0.01961602j  0.13766219-0.37880092j  0.21204559-0.12505476j
+    -0.35120314+0.27877264j]
+   projection to 1: [ 0.42393946-0.25863749j  0.01986716-0.3834115j  -0.06469476+0.08324203j
+     0.12606491+0.27299608j]
+
+部分トレースの導出
+~~~~~~~~~~~~~~~~~~
+
+``partial_trace()`` を使うと、ある量子状態の指定した量子ビットでの部分トレースを密度行列として得ることができます。
+変換後の量子ビットのインデックスは変換前の量子ビットの順番をもとに振り直されます。
+
+.. code:: python
+
+   from qulacs import QuantumState, DensityMatrix
+   from qulacs.gate import H, X
+   from qulacs.state import partial_trace
+
+   state = QuantumState(3)
+   state.set_computational_basis(0)
+   H(0).update_quantum_state(state)
+   X(1).update_quantum_state(state)
+   print(state.get_vector())
+
+   trace = partial_trace(state, [1])
+   print(trace.get_matrix())
+
+   dm_state = DensityMatrix(3)
+   dm_state.set_computational_basis(0)
+   H(0).update_quantum_state(dm_state)
+   X(1).update_quantum_state(dm_state)
+   print(dm_state.get_matrix())
+
+   trace = partial_trace(dm_state, [1])
+   print(trace.get_matrix())
+
+::
+
+   [0.        +0.j 0.        +0.j 0.70710678+0.j 0.70710678+0.j
+    0.        +0.j 0.        +0.j 0.        +0.j 0.        +0.j]
+   [[0.5+0.j 0.5+0.j 0. +0.j 0. +0.j]
+    [0.5+0.j 0.5+0.j 0. +0.j 0. +0.j]
+    [0. +0.j 0. +0.j 0. +0.j 0. +0.j]
+    [0. +0.j 0. +0.j 0. +0.j 0. +0.j]]
+   [[0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j]
+    [0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j]
+    [0. +0.j 0. +0.j 0.5+0.j 0.5+0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j]
+    [0. +0.j 0. +0.j 0.5+0.j 0.5+0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j]
+    [0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j]
+    [0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j]
+    [0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j]
+    [0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j 0. +0.j]]
+   [[0.5+0.j 0.5+0.j 0. +0.j 0. +0.j]
+    [0.5+0.j 0.5+0.j 0. +0.j 0. +0.j]
+    [0. +0.j 0. +0.j 0. +0.j 0. +0.j]
+    [0. +0.j 0. +0.j 0. +0.j 0. +0.j]]
 
 GPUを用いた計算
 ~~~~~~~~~~~~~~~
