@@ -284,7 +284,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     mstate.def("permutate_qubit", py::overload_cast<const DensityMatrix*, std::vector<UINT>>(&state::permutate_qubit), py::return_value_policy::take_ownership, py::arg("state"), py::arg("qubit_order"));
     mstate.def("drop_qubit", &state::drop_qubit, py::return_value_policy::take_ownership, "Drop qubits from state", py::arg("state"), py::arg("target"), py::arg("projection"));
     mstate.def("partial_trace", py::overload_cast<const QuantumState*, std::vector<UINT>>(&state::partial_trace), py::return_value_policy::take_ownership, "Take partial trace", py::arg("state"), py::arg("target_traceout"));
-    mstate.def("partial_trace", py::overload_cast<const DensityMatrix*, std::vector<UINT>>(&state::partial_trace), pybind11::return_value_policy::take_ownership, py::arg("state"), py::arg("target_traceout"));
+    mstate.def("partial_trace", py::overload_cast<const DensityMatrix*, std::vector<UINT>>(&state::partial_trace), py::return_value_policy::take_ownership, py::arg("state"), py::arg("target_traceout"));
     mstate.def("make_superposition", &state::make_superposition, py::return_value_policy::take_ownership, "Create superposition of states", py::arg("coef1"), py::arg("state1"), py::arg("coef2"), py::arg("state2"));
     mstate.def("make_mixture", &state::make_mixture, py::return_value_policy::take_ownership, "Create a mixed state", py::arg("prob1"), py::arg("state1"), py::arg("prob2"), py::arg("state2"));
 
@@ -336,35 +336,35 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<QuantumGateSparseMatrix, QuantumGateBase>(m, "QuantumGateSparseMatrix");
 
     auto mgate = m.def_submodule("gate");
-    mgate.def("Identity", &gate::Identity, pybind11::return_value_policy::take_ownership, "Create identity gate", py::arg("index"));
-    mgate.def("X", &gate::X, pybind11::return_value_policy::take_ownership, "Create Pauli-X gate", py::arg("index"));
-    mgate.def("Y", &gate::Y, pybind11::return_value_policy::take_ownership, "Create Pauli-Y gate", py::arg("index"));
-    mgate.def("Z", &gate::Z, pybind11::return_value_policy::take_ownership, "Create Pauli-Z gate", py::arg("index"));
-    mgate.def("H", &gate::H, pybind11::return_value_policy::take_ownership, "Create Hadamard gate", py::arg("index"));
-    mgate.def("S", &gate::S, pybind11::return_value_policy::take_ownership, "Create pi/4-phase gate", py::arg("index"));
-    mgate.def("Sdag", &gate::Sdag, pybind11::return_value_policy::take_ownership, "Create adjoint of pi/4-phase gate", py::arg("index"));
-    mgate.def("T", &gate::T, pybind11::return_value_policy::take_ownership, "Create pi/8-phase gate", py::arg("index"));
-    mgate.def("Tdag", &gate::Tdag, pybind11::return_value_policy::take_ownership, "Create adjoint of pi/8-phase gate", py::arg("index"));
-    mgate.def("sqrtX", &gate::sqrtX, pybind11::return_value_policy::take_ownership, "Create pi/4 Pauli-X rotation gate", py::arg("index"));
-    mgate.def("sqrtXdag", &gate::sqrtXdag, pybind11::return_value_policy::take_ownership, "Create adjoint of pi/4 Pauli-X rotation gate", py::arg("index"));
-    mgate.def("sqrtY", &gate::sqrtY, pybind11::return_value_policy::take_ownership, "Create pi/4 Pauli-Y rotation gate", py::arg("index"));
-    mgate.def("sqrtYdag", &gate::sqrtYdag, pybind11::return_value_policy::take_ownership, "Create adjoint of pi/4 Pauli-Y rotation gate", py::arg("index"));
-    mgate.def("P0", &gate::P0, pybind11::return_value_policy::take_ownership, "Create projection gate to |0> subspace", py::arg("index"));
-    mgate.def("P1", &gate::P1, pybind11::return_value_policy::take_ownership, "Create projection gate to |1> subspace", py::arg("index"));
+    mgate.def("Identity", &gate::Identity, py::return_value_policy::take_ownership, "Create identity gate", py::arg("index"));
+    mgate.def("X", &gate::X, py::return_value_policy::take_ownership, "Create Pauli-X gate", py::arg("index"));
+    mgate.def("Y", &gate::Y, py::return_value_policy::take_ownership, "Create Pauli-Y gate", py::arg("index"));
+    mgate.def("Z", &gate::Z, py::return_value_policy::take_ownership, "Create Pauli-Z gate", py::arg("index"));
+    mgate.def("H", &gate::H, py::return_value_policy::take_ownership, "Create Hadamard gate", py::arg("index"));
+    mgate.def("S", &gate::S, py::return_value_policy::take_ownership, "Create pi/4-phase gate", py::arg("index"));
+    mgate.def("Sdag", &gate::Sdag, py::return_value_policy::take_ownership, "Create adjoint of pi/4-phase gate", py::arg("index"));
+    mgate.def("T", &gate::T, py::return_value_policy::take_ownership, "Create pi/8-phase gate", py::arg("index"));
+    mgate.def("Tdag", &gate::Tdag, py::return_value_policy::take_ownership, "Create adjoint of pi/8-phase gate", py::arg("index"));
+    mgate.def("sqrtX", &gate::sqrtX, py::return_value_policy::take_ownership, "Create pi/4 Pauli-X rotation gate", py::arg("index"));
+    mgate.def("sqrtXdag", &gate::sqrtXdag, py::return_value_policy::take_ownership, "Create adjoint of pi/4 Pauli-X rotation gate", py::arg("index"));
+    mgate.def("sqrtY", &gate::sqrtY, py::return_value_policy::take_ownership, "Create pi/4 Pauli-Y rotation gate", py::arg("index"));
+    mgate.def("sqrtYdag", &gate::sqrtYdag, py::return_value_policy::take_ownership, "Create adjoint of pi/4 Pauli-Y rotation gate", py::arg("index"));
+    mgate.def("P0", &gate::P0, py::return_value_policy::take_ownership, "Create projection gate to |0> subspace", py::arg("index"));
+    mgate.def("P1", &gate::P1, py::return_value_policy::take_ownership, "Create projection gate to |1> subspace", py::arg("index"));
 
-    mgate.def("U1", &gate::U1, pybind11::return_value_policy::take_ownership, "Create QASM U1 gate", py::arg("index"), py::arg("lambda"));
-    mgate.def("U2", &gate::U2, pybind11::return_value_policy::take_ownership, "Create QASM U2 gate", py::arg("index"), py::arg("phi"), py::arg("lambda"));
-    mgate.def("U3", &gate::U3, pybind11::return_value_policy::take_ownership, "Create QASM U3 gate", py::arg("index"), py::arg("theta"), py::arg("phi"), py::arg("lambda"));
+    mgate.def("U1", &gate::U1, py::return_value_policy::take_ownership, "Create QASM U1 gate", py::arg("index"), py::arg("lambda"));
+    mgate.def("U2", &gate::U2, py::return_value_policy::take_ownership, "Create QASM U2 gate", py::arg("index"), py::arg("phi"), py::arg("lambda"));
+    mgate.def("U3", &gate::U3, py::return_value_policy::take_ownership, "Create QASM U3 gate", py::arg("index"), py::arg("theta"), py::arg("phi"), py::arg("lambda"));
 
-    mgate.def("RX", &gate::RX, pybind11::return_value_policy::take_ownership, "Create Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("RY", &gate::RY, pybind11::return_value_policy::take_ownership, "Create Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("RZ", &gate::RZ, pybind11::return_value_policy::take_ownership, "Create Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("RotInvX", &gate::RotInvX, pybind11::return_value_policy::take_ownership, "Create Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("RotInvY", &gate::RotInvY, pybind11::return_value_policy::take_ownership, "Create Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("RotInvZ", &gate::RotInvZ, pybind11::return_value_policy::take_ownership, "Create Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("RotX", &gate::RotX, pybind11::return_value_policy::take_ownership, "Create Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("RotY", &gate::RotY, pybind11::return_value_policy::take_ownership, "Create Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("RotZ", &gate::RotZ, pybind11::return_value_policy::take_ownership, "Create Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RX", &gate::RX, py::return_value_policy::take_ownership, "Create Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RY", &gate::RY, py::return_value_policy::take_ownership, "Create Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RZ", &gate::RZ, py::return_value_policy::take_ownership, "Create Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RotInvX", &gate::RotInvX, py::return_value_policy::take_ownership, "Create Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RotInvY", &gate::RotInvY, py::return_value_policy::take_ownership, "Create Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RotInvZ", &gate::RotInvZ, py::return_value_policy::take_ownership, "Create Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RotX", &gate::RotX, py::return_value_policy::take_ownership, "Create Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RotY", &gate::RotY, py::return_value_policy::take_ownership, "Create Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RotZ", &gate::RotZ, py::return_value_policy::take_ownership, "Create Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
 
     mgate.def("CNOT", &gate::CNOT, py::return_value_policy::take_ownership, "Create CNOT gate", py::arg("control"), py::arg("target"));
     mgate.def("CZ", &gate::CZ, py::return_value_policy::take_ownership, "Create CZ gate", py::arg("control"), py::arg("target"));
@@ -377,94 +377,94 @@ PYBIND11_MODULE(qulacs_core, m) {
         toffoli->add_control_qubit(control_index2, 1);
         delete ptr;
         return toffoli;
-    }, pybind11::return_value_policy::take_ownership, "Create TOFFOLI gate", py::arg("control1"), py::arg("control2"), py::arg("target"));
+    }, py::return_value_policy::take_ownership, "Create TOFFOLI gate", py::arg("control1"), py::arg("control2"), py::arg("target"));
     mgate.def("FREDKIN", [](UINT control_index, UINT target_index1, UINT target_index2) -> QuantumGateMatrix* {
         auto ptr = gate::SWAP(target_index1, target_index2);
         auto fredkin = gate::to_matrix_gate(ptr);
         fredkin->add_control_qubit(control_index, 1);
         delete ptr;
         return fredkin;
-    }, pybind11::return_value_policy::take_ownership, "Create FREDKIN gate", py::arg("control"), py::arg("target1"), py::arg("target2"));
+    }, py::return_value_policy::take_ownership, "Create FREDKIN gate", py::arg("control"), py::arg("target1"), py::arg("target2"));
 
     mgate.def("Pauli", [](std::vector<UINT> target_qubit_index_list, std::vector<UINT> pauli_ids) -> QuantumGateBase* {
         if (target_qubit_index_list.size() != pauli_ids.size()) throw std::invalid_argument("Size of qubit list and pauli list must be equal.");
         auto ptr = gate::Pauli(target_qubit_index_list, pauli_ids);
         return ptr;
-    }, pybind11::return_value_policy::take_ownership, "Create multi-qubit Pauli gate", py::arg("index_list"), py::arg("pauli_ids"));
+    }, py::return_value_policy::take_ownership, "Create multi-qubit Pauli gate", py::arg("index_list"), py::arg("pauli_ids"));
     mgate.def("PauliRotation", [](std::vector<UINT> target_qubit_index_list, std::vector<UINT> pauli_ids, double angle) -> QuantumGateBase* {
         if (target_qubit_index_list.size() != pauli_ids.size()) throw std::invalid_argument("Size of qubit list and pauli list must be equal.");
         auto ptr = gate::PauliRotation(target_qubit_index_list, pauli_ids, angle);
         return ptr;
-    }, pybind11::return_value_policy::take_ownership, "Create multi-qubit Pauli rotation", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"));
+    }, py::return_value_policy::take_ownership, "Create multi-qubit Pauli rotation", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"));
 
     mgate.def("DenseMatrix", [](UINT target_qubit_index, ComplexMatrix matrix) -> QuantumGateMatrix* {
         if (matrix.rows() != 2 || matrix.cols() != 2) throw std::invalid_argument("matrix dims is not 2x2.");
         auto ptr = gate::DenseMatrix(target_qubit_index, matrix);
         return ptr;
-    }, pybind11::return_value_policy::take_ownership, "Create dense matrix gate", py::arg("index"), py::arg("matrix")); 
+    }, py::return_value_policy::take_ownership, "Create dense matrix gate", py::arg("index"), py::arg("matrix")); 
     mgate.def("DenseMatrix", [](std::vector<UINT> target_qubit_index_list, ComplexMatrix matrix) -> QuantumGateMatrix* {
         const ITYPE dim = 1ULL << target_qubit_index_list.size();
         if (matrix.rows() != dim || matrix.cols() != dim) throw std::invalid_argument("matrix dims is not consistent.");
         auto ptr = gate::DenseMatrix(target_qubit_index_list, matrix);
         return ptr;
-    }, pybind11::return_value_policy::take_ownership, py::arg("index_list"), py::arg("matrix")); 
+    }, py::return_value_policy::take_ownership, py::arg("index_list"), py::arg("matrix")); 
     mgate.def("SparseMatrix", [](std::vector<UINT> target_qubit_index_list, SparseComplexMatrix matrix) -> QuantumGateBase* {
         const ITYPE dim = 1ULL << target_qubit_index_list.size();
         if (matrix.rows() != dim || matrix.cols() != dim) throw std::invalid_argument("matrix dims is not consistent.");
         auto ptr = gate::SparseMatrix(target_qubit_index_list, matrix);
         return ptr;
-    }, pybind11::return_value_policy::take_ownership, "Create sparse matrix gate", py::arg("index_list"), py::arg("matrix")); 
+    }, py::return_value_policy::take_ownership, "Create sparse matrix gate", py::arg("index_list"), py::arg("matrix")); 
     mgate.def("DiagonalMatrix", [](std::vector<UINT> target_qubit_index_list, ComplexVector diagonal_element) -> QuantumGateBase* {
         const ITYPE dim = 1ULL << target_qubit_index_list.size();
         if (diagonal_element.size() != dim) throw std::invalid_argument("dim of diagonal elemet is not consistent.");
         auto ptr = gate::DiagonalMatrix(target_qubit_index_list, diagonal_element);
         return ptr;
-    }, pybind11::return_value_policy::take_ownership, "Create diagonal matrix gate", py::arg("index_list"), py::arg("diagonal_element"));
+    }, py::return_value_policy::take_ownership, "Create diagonal matrix gate", py::arg("index_list"), py::arg("diagonal_element"));
 
-    mgate.def("RandomUnitary", py::overload_cast<std::vector<UINT>>(&gate::RandomUnitary), pybind11::return_value_policy::take_ownership, "Create random unitary gate", py::arg("index_list")); 
-    mgate.def("RandomUnitary", py::overload_cast<std::vector<UINT>, UINT>(&gate::RandomUnitary), pybind11::return_value_policy::take_ownership, py::arg("index_list"), py::arg("seed")); 
-    mgate.def("ReversibleBoolean", &gate::ReversibleBoolean, pybind11::return_value_policy::take_ownership, "Create reversible boolean gate", py::arg("index_list"), py::arg("func"));
-    mgate.def("StateReflection", &gate::StateReflection, pybind11::return_value_policy::take_ownership, "Create state reflection gate", py::arg("state"));
+    mgate.def("RandomUnitary", py::overload_cast<std::vector<UINT>>(&gate::RandomUnitary), py::return_value_policy::take_ownership, "Create random unitary gate", py::arg("index_list")); 
+    mgate.def("RandomUnitary", py::overload_cast<std::vector<UINT>, UINT>(&gate::RandomUnitary), py::return_value_policy::take_ownership, py::arg("index_list"), py::arg("seed")); 
+    mgate.def("ReversibleBoolean", &gate::ReversibleBoolean, py::return_value_policy::take_ownership, "Create reversible boolean gate", py::arg("index_list"), py::arg("func"));
+    mgate.def("StateReflection", &gate::StateReflection, py::return_value_policy::take_ownership, "Create state reflection gate", py::arg("state"));
 
-    mgate.def("BitFlipNoise", &gate::BitFlipNoise, pybind11::return_value_policy::take_ownership, "Create bit-flip noise", py::arg("index"), py::arg("prob"));
-    mgate.def("DephasingNoise", &gate::DephasingNoise, pybind11::return_value_policy::take_ownership, "Create dephasing noise", py::arg("index"), py::arg("prob"));
-    mgate.def("IndependentXZNoise", &gate::IndependentXZNoise, pybind11::return_value_policy::take_ownership, "Create independent XZ noise", py::arg("index"), py::arg("prob"));
-    mgate.def("DepolarizingNoise", &gate::DepolarizingNoise, pybind11::return_value_policy::take_ownership, "Create depolarizing noise", py::arg("index"),py::arg("prob"));
-    mgate.def("TwoQubitDepolarizingNoise", &gate::TwoQubitDepolarizingNoise, pybind11::return_value_policy::take_ownership, "Create two-qubit depolarizing noise", py::arg("index1"), py::arg("index2"), py::arg("prob"));
-    mgate.def("AmplitudeDampingNoise", &gate::AmplitudeDampingNoise, pybind11::return_value_policy::take_ownership, "Create amplitude damping noise", py::arg("index"), py::arg("prob"));
-    mgate.def("Measurement", &gate::Measurement, pybind11::return_value_policy::take_ownership, "Create measurement gate", py::arg("index"), py::arg("register"));
+    mgate.def("BitFlipNoise", &gate::BitFlipNoise, py::return_value_policy::take_ownership, "Create bit-flip noise", py::arg("index"), py::arg("prob"));
+    mgate.def("DephasingNoise", &gate::DephasingNoise, py::return_value_policy::take_ownership, "Create dephasing noise", py::arg("index"), py::arg("prob"));
+    mgate.def("IndependentXZNoise", &gate::IndependentXZNoise, py::return_value_policy::take_ownership, "Create independent XZ noise", py::arg("index"), py::arg("prob"));
+    mgate.def("DepolarizingNoise", &gate::DepolarizingNoise, py::return_value_policy::take_ownership, "Create depolarizing noise", py::arg("index"),py::arg("prob"));
+    mgate.def("TwoQubitDepolarizingNoise", &gate::TwoQubitDepolarizingNoise, py::return_value_policy::take_ownership, "Create two-qubit depolarizing noise", py::arg("index1"), py::arg("index2"), py::arg("prob"));
+    mgate.def("AmplitudeDampingNoise", &gate::AmplitudeDampingNoise, py::return_value_policy::take_ownership, "Create amplitude damping noise", py::arg("index"), py::arg("prob"));
+    mgate.def("Measurement", &gate::Measurement, py::return_value_policy::take_ownership, "Create measurement gate", py::arg("index"), py::arg("register"));
 
-    mgate.def("merge", py::overload_cast<const QuantumGateBase*, const QuantumGateBase*>(&gate::merge), pybind11::return_value_policy::take_ownership, "Merge two quantum gate or gate list", py::arg("gate1"), py::arg("gate2"));
-    mgate.def("merge", py::overload_cast<std::vector<QuantumGateBase*>>(&gate::merge), pybind11::return_value_policy::take_ownership, py::arg("gate_list"));
-    mgate.def("add", py::overload_cast<const QuantumGateBase*, const QuantumGateBase*>(&gate::add), pybind11::return_value_policy::take_ownership, "Add quantum gate matrices", py::arg("gate1"), py::arg("gate2"));
-    mgate.def("add", py::overload_cast<std::vector<QuantumGateBase*>>(&gate::add), pybind11::return_value_policy::take_ownership, "Add quantum gate matrices", py::arg("gate_list"));
-    mgate.def("to_matrix_gate", &gate::to_matrix_gate, pybind11::return_value_policy::take_ownership, "Convert named gate to matrix gate", py::arg("gate"));
+    mgate.def("merge", py::overload_cast<const QuantumGateBase*, const QuantumGateBase*>(&gate::merge), py::return_value_policy::take_ownership, "Merge two quantum gate or gate list", py::arg("gate1"), py::arg("gate2"));
+    mgate.def("merge", py::overload_cast<std::vector<QuantumGateBase*>>(&gate::merge), py::return_value_policy::take_ownership, py::arg("gate_list"));
+    mgate.def("add", py::overload_cast<const QuantumGateBase*, const QuantumGateBase*>(&gate::add), py::return_value_policy::take_ownership, "Add quantum gate matrices", py::arg("gate1"), py::arg("gate2"));
+    mgate.def("add", py::overload_cast<std::vector<QuantumGateBase*>>(&gate::add), py::return_value_policy::take_ownership, "Add quantum gate matrices", py::arg("gate_list"));
+    mgate.def("to_matrix_gate", &gate::to_matrix_gate, py::return_value_policy::take_ownership, "Convert named gate to matrix gate", py::arg("gate"));
 
-    mgate.def("Probabilistic", &gate::Probabilistic, pybind11::return_value_policy::take_ownership, "Create probabilistic gate", py::arg("prob_list"), py::arg("gate_list"));
-    mgate.def("ProbabilisticInstrument", &gate::ProbabilisticInstrument, pybind11::return_value_policy::take_ownership, "Create probabilistic instrument gate", py::arg("prob_list"), py::arg("gate_list"), py::arg("register"));
-    mgate.def("CPTP", &gate::CPTP, pybind11::return_value_policy::take_ownership, "Create completely-positive trace preserving map", py::arg("kraus_list"));
-    mgate.def("CP", &gate::CP, pybind11::return_value_policy::take_ownership, "Create completely-positive map", py::arg("kraus_list"), py::arg("state_normalize"), py::arg("probability_normalize"), py::arg("assign_zero_if_not_matched"));
-    mgate.def("Instrument", &gate::Instrument, pybind11::return_value_policy::take_ownership, "Create instruments", py::arg("kraus_list"), py::arg("register"));
-    mgate.def("Adaptive", py::overload_cast<QuantumGateBase*, std::function<bool(const std::vector<UINT>&)>> (&gate::Adaptive), pybind11::return_value_policy::take_ownership, "Create adaptive gate", py::arg("gate"), py::arg("condition"));
-    mgate.def("Adaptive",  py::overload_cast<QuantumGateBase*, std::function<bool(const std::vector<UINT>&, UINT)>, UINT> (&gate::Adaptive), pybind11::return_value_policy::take_ownership, py::arg("gate"), py::arg("condition"),py::arg("id"));
-    mgate.def("NoisyEvolution", &gate::NoisyEvolution, pybind11::return_value_policy::take_ownership, "Create noisy evolution", py::arg("hamiltonian"), py::arg("c_ops"), py::arg("time"), py::arg("dt"));
-    mgate.def("NoisyEvolution_fast", &gate::NoisyEvolution_fast, pybind11::return_value_policy::take_ownership, "Create noisy evolution fast version", py::arg("hamiltonian"), py::arg("c_ops"), py::arg("time"));
+    mgate.def("Probabilistic", &gate::Probabilistic, py::return_value_policy::take_ownership, "Create probabilistic gate", py::arg("prob_list"), py::arg("gate_list"));
+    mgate.def("ProbabilisticInstrument", &gate::ProbabilisticInstrument, py::return_value_policy::take_ownership, "Create probabilistic instrument gate", py::arg("prob_list"), py::arg("gate_list"), py::arg("register"));
+    mgate.def("CPTP", &gate::CPTP, py::return_value_policy::take_ownership, "Create completely-positive trace preserving map", py::arg("kraus_list"));
+    mgate.def("CP", &gate::CP, py::return_value_policy::take_ownership, "Create completely-positive map", py::arg("kraus_list"), py::arg("state_normalize"), py::arg("probability_normalize"), py::arg("assign_zero_if_not_matched"));
+    mgate.def("Instrument", &gate::Instrument, py::return_value_policy::take_ownership, "Create instruments", py::arg("kraus_list"), py::arg("register"));
+    mgate.def("Adaptive", py::overload_cast<QuantumGateBase*, std::function<bool(const std::vector<UINT>&)>> (&gate::Adaptive), py::return_value_policy::take_ownership, "Create adaptive gate", py::arg("gate"), py::arg("condition"));
+    mgate.def("Adaptive",  py::overload_cast<QuantumGateBase*, std::function<bool(const std::vector<UINT>&, UINT)>, UINT> (&gate::Adaptive), py::return_value_policy::take_ownership, py::arg("gate"), py::arg("condition"),py::arg("id"));
+    mgate.def("NoisyEvolution", &gate::NoisyEvolution, py::return_value_policy::take_ownership, "Create noisy evolution", py::arg("hamiltonian"), py::arg("c_ops"), py::arg("time"), py::arg("dt"));
+    mgate.def("NoisyEvolution_fast", &gate::NoisyEvolution_fast, py::return_value_policy::take_ownership, "Create noisy evolution fast version", py::arg("hamiltonian"), py::arg("c_ops"), py::arg("time"));
 
     py::class_<QuantumGate_SingleParameter, QuantumGateBase>(m, "QuantumGate_SingleParameter")
         .def("get_parameter_value", &QuantumGate_SingleParameter::get_parameter_value, "Get parameter value")
         .def("set_parameter_value", &QuantumGate_SingleParameter::set_parameter_value, "Set parameter value", py::arg("value"))
-        .def("copy", &QuantumGate_SingleParameter::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
+        .def("copy", &QuantumGate_SingleParameter::copy, py::return_value_policy::take_ownership, "Create copied instance")
         ;
-    mgate.def("ParametricRX", &gate::ParametricRX, pybind11::return_value_policy::take_ownership, "Create parametric Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("ParametricRY", &gate::ParametricRY, pybind11::return_value_policy::take_ownership, "Create parametric Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("ParametricRZ", &gate::ParametricRZ, pybind11::return_value_policy::take_ownership, "Create parametric Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
-    mgate.def("ParametricPauliRotation", &gate::ParametricPauliRotation, pybind11::return_value_policy::take_ownership, "Create parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"));
+    mgate.def("ParametricRX", &gate::ParametricRX, py::return_value_policy::take_ownership, "Create parametric Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("ParametricRY", &gate::ParametricRY, py::return_value_policy::take_ownership, "Create parametric Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("ParametricRZ", &gate::ParametricRZ, py::return_value_policy::take_ownership, "Create parametric Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("ParametricPauliRotation", &gate::ParametricPauliRotation, py::return_value_policy::take_ownership, "Create parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"));
 
     m.def("to_general_quantum_operator", &to_general_quantum_operator,py::arg("gate"),py::arg("qubits"),py::arg("tol"));
     
     py::class_<QuantumCircuit>(m, "QuantumCircuit")
         .def(py::init<UINT>(), "Constructor", py::arg("qubit_count"))
-        .def("copy", &QuantumCircuit::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
+        .def("copy", &QuantumCircuit::copy, py::return_value_policy::take_ownership, "Create copied instance")
         // In order to avoid double release, we force using add_gate_copy in python
         //.def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate, "Add gate and take ownership", py::arg("gate"))
         //.def("add_gate_consume", (void (QuantumCircuit::*)(QuantumGateBase*, UINT))&QuantumCircuit::add_gate, "Add gate and take ownership", py::arg("gate"), py::arg("position"))
@@ -479,7 +479,7 @@ PYBIND11_MODULE(qulacs_core, m) {
                 return NULL;
             }
             return circuit.gate_list[index]->copy(); 
-        }, pybind11::return_value_policy::take_ownership, "Get gate instance", py::arg("position"))
+        }, py::return_value_policy::take_ownership, "Get gate instance", py::arg("position"))
         .def("merge_circuit",&QuantumCircuit::merge_circuit,py::arg("circuit"))
         .def("get_gate_count", [](const QuantumCircuit& circuit) -> UINT { return (UINT)circuit.gate_list.size(); }, "Get gate count")
         .def("get_qubit_count", [](const QuantumCircuit& circuit) -> UINT { return circuit.qubit_count; }, "Get qubit count")
@@ -538,7 +538,7 @@ PYBIND11_MODULE(qulacs_core, m) {
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(m, "ParametricQuantumCircuit")
         .def(py::init<UINT>(), "Constructor", py::arg("qubit_count"))
-        .def("copy", &ParametricQuantumCircuit::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
+        .def("copy", &ParametricQuantumCircuit::copy, py::return_value_policy::take_ownership, "Create copied instance")
         .def("add_parametric_gate", py::overload_cast<QuantumGate_SingleParameter*>(&ParametricQuantumCircuit::add_parametric_gate_copy), "Add parametric gate", py::arg("gate"))
         .def("add_parametric_gate", py::overload_cast<QuantumGate_SingleParameter*, UINT>(&ParametricQuantumCircuit::add_parametric_gate_copy), py::arg("gate"), py::arg("position"))
         .def("add_gate", py::overload_cast<const QuantumGateBase*>(&ParametricQuantumCircuit::add_gate_copy), "Add gate", py::arg("gate"))
@@ -572,7 +572,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def(py::init<>(), "Constructor")
         .def("optimize", &QuantumCircuitOptimizer::optimize, "Optimize quantum circuit", py::arg("circuit"), py::arg("block_size"))
         .def("optimize_light", &QuantumCircuitOptimizer::optimize_light, "Optimize quantum circuit with light method", py::arg("circuit"))
-        .def("merge_all", &QuantumCircuitOptimizer::merge_all, pybind11::return_value_policy::take_ownership, py::arg("circuit"))
+        .def("merge_all", &QuantumCircuitOptimizer::merge_all, py::return_value_policy::take_ownership, py::arg("circuit"))
         ;
 
     py::class_<QuantumCircuitSimulator>(m, "QuantumCircuitSimulator")
