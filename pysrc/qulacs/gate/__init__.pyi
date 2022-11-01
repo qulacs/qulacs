@@ -180,11 +180,11 @@ def ParametricRZ(index: int, angle: float) -> qulacs_core.QuantumGate_SinglePara
     """
     Create parametric Pauli-Z rotation gate
     """
-def Pauli(index_list: typing.List[int], pauli_ids: typing.List[int]) -> ClsPauliGate:
+def Pauli(index_list: typing.List[int], pauli_ids: typing.List[int]) -> qulacs_core.ClsPauliGate:
     """
     Create multi-qubit Pauli gate
     """
-def PauliRotation(index_list: typing.List[int], pauli_ids: typing.List[int], angle: float) -> ClsPauliRotationGate:
+def PauliRotation(index_list: typing.List[int], pauli_ids: typing.List[int], angle: float) -> qulacs_core.ClsPauliRotationGate:
     """
     Create multi-qubit Pauli rotation
     """
@@ -216,7 +216,7 @@ def RandomUnitary(index_list: typing.List[int]) -> qulacs_core.QuantumGateMatrix
 @typing.overload
 def RandomUnitary(index_list: typing.List[int], seed: int) -> qulacs_core.QuantumGateMatrix:
     pass
-def ReversibleBoolean(index_list: typing.List[int], func: typing.Callable[[int, int], int]) -> ClsReversibleBooleanGate:
+def ReversibleBoolean(index_list: typing.List[int], func: typing.Callable[[int, int], int]) -> qulacs_core.ClsReversibleBooleanGate:
     """
     Create reversible boolean gate
     """
@@ -260,7 +260,7 @@ def SparseMatrix(index_list: typing.List[int], matrix: scipy.sparse.csc_matrix[n
     """
     Create sparse matrix gate
     """
-def StateReflection(state: qulacs_core.QuantumStateBase) -> ClsStateReflectionGate:
+def StateReflection(state: qulacs_core.QuantumStateBase) -> qulacs_core.ClsStateReflectionGate:
     """
     Create state reflection gate
     """
