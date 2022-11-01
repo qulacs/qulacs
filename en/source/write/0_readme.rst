@@ -95,4 +95,5 @@ feature to the list in README.md.
 
 3. The pull request should work for both python and C++.
 
-.. [note] This guide is adapted from https://github.com/audreyr/cookiecutter-pypackage.
+.. Note:
+.. This guide is adapted from https://github.com/audreyr/cookiecutter-pypackage.
