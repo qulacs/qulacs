@@ -366,10 +366,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("is_parametric", &QuantumGateBase::is_parametric, "Check this gate is parametric gate")
         .def("is_diagonal", &QuantumGateBase::is_diagonal, "Check the gate matrix is diagonal")
 
-        .def("get_gate_list", &QuantumGateBase::get_gate_list, "get_gate_list")
-        .def("optimize_ProbablisticGate", &QuantumGateBase::optimize_ProbablisticGate, "optimize_ProbablisticGate")
-        .def("get_distribution", &QuantumGateBase::get_distribution, "get_distribution")
-        .def("get_cumulative_distribution", &QuantumGateBase::get_cumulative_distribution, "get_cumulative_distribution")
+        
         ;
 
     py::class_<QuantumGateMatrix,QuantumGateBase>(m, "QuantumGateMatrix")
@@ -383,15 +380,17 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<ClsTwoQubitGate, QuantumGateBase>(m, "ClsTwoQubitGate");
     py::class_<ClsNoisyEvolution, QuantumGateBase>(m, "ClsNoisyEvolution");
     py::class_<ClsNoisyEvolution_fast, QuantumGateBase>(m, "ClsNoisyEvolution_fast");
-    py::class_<QuantumGate_Probabilistic, QuantumGateBase>(m, "QuantumGate_Probabilistic");
-    py::class_<QuantumGate_ProbabilisticInstrument, QuantumGate_Probabilistic>(m, "QuantumGate_ProbabilisticInstrument");
-    py::class_<QuantumGate_CPTP, QuantumGateBase>(m, "QuantumGate_CPTP");
+    py::class_<QuantumGate_Probabilistic, QuantumGateBase>(m, "QuantumGate_Probabilistic", "QuantumGate_ProbabilisticInstrument")
+        .def("get_gate_list", &QuantumGate_Probabilistic::get_gate_list, "get_gate_list")
+        .def("optimize_ProbablisticGate", &QuantumGate_Probabilistic::optimize_ProbablisticGate, "optimize_ProbablisticGate")
+        .def("get_distribution", &QuantumGate_Probabilistic::get_distribution, "get_distribution")
+        .def("get_cumulative_distribution", &QuantumGate_Probabilistic::get_cumulative_distribution, "get_cumulative_distribution")
+    ;
+    py::class_<QuantumGate_CPTP, QuantumGateBase>(m, "QuantumGate_CPTP","QuantumGate_Instrument");
     py::class_<QuantumGate_CP, QuantumGateBase>(m, "QuantumGate_CP");
-    py::class_<QuantumGate_Instrument, QuantumGateBase>(m, "QuantumGate_Instrument");
     py::class_<QuantumGate_Adaptive, QuantumGateBase>(m, "QuantumGate_Adaptive");
     py::class_<QuantumGateDiagonalMatrix, QuantumGateBase>(m, "QuantumGateDiagonalMatrix");
     py::class_<QuantumGateSparseMatrix, QuantumGateBase>(m, "QuantumGateSparseMatrix");
-
     auto mgate = m.def_submodule("gate");
     mgate.def("Identity", &gate::Identity, pybind11::return_value_policy::take_ownership, "Create identity gate", py::arg("index"));
     mgate.def("X", &gate::X, pybind11::return_value_policy::take_ownership, "Create Pauli-X gate", py::arg("index"));

@@ -29,9 +29,7 @@ __all__ = [
     "QuantumGate_Adaptive",
     "QuantumGate_CP",
     "QuantumGate_CPTP",
-    "QuantumGate_Instrument",
     "QuantumGate_Probabilistic",
-    "QuantumGate_ProbabilisticInstrument",
     "QuantumGate_SingleParameter",
     "QuantumState",
     "QuantumStateBase",
@@ -89,18 +87,6 @@ class QuantumGateBase():
         """
         Get control qubit value list
         """
-    def get_cumulative_distribution(self) -> typing.List[float]: 
-        """
-        get_cumulative_distribution
-        """
-    def get_distribution(self) -> typing.List[float]: 
-        """
-        get_distribution
-        """
-    def get_gate_list(self) -> typing.List[QuantumGateBase]: 
-        """
-        get_gate_list
-        """
     def get_matrix(self) -> numpy.ndarray[numpy.complex128, _Shape[m, n]]: 
         """
         Get gate matrix
@@ -136,10 +122,6 @@ class QuantumGateBase():
     def is_parametric(self) -> bool: 
         """
         Check this gate is parametric gate
-        """
-    def optimize_ProbablisticGate(self) -> None: 
-        """
-        optimize_ProbablisticGate
         """
     def to_string(self) -> str: 
         """
@@ -752,12 +734,30 @@ class QuantumGate_Adaptive(QuantumGateBase):
 class QuantumGate_CP(QuantumGateBase):
     pass
 class QuantumGate_CPTP(QuantumGateBase):
-    pass
-class QuantumGate_Instrument(QuantumGateBase):
+    """
+    QuantumGate_Instrument
+    """
     pass
 class QuantumGate_Probabilistic(QuantumGateBase):
-    pass
-class QuantumGate_ProbabilisticInstrument(QuantumGate_Probabilistic, QuantumGateBase):
+    """
+    QuantumGate_ProbabilisticInstrument
+    """
+    def get_cumulative_distribution(self) -> typing.List[float]: 
+        """
+        get_cumulative_distribution
+        """
+    def get_distribution(self) -> typing.List[float]: 
+        """
+        get_distribution
+        """
+    def get_gate_list(self) -> typing.List[QuantumGateBase]: 
+        """
+        get_gate_list
+        """
+    def optimize_ProbablisticGate(self) -> None: 
+        """
+        optimize_ProbablisticGate
+        """
     pass
 class QuantumGate_SingleParameter(QuantumGateBase):
     def copy(self) -> QuantumGate_SingleParameter: 
