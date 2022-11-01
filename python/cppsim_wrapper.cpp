@@ -290,7 +290,7 @@ PYBIND11_MODULE(qulacs_core, m) {
 
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
         .def("update_quantum_state", &QuantumGateBase::update_quantum_state, "Update quantum state", py::arg("state"))
-        .def("copy",&QuantumGateBase::copy, py::return_value_policy::take_ownership, "Create copied instance")
+        .def("copy", &QuantumGateBase::copy, py::return_value_policy::take_ownership, "Create copied instance")
         .def("to_string", &QuantumGateBase::to_string, "to string")
         .def("get_matrix", [](const QuantumGateBase& gate) {
             ComplexMatrix mat;
