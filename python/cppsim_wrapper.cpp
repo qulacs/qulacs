@@ -368,7 +368,7 @@ PYBIND11_MODULE(qulacs_core, m) {
 
     mgate.def("CNOT", &gate::CNOT, py::return_value_policy::take_ownership, "Create CNOT gate", py::arg("control"), py::arg("target"));
     mgate.def("CZ", &gate::CZ, py::return_value_policy::take_ownership, "Create CZ gate", py::arg("control"), py::arg("target"));
-    mgate.def("SWAP", &gate::SWAP, py::return_value_policy::take_ownership, "Create SWAP gate", py::arg("control"), py::arg("target"));
+    mgate.def("SWAP", &gate::SWAP, py::return_value_policy::take_ownership, "Create SWAP gate", py::arg("target1"), py::arg("target2"));
 
     mgate.def("TOFFOLI", [](UINT control_index1, UINT control_index2, UINT target_index) -> QuantumGateMatrix* {
         auto ptr = gate::X(target_index);

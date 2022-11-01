@@ -248,7 +248,7 @@ def S(index: int) -> qulacs_core.ClsOneQubitGate:
     """
     Create pi/4-phase gate
     """
-def SWAP(control: int, target: int) -> qulacs_core.ClsTwoQubitGate:
+def SWAP(target1: int, target2: int) -> qulacs_core.ClsTwoQubitGate:
     """
     Create SWAP gate
     """
