@@ -7,6 +7,12 @@ _Shape = typing.Tuple[int, ...]
 
 __all__ = [
     "CausalConeSimulator",
+    "ClsNoisyEvolution",
+    "ClsNoisyEvolution_fast",
+    "ClsOneControlOneTargetGate",
+    "ClsOneQubitGate",
+    "ClsOneQubitRotationGate",
+    "ClsTwoQubitGate",
     "DensityMatrix",
     "GeneralQuantumOperator",
     "GradCalculator",
@@ -17,7 +23,15 @@ __all__ = [
     "QuantumCircuit",
     "QuantumCircuitSimulator",
     "QuantumGateBase",
+    "QuantumGateDiagonalMatrix",
     "QuantumGateMatrix",
+    "QuantumGateSparseMatrix",
+    "QuantumGate_Adaptive",
+    "QuantumGate_CP",
+    "QuantumGate_CPTP",
+    "QuantumGate_Instrument",
+    "QuantumGate_Probabilistic",
+    "QuantumGate_ProbabilisticInstrument",
     "QuantumGate_SingleParameter",
     "QuantumState",
     "QuantumStateBase",
@@ -56,6 +70,95 @@ class CausalConeSimulator():
         """
         return pauli_operator_list
         """
+    pass
+class QuantumGateBase():
+    def __repr__(self) -> str: ...
+    def copy(self) -> QuantumGateBase: 
+        """
+        Create copied instance
+        """
+    def get_control_index_list(self) -> typing.List[int]: 
+        """
+        Get control qubit index list
+        """
+    def get_control_index_value_list(self) -> typing.List[typing.Tuple[int, int]]: 
+        """
+        Get control qubit pair index value list
+        """
+    def get_control_value_list(self) -> typing.List[int]: 
+        """
+        Get control qubit value list
+        """
+    def get_cumulative_distribution(self) -> typing.List[float]: 
+        """
+        get_cumulative_distribution
+        """
+    def get_distribution(self) -> typing.List[float]: 
+        """
+        get_distribution
+        """
+    def get_gate_list(self) -> typing.List[QuantumGateBase]: 
+        """
+        get_gate_list
+        """
+    def get_matrix(self) -> numpy.ndarray[numpy.complex128, _Shape[m, n]]: 
+        """
+        Get gate matrix
+        """
+    def get_name(self) -> str: 
+        """
+        Get gate name
+        """
+    def get_target_index_list(self) -> typing.List[int]: 
+        """
+        Get target qubit index list
+        """
+    def is_Clifford(self) -> bool: 
+        """
+        Check this gate is element of Clifford group
+        """
+    def is_Gaussian(self) -> bool: 
+        """
+        Check this gate is element of Gaussian group
+        """
+    def is_Pauli(self) -> bool: 
+        """
+        Check this gate is element of Pauli group
+        """
+    def is_commute(self, gate: QuantumGateBase) -> bool: 
+        """
+        Check this gate commutes with a given gate
+        """
+    def is_diagonal(self) -> bool: 
+        """
+        Check the gate matrix is diagonal
+        """
+    def is_parametric(self) -> bool: 
+        """
+        Check this gate is parametric gate
+        """
+    def optimize_ProbablisticGate(self) -> None: 
+        """
+        optimize_ProbablisticGate
+        """
+    def to_string(self) -> str: 
+        """
+        Get string representation
+        """
+    def update_quantum_state(self, state: QuantumStateBase) -> None: 
+        """
+        Update quantum state
+        """
+    pass
+class ClsNoisyEvolution_fast(QuantumGateBase):
+    pass
+class ClsOneControlOneTargetGate(QuantumGateBase):
+    pass
+class ClsOneQubitGate(QuantumGateBase):
+    pass
+class ClsOneQubitRotationGate(QuantumGateBase):
+    pass
+class ClsTwoQubitGate(QuantumGateBase):
     pass
 class QuantumStateBase():
     pass
@@ -106,10 +209,13 @@ class GeneralQuantumOperator():
         """
         Add Pauli operator
         """
-    def apply_to_state(self, work_state: QuantumStateBase, state_to_be_multiplied: QuantumStateBase, dst_state: QuantumStateBase) -> None: 
+    @typing.overload
+    def apply_to_state(self, state_to_be_multiplied: QuantumStateBase, dst_state: QuantumStateBase) -> None: 
         """
         Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.
         """
+    @typing.overload
+    def apply_to_state(self, work_state: QuantumStateBase, state_to_be_multiplied: QuantumStateBase, dst_state: QuantumStateBase) -> None: ...
     def copy(self) -> GeneralQuantumOperator: 
         """
         Create copied instance of General Quantum operator class
@@ -625,84 +731,9 @@ class QuantumCircuitSimulator():
         Swap state and buffer
         """
     pass
-class QuantumGateBase():
-    def __repr__(self) -> str: ...
-    def copy(self) -> QuantumGateBase: 
-        """
-        Create copied instance
-        """
-    def get_control_index_list(self) -> typing.List[int]: 
-        """
-        Get control qubit index list
-        """
-    def get_control_index_value_list(self) -> typing.List[typing.Tuple[int, int]]: 
-        """
-        Get control qubit pair index value list
-        """
-    def get_control_value_list(self) -> typing.List[int]: 
-        """
-        Get control qubit value list
-        """
-    def get_cumulative_distribution(self) -> typing.List[float]: 
-        """
-        get_cumulative_distribution
-        """
-    def get_distribution(self) -> typing.List[float]: 
-        """
-        get_distribution
-        """
-    def get_gate_list(self) -> typing.List[QuantumGateBase]: 
-        """
-        get_gate_list
-        """
-    def get_matrix(self) -> numpy.ndarray[numpy.complex128, _Shape[m, n]]: 
-        """
-        Get gate matrix
-        """
-    def get_name(self) -> str: 
-        """
-        Get gate name
-        """
-    def get_target_index_list(self) -> typing.List[int]: 
-        """
-        Get target qubit index list
-        """
-    def is_Clifford(self) -> bool: 
-        """
-        Check this gate is element of Clifford group
-        """
-    def is_Gaussian(self) -> bool: 
-        """
-        Check this gate is element of Gaussian group
-        """
-    def is_Pauli(self) -> bool: 
-        """
-        Check this gate is element of Pauli group
-        """
-    def is_commute(self, gate: QuantumGateBase) -> bool: 
-        """
-        Check this gate commutes with a given gate
-        """
-    def is_diagonal(self) -> bool: 
-        """
-        Check the gate matrix is diagonal
-        """
-    def is_parametric(self) -> bool: 
-        """
-        Check this gate is parametric gate
-        """
-    def optimize_ProbablisticGate(self) -> None: 
-        """
-        optimize_ProbablisticGate
-        """
-    def to_string(self) -> str: 
-        """
-        Get string representation
-        """
-    def update_quantum_state(self, state: QuantumStateBase) -> None: 
-        """
-        Update quantum state
-        """
+class ClsNoisyEvolution(QuantumGateBase):
+    pass
+class QuantumGateDiagonalMatrix(QuantumGateBase):
     pass
 class QuantumGateMatrix(QuantumGateBase):
     def add_control_qubit(self, index: int, control_value: int) -> None: 
@@ -713,6 +744,20 @@ class QuantumGateMatrix(QuantumGateBase):
         """
         Multiply scalar value to gate matrix
         """
+    pass
+class QuantumGateSparseMatrix(QuantumGateBase):
+    pass
+class QuantumGate_Adaptive(QuantumGateBase):
+    pass
+class QuantumGate_CP(QuantumGateBase):
+    pass
+class QuantumGate_CPTP(QuantumGateBase):
+    pass
+class QuantumGate_Instrument(QuantumGateBase):
+    pass
+class QuantumGate_Probabilistic(QuantumGateBase):
+    pass
+class QuantumGate_ProbabilisticInstrument(QuantumGate_Probabilistic, QuantumGateBase):
     pass
 class QuantumGate_SingleParameter(QuantumGateBase):
     def copy(self) -> QuantumGate_SingleParameter: 
@@ -738,11 +783,11 @@ class QuantumState(QuantumStateBase):
         """
         Add state vector to this state
         """
-    def allocate_buffer(self) -> QuantumStateBase: 
+    def allocate_buffer(self) -> QuantumState: 
         """
         Allocate buffer with the same size
         """
-    def copy(self) -> QuantumStateBase: 
+    def copy(self) -> QuantumState: 
         """
         Create copied instance
         """
@@ -842,11 +887,11 @@ class DensityMatrix(QuantumStateBase):
         """
         Add state vector to this state
         """
-    def allocate_buffer(self) -> QuantumStateBase: 
+    def allocate_buffer(self) -> DensityMatrix: 
         """
         Allocate buffer with the same size
         """
-    def copy(self) -> QuantumStateBase: 
+    def copy(self) -> DensityMatrix: 
         """
         Create copied insntace
         """

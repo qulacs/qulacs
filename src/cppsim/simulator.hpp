@@ -17,6 +17,7 @@ private:
     QuantumCircuit* _circuit;
     QuantumStateBase* _state;
     QuantumStateBase* _buffer;
+    bool _own_state = false;
 
 public:
     /**

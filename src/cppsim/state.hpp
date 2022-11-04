@@ -497,7 +497,7 @@ public:
      *
      * @return 生成された量子状態
      */
-    virtual QuantumStateBase* allocate_buffer() const override {
+    virtual QuantumStateCpu* allocate_buffer() const override {
         QuantumStateCpu* new_state = new QuantumStateCpu(this->_qubit_count);
         return new_state;
     }
@@ -506,7 +506,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumStateBase* copy() const override {
+    virtual QuantumStateCpu* copy() const override {
         QuantumStateCpu* new_state = new QuantumStateCpu(this->_qubit_count);
         memcpy(new_state->data_cpp(), _state_vector,
             (size_t)(sizeof(CPPCTYPE) * _dim));
@@ -701,4 +701,7 @@ DllExport QuantumState* permutate_qubit(
     const QuantumState* state, std::vector<UINT> qubit_order);
 DllExport QuantumState* drop_qubit(const QuantumState* state,
     std::vector<UINT> target, std::vector<UINT> projection);
+// create superposition of states of coef1|state1>+coef2|state2>
+DllExport QuantumState* make_superposition(CPPCTYPE coef1,
+    const QuantumState* state1, CPPCTYPE coef2, const QuantumState* state2);
 }  // namespace state

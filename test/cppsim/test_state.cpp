@@ -329,3 +329,23 @@ TEST(StateTest, ZeroNormState) {
         ASSERT_EQ(result[i], std::complex<double>(0, 0));
     }
 }
+
+TEST(StateTest, MakeSuperposition) {
+    const UINT n = 4;
+    QuantumState state1(n);
+    state1.set_Haar_random_state();
+    QuantumState state2(n);
+    state2.set_Haar_random_state();
+    Random random;
+    CPPCTYPE coef1(random.uniform(), random.uniform());
+    CPPCTYPE coef2(random.uniform(), random.uniform());
+    QuantumState* superposition =
+        state::make_superposition(coef1, &state1, coef2, &state2);
+    for (UINT i = 0; i < (1 << n); ++i) {
+        ASSERT_NEAR(
+            abs(coef1 * state1.data_cpp()[i] + coef2 * state2.data_cpp()[i] -
+                superposition->data_cpp()[i]),
+            0, eps);
+    }
+    delete superposition;
+}

@@ -4,10 +4,13 @@ set -eux
 
 GCC_COMMAND=${C_COMPILER:-"gcc"}
 GXX_COMMAND=${CXX_COMPILER:-"g++"}
-OPT_FLAGS=${QULACS_OPT_FLAGS:-"-mtune=native -march=native -mfpmath=both"}
 
 mkdir -p ./build
 cd ./build
-cmake -G "Unix Makefiles" -D CMAKE_C_COMPILER=$GCC_COMMAND -D CMAKE_CXX_COMPILER=$GXX_COMMAND -D OPT_FLAGS="$OPT_FLAGS" -D CMAKE_BUILD_TYPE=Release -D USE_GPU:STR=No -D USE_TEST="${USE_TEST:-No}" ..
+if [ "${QULACS_OPT_FLAGS:-"__UNSET__"}" = "__UNSET__" ]; then
+  cmake -G "Unix Makefiles" -D CMAKE_C_COMPILER=$GCC_COMMAND -D CMAKE_CXX_COMPILER=$GXX_COMMAND -D CMAKE_BUILD_TYPE=Release -D USE_GPU:STR=No -D USE_TEST="${USE_TEST:-No}" ..
+else
+  cmake -G "Unix Makefiles" -D CMAKE_C_COMPILER=$GCC_COMMAND -D CMAKE_CXX_COMPILER=$GXX_COMMAND -D OPT_FLAGS="${QULACS_OPT_FLAGS}" -D CMAKE_BUILD_TYPE=Release -D USE_GPU:STR=No -D USE_TEST="${USE_TEST:-No}" ..
+fi
 make -j $(nproc)
 cd ../

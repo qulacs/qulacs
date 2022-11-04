@@ -2,6 +2,8 @@
 
 #include <cppsim/simulator.hpp>
 
+#include "parametric_circuit.hpp"
+
 class DllExport ParametricQuantumCircuitSimulator
     : public QuantumCircuitSimulator {
 private:

@@ -9,12 +9,11 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 ENV PWD="/workspaces/qulacs"
 ENV QULACS_PACKAGE="qulacs"
-ENV QULACS_VERSION="0.5.2"
 ENV USE_TEST="Yes"
 # Add build artifact to PYTHONPATH and python can find qulacs.
 # Egg file name might vary depending on qulacs and python version.
-ENV PYTHONPATH="${PWD}/dist/${QULACS_PACKAGE}-${QULACS_VERSION}-cp39-cp39-linux_x86_64.whl:${PYTHONPATH}"
-ENV PYTHONPATH="${PWD}/build/lib.linux-x86_64-3.9:${PYTHONPATH}"
+ENV PYTHONPATH="${PWD}/dist:${PYTHONPATH}"
+ENV PYTHONPATH="${PWD}/build:${PYTHONPATH}"
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \

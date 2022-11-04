@@ -10,6 +10,9 @@
 
 #include "gate.hpp"
 #include "gate_general.hpp"
+#include "gate_named_one.hpp"
+#include "gate_named_two.hpp"
+#include "gate_noisy_evolution.hpp"
 #include "observable.hpp"
 #include "type.hpp"
 
@@ -58,7 +61,7 @@ DllExport QuantumGateBase* create_quantum_gate_from_string(
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* Identity(UINT qubit_index);
+DllExport ClsOneQubitGate* Identity(UINT qubit_index);
 
 /**
  * \~japanese-en \f$X\f$ゲートを作成する。
@@ -66,7 +69,7 @@ DllExport QuantumGateBase* Identity(UINT qubit_index);
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* X(UINT qubit_index);
+DllExport ClsOneQubitGate* X(UINT qubit_index);
 
 /**
  * \~japanese-en \f$Y\f$ゲートを作成する。
@@ -74,7 +77,7 @@ DllExport QuantumGateBase* X(UINT qubit_index);
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* Y(UINT qubit_index);
+DllExport ClsOneQubitGate* Y(UINT qubit_index);
 
 /**
  * \~japanese-en \f$Z\f$ゲートを作成する。
@@ -82,7 +85,7 @@ DllExport QuantumGateBase* Y(UINT qubit_index);
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* Z(UINT qubit_index);
+DllExport ClsOneQubitGate* Z(UINT qubit_index);
 
 /**
  * \~japanese-en Hadamardゲートを作成する。
@@ -90,7 +93,7 @@ DllExport QuantumGateBase* Z(UINT qubit_index);
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* H(UINT qubit_index);
+DllExport ClsOneQubitGate* H(UINT qubit_index);
 
 /**
  * \~japanese-en \f$S\f$ゲートを作成する。
@@ -98,7 +101,7 @@ DllExport QuantumGateBase* H(UINT qubit_index);
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* S(UINT qubit_index);
+DllExport ClsOneQubitGate* S(UINT qubit_index);
 
 /**
  * \~japanese-en \f$S^{\dagger}\f$ゲートを作成する。
@@ -106,7 +109,7 @@ DllExport QuantumGateBase* S(UINT qubit_index);
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* Sdag(UINT qubit_index);
+DllExport ClsOneQubitGate* Sdag(UINT qubit_index);
 
 /**
  * \~japanese-en \f$T\f$ゲートを作成する。
@@ -114,7 +117,7 @@ DllExport QuantumGateBase* Sdag(UINT qubit_index);
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* T(UINT qubit_index);
+DllExport ClsOneQubitGate* T(UINT qubit_index);
 
 /**
  * \~japanese-en \f$T^{\dagger}\f$ゲートを作成する。
@@ -122,7 +125,7 @@ DllExport QuantumGateBase* T(UINT qubit_index);
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* Tdag(UINT qubit_index);
+DllExport ClsOneQubitGate* Tdag(UINT qubit_index);
 
 /**
  * \~japanese-en \f$\sqrt{X}\f$ゲートを作成する。
@@ -130,7 +133,7 @@ DllExport QuantumGateBase* Tdag(UINT qubit_index);
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* sqrtX(UINT qubit_index);
+DllExport ClsOneQubitGate* sqrtX(UINT qubit_index);
 
 /**
  * \~japanese-en \f$\sqrt{X}^{\dagger}\f$ゲートを作成する。
@@ -138,7 +141,7 @@ DllExport QuantumGateBase* sqrtX(UINT qubit_index);
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* sqrtXdag(UINT qubit_index);
+DllExport ClsOneQubitGate* sqrtXdag(UINT qubit_index);
 
 /**
  * \~japanese-en \f$\sqrt{Y}\f$ゲートを作成する。
@@ -146,7 +149,7 @@ DllExport QuantumGateBase* sqrtXdag(UINT qubit_index);
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* sqrtY(UINT qubit_index);
+DllExport ClsOneQubitGate* sqrtY(UINT qubit_index);
 
 /**
  * \~japanese-en \f$\sqrt{Y}^{\dagger}\f$ゲートを作成する。
@@ -154,7 +157,7 @@ DllExport QuantumGateBase* sqrtY(UINT qubit_index);
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* sqrtYdag(UINT qubit_index);
+DllExport ClsOneQubitGate* sqrtYdag(UINT qubit_index);
 
 /**
  * \~japanese-en <code>qubit_index</code>を0へ射影するゲートを作成する
@@ -162,7 +165,7 @@ DllExport QuantumGateBase* sqrtYdag(UINT qubit_index);
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* P0(UINT qubit_index);
+DllExport ClsOneQubitGate* P0(UINT qubit_index);
 
 /**
  * \~japanese-en <code>qubit_index</code>を1へ射影するゲートを作成する
@@ -170,7 +173,7 @@ DllExport QuantumGateBase* P0(UINT qubit_index);
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* P1(UINT qubit_index);
+DllExport ClsOneQubitGate* P1(UINT qubit_index);
 
 /**
  * \~japanese-en OpenQASMのU1ゲートを作成する。
@@ -213,7 +216,7 @@ DllExport QuantumGateBase* U3(
  * @param[in] angle 回転角
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* RX(UINT qubit_index, double angle);
+DllExport ClsOneQubitRotationGate* RX(UINT qubit_index, double angle);
 
 /**
  * \~japanese-en \f$Y\f$回転ゲートを作成する。
@@ -222,7 +225,7 @@ DllExport QuantumGateBase* RX(UINT qubit_index, double angle);
  * @param[in] angle 回転角
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* RY(UINT qubit_index, double angle);
+DllExport ClsOneQubitRotationGate* RY(UINT qubit_index, double angle);
 
 /**
  * \~japanese-en \f$Z\f$回転ゲートを作成する。
@@ -231,14 +234,14 @@ DllExport QuantumGateBase* RY(UINT qubit_index, double angle);
  * @param[in] angle 回転角
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* RZ(UINT qubit_index, double angle);
+DllExport ClsOneQubitRotationGate* RZ(UINT qubit_index, double angle);
 
-DllExport QuantumGateBase* RotInvX(UINT qubit_index, double angle);
-DllExport QuantumGateBase* RotInvY(UINT qubit_index, double angle);
-DllExport QuantumGateBase* RotInvZ(UINT qubit_index, double angle);
-DllExport QuantumGateBase* RotX(UINT qubit_index, double angle);
-DllExport QuantumGateBase* RotY(UINT qubit_index, double angle);
-DllExport QuantumGateBase* RotZ(UINT qubit_index, double angle);
+DllExport ClsOneQubitRotationGate* RotInvX(UINT qubit_index, double angle);
+DllExport ClsOneQubitRotationGate* RotInvY(UINT qubit_index, double angle);
+DllExport ClsOneQubitRotationGate* RotInvZ(UINT qubit_index, double angle);
+DllExport ClsOneQubitRotationGate* RotX(UINT qubit_index, double angle);
+DllExport ClsOneQubitRotationGate* RotY(UINT qubit_index, double angle);
+DllExport ClsOneQubitRotationGate* RotZ(UINT qubit_index, double angle);
 /**
  * \~japanese-en CNOTゲートを作成する
  *
@@ -246,7 +249,7 @@ DllExport QuantumGateBase* RotZ(UINT qubit_index, double angle);
  * @param[in] target_qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* CNOT(
+DllExport ClsOneControlOneTargetGate* CNOT(
     UINT control_qubit_index, UINT target_qubit_index);
 
 /**
@@ -256,7 +259,7 @@ DllExport QuantumGateBase* CNOT(
  * @param[in] target_qubit_index ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* CZ(
+DllExport ClsOneControlOneTargetGate* CZ(
     UINT control_qubit_index, UINT target_qubit_index);
 
 /**
@@ -266,7 +269,7 @@ DllExport QuantumGateBase* CZ(
  * @param[in] qubit_index2 ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* SWAP(UINT qubit_index1, UINT qubit_index2);
+DllExport ClsTwoQubitGate* SWAP(UINT qubit_index1, UINT qubit_index2);
 
 /**
  * \f$n\f$-qubit パウリ演算子のゲートを作成する
@@ -452,7 +455,7 @@ DllExport QuantumGateBase* Measurement(
  * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* NoisyEvolution(Observable* hamiltonian,
+DllExport ClsNoisyEvolution* NoisyEvolution(Observable* hamiltonian,
     std::vector<GeneralQuantumOperator*> c_ops, double time, double dt = 1e-6);
 
 /**
@@ -463,7 +466,7 @@ DllExport QuantumGateBase* NoisyEvolution(Observable* hamiltonian,
  * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* NoisyEvolution_fast(Observable* hamiltonian,
+DllExport ClsNoisyEvolution_fast* NoisyEvolution_fast(Observable* hamiltonian,
     std::vector<GeneralQuantumOperator*> c_ops, double time);
 
 /**

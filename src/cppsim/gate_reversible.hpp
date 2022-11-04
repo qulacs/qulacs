@@ -67,7 +67,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumGateBase* copy() const override {
+    virtual ClsReversibleBooleanGate* copy() const override {
         return new ClsReversibleBooleanGate(*this);
     };
     /**

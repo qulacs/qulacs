@@ -16,6 +16,8 @@
 #include <cppsim/state_dm.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_matrix.hpp>
+#include <cppsim/gate_matrix_diagonal.hpp>
+#include <cppsim/gate_matrix_sparse.hpp>
 #include <cppsim/gate_merge.hpp>
 #include <cppsim/circuit.hpp>
 #include <cppsim/circuit_optimizer.hpp>
@@ -74,6 +76,13 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("get_term_count", &GeneralQuantumOperator::get_term_count, "Get count of Pauli terms")
         .def("apply_to_state", py::overload_cast<QuantumStateBase*, const QuantumStateBase&, QuantumStateBase*>(&GeneralQuantumOperator::apply_to_state, py::const_), "Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.",
             py::arg("work_state"), py::arg("state_to_be_multiplied"), py::arg("dst_state"))
+        .def("apply_to_state", [](const GeneralQuantumOperator& self, const QuantumStateBase& state, QuantumStateBase* dst_state) {
+            QuantumStateBase* work_state;
+            if(state.is_state_vector()) work_state = new QuantumState(state.qubit_count);
+            else work_state = new DensityMatrix(state.qubit_count);
+            self.apply_to_state(work_state, state, dst_state);
+            delete work_state;
+        }, py::arg("state_to_be_multiplied"), py::arg("dst_state"))
         //.def("get_term", &GeneralQuantumOperator::get_term, pybind11::return_value_policy::take_ownership)
         .def("get_term",[](const GeneralQuantumOperator& quantum_operator, const unsigned int index) {
             return quantum_operator.get_term(index)->copy();
@@ -327,6 +336,13 @@ PYBIND11_MODULE(qulacs_core, m) {
             &state::partial_trace),
         pybind11::return_value_policy::take_ownership,
         py::arg("state"), py::arg("target_traceout"));
+    
+    mstate.def("make_superposition", &state::make_superposition,
+        py::return_value_policy::take_ownership, "Create superposition of states",
+        py::arg("coef1"), py::arg("state1"), py::arg("coef2"), py::arg("state2"));
+    mstate.def("make_mixture", &state::make_mixture,
+        py::return_value_policy::take_ownership, "Create a mixed state",
+        py::arg("prob1"), py::arg("state1"), py::arg("prob2"), py::arg("state2"));
 
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
         .def("update_quantum_state", &QuantumGateBase::update_quantum_state, "Update quantum state", py::arg("state"))
@@ -360,7 +376,21 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("add_control_qubit", &QuantumGateMatrix::add_control_qubit, "Add control qubit", py::arg("index"), py::arg("control_value"))
         .def("multiply_scalar", &QuantumGateMatrix::multiply_scalar, "Multiply scalar value to gate matrix", py::arg("value"))
         ;
-
+    
+    py::class_<ClsOneQubitGate, QuantumGateBase>(m, "ClsOneQubitGate");
+    py::class_<ClsOneQubitRotationGate, QuantumGateBase>(m, "ClsOneQubitRotationGate");
+    py::class_<ClsOneControlOneTargetGate, QuantumGateBase>(m, "ClsOneControlOneTargetGate");
+    py::class_<ClsTwoQubitGate, QuantumGateBase>(m, "ClsTwoQubitGate");
+    py::class_<ClsNoisyEvolution, QuantumGateBase>(m, "ClsNoisyEvolution");
+    py::class_<ClsNoisyEvolution_fast, QuantumGateBase>(m, "ClsNoisyEvolution_fast");
+    py::class_<QuantumGate_Probabilistic, QuantumGateBase>(m, "QuantumGate_Probabilistic");
+    py::class_<QuantumGate_ProbabilisticInstrument, QuantumGate_Probabilistic>(m, "QuantumGate_ProbabilisticInstrument");
+    py::class_<QuantumGate_CPTP, QuantumGateBase>(m, "QuantumGate_CPTP");
+    py::class_<QuantumGate_CP, QuantumGateBase>(m, "QuantumGate_CP");
+    py::class_<QuantumGate_Instrument, QuantumGateBase>(m, "QuantumGate_Instrument");
+    py::class_<QuantumGate_Adaptive, QuantumGateBase>(m, "QuantumGate_Adaptive");
+    py::class_<QuantumGateDiagonalMatrix, QuantumGateBase>(m, "QuantumGateDiagonalMatrix");
+    py::class_<QuantumGateSparseMatrix, QuantumGateBase>(m, "QuantumGateSparseMatrix");
 
     auto mgate = m.def_submodule("gate");
     mgate.def("Identity", &gate::Identity, pybind11::return_value_policy::take_ownership, "Create identity gate", py::arg("index"));

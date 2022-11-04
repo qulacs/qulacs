@@ -381,7 +381,7 @@ TEST(DensityMatrixGateTest, RandomPauliMerge) {
         test_state.set_Haar_random_state();
         state.load(&test_state);
 
-        auto merged_gate = gate::Identity(0);
+        QuantumGateBase* merged_gate = gate::Identity(0);
         QuantumGateMatrix* next_merged_gate = NULL;
         QuantumGateBase* new_gate = NULL;
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
@@ -443,7 +443,7 @@ TEST(DensityMatrixGateTest, RandomPauliRotationMerge) {
         test_state.set_Haar_random_state();
         state.load(&test_state);
 
-        auto merged_gate = gate::Identity(0);
+        QuantumGateBase* merged_gate = gate::Identity(0);
         QuantumGateMatrix* next_merged_gate = NULL;
         QuantumGateBase* new_gate = NULL;
 
@@ -503,7 +503,7 @@ TEST(DensityMatrixGateTest, RandomUnitaryMerge) {
         test_state.set_Haar_random_state();
         state.load(&test_state);
 
-        auto merged_gate = gate::Identity(0);
+        QuantumGateBase* merged_gate = gate::Identity(0);
         QuantumGateMatrix* next_merged_gate = NULL;
         QuantumGateBase* new_gate = NULL;
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
@@ -572,8 +572,8 @@ TEST(DensityMatrixGateTest, RandomUnitaryMergeLarge) {
         state.load(&test_state);
         state2.load(&test_state);
 
-        auto merged_gate1 = gate::Identity(0);
-        auto merged_gate2 = gate::Identity(0);
+        QuantumGateBase* merged_gate1 = gate::Identity(0);
+        QuantumGateBase* merged_gate2 = gate::Identity(0);
         QuantumGateMatrix* next_merged_gate = NULL;
         QuantumGateBase* new_gate = NULL;
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
@@ -680,8 +680,8 @@ TEST(DensityMatrixGateTest, RandomControlMergeSmall) {
         test_state.set_Haar_random_state();
         state.load(&test_state);
 
-        auto merge_gate1 = gate::Identity(0);
-        auto merge_gate2 = gate::Identity(0);
+        QuantumGateBase* merge_gate1 = gate::Identity(0);
+        QuantumGateBase* merge_gate2 = gate::Identity(0);
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
             std::random_shuffle(arr.begin(), arr.end());
@@ -732,8 +732,8 @@ TEST(DensityMatrixGateTest, RandomControlMergeLarge) {
         state.load(&test_state);
         state2.load(&test_state);
 
-        auto merge_gate1 = gate::Identity(0);
-        auto merge_gate2 = gate::Identity(0);
+        QuantumGateBase* merge_gate1 = gate::Identity(0);
+        QuantumGateBase* merge_gate2 = gate::Identity(0);
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
             std::random_shuffle(arr.begin(), arr.end());
@@ -806,7 +806,7 @@ TEST(DensityMatrixGateTest, MultiTarget) {
         std::random_shuffle(arr.begin(), arr.end());
         std::vector<UINT> target_list;
         for (UINT i = 0; i < target_count; ++i) target_list.push_back(arr[i]);
-        auto gate = gate::RandomUnitary(target_list);
+        QuantumGateBase* gate = gate::RandomUnitary(target_list);
 
         test_state.set_Haar_random_state();
         state.load(&test_state);
