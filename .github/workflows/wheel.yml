@@ -36,6 +36,11 @@ jobs:
             os-arch: "macosx_x86_64"
           - os: "macos-11"
             os-arch: "macosx_arm64"
+        exclude:
+          # cibuildwheel does not support Python 3.7 on macOS arm64.
+          - cibw-python: "cp37"
+            os: "macos-11"
+            os-arch: "macosx_arm64"
     runs-on: ${{ matrix.os }}
     env:
       CXX_COMPILER: "g++-10"
