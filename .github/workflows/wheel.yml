@@ -7,10 +7,10 @@ on:
       - ".vscode/**"
       - "doc/**"
       - "*.md"
-    branches:
-      - "main"
-    tags:
-      - "v*"
+    # branches:
+    #   - "main"
+    # tags:
+    #   - "v*"
   pull_request:
   pull_request_review:
     types: [submitted, edited]
@@ -23,12 +23,24 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
     strategy:
       matrix:
-        python-version: ["3.7.5"]
+        python-version: ["3.10.8"]
+        cibw-python: ["cp37", "cp38", "cp39", "cp310"]
         os: ["ubuntu-20.04", "windows-2019", "macos-11"]
+        # Documentation for `include`: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategymatrixinclude
+        include:
+          - os: "ubuntu-20.04"
+            os-arch: "manylinux_x86_64"
+          - os: "windows-2019"
+            os-arch: "win_amd64"
+          - os: "macos-11"
+            os-arch: "macosx_x86_64"
+          - os: "macos-11"
+            os-arch: "macosx_arm64"
     runs-on: ${{ matrix.os }}
     env:
-      CXX_COMPILER: "g++-8"
-      C_COMPILER: "gcc-8"
+      CXX_COMPILER: "g++-10"
+      C_COMPILER: "gcc-10"
+      CIBW_BUILD: ${{ matrix.cibw-python }}-${{ matrix.os-arch }}
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       TWINE_USERNAME: "__token__"
@@ -75,12 +87,12 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
     strategy:
       matrix:
-        python-version: ["3.7.5"]
+        python-version: ["3.10.8"]
         os: ["ubuntu-20.04"]
     runs-on: ${{ matrix.os }}
     env:
-      CXX_COMPILER: "g++-8"
-      C_COMPILER: "gcc-8"
+      CXX_COMPILER: "g++-10"
+      C_COMPILER: "gcc-10"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       TWINE_USERNAME: "__token__"
