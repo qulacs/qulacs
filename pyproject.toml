@@ -83,13 +83,7 @@ before-test = "rm -rf {project}/build"
 
 
 [tool.cibuildwheel.macos]
-# In GitHub Actions virtual environment macos-10.15/20201115.1,
-# linking some functions from libgomp fails since the linker cannot find
-# some library files from gcc-8 installed via Homebrew.
-# The following command fixes this issue by (brew) re-linking files from gcc-8.
-# cf. https://stackoverflow.com/a/55500164
 before-build = """\
-brew install gcc@8 && brew link --overwrite gcc@8 && \
 brew upgrade && brew install -f boost && \
 brew link boost && rm -rf {project}/build\
 """

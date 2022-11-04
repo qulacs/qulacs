@@ -23,7 +23,7 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
     strategy:
       matrix:
-        python-version: ["3.7.5"]
+        python-version: ["3.10.8"]
         os: ["ubuntu-20.04", "windows-2019", "macos-11"]
     runs-on: ${{ matrix.os }}
     env:
@@ -75,12 +75,12 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
     strategy:
       matrix:
-        python-version: ["3.7.5"]
+        python-version: ["3.10.8"]
         os: ["ubuntu-20.04"]
     runs-on: ${{ matrix.os }}
     env:
-      CXX_COMPILER: "g++-8"
-      C_COMPILER: "gcc-8"
+      CXX_COMPILER: "g++-10"
+      C_COMPILER: "gcc-10"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       TWINE_USERNAME: "__token__"
