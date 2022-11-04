@@ -59,8 +59,8 @@ public:
     ~CausalConeSimulator() {
         delete init_circuit;
         delete init_observable;
-        for (auto circuit1 : circuit_list) {
-            for (auto circuit2 : circuit1) {
+        for (auto& circuit1 : circuit_list) {
+            for (auto& circuit2 : circuit1) {
                 delete circuit2;
             }
         }
