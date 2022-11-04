@@ -53,4 +53,24 @@ DensityMatrixCpu* partial_trace(
         (UINT)target.size(), state->data_c(), qs->data_c(), state->dim);
     return qs;
 }
+DensityMatrixCpu* make_mixture(CPPCTYPE prob1, const QuantumStateBase* state1,
+    CPPCTYPE prob2, const QuantumStateBase* state2) {
+    if (state1->qubit_count != state2->qubit_count) {
+        throw InvalidQubitCountException(
+            "Error: make_mixture(CPPCTYPE, const QuantumStateBase*, "
+            "CPPCTYPE, const QuantumStateBase*): invalid qubit count");
+    }
+    UINT qubit_count = state1->qubit_count;
+    DensityMatrixCpu* dm1 = new DensityMatrixCpu(qubit_count);
+    dm1->load(state1);
+    DensityMatrixCpu* dm2 = new DensityMatrixCpu(qubit_count);
+    dm2->load(state2);
+    DensityMatrixCpu* mixture = new DensityMatrixCpu(qubit_count);
+    mixture->set_zero_norm_state();
+    mixture->add_state_with_coef(prob1, dm1);
+    mixture->add_state_with_coef(prob2, dm2);
+    delete dm1;
+    delete dm2;
+    return mixture;
+}
 }  // namespace state
