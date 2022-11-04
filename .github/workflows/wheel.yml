@@ -23,8 +23,7 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
     strategy:
       matrix:
-        # cross-compiling wheel for m1 mac requires python >= 3.8
-        python-version: ["3.10.8"]
+        python-version: ["3.7.5"]
         os: ["ubuntu-20.04", "windows-2019", "macos-11"]
     runs-on: ${{ matrix.os }}
     env:
