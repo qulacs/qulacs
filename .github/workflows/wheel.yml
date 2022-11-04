@@ -27,8 +27,8 @@ jobs:
         os: ["ubuntu-20.04", "windows-2019", "macos-11"]
     runs-on: ${{ matrix.os }}
     env:
-      CXX_COMPILER: "g++-8"
-      C_COMPILER: "gcc-8"
+      CXX_COMPILER: "g++-10"
+      C_COMPILER: "gcc-10"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       TWINE_USERNAME: "__token__"
