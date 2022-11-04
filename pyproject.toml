@@ -1,10 +1,10 @@
 [build-system]
-requires = ["wheel", "setuptools", "setuptools_scm"]
+requires = ["wheel", "setuptools", "setuptools_scm[toml]"]
 build-backend = "setuptools.build_meta"
 
 [project]
+dynamic = ["version"]
 name = "qulacs"
-version = "0.5.2"
 description = "Quantum circuit simulator for research"
 authors = [ 
     { name = "QunaSys", Email = "qulacs@qunasys.com" }
@@ -26,6 +26,12 @@ classifiers = [
     "Programming Language :: Python",
     "Topic :: Communications :: Email"
 ]
+
+[tool.setuptools.dynamic]
+version = {attr = "qulacs._version.__version__"}
+
+[tool.setuptools_scm]
+write_to = "pysrc/qulacs/_version.py"
 
 [project.urls]
 homepage = "http://www.qulacs.org"
