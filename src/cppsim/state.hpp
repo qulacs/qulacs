@@ -10,10 +10,7 @@
 #include "exception.hpp"
 #include "type.hpp"
 #include "utility.hpp"
-
-#ifdef _USE_MPI
 #include "csim/MPIutil.h"
-#endif
 
 /**
  * \~japanese-en 量子状態の基底クラス
