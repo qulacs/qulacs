@@ -262,30 +262,20 @@ jobs:
       QULACS_OPT_FLAGS: "-mtune=haswell -march=haswell -mfpmath=both"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
-      CACHE_NAME: ccache-qulacs-build-v2
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
 
       - name: Install mpi-bin
         run: sudo apt install openmpi-bin
-
-      - name: Install ccache
-        run: sudo apt install ccache
-
-      - name: Setup cache
-        uses: actions/cache@v2
-        with:
-          path: ~/.ccache
-          key: ${{ runner.os }}-${{ env.CACHE_NAME }}
 
       - name: Install boost
         run: sudo apt install libboost-dev
@@ -297,7 +287,7 @@ jobs:
           sudo make install
 
       - name: Install qulacs for Ubuntu
-        run: USE_MPI=Yes USE_TEST=Yes ./script/build_gcc.sh
+        run: USE_TEST=Yes ./script/build_mpicc.sh
 
       - name: Install qulacs Python module
         run: pip install .[ci]
