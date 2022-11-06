@@ -301,3 +301,17 @@ public:
      */
     IOException(const std::string& message) : std::runtime_error(message) {}
 };
+
+/**
+ * \~japanese-en mpi-size のエラー
+ */
+class MPISizeException : public std::runtime_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    MPISizeException(const std::string& message)
+        : std::runtime_error(message) {}
+};

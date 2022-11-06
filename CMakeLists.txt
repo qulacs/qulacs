@@ -243,6 +243,7 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 
 	# Enable openmpi
 	if(USE_MPI)
+		add_compile_options("-D _USE_MPI")
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lmpi")
 	endif()
 

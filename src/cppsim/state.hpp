@@ -7,10 +7,10 @@
 #include <iostream>
 #include <vector>
 
+#include "csim/MPIutil.h"
 #include "exception.hpp"
 #include "type.hpp"
 #include "utility.hpp"
-#include "csim/MPIutil.h"
 
 /**
  * \~japanese-en 量子状態の基底クラス
@@ -19,6 +19,8 @@ class QuantumStateBase {
 protected:
     ITYPE _dim;
     UINT _qubit_count;
+    UINT _inner_qc;
+    UINT _outer_qc;
     bool _is_state_vector;
     std::vector<UINT> _classical_register;
     UINT _device_number;
@@ -26,7 +28,9 @@ protected:
 
 public:
     const UINT& qubit_count; /**< \~japanese-en 量子ビット数 */
-    const ITYPE& dim;        /**< \~japanese-en 量子状態の次元 */
+    const UINT inner_qc; /**< \~japanese-en ノード内量子ビット数 */
+    const UINT outer_qc; /**< \~japanese-en ノード外量子ビット数 */
+    const ITYPE& dim;    /**< \~japanese-en 量子状態の次元 */
     const std::vector<UINT>&
         classical_register; /**< \~japanese-en 古典ビットのレジスタ */
     const UINT& device_number;
@@ -37,21 +41,69 @@ public:
      */
     QuantumStateBase(UINT qubit_count_, bool is_state_vector)
         : qubit_count(_qubit_count),
+          inner_qc(_inner_qc),
+          outer_qc(_outer_qc),
           dim(_dim),
           classical_register(_classical_register),
           device_number(_device_number) {
         this->_qubit_count = qubit_count_;
+        this->_inner_qc = qubit_count_;
+        this->_outer_qc = 0;
         this->_dim = 1ULL << qubit_count_;
         this->_is_state_vector = is_state_vector;
         this->_device_number = 0;
     }
+
+    QuantumStateBase(
+        UINT qubit_count_, bool use_multi_cpu, bool is_state_vector)
+        : qubit_count(_qubit_count),
+          inner_qc(_inner_qc),
+          outer_qc(_outer_qc),
+          dim(_dim),
+          classical_register(_classical_register),
+          device_number(_device_number) {
+#ifdef _USE_MPI
+        MPIutil mpiutil = get_mpiutil();
+        UINT mpirank = mpiutil->get_rank();
+        UINT mpisize = mpiutil->get_size();
+        if ((mpisize & (mpisize - 1))) {
+            throw MPISizeException(
+                "Error: QuantumStateBase::QuantumStateBase(UINT, bool, bool): "
+                "mpi-size must be power of 2");
+        }
+        UINT log_nodes = std::log2(mpisize);
+#else
+        UINT log_nodes = 1;
+#endif  // #ifdef _USE_MPI
+        if (use_multi_cpu &&
+            (qubit_count_ >= (log_nodes + 2))) {  // minimum inner_qc=2
+            this->_inner_qc = qubit_count_ - log_nodes;
+            this->_outer_qc = log_nodes;
+        } else {
+            this->_inner_qc = qubit_count_;
+            this->_outer_qc = 0;
+        }
+        this->_qubit_count = qubit_count_;
+        this->_dim = 1ULL << qubit_count_;
+        this->_is_state_vector = is_state_vector;
+#ifdef _USE_MPI
+        this->_device_number = mpirank;
+#else
+        this->_device_number = 0;
+#endif  // #ifdef _USE_MPI
+    }
+
     QuantumStateBase(
         UINT qubit_count_, bool is_state_vector, UINT device_number_)
         : qubit_count(_qubit_count),
+          inner_qc(_inner_qc),
+          outer_qc(_outer_qc),
           dim(_dim),
           classical_register(_classical_register),
           device_number(_device_number) {
         this->_qubit_count = qubit_count_;
+        this->_inner_qc = qubit_count_;
+        this->_outer_qc = 0;
         this->_dim = 1ULL << qubit_count_;
         this->_is_state_vector = is_state_vector;
         this->_device_number = device_number_;
