@@ -2255,7 +2255,7 @@ CausalConeSimulator
 .. code:: python
 
    from qulacs import QuantumState, ParametricQuantumCircuit, CausalConeSimulator, Observable
-   n = 10
+   n = 100
    observable = Observable(1)
    observable.add_operator(1.0, "Z 0")
    circuit = ParametricQuantumCircuit(n)
@@ -2267,12 +2267,11 @@ CausalConeSimulator
    ccs = CausalConeSimulator(circuit, observable)
    print(ccs.get_expectation_value())
 
-   # 通常の場合
-   state = QuantumState(n)
-   circuit.update_quantum_state(state)
-   print(observable.get_expectation_value(state))
+   # # 通常の場合
+   # state = QuantumState(n)
+   # circuit.update_quantum_state(state)
+   # print(observable.get_expectation_value(state))
 
 ::
 
    (0.2919265817264289+0j)
-   0.2919265817264287
