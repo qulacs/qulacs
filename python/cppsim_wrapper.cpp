@@ -217,22 +217,17 @@ PYBIND11_MODULE(qulacs_core, m) {
         m, "Observable")
         .def(py::init<UINT>(), "Constructor", py::arg("qubit_count"))
         .def("add_operator",
-            (void(HermitianQuantumOperator::*)(const PauliOperator*)) &
-                HermitianQuantumOperator::add_operator,
+            py::overload_cast<const PauliOperator*>(
+                &HermitianQuantumOperator::add_operator),
             "Add Pauli operator", py::arg("pauli_operator"))
-        .def("add_operator_move",
-            (void(HermitianQuantumOperator::*)(const PauliOperator*)) &
-                HermitianQuantumOperator::add_operator_move,
+        .def("add_operator_move", &HermitianQuantumOperator::add_operator_move,
             "Add Pauli operator", py::arg("pauli_operator"))
-        .def("add_operator_copy",
-            (void(HermitianQuantumOperator::*)(const PauliOperator*)) &
-                HermitianQuantumOperator::add_operator_copy,
+        .def("add_operator_copy", &HermitianQuantumOperator::add_operator_copy,
             "Add Pauli operator", py::arg("pauli_operator"))
 
         .def("add_operator",
-            (void(HermitianQuantumOperator::*)(
-                std::complex<double> coef, std::string)) &
-                HermitianQuantumOperator::add_operator,
+            py::overload_cast<CPPCTYPE, std::string>(
+                &HermitianQuantumOperator::add_operator),
             py::arg("coef"), py::arg("string"))
         .def("get_qubit_count", &HermitianQuantumOperator::get_qubit_count,
             "Get qubit count")
@@ -271,13 +266,13 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Get transition amplitude", py::arg("state_bra"),
             py::arg("state_ket"))
         .def("add_random_operator",
-            (void(GeneralQuantumOperator::*)(UINT)) &
-                HermitianQuantumOperator::add_random_operator,
+            py::overload_cast<UINT>(
+                &HermitianQuantumOperator::add_random_operator),
             "Add random pauli operator", py::arg("operator_count"))
         .def("add_random_operator",
-            (void(GeneralQuantumOperator::*)(UINT, UINT)) &
-                HermitianQuantumOperator::add_random_operator,
-            "", py::arg("operator_count"), py::arg("seed"))
+            py::overload_cast<UINT, UINT>(
+                &HermitianQuantumOperator::add_random_operator),
+            py::arg("operator_count"), py::arg("seed"))
         .def("solve_ground_state_eigenvalue_by_arnoldi_method",
             &HermitianQuantumOperator::
                 solve_ground_state_eigenvalue_by_arnoldi_method,
@@ -1012,10 +1007,10 @@ PYBIND11_MODULE(qulacs_core, m) {
         // python
         //.def("add_gate_consume", (void
         //(QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate, "Add
-        //gate and take ownership", py::arg("gate")) .def("add_gate_consume",
+        // gate and take ownership", py::arg("gate")) .def("add_gate_consume",
         //(void (QuantumCircuit::*)(QuantumGateBase*,
-        //UINT))&QuantumCircuit::add_gate, "Add gate and take ownership",
-        //py::arg("gate"), py::arg("position"))
+        // UINT))&QuantumCircuit::add_gate, "Add gate and take ownership",
+        // py::arg("gate"), py::arg("position"))
         .def("add_gate",
             py::overload_cast<const QuantumGateBase*>(
                 &QuantumCircuit::add_gate_copy),
@@ -1060,11 +1055,11 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Get qubit count")
 
         .def("update_quantum_state",
-            (void(QuantumCircuit::*)(QuantumStateBase*)) &
+            (void (QuantumCircuit::*)(QuantumStateBase*)) &
                 QuantumCircuit::update_quantum_state,
             "Update quantum state", py::arg("state"))
         .def("update_quantum_state",
-            (void(QuantumCircuit::*)(QuantumStateBase*, UINT, UINT)) &
+            (void (QuantumCircuit::*)(QuantumStateBase*, UINT, UINT)) &
                 QuantumCircuit::update_quantum_state,
             py::arg("state"), py::arg("start"), py::arg("end"))
         .def("calculate_depth", &QuantumCircuit::calculate_depth,
