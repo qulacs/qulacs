@@ -263,7 +263,6 @@ public:
     friend DllExport std::ostream& operator<<(
         std::ostream& os, const QuantumGateBase* gate);
 
-    //ここから勝手にkotamanegiがつくったやつ
     virtual bool is_noise() { return false; }
     virtual void set_seed(int) { return; };
 

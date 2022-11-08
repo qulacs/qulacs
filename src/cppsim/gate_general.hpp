@@ -32,7 +32,7 @@ public:
      * @param distribution ゲートが現れる確率
      * @param gate_list ゲートのリスト
      */
-    QuantumGate_Probabilistic(const std::vector<double>& distribution,
+    explicit QuantumGate_Probabilistic(const std::vector<double>& distribution,
         const std::vector<QuantumGateBase*>& gate_list)
         : _distribution(distribution) {
         if (distribution.size() != gate_list.size()) {
@@ -90,7 +90,7 @@ public:
         is_instrument = false;
     };
 
-    QuantumGate_Probabilistic(const std::vector<double>& distribution,
+    explicit QuantumGate_Probabilistic(const std::vector<double>& distribution,
         const std::vector<QuantumGateBase*>& gate_list,
         UINT classical_register_address)
         : QuantumGate_Probabilistic(distribution, gate_list) {
@@ -250,7 +250,7 @@ public:
         is_instrument = false;
     };
 
-    QuantumGate_CPTP(std::vector<QuantumGateBase*> gate_list,
+    explicit QuantumGate_CPTP(std::vector<QuantumGateBase*> gate_list,
         UINT classical_register_address)
         : QuantumGate_CPTP(gate_list) {
         is_instrument = true;
@@ -359,7 +359,7 @@ protected:
     const bool _assign_zero_if_not_matched;
 
 public:
-    QuantumGate_CP(std::vector<QuantumGateBase*> gate_list,
+    explicit QuantumGate_CP(std::vector<QuantumGateBase*> gate_list,
         bool state_normalize, bool probability_normalize,
         bool assign_zero_if_not_matched)
         : _state_normalize(state_normalize),
@@ -497,7 +497,7 @@ protected:
     const int _id;
 
 public:
-    QuantumGate_Adaptive(QuantumGateBase* gate,
+    explicit QuantumGate_Adaptive(QuantumGateBase* gate,
         std::function<bool(const std::vector<UINT>&)> func_without_id)
         : _gate(gate->copy()), _func_without_id(func_without_id), _id(-1) {
         this->_name = "Adaptive";
@@ -519,7 +519,7 @@ public:
                 return a.index() < b.index();
             });
     };
-    QuantumGate_Adaptive(QuantumGateBase* gate,
+    explicit QuantumGate_Adaptive(QuantumGateBase* gate,
         std::function<bool(const std::vector<UINT>&, UINT)> func_with_id,
         UINT id)
         : _gate(gate->copy()),
@@ -589,5 +589,9 @@ public:
     }
 };
 
+/**
+ * This type alias is kept for backward compatibility.
+ * Do not edit this!
+ */
 using QuantumGate_ProbabilisticInstrument = QuantumGate_Probabilistic;
 using QuantumGate_Instrument = QuantumGate_CPTP;
