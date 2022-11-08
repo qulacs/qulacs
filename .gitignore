@@ -219,3 +219,6 @@ dkms.conf
 
 # ignore coverage
 /coverage/
+
+# ignore auto-generated version file
+/pysrc/qulacs/_version.py

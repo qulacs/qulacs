@@ -1,8 +1,0 @@
-include *.cmake
-include FetchContent/*.cmake.in
-include CMakeLists.txt
-recursive-include test *
-recursive-include src *
-recursive-include script *
-recursive-include python *
-recursive-include benchmark *

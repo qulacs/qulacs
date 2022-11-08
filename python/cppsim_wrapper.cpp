@@ -676,9 +676,16 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<ClsOneControlOneTargetGate, QuantumGateBase>(
         m, "ClsOneControlOneTargetGate");
     py::class_<ClsTwoQubitGate, QuantumGateBase>(m, "ClsTwoQubitGate");
+    py::class_<ClsPauliGate, QuantumGateBase>(m, "ClsPauliGate");
+    py::class_<ClsPauliRotationGate, QuantumGateBase>(
+        m, "ClsPauliRotationGate");
     py::class_<ClsNoisyEvolution, QuantumGateBase>(m, "ClsNoisyEvolution");
     py::class_<ClsNoisyEvolution_fast, QuantumGateBase>(
         m, "ClsNoisyEvolution_fast");
+    py::class_<ClsStateReflectionGate, QuantumGateBase>(
+        m, "ClsStateReflectionGate");
+    py::class_<ClsReversibleBooleanGate, QuantumGateBase>(
+        m, "ClsReversibleBooleanGate");
     py::class_<QuantumGate_Probabilistic, QuantumGateBase>(
         m, "QuantumGate_Probabilistic");
     py::class_<QuantumGate_ProbabilisticInstrument, QuantumGate_Probabilistic>(

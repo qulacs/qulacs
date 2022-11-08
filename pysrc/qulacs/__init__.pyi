@@ -12,6 +12,10 @@ __all__ = [
     "ClsOneControlOneTargetGate",
     "ClsOneQubitGate",
     "ClsOneQubitRotationGate",
+    "ClsPauliGate",
+    "ClsPauliRotationGate",
+    "ClsReversibleBooleanGate",
+    "ClsStateReflectionGate",
     "ClsTwoQubitGate",
     "DensityMatrix",
     "GeneralQuantumOperator",
@@ -157,6 +161,14 @@ class ClsOneControlOneTargetGate(QuantumGateBase):
 class ClsOneQubitGate(QuantumGateBase):
     pass
 class ClsOneQubitRotationGate(QuantumGateBase):
+    pass
+class ClsPauliGate(QuantumGateBase):
+    pass
+class ClsPauliRotationGate(QuantumGateBase):
+    pass
+class ClsReversibleBooleanGate(QuantumGateBase):
+    pass
+class ClsStateReflectionGate(QuantumGateBase):
     pass
 class ClsTwoQubitGate(QuantumGateBase):
     pass
