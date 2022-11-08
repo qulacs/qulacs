@@ -803,7 +803,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     mgate.def(
         "Pauli",
         [](std::vector<UINT> target_qubit_index_list,
-            std::vector<UINT> pauli_ids) -> QuantumGateBase* {
+            std::vector<UINT> pauli_ids) -> ClsPauliGate* {
             if (target_qubit_index_list.size() != pauli_ids.size())
                 throw std::invalid_argument(
                     "Size of qubit list and pauli list must be equal.");
@@ -816,7 +816,8 @@ PYBIND11_MODULE(qulacs_core, m) {
     mgate.def(
         "PauliRotation",
         [](std::vector<UINT> target_qubit_index_list,
-            std::vector<UINT> pauli_ids, double angle) -> QuantumGateBase* {
+            std::vector<UINT> pauli_ids,
+            double angle) -> ClsPauliRotationGate* {
             if (target_qubit_index_list.size() != pauli_ids.size())
                 throw std::invalid_argument(
                     "Size of qubit list and pauli list must be equal.");
@@ -854,7 +855,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     mgate.def(
         "SparseMatrix",
         [](std::vector<UINT> target_qubit_index_list,
-            SparseComplexMatrix matrix) -> QuantumGateBase* {
+            SparseComplexMatrix matrix) -> QuantumGateSparseMatrix* {
             const ITYPE dim = 1ULL << target_qubit_index_list.size();
             if (matrix.rows() != dim || matrix.cols() != dim)
                 throw std::invalid_argument("matrix dims is not consistent.");
@@ -866,7 +867,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     mgate.def(
         "DiagonalMatrix",
         [](std::vector<UINT> target_qubit_index_list,
-            ComplexVector diagonal_element) -> QuantumGateBase* {
+            ComplexVector diagonal_element) -> QuantumGateDiagonalMatrix* {
             const ITYPE dim = 1ULL << target_qubit_index_list.size();
             if (diagonal_element.size() != dim)
                 throw std::invalid_argument(
