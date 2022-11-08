@@ -120,7 +120,7 @@ def DepolarizingNoise(index: int, prob: float) -> qulacs_core.QuantumGate_Probab
     """
     Create depolarizing noise
     """
-def DiagonalMatrix(index_list: typing.List[int], diagonal_element: numpy.ndarray[numpy.complex128, _Shape[m, 1]]) -> qulacs_core.QuantumGateDiagonalMatrix:
+def DiagonalMatrix(index_list: typing.List[int], diagonal_element: numpy.ndarray[numpy.complex128, _Shape[m, 1]]) -> qulacs_core.QuantumGateBase:
     """
     Create diagonal matrix gate
     """
@@ -180,11 +180,11 @@ def ParametricRZ(index: int, angle: float) -> qulacs_core.QuantumGate_SinglePara
     """
     Create parametric Pauli-Z rotation gate
     """
-def Pauli(index_list: typing.List[int], pauli_ids: typing.List[int]) -> qulacs_core.ClsPauliGate:
+def Pauli(index_list: typing.List[int], pauli_ids: typing.List[int]) -> qulacs_core.QuantumGateBase:
     """
     Create multi-qubit Pauli gate
     """
-def PauliRotation(index_list: typing.List[int], pauli_ids: typing.List[int], angle: float) -> qulacs_core.ClsPauliRotationGate:
+def PauliRotation(index_list: typing.List[int], pauli_ids: typing.List[int], angle: float) -> qulacs_core.QuantumGateBase:
     """
     Create multi-qubit Pauli rotation
     """
@@ -256,7 +256,7 @@ def Sdag(index: int) -> qulacs_core.ClsOneQubitGate:
     """
     Create adjoint of pi/4-phase gate
     """
-def SparseMatrix(index_list: typing.List[int], matrix: scipy.sparse.csc_matrix[numpy.complex128]) -> qulacs_core.QuantumGateSparseMatrix:
+def SparseMatrix(index_list: typing.List[int], matrix: scipy.sparse.csc_matrix[numpy.complex128]) -> qulacs_core.QuantumGateBase:
     """
     Create sparse matrix gate
     """
