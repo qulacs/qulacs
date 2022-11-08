@@ -10,3 +10,4 @@ ipykernel
 cmake
 qulacs
 scipy
+myst-parser
