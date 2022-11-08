@@ -80,11 +80,11 @@ def Adaptive(gate: qulacs_core.QuantumGateBase, condition: typing.Callable[[typi
 @typing.overload
 def Adaptive(gate: qulacs_core.QuantumGateBase, condition: typing.Callable[[typing.List[int]], bool]) -> qulacs_core.QuantumGateBase:
     pass
-def AmplitudeDampingNoise(index: int, prob: float) -> qulacs_core.QuantumGateBase:
+def AmplitudeDampingNoise(index: int, prob: float) -> qulacs_core.QuantumGate_CPTP:
     """
     Create amplitude damping noise
     """
-def BitFlipNoise(index: int, prob: float) -> qulacs_core.QuantumGateBase:
+def BitFlipNoise(index: int, prob: float) -> qulacs_core.QuantumGate_Probabilistic:
     """
     Create bit-flip noise
     """
@@ -112,15 +112,15 @@ def DenseMatrix(index: int, matrix: numpy.ndarray[numpy.complex128, _Shape[m, n]
 @typing.overload
 def DenseMatrix(index_list: typing.List[int], matrix: numpy.ndarray[numpy.complex128, _Shape[m, n]]) -> qulacs_core.QuantumGateMatrix:
     pass
-def DephasingNoise(index: int, prob: float) -> qulacs_core.QuantumGateBase:
+def DephasingNoise(index: int, prob: float) -> qulacs_core.QuantumGate_Probabilistic:
     """
     Create dephasing noise
     """
-def DepolarizingNoise(index: int, prob: float) -> qulacs_core.QuantumGateBase:
+def DepolarizingNoise(index: int, prob: float) -> qulacs_core.QuantumGate_Probabilistic:
     """
     Create depolarizing noise
     """
-def DiagonalMatrix(index_list: typing.List[int], diagonal_element: numpy.ndarray[numpy.complex128, _Shape[m, 1]]) -> qulacs_core.QuantumGateBase:
+def DiagonalMatrix(index_list: typing.List[int], diagonal_element: numpy.ndarray[numpy.complex128, _Shape[m, 1]]) -> qulacs_core.QuantumGateDiagonalMatrix:
     """
     Create diagonal matrix gate
     """
@@ -136,7 +136,7 @@ def Identity(index: int) -> qulacs_core.ClsOneQubitGate:
     """
     Create identity gate
     """
-def IndependentXZNoise(index: int, prob: float) -> qulacs_core.QuantumGateBase:
+def IndependentXZNoise(index: int, prob: float) -> qulacs_core.QuantumGate_Probabilistic:
     """
     Create independent XZ noise
     """
@@ -144,7 +144,7 @@ def Instrument(kraus_list: typing.List[qulacs_core.QuantumGateBase], register: i
     """
     Create instruments
     """
-def Measurement(index: int, register: int) -> qulacs_core.QuantumGateBase:
+def Measurement(index: int, register: int) -> qulacs_core.QuantumGate_Instrument:
     """
     Create measurement gate
     """
@@ -180,11 +180,11 @@ def ParametricRZ(index: int, angle: float) -> qulacs_core.QuantumGate_SinglePara
     """
     Create parametric Pauli-Z rotation gate
     """
-def Pauli(index_list: typing.List[int], pauli_ids: typing.List[int]) -> qulacs_core.QuantumGateBase:
+def Pauli(index_list: typing.List[int], pauli_ids: typing.List[int]) -> qulacs_core.ClsPauliGate:
     """
     Create multi-qubit Pauli gate
     """
-def PauliRotation(index_list: typing.List[int], pauli_ids: typing.List[int], angle: float) -> qulacs_core.QuantumGateBase:
+def PauliRotation(index_list: typing.List[int], pauli_ids: typing.List[int], angle: float) -> qulacs_core.ClsPauliRotationGate:
     """
     Create multi-qubit Pauli rotation
     """
@@ -216,7 +216,7 @@ def RandomUnitary(index_list: typing.List[int]) -> qulacs_core.QuantumGateMatrix
 @typing.overload
 def RandomUnitary(index_list: typing.List[int], seed: int) -> qulacs_core.QuantumGateMatrix:
     pass
-def ReversibleBoolean(index_list: typing.List[int], func: typing.Callable[[int, int], int]) -> qulacs_core.QuantumGateBase:
+def ReversibleBoolean(index_list: typing.List[int], func: typing.Callable[[int, int], int]) -> qulacs_core.ClsReversibleBooleanGate:
     """
     Create reversible boolean gate
     """
@@ -256,11 +256,11 @@ def Sdag(index: int) -> qulacs_core.ClsOneQubitGate:
     """
     Create adjoint of pi/4-phase gate
     """
-def SparseMatrix(index_list: typing.List[int], matrix: scipy.sparse.csc_matrix[numpy.complex128]) -> qulacs_core.QuantumGateBase:
+def SparseMatrix(index_list: typing.List[int], matrix: scipy.sparse.csc_matrix[numpy.complex128]) -> qulacs_core.QuantumGateSparseMatrix:
     """
     Create sparse matrix gate
     """
-def StateReflection(state: qulacs_core.QuantumStateBase) -> qulacs_core.QuantumGateBase:
+def StateReflection(state: qulacs_core.QuantumStateBase) -> qulacs_core.ClsStateReflectionGate:
     """
     Create state reflection gate
     """
@@ -276,7 +276,7 @@ def Tdag(index: int) -> qulacs_core.ClsOneQubitGate:
     """
     Create adjoint of pi/8-phase gate
     """
-def TwoQubitDepolarizingNoise(index1: int, index2: int, prob: float) -> qulacs_core.QuantumGateBase:
+def TwoQubitDepolarizingNoise(index1: int, index2: int, prob: float) -> qulacs_core.QuantumGate_Probabilistic:
     """
     Create two-qubit depolarizing noise
     """
