@@ -151,12 +151,12 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build pkg-config libglib2.0-dev gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu
-          wget https://download.qemu.org/qemu-7.1.0.tar.xz
+          wget -q https://download.qemu.org/qemu-7.1.0.tar.xz
           tar xJf qemu-7.1.0.tar.xz
           pushd qemu-7.1.0
           mkdir build; cd build
           ../configure --target-list=aarch64-linux-user
-          make
+          make -s -j $(nproc)
           sudo make install
 
       - name: Install boost
@@ -168,9 +168,12 @@ jobs:
       - name: Test in Ubuntu
         run: |
           cd ./build
-          make buildtest
+          make buildtest -j $(nproc)
+          file ../bin/csim_test
           qemu-aarch64 ../bin/csim_test
+          file ../bin/cppsim_test
           qemu-aarch64 ../bin/cppsim_test
+          file ../bin/vqcsim_test
           qemu-aarch64 ../bin/vqcsim_test
 
   format:
