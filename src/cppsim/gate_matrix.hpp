@@ -2,7 +2,6 @@
 
 #include "gate.hpp"
 #include "type.hpp"
-
 /**
  * \~japanese-en 行列要素で自身が作用する内容を保持するクラス
  */
@@ -149,4 +148,6 @@ public:
      */
     friend DllExport std::ostream& operator<<(
         std::ostream& os, QuantumGateMatrix* gate);
+
+    virtual QuantumGateMatrix* get_inverse(void);
 };

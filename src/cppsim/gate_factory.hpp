@@ -10,12 +10,15 @@
 
 #include "gate.hpp"
 #include "gate_general.hpp"
+#include "gate_matrix_diagonal.hpp"
+#include "gate_matrix_sparse.hpp"
 #include "gate_named_one.hpp"
 #include "gate_named_two.hpp"
 #include "gate_noisy_evolution.hpp"
+#include "gate_reflect.hpp"
+#include "gate_reversible.hpp"
 #include "observable.hpp"
 #include "type.hpp"
-
 namespace gate {
 /**
  * \~japanese-en 量子ゲートを文字列から生成する。
@@ -183,7 +186,7 @@ DllExport ClsOneQubitGate* P1(UINT qubit_index);
  * @param[in] lambda 回転角の第一引数
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* U1(UINT qubit_index, double lambda);
+DllExport QuantumGateMatrix* U1(UINT qubit_index, double lambda);
 
 /**
  * \~japanese-en OpenQASMのU2ゲートを作成する。
@@ -194,7 +197,7 @@ DllExport QuantumGateBase* U1(UINT qubit_index, double lambda);
  * @param[in] phi 回転角の第二引数
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* U2(UINT qubit_index, double phi, double lambda);
+DllExport QuantumGateMatrix* U2(UINT qubit_index, double phi, double lambda);
 
 /**
  * \~japanese-en OpenQASMのU3ゲートを作成する。
@@ -206,7 +209,7 @@ DllExport QuantumGateBase* U2(UINT qubit_index, double phi, double lambda);
  * @param[in] theta 回転角の第三引数
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* U3(
+DllExport QuantumGateMatrix* U3(
     UINT qubit_index, double theta, double phi, double lambda);
 
 /**
@@ -281,7 +284,7 @@ DllExport ClsTwoQubitGate* SWAP(UINT qubit_index1, UINT qubit_index2);
  * その量子ビットに作用するパウリ演算子。\f${I,X,Y,Z}\f$が\f${0,1,2,3}\f$に対応する。
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* Pauli(
+DllExport ClsPauliGate* Pauli(
     std::vector<UINT> target_qubit_index_list, std::vector<UINT> pauli_id_list);
 
 /**
@@ -295,7 +298,7 @@ DllExport QuantumGateBase* Pauli(
  * @param[in] angle 回転角
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* PauliRotation(
+DllExport ClsPauliRotationGate* PauliRotation(
     std::vector<UINT> target_qubit_index_list, std::vector<UINT> pauli_id_list,
     double angle);
 
@@ -330,7 +333,7 @@ DllExport QuantumGateMatrix* DenseMatrix(
  * @param[in] matrix 作用するゲートの複素行列。
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* SparseMatrix(
+DllExport QuantumGateSparseMatrix* SparseMatrix(
     std::vector<UINT> target_qubit_index_list, SparseComplexMatrix matrix);
 
 /**
@@ -342,7 +345,7 @@ DllExport QuantumGateBase* SparseMatrix(
  * @param[in] matrix 作用するゲートの複素行列の対角成分。
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* DiagonalMatrix(
+DllExport QuantumGateDiagonalMatrix* DiagonalMatrix(
     std::vector<UINT> target_qubit_index_list, ComplexVector diagonal_element);
 
 /**
@@ -364,7 +367,7 @@ DllExport QuantumGateMatrix* RandomUnitary(
  * @param[in] function_ptr 可逆古典回路の動作をする関数
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* ReversibleBoolean(
+DllExport ClsReversibleBooleanGate* ReversibleBoolean(
     std::vector<UINT> target_qubit_index_list,
     std::function<ITYPE(ITYPE, ITYPE)>);
 
@@ -374,7 +377,7 @@ DllExport QuantumGateBase* ReversibleBoolean(
  * @param[in] reflection_state 反射に用いられる量子状態
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* StateReflection(
+DllExport ClsStateReflectionGate* StateReflection(
     const QuantumStateBase* reflection_state);
 
 /**
@@ -384,7 +387,8 @@ DllExport QuantumGateBase* StateReflection(
  * @param[in] prob エラーが生じる確率
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* BitFlipNoise(UINT target_index, double prob);
+DllExport QuantumGate_Probabilistic* BitFlipNoise(
+    UINT target_index, double prob);
 
 /**
  * phase-flipノイズを発生させるゲート
@@ -393,7 +397,8 @@ DllExport QuantumGateBase* BitFlipNoise(UINT target_index, double prob);
  * @param[in] prob エラーが生じる確率
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* DephasingNoise(UINT target_index, double prob);
+DllExport QuantumGate_Probabilistic* DephasingNoise(
+    UINT target_index, double prob);
 
 /**
  * bit-flipとphase-flipを同じ確率でノイズを発生させるゲート
@@ -402,7 +407,8 @@ DllExport QuantumGateBase* DephasingNoise(UINT target_index, double prob);
  * @param[in] prob エラーが生じる確率
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* IndependentXZNoise(UINT target_index, double prob);
+DllExport QuantumGate_Probabilistic* IndependentXZNoise(
+    UINT target_index, double prob);
 
 /**
  * Depolarizin noiseを発生させるゲート
@@ -412,7 +418,8 @@ DllExport QuantumGateBase* IndependentXZNoise(UINT target_index, double prob);
  * @param[in] prob エラーが生じる確率
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* DepolarizingNoise(UINT target_index, double prob);
+DllExport QuantumGate_Probabilistic* DepolarizingNoise(
+    UINT target_index, double prob);
 
 /**
  * Two-qubit depolarizin noiseを発生させるゲート
@@ -424,7 +431,7 @@ DllExport QuantumGateBase* DepolarizingNoise(UINT target_index, double prob);
  * @param[in] prob エラーが生じる確率
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* TwoQubitDepolarizingNoise(
+DllExport QuantumGate_Probabilistic* TwoQubitDepolarizingNoise(
     UINT target_index1, UINT target_index2, double prob);
 
 /**
@@ -434,7 +441,7 @@ DllExport QuantumGateBase* TwoQubitDepolarizingNoise(
  * @param[in] prob エラーが生じる確率
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* AmplitudeDampingNoise(
+DllExport QuantumGate_CPTP* AmplitudeDampingNoise(
     UINT target_index, double prob);
 
 /**
@@ -444,7 +451,7 @@ DllExport QuantumGateBase* AmplitudeDampingNoise(
  * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* Measurement(
+DllExport QuantumGate_Instrument* Measurement(
     UINT target_index, UINT classical_register_address);
 
 /**
@@ -477,6 +484,6 @@ DllExport ClsNoisyEvolution_fast* NoisyEvolution_fast(Observable* hamiltonian,
  * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
  * @return 作成されたゲートのインスタンス
  */
-DllExport QuantumGateBase* NoisyEvolution_auto(Observable* hamiltonian,
+DllExport ClsNoisyEvolution_auto* NoisyEvolution_auto(Observable* hamiltonian,
     std::vector<GeneralQuantumOperator*> c_ops, double time);
 }  // namespace gate

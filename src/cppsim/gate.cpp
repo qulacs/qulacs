@@ -125,7 +125,7 @@ std::string QuantumGateBase::to_string() const {
     return stream.str();
 }
 QuantumGateBase* QuantumGateBase::get_inverse(void) {
-    return gate::get_adjoint_gate(this);
+    throw NotImplementedException("this gate don't have get_inverse function");
 }
 
 std::string QuantumGateBase::get_name() const { return this->_name; }

@@ -594,10 +594,19 @@ TEST(CircuitTest, CircuitOptimize) {
         test_state.load(&state);
         QuantumCircuit circuit(n);
 
+        auto gate1 = gate::CNOT(0, 1);
+        auto gate2 = gate::CNOT(1, 2);
+        auto gate3 = gate::Y(2);
+
         circuit.add_Z_gate(0);
-        circuit.add_gate(gate::merge(gate::CNOT(0, 1), gate::Y(2)));
-        circuit.add_gate(gate::merge(gate::CNOT(1, 0), gate::Y(2)));
+        circuit.add_gate(gate::merge(gate1, gate3));
+        circuit.add_gate(gate::merge(gate2, gate3));
         circuit.add_Z_gate(1);
+
+        delete gate1;
+        delete gate2;
+        delete gate3;
+
         UINT block_size = 2;
         UINT expected_depth = 3;
         UINT expected_gate_count = 3;
@@ -623,10 +632,19 @@ TEST(CircuitTest, CircuitOptimize) {
         test_state.load(&state);
         QuantumCircuit circuit(n);
 
+        auto gate1 = gate::CNOT(0, 1);
+        auto gate2 = gate::CNOT(1, 2);
+        auto gate3 = gate::Y(2);
+
         circuit.add_Z_gate(0);
-        circuit.add_gate(gate::merge(gate::CNOT(0, 1), gate::Y(2)));
-        circuit.add_gate(gate::merge(gate::CNOT(1, 0), gate::Y(2)));
+        circuit.add_gate(gate::merge(gate1, gate3));
+        circuit.add_gate(gate::merge(gate2, gate3));
         circuit.add_Z_gate(1);
+
+        delete gate1;
+        delete gate2;
+        delete gate3;
+
         UINT block_size = 3;
         UINT expected_depth = 1;
         UINT expected_gate_count = 1;

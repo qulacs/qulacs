@@ -889,6 +889,9 @@ TEST(GateTest, ControlMerge) {
                 ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps)
                     << res << "\n\n"
                     << mat_res << std::endl;
+        delete x0;
+        delete cx01;
+        delete res;
     }
 
     {
@@ -1220,10 +1223,20 @@ TEST(GateTest, ProbabilisticGate_contbit) {
 }
 
 TEST(GateTest, CPTPGate) {
-    auto gate1 = gate::merge(gate::P0(0), gate::P0(1));
-    auto gate2 = gate::merge(gate::P0(0), gate::P1(1));
-    auto gate3 = gate::merge(gate::P1(0), gate::P0(1));
-    auto gate4 = gate::merge(gate::P1(0), gate::P1(1));
+    auto p0_first_qubit = gate::P0(0);
+    auto p0_second_qubit = gate::P0(1);
+    auto p1_first_qubit = gate::P1(0);
+    auto p1_second_qubit = gate::P1(1);
+
+    auto gate1 = gate::merge(p0_first_qubit, p0_second_qubit);
+    auto gate2 = gate::merge(p0_first_qubit, p1_second_qubit);
+    auto gate3 = gate::merge(p1_first_qubit, p0_second_qubit);
+    auto gate4 = gate::merge(p1_first_qubit, p1_second_qubit);
+
+    delete p0_first_qubit;
+    delete p0_second_qubit;
+    delete p1_first_qubit;
+    delete p1_second_qubit;
 
     auto CPTP = gate::CPTP({gate3, gate2, gate1, gate4});
     ASSERT_EQ(CPTP->get_target_index_list(), std::vector<UINT>({0, 1}));
@@ -1240,10 +1253,20 @@ TEST(GateTest, CPTPGate) {
 }
 
 TEST(GateTest, InstrumentGate) {
-    auto gate1 = gate::merge(gate::P0(0), gate::P0(1));
-    auto gate2 = gate::merge(gate::P0(0), gate::P1(1));
-    auto gate3 = gate::merge(gate::P1(0), gate::P0(1));
-    auto gate4 = gate::merge(gate::P1(0), gate::P1(1));
+    auto p0_first_qubit = gate::P0(0);
+    auto p0_second_qubit = gate::P0(1);
+    auto p1_first_qubit = gate::P1(0);
+    auto p1_second_qubit = gate::P1(1);
+
+    auto gate1 = gate::merge(p0_first_qubit, p0_second_qubit);
+    auto gate2 = gate::merge(p0_first_qubit, p1_second_qubit);
+    auto gate3 = gate::merge(p1_first_qubit, p0_second_qubit);
+    auto gate4 = gate::merge(p1_first_qubit, p1_second_qubit);
+
+    delete p0_first_qubit;
+    delete p0_second_qubit;
+    delete p1_first_qubit;
+    delete p1_second_qubit;
 
     auto Inst = gate::Instrument({gate3, gate2, gate1, gate4}, 1);
     ASSERT_EQ(Inst->get_target_index_list(), std::vector<UINT>({0, 1}));
@@ -1551,7 +1574,8 @@ TEST(GateTest, DuplicateIndex) {
 }
 
 TEST(GateTest, GetControlList) {
-    auto gateA = gate::to_matrix_gate(gate::sqrtXdag(0));
+    auto gate_sqrtXdag = gate::sqrtXdag(0);
+    auto gateA = gate::to_matrix_gate(gate_sqrtXdag);
     gateA->add_control_qubit(1, 0);
     gateA->add_control_qubit(2, 1);
     gateA->add_control_qubit(3, 0);
@@ -1564,5 +1588,6 @@ TEST(GateTest, GetControlList) {
         {1, 0}, {2, 1}, {3, 0}};
     EXPECT_EQ(index_value_list, true_ivl);
 
+    delete gate_sqrtXdag;
     delete gateA;
 }

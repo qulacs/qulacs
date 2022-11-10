@@ -28,6 +28,14 @@ GeneralQuantumOperator::~GeneralQuantumOperator() {
     }
 }
 
+GeneralQuantumOperator::GeneralQuantumOperator(
+    const GeneralQuantumOperator& obj)
+    : _qubit_count(obj._qubit_count), _is_hermitian(obj._is_hermitian) {
+    for (auto& pauli : obj._operator_list) {
+        this->add_operator_copy(pauli);
+    }
+}
+
 void GeneralQuantumOperator::add_operator(const PauliOperator* mpt) {
     GeneralQuantumOperator::add_operator_copy(mpt);
 }
@@ -446,16 +454,12 @@ GeneralQuantumOperator* GeneralQuantumOperator::get_dagger() const {
 
 GeneralQuantumOperator GeneralQuantumOperator::operator+(
     const GeneralQuantumOperator& target) const {
-    auto res = this->copy();
-    *res += target;
-    return *res;
+    return GeneralQuantumOperator(*this) += target;
 }
 
 GeneralQuantumOperator GeneralQuantumOperator::operator+(
     const PauliOperator& target) const {
-    auto res = this->copy();
-    *res += target;
-    return *res;
+    return GeneralQuantumOperator(*this) += target;
 }
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
@@ -543,16 +547,12 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
 
 GeneralQuantumOperator GeneralQuantumOperator::operator-(
     const GeneralQuantumOperator& target) const {
-    auto res = this->copy();
-    *res -= target;
-    return *res;
+    return GeneralQuantumOperator(*this) -= target;
 }
 
 GeneralQuantumOperator GeneralQuantumOperator::operator-(
     const PauliOperator& target) const {
-    auto res = this->copy();
-    *res -= target;
-    return *res;
+    return GeneralQuantumOperator(*this) -= target;
 }
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
@@ -642,40 +642,39 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
 }
 GeneralQuantumOperator GeneralQuantumOperator::operator*(
     const GeneralQuantumOperator& target) const {
-    auto res = this->copy();
-    *res *= target;
-    return *res;
+    return GeneralQuantumOperator(*this) *= target;
 }
 
 GeneralQuantumOperator GeneralQuantumOperator::operator*(
     const PauliOperator& target) const {
-    auto res = this->copy();
-    *res *= target;
-    return *res;
+    return GeneralQuantumOperator(*this) *= target;
 }
+
 GeneralQuantumOperator GeneralQuantumOperator::operator*(
     CPPCTYPE target) const {
-    auto res = this->copy();
-    *res *= target;
-    return *res;
+    return GeneralQuantumOperator(*this) *= target;
 }
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     const GeneralQuantumOperator& target) {
     auto this_copy = this->copy();
-    _operator_list.clear();
     auto terms = this_copy->get_terms();
     auto target_terms = target.get_terms();
+
+    // initialize (*this) operator to empty.
+    for (auto& term : _operator_list) {
+        delete term;
+    }
+    _operator_list.clear();
+
     ITYPE i, j;
     // #pragma omp parallel for
     for (i = 0; i < terms.size(); i++) {
         auto pauli_operator = terms[i];
         for (j = 0; j < target_terms.size(); j++) {
             auto target_operator = target_terms[j];
-            PauliOperator* product = new PauliOperator;
-            *product = (*pauli_operator) * (*target_operator);
-            *this += *product;
-            delete product;
+            PauliOperator product = (*pauli_operator) * (*target_operator);
+            *this += product;
         }
     }
     delete this_copy;
@@ -685,15 +684,20 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
 GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     const PauliOperator& target) {
     auto this_copy = this->copy();
-    _operator_list.clear();
     ITYPE i;
     auto terms = this_copy->get_terms();
+
+    // initialize (*this) operator to empty.
+    for (auto& term : _operator_list) {
+        delete term;
+    }
+    _operator_list.clear();
+
     // #pragma omp parallel for
     for (i = 0; i < terms.size(); i++) {
         auto pauli_operator = terms[i];
-        PauliOperator* product = new PauliOperator;
-        *product = (*pauli_operator) * (target);
-        *this += *product;
+        PauliOperator product = (*pauli_operator) * (target);
+        *this += product;
     }
     delete this_copy;
     return *this;

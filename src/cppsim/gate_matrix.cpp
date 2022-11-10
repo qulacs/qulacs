@@ -7,6 +7,7 @@
 #include <csim/utility.hpp>
 #include <numeric>
 
+#include "gate_merge.hpp"
 #include "state.hpp"
 #include "type.hpp"
 #ifdef _USE_GPU
@@ -293,4 +294,8 @@ std::ostream& operator<<(std::ostream& os, const QuantumGateMatrix& gate) {
 std::ostream& operator<<(std::ostream& os, QuantumGateMatrix* gate) {
     os << *gate;
     return os;
+}
+
+QuantumGateMatrix* QuantumGateMatrix::get_inverse(void) {
+    return gate::get_adjoint_gate(this);
 }

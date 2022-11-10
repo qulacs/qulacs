@@ -120,7 +120,7 @@ namespace observable {
  *
  * OpenFermionから出力されたオブザーバブルのテキストファイルを読み込んでHermitianQuantumOperatorを生成します。オブザーバブルのqubit数はファイル読み込み時に、オブザーバブルの構成に必要なqubit数となります。
  *
- * @param[in] filename OpenFermion形式のオブザーバブルのファイル名
+ * @param[in] file_path OpenFermion形式のオブザーバブルのファイルパス
  * @return Observableのインスタンス
  **/
 DllExport HermitianQuantumOperator* create_observable_from_openfermion_file(
@@ -131,7 +131,7 @@ DllExport HermitianQuantumOperator* create_observable_from_openfermion_file(
  *
  * OpenFermionの出力テキストを読み込んでObservableを生成します。オブザーバブルのqubit数はファイル読み込み時に、オブザーバブルの構成に必要なqubit数となります。
  *
- * @param[in] filename OpenFermion形式のテキスト
+ * @param[in] text OpenFermion形式のテキスト
  * @return Observableのインスタンス
  **/
 DllExport HermitianQuantumOperator* create_observable_from_openfermion_text(
@@ -141,7 +141,7 @@ DllExport HermitianQuantumOperator* create_observable_from_openfermion_text(
  * \~japanese-en
  * OpenFermion形式のファイルを読んで、対角なObservableと非対角なObservableを返す。オブザーバブルのqubit数はファイル読み込み時に、オブザーバブルの構成に必要なqubit数となります。
  *
- * @param[in] filename OpenFermion形式のオブザーバブルのファイル名
+ * @param[in] file_path OpenFermion形式のオブザーバブルのファイルパス
  */
 DllExport std::pair<HermitianQuantumOperator*, HermitianQuantumOperator*>
 create_split_observable(std::string file_path);
