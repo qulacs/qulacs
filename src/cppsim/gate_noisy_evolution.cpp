@@ -500,6 +500,7 @@ ClsNoisyEvolution_fast::ClsNoisyEvolution_fast(Observable* hamiltonian,
 
     ComplexMatrix hamilMatrix;
     iH->set_matrix(hamilMatrix);
+    delete iH;
     Eigen::ComplexEigenSolver<ComplexMatrix> eigen_solver(hamilMatrix);
 
     auto result = eigen_solver.info();

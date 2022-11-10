@@ -10,9 +10,13 @@ __all__ = [
 ]
 
 
-def create_observable_from_openfermion_file(arg0: str) -> qulacs_core.Observable:
-    pass
-def create_observable_from_openfermion_text(arg0: str) -> qulacs_core.Observable:
-    pass
+def create_observable_from_openfermion_file(file_path: str) -> qulacs_core.Observable:
+    """
+    Create GeneralQuantumOperator from openfermion file
+    """
+def create_observable_from_openfermion_text(text: str) -> qulacs_core.Observable:
+    """
+    Create GeneralQuantumOperator from openfermion text
+    """
 def create_split_observable(arg0: str) -> typing.Tuple[qulacs_core.Observable, qulacs_core.Observable]:
     pass

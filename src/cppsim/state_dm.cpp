@@ -28,29 +28,31 @@ DensityMatrixCpu* permutate_qubit(
     return qs;
 }
 DensityMatrixCpu* partial_trace(
-    const QuantumStateCpu* state, std::vector<UINT> target) {
-    if (state->qubit_count <= target.size()) {
+    const QuantumStateCpu* state, std::vector<UINT> target_traceout) {
+    if (state->qubit_count <= target_traceout.size()) {
         throw InvalidQubitCountException(
             "Error: drop_qubit(const QuantumState*, "
             "std::vector<UINT>): invalid qubit count");
     }
-    UINT qubit_count = state->qubit_count - (UINT)target.size();
+    UINT qubit_count = state->qubit_count - (UINT)target_traceout.size();
     DensityMatrixCpu* qs = new DensityMatrixCpu(qubit_count);
-    dm_state_partial_trace_from_state_vector(target.data(),
-        (UINT)(target.size()), state->data_c(), qs->data_c(), state->dim);
+    dm_state_partial_trace_from_state_vector(target_traceout.data(),
+        (UINT)(target_traceout.size()), state->data_c(), qs->data_c(),
+        state->dim);
     return qs;
 }
 DensityMatrixCpu* partial_trace(
-    const DensityMatrixCpu* state, std::vector<UINT> target) {
-    if (state->qubit_count <= target.size()) {
+    const DensityMatrixCpu* state, std::vector<UINT> target_traceout) {
+    if (state->qubit_count <= target_traceout.size()) {
         throw InvalidQubitCountException(
             "Error: drop_qubit(const QuantumState*, "
             "std::vector<UINT>): invalid qubit count");
     }
-    UINT qubit_count = state->qubit_count - (UINT)target.size();
+    UINT qubit_count = state->qubit_count - (UINT)target_traceout.size();
     DensityMatrixCpu* qs = new DensityMatrixCpu(qubit_count);
-    dm_state_partial_trace_from_density_matrix(target.data(),
-        (UINT)target.size(), state->data_c(), qs->data_c(), state->dim);
+    dm_state_partial_trace_from_density_matrix(target_traceout.data(),
+        (UINT)target_traceout.size(), state->data_c(), qs->data_c(),
+        state->dim);
     return qs;
 }
 DensityMatrixCpu* make_mixture(CPPCTYPE prob1, const QuantumStateBase* state1,

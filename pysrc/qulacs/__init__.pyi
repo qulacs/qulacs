@@ -12,6 +12,10 @@ __all__ = [
     "ClsOneControlOneTargetGate",
     "ClsOneQubitGate",
     "ClsOneQubitRotationGate",
+    "ClsPauliGate",
+    "ClsPauliRotationGate",
+    "ClsReversibleBooleanGate",
+    "ClsStateReflectionGate",
     "ClsTwoQubitGate",
     "DensityMatrix",
     "GeneralQuantumOperator",
@@ -50,27 +54,27 @@ class CausalConeSimulator():
         """
     def build(self) -> None: 
         """
-        build
+        Build
         """
     def get_circuit_list(self) -> typing.List[typing.List[ParametricQuantumCircuit]]: 
         """
-        return circuit_list
+        Return circuit_list
         """
     def get_coef_list(self) -> typing.List[complex]: 
         """
-        return coef_list
+        Return coef_list
         """
     def get_expectation_value(self) -> complex: 
         """
-        return expectation_value
+        Return expectation_value
         """
     def get_pauli_operator_list(self) -> typing.List[typing.List[PauliOperator]]: 
         """
-        return pauli_operator_list
+        Return pauli_operator_list
         """
     pass
 class QuantumGateBase():
-    def __repr__(self) -> str: ...
+    def __str__(self) -> str: ...
     def copy(self) -> QuantumGateBase: 
         """
         Create copied instance
@@ -125,7 +129,7 @@ class QuantumGateBase():
         """
     def to_string(self) -> str: 
         """
-        Get string representation
+        to string
         """
     def update_quantum_state(self, state: QuantumStateBase) -> None: 
         """
@@ -139,6 +143,14 @@ class ClsOneControlOneTargetGate(QuantumGateBase):
 class ClsOneQubitGate(QuantumGateBase):
     pass
 class ClsOneQubitRotationGate(QuantumGateBase):
+    pass
+class ClsPauliGate(QuantumGateBase):
+    pass
+class ClsPauliRotationGate(QuantumGateBase):
+    pass
+class ClsReversibleBooleanGate(QuantumGateBase):
+    pass
+class ClsStateReflectionGate(QuantumGateBase):
     pass
 class ClsTwoQubitGate(QuantumGateBase):
     pass
@@ -252,7 +264,7 @@ class NoiseSimulator():
         """
     def execute(self, arg0: int) -> typing.List[int]: 
         """
-        sampling & return result [array]
+        Sampling & Return result [array]
         """
     pass
 class Observable(GeneralQuantumOperator):
@@ -336,7 +348,10 @@ class QuantumCircuit():
         """
         Constructor
         """
-    def __repr__(self) -> str: ...
+    def __str__(self) -> str: 
+        """
+        to string
+        """
     def add_CNOT_gate(self, control: int, target: int) -> None: 
         """
         Add CNOT gate
@@ -554,13 +569,13 @@ class PauliOperator():
     def __mul__(self, arg0: PauliOperator) -> PauliOperator: ...
     @typing.overload
     def __mul__(self, arg0: complex) -> PauliOperator: ...
-    def add_single_Pauli(self, index: int, pauli_string: int) -> None: 
+    def add_single_Pauli(self, index: int, pauli_type: int) -> None: 
         """
         Add Pauli operator to this term
         """
-    def change_coef(self, arg0: complex) -> None: 
+    def change_coef(self, new_coef: complex) -> None: 
         """
-        change coefficient
+        Change coefficient
         """
     def copy(self) -> PauliOperator: 
         """
@@ -588,7 +603,7 @@ class PauliOperator():
         """
     def get_pauli_string(self) -> str: 
         """
-        get pauli string
+        Get pauli string
         """
     def get_transition_amplitude(self, state_bra: QuantumStateBase, state_ket: QuantumStateBase) -> complex: 
         """
@@ -600,7 +615,10 @@ class ParametricQuantumCircuit(QuantumCircuit):
         """
         Constructor
         """
-    def __repr__(self) -> str: ...
+    def __str__(self) -> str: 
+        """
+        to string
+        """
     @typing.overload
     def add_gate(self, gate: QuantumGateBase) -> None: 
         """
@@ -633,11 +651,11 @@ class ParametricQuantumCircuit(QuantumCircuit):
         """
     def backprop(self, obs: GeneralQuantumOperator) -> typing.List[float]: 
         """
-        do backprop
+        Do backprop
         """
     def backprop_inner_product(self, state: QuantumState) -> typing.List[float]: 
         """
-        do backprop with innder product
+        Do backprop with innder product
         """
     def copy(self) -> ParametricQuantumCircuit: 
         """
@@ -778,7 +796,10 @@ class QuantumState(QuantumStateBase):
         """
         Constructor
         """
-    def __repr__(self) -> str: ...
+    def __str__(self) -> str: 
+        """
+        to string
+        """
     def add_state(self, state: QuantumStateBase) -> None: 
         """
         Add state vector to this state
@@ -791,9 +812,9 @@ class QuantumState(QuantumStateBase):
         """
         Create copied instance
         """
-    def get_amplitude(self, index: int) -> complex: 
+    def get_amplitude(self, comp_basis: int) -> complex: 
         """
-        Get state vector
+        Get Amplitude of a specified computational basis
         """
     def get_classical_value(self, index: int) -> int: 
         """
@@ -807,7 +828,7 @@ class QuantumState(QuantumStateBase):
         """
         Get entropy
         """
-    def get_marginal_probability(self, measured_value: typing.List[int]) -> float: 
+    def get_marginal_probability(self, measured_values: typing.List[int]) -> float: 
         """
         Get merginal probability for measured values
         """
@@ -847,12 +868,12 @@ class QuantumState(QuantumStateBase):
         Normalize quantum state
         """
     @typing.overload
-    def sampling(self, count: int) -> typing.List[int]: 
+    def sampling(self, sampling_count: int) -> typing.List[int]: 
         """
         Sampling measurement results
         """
     @typing.overload
-    def sampling(self, count: int, seed: int) -> typing.List[int]: ...
+    def sampling(self, sampling_count: int, random_seed: int) -> typing.List[int]: ...
     @typing.overload
     def set_Haar_random_state(self) -> None: 
         """
@@ -864,7 +885,7 @@ class QuantumState(QuantumStateBase):
         """
         Set classical value
         """
-    def set_computational_basis(self, index: int) -> None: 
+    def set_computational_basis(self, comp_basis: int) -> None: 
         """
         Set state to computational basis
         """
@@ -874,7 +895,7 @@ class QuantumState(QuantumStateBase):
         """
     def to_string(self) -> str: 
         """
-        Get string representation
+        to string
         """
     pass
 class DensityMatrix(QuantumStateBase):
@@ -882,7 +903,10 @@ class DensityMatrix(QuantumStateBase):
         """
         Constructor
         """
-    def __repr__(self) -> str: ...
+    def __str__(self) -> str: 
+        """
+        to string
+        """
     def add_state(self, state: QuantumStateBase) -> None: 
         """
         Add state vector to this state
@@ -907,7 +931,7 @@ class DensityMatrix(QuantumStateBase):
         """
         Get entropy
         """
-    def get_marginal_probability(self, measured_value: typing.List[int]) -> float: 
+    def get_marginal_probability(self, measured_values: typing.List[int]) -> float: 
         """
         Get merginal probability for measured values
         """
@@ -945,12 +969,12 @@ class DensityMatrix(QuantumStateBase):
         Normalize quantum state
         """
     @typing.overload
-    def sampling(self, count: int) -> typing.List[int]: 
+    def sampling(self, sampling_count: int) -> typing.List[int]: 
         """
         Sampling measurement results
         """
     @typing.overload
-    def sampling(self, count: int, seed: int) -> typing.List[int]: ...
+    def sampling(self, sampling_count: int, random_seed: int) -> typing.List[int]: ...
     @typing.overload
     def set_Haar_random_state(self) -> None: 
         """
@@ -962,7 +986,7 @@ class DensityMatrix(QuantumStateBase):
         """
         Set classical value
         """
-    def set_computational_basis(self, index: int) -> None: 
+    def set_computational_basis(self, comp_basis: int) -> None: 
         """
         Set state to computational basis
         """
@@ -972,7 +996,7 @@ class DensityMatrix(QuantumStateBase):
         """
     def to_string(self) -> str: 
         """
-        Get string representation
+        to string
         """
     pass
 def StateVector(arg0: int) -> QuantumState:

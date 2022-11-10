@@ -176,19 +176,20 @@ ComplexMatrix get_IBMQ_matrix(double theta, double phi, double lambda) {
     matrix(1, 1) = exp_val1 * exp_val2 * cos_val;
     return matrix;
 }
-QuantumGateBase* U1(UINT qubit_index, double lambda) {
+QuantumGateMatrix* U1(UINT qubit_index, double lambda) {
     ComplexMatrix matrix = get_IBMQ_matrix(0, 0, lambda);
     std::vector<UINT> vec;
     vec.push_back(qubit_index);
     return new QuantumGateMatrix(vec, matrix);
 }
-QuantumGateBase* U2(UINT qubit_index, double phi, double lambda) {
+QuantumGateMatrix* U2(UINT qubit_index, double phi, double lambda) {
     ComplexMatrix matrix = get_IBMQ_matrix(M_PI / 2, phi, lambda);
     std::vector<UINT> vec;
     vec.push_back(qubit_index);
     return new QuantumGateMatrix(vec, matrix);
 }
-QuantumGateBase* U3(UINT qubit_index, double theta, double phi, double lambda) {
+QuantumGateMatrix* U3(
+    UINT qubit_index, double theta, double phi, double lambda) {
     ComplexMatrix matrix = get_IBMQ_matrix(theta, phi, lambda);
     std::vector<UINT> vec;
     vec.push_back(qubit_index);
@@ -234,7 +235,7 @@ ClsTwoQubitGate* SWAP(UINT qubit_index1, UINT qubit_index2) {
     return ptr;
 }
 
-QuantumGateBase* Pauli(std::vector<UINT> target, std::vector<UINT> pauli_id) {
+ClsPauliGate* Pauli(std::vector<UINT> target, std::vector<UINT> pauli_id) {
     if (!check_is_unique_index_list(target)) {
         throw DuplicatedQubitIndexException(
             "Error: gate::Pauli(std::vector<UINT> target, "
@@ -246,7 +247,7 @@ QuantumGateBase* Pauli(std::vector<UINT> target, std::vector<UINT> pauli_id) {
     auto pauli = new PauliOperator(target, pauli_id);
     return new ClsPauliGate(pauli);
 }
-QuantumGateBase* PauliRotation(
+ClsPauliRotationGate* PauliRotation(
     std::vector<UINT> target, std::vector<UINT> pauli_id, double angle) {
     if (!check_is_unique_index_list(target)) {
         throw DuplicatedQubitIndexException(
@@ -276,7 +277,7 @@ QuantumGateMatrix* DenseMatrix(
     return new QuantumGateMatrix(target_list, matrix);
 }
 
-QuantumGateBase* SparseMatrix(
+QuantumGateSparseMatrix* SparseMatrix(
     std::vector<UINT> target_list, SparseComplexMatrix matrix) {
     if (!check_is_unique_index_list(target_list)) {
         throw DuplicatedQubitIndexException(
@@ -288,7 +289,7 @@ QuantumGateBase* SparseMatrix(
     }
     return new QuantumGateSparseMatrix(target_list, matrix);
 }
-QuantumGateBase* DiagonalMatrix(
+QuantumGateDiagonalMatrix* DiagonalMatrix(
     std::vector<UINT> target_list, ComplexVector diagonal_element) {
     if (!check_is_unique_index_list(target_list)) {
         throw DuplicatedQubitIndexException(
@@ -360,7 +361,8 @@ QuantumGateMatrix* RandomUnitary(std::vector<UINT> target_list, UINT seed) {
     }
     return new QuantumGateMatrix(target_list, Q);
 }
-QuantumGateBase* ReversibleBoolean(std::vector<UINT> target_qubit_index_list,
+ClsReversibleBooleanGate* ReversibleBoolean(
+    std::vector<UINT> target_qubit_index_list,
     std::function<ITYPE(ITYPE, ITYPE)> function_ptr) {
     if (!check_is_unique_index_list(target_qubit_index_list)) {
         throw DuplicatedQubitIndexException(
@@ -372,11 +374,12 @@ QuantumGateBase* ReversibleBoolean(std::vector<UINT> target_qubit_index_list,
     }
     return new ClsReversibleBooleanGate(target_qubit_index_list, function_ptr);
 }
-QuantumGateBase* StateReflection(const QuantumStateBase* reflection_state) {
+ClsStateReflectionGate* StateReflection(
+    const QuantumStateBase* reflection_state) {
     return new ClsStateReflectionGate(reflection_state);
 }
 
-QuantumGateBase* BitFlipNoise(UINT target_index, double prob) {
+QuantumGate_Probabilistic* BitFlipNoise(UINT target_index, double prob) {
     auto gate0 = X(target_index);
     auto gate1 = Identity(target_index);
     auto new_gate =
@@ -385,7 +388,7 @@ QuantumGateBase* BitFlipNoise(UINT target_index, double prob) {
     delete gate1;
     return new_gate;
 }
-QuantumGateBase* DephasingNoise(UINT target_index, double prob) {
+QuantumGate_Probabilistic* DephasingNoise(UINT target_index, double prob) {
     auto gate0 = Z(target_index);
     auto gate1 = Identity(target_index);
     auto new_gate =
@@ -394,7 +397,7 @@ QuantumGateBase* DephasingNoise(UINT target_index, double prob) {
     delete gate1;
     return new_gate;
 }
-QuantumGateBase* IndependentXZNoise(UINT target_index, double prob) {
+QuantumGate_Probabilistic* IndependentXZNoise(UINT target_index, double prob) {
     auto gate0 = X(target_index);
     auto gate1 = Z(target_index);
     auto gate2 = Y(target_index);
@@ -406,9 +409,10 @@ QuantumGateBase* IndependentXZNoise(UINT target_index, double prob) {
     delete gate0;
     delete gate1;
     delete gate2;
+    delete gate3;
     return new_gate;
 }
-QuantumGateBase* DepolarizingNoise(UINT target_index, double prob) {
+QuantumGate_Probabilistic* DepolarizingNoise(UINT target_index, double prob) {
     auto gate0 = X(target_index);
     auto gate1 = Z(target_index);
     auto gate2 = Y(target_index);
@@ -421,7 +425,7 @@ QuantumGateBase* DepolarizingNoise(UINT target_index, double prob) {
     delete gate3;
     return new_gate;
 }
-QuantumGateBase* TwoQubitDepolarizingNoise(
+QuantumGate_Probabilistic* TwoQubitDepolarizingNoise(
     UINT target_index1, UINT target_index2, double prob) {
     if (target_index1 == target_index2) {
         throw DuplicatedQubitIndexException(
@@ -439,6 +443,7 @@ QuantumGateBase* TwoQubitDepolarizingNoise(
                 {target_index1, target_index2}, {pauli_qubit1, pauli_qubit2});
             auto gate_dense = gate::to_matrix_gate(gate_pauli);
             gate_list.push_back(gate_dense);
+            delete gate_pauli;
         } else {
             gate_list.push_back(Identity(target_index1));
         }
@@ -446,12 +451,12 @@ QuantumGateBase* TwoQubitDepolarizingNoise(
     std::vector<double> probabilities(16, prob / 15);
     probabilities[0] = 1 - prob;
     auto new_gate = new QuantumGate_Probabilistic(probabilities, gate_list);
-    for (UINT gate_index = 0; gate_index < 15; ++gate_index) {
+    for (UINT gate_index = 0; gate_index < 16; ++gate_index) {
         delete gate_list[gate_index];
     }
     return new_gate;
 }
-QuantumGateBase* AmplitudeDampingNoise(UINT target_index, double prob) {
+QuantumGate_CPTP* AmplitudeDampingNoise(UINT target_index, double prob) {
     ComplexMatrix damping_matrix_0(2, 2), damping_matrix_1(2, 2);
     damping_matrix_0 << 1, 0, 0, sqrt(1 - prob);
     damping_matrix_1 << 0, sqrt(prob), 0, 0;
@@ -462,7 +467,7 @@ QuantumGateBase* AmplitudeDampingNoise(UINT target_index, double prob) {
     delete gate1;
     return new_gate;
 }
-QuantumGateBase* Measurement(
+QuantumGate_Instrument* Measurement(
     UINT target_index, UINT classical_register_address) {
     auto gate0 = P0(target_index);
     auto gate1 = P1(target_index);
@@ -482,7 +487,7 @@ ClsNoisyEvolution_fast* NoisyEvolution_fast(Observable* hamiltonian,
     return new ClsNoisyEvolution_fast(hamiltonian, c_ops, time);
 }
 
-QuantumGateBase* NoisyEvolution_auto(Observable* hamiltonian,
+ClsNoisyEvolution_auto* NoisyEvolution_auto(Observable* hamiltonian,
     std::vector<GeneralQuantumOperator*> c_ops, double time) {
     return new ClsNoisyEvolution_auto(hamiltonian, c_ops, time);
 }
