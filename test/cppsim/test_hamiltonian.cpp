@@ -501,6 +501,7 @@ TEST(ObservableTest, GetDaggerTest) {
     auto dagger_observable = observable.get_dagger();
     std::string s = dagger_observable->to_string();
     ASSERT_TRUE(s == "(1,-0) X 0" || s == "(1,0) X 0");
+    delete dagger_observable;
 }
 
 TEST(ObservableTest, ObservableAndStateHaveDifferentQubitCountTest) {
@@ -590,6 +591,9 @@ TEST(gate_to_general_quantum_operatorTest, Random4bit) {
 
     double inpro = state::inner_product(&stateA, &stateB).real();
     ASSERT_NEAR(inpro, 1.0, 0.001);
+
+    delete random_gate;
+    delete GQO_ret;
 }
 
 TEST(gate_to_general_quantum_operatorTest, Random1bit) {
@@ -605,9 +609,16 @@ TEST(gate_to_general_quantum_operatorTest, Random1bit) {
     double inpro = state::inner_product(&stateA, &stateB).real();
 
     ASSERT_NEAR(inpro, 1.0, 0.001);
+    delete random_gate;
+    delete GQO_ret;
 }
+
 TEST(gate_to_general_quantum_operatorTest, XYgate) {
-    QuantumGateBase* random_gate = gate::merge(gate::X(0), gate::Y(1));
+    auto gate_X = gate::X(0);
+    auto gate_Y = gate::Y(1);
+    QuantumGateBase* random_gate = gate::merge(gate_X, gate_Y);
+    delete gate_X;
+    delete gate_Y;
 
     auto GQO_ret = to_general_quantum_operator(random_gate, 2);
     QuantumState stateA(2);
@@ -618,4 +629,7 @@ TEST(gate_to_general_quantum_operatorTest, XYgate) {
 
     double inpro = state::inner_product(&stateA, &stateB).real();
     ASSERT_NEAR(inpro, 1.0, 0.001);
+
+    delete random_gate;
+    delete GQO_ret;
 }
