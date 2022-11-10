@@ -128,6 +128,8 @@ TEST(DensityMatrixGateTest, ApplySingleQubitRotationGate) {
                     ASSERT_NEAR(abs(state.data_cpp()[i * dim + j] -
                                     dm_test.data_cpp()[i * dim + j]),
                         0, eps);
+
+            delete gate;
         }
     }
 }
