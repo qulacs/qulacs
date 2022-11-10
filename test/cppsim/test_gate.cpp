@@ -1248,7 +1248,7 @@ TEST(GateTest, CPTPGate) {
     CPTP->update_quantum_state(&s);
     s.set_Haar_random_state();
     CPTP->update_quantum_state(&s);
-    delete CPTP;
+    // delete CPTP;
 }
 
 TEST(GateTest, InstrumentGate) {
