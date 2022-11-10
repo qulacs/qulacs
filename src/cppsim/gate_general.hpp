@@ -22,6 +22,8 @@ protected:
     std::vector<double> _distribution;
     std::vector<double> _cumulative_distribution;
     std::vector<QuantumGateBase*> _gate_list;
+    bool is_instrument;
+    UINT _classical_register_address;
 
 public:
     /**
@@ -30,7 +32,7 @@ public:
      * @param distribution ゲートが現れる確率
      * @param gate_list ゲートのリスト
      */
-    QuantumGate_Probabilistic(const std::vector<double>& distribution,
+    explicit QuantumGate_Probabilistic(const std::vector<double>& distribution,
         const std::vector<QuantumGateBase*>& gate_list)
         : _distribution(distribution) {
         if (distribution.size() != gate_list.size()) {
@@ -58,7 +60,6 @@ public:
         std::transform(gate_list.cbegin(), gate_list.cend(),
             std::back_inserter(this->_gate_list),
             [](auto gate) { return gate->copy(); });
-        FLAG_NOISE = true;
         this->_name = "Probabilistic";
 
         bool fullsum = (sum > 1 - 1e-6);
@@ -86,7 +87,16 @@ public:
             [](const ControlQubitInfo& a, const ControlQubitInfo& b) {
                 return a.index() < b.index();
             });
+        is_instrument = false;
     };
+
+    explicit QuantumGate_Probabilistic(const std::vector<double>& distribution,
+        const std::vector<QuantumGateBase*>& gate_list,
+        UINT classical_register_address)
+        : QuantumGate_Probabilistic(distribution, gate_list) {
+        is_instrument = true;
+        _classical_register_address = classical_register_address;
+    }
 
     virtual ~QuantumGate_Probabilistic() {
         for (unsigned int i = 0; i < _gate_list.size(); ++i) {
@@ -110,6 +120,10 @@ public:
 
             if (gate_index < _gate_list.size()) {
                 _gate_list[gate_index]->update_quantum_state(state);
+            }
+            if (is_instrument) {
+                state->set_classical_value(
+                    this->_classical_register_address, (UINT)gate_index);
             }
         } else {
             auto org_state = state->copy();
@@ -139,7 +153,13 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGate_Probabilistic* copy() const override {
-        return new QuantumGate_Probabilistic(_distribution, _gate_list);
+        if (is_instrument) {
+            return new QuantumGate_Probabilistic(
+                _distribution, _gate_list, _classical_register_address);
+
+        } else {
+            return new QuantumGate_Probabilistic(_distribution, _gate_list);
+        }
     };
 
     /**
@@ -160,16 +180,12 @@ public:
 
     virtual void set_seed(int seed) override { random.set_seed(seed); };
 
-    virtual std::vector<double> get_cumulative_distribution() override {
+    virtual std::vector<double> get_cumulative_distribution() {
         return _cumulative_distribution;
     };
-    virtual std::vector<double> get_distribution() override {
-        return _distribution;
-    };
-    virtual std::vector<QuantumGateBase*> get_gate_list() override {
-        return _gate_list;
-    }
-    virtual void optimize_ProbablisticGate() override {
+    virtual std::vector<double> get_distribution() { return _distribution; };
+    virtual std::vector<QuantumGateBase*> get_gate_list() { return _gate_list; }
+    virtual void optimize_ProbablisticGate() {
         int n = (int)_gate_list.size();
         std::vector<std::pair<double, int>> itr;
         for (int i = 0; i < n; ++i) {
@@ -192,60 +208,8 @@ public:
         }
         return;
     }
-};
 
-/**
- * \~japanese-en 選択内容を保存する確率的な操作
- */
-class QuantumGate_ProbabilisticInstrument : public QuantumGate_Probabilistic {
-protected:
-    UINT _classical_register_address;
-
-public:
-    /**
-     * \~japanese-en コンストラクタ
-     *
-     * @param distribution ゲートが現れる確率
-     * @param gate_list ゲートのリスト
-     * @param classical_register 選択結果を保存するアドレス
-     */
-    QuantumGate_ProbabilisticInstrument(std::vector<double> distribution,
-        std::vector<QuantumGateBase*> gate_list,
-        UINT classical_register_address)
-        : QuantumGate_Probabilistic(distribution, gate_list),
-          _classical_register_address(classical_register_address) {
-        _distribution = distribution;
-        this->_name = "ProbabilisticInstrument";
-    };
-
-    /**
-     * \~japanese-en 量子状態を更新する
-     *
-     * @param state 更新する量子状態
-     */
-    virtual void update_quantum_state(QuantumStateBase* state) override {
-        double r = random.uniform();
-        auto ite = std::upper_bound(_cumulative_distribution.begin(),
-            _cumulative_distribution.end(), r);
-        assert(ite != _cumulative_distribution.begin());
-        size_t gate_index =
-            std::distance(_cumulative_distribution.begin(), ite) - 1;
-
-        if (gate_index < _gate_list.size()) {
-            _gate_list[gate_index]->update_quantum_state(state);
-        }
-        state->set_classical_value(
-            this->_classical_register_address, (UINT)gate_index);
-    };
-    /**
-     * \~japanese-en 自身のディープコピーを生成する
-     *
-     * @return 自身のディープコピー
-     */
-    virtual QuantumGate_ProbabilisticInstrument* copy() const override {
-        return new QuantumGate_ProbabilisticInstrument(
-            _distribution, _gate_list, _classical_register_address);
-    };
+    virtual bool is_noise() { return true; }
 };
 
 /**
@@ -255,6 +219,8 @@ class QuantumGate_CPTP : public QuantumGateBase {
 protected:
     Random random;
     std::vector<QuantumGateBase*> _gate_list;
+    bool is_instrument;
+    UINT _classical_register_address;
 
 public:
     explicit QuantumGate_CPTP(std::vector<QuantumGateBase*> gate_list) {
@@ -281,7 +247,16 @@ public:
             [](const ControlQubitInfo& a, const ControlQubitInfo& b) {
                 return a.index() < b.index();
             });
+        is_instrument = false;
     };
+
+    explicit QuantumGate_CPTP(std::vector<QuantumGateBase*> gate_list,
+        UINT classical_register_address)
+        : QuantumGate_CPTP(gate_list) {
+        is_instrument = true;
+        _classical_register_address = classical_register_address;
+    }
+
     virtual ~QuantumGate_CPTP() {
         for (unsigned int i = 0; i < _gate_list.size(); ++i) {
             delete _gate_list[i];
@@ -301,6 +276,7 @@ public:
             double org_norm = state->get_squared_norm();
 
             auto buffer = state->copy();
+            UINT index = 0;
             for (auto gate : _gate_list) {
                 gate->update_quantum_state(buffer);
                 auto norm = buffer->get_squared_norm() / org_norm;
@@ -311,6 +287,7 @@ public:
                     break;
                 } else {
                     buffer->load(state);
+                    index++;
                 }
             }
             if (!(r < sum)) {
@@ -319,6 +296,10 @@ public:
                           << std::endl;
             }
             delete buffer;
+            if (is_instrument) {
+                state->set_classical_value(
+                    this->_classical_register_address, index);
+            }
         } else {
             auto org_state = state->copy();
             auto temp_state = state->copy();
@@ -346,7 +327,12 @@ public:
      * @return 自身のディープコピー
      */
     virtual QuantumGate_CPTP* copy() const override {
-        return new QuantumGate_CPTP(_gate_list);
+        if (is_instrument) {
+            return new QuantumGate_CPTP(
+                _gate_list, _classical_register_address);
+        } else {
+            return new QuantumGate_CPTP(_gate_list);
+        }
     };
     /**
      * \~japanese-en 自身のゲート行列をセットする
@@ -373,7 +359,7 @@ protected:
     const bool _assign_zero_if_not_matched;
 
 public:
-    QuantumGate_CP(std::vector<QuantumGateBase*> gate_list,
+    explicit QuantumGate_CP(std::vector<QuantumGateBase*> gate_list,
         bool state_normalize, bool probability_normalize,
         bool assign_zero_if_not_matched)
         : _state_normalize(state_normalize),
@@ -493,110 +479,9 @@ public:
      * @param matrix 行列をセットする変数の参照
      */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
-        std::cerr << "* Warning : Gate-matrix of CPTP-map cannot be obtained. "
+        std::cerr << "* Warning : Gate-matrix of CP-map cannot be obtained. "
                      "Identity matrix is returned."
                   << std::endl;
-        matrix = Eigen::MatrixXcd::Ones(1, 1);
-    }
-};
-
-/**
- * \~japanese-en Instrument
- */
-class QuantumGate_Instrument : public QuantumGateBase {
-protected:
-    Random random;
-    std::vector<QuantumGateBase*> _gate_list;
-    UINT _classical_register_address;
-
-public:
-    QuantumGate_Instrument(std::vector<QuantumGateBase*> gate_list,
-        UINT classical_register_address)
-        : _classical_register_address(classical_register_address) {
-        std::transform(gate_list.cbegin(), gate_list.cend(),
-            std::back_inserter(_gate_list),
-            [](auto gate) { return gate->copy(); });
-        this->_name = "Instrument";
-
-        for (UINT i = 0; i < _gate_list.size(); i++) {
-            std::vector<TargetQubitInfo> new_target_list;
-            std::vector<ControlQubitInfo> new_control_list;
-            gate::get_new_qubit_list(
-                this, _gate_list[i], new_target_list, new_control_list);
-            this->_target_qubit_list = move(new_target_list);
-            this->_control_qubit_list = move(new_control_list);
-        }
-        std::sort(this->_target_qubit_list.begin(),
-            this->_target_qubit_list.end(),
-            [](const TargetQubitInfo& a, const TargetQubitInfo& b) {
-                return a.index() < b.index();
-            });
-        std::sort(this->_control_qubit_list.begin(),
-            this->_control_qubit_list.end(),
-            [](const ControlQubitInfo& a, const ControlQubitInfo& b) {
-                return a.index() < b.index();
-            });
-    };
-    virtual ~QuantumGate_Instrument() {
-        for (unsigned int i = 0; i < _gate_list.size(); ++i) {
-            delete _gate_list[i];
-        }
-    }
-
-    /**
-     * \~japanese-en 量子状態を更新する
-     *
-     * @param state 更新する量子状態
-     */
-    virtual void update_quantum_state(QuantumStateBase* state) override {
-        double r = random.uniform();
-
-        double sum = 0.;
-        double org_norm = state->get_squared_norm();
-
-        auto buffer = state->copy();
-        UINT index = 0;
-        for (auto gate : _gate_list) {
-            gate->update_quantum_state(buffer);
-            auto norm = buffer->get_squared_norm() / org_norm;
-            sum += norm;
-            if (r < sum) {
-                state->load(buffer);
-                state->normalize(norm);
-                break;
-            } else {
-                buffer->load(state);
-                index++;
-            }
-        }
-        if (!(r < sum)) {
-            std::cerr << "* Warning : Instrument-map was not trace preserving. "
-                         "Identity-map is applied."
-                      << std::endl;
-        }
-        delete buffer;
-
-        state->set_classical_value(_classical_register_address, index);
-    };
-    /**
-     * \~japanese-en 自身のディープコピーを生成する
-     *
-     * @return 自身のディープコピー
-     */
-    virtual QuantumGate_Instrument* copy() const override {
-        return new QuantumGate_Instrument(
-            _gate_list, _classical_register_address);
-    };
-    /**
-     * \~japanese-en 自身のゲート行列をセットする
-     *
-     * @param matrix 行列をセットする変数の参照
-     */
-    virtual void set_matrix(ComplexMatrix& matrix) const override {
-        std::cerr
-            << "* Warning : Gate-matrix of Instrument cannot be obtained. "
-               "Identity matrix is returned."
-            << std::endl;
         matrix = Eigen::MatrixXcd::Ones(1, 1);
     }
 };
@@ -612,7 +497,7 @@ protected:
     const int _id;
 
 public:
-    QuantumGate_Adaptive(QuantumGateBase* gate,
+    explicit QuantumGate_Adaptive(QuantumGateBase* gate,
         std::function<bool(const std::vector<UINT>&)> func_without_id)
         : _gate(gate->copy()), _func_without_id(func_without_id), _id(-1) {
         this->_name = "Adaptive";
@@ -634,7 +519,7 @@ public:
                 return a.index() < b.index();
             });
     };
-    QuantumGate_Adaptive(QuantumGateBase* gate,
+    explicit QuantumGate_Adaptive(QuantumGateBase* gate,
         std::function<bool(const std::vector<UINT>&, UINT)> func_with_id,
         UINT id)
         : _gate(gate->copy()),
@@ -703,3 +588,10 @@ public:
         matrix = Eigen::MatrixXcd::Ones(1, 1);
     }
 };
+
+/**
+ * This type alias is kept for backward compatibility.
+ * Do not edit this!
+ */
+using QuantumGate_ProbabilisticInstrument = QuantumGate_Probabilistic;
+using QuantumGate_Instrument = QuantumGate_CPTP;

@@ -29,7 +29,8 @@ NoiseSimulator::NoiseSimulator(
     for (UINT i = 0; i < circuit->gate_list.size(); ++i) {
         auto gate = circuit->gate_list[i];
         if (!gate->is_noise()) continue;
-        gate->optimize_ProbablisticGate();
+        dynamic_cast<QuantumGate_Probabilistic*>(gate)
+            ->optimize_ProbablisticGate();
     }
 }
 
@@ -105,7 +106,8 @@ std::vector<ITYPE> NoiseSimulator::execute_sampling(
             if (!gate->is_noise()) {
                 gate->update_quantum_state(&common_state);
             } else {
-                gate->get_gate_list()[current_gate_pos[done_itr]]
+                dynamic_cast<QuantumGate_Probabilistic*>(gate)
+                    ->get_gate_list()[current_gate_pos[done_itr]]
                     ->update_quantum_state(&common_state);
             }
             done_itr++;
@@ -133,7 +135,8 @@ UINT NoiseSimulator::randomly_select_which_gate_pos_to_apply(
     if (!gate->is_noise()) return 0;
 
     std::vector<double> current_cumulative_distribution =
-        gate->get_cumulative_distribution();
+        dynamic_cast<QuantumGate_Probabilistic*>(gate)
+            ->get_cumulative_distribution();
     double tmp = random.uniform();
     auto gate_iterator =
         std::lower_bound(begin(current_cumulative_distribution),
@@ -155,8 +158,9 @@ void NoiseSimulator::apply_gates(const std::vector<UINT>& chosen_gate,
         if (!gate->is_noise()) {
             gate->update_quantum_state(sampling_state);
         } else {
-            gate->get_gate_list()[chosen_gate[q]]->update_quantum_state(
-                sampling_state);
+            dynamic_cast<QuantumGate_Probabilistic*>(gate)
+                ->get_gate_list()[chosen_gate[q]]
+                ->update_quantum_state(sampling_state);
         }
     }
 }

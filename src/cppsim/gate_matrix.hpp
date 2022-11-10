@@ -2,7 +2,6 @@
 
 #include "gate.hpp"
 #include "type.hpp"
-
 /**
  * \~japanese-en 行列要素で自身が作用する内容を保持するクラス
  */

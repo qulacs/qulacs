@@ -144,7 +144,7 @@ def Instrument(kraus_list: typing.List[qulacs_core.QuantumGateBase], register: i
     """
     Create instruments
     """
-def Measurement(index: int, register: int) -> qulacs_core.QuantumGate_Instrument:
+def Measurement(index: int, register: int) -> qulacs_core.QuantumGate_CPTP:
     """
     Create measurement gate
     """
