@@ -53,9 +53,17 @@ public:
     bool build_run = false;
     CausalConeSimulator(const ParametricQuantumCircuit& _init_circuit,
         const Observable& _init_observable) {
-        init_observable = new Observable(_init_circuit.qubit_count);
-        *init_observable = _init_observable;
+        init_observable = _init_observable.copy();
         init_circuit = _init_circuit.copy();
+    }
+    ~CausalConeSimulator() {
+        delete init_circuit;
+        delete init_observable;
+        for (auto& circuit1 : circuit_list) {
+            for (auto& circuit2 : circuit1) {
+                delete circuit2;
+            }
+        }
     }
 
     void build() {
