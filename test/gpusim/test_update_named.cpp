@@ -183,10 +183,9 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
         initialize_Haar_random_state_host(state, dim, stream_ptr, idx);
         Eigen::VectorXcd test_state =
             copy_cpu_from_gpu(state, dim, stream_ptr, idx);
-        typedef std::tuple<
+        using testset = std::tuple<
             std::function<void(UINT, double, void*, ITYPE, void*, UINT)>,
-            Eigen::MatrixXcd, std::string>
-            testset;
+            Eigen::MatrixXcd, std::string>;
         std::vector<testset> test_list;
         void (*func)(UINT, double, void*, ITYPE, void*, UINT) = &RX_gate_host;
         test_list.push_back(std::make_tuple(func, X, "Xrot"));

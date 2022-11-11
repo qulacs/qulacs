@@ -12,10 +12,10 @@
 #include <stddef.h>
 
 //! unsigned integer
-typedef unsigned int UINT;
+using UINT = unsigned int;
 
 //! complex value
-typedef std::complex<double> CTYPE;
+using CTYPE = std::complex<double>;
 using namespace std::complex_literals;
 inline static double _cabs(CTYPE val) { return std::abs(val); }
 inline static double _creal(CTYPE val) { return std::real(val); }
@@ -24,9 +24,9 @@ inline static double _cimag(CTYPE val) { return std::imag(val); }
 //! dimension index
 #ifdef _MSC_VER
 // In MSVC, OpenMP only supports signed index
-typedef signed long long ITYPE;
+using ITYPE = signed long long;
 #else
-typedef unsigned long long ITYPE;
+using ITYPE = unsigned long long;
 #endif
 
 //! check AVX2 support

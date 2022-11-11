@@ -31,11 +31,11 @@ public:
 class QuantumGate_SingleParameterOneQubitRotation
     : public QuantumGate_SingleParameter {
 protected:
-    typedef void(T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
-    typedef void(T_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE, void*, UINT);
-    T_UPDATE_FUNC* _update_func = NULL;
-    T_UPDATE_FUNC* _update_func_dm = NULL;
-    T_GPU_UPDATE_FUNC* _update_func_gpu = NULL;
+    using UpdateFunc = void (*)(UINT, double, CTYPE*, ITYPE);
+    using UpdateFuncGpu = void (*)(UINT, double, void*, ITYPE, void*, UINT);
+    UpdateFunc _update_func = nullptr;
+    UpdateFunc _update_func_dm = nullptr;
+    UpdateFuncGpu _update_func_gpu = nullptr;
 
     QuantumGate_SingleParameterOneQubitRotation(double angle)
         : QuantumGate_SingleParameter(angle) {}

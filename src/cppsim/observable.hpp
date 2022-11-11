@@ -148,7 +148,7 @@ create_split_observable(std::string file_path);
 
 }  // namespace observable
 
-typedef HermitianQuantumOperator Observable;
+using Observable = HermitianQuantumOperator;
 
 /**
  * \~japanese-en
