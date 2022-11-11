@@ -59,6 +59,7 @@ message(STATUS "USE_SIMD = ${USE_SIMD}")
 message(STATUS "USE_OMP = ${USE_OMP}")
 message(STATUS "USE_GPU = ${USE_GPU}")
 message(STATUS "USE_TEST = ${USE_TEST}")
+message(STATUS "COVERAGE = ${COVERAGE}")
 message(STATUS "USE_PYTHON = ${USE_PYTHON}")
 message(STATUS "OPT_FLAGS = ${OPT_FLAGS}")
 
