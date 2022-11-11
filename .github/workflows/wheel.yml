@@ -23,12 +23,29 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
     strategy:
       matrix:
-        python-version: ["3.7.5"]
-        os: ["ubuntu-20.04", "windows-2019", "macos-11"]
+        python-version: ["3.10.8"]
+        cibw-python: ["cp37", "cp38", "cp39", "cp310"]
+        os-arch: ["manylinux_x86_64", "win_amd64", "macosx_x86_64", "macosx_arm64"]
+        exclude:
+          # cibuildwheel does not support Python 3.7 on macOS arm64.
+          - cibw-python: "cp37"
+            os-arch: "macosx_arm64"
+        # Documentation for `include`: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategymatrixinclude
+        # `include` is processed after `exclude`.
+        include:
+          - os-arch: "manylinux_x86_64"
+            os: "ubuntu-20.04"
+          - os-arch: "win_amd64"
+            os: "windows-2019"
+          - os-arch: "macosx_x86_64"
+            os: "macos-11"
+          - os-arch: "macosx_arm64"
+            os: "macos-11"
     runs-on: ${{ matrix.os }}
     env:
-      CXX_COMPILER: "g++-8"
-      C_COMPILER: "gcc-8"
+      CXX_COMPILER: "g++-10"
+      C_COMPILER: "gcc-10"
+      CIBW_BUILD: ${{ matrix.cibw-python }}-${{ matrix.os-arch }}
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       TWINE_USERNAME: "__token__"
@@ -49,7 +66,7 @@ jobs:
 
       - name: Install boost if windows
         if: ${{ contains(matrix.os, 'windows') }}
-        uses: MarkusJx/install-boost@v2.0.0
+        uses: MarkusJx/install-boost@v2.4.0
         id: install-boost
         with:
           boost_version: 1.77.0
@@ -75,12 +92,12 @@ jobs:
     if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
     strategy:
       matrix:
-        python-version: ["3.7.5"]
+        python-version: ["3.10.8"]
         os: ["ubuntu-20.04"]
     runs-on: ${{ matrix.os }}
     env:
-      CXX_COMPILER: "g++-8"
-      C_COMPILER: "gcc-8"
+      CXX_COMPILER: "g++-10"
+      C_COMPILER: "gcc-10"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       TWINE_USERNAME: "__token__"
