@@ -26,7 +26,6 @@ jobs:
       C_COMPILER: "/usr/lib/ccache/gcc"
       QULACS_OPT_FLAGS: "-mtune=haswell -march=haswell -mfpmath=both"
       PYTHON: ${{ matrix.python-version }}
-      COVERAGE: "ON"
       CACHE_NAME: ccache-qulacs-build-v2
     steps:
       - uses: actions/checkout@v3
@@ -59,7 +58,7 @@ jobs:
           sudo make install
 
       - name: Install qulacs for Ubuntu
-        run: USE_TEST=Yes ./script/build_gcc.sh
+        run: USE_TEST=Yes COVERAGE=Yes ./script/build_gcc.sh
 
       - name: Install qulacs Python module
         run: pip install .[ci]
