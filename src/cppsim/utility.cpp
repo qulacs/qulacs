@@ -5,7 +5,6 @@
 #include "utility.hpp"
 
 #include <cctype>
-#include <iostream>
 
 #include "exception.hpp"
 
