@@ -321,6 +321,14 @@ ITYPE uint_from_json(const std::string& json) {
     }
     return res;
 }
+bool bool_from_json(const std::string& json) {
+    std::string trimmed = trim(json);
+    if (trimmed == "true") return true;
+    if (trimmed == "false") return false;
+    throw InvalidJSONFormatException(
+        "boolean is expected, but given component is neither \'true\' not "
+        "\'false\'");
+}
 double real_from_json(const std::string& json) {
     std::string trimmed = trim(json);
     UINT point = trimmed.find('.');

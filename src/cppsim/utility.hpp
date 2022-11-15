@@ -233,6 +233,7 @@ std::string to_json(const std::vector<UINT>& x);
 std::string to_json(const std::vector<CPPCTYPE>& x);
 
 ITYPE uint_from_json(const std::string& json);
+bool bool_from_json(const std::string& json);
 double real_from_json(const std::string& json);
 std::string string_from_json(const std::string& json);
 std::vector<std::string> array_from_json(const std::string& json);
