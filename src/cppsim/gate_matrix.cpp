@@ -296,6 +296,6 @@ std::ostream& operator<<(std::ostream& os, QuantumGateMatrix* gate) {
     return os;
 }
 
-QuantumGateMatrix* QuantumGateMatrix::get_inverse(void) {
+QuantumGateMatrix* QuantumGateMatrix::get_inverse(void) const {
     return gate::get_adjoint_gate(this);
 }

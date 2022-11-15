@@ -1,7 +1,7 @@
 #pragma once
 #include "gate_factory.hpp"
 
-ClsOneQubitGate* ClsOneQubitGate::get_inverse(void) {
+ClsOneQubitGate* ClsOneQubitGate::get_inverse(void) const {
     if (this->_name == "I") {
         return gate::Identity(this->target_qubit_list[0].index());
     }
@@ -49,7 +49,7 @@ ClsOneQubitGate* ClsOneQubitGate::get_inverse(void) {
 
     // return this->QuantumGateBase::get_inverse();
 }
-ClsOneQubitRotationGate* ClsOneQubitRotationGate::get_inverse(void) {
+ClsOneQubitRotationGate* ClsOneQubitRotationGate::get_inverse(void) const {
     if (this->_name == "X-rotation") {
         return gate::RX(this->target_qubit_list[0].index(), -this->_angle);
     }

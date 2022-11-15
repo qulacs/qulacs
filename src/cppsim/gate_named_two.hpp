@@ -80,7 +80,7 @@ public:
         this->_matrix_element = ComplexMatrix::Zero(4, 4);
         this->_matrix_element << 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1;
     }
-    virtual ClsTwoQubitGate* get_inverse(void) {
+    virtual ClsTwoQubitGate* get_inverse(void) const override {
         if (this->_name == "SWAP") {
             return this->copy();
         }
@@ -181,7 +181,7 @@ public:
         this->_matrix_element = ComplexMatrix::Zero(2, 2);
         this->_matrix_element << 1, 0, 0, -1;
     }
-    virtual ClsOneControlOneTargetGate* get_inverse(void) {
+    virtual ClsOneControlOneTargetGate* get_inverse(void) const override {
         if (this->_name == "CZ" || this->_name == "CNOT") {
             return this->copy();
         }
