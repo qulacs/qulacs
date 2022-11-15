@@ -366,6 +366,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Sampling measurement results", py::arg("sampling_count"))
         .def("sampling", py::overload_cast<UINT, UINT>(&QuantumState::sampling),
             py::arg("sampling_count"), py::arg("random_seed"))
+        .def("to_json", &QuantumState::to_json, "Save to json")
         .def(
             "get_vector",
             [](const QuantumState& state) -> Eigen::VectorXcd {
@@ -616,6 +617,9 @@ PYBIND11_MODULE(qulacs_core, m) {
         py::return_value_policy::take_ownership, "Create a mixed state",
         py::arg("prob1"), py::arg("state1"), py::arg("prob2"),
         py::arg("state2"));
+    mstate.def("from_json", &state::from_json,
+        py::return_value_policy::take_ownership, "Load from json",
+        py::arg("json"));
 
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
         .def("update_quantum_state", &QuantumGateBase::update_quantum_state,
