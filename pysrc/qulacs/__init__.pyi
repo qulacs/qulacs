@@ -893,6 +893,10 @@ class QuantumState(QuantumStateBase):
         """
         Set state to |0>
         """
+    def to_json(self) -> str: 
+        """
+        Save to json
+        """
     def to_string(self) -> str: 
         """
         to string
