@@ -51,4 +51,54 @@ QuantumState* drop_qubit(const QuantumState* state, std::vector<UINT> target,
     return qs;
 }
 
+QuantumStateBase* from_json(const std::string& json) {
+    std::map<std::string, std::string> attributes =
+        json::object_from_json(json);
+    auto name_it = attributes.find("name");
+    if (name_it == attributes.end()) {
+        throw InvalidJSONFormatException(
+            "QuantumStateBase is expected, but an attribute named \'name\' is "
+            "not found");
+    }
+    std::string name = json::string_from_json(name_it->second);
+    if (name == "QuantumState") {
+        auto qubit_count_it = attributes.find("qubit_count");
+        if (qubit_count_it == attributes.end()) {
+            throw InvalidJSONFormatException(
+                "QuantumStateBase is expected, but an attribute named "
+                "\'qubit_count\' is "
+                "not found");
+        }
+        auto classical_register_it = attributes.find("classical_register");
+        if (classical_register_it == attributes.end()) {
+            throw InvalidJSONFormatException(
+                "QuantumStateBase is expected, but an attribute named "
+                "\'classical_register\' is "
+                "not found");
+        }
+        auto state_vector_it = attributes.find("state_vector");
+        if (state_vector_it == attributes.end()) {
+            throw InvalidJSONFormatException(
+                "QuantumStateBase is expected, but an attribute named "
+                "\'state_vector\' is "
+                "not found");
+        }
+
+        UINT qubit_count = json::uint_from_json(qubit_count_it->second);
+        std::vector<ITYPE> classical_register_itype =
+            json::uint_array_from_json(classical_register_it->second);
+        std::vector<CPPCTYPE> state_vector =
+            json::complex_array_from_json(state_vector_it->second);
+
+        QuantumState* res = new QuantumState(qubit_count);
+        for (UINT i = 0; i < classical_register_itype.size(); i++) {
+            res->set_classical_value(i, classical_register_itype[i]);
+        }
+        res->load(state_vector);
+        return res;
+    } else {
+        throw InvalidJSONFormatException(
+            "name=\"" + name + "\" for QuantumStateBase is unknown");
+    }
+}
 }  // namespace state

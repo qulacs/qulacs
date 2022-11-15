@@ -192,6 +192,21 @@ public:
 
 /**
  * \~japanese-en
+ * JSONが文法的に間違っていたり、期待通りの名前と型の要素がないという例外
+ */
+class InvalidJSONFormatException : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    InvalidJSONFormatException(const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
+ * \~japanese-en
  * GeneralQuantumOperator中のPauliOperatorのインデックスが範囲外という例外
  */
 class OperatorIndexOutOfRangeException : public std::out_of_range {

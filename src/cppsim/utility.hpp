@@ -9,6 +9,7 @@
 #include <cctype>
 #include <chrono>
 #include <cstdio>
+#include <iomanip>
 #include <random>
 #include <string>
 #include <tuple>
@@ -212,3 +213,31 @@ bool check_is_unique_index_list(const std::vector<UINT>& index_list);
  * @return 末尾の空白文字を削除された文字列
  */
 std::string& rtrim(std::string& str);
+
+namespace json {
+std::string trim(const std::string& str);
+std::vector<std::string> split_by_comma(const std::string& str);
+std::string escape_string(const std::string& str);
+std::string unescape_string(const std::string& str);
+
+std::string to_json(UINT x);
+std::string to_json(ITYPE x);
+std::string to_json(bool x);
+std::string to_json(double x);
+std::string to_json(std::string x);
+std::string to_json(const char* x);
+std::string to_json(const std::vector<std::string>& x);
+std::string to_json(const std::map<std::string, std::string>& attributes);
+std::string to_json(CPPCTYPE x);
+std::string to_json(const std::vector<UINT>& x);
+std::string to_json(const std::vector<CPPCTYPE>& x);
+
+ITYPE uint_from_json(const std::string& json);
+double real_from_json(const std::string& json);
+std::string string_from_json(const std::string& json);
+std::vector<std::string> array_from_json(const std::string& json);
+std::map<std::string, std::string> object_from_json(const std::string& json);
+CPPCTYPE complex_from_json(const std::string& json);
+std::vector<ITYPE> uint_array_from_json(const std::string& json);
+std::vector<CPPCTYPE> complex_array_from_json(const std::string& json);
+}  // namespace json

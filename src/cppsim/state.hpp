@@ -679,6 +679,26 @@ public:
         random.set_seed(random_seed);
         return this->sampling(sampling_count);
     }
+    /**
+     * \~japanese-en JSON文字列に変換する
+     */
+    virtual std::string to_json() {
+        std::vector<std::string> classical_register_json_strings;
+        std::transform(_classical_register.begin(), _classical_register.end(),
+            std::back_inserter(classical_register_json_strings),
+            [](UINT x) { return json::to_json(x); });
+        std::vector<std::string> state_vector_json_strings;
+        std::transform(_state_vector, _state_vector + _dim,
+            std::back_inserter(state_vector_json_strings),
+            [](CPPCTYPE x) { return json::to_json(x); });
+        std::map<std::string, std::string> attributes;
+        attributes["name"] = json::to_json("QuantumState");
+        attributes["qubit_count"] = json::to_json(_qubit_count);
+        attributes["classical_register"] =
+            json::to_json(classical_register_json_strings);
+        attributes["state_vector"] = json::to_json(state_vector_json_strings);
+        return json::to_json(attributes);
+    }
 };
 
 typedef QuantumStateCpu
@@ -700,4 +720,5 @@ DllExport QuantumState* permutate_qubit(
     const QuantumState* state, std::vector<UINT> qubit_order);
 DllExport QuantumState* drop_qubit(const QuantumState* state,
     std::vector<UINT> target, std::vector<UINT> projection);
+DllExport QuantumStateBase* from_json(const std::string& json);
 }  // namespace state
