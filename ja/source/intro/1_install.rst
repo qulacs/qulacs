@@ -22,7 +22,7 @@ If you have NVIDIA GPU and CUDA is installed, GPU-version can be installed with 
 
 
 Install Python library from source
--------------------------------
+----------------------------------
 
 To install Qulacs optimized for your system, we recommend the following install procedure for faster simulation of quantum circuits, while this requires a compiler and takes time for installation. In addition, you can enable or disable optimization features such as SIMD optimization, OpenMP parallelization, and GPU support.
 

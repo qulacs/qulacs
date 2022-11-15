@@ -413,7 +413,7 @@ Qulacsをqulacs-gpuパッケージからインストールした場合、``Quant
 #. CPU/GPUの状態間の ``inner_product`` は計算できません。GPUとCPUの状態ベクトルの間で状態ベクトルの ``load`` を行うことは可能ですが、時間がかかるので避けるべきです。
 
 DensityMatrixクラス
-----------
+-------------------
 
 密度行列として量子状態を保持するクラスです。
 ``StateVector`` は純粋状態のみを保持できますが、``DensityMatrix`` を用いると複数の状態が確率的に合わさった混合状態を表すことができます。
@@ -2036,7 +2036,7 @@ multi_qubit_pauli_rotation)はパラメトリックな量子ゲートとして�
    # of parameter: 151
 
 変分回路の勾配を求める
-~~~~~~~~~~~~~~~~~~~~
+~~~~~~~~~~~~~~~~~~~~~~
 
 ``GradCalculator`` または ``ParametricQuantumCircuit.backprop()`` を使うと、変分回路の勾配を求めることができます。
 
