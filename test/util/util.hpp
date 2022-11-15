@@ -1,9 +1,14 @@
 #pragma once
 
+#include <gtest/gtest.h>
+
 #include <Eigen/Core>
 #include <array>
+#include <cmath>
 #include <csim/type.hpp>
 #include <string>
+
+#include "cppsim/state.hpp"
 
 #ifdef __GNUC__
 #if __GNUC__ >= 8
@@ -185,6 +190,48 @@ static void state_equal(const CTYPE* state, const Eigen::VectorXcd& test_state,
             << "CSIM : " << convert_CTYPE_array_to_string(state, dim)
             << std::endl;
     }
+}
+
+#define ASSERT_STATE_NEAR(state, other, eps) \
+    ASSERT_PRED_FORMAT3(_assert_state_near, state, other, eps)
+
+#define EXPECT_STATE_NEAR(state, other, eps) \
+    EXPECT_PRED_FORMAT3(_assert_state_near, state, other, eps)
+
+static testing::AssertionResult _assert_state_near(const char* state1_name,
+    const char* state2_name, const char* eps_name, const QuantumState& state1,
+    const QuantumState& state2, const double eps) {
+    for (UINT i = 0; i < state1.dim; i++) {
+        const double real_diff = std::fabs(
+            state1.data_cpp()[i].real() - state2.data_cpp()[i].real());
+        if (real_diff > eps) {
+            return testing::AssertionFailure()
+                   << "The difference between " << i << "-th real part of "
+                   << state1_name << " and " << state2_name << " is "
+                   << real_diff << ", which exceeds " << eps << ", where\n"
+                   << state1_name << " evaluates to "
+                   << state1.data_cpp()[i].real() << ",\n"
+                   << state2_name << " evaluates to "
+                   << state2.data_cpp()[i].real() << ", and\n"
+                   << eps_name << " evaluates to " << eps << ".";
+        }
+
+        const double imag_diff = std::fabs(
+            state1.data_cpp()[i].real() - state2.data_cpp()[i].real());
+        if (imag_diff > eps) {
+            return testing::AssertionFailure()
+                   << "The difference between " << i << "-th imaginary part of "
+                   << state1_name << " and " << state2_name << " is "
+                   << imag_diff << ", which exceeds " << eps << ", where\n"
+                   << state1_name << " evaluates to "
+                   << state1.data_cpp()[i].imag() << ",\n"
+                   << state2_name << " evaluates to "
+                   << state2.data_cpp()[i].imag() << ", and\n"
+                   << eps_name << " evaluates to " << eps << ".";
+        }
+    }
+
+    return testing::AssertionSuccess();
 }
 
 #define _CHECK_NEAR(val1, val2, eps) \

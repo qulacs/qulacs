@@ -38,41 +38,12 @@ TEST(CircuitTest, CircuitOptimizeLight) {
         qco.optimize_light(copy_circuit);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
-
-    /*
-{
-    // tensor product, merged
-    QuantumState state(n), test_state(n);
-    state.set_Haar_random_state();
-    test_state.load(&state);
-    QuantumCircuit circuit(n);
-
-    circuit.add_X_gate(0);
-    circuit.add_Y_gate(1);
-    UINT block_size = 2;
-    UINT expected_depth = 1;
-    UINT expected_gate_count = 1;
-
-    QuantumCircuit* copy_circuit = circuit.copy();
-    QuantumCircuitOptimizer qco;
-    qco.optimize_light(copy_circuit);
-    circuit.update_quantum_state(&test_state);
-    copy_circuit->update_quantum_state(&state);
-    //std::cout << circuit << std::endl << copy_circuit << std::endl;
-    for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] -
-test_state.data_cpp()[i]), 0, eps); ASSERT_EQ(copy_circuit->calculate_depth(),
-expected_depth); ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-    delete copy_circuit;
-}
-    */
 
     {
         // do not take tensor product
@@ -92,205 +63,12 @@ expected_depth); ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         qco.optimize_light(copy_circuit);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
-
-    /*
-{
-    // CNOT, control does not commute with X
-    QuantumState state(n), test_state(n);
-    state.set_Haar_random_state();
-    test_state.load(&state);
-    QuantumCircuit circuit(n);
-
-    circuit.add_X_gate(0);
-    circuit.add_CNOT_gate(0, 1);
-    circuit.add_Y_gate(0);
-    UINT block_size = 1;
-    UINT expected_depth = 3;
-    UINT expected_gate_count = 3;
-
-    QuantumCircuit* copy_circuit = circuit.copy();
-    QuantumCircuitOptimizer qco;
-    qco.optimize_light(copy_circuit);
-    circuit.update_quantum_state(&test_state);
-    copy_circuit->update_quantum_state(&state);
-    //std::cout << circuit << std::endl << copy_circuit << std::endl;
-    for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] -
-test_state.data_cpp()[i]), 0, eps); ASSERT_EQ(copy_circuit->calculate_depth(),
-expected_depth); ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-    delete copy_circuit;
-}
-    */
-
-    /*
-{
-    // CNOT, control does not commute with Z
-    QuantumState state(n), test_state(n);
-    state.set_Haar_random_state();
-    test_state.load(&state);
-    QuantumCircuit circuit(n);
-
-    circuit.add_X_gate(0);
-    circuit.add_CNOT_gate(0, 1);
-    circuit.add_Z_gate(0);
-    UINT block_size = 1;
-    UINT expected_depth = 2;
-    UINT expected_gate_count = 2;
-
-    QuantumCircuit* copy_circuit = circuit.copy();
-    QuantumCircuitOptimizer qco;
-    qco.optimize_light(copy_circuit);
-    circuit.update_quantum_state(&test_state);
-    copy_circuit->update_quantum_state(&state);
-    //std::cout << circuit << std::endl << copy_circuit << std::endl;
-    for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] -
-test_state.data_cpp()[i]), 0, eps); ASSERT_EQ(copy_circuit->calculate_depth(),
-expected_depth); ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-    delete copy_circuit;
-}
-    */
-
-    /*
-{
-    // CNOT, control commute with Z
-    QuantumState state(n), test_state(n);
-    state.set_Haar_random_state();
-    test_state.load(&state);
-    QuantumCircuit circuit(n);
-
-    circuit.add_Z_gate(0);
-    circuit.add_CNOT_gate(0, 1);
-    circuit.add_Z_gate(0);
-    UINT block_size = 1;
-    UINT expected_depth = 2;
-    UINT expected_gate_count = 2;
-
-    QuantumCircuit* copy_circuit = circuit.copy();
-    QuantumCircuitOptimizer qco;
-    qco.optimize_light(copy_circuit);
-    circuit.update_quantum_state(&test_state);
-    copy_circuit->update_quantum_state(&state);
-    //std::cout << circuit << std::endl << copy_circuit << std::endl;
-    for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] -
-test_state.data_cpp()[i]), 0, eps); ASSERT_EQ(copy_circuit->calculate_depth(),
-expected_depth); ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-    delete copy_circuit;
-}
-    */
-
-    /*
-{
-    // CNOT, target commute with X
-    QuantumState state(n), test_state(n);
-    state.set_Haar_random_state();
-    test_state.load(&state);
-    QuantumCircuit circuit(n);
-
-    circuit.add_X_gate(1);
-    circuit.add_CNOT_gate(0, 1);
-    circuit.add_X_gate(1);
-    UINT block_size = 1;
-    UINT expected_depth = 2;
-    UINT expected_gate_count = 2;
-
-    QuantumCircuit* copy_circuit = circuit.copy();
-    QuantumCircuitOptimizer qco;
-    qco.optimize_light(copy_circuit);
-    circuit.update_quantum_state(&test_state);
-    copy_circuit->update_quantum_state(&state);
-    //std::cout << circuit << std::endl << copy_circuit << std::endl;
-    for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] -
-test_state.data_cpp()[i]), 0, eps); ASSERT_EQ(copy_circuit->calculate_depth(),
-expected_depth); ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-    delete copy_circuit;
-}
-
-{
-    // CNOT, target commute with X
-    QuantumState state(n), test_state(n);
-    state.set_Haar_random_state();
-    test_state.load(&state);
-    QuantumCircuit circuit(n);
-
-    circuit.add_Z_gate(1);
-    circuit.add_CNOT_gate(0, 1);
-    circuit.add_X_gate(1);
-    UINT block_size = 1;
-    UINT expected_depth = 2;
-    UINT expected_gate_count = 2;
-
-    QuantumCircuit* copy_circuit = circuit.copy();
-    QuantumCircuitOptimizer qco;
-    qco.optimize_light(copy_circuit);
-    circuit.update_quantum_state(&test_state);
-    copy_circuit->update_quantum_state(&state);
-    //std::cout << circuit << std::endl << copy_circuit << std::endl;
-    for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] -
-test_state.data_cpp()[i]), 0, eps); ASSERT_EQ(copy_circuit->calculate_depth(),
-expected_depth); ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-    delete copy_circuit;
-}
-
-{
-    // CNOT, target commute with X
-    QuantumState state(n), test_state(n);
-    state.set_Haar_random_state();
-    test_state.load(&state);
-    QuantumCircuit circuit(n);
-
-    circuit.add_X_gate(1);
-    circuit.add_CNOT_gate(0, 1);
-    circuit.add_Z_gate(1);
-    UINT block_size = 1;
-    UINT expected_depth = 2;
-    UINT expected_gate_count = 2;
-
-    QuantumCircuit* copy_circuit = circuit.copy();
-    QuantumCircuitOptimizer qco;
-    qco.optimize_light(copy_circuit);
-    circuit.update_quantum_state(&test_state);
-    copy_circuit->update_quantum_state(&state);
-    //std::cout << circuit << std::endl << copy_circuit << std::endl;
-    //std::cout << state << std::endl << test_state << std::endl;
-    for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] -
-test_state.data_cpp()[i]), 0, eps); ASSERT_EQ(copy_circuit->calculate_depth(),
-expected_depth); ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-    delete copy_circuit;
-}
-
-{
-    // CNOT, target commute with X
-    QuantumState state(n), test_state(n);
-    state.set_Haar_random_state();
-    test_state.load(&state);
-    QuantumCircuit circuit(n);
-
-    circuit.add_Z_gate(1);
-    circuit.add_CNOT_gate(0, 1);
-    circuit.add_Z_gate(1);
-    UINT block_size = 1;
-    UINT expected_depth = 3;
-    UINT expected_gate_count = 3;
-
-    QuantumCircuit* copy_circuit = circuit.copy();
-    QuantumCircuitOptimizer qco;
-    qco.optimize_light(copy_circuit);
-    circuit.update_quantum_state(&test_state);
-    copy_circuit->update_quantum_state(&state);
-    //std::cout << circuit << std::endl << copy_circuit << std::endl;
-    for (UINT i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] -
-test_state.data_cpp()[i]), 0, eps); ASSERT_EQ(copy_circuit->calculate_depth(),
-expected_depth); ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
-    delete copy_circuit;
-}
-    */
 
     {
         // CNOT, target commute with X
@@ -311,10 +89,8 @@ expected_depth); ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         qco.optimize_light(copy_circuit);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -327,8 +103,8 @@ expected_depth); ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
     };
 
     std::vector<TestParameter> parameter_list = {
-        /*TestParameter{2u, 3u, 3u}*/  // TODO: this test was commented out, but
-                                       // we might have to re-enable it.
+        /*TestParameter{2u, 3u, 3u}*/  // TODO: this test was commented out,
+                                       // but we might have to re-enable it.
         TestParameter{3u, 2u, 2u}};
 
     for (TestParameter param : parameter_list) {
@@ -360,10 +136,8 @@ expected_depth); ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         qco.optimize_light(copy_circuit);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -404,16 +178,13 @@ TEST(CircuitTest, RandomCircuitOptimizeLight) {
 
         test_state.load(&org_state);
         circuit.update_quantum_state(&test_state);
-        // std::cout << circuit << std::endl;
         QuantumCircuitOptimizer qco;
         QuantumCircuit* copy_circuit = circuit.copy();
         qco.optimize_light(copy_circuit);
         state.load(&org_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         delete copy_circuit;
     }
 }
@@ -460,31 +231,12 @@ TEST(CircuitTest, RandomCircuitOptimizeLight2) {
 
         test_state.load(&org_state);
         circuit.update_quantum_state(&test_state);
-        // std::cout << circuit << std::endl;
         QuantumCircuitOptimizer qco;
         QuantumCircuit* copy_circuit = circuit.copy();
-        // for (auto gate : copy_circuit->gate_list) {
-        // std::cout << "(";
-        // for (auto val : gate->get_target_index_list()) std::cout << val
-        //<< " ";  for (auto val : gate->get_control_index_list())
-        // std::cout << val << " "; std::cout << ")  ";
-        //}
-        // std::cout << std::endl;
         qco.optimize_light(copy_circuit);
-        // for (auto gate : copy_circuit->gate_list) {
-        // std::cout << "(";
-        // for (auto val : gate->get_target_index_list()) std::cout << val
-        //<< " "; for (auto val : gate->get_control_index_list())
-        // std::cout << val << " "; std::cout << ")  ";
-        //}
         state.load(&org_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << copy_circuit << std::endl;
-        // for (UINT i = 0; i < dim; ++i) std::cout << state.data_cpp()[i] << "
-        // " << test_state.data_cpp()[i] << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+        ASSERT_STATE_NEAR(state, test_state, eps);
         delete copy_circuit;
     }
 }
@@ -517,16 +269,13 @@ TEST(CircuitTest, RandomCircuitOptimizeLight3) {
 
         test_state.load(&org_state);
         circuit.update_quantum_state(&test_state);
-        // std::cout << circuit << std::endl;
         QuantumCircuitOptimizer qco;
         QuantumCircuit* copy_circuit = circuit.copy();
         qco.optimize_light(copy_circuit);
         state.load(&org_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         delete copy_circuit;
     }
 }

@@ -299,10 +299,8 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -326,10 +324,8 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -353,10 +349,8 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -381,10 +375,8 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -409,10 +401,8 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -437,10 +427,7 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -465,10 +452,7 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -493,10 +477,7 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -521,11 +502,7 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        // std::cout << state << std::endl << test_state << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -550,10 +527,7 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -578,10 +552,7 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -616,10 +587,7 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -654,10 +622,7 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -705,10 +670,7 @@ TEST(CircuitTest, RandomCircuitOptimize) {
             qco.optimize(copy_circuit, block_size);
             state.load(&org_state);
             copy_circuit->update_quantum_state(&state);
-            // std::cout << copy_circuit << std::endl;
-            for (UINT i = 0; i < dim; ++i)
-                ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]),
-                    0, eps);
+            ASSERT_STATE_NEAR(state, test_state, eps);
             delete copy_circuit;
         }
     }
@@ -763,10 +725,7 @@ TEST(CircuitTest, RandomCircuitOptimize2) {
             qco.optimize(copy_circuit, block_size);
             state.load(&org_state);
             copy_circuit->update_quantum_state(&state);
-            // std::cout << copy_circuit << std::endl;
-            for (UINT i = 0; i < dim; ++i)
-                ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]),
-                    0, eps);
+            ASSERT_STATE_NEAR(state, test_state, eps);
             delete copy_circuit;
         }
     }
@@ -807,10 +766,7 @@ TEST(CircuitTest, RandomCircuitOptimize3) {
             qco.optimize(copy_circuit, block_size);
             state.load(&org_state);
             copy_circuit->update_quantum_state(&state);
-            // std::cout << copy_circuit << std::endl;
-            for (UINT i = 0; i < dim; ++i)
-                ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]),
-                    0, eps);
+            ASSERT_STATE_NEAR(state, test_state, eps);
             delete copy_circuit;
         }
     }
@@ -942,18 +898,12 @@ TEST(CircuitTest, RotateDiagonalObservable) {
     state.set_computational_basis(0);
     test_state(0) = 1.;
 
-    // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] -
-    // state.data_cpp()[i]), 0, eps);
-
     circuit.update_quantum_state(&state);
     test_state = test_circuit * test_state;
 
     res = observable.get_expectation_value(&state);
     test_res = (test_state.adjoint() * test_observable * test_state);
 
-    // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] -
-    // state.data_cpp()[i]), 0, eps);
-    ASSERT_NEAR(abs(test_res.real() - res.real()) / test_res.real(), 0, 0.01);
     ASSERT_NEAR(res.imag(), 0, eps);
     ASSERT_NEAR(test_res.imag(), 0, eps);
 
@@ -969,8 +919,6 @@ TEST(CircuitTest, RotateDiagonalObservable) {
     res = observable.get_expectation_value(&state);
     test_res = (test_state.adjoint() * test_observable * test_state);
 
-    // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] -
-    // state.data_cpp()[i]), 0, eps);
     ASSERT_NEAR(abs(test_res.real() - res.real()) / test_res.real(), 0, 0.01);
     ASSERT_NEAR(res.imag(), 0, eps);
     ASSERT_NEAR(test_res.imag(), 0, eps);
