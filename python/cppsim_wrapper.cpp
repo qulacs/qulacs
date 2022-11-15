@@ -16,6 +16,8 @@
 #include <cppsim/state_dm.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_matrix.hpp>
+#include <cppsim/gate_matrix_diagonal.hpp>
+#include <cppsim/gate_matrix_sparse.hpp>
 #include <cppsim/gate_merge.hpp>
 #include <cppsim/circuit.hpp>
 #include <cppsim/circuit_optimizer.hpp>
@@ -23,6 +25,7 @@
 #include <vqcsim/causalcone_simulator.hpp>
 #include <cppsim/noisesimulator.hpp>
 #include <cppsim/utility.hpp>
+#include <cppsim/gate_to_gqo.hpp>
 
 #ifdef _USE_GPU
 #include <cppsim/state_gpu.hpp>
@@ -40,7 +43,6 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<PauliOperator>(m, "PauliOperator")
         .def(py::init<std::complex<double>>(), "Constructor", py::arg("coef"))
         .def(py::init<std::string, std::complex<double>>(), py::arg("pauli_string"), py::arg("coef"))
-        .def(py::init<boost::dynamic_bitset<>, boost::dynamic_bitset<>, std::complex<double>>(), py::arg("x_bits"), py::arg("z_bits"), py::arg("coef"))
         //.def(py::init<std::vector<unsigned int>&, std::string, std::complex<double>>())
         //.def(py::init<std::vector<unsigned int>&, std::vector<unsigned int>&, std::complex<double>>())
         //.def(py::init<std::vector<unsigned int>&, std::complex<double>>())
@@ -54,8 +56,6 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("copy", &PauliOperator::copy, pybind11::return_value_policy::take_ownership, "Create copied instance of Pauli operator class")
         .def("get_pauli_string", &PauliOperator::get_pauli_string, "get pauli string")
         .def("change_coef", &PauliOperator::change_coef, "change coefficient")
-        .def("get_x_bits", &PauliOperator::get_x_bits, "get x bits")
-        .def("get_z_bits", &PauliOperator::get_z_bits, "get z bits")
         .def(py::self * py::self)
         .def("__mul__", [](const PauliOperator &a, std::complex<double> &b) { return a * b; }, py::is_operator())
         .def(py::self *= py::self)
@@ -66,6 +66,9 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
         // .def(py::init<std::string>())
         .def("add_operator", (void (GeneralQuantumOperator::*)(const PauliOperator*)) &GeneralQuantumOperator::add_operator, "Add Pauli operator", py::arg("pauli_operator"))
+        .def("add_operator_move", (void (GeneralQuantumOperator::*)(const PauliOperator*)) &GeneralQuantumOperator::add_operator_move, "Add Pauli operator", py::arg("pauli_operator"))
+        .def("add_operator_copy", (void (GeneralQuantumOperator::*)(const PauliOperator*)) &GeneralQuantumOperator::add_operator_copy, "Add Pauli operator", py::arg("pauli_operator"))
+        
         .def("add_operator", (void (GeneralQuantumOperator::*)(std::complex<double> coef, std::string))&GeneralQuantumOperator::add_operator, py::arg("coef"), py::arg("pauli_string"))
         .def("is_hermitian", &GeneralQuantumOperator::is_hermitian, "Get is Herimitian")
         .def("get_qubit_count", &GeneralQuantumOperator::get_qubit_count, "Get qubit count")
@@ -73,6 +76,13 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("get_term_count", &GeneralQuantumOperator::get_term_count, "Get count of Pauli terms")
         .def("apply_to_state", py::overload_cast<QuantumStateBase*, const QuantumStateBase&, QuantumStateBase*>(&GeneralQuantumOperator::apply_to_state, py::const_), "Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.",
             py::arg("work_state"), py::arg("state_to_be_multiplied"), py::arg("dst_state"))
+        .def("apply_to_state", [](const GeneralQuantumOperator& self, const QuantumStateBase& state, QuantumStateBase* dst_state) {
+            QuantumStateBase* work_state;
+            if(state.is_state_vector()) work_state = new QuantumState(state.qubit_count);
+            else work_state = new DensityMatrix(state.qubit_count);
+            self.apply_to_state(work_state, state, dst_state);
+            delete work_state;
+        }, py::arg("state_to_be_multiplied"), py::arg("dst_state"))
         //.def("get_term", &GeneralQuantumOperator::get_term, pybind11::return_value_policy::take_ownership)
         .def("get_term",[](const GeneralQuantumOperator& quantum_operator, const unsigned int index) {
             return quantum_operator.get_term(index)->copy();
@@ -107,6 +117,9 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
         // .def(py::init<std::string>())
         .def("add_operator", (void (HermitianQuantumOperator::*)(const PauliOperator*)) &HermitianQuantumOperator::add_operator, "Add Pauli operator", py::arg("pauli_operator"))
+        .def("add_operator_move", (void (HermitianQuantumOperator::*)(const PauliOperator*)) &HermitianQuantumOperator::add_operator_move, "Add Pauli operator", py::arg("pauli_operator"))
+        .def("add_operator_copy", (void (HermitianQuantumOperator::*)(const PauliOperator*)) &HermitianQuantumOperator::add_operator_copy, "Add Pauli operator", py::arg("pauli_operator"))
+        
         .def("add_operator", (void (HermitianQuantumOperator::*)(std::complex<double> coef, std::string))&HermitianQuantumOperator::add_operator, py::arg("coef"), py::arg("string"))
         .def("get_qubit_count", &HermitianQuantumOperator::get_qubit_count, "Get qubit count")
         .def("get_state_dim", &HermitianQuantumOperator::get_state_dim, "Get state dimension")
@@ -223,6 +236,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             }
             return mat;
         }, "Get density matrix")
+        .def("get_qubit_count", [](const DensityMatrix& state) -> unsigned int {return (unsigned int) state.qubit_count; }, "Get qubit count")
         .def("__repr__", [](const DensityMatrix &p) {return p.to_string(); });
         ;
 
@@ -322,6 +336,13 @@ PYBIND11_MODULE(qulacs_core, m) {
             &state::partial_trace),
         pybind11::return_value_policy::take_ownership,
         py::arg("state"), py::arg("target_traceout"));
+    
+    mstate.def("make_superposition", &state::make_superposition,
+        py::return_value_policy::take_ownership, "Create superposition of states",
+        py::arg("coef1"), py::arg("state1"), py::arg("coef2"), py::arg("state2"));
+    mstate.def("make_mixture", &state::make_mixture,
+        py::return_value_policy::take_ownership, "Create a mixed state",
+        py::arg("prob1"), py::arg("state1"), py::arg("prob2"), py::arg("state2"));
 
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
         .def("update_quantum_state", &QuantumGateBase::update_quantum_state, "Update quantum state", py::arg("state"))
@@ -355,7 +376,21 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("add_control_qubit", &QuantumGateMatrix::add_control_qubit, "Add control qubit", py::arg("index"), py::arg("control_value"))
         .def("multiply_scalar", &QuantumGateMatrix::multiply_scalar, "Multiply scalar value to gate matrix", py::arg("value"))
         ;
-
+    
+    py::class_<ClsOneQubitGate, QuantumGateBase>(m, "ClsOneQubitGate");
+    py::class_<ClsOneQubitRotationGate, QuantumGateBase>(m, "ClsOneQubitRotationGate");
+    py::class_<ClsOneControlOneTargetGate, QuantumGateBase>(m, "ClsOneControlOneTargetGate");
+    py::class_<ClsTwoQubitGate, QuantumGateBase>(m, "ClsTwoQubitGate");
+    py::class_<ClsNoisyEvolution, QuantumGateBase>(m, "ClsNoisyEvolution");
+    py::class_<ClsNoisyEvolution_fast, QuantumGateBase>(m, "ClsNoisyEvolution_fast");
+    py::class_<QuantumGate_Probabilistic, QuantumGateBase>(m, "QuantumGate_Probabilistic");
+    py::class_<QuantumGate_ProbabilisticInstrument, QuantumGate_Probabilistic>(m, "QuantumGate_ProbabilisticInstrument");
+    py::class_<QuantumGate_CPTP, QuantumGateBase>(m, "QuantumGate_CPTP");
+    py::class_<QuantumGate_CP, QuantumGateBase>(m, "QuantumGate_CP");
+    py::class_<QuantumGate_Instrument, QuantumGateBase>(m, "QuantumGate_Instrument");
+    py::class_<QuantumGate_Adaptive, QuantumGateBase>(m, "QuantumGate_Adaptive");
+    py::class_<QuantumGateDiagonalMatrix, QuantumGateBase>(m, "QuantumGateDiagonalMatrix");
+    py::class_<QuantumGateSparseMatrix, QuantumGateBase>(m, "QuantumGateSparseMatrix");
 
     auto mgate = m.def_submodule("gate");
     mgate.def("Identity", &gate::Identity, pybind11::return_value_policy::take_ownership, "Create identity gate", py::arg("index"));
@@ -381,6 +416,12 @@ PYBIND11_MODULE(qulacs_core, m) {
     mgate.def("RX", &gate::RX, pybind11::return_value_policy::take_ownership, "Create Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
     mgate.def("RY", &gate::RY, pybind11::return_value_policy::take_ownership, "Create Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
     mgate.def("RZ", &gate::RZ, pybind11::return_value_policy::take_ownership, "Create Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RotInvX", &gate::RotInvX, pybind11::return_value_policy::take_ownership, "Create Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RotInvY", &gate::RotInvY, pybind11::return_value_policy::take_ownership, "Create Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RotInvZ", &gate::RotInvZ, pybind11::return_value_policy::take_ownership, "Create Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RotX", &gate::RotX, pybind11::return_value_policy::take_ownership, "Create Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RotY", &gate::RotY, pybind11::return_value_policy::take_ownership, "Create Pauli-Y rotation gate", py::arg("index"), py::arg("angle"));
+    mgate.def("RotZ", &gate::RotZ, pybind11::return_value_policy::take_ownership, "Create Pauli-Z rotation gate", py::arg("index"), py::arg("angle"));
 
     mgate.def("CNOT", [](UINT control_qubit_index, UINT target_qubit_index) {
         auto ptr = gate::CNOT(control_qubit_index, target_qubit_index);
@@ -529,6 +570,8 @@ PYBIND11_MODULE(qulacs_core, m) {
         return ptr;
     }, pybind11::return_value_policy::take_ownership, "Create parametric multi-qubit Pauli rotation gate", py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"));
 
+    m.def("to_general_quantum_operator",&to_general_quantum_operator,py::arg("gate"),py::arg("qubits"),py::arg("tol"));
+    
     py::class_<QuantumCircuit>(m, "QuantumCircuit")
         .def(py::init<unsigned int>(), "Constructor", py::arg("qubit_count"))
         .def("copy", &QuantumCircuit::copy, pybind11::return_value_policy::take_ownership, "Create copied instance")
@@ -578,6 +621,13 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("add_RX_gate", &QuantumCircuit::add_RX_gate, "Add Pauli-X rotation gate", py::arg("index"), py::arg("angle"))
         .def("add_RY_gate", &QuantumCircuit::add_RY_gate, "Add Pauli-Y rotation gate", py::arg("index"), py::arg("angle"))
         .def("add_RZ_gate", &QuantumCircuit::add_RZ_gate, "Add Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
+        .def("add_RotInvX_gate", &QuantumCircuit::add_RotInvX_gate, "Add Pauli-X rotation gate", py::arg("index"), py::arg("angle"))
+        .def("add_RotInvY_gate", &QuantumCircuit::add_RotInvY_gate, "Add Pauli-Y rotation gate", py::arg("index"), py::arg("angle"))
+        .def("add_RotInvZ_gate", &QuantumCircuit::add_RotInvZ_gate, "Add Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
+        .def("add_RotX_gate", &QuantumCircuit::add_RotX_gate, "Add Pauli-X rotation gate", py::arg("index"), py::arg("angle"))
+        .def("add_RotY_gate", &QuantumCircuit::add_RotY_gate, "Add Pauli-Y rotation gate", py::arg("index"), py::arg("angle"))
+        .def("add_RotZ_gate", &QuantumCircuit::add_RotZ_gate, "Add Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
+        
         .def("add_U1_gate", &QuantumCircuit::add_U1_gate, "Add QASM U1 gate", py::arg("index"), py::arg("lambda"))
         .def("add_U2_gate", &QuantumCircuit::add_U2_gate, "Add QASM U2 gate", py::arg("index"), py::arg("phi"), py::arg("lambda"))
         .def("add_U3_gate", &QuantumCircuit::add_U3_gate, "Add QASM U3 gate", py::arg("index"), py::arg("theta"), py::arg("phi"), py::arg("lambda"))
@@ -608,6 +658,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("set_parameter", &ParametricQuantumCircuit::set_parameter, "Set parameter", py::arg("index"), py::arg("parameter"))
         .def("get_parametric_gate_position", &ParametricQuantumCircuit::get_parametric_gate_position, "Get parametric gate position", py::arg("index"))
         .def("remove_gate", &ParametricQuantumCircuit::remove_gate, "Remove gate", py::arg("position"))
+        .def("merge_circuit", &ParametricQuantumCircuit::merge_circuit, "Merge another ParametricQuantumCircuit", py::arg("circuit"))
 
         .def("add_parametric_RX_gate", &ParametricQuantumCircuit::add_parametric_RX_gate, "Add parametric Pauli-X rotation gate", py::arg("index"), py::arg("angle"))
         .def("add_parametric_RY_gate", &ParametricQuantumCircuit::add_parametric_RY_gate, "Add parametric Pauli-Y rotation gate", py::arg("index"), py::arg("angle"))
@@ -623,7 +674,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<GradCalculator>(m, "GradCalculator")
         .def(py::init<>())
         .def("calculate_grad",py::overload_cast<ParametricQuantumCircuit&, Observable&>(&GradCalculator::calculate_grad),"Calculate Grad", py::arg("parametric_circuit"),py::arg("observable"))
-        .def("calculate_grad",py::overload_cast<ParametricQuantumCircuit&, Observable&,std::vector<double>>(&GradCalculator::calculate_grad), py::arg("parametric_circuit"),py::arg("observable"),py::arg("angles of gates"));
+        .def("calculate_grad",py::overload_cast<ParametricQuantumCircuit&, Observable&,std::vector<double>>(&GradCalculator::calculate_grad), py::arg("parametric_circuit"),py::arg("observable"),py::arg("angles_of_gates"));
        
     auto mcircuit = m.def_submodule("circuit");
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")

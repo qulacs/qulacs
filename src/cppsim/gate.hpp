@@ -73,7 +73,6 @@
 #define FLAG_PARAMETRIC 0x08
 
 class QuantumGateMatrix;
-class QuantumGateSparseMatrix;
 class QuantumStateBase;
 
 /**

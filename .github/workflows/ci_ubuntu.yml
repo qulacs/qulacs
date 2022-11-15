@@ -29,13 +29,13 @@ jobs:
       COVERAGE: "ON"
       CACHE_NAME: ccache-qulacs-build-v2
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -44,7 +44,7 @@ jobs:
         run: sudo apt install ccache
 
       - name: Setup cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.ccache
           key: ${{ runner.os }}-${{ env.CACHE_NAME }}
@@ -58,14 +58,11 @@ jobs:
           cd lcov
           sudo make install
 
-      - name: Install Python dependencies
-        run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion mypy pybind11-stubgen
-
       - name: Install qulacs for Ubuntu
         run: USE_TEST=Yes ./script/build_gcc.sh
 
       - name: Install qulacs Python module
-        run: python setup.py install
+        run: pip install .[ci]
       
       - name: Check stubs
         run: |
@@ -103,13 +100,13 @@ jobs:
       COVERAGE: "ON"
       CACHE_NAME: ccache-qulacs-gpu-build-v2
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "3.7.5"
           architecture: x64
@@ -118,13 +115,10 @@ jobs:
         run: sudo apt install ccache
 
       - name: Setup cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: ~/.ccache
           key: ${{ runner.os }}-${{ env.CACHE_NAME }}
-
-      - name: Install Python dependencies
-        run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion
 
       - name: Install boost
         run: sudo apt install libboost-dev
@@ -137,7 +131,7 @@ jobs:
         run: ./script/build_gcc_with_gpu.sh
 
       - name: Install qulacs Python module
-        run: USE_GPU=Yes python setup.py install
+        run: USE_GPU=Yes pip install .[test]
 
       # Testing is removed because GPU is not available for GitHub-Hosted Runner.
 

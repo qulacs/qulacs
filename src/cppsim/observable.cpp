@@ -25,6 +25,24 @@ void HermitianQuantumOperator::add_operator(const PauliOperator* mpt) {
     GeneralQuantumOperator::add_operator(mpt);
 }
 
+void HermitianQuantumOperator::add_operator_move(PauliOperator* mpt) {
+    if (std::abs(mpt->get_coef().imag()) > 0) {
+        throw NonHermitianException(
+            "Error: HermitianQuantumOperator::add_operator(const "
+            "PauliOperator* mpt): PauliOperator must be Hermitian.");
+    }
+    GeneralQuantumOperator::add_operator_move(mpt);
+}
+
+void HermitianQuantumOperator::add_operator_copy(const PauliOperator* mpt) {
+    if (std::abs(mpt->get_coef().imag()) > 0) {
+        throw NonHermitianException(
+            "Error: HermitianQuantumOperator::add_operator(const "
+            "PauliOperator* mpt): PauliOperator must be Hermitian.");
+    }
+    GeneralQuantumOperator::add_operator_copy(mpt);
+}
+
 void HermitianQuantumOperator::add_operator(
     CPPCTYPE coef, std::string pauli_string) {
     if (std::abs(coef.imag()) > 0) {

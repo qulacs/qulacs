@@ -71,7 +71,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumGateBase* copy() const override {
+    virtual ClsStateReflectionGate* copy() const override {
         return new ClsStateReflectionGate(this->reflection_state);
     };
     /**

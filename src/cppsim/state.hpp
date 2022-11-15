@@ -248,7 +248,7 @@ public:
      * \~japanese-en 指定した添え字の古典レジスタの値を取得する。
      *
      * @param index セットするレジスタの添え字
-     * @return 複素ベクトルのポインタ
+     * @return 古典レジスタの値
      */
     virtual UINT get_classical_value(UINT index) {
         if (_classical_register.size() <= index) {
@@ -262,7 +262,6 @@ public:
      *
      * @param index セットするレジスタの添え字
      * @param val セットする値
-     * @return 複素ベクトルのポインタ
      */
     virtual void set_classical_value(UINT index, UINT val) {
         if (_classical_register.size() <= index) {
@@ -498,7 +497,7 @@ public:
      *
      * @return 生成された量子状態
      */
-    virtual QuantumStateBase* allocate_buffer() const override {
+    virtual QuantumStateCpu* allocate_buffer() const override {
         QuantumStateCpu* new_state = new QuantumStateCpu(this->_qubit_count);
         return new_state;
     }
@@ -507,12 +506,14 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual QuantumStateBase* copy() const override {
+    virtual QuantumStateCpu* copy() const override {
         QuantumStateCpu* new_state = new QuantumStateCpu(this->_qubit_count);
         memcpy(new_state->data_cpp(), _state_vector,
             (size_t)(sizeof(CPPCTYPE) * _dim));
-        for (UINT i = 0; i < _classical_register.size(); ++i)
+        for (UINT i = 0; i < _classical_register.size(); ++i) {
             new_state->set_classical_value(i, _classical_register[i]);
+        }
+
         return new_state;
     }
     /**
@@ -720,5 +721,8 @@ DllExport QuantumState* permutate_qubit(
     const QuantumState* state, std::vector<UINT> qubit_order);
 DllExport QuantumState* drop_qubit(const QuantumState* state,
     std::vector<UINT> target, std::vector<UINT> projection);
+// create superposition of states of coef1|state1>+coef2|state2>
+DllExport QuantumState* make_superposition(CPPCTYPE coef1,
+    const QuantumState* state1, CPPCTYPE coef2, const QuantumState* state2);
 DllExport QuantumStateBase* from_json(const std::string& json);
 }  // namespace state

@@ -111,7 +111,7 @@ public:
      *
      * @return コピーされたゲートのインスタンス
      */
-    virtual QuantumGateBase* copy() const override {
+    virtual QuantumGateSparseMatrix* copy() const override {
         return new QuantumGateSparseMatrix(*this);
     };
 

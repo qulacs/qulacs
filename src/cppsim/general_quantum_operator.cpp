@@ -29,22 +29,48 @@ GeneralQuantumOperator::~GeneralQuantumOperator() {
 }
 
 void GeneralQuantumOperator::add_operator(const PauliOperator* mpt) {
+    GeneralQuantumOperator::add_operator_copy(mpt);
+}
+
+void GeneralQuantumOperator::add_operator_copy(const PauliOperator* mpt) {
     PauliOperator* _mpt = mpt->copy();
-    if (!check_Pauli_operator(this, _mpt)) {
+    GeneralQuantumOperator::add_operator_move(_mpt);
+}
+
+void GeneralQuantumOperator::add_operator_move(PauliOperator* mpt) {
+    if (!check_Pauli_operator(this, mpt)) {
         throw QubitIndexOutOfRangeException(
             "Error: GeneralQuantumOperator::add_operator(const "
             "PauliOperator*): pauli_operator applies target qubit of "
             "which the index is larger than qubit_count");
     }
-    if (this->_is_hermitian && std::abs(_mpt->get_coef().imag()) > 0) {
+    if (this->_is_hermitian && std::abs(mpt->get_coef().imag()) > 0) {
         this->_is_hermitian = false;
     }
-    this->_operator_list.push_back(_mpt);
+    this->_operator_list.push_back(mpt);
 }
 
 void GeneralQuantumOperator::add_operator(
     CPPCTYPE coef, std::string pauli_string) {
     PauliOperator* _mpt = new PauliOperator(pauli_string, coef);
+    if (!check_Pauli_operator(this, _mpt)) {
+        throw QubitIndexOutOfRangeException(
+            "Error: "
+            "GeneralQuantumOperator::add_operator(double,std::string):"
+            " pauli_operator applies target qubit of which the index "
+            "is larger than qubit_count");
+    }
+    if (this->_is_hermitian && std::abs(coef.imag()) > 0) {
+        this->_is_hermitian = false;
+    }
+    this->add_operator_move(_mpt);
+}
+
+void GeneralQuantumOperator::add_operator(
+    const std::vector<UINT>& target_qubit_index_list,
+    const std::vector<UINT>& target_qubit_pauli_list, CPPCTYPE coef = 1.) {
+    PauliOperator* _mpt = new PauliOperator(
+        target_qubit_index_list, target_qubit_pauli_list, coef);
     if (!check_Pauli_operator(this, _mpt)) {
         throw QubitIndexOutOfRangeException(
             "Error: "
@@ -404,7 +430,7 @@ CPPCTYPE GeneralQuantumOperator::calculate_default_mu() const {
 GeneralQuantumOperator* GeneralQuantumOperator::copy() const {
     auto quantum_operator = new GeneralQuantumOperator(_qubit_count);
     for (auto pauli : this->_operator_list) {
-        quantum_operator->add_operator(pauli->copy());
+        quantum_operator->add_operator_copy(pauli);
     }
     return quantum_operator;
 }
@@ -479,7 +505,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
             }
         }
         if (flag) {
-            this->add_operator(target_operator->copy());
+            this->add_operator_copy(target_operator);
         }
     }
     return *this;
@@ -510,7 +536,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
         }
     }
     if (flag) {
-        this->add_operator(target.copy());
+        this->add_operator_copy(&target);
     }
     return *this;
 }
@@ -578,7 +604,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
         if (flag) {
             auto copy = target_operator->copy();
             copy->change_coef(-copy->get_coef());
-            this->add_operator(copy);
+            this->add_operator_move(copy);
         }
     }
     return *this;
@@ -610,7 +636,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator-=(
     if (flag) {
         auto copy = target.copy();
         copy->change_coef(-copy->get_coef());
-        this->add_operator(copy);
+        this->add_operator_move(copy);
     }
     return *this;
 }
@@ -636,9 +662,9 @@ GeneralQuantumOperator GeneralQuantumOperator::operator*(
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     const GeneralQuantumOperator& target) {
-    auto copy = this->copy();
+    auto this_copy = this->copy();
     _operator_list.clear();
-    auto terms = copy->get_terms();
+    auto terms = this_copy->get_terms();
     auto target_terms = target.get_terms();
     ITYPE i, j;
     // #pragma omp parallel for
@@ -652,15 +678,16 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
             delete product;
         }
     }
+    delete this_copy;
     return *this;
 }
 
 GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
     const PauliOperator& target) {
-    auto copy = this->copy();
+    auto this_copy = this->copy();
     _operator_list.clear();
     ITYPE i;
-    auto terms = copy->get_terms();
+    auto terms = this_copy->get_terms();
     // #pragma omp parallel for
     for (i = 0; i < terms.size(); i++) {
         auto pauli_operator = terms[i];
@@ -668,6 +695,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator*=(
         *product = (*pauli_operator) * (target);
         *this += *product;
     }
+    delete this_copy;
     return *this;
 }
 

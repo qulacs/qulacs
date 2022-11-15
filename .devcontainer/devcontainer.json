@@ -4,12 +4,7 @@
 	"name": "C++",
 	"build": {
 		"dockerfile": "Dockerfile",
-		// Update 'VARIANT' to pick a Python version: 3, 3.10, 3.9, 3.8, 3.7, 3.6
-		// Append -bullseye or -buster to pin to an OS version.
-		// Use -bullseye variants on local on arm64/Apple Silicon.
-		"args": {
-			"VARIANT": "3.9-bullseye"
-		}
+		"cacheFrom": "ghcr.io/qulacs/qulacs-devcontainer:latest"
 	},
 	"runArgs": [
 		"--cap-add=SYS_PTRACE",
@@ -31,7 +26,8 @@
 		"python.terminal.activateEnvironment": false,
 		// CAVEAT: you need to restart after building qulacs to take effect.
 		"C_Cpp.default.includePath": [
-			"include"
+			"include",
+			"/usr/local/include/python3.9"
 		]
 	},
 	// Add the IDs of extensions you want installed when the container is created.

@@ -28,22 +28,19 @@ jobs:
       COVERAGE: "ON"
       CACHE_NAME: "ccache-qulacs-build-v2"
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
       - name: Setup Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
 
       - name: Install ccache
         run: brew install ccache
-
-      - name: Install Python dependencies
-        run: pip install -U --only-binary=numpy,scipy numpy scipy openfermion mypy
 
       - name: Install Boost for macOS
         run: |
@@ -52,7 +49,7 @@ jobs:
           brew link boost
 
       - name: Setup cache
-        uses: actions/cache@v2
+        uses: actions/cache@v3
         with:
           path: /Users/runner/Library/Caches/ccache
           key: ${{ runner.os }}-${{ env.CACHE_NAME }}
@@ -61,7 +58,7 @@ jobs:
         run: USE_TEST=Yes ./script/build_gcc.sh
 
       - name: Install qulacs Python module
-        run: python setup.py install
+        run: pip install .[ci]
 
       - name: Test if stub is working
         run: |

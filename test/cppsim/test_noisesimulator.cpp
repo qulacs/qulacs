@@ -56,7 +56,7 @@ TEST(NoiseSimulatorTest, Random_with_State_Test) {
     std::vector<ITYPE> result_without_noise =
         simulator_without_noise.execute(100);
 
-    // TODO: compare result_with_noise and result_without_noise and cirtificate
+    // TODO: compare result_with_noise and result_without_noise and certificate
     // effect of noise
     return;
 }
@@ -107,7 +107,7 @@ TEST(NoiseSimulatorTest, Random_without_State_Test) {
     std::vector<ITYPE> result_without_noise =
         simulator_without_noise.execute(100);
 
-    // TODO: compare result_with_noise and result_without_noise and cirtificate
+    // TODO: compare result_with_noise and result_without_noise and certificate
     // effect of noise
     return;
 }
@@ -117,8 +117,8 @@ TEST(NoiseSimulatorTest, H_gate_twice_test) {
     QuantumCircuit circuit(n);
     circuit.add_noise_gate(gate::H(0), "Depolarizing", 0.02);
     circuit.add_noise_gate(gate::H(0), "Depolarizing", 0.02);
-    NoiseSimulator hoge(&circuit);
-    std::vector<ITYPE> result = hoge.execute(10000);
+    NoiseSimulator sim(&circuit);
+    std::vector<ITYPE> result = sim.execute(10000);
     int cnts[2] = {};
     for (UINT i = 0; i < result.size(); ++i) {
         cnts[result[i]]++;

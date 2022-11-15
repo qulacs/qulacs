@@ -9,21 +9,13 @@
 #include "gate_general.hpp"
 #include "gate_matrix.hpp"
 
-void get_new_qubit_list(const QuantumGateBase* gate_first,
-    const QuantumGateBase* gate_second,
-    std::vector<TargetQubitInfo>& new_target_list,
-    std::vector<ControlQubitInfo>& new_control_list);
-void get_extended_matrix(const QuantumGateBase* gate,
-    const std::vector<TargetQubitInfo>& new_target_list,
-    const std::vector<ControlQubitInfo>& new_control_list,
-    ComplexMatrix& matrix);
-
 // Create target_gate_set and control_gate_set after merging
 // Any qubit index is classified as 9 cases :  (first_target, first_control,
 // not_in_first) * (second_target, second_control, not_in_second) Since each
 // target_qubit_list is not sorted and since we cannot sort them without
 // corrupsing matrix correspondense, we cannot use stl set functions. Currently,
 // all the indices are classified with a dirty way.
+namespace gate {
 void get_new_qubit_list(const QuantumGateBase* gate_first,
     const QuantumGateBase* gate_second,
     std::vector<TargetQubitInfo>& new_target_list,
@@ -320,7 +312,7 @@ void get_extended_matrix(const QuantumGateBase* gate,
  *
  * Currently, this is lazy two-step implementation.
  */
-namespace gate {
+
 QuantumGateMatrix* merge(
     const QuantumGateBase* gate_first, const QuantumGateBase* gate_second) {
     // obtain updated qubit information

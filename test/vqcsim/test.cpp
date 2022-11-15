@@ -97,16 +97,21 @@ TEST(ParametricCircuit, ParametricGatePosition) {
     auto circuit = ParametricQuantumCircuit(3);
     circuit.add_parametric_RX_gate(0, 0.);
     circuit.add_H_gate(0);
-    circuit.add_parametric_gate_copy(gate::ParametricRZ(0, 0.));
-    circuit.add_gate_copy(gate::CNOT(0, 1));
+    auto prz0 = gate::ParametricRZ(0, 0.);
+    circuit.add_parametric_gate_copy(prz0);
+    delete prz0;
+    auto cz01 = gate::CNOT(0, 1);
+    circuit.add_gate_copy(cz01);
+    delete cz01;
     circuit.add_parametric_RY_gate(1, 0.);
     circuit.add_parametric_gate(gate::ParametricRY(2), 2);
     circuit.add_gate_copy(gate::X(0), 2);
     circuit.add_parametric_gate(gate::ParametricRZ(1), 0);
     circuit.remove_gate(4);
     circuit.remove_gate(5);
-    circuit.add_parametric_gate_copy(
-        gate::ParametricPauliRotation({1}, {0}, 0.), 6);
+    auto ppr1 = gate::ParametricPauliRotation({1}, {0}, 0.);
+    circuit.add_parametric_gate_copy(ppr1, 6);
+    delete ppr1;
 
     ASSERT_EQ(circuit.get_parameter_count(), 5);
     ASSERT_EQ(circuit.get_parametric_gate_position(0), 1);
@@ -170,6 +175,8 @@ TEST(EnergyMinimization, SingleQubitClassical) {
     double diag_loss = dems.get_loss();
 
     EXPECT_NEAR(qc_loss, diag_loss, 1e-2);
+
+    delete observable;
 }
 
 TEST(EnergyMinimization, SingleQubitComplex) {
@@ -205,6 +212,8 @@ TEST(EnergyMinimization, SingleQubitComplex) {
     double diag_loss = dems.get_loss();
 
     EXPECT_NEAR(qc_loss, diag_loss, 1e-2);
+
+    delete emp;
 }
 
 TEST(EnergyMinimization, MultiQubit) {
@@ -249,6 +258,8 @@ TEST(EnergyMinimization, MultiQubit) {
     // std::cout << qc_loss << " " << diag_loss << std::endl;
     ASSERT_GT(qc_loss, diag_loss);
     EXPECT_NEAR(qc_loss, diag_loss, 1e-1);
+
+    delete emp;
 }
 
 TEST(ParametricGate, DuplicateIndex) {
@@ -274,6 +285,24 @@ TEST(ParametricGate, DuplicateIndex) {
         DuplicatedQubitIndexException);
 }
 
+TEST(ParametricQuantumCircuitSimulator, Basic) {
+    UINT n = 3;
+    Observable observable(n);
+    observable.add_operator(1., "Z 0");
+    QuantumState state(n), test_state(n);
+    ParametricQuantumCircuit circuit(n);
+    for (UINT i = 0; i < n; ++i) {
+        circuit.add_parametric_RX_gate(i, 1.0);
+        circuit.add_parametric_RY_gate(i, 1.0);
+    }
+    ParametricQuantumCircuitSimulator sim(&circuit, &state);
+    sim.simulate();
+    // Circuitに適用した量子状態の期待値とSimulatorの期待値が同じであること
+    circuit.update_quantum_state(&test_state);
+    ASSERT_EQ(sim.get_expectation_value(&observable),
+        observable.get_expectation_value(&test_state));
+}
+
 TEST(GradCalculator, BasicCheck) {
     Random rnd;
     unsigned int n = 5;
@@ -287,12 +316,10 @@ TEST(GradCalculator, BasicCheck) {
     }
 
     ParametricQuantumCircuit circuit(n);
-    int cnter_parametric_gate = 0;
     for (int depth = 0; depth < 2; ++depth) {
         for (int i = 0; i < n; ++i) {
             circuit.add_parametric_RX_gate(i, 0);
             circuit.add_parametric_RZ_gate(i, 0);
-            cnter_parametric_gate += 2;
         }
 
         for (int i = 0; i + 1 < n; i += 2) {
@@ -303,58 +330,61 @@ TEST(GradCalculator, BasicCheck) {
             circuit.add_CNOT_gate(i, i + 1);
         }
     }
-
-    // Calculate using GradCalculator
-    GradCalculator hoge;
+    UINT parameter_count = circuit.get_parameter_count();
     std::vector<double> theta;
-    for (int i = 0; i < cnter_parametric_gate; ++i) {
+    for (int i = 0; i < parameter_count; ++i) {
         theta.push_back(rnd.uniform() * 5.0);
     }
-    auto GradCalculator_ans_theta_specified =
-        hoge.calculate_grad(circuit, observable, theta);
 
-    for (UINT i = 0; i < cnter_parametric_gate; ++i) {
+    GradCalculator grad_calculator;
+    auto grad_calculator_theta_specified_in_function_call_result =
+        grad_calculator.calculate_grad(circuit, observable, theta);
+
+    for (UINT i = 0; i < parameter_count; ++i) {
         ASSERT_EQ(circuit.get_parameter(i), 0);
         circuit.set_parameter(i, theta[i]);
     }
-    auto GradCalculator_ans_without_theta =
-        hoge.calculate_grad(circuit, observable);
+    auto grad_calculator_theta_in_circuit_result =
+        grad_calculator.calculate_grad(circuit, observable);
 
-    // Calculate using normal Greedy.
-    std::vector<std::complex<double>> Greedy_ans;
+    std::vector<std::complex<double>> naive_method_result(parameter_count);
     {
-        for (int i = 0; i < circuit.get_parameter_count(); ++i) {
-            std::complex<double> y, z;
+        const double delta = 0.001;
+        for (int i = 0; i < parameter_count; ++i) {
+            std::complex<double> plus_delta, minus_delta;
             {
-                for (int q = 0; q < circuit.get_parameter_count(); ++q) {
-                    float diff = 0;
+                for (int q = 0; q < parameter_count; ++q) {
                     if (i == q) {
-                        diff = 0.001;
+                        circuit.set_parameter(q, theta[q] + delta);
+                    } else {
+                        circuit.set_parameter(q, theta[q]);
                     }
-                    circuit.set_parameter(q, theta[q] + diff);
                 }
                 CausalConeSimulator cone(circuit, observable);
-                y = cone.get_expectation_value();
+                plus_delta = cone.get_expectation_value();
             }
             {
-                for (int q = 0; q < circuit.get_parameter_count(); ++q) {
-                    float diff = 0;
+                for (int q = 0; q < parameter_count; ++q) {
                     if (i == q) {
-                        diff = 0.001;
+                        circuit.set_parameter(q, theta[q] - delta);
+                    } else {
+                        circuit.set_parameter(q, theta[q]);
                     }
-                    circuit.set_parameter(q, theta[q] - diff);
                 }
                 CausalConeSimulator cone(circuit, observable);
-                z = cone.get_expectation_value();
+                minus_delta = cone.get_expectation_value();
             }
-            Greedy_ans.push_back((y - z) / 0.002);
+            naive_method_result[i] = (plus_delta - minus_delta) / (2.0 * delta);
         }
     }
-    for (int i = 0; i < GradCalculator_ans_without_theta.size(); ++i) {
-        ASSERT_LT(abs(GradCalculator_ans_theta_specified[i] - Greedy_ans[i]),
-            1e-6);  // Difference should be lower than 1e-7
-        ASSERT_LT(abs(GradCalculator_ans_without_theta[i] - Greedy_ans[i]),
-            1e-6);  // Difference should be lower than 1e-7
+    for (int i = 0; i < parameter_count; ++i) {
+        ASSERT_LT(
+            abs(grad_calculator_theta_specified_in_function_call_result[i] -
+                naive_method_result[i]),
+            1e-6);
+        ASSERT_LT(abs(grad_calculator_theta_in_circuit_result[i] -
+                      naive_method_result[i]),
+            1e-6);
     }
 }
 

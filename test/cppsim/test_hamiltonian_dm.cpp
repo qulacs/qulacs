@@ -163,4 +163,6 @@ TEST(DensityMatrixObservableTest, CheckParsedObservableFromOpenFermionText) {
     res_mat = observable->get_expectation_value(&density_matrix);
     ASSERT_NEAR(res_vec.real(), res_mat.real(), eps);
     ASSERT_NEAR(res_vec.imag(), res_mat.imag(), eps);
+
+    delete observable;
 }

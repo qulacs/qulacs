@@ -20,7 +20,6 @@
 #include "gate_named_one.hpp"
 #include "gate_named_pauli.hpp"
 #include "gate_named_two.hpp"
-#include "gate_noisy_evolution.hpp"
 #include "gate_reflect.hpp"
 #include "gate_reversible.hpp"
 #include "type.hpp"
@@ -28,39 +27,139 @@
 namespace gate {
 ComplexMatrix get_IBMQ_matrix(double theta, double phi, double lambda);
 
-QuantumGateBase* Identity(UINT qubit_index) {
-    return new ClsIGate(qubit_index);
+ClsOneQubitGate* Identity(UINT qubit_index) {
+    auto ptr = new ClsOneQubitGate();
+    ptr->IGateinit(qubit_index);
+    return ptr;
 }
-QuantumGateBase* X(UINT qubit_index) { return new ClsXGate(qubit_index); }
-QuantumGateBase* Y(UINT qubit_index) { return new ClsYGate(qubit_index); }
-QuantumGateBase* Z(UINT qubit_index) { return new ClsZGate(qubit_index); }
-QuantumGateBase* H(UINT qubit_index) { return new ClsHGate(qubit_index); }
-QuantumGateBase* S(UINT qubit_index) { return new ClsSGate(qubit_index); }
-QuantumGateBase* Sdag(UINT qubit_index) { return new ClsSdagGate(qubit_index); }
-QuantumGateBase* T(UINT qubit_index) { return new ClsTGate(qubit_index); }
-QuantumGateBase* Tdag(UINT qubit_index) { return new ClsTdagGate(qubit_index); }
-QuantumGateBase* sqrtX(UINT qubit_index) {
-    return new ClsSqrtXGate(qubit_index);
+
+ClsOneQubitGate* X(UINT qubit_index) {
+    auto ptr = new ClsOneQubitGate();
+    ptr->XGateinit(qubit_index);
+    return ptr;
 }
-QuantumGateBase* sqrtXdag(UINT qubit_index) {
-    return new ClsSqrtXdagGate(qubit_index);
+
+ClsOneQubitGate* Y(UINT qubit_index) {
+    auto ptr = new ClsOneQubitGate();
+    ptr->YGateinit(qubit_index);
+    return ptr;
 }
-QuantumGateBase* sqrtY(UINT qubit_index) {
-    return new ClsSqrtYGate(qubit_index);
+
+ClsOneQubitGate* Z(UINT qubit_index) {
+    auto ptr = new ClsOneQubitGate();
+    ptr->ZGateinit(qubit_index);
+    return ptr;
 }
-QuantumGateBase* sqrtYdag(UINT qubit_index) {
-    return new ClsSqrtYdagGate(qubit_index);
+ClsOneQubitGate* H(UINT qubit_index) {
+    auto ptr = new ClsOneQubitGate();
+    ptr->HGateinit(qubit_index);
+    return ptr;
 }
-QuantumGateBase* P0(UINT qubit_index) { return new ClsP0Gate(qubit_index); }
-QuantumGateBase* P1(UINT qubit_index) { return new ClsP1Gate(qubit_index); }
-QuantumGateBase* RX(UINT qubit_index, double angle) {
-    return new ClsRXGate(qubit_index, angle);
+
+ClsOneQubitGate* S(UINT qubit_index) {
+    auto ptr = new ClsOneQubitGate();
+    ptr->SGateinit(qubit_index);
+    return ptr;
 }
-QuantumGateBase* RY(UINT qubit_index, double angle) {
-    return new ClsRYGate(qubit_index, angle);
+
+ClsOneQubitGate* Sdag(UINT qubit_index) {
+    auto ptr = new ClsOneQubitGate();
+    ptr->SdagGateinit(qubit_index);
+    return ptr;
 }
-QuantumGateBase* RZ(UINT qubit_index, double angle) {
-    return new ClsRZGate(qubit_index, angle);
+
+ClsOneQubitGate* T(UINT qubit_index) {
+    auto ptr = new ClsOneQubitGate();
+    ptr->TGateinit(qubit_index);
+    return ptr;
+}
+
+ClsOneQubitGate* Tdag(UINT qubit_index) {
+    auto ptr = new ClsOneQubitGate();
+    ptr->TdagGateinit(qubit_index);
+    return ptr;
+}
+
+ClsOneQubitGate* sqrtX(UINT qubit_index) {
+    auto ptr = new ClsOneQubitGate();
+    ptr->sqrtXGateinit(qubit_index);
+    return ptr;
+}
+
+ClsOneQubitGate* sqrtXdag(UINT qubit_index) {
+    auto ptr = new ClsOneQubitGate();
+    ptr->sqrtXdagGateinit(qubit_index);
+    return ptr;
+}
+
+ClsOneQubitGate* sqrtY(UINT qubit_index) {
+    auto ptr = new ClsOneQubitGate();
+    ptr->sqrtYGateinit(qubit_index);
+    return ptr;
+}
+
+ClsOneQubitGate* sqrtYdag(UINT qubit_index) {
+    auto ptr = new ClsOneQubitGate();
+    ptr->sqrtYdagGateinit(qubit_index);
+    return ptr;
+}
+
+ClsOneQubitGate* P0(UINT qubit_index) {
+    auto ptr = new ClsOneQubitGate();
+    ptr->P0Gateinit(qubit_index);
+    return ptr;
+}
+
+ClsOneQubitGate* P1(UINT qubit_index) {
+    auto ptr = new ClsOneQubitGate();
+    ptr->P1Gateinit(qubit_index);
+    return ptr;
+}
+
+ClsOneQubitRotationGate* RX(UINT qubit_index, double angle) {
+    auto ptr = new ClsOneQubitRotationGate();
+    ptr->RXGateinit(qubit_index, angle);
+    return ptr;
+}
+ClsOneQubitRotationGate* RY(UINT qubit_index, double angle) {
+    auto ptr = new ClsOneQubitRotationGate();
+    ptr->RYGateinit(qubit_index, angle);
+    return ptr;
+}
+ClsOneQubitRotationGate* RZ(UINT qubit_index, double angle) {
+    auto ptr = new ClsOneQubitRotationGate();
+    ptr->RZGateinit(qubit_index, angle);
+    return ptr;
+}
+ClsOneQubitRotationGate* RotInvX(UINT qubit_index, double angle) {
+    auto ptr = new ClsOneQubitRotationGate();
+    ptr->RXGateinit(qubit_index, angle);
+    return ptr;
+}
+ClsOneQubitRotationGate* RotInvY(UINT qubit_index, double angle) {
+    auto ptr = new ClsOneQubitRotationGate();
+    ptr->RYGateinit(qubit_index, angle);
+    return ptr;
+}
+ClsOneQubitRotationGate* RotInvZ(UINT qubit_index, double angle) {
+    auto ptr = new ClsOneQubitRotationGate();
+    ptr->RZGateinit(qubit_index, angle);
+    return ptr;
+}
+ClsOneQubitRotationGate* RotX(UINT qubit_index, double angle) {
+    auto ptr = new ClsOneQubitRotationGate();
+    ptr->RXGateinit(qubit_index, -angle);
+    return ptr;
+}
+ClsOneQubitRotationGate* RotY(UINT qubit_index, double angle) {
+    auto ptr = new ClsOneQubitRotationGate();
+    ptr->RYGateinit(qubit_index, -angle);
+    return ptr;
+}
+ClsOneQubitRotationGate* RotZ(UINT qubit_index, double angle) {
+    auto ptr = new ClsOneQubitRotationGate();
+    ptr->RZGateinit(qubit_index, -angle);
+    return ptr;
 }
 
 ComplexMatrix get_IBMQ_matrix(double theta, double phi, double lambda) {
@@ -96,7 +195,8 @@ QuantumGateBase* U3(UINT qubit_index, double theta, double phi, double lambda) {
     return new QuantumGateMatrix(vec, matrix);
 }
 
-QuantumGateBase* CNOT(UINT control_qubit_index, UINT target_qubit_index) {
+ClsOneControlOneTargetGate* CNOT(
+    UINT control_qubit_index, UINT target_qubit_index) {
     if (control_qubit_index == target_qubit_index) {
         throw InvalidControlQubitException(
             "Error: gate::CNOT(UINT, UINT): control_qubit_index and "
@@ -104,9 +204,13 @@ QuantumGateBase* CNOT(UINT control_qubit_index, UINT target_qubit_index) {
             "\nInfo: NULL used to be returned, "
             "but it changed to throw exception.");
     }
-    return new ClsCNOTGate(control_qubit_index, target_qubit_index);
+    auto ptr = new ClsOneControlOneTargetGate();
+    ptr->CNOTGateinit(control_qubit_index, target_qubit_index);
+    return ptr;
 }
-QuantumGateBase* CZ(UINT control_qubit_index, UINT target_qubit_index) {
+
+ClsOneControlOneTargetGate* CZ(
+    UINT control_qubit_index, UINT target_qubit_index) {
     if (control_qubit_index == target_qubit_index) {
         throw InvalidControlQubitException(
             "Error: gate::CZ(UINT, UINT): control_qubit_index and "
@@ -114,16 +218,20 @@ QuantumGateBase* CZ(UINT control_qubit_index, UINT target_qubit_index) {
             "\nInfo: NULL used to be returned, "
             "but it changed to throw exception.");
     }
-    return new ClsCZGate(control_qubit_index, target_qubit_index);
+    auto ptr = new ClsOneControlOneTargetGate();
+    ptr->CZGateinit(control_qubit_index, target_qubit_index);
+    return ptr;
 }
-QuantumGateBase* SWAP(UINT qubit_index1, UINT qubit_index2) {
+ClsTwoQubitGate* SWAP(UINT qubit_index1, UINT qubit_index2) {
     if (qubit_index1 == qubit_index2) {
         throw DuplicatedQubitIndexException(
             "Error: gate::SWAP(UINT, UINT): two indices have the same value."
             "\nInfo: NULL used to be returned, "
             "but it changed to throw exception.");
     }
-    return new ClsSWAPGate(qubit_index1, qubit_index2);
+    auto ptr = new ClsTwoQubitGate();
+    ptr->SWAPGateinit(qubit_index1, qubit_index2);
+    return ptr;
 }
 
 QuantumGateBase* Pauli(std::vector<UINT> target, std::vector<UINT> pauli_id) {
@@ -365,15 +473,19 @@ QuantumGateBase* Measurement(
     return new_gate;
 }
 
-QuantumGateBase* NoisyEvolution(Observable* hamiltonian,
+ClsNoisyEvolution* NoisyEvolution(Observable* hamiltonian,
     std::vector<GeneralQuantumOperator*> c_ops, double time, double dt) {
     return new ClsNoisyEvolution(hamiltonian, c_ops, time, dt);
 }
-QuantumGateBase* NoisyEvolution_fast(Observable* hamiltonian,
+ClsNoisyEvolution_fast* NoisyEvolution_fast(Observable* hamiltonian,
     std::vector<GeneralQuantumOperator*> c_ops, double time) {
     return new ClsNoisyEvolution_fast(hamiltonian, c_ops, time);
 }
 
+QuantumGateBase* NoisyEvolution_auto(Observable* hamiltonian,
+    std::vector<GeneralQuantumOperator*> c_ops, double time) {
+    return new ClsNoisyEvolution_auto(hamiltonian, c_ops, time);
+}
 QuantumGateBase* create_quantum_gate_from_string(std::string gate_string) {
     const char* gateString = gate_string.c_str();
     char* sbuf;
