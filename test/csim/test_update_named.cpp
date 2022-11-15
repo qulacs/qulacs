@@ -178,9 +178,8 @@ void test_projection_gate(std::function<void(UINT, CTYPE*, ITYPE)> func,
 }
 
 TEST(UpdateTest, ProjectionAndNormalizeTest) {
-    Eigen::MatrixXcd P0(2, 2), P1(2, 2);
-    P0 << 1, 0, 0, 0;
-    P1 << 0, 0, 0, 1;
+    const auto P0 = make_P0();
+    const auto P1 = make_P1();
     test_projection_gate(P0_gate, M0_prob, P0);
     test_projection_gate(P1_gate, M1_prob, P1);
     test_projection_gate(P0_gate_single, M0_prob, P0);
@@ -196,11 +195,10 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
 
-    Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
-    Identity << 1, 0, 0, 1;
-    X << 0, 1, 1, 0;
-    Y << 0, -1.i, 1.i, 0;
-    Z << 1, 0, 0, -1;
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
 
     UINT target;
     double angle;

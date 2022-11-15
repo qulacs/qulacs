@@ -303,3 +303,44 @@ static std::string _check_ge(T val1, T val2, std::string val1_name,
                          << "), actual: " << val1 << " vs " << val2 << "\n";
     return error_message_stream.str();
 }
+
+static Eigen::MatrixXcd make_2x2_matrix(const Eigen::dcomplex a00,
+    const Eigen::dcomplex a01, const Eigen::dcomplex a10,
+    const Eigen::dcomplex a11) {
+    Eigen::MatrixXcd m(2, 2);
+    m << a00, a01, a10, a11;
+    return m;
+}
+
+static Eigen::MatrixXcd make_Identity() {
+    return Eigen::MatrixXcd::Identity(2, 2);
+}
+
+static Eigen::MatrixXcd make_X() { return make_2x2_matrix(0, 1, 1, 0); }
+
+static Eigen::MatrixXcd make_Y() { return make_2x2_matrix(0, -1.i, 1.i, 0); }
+
+static Eigen::MatrixXcd make_Z() { return make_2x2_matrix(1, 0, 0, -1); }
+
+static Eigen::MatrixXcd make_H() {
+    return make_2x2_matrix(
+        1 / sqrt(2.), 1 / sqrt(2.), 1 / sqrt(2.), -1 / sqrt(2.));
+}
+
+static Eigen::MatrixXcd make_S() { return make_2x2_matrix(1, 0, 0, 1.i); }
+
+static Eigen::MatrixXcd make_T() {
+    return make_2x2_matrix(1, 0, 0, (1. + 1.i) / sqrt(2.));
+}
+
+static Eigen::MatrixXcd make_sqrtX() {
+    return make_2x2_matrix(0.5 + 0.5i, 0.5 - 0.5i, 0.5 - 0.5i, 0.5 + 0.5i);
+}
+
+static Eigen::MatrixXcd make_sqrtY() {
+    return make_2x2_matrix(0.5 + 0.5i, -0.5 - 0.5i, 0.5 + 0.5i, 0.5 + 0.5i);
+}
+
+static Eigen::MatrixXcd make_P0() { return make_2x2_matrix(1, 0, 0, 0); }
+
+static Eigen::MatrixXcd make_P1() { return make_2x2_matrix(0, 0, 0, 1); }

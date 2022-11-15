@@ -18,21 +18,17 @@
 #include "../util/util.hpp"
 
 TEST(CircuitTest, CircuitBasic) {
-    Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2), H(2, 2),
-        S(2, 2), T(2, 2), sqrtX(2, 2), sqrtY(2, 2), P0(2, 2), P1(2, 2);
-
-    Identity << 1, 0, 0, 1;
-    X << 0, 1, 1, 0;
-    Y << 0, -1.i, 1.i, 0;
-    Z << 1, 0, 0, -1;
-    H << 1, 1, 1, -1;
-    H /= sqrt(2.);
-    S << 1, 0, 0, 1.i;
-    T << 1, 0, 0, (1. + 1.i) / sqrt(2.);
-    sqrtX << 0.5 + 0.5i, 0.5 - 0.5i, 0.5 - 0.5i, 0.5 + 0.5i;
-    sqrtY << 0.5 + 0.5i, -0.5 - 0.5i, 0.5 + 0.5i, 0.5 + 0.5i;
-    P0 << 1, 0, 0, 0;
-    P1 << 0, 0, 0, 1;
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
+    const auto H = make_H();
+    const auto S = make_S();
+    const auto T = make_T();
+    const auto sqrtX = make_sqrtX();
+    const auto sqrtY = make_sqrtY();
+    const auto P0 = make_P0();
+    const auto P1 = make_P1();
 
     const UINT n = 4;
     const UINT dim = 1ULL << n;
@@ -774,11 +770,10 @@ TEST(CircuitTest, RandomCircuitOptimize3) {
 
 TEST(CircuitTest, SuzukiTrotterExpansion) {
     CPPCTYPE J(0.0, 1.0);
-    Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
-    Identity << 1, 0, 0, 1;
-    X << 0, 1, 1, 0;
-    Y << 0, -J, J, 0;
-    Z << 1, 0, 0, -1;
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
 
     const UINT n = 2;
     const UINT dim = 1ULL << n;
@@ -858,11 +853,10 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
 
 TEST(CircuitTest, RotateDiagonalObservable) {
     CPPCTYPE J(0.0, 1.0);
-    Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
-    Identity << 1, 0, 0, 1;
-    X << 0, 1, 1, 0;
-    Y << 0, -J, J, 0;
-    Z << 1, 0, 0, -1;
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
 
     const UINT n = 2;
     const UINT dim = 1ULL << n;
