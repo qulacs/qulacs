@@ -6,14 +6,14 @@
 #endif
 
 #include <complex>
-typedef std::complex<double> CPPCTYPE;
-typedef unsigned int UINT;
+using CPPCTYPE = std::complex<double>;
+using UINT = unsigned int;
 
 #ifdef _MSC_VER
 // In MSVC, OpenMP only supports signed index
-typedef signed long long ITYPE;
+using ITYPE = signed long long;
 #else
-typedef unsigned long long ITYPE;
+using ITYPE = unsigned long long;
 #endif
 
 #endif  // #ifndef _UTIL_COMMON_CU_H_

@@ -6,14 +6,16 @@
 #include "cppsim/gate_matrix.hpp"
 
 namespace state {
-CPPCTYPE inner_product(const QuantumState* state1, const QuantumState* state2) {
-    if (state1->qubit_count != state2->qubit_count) {
+CPPCTYPE inner_product(
+    const QuantumState* state_bra, const QuantumState* state_ket) {
+    if (state_bra->qubit_count != state_ket->qubit_count) {
         throw InvalidQubitCountException(
             "Error: inner_product(const QuantumState*, const "
             "QuantumState*): invalid qubit count");
     }
 
-    return state_inner_product(state1->data_c(), state2->data_c(), state1->dim);
+    return state_inner_product(
+        state_bra->data_c(), state_ket->data_c(), state_bra->dim);
 }
 QuantumState* tensor_product(
     const QuantumState* state_left, const QuantumState* state_right) {

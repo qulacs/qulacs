@@ -4,16 +4,17 @@
 #include <Eigen/Sparse>
 #include <complex>
 #include <csim/type.hpp>
-typedef std::complex<double> CPPCTYPE;
-typedef Eigen::VectorXcd ComplexVector;
+using CPPCTYPE = std::complex<double>;
+using ComplexVector = Eigen::VectorXcd;
 
 // In order to use matrix raw-data without reordering, we use RowMajor as
 // default.
-typedef Eigen::Matrix<CPPCTYPE, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>
-    ComplexMatrix;
-typedef Eigen::SparseMatrix<CPPCTYPE> SparseComplexMatrix;
+using ComplexMatrix =
+    Eigen::Matrix<CPPCTYPE, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+using SparseComplexMatrix = Eigen::SparseMatrix<CPPCTYPE>;
 
 #ifdef __GNUC__
+
 #if __GNUC__ >= 8
 using namespace std::complex_literals;
 #endif

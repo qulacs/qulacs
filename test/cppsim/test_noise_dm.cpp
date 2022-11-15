@@ -68,13 +68,8 @@ TEST(DensityMatrixGeneralGateTest, InstrumentGate) {
 
     auto Inst = gate::Instrument({gate3, gate2, gate1, gate4}, 1);
     DensityMatrix s(3);
-    s.set_computational_basis(0);
-    Inst->update_quantum_state(&s);
-    UINT res1 = s.get_classical_value(1);
-    ASSERT_EQ(res1, 2);
     s.set_Haar_random_state();
     Inst->update_quantum_state(&s);
-    UINT res2 = s.get_classical_value(1);
     delete p00;
     delete p01;
     delete p10;
@@ -331,7 +326,6 @@ TEST(DensityMatrixGeneralGateTest, TwoQubitDepolarizingTest) {
             dense_mat(i, j) = dm.data_cpp()[i * dim + j];
     ASSERT_NEAR(dense_mat.norm(), 1., eps);
     ASSERT_NEAR(dm.get_squared_norm(), 1., eps);
-
     // std::cout << dense_mat << std::endl;
     // std::cout << dm << std::endl;
     auto conv_mat =

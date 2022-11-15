@@ -55,15 +55,26 @@ public:
 
     /**
      * \~japanese-en
+     * コピーコンストラクタ。
+     *
+     * 与えられたGeneralQuantumOperatorのコピーを作成する。
+     * @param[in] obj コピー元のインスタンス
+     * @return コピーされたObservableのインスタンス
+     */
+
+    GeneralQuantumOperator(const GeneralQuantumOperator& obj);
+    /**
+     * \~japanese-en
      * デストラクタ。このとき、GeneralQuantumOperatorが保持しているPauliOperatorは解放される。
      */
     virtual ~GeneralQuantumOperator();
 
     /**
      * \~japanese-en
-     * PauliOperatorを内部で保持するリストの末尾に追加する。
+     * オペレータがエルミートかどうかを判定する。
      *
-     * @param[in] mpt 追加するPauliOperatorのインスタンス
+     * エルミートでないと判定されても、実際にはエルミートであることもある。
+     * エルミートと判定された場合は必ずエルミートである。
      */
     virtual bool is_hermitian() const { return _is_hermitian; }
 

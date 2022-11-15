@@ -1,10 +1,10 @@
 [build-system]
-requires = ["wheel", "setuptools", "setuptools_scm"]
+requires = ["wheel", "setuptools", "setuptools_scm[toml]"]
 build-backend = "setuptools.build_meta"
 
 [project]
+dynamic = ["version"]
 name = "qulacs"
-version = "0.5.2"
 description = "Quantum circuit simulator for research"
 authors = [ 
     { name = "QunaSys", Email = "qulacs@qunasys.com" }
@@ -26,6 +26,12 @@ classifiers = [
     "Programming Language :: Python",
     "Topic :: Communications :: Email"
 ]
+
+[tool.setuptools.dynamic]
+version = {attr = "qulacs._version.__version__"}
+
+[tool.setuptools_scm]
+write_to = "pysrc/qulacs/_version.py"
 
 [project.urls]
 homepage = "http://www.qulacs.org"
@@ -54,9 +60,6 @@ include-package-data = true
 zip-safe = false
 
 [tool.cibuildwheel]
-build = "cp3*-macosx_x86_64 cp3*-manylinux_x86_64 cp3*-win_amd64"
-skip = "cp311-* cp36-*"
-
 environment = { QULACS_OPT_FLAGS = "-mtune=haswell -mfpmath=both" }
 build-verbosity = "1"
 
@@ -75,16 +78,10 @@ cp -r boost /usr/local/include && rm -rf {project}/build \
 [tool.cibuildwheel.windows]
 before-test = "rm -rf {project}/build"
 
-
 [tool.cibuildwheel.macos]
-# In GitHub Actions virtual environment macos-10.15/20201115.1,
-# linking some functions from libgomp fails since the linker cannot find
-# some library files from gcc-8 installed via Homebrew.
-# The following command fixes this issue by (brew) re-linking files from gcc-8.
-# cf. https://stackoverflow.com/a/55500164
 before-build = """\
-brew install gcc@8 && brew link --overwrite gcc@8 && \
 brew upgrade && brew install -f boost && \
 brew link boost && rm -rf {project}/build\
 """
+archs = ["x86_64", "arm64"]
 repair-wheel-command = "delocate-listdeps {wheel} && script/fix_wheel_osx.sh {wheel} {dest_dir} && delocate-listdeps {wheel}"

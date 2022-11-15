@@ -418,18 +418,17 @@ public:
     }
 };
 
-typedef DensityMatrixCpu
-    DensityMatrix; /**< DensityMatrix is an alias of DensityMatrixCpu */
+using DensityMatrix = DensityMatrixCpu;
 
 namespace state {
 DllExport DensityMatrixCpu* tensor_product(
-    const DensityMatrixCpu* state_left, const DensityMatrixCpu* state_right);
+    const DensityMatrixCpu* state_bra, const DensityMatrixCpu* state_ket);
 DllExport DensityMatrixCpu* permutate_qubit(
     const DensityMatrixCpu* state, std::vector<UINT> qubit_order);
 DllExport DensityMatrixCpu* partial_trace(
     const QuantumStateCpu* state, std::vector<UINT> target);
 DllExport DensityMatrixCpu* partial_trace(
-    const DensityMatrixCpu* state, std::vector<UINT> target);
+    const DensityMatrixCpu* state, std::vector<UINT> target_traceout);
 // create a mixed state such that the proportion of state1 is prob1, the
 // proportion of state2 is prob2
 DllExport DensityMatrixCpu* make_mixture(CPPCTYPE prob1,
