@@ -11,7 +11,7 @@ extensions = [
     # there may be others here already, e.g. 'sphinx.ext.mathjax'
     'breathe',
     'exhale',
-    'recommonmark',
+    'myst_parser',
     'nbsphinx',
     'sphinx.ext.mathjax',
     'sphinx_copybutton',
@@ -23,7 +23,9 @@ extensions = [
 
 exclude_patterns = ['_build', '**.ipynb_checkpoints']
 nbsphinx_allow_errors = True
-enable_inline_math = True
+myst_enable_extensions = [
+    "dollarmath",
+]
 
 
 # source files for shpinx
