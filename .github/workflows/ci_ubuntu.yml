@@ -89,6 +89,60 @@ jobs:
       - name: Show cache stats
         run: ccache -s
 
+  gcc10-build-with-address-sanitizer:
+    name: GCC10 build with -fsanitizer=address enabled
+    strategy:
+      matrix:
+        python-version: ["3.7.5"]
+    runs-on: "ubuntu-20.04"
+    env:
+      CXX_COMPILER: "/usr/lib/ccache/g++"
+      C_COMPILER: "/usr/lib/ccache/gcc"
+      QULACS_OPT_FLAGS: "-mtune=haswell -march=haswell -mfpmath=both"
+      PYTHON: ${{ matrix.python-version }}
+      COVERAGE: "ON"
+      CACHE_NAME: ccache-qulacs-build-v2
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Install ccache
+        run: sudo apt install ccache
+
+      - name: Setup cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.ccache
+          key: ${{ runner.os }}-${{ env.CACHE_NAME }}
+
+      - name: Install boost
+        run: sudo apt install libboost-dev
+
+      - name: Install LCOV
+        run: |
+          git clone -b v1.15 --depth 1 https://github.com/linux-test-project/lcov.git
+          cd lcov
+          sudo make install
+
+      - name: Install qulacs for Ubuntu
+        run: USE_TEST=Yes ./script/build_gcc_with_memory_sanitizer.sh
+
+      - name: Test in Ubuntu
+        run: |
+          cd ./build
+          make coverage
+
+      - name: Show cache stats
+        run: ccache -s
+
   nvcc-gcc8-GPUbuild:
     name: nvcc + gcc8 build
     runs-on: "ubuntu-20.04"

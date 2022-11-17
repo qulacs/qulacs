@@ -33,7 +33,11 @@ public:
         _circuit = NULL;
         verbose = false;
     };
-    virtual ~QuantumCircuitEnergyMinimizationSolver() {}
+    virtual ~QuantumCircuitEnergyMinimizationSolver() {
+        if (_circuit != NULL) {
+            delete _circuit;
+        }
+    }
 
     virtual void solve(EnergyMinimizationProblem* instance,
         UINT max_iteration = 100, std::string optimizer_name = "GD",
