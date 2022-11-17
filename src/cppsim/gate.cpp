@@ -7,6 +7,7 @@
 
 #include "exception.hpp"
 #include "gate_matrix.hpp"
+#include "gate_merge.hpp"
 
 bool QuantumGateBase::is_commute(const QuantumGateBase* gate) const {
     for (auto val1 : this->_target_qubit_list) {
@@ -122,6 +123,9 @@ std::string QuantumGateBase::to_string() const {
     stream << " * Diagonal  : " << (this->is_diagonal() ? "yes" : "no")
            << std::endl;
     return stream.str();
+}
+QuantumGateBase* QuantumGateBase::get_inverse(void) const {
+    throw NotImplementedException("this gate don't have get_inverse function");
 }
 
 std::string QuantumGateBase::get_name() const { return this->_name; }

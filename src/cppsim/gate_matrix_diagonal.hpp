@@ -114,6 +114,11 @@ public:
         return new QuantumGateDiagonalMatrix(*this);
     };
 
+    virtual QuantumGateDiagonalMatrix* get_inverse(void) const override {
+        return new QuantumGateDiagonalMatrix(this->target_qubit_list,
+            this->_diagonal_element.conjugate(), this->control_qubit_list);
+    }
+
     /**
      * \~japanese-en 自身の行列要素をセットする
      *

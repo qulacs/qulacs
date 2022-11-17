@@ -188,4 +188,7 @@ public:
                      ComplexMatrix::Identity(matrix.rows(), matrix.cols()) +
                  1.i * sin(_angle / 2) * matrix;
     }
+    virtual ClsPauliRotationGate* get_inverse(void) const override {
+        return new ClsPauliRotationGate(-this->_angle, this->_pauli->copy());
+    }
 };
