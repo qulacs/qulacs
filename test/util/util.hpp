@@ -201,6 +201,13 @@ static void state_equal(const CTYPE* state, const Eigen::VectorXcd& test_state,
 static testing::AssertionResult _assert_state_near(const char* state1_name,
     const char* state2_name, const char* eps_name, const QuantumState& state1,
     const QuantumState& state2, const double eps) {
+    if (state1.dim != state2.dim) {
+        return testing::AssertionFailure()
+               << "The dimension is different\nDimension of " << state1_name
+               << " is " << state1.dim << ",\n"
+               << "Dimension of " << state2_name << " is " << state2.dim << ".";
+    }
+
     for (UINT i = 0; i < state1.dim; i++) {
         const double real_diff = std::fabs(
             state1.data_cpp()[i].real() - state2.data_cpp()[i].real());
