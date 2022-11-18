@@ -24,7 +24,7 @@
             "type": "shell",
             "command": "make coverage -C build -j $(nproc)",
             "dependsOn": [
-                "build gcc"
+                "build gcc with coverage option"
             ]
         },
         {
