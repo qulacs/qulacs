@@ -654,6 +654,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Check this gate is parametric gate")
         .def("is_diagonal", &QuantumGateBase::is_diagonal,
             "Check the gate matrix is diagonal")
+        .def("get_inverse", &QuantumGateBase::get_inverse, "get inverse gate")
 
         ;
 
@@ -1179,6 +1180,8 @@ PYBIND11_MODULE(qulacs_core, m) {
             &QuantumCircuit::add_observable_rotation_gate,
             "Add observable rotation gate", py::arg("observable"),
             py::arg("angle"), py::arg("repeat"))
+
+        .def("get_inverse", &QuantumCircuit::get_inverse, "get inverse circuit")
 
         .def(
             "__str__", [](const QuantumCircuit& p) { return p.to_string(); },

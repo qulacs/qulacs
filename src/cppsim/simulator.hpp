@@ -7,7 +7,7 @@
 #include "type.hpp"
 class QuantumStateBase;
 class HermitianQuantumOperator;
-typedef HermitianQuantumOperator Observable;
+using Observable = HermitianQuantumOperator;
 
 /**
  * \~japanese-en 量子回路をシミュレートするためのクラス

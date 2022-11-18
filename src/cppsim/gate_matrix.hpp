@@ -148,4 +148,6 @@ public:
      */
     friend DllExport std::ostream& operator<<(
         std::ostream& os, QuantumGateMatrix* gate);
+
+    virtual QuantumGateMatrix* get_inverse(void) const;
 };

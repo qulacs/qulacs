@@ -11,11 +11,11 @@
  */
 class ClsTwoQubitGate : public QuantumGateBase {
 protected:
-    typedef void(T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
-    typedef void(T_GPU_UPDATE_FUNC)(UINT, UINT, void*, ITYPE, void*, UINT);
-    T_UPDATE_FUNC* _update_func;
-    T_UPDATE_FUNC* _update_func_dm;
-    T_GPU_UPDATE_FUNC* _update_func_gpu;
+    using UpdateFunc = void (*)(UINT, UINT, CTYPE*, ITYPE);
+    using UpdateFuncGpu = void (*)(UINT, UINT, void*, ITYPE, void*, UINT);
+    UpdateFunc _update_func;
+    UpdateFunc _update_func_dm;
+    UpdateFuncGpu _update_func_gpu;
     ComplexMatrix _matrix_element;
 
 public:
@@ -80,6 +80,14 @@ public:
         this->_matrix_element = ComplexMatrix::Zero(4, 4);
         this->_matrix_element << 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1;
     }
+    virtual ClsTwoQubitGate* get_inverse(void) const override {
+        if (this->_name == "SWAP") {
+            return this->copy();
+        }
+        throw NotImplementedException(
+            "Inverse of " + this->_name + " gate is not Implemented");
+    }
+    //現状SWAPゲートしかないので、自身がget_inverseになるが、　そうでないゲートが追加されたときの保険として、　判定をする
 };
 
 /**
@@ -88,11 +96,11 @@ public:
  */
 class ClsOneControlOneTargetGate : public QuantumGateBase {
 protected:
-    typedef void(T_UPDATE_FUNC)(UINT, UINT, CTYPE*, ITYPE);
-    typedef void(T_GPU_UPDATE_FUNC)(UINT, UINT, void*, ITYPE, void*, UINT);
-    T_UPDATE_FUNC* _update_func;
-    T_UPDATE_FUNC* _update_func_dm;
-    T_GPU_UPDATE_FUNC* _update_func_gpu;
+    using UpdateFunc = void (*)(UINT, UINT, CTYPE*, ITYPE);
+    using UpdateFuncGpu = void (*)(UINT, UINT, void*, ITYPE, void*, UINT);
+    UpdateFunc _update_func;
+    UpdateFunc _update_func_dm;
+    UpdateFuncGpu _update_func_gpu;
     ComplexMatrix _matrix_element;
 
 public:
@@ -173,7 +181,15 @@ public:
         this->_matrix_element = ComplexMatrix::Zero(2, 2);
         this->_matrix_element << 1, 0, 0, -1;
     }
+    virtual ClsOneControlOneTargetGate* get_inverse(void) const override {
+        if (this->_name == "CZ" || this->_name == "CNOT") {
+            return this->copy();
+        }
+        throw NotImplementedException(
+            "Inverse of " + this->_name + " gate is not Implemented");
+    }
+    //現状CZ,CNOTゲートしかないので、自身がinverseになるが、　そうでないゲートが追加されたときの保険として、　判定をする
 };
 
-typedef ClsTwoQubitGate QuantumGate_TwoQubit;
-typedef ClsOneControlOneTargetGate QuantumGate_OneControlOneTarget;
+using QuantumGate_TwoQubit = ClsTwoQubitGate;
+using QuantumGate_OneControlOneTarget = ClsOneControlOneTargetGate;

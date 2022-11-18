@@ -31,11 +31,11 @@ public:
 class QuantumGate_SingleParameterOneQubitRotation
     : public QuantumGate_SingleParameter {
 protected:
-    typedef void(T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
-    typedef void(T_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE, void*, UINT);
-    T_UPDATE_FUNC* _update_func = NULL;
-    T_UPDATE_FUNC* _update_func_dm = NULL;
-    T_GPU_UPDATE_FUNC* _update_func_gpu = NULL;
+    using UpdateFunc = void (*)(UINT, double, CTYPE*, ITYPE);
+    using UpdateFuncGpu = void (*)(UINT, double, void*, ITYPE, void*, UINT);
+    UpdateFunc _update_func = nullptr;
+    UpdateFunc _update_func_dm = nullptr;
+    UpdateFuncGpu _update_func_gpu = nullptr;
 
     QuantumGate_SingleParameterOneQubitRotation(double angle)
         : QuantumGate_SingleParameter(angle) {}
@@ -102,6 +102,11 @@ public:
     virtual ClsParametricRXGate* copy() const override {
         return new ClsParametricRXGate(*this);
     };
+
+    virtual ClsParametricRXGate* get_inverse() const override {
+        return new ClsParametricRXGate(
+            this->target_qubit_list[0].index(), -_angle);
+    };
 };
 
 class ClsParametricRYGate : public QuantumGate_SingleParameterOneQubitRotation {
@@ -125,6 +130,11 @@ public:
     virtual ClsParametricRYGate* copy() const override {
         return new ClsParametricRYGate(*this);
     };
+
+    virtual ClsParametricRYGate* get_inverse() const override {
+        return new ClsParametricRYGate(
+            this->target_qubit_list[0].index(), -_angle);
+    };
 };
 
 class ClsParametricRZGate : public QuantumGate_SingleParameterOneQubitRotation {
@@ -147,6 +157,11 @@ public:
     }
     virtual ClsParametricRZGate* copy() const override {
         return new ClsParametricRZGate(*this);
+    };
+
+    virtual ClsParametricRZGate* get_inverse() const override {
+        return new ClsParametricRZGate(
+            this->target_qubit_list[0].index(), -_angle);
     };
 };
 
@@ -213,4 +228,8 @@ public:
                  1.i * sin(_angle / 2) * matrix;
     };
     virtual PauliOperator* get_pauli() const { return _pauli; };
+
+    virtual ClsParametricPauliRotationGate* get_inverse() const override {
+        return new ClsParametricPauliRotationGate(-_angle, _pauli->copy());
+    };
 };

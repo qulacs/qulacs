@@ -17,7 +17,7 @@ class QuantumStateBase;
 class QuantumGateBase;
 class PauliOperator;
 class HermitianQuantumOperator;
-typedef HermitianQuantumOperator Observable;
+using Observable = HermitianQuantumOperator;
 
 /**
  * \~japanese-en 量子回路のクラス
@@ -496,8 +496,8 @@ public:
         double angle);
 
     /**
-     * \~japanese-en n-qubitパウリ回転ゲートを追加する。
      *
+     * \~japanese-en n-qubitパウリ回転ゲートを追加する。
      * n-qubitパウリ回転ゲートを作用する。
      * 回転角はPauliOperatorの係数を用いる。
      * @param[in] pauli_operator 追加するパウリ演算子
@@ -557,4 +557,6 @@ public:
     virtual void add_random_unitary_gate(std::vector<UINT> target_index_list);
     virtual void add_random_unitary_gate(
         std::vector<UINT> target_index_list, UINT seed);
+
+    virtual QuantumCircuit* get_inverse(void);
 };

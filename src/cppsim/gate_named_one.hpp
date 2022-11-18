@@ -21,11 +21,11 @@ static void Igate_idling_gpu(UINT, void*, ITYPE, void*, UINT){};
 
 class ClsOneQubitGate : public QuantumGateBase {
 protected:
-    typedef void(T_UPDATE_FUNC)(UINT, CTYPE*, ITYPE);
-    typedef void(T_GPU_UPDATE_FUNC)(UINT, void*, ITYPE, void*, UINT);
-    T_UPDATE_FUNC* _update_func;
-    T_UPDATE_FUNC* _update_func_dm;
-    T_GPU_UPDATE_FUNC* _update_func_gpu;
+    using UpdateFunc = void (*)(UINT, CTYPE*, ITYPE);
+    using UpdateFuncGpu = void (*)(UINT, void*, ITYPE, void*, UINT);
+    UpdateFunc _update_func;
+    UpdateFunc _update_func_dm;
+    UpdateFuncGpu _update_func_gpu;
     ComplexMatrix _matrix_element;
 
 public:
@@ -277,6 +277,8 @@ public:
         this->_matrix_element = ComplexMatrix::Zero(2, 2);
         this->_matrix_element << 0, 0, 0, 1;
     }
+
+    virtual ClsOneQubitGate* get_inverse(void) const;
 };
 
 /**
@@ -284,11 +286,11 @@ public:
  */
 class ClsOneQubitRotationGate : public QuantumGateBase {
 protected:
-    typedef void(T_UPDATE_FUNC)(UINT, double, CTYPE*, ITYPE);
-    typedef void(T_GPU_UPDATE_FUNC)(UINT, double, void*, ITYPE, void*, UINT);
-    T_UPDATE_FUNC* _update_func;
-    T_UPDATE_FUNC* _update_func_dm;
-    T_GPU_UPDATE_FUNC* _update_func_gpu;
+    using UpdateFunc = void (*)(UINT, double, CTYPE*, ITYPE);
+    using UpdateFuncGpu = void (*)(UINT, double, void*, ITYPE, void*, UINT);
+    UpdateFunc _update_func;
+    UpdateFunc _update_func_dm;
+    UpdateFuncGpu _update_func_gpu;
     ComplexMatrix _matrix_element;
     double _angle;
 
@@ -381,7 +383,8 @@ public:
         this->_matrix_element << cos(_angle / 2) + 1.i * sin(_angle / 2), 0, 0,
             cos(_angle / 2) - 1.i * sin(_angle / 2);
     }
+    virtual ClsOneQubitRotationGate* get_inverse(void) const;
 };
 
-typedef ClsOneQubitGate QuantumGate_OneQubit;
-typedef ClsOneQubitRotationGate QuantumGate_OneQubitRotation;
+using QuantumGate_OneQubit = ClsOneQubitGate;
+using QuantumGate_OneQubitRotation = ClsOneQubitRotationGate;
