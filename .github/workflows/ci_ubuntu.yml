@@ -80,8 +80,8 @@ jobs:
       - name: Test in Ubuntu
         run: |
           cd ./build
-          make coverage
-          make pythontest
+          make coverage -j
+          make pythontest -j
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3
@@ -129,6 +129,7 @@ jobs:
         run: USE_TEST=Yes ./script/build_gcc_with_memory_sanitizer.sh
 
       - name: Test in Ubuntu
+        # -j option is not appended because running this test in parallel is slower than sequential version.
         run: |
           cd ./build
           make test
