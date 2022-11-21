@@ -387,7 +387,13 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Get qubit count")
         .def(
             "__str__", [](const QuantumState& p) { return p.to_string(); },
-            "to string");
+            "to string")
+        .def(
+            "to_json",
+            [](const QuantumState& state) {
+                return ptree::to_json(state.to_ptree());
+            },
+            "to json string");
     ;
 
     m.def(
@@ -474,7 +480,13 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Get qubit count")
         .def(
             "__str__", [](const DensityMatrix& p) { return p.to_string(); },
-            "to string");
+            "to string")
+        .def(
+            "to_json",
+            [](const DensityMatrix& state) {
+                return ptree::to_json(state.to_ptree());
+            },
+            "to json string");
     ;
 
 #ifdef _USE_GPU
@@ -616,6 +628,13 @@ PYBIND11_MODULE(qulacs_core, m) {
         py::return_value_policy::take_ownership, "Create a mixed state",
         py::arg("prob1"), py::arg("state1"), py::arg("prob2"),
         py::arg("state2"));
+    mstate.def(
+        "from_json",
+        [](const std::string& json) -> QuantumStateBase* {
+            return state::from_ptree(ptree::from_json(json));
+        },
+        py::return_value_policy::take_ownership, "from json string",
+        py::arg("json"));
 
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
         .def("update_quantum_state", &QuantumGateBase::update_quantum_state,

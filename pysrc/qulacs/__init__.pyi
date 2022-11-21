@@ -893,6 +893,10 @@ class QuantumState(QuantumStateBase):
         """
         Set state to |0>
         """
+    def to_json(self) -> str: 
+        """
+        to json string
+        """
     def to_string(self) -> str: 
         """
         to string
@@ -993,6 +997,10 @@ class DensityMatrix(QuantumStateBase):
     def set_zero_state(self) -> None: 
         """
         Set state to |0>
+        """
+    def to_json(self) -> str: 
+        """
+        to json string
         """
     def to_string(self) -> str: 
         """

@@ -192,6 +192,21 @@ public:
 
 /**
  * \~japanese-en
+ * ptreeのプロパティの値が想定外という例外
+ */
+class UnknownPTreePropertyValueException : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    UnknownPTreePropertyValueException(const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
+ * \~japanese-en
  * GeneralQuantumOperator中のPauliOperatorのインデックスが範囲外という例外
  */
 class OperatorIndexOutOfRangeException : public std::out_of_range {

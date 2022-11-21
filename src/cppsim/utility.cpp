@@ -122,3 +122,59 @@ std::string& rtrim(std::string& str) {
     str.erase(it.base(), str.end());
     return str;
 }
+
+namespace ptree {
+boost::property_tree::ptree to_ptree(const CPPCTYPE& cnum) {
+    boost::property_tree::ptree ptree;
+    ptree.put("real", cnum.real());
+    ptree.put("imag", cnum.imag());
+    return ptree;
+}
+boost::property_tree::ptree to_ptree(const std::vector<UINT>& uarray) {
+    boost::property_tree::ptree ptree;
+    for (const UINT& unum : uarray) {
+        boost::property_tree::ptree child;
+        child.put("", unum);
+        ptree.push_back(std::make_pair("", child));
+    }
+    return ptree;
+}
+boost::property_tree::ptree to_ptree(const std::vector<CPPCTYPE>& carray) {
+    boost::property_tree::ptree ptree;
+    for (const CPPCTYPE& cnum : carray) {
+        ptree.push_back(std::make_pair("", to_ptree(cnum)));
+    }
+    return ptree;
+}
+CPPCTYPE complex_from_ptree(const boost::property_tree::ptree& pt) {
+    double real = pt.get<double>("real");
+    double imag = pt.get<double>("imag");
+    return CPPCTYPE(real, imag);
+}
+std::vector<UINT> uint_array_from_ptree(const boost::property_tree::ptree& pt) {
+    std::vector<UINT> uarray;
+    for (const boost::property_tree::ptree::value_type& unum_pair : pt) {
+        uarray.push_back(unum_pair.second.get<UINT>(""));
+    }
+    return uarray;
+}
+std::vector<CPPCTYPE> complex_array_from_ptree(
+    const boost::property_tree::ptree& pt) {
+    std::vector<CPPCTYPE> carray;
+    for (const boost::property_tree::ptree::value_type& cnum_pair : pt) {
+        carray.push_back(complex_from_ptree(cnum_pair.second));
+    }
+    return carray;
+}
+std::string to_json(const boost::property_tree::ptree& pt) {
+    std::stringstream ss;
+    boost::property_tree::json_parser::write_json(ss, pt);
+    return ss.str();
+}
+boost::property_tree::ptree from_json(const std::string& json) {
+    std::stringstream ss(json);
+    boost::property_tree::ptree pt;
+    boost::property_tree::json_parser::read_json(ss, pt);
+    return pt;
+}
+}  // namespace ptree

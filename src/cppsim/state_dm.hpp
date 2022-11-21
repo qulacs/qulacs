@@ -416,6 +416,17 @@ public:
         os << " * Density matrix : \n" << eigen_state << std::endl;
         return os.str();
     }
+    virtual boost::property_tree::ptree to_ptree() const {
+        boost::property_tree::ptree pt;
+        pt.put("name", "DensityMatrix");
+        pt.put("qubit_count", _qubit_count);
+        pt.put_child(
+            "classical_register", ptree::to_ptree(_classical_register));
+        pt.put_child("density_matrix",
+            ptree::to_ptree(std::vector<CPPCTYPE>(
+                _density_matrix, _density_matrix + _dim * _dim)));
+        return pt;
+    }
 };
 
 using DensityMatrix = DensityMatrixCpu;
@@ -434,4 +445,5 @@ DllExport DensityMatrixCpu* partial_trace(
 DllExport DensityMatrixCpu* make_mixture(CPPCTYPE prob1,
     const QuantumStateBase* state1, CPPCTYPE prob2,
     const QuantumStateBase* state2);
+DllExport QuantumStateBase* from_ptree(const boost::property_tree::ptree& pt);
 }  // namespace state
