@@ -266,19 +266,11 @@ TEST(UpdateTest, CNOTGate) {
     const UINT n = 4;
     test_two_qubit_named_gate(
         n, "CNOT", CNOT_gate, get_eigen_matrix_full_qubit_CNOT);
-    test_two_qubit_named_gate(6, "CNOTGate", CNOT_gate_single_unroll,
-        get_eigen_matrix_full_qubit_CNOT);
-#ifdef _OPENMP
-    test_two_qubit_named_gate(6, "CNOTGate", CNOT_gate_parallel_unroll,
-        get_eigen_matrix_full_qubit_CNOT);
-#endif
+    test_two_qubit_named_gate(
+        6, "CNOTGate", CNOT_gate_unroll, get_eigen_matrix_full_qubit_CNOT);
 #ifdef _USE_SIMD
     test_two_qubit_named_gate(
-        6, "CNOTGate", CNOT_gate_single_simd, get_eigen_matrix_full_qubit_CNOT);
-#ifdef _OPENMP
-    test_two_qubit_named_gate(6, "CNOTGate", CNOT_gate_parallel_simd,
-        get_eigen_matrix_full_qubit_CNOT);
-#endif
+        6, "CNOTGate", CNOT_gate_simd, get_eigen_matrix_full_qubit_CNOT);
 #endif
 }
 
