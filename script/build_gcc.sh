@@ -18,9 +18,9 @@ CMAKE_ALL_OPS="$CMAKE_ALL_OPS -D COVERAGE=${COVERAGE}"
 mkdir -p ./build
 cd ./build
 if [ "${QULACS_OPT_FLAGS:-"__UNSET__"}" = "__UNSET__" ]; then
-  cmake -G "Unix Makefiles" $CMAKE_OPTIONS ..
+  cmake -G "Unix Makefiles" $CMAKE_ALL_OPS ..
 else
-  cmake -G "Unix Makefiles" $CMAKE_OPTIONS -D OPT_FLAGS="${QULACS_OPT_FLAGS}" ..
+  cmake -G "Unix Makefiles" $CMAKE_ALL_OPS -D OPT_FLAGS="${QULACS_OPT_FLAGS}" ..
 fi
 cmake $CMAKE_ALL_OPS ..
 make -j $(nproc)

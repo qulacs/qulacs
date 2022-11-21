@@ -7,7 +7,7 @@
 #include <iostream>
 #include <vector>
 
-#include "csim/MPIutil.h"
+#include "csim/MPIutil.hpp"
 #include "exception.hpp"
 #include "type.hpp"
 #include "utility.hpp"

@@ -5,8 +5,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#include "utility.h"
-#include "MPIutil.h"
+#include "utility.hpp"
+#include "MPIutil.hpp"
 
 #define _NQUBIT_WORK 22  // 4 Mi x 16 Byte(CTYPE)
 
@@ -152,9 +152,9 @@ static void s_D_allreduce(void *buf) {
 }
 
 static void s_D_allreduce_ordersafe(void *buf) {
-    double *recvbuf = malloc(mpisize * sizeof(double));
+    double *recvbuf = (double *)malloc(mpisize * sizeof(double));
     MPI_Allgather(buf, 1, MPI_DOUBLE, recvbuf, 1, MPI_DOUBLE, mpicomm);
-    double *sum = buf;
+    double *sum = (double *)buf;
     *sum = 0.;
     for (int idx = 0; idx < mpisize; ++idx) {
         *sum += recvbuf[idx];
@@ -183,7 +183,7 @@ MPIutil get_mpiutil() {
     MPI_Comm_size(mpicomm, &mpisize);
     mpitag = 0;
 
-    mpiutil = malloc(sizeof(*mpiutil));
+    mpiutil = (MPIutil)malloc(sizeof(*mpiutil));
     REGISTER_METHOD_POINTER(get_rank)
     REGISTER_METHOD_POINTER(get_size)
     REGISTER_METHOD_POINTER(get_tag)
