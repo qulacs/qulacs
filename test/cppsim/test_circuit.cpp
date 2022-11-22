@@ -449,6 +449,7 @@ TEST(CircuitTest, CircuitOptimize) {
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
 
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -474,6 +475,7 @@ TEST(CircuitTest, CircuitOptimize) {
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
 
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -524,6 +526,7 @@ TEST(CircuitTest, CircuitOptimize) {
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
 
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
