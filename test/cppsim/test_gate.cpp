@@ -190,10 +190,7 @@ TEST(GateTest, ApplyTwoQubitGate) {
 
             for (ITYPE i = 0; i < dim; ++i)
                 ASSERT_NEAR(abs(state.data_cpp()[i] - test_state1[i]), 0, eps);
-            for (ITYPE i = 0; i < dim; ++i)
-                ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]),
-                    0, eps);
-
+            ASSERT_STATE_NEAR(state, test_state, eps);
             delete gate;
         }
     }
@@ -231,9 +228,7 @@ TEST(GateTest, ApplyTwoQubitGate) {
 
             for (ITYPE i = 0; i < dim; ++i)
                 ASSERT_NEAR(abs(state.data_cpp()[i] - test_state1[i]), 0, eps);
-            for (ITYPE i = 0; i < dim; ++i)
-                ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]),
-                    0, eps);
+            ASSERT_STATE_NEAR(state, test_state, eps);
 
             delete gate;
         }
