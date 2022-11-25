@@ -963,7 +963,7 @@ class TestQASM(unittest.TestCase):
         state.set_Haar_random_state()
         state_strs = convert_qulacs_state_to_strs(state)
         duplicated_state = convert_strs_to_qulacs_state(state_strs)
-        assert abs(inner_product(state, duplicated_state)) > 0.999
+        assert abs(inner_product(state, duplicated_state)) > 0.99
         
         
 if __name__ == "__main__":
