@@ -133,7 +133,7 @@ Uninstall Qulacs:
 pip uninstall qulacs
 ```
 
-## Use Qualcs as C++ library
+## Use Qulacs as C++ library
 
 ### Build with GCC
 
