@@ -952,7 +952,19 @@ class TestQASM(unittest.TestCase):
         for x in range(transpiled_circuit.get_gate_count()):
             assert np.allclose(transpiled_circuit.get_gate(x).get_matrix(),
                                gates[x].get_matrix())
-
-
+    
+    def test_state_converter(self):
+        from qulacs import QuantumState
+        from qulacs.converter import (convert_qulacs_state_to_strs,
+                                      convert_strs_to_qulacs_state)
+        from qulacs.state import inner_product
+        
+        state = QuantumState(10)
+        state.set_Haar_random_state()
+        state_strs = convert_qulacs_state_to_strs(state)
+        duplicated_state = convert_strs_to_qulacs_state(state_strs)
+        assert abs(inner_product(state, duplicated_state)) > 0.999
+        
+        
 if __name__ == "__main__":
     unittest.main()
