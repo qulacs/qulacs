@@ -65,5 +65,4 @@ QuantumState* make_superposition(CPPCTYPE coef1, const QuantumState* state1,
     qs->add_state_with_coef(coef2, state2);
     return qs;
 }
-
 }  // namespace state

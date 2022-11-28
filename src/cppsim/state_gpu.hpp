@@ -383,6 +383,12 @@ public:
         free(data);
         return os.str();
     }
+
+    virtual boost::property_tree::ptree to_ptree() const {
+        throw NotImplementedException(
+            "to_ptree for QuantumStateGpu is not implemented "
+            "yet");
+    }
 };
 
 namespace state {

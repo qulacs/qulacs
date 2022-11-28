@@ -75,4 +75,34 @@ DensityMatrixCpu* make_mixture(CPPCTYPE prob1, const QuantumStateBase* state1,
     delete dm2;
     return mixture;
 }
+DllExport QuantumStateBase* from_ptree(const boost::property_tree::ptree& pt) {
+    std::string name = pt.get<std::string>("name");
+    if (name == "QuantumState") {
+        UINT qubit_count = pt.get<UINT>("qubit_count");
+        std::vector<UINT> classical_register =
+            ptree::uint_array_from_ptree(pt.get_child("classical_register"));
+        std::vector<CPPCTYPE> state_vector =
+            ptree::complex_array_from_ptree(pt.get_child("state_vector"));
+        QuantumState* qs = new QuantumState(qubit_count);
+        for (UINT i = 0; i < classical_register.size(); i++) {
+            qs->set_classical_value(i, classical_register[i]);
+        }
+        qs->load(state_vector);
+        return qs;
+    } else if (name == "DensityMatrix") {
+        UINT qubit_count = pt.get<UINT>("qubit_count");
+        std::vector<UINT> classical_register =
+            ptree::uint_array_from_ptree(pt.get_child("classical_register"));
+        std::vector<CPPCTYPE> density_matrix =
+            ptree::complex_array_from_ptree(pt.get_child("density_matrix"));
+        DensityMatrix* dm = new DensityMatrix(qubit_count);
+        for (UINT i = 0; i < classical_register.size(); i++) {
+            dm->set_classical_value(i, classical_register[i]);
+        }
+        dm->load(density_matrix);
+        return dm;
+    }
+    throw UnknownPTreePropertyValueException(
+        "unknown value for property \"name\":" + name);
+}
 }  // namespace state

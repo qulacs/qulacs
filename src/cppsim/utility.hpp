@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <cctype>
 #include <chrono>
 #include <cstdio>
@@ -212,3 +214,15 @@ bool check_is_unique_index_list(const std::vector<UINT>& index_list);
  * @return 末尾の空白文字を削除された文字列
  */
 std::string& rtrim(std::string& str);
+
+namespace ptree {
+boost::property_tree::ptree to_ptree(const CPPCTYPE& cnum);
+boost::property_tree::ptree to_ptree(const std::vector<UINT>& uarray);
+boost::property_tree::ptree to_ptree(const std::vector<CPPCTYPE>& carray);
+CPPCTYPE complex_from_ptree(const boost::property_tree::ptree& pt);
+std::vector<UINT> uint_array_from_ptree(const boost::property_tree::ptree& pt);
+std::vector<CPPCTYPE> complex_array_from_ptree(
+    const boost::property_tree::ptree& pt);
+std::string to_json(const boost::property_tree::ptree& ptree);
+boost::property_tree::ptree from_json(const std::string& json);
+}  // namespace ptree
