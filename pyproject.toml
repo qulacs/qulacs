@@ -64,8 +64,6 @@ doc = [
     "myst-parser",
     "sphinx-copybutton",
     "ipykernel",
-    "qulacs",
-    "scipy",
 ]
 
 [tool.setuptools]
