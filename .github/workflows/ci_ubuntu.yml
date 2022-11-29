@@ -80,8 +80,8 @@ jobs:
       - name: Test in Ubuntu
         run: |
           cd ./build
-          make coverage -j
-          make pythontest -j
+          make coverage -j $(nproc)
+          make pythontest -j $(nproc)
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3
