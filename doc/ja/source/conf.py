@@ -63,7 +63,6 @@ exhale_args = {
         MACRO_EXPANSION        = YES \n \
         PREDEFINED             += __attribute__(x)= \n \
         PREDEFINED             += DllExport= \n \
-        OUTPUT_LANGUAGE = English \n \
         GENERATE_LEGEND        = YES \n \
         GRAPHICAL_HIERARCHY    = YES \n \
         CLASS_GRAPH            = YES \n \
