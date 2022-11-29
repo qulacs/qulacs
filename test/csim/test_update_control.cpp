@@ -18,9 +18,8 @@ void test_single_control_single_target(
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
 
-    Eigen::MatrixXcd P0(2, 2), P1(2, 2);
-    P0 << 1, 0, 0, 0;
-    P1 << 0, 0, 0, 1;
+    const auto P0 = make_P0();
+    const auto P1 = make_P1();
 
     Eigen::Matrix<std::complex<double>, 2, 2, Eigen::RowMajor> U;
 
@@ -94,9 +93,8 @@ void test_two_control_single_target(std::function<void(
     std::vector<UINT> index_list;
     for (UINT i = 0; i < n; ++i) index_list.push_back(i);
 
-    Eigen::MatrixXcd P0(2, 2), P1(2, 2);
-    P0 << 1, 0, 0, 0;
-    P1 << 0, 0, 0, 1;
+    const auto P0 = make_P0();
+    const auto P1 = make_P1();
 
     Eigen::Matrix<std::complex<double>, 2, 2, Eigen::RowMajor> U;
 
@@ -168,9 +166,8 @@ TEST(UpdateTest, SingleQubitControlTwoQubitDenseMatrixTest) {
     std::vector<UINT> index_list;
     for (UINT i = 0; i < n; ++i) index_list.push_back(i);
 
-    Eigen::MatrixXcd P0(2, 2), P1(2, 2);
-    P0 << 1, 0, 0, 0;
-    P1 << 0, 0, 0, 1;
+    const auto P0 = make_P0();
+    const auto P1 = make_P1();
 
     Eigen::Matrix<std::complex<double>, 2, 2, Eigen::RowMajor> U, U2;
     Eigen::Matrix<std::complex<double>, 4, 4, Eigen::RowMajor> Umerge;
@@ -216,9 +213,8 @@ TEST(UpdateTest, TwoQubitControlTwoQubitDenseMatrixTest) {
     std::vector<UINT> index_list;
     for (UINT i = 0; i < n; ++i) index_list.push_back(i);
 
-    Eigen::MatrixXcd P0(2, 2), P1(2, 2);
-    P0 << 1, 0, 0, 0;
-    P1 << 0, 0, 0, 1;
+    const auto P0 = make_P0();
+    const auto P1 = make_P1();
 
     Eigen::Matrix<std::complex<double>, 2, 2, Eigen::RowMajor> U, U2;
     Eigen::Matrix<std::complex<double>, 4, 4, Eigen::RowMajor> Umerge;

@@ -14,9 +14,8 @@ TEST(StatOperationTest, ProbTest) {
     const UINT max_repeat = 10;
 
     CTYPE* state = allocate_quantum_state(dim);
-    Eigen::MatrixXcd P0(2, 2), P1(2, 2);
-    P0 << 1, 0, 0, 0;
-    P1 << 0, 0, 0, 1;
+    const auto P0 = make_P0();
+    const auto P1 = make_P1();
 
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state, dim);
@@ -50,10 +49,9 @@ TEST(StatOperationTest, MarginalProbTest) {
     const UINT max_repeat = 10;
 
     CTYPE* state = allocate_quantum_state(dim);
-    Eigen::MatrixXcd P0(2, 2), P1(2, 2), Identity(2, 2);
-    P0 << 1, 0, 0, 0;
-    P1 << 0, 0, 0, 1;
-    Identity << 1, 0, 0, 1;
+    const auto Identity = make_Identity();
+    const auto P0 = make_P0();
+    const auto P1 = make_P1();
 
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state, dim);
@@ -153,12 +151,11 @@ TEST(StatOperationTest, SingleQubitExpectationValueTest) {
     const UINT max_repeat = 10;
 
     CTYPE* state = allocate_quantum_state(dim);
-    Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
     Eigen::MatrixXcd pauli_op;
-    Identity << 1, 0, 0, 1;
-    X << 0, 1, 1, 0;
-    Z << 1, 0, 0, -1;
-    Y << 0, -1.i, 1.i, 0;
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
 
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state, dim);
@@ -200,12 +197,11 @@ TEST(StatOperationTest, MultiQubitExpectationValueWholeTest) {
     const UINT max_repeat = 10;
 
     CTYPE* state = allocate_quantum_state(dim);
-    Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
     Eigen::MatrixXcd pauli_op;
-    Identity << 1, 0, 0, 1;
-    X << 0, 1, 1, 0;
-    Z << 1, 0, 0, -1;
-    Y << 0, -1.i, 1.i, 0;
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
 
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state, dim);
@@ -250,12 +246,11 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopWholeTest) {
     const UINT max_repeat = 10;
 
     CTYPE* state = allocate_quantum_state(dim);
-    Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
     Eigen::MatrixXcd pauli_op;
-    Identity << 1, 0, 0, 1;
-    X << 0, 1, 1, 0;
-    Z << 1, 0, 0, -1;
-    Y << 0, -1.i, 1.i, 0;
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
 
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state, dim);
@@ -294,8 +289,12 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopWholeTest) {
 TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
-
     const UINT max_repeat = 10;
+
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
 
     CTYPE* state = allocate_quantum_state(dim);
     for (UINT rep = 0; rep < max_repeat; ++rep) {
@@ -303,12 +302,6 @@ TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
         for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
-
-        Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
-        Identity << 1, 0, 0, 1;
-        X << 0, 1, 1, 0;
-        Z << 1, 0, 0, -1;
-        Y << 0, -1.i, 1.i, 0;
 
         for (UINT target = 0; target < n; ++target) {
             // multi qubit expectation partial list value check
@@ -359,18 +352,17 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopPartialTest) {
 
     const UINT max_repeat = 10;
 
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
+
     CTYPE* state = allocate_quantum_state(dim);
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
         for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
-
-        Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
-        Identity << 1, 0, 0, 1;
-        X << 0, 1, 1, 0;
-        Z << 1, 0, 0, -1;
-        Y << 0, -1.i, 1.i, 0;
 
         for (UINT target = 0; target < n; ++target) {
             // multi qubit expectation partial list value check
@@ -419,12 +411,11 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeWholeTest) {
 
     CTYPE* state_ket = allocate_quantum_state(dim);
     CTYPE* state_bra = allocate_quantum_state(dim);
-    Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
     Eigen::MatrixXcd pauli_op;
-    Identity << 1, 0, 0, 1;
-    X << 0, 1, 1, 0;
-    Z << 1, 0, 0, -1;
-    Y << 0, -1.i, 1.i, 0;
 
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state_ket, dim);
@@ -477,12 +468,11 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopWholeTest) {
 
     CTYPE* state_ket = allocate_quantum_state(dim);
     CTYPE* state_bra = allocate_quantum_state(dim);
-    Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
     Eigen::MatrixXcd pauli_op;
-    Identity << 1, 0, 0, 1;
-    X << 0, 1, 1, 0;
-    Z << 1, 0, 0, -1;
-    Y << 0, -1.i, 1.i, 0;
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
 
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state_ket, dim);
@@ -532,12 +522,11 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudePartialTest) {
 
     CTYPE* state_ket = allocate_quantum_state(dim);
     CTYPE* state_bra = allocate_quantum_state(dim);
-    Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
     Eigen::MatrixXcd pauli_op;
-    Identity << 1, 0, 0, 1;
-    X << 0, 1, 1, 0;
-    Z << 1, 0, 0, -1;
-    Y << 0, -1.i, 1.i, 0;
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
 
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state_ket, dim);
@@ -602,12 +591,11 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
 
     CTYPE* state_ket = allocate_quantum_state(dim);
     CTYPE* state_bra = allocate_quantum_state(dim);
-    Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
     Eigen::MatrixXcd pauli_op;
-    Identity << 1, 0, 0, 1;
-    X << 0, 1, 1, 0;
-    Z << 1, 0, 0, -1;
-    Y << 0, -1.i, 1.i, 0;
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
 
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         initialize_Haar_random_state(state_ket, dim);

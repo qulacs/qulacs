@@ -80,8 +80,8 @@ jobs:
       - name: Test in Ubuntu
         run: |
           cd ./build
-          make coverage
-          make pythontest
+          make coverage -j $(nproc)
+          make pythontest -j $(nproc)
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3
@@ -91,9 +91,6 @@ jobs:
 
   gcc10-build-with-address-sanitizer:
     name: GCC10 build with -fsanitizer=address enabled
-    strategy:
-      matrix:
-        python-version: ["3.7.5"]
     runs-on: "ubuntu-20.04"
     env:
       CXX_COMPILER: "/usr/lib/ccache/g++"
@@ -106,12 +103,6 @@ jobs:
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
-
-      - name: Setup Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: ${{ matrix.python-version }}
-          architecture: x64
 
       - name: Install ccache
         run: sudo apt install ccache
@@ -129,6 +120,7 @@ jobs:
         run: USE_TEST=Yes ./script/build_gcc_with_memory_sanitizer.sh
 
       - name: Test in Ubuntu
+        # -j option is not appended because running this test in parallel is slower than sequential version.
         run: |
           cd ./build
           make test
