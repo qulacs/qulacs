@@ -95,6 +95,18 @@ public:
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         get_Pauli_matrix(matrix, _pauli->get_pauli_id_list());
     }
+
+    /**
+     * \~japanese-en ptreeに変換する
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const {
+        boost::property_tree::ptree pt;
+        pt.add("name", "PauliGate");
+        pt.add_child("pauli", _pauli->to_ptree());
+        return pt;
+    }
 };
 
 /**
@@ -187,5 +199,18 @@ public:
         matrix = cos(_angle / 2) *
                      ComplexMatrix::Identity(matrix.rows(), matrix.cols()) +
                  1.i * sin(_angle / 2) * matrix;
+    }
+
+    /**
+     * \~japanese-en ptreeに変換する
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const {
+        boost::property_tree::ptree pt;
+        pt.add("name", "PauliRotationGate");
+        pt.add("angle", _angle);
+        pt.add_child("pauli", _pauli->to_ptree());
+        return pt;
     }
 };

@@ -693,8 +693,13 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Check this gate is parametric gate")
         .def("is_diagonal", &QuantumGateBase::is_diagonal,
             "Check the gate matrix is diagonal")
-
-        ;
+        .def(
+            "to_json",
+            [](const QuantumGateBase& gate) -> std::string {
+                return ptree::to_json(gate.to_ptree());
+            },
+            "to json string");
+    ;
 
     py::class_<QuantumGateMatrix, QuantumGateBase>(m, "QuantumGateMatrix")
         .def("add_control_qubit", &QuantumGateMatrix::add_control_qubit,
@@ -1041,6 +1046,12 @@ PYBIND11_MODULE(qulacs_core, m) {
         py::return_value_policy::take_ownership,
         "Create parametric multi-qubit Pauli rotation gate",
         py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"));
+    mgate.def(
+        "from_json",
+        [](std::string json) -> QuantumGateBase* {
+            return gate::from_ptree(ptree::from_json(json));
+        },
+        py::return_value_policy::take_ownership, "from json string");
 
     m.def("to_general_quantum_operator", &to_general_quantum_operator,
         py::arg("gate"), py::arg("qubits"), py::arg("tol"));
