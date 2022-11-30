@@ -89,13 +89,14 @@ public:
     virtual boost::property_tree::ptree to_ptree() const {
         boost::property_tree::ptree pt;
         pt.add("name", _name + "Gate");
-        std::vector<boost::property_tree::ptree> target_qubit_list_ptree;
+        std::vector<UINT> target_qubit_list_uint;
         std::transform(_target_qubit_list.begin(), _target_qubit_list.end(),
-            std::back_inserter(target_qubit_list_ptree),
+            std::back_inserter(target_qubit_list_uint),
             [](const TargetQubitInfo& qubit_info) {
-                return ptree::to_ptree(qubit_info.index());
+                return qubit_info.index();
             });
-        pt.add("target_qubit_list", ptree::to_ptree(target_qubit_list_ptree));
+        pt.add_child(
+            "target_qubit_list", ptree::to_ptree(target_qubit_list_uint));
         return pt;
     }
 };
