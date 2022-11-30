@@ -127,6 +127,10 @@ class QuantumGateBase():
         """
         Check this gate is parametric gate
         """
+    def to_json(self) -> str: 
+        """
+        to json string
+        """
     def to_string(self) -> str: 
         """
         to string
