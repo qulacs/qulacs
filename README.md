@@ -97,7 +97,7 @@ If you encounter some troubles, see [troubleshooting](http://qulacs.org/md_4__tr
 Install with default options (Multi-thread without GPU):
 
 ```
-python setup.py install
+pip install .
 ```
 
 If AVX2 instructions are not supported, SIMD optimization is automatically disabled.
@@ -106,18 +106,26 @@ If AVX2 instructions are not supported, SIMD optimization is automatically disab
 Install with GPU support (CUDA is required):
 
 ```
-USE_GPU=Yes python setup.py install
+USE_GPU=Yes pip install .
 ```
 
 Install single-thread Qulacs:
 
 ```
-USE_OMP=No python setup.py install
+USE_OMP=No pip install .
 ```
 
 The number of threads used in Qulacs installed with default options can be controlled via the environment variable `OMP_NUM_THREADS`.
 However, typically this option also affects the parallelization of other libraries. 
 If you want to force only Qulacs to use a single thread, You can install single-thread Qulacs with the above command.
+
+For development purpose, optional dependencies can be installed as follows.
+```
+# Install development tools
+pip install .[dev]
+# Install dependencies for document generation
+pip install .[doc]
+```
 
 Uninstall Qulacs:
 
@@ -125,7 +133,7 @@ Uninstall Qulacs:
 pip uninstall qulacs
 ```
 
-## Use Qualcs as C++ library
+## Use Qulacs as C++ library
 
 ### Build with GCC
 
