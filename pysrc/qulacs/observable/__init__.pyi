@@ -6,7 +6,8 @@ import qulacs_core
 __all__ = [
     "create_observable_from_openfermion_file",
     "create_observable_from_openfermion_text",
-    "create_split_observable"
+    "create_split_observable",
+    "from_json"
 ]
 
 
@@ -20,3 +21,7 @@ def create_observable_from_openfermion_text(text: str) -> qulacs_core.Observable
     """
 def create_split_observable(arg0: str) -> typing.Tuple[qulacs_core.Observable, qulacs_core.Observable]:
     pass
+def from_json(json: str) -> qulacs_core.Observable:
+    """
+    from json string
+    """

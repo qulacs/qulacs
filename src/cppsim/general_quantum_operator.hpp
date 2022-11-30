@@ -9,6 +9,7 @@
 #include "exception.hpp"
 #include "type.hpp"
 #include "utility.hpp"
+class SinglePauliOperator;
 class PauliOperator;
 class QuantumStateBase;
 
@@ -270,6 +271,14 @@ public:
 
     virtual GeneralQuantumOperator* copy() const;
 
+    /**
+     * \~japanese-en
+     * ptreeに変換する
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const;
+
     GeneralQuantumOperator operator+(
         const GeneralQuantumOperator& target) const;
 
@@ -340,6 +349,36 @@ create_general_quantum_operator_from_openfermion_text(std::string text);
  */
 DllExport std::pair<GeneralQuantumOperator*, GeneralQuantumOperator*>
 create_split_general_quantum_operator(std::string file_path);
+
+/**
+ * \~japanese-en
+ * ptreeからSinglePauliOperatorを構築する
+ *
+ * @param[in] ptree ptree
+ * @return SinglePauliOperatorのインスタンス(ポインタ)
+ */
+DllExport SinglePauliOperator* single_pauli_operator_from_ptree(
+    const boost::property_tree::ptree& pt);
+
+/**
+ * \~japanese-en
+ * ptreeからPauliOperatorを構築する
+ *
+ * @param[in] ptree ptree
+ * @return PauliOperatorのインスタンス(ポインタ)
+ */
+DllExport PauliOperator* pauli_operator_from_ptree(
+    const boost::property_tree::ptree& pt);
+
+/**
+ * \~japanese-en
+ * ptreeからGeneralQuantumOperatorを構築する
+ *
+ * @param[in] ptree ptree
+ * @return GeneralQuantumOperatorのインスタンス(ポインタ)
+ */
+DllExport GeneralQuantumOperator* from_ptree(
+    const boost::property_tree::ptree& pt);
 }  // namespace quantum_operator
 
 bool check_Pauli_operator(const GeneralQuantumOperator* quantum_operator,

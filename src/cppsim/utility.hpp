@@ -219,9 +219,13 @@ namespace ptree {
 boost::property_tree::ptree to_ptree(const CPPCTYPE& cnum);
 boost::property_tree::ptree to_ptree(const std::vector<UINT>& uarray);
 boost::property_tree::ptree to_ptree(const std::vector<CPPCTYPE>& carray);
+boost::property_tree::ptree to_ptree(
+    const std::vector<boost::property_tree::ptree>& pt_array);
 CPPCTYPE complex_from_ptree(const boost::property_tree::ptree& pt);
 std::vector<UINT> uint_array_from_ptree(const boost::property_tree::ptree& pt);
 std::vector<CPPCTYPE> complex_array_from_ptree(
+    const boost::property_tree::ptree& pt);
+std::vector<boost::property_tree::ptree> ptree_array_from_ptree(
     const boost::property_tree::ptree& pt);
 std::string to_json(const boost::property_tree::ptree& ptree);
 boost::property_tree::ptree from_json(const std::string& json);

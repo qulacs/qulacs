@@ -146,6 +146,14 @@ boost::property_tree::ptree to_ptree(const std::vector<CPPCTYPE>& carray) {
     }
     return ptree;
 }
+boost::property_tree::ptree to_ptree(
+    const std::vector<boost::property_tree::ptree>& pt_array) {
+    boost::property_tree::ptree ptree;
+    for (const boost::property_tree::ptree& pt : pt_array) {
+        ptree.push_back(std::make_pair("", pt));
+    }
+    return ptree;
+}
 CPPCTYPE complex_from_ptree(const boost::property_tree::ptree& pt) {
     double real = pt.get<double>("real");
     double imag = pt.get<double>("imag");
@@ -165,6 +173,14 @@ std::vector<CPPCTYPE> complex_array_from_ptree(
         carray.push_back(complex_from_ptree(cnum_pair.second));
     }
     return carray;
+}
+std::vector<boost::property_tree::ptree> ptree_array_from_ptree(
+    const boost::property_tree::ptree& pt) {
+    std::vector<boost::property_tree::ptree> pt_array;
+    for (const boost::property_tree::ptree::value_type& pt_pair : pt) {
+        pt_array.push_back(pt_pair.second);
+    }
+    return pt_array;
 }
 std::string to_json(const boost::property_tree::ptree& pt) {
     std::stringstream ss;
