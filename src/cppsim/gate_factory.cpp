@@ -667,6 +667,18 @@ QuantumGateBase* from_ptree(const boost::property_tree::ptree& pt) {
         UINT target_qubit = pt.get<UINT>("target_qubit");
         double angle = pt.get<double>("angle");
         return RZ(target_qubit, angle);
+    } else if (name == "SWAPGate") {
+        std::vector<UINT> target_qubit_list =
+            ptree::uint_array_from_ptree(pt.get_child("target_qubit_list"));
+        return SWAP(target_qubit_list[0], target_qubit_list[1]);
+    } else if (name == "CNOTGate") {
+        UINT control_qubit = pt.get<UINT>("control_qubit");
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return CNOT(control_qubit, target_qubit);
+    } else if (name == "CZGate") {
+        UINT control_qubit = pt.get<UINT>("control_qubit");
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return CZ(control_qubit, target_qubit);
     } else {
         throw UnknownPTreePropertyValueException(
             "unknown value for property \"name\":" + name);
