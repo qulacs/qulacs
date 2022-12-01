@@ -117,7 +117,8 @@ def convert_QASM_to_qulacs_circuit(
     for instr_moto in input_strs:
         # process input string for parsing instruction.
         instr = instr_moto.lower().strip().replace(" ", "").replace("\t", "")
-        
+        if instr == "":
+            continue
         if instr[0:4] == "qreg":
             matchobj = re.match(r'qregq\[(\d+)\];', instr)
             assert matchobj is not None
