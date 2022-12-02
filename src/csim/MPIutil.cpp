@@ -1,12 +1,8 @@
 //
 #ifdef _USE_MPI
-#include <assert.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
+#include "MPIutil.hpp"
 
 #include "utility.hpp"
-#include "MPIutil.hpp"
 
 #define _NQUBIT_WORK 22  // 4 Mi x 16 Byte(CTYPE)
 
@@ -162,13 +158,9 @@ static void s_D_allreduce_ordersafe(void *buf) {
     free(recvbuf);
 }
 
-static void s_u_bcast(UINT *a) {
-    MPI_Bcast(a, 1, MPI_INT, 0, mpicomm);
-}
+static void s_u_bcast(UINT *a) { MPI_Bcast(a, 1, MPI_INT, 0, mpicomm); }
 
-static void s_D_bcast(double *a) {
-    MPI_Bcast(a, 1, MPI_DOUBLE, 0, mpicomm);
-}
+static void s_D_bcast(double *a) { MPI_Bcast(a, 1, MPI_DOUBLE, 0, mpicomm); }
 
 #define REGISTER_METHOD_POINTER(M) mpiutil->M = M;
 

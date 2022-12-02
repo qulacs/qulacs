@@ -243,6 +243,10 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 
 	# Enable openmpi
 	if(USE_MPI)
+		if((NOT "${CMAKE_C_COMPILER}" MATCHES ".*mpicc") OR
+			(NOT "${CMAKE_CXX_COMPILER}" MATCHES ".*mpic\\+\\+"))
+			message(FATAL_ERROR, "USE_MPI must be used in mpicc/mpic++.")
+		endif()
 		add_compile_options("-D _USE_MPI")
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lmpi")
 	endif()
@@ -321,6 +325,11 @@ elseif(MSVC)
 	# enable openmp
 	if(USE_OMP)
 		add_compile_options("/openmp")
+	endif()
+
+	# enable mpi
+	if(USE_MPI)
+		message(FATAL_ERROR, "USE_MPI is not supported in MSVC environment.")
 	endif()
 
 	# enable gpu

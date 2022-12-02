@@ -622,15 +622,16 @@ public:
      * @return 生成された量子状態
      */
     virtual QuantumStateCpu* allocate_buffer() const override {
+        QuantumStateCpu* new_state;
 #ifdef _USE_MPI
         if (this->outer_qc > 0)
-            QuantumStateCpu* new_state =
+            new_state =
                 new QuantumStateCpu(this->_qubit_count, true);
         else
-            QuantumStateCpu* new_state =
+            new_state =
                 new QuantumStateCpu(this->_qubit_count, false);
 #else
-        QuantumStateCpu* new_state = new QuantumStateCpu(this->_qubit_count);
+        new_state = new QuantumStateCpu(this->_qubit_count);
 #endif
         return new_state;
     }

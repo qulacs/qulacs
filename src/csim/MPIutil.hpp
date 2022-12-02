@@ -2,9 +2,12 @@
 #ifdef _USE_MPI
 #pragma once
 
+#include <assert.h>
 #include <mpi.h>
 #include <pthread.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include "type.hpp"
 
 #ifdef __cplusplus
 extern "C" {
