@@ -302,6 +302,21 @@ public:
     IOException(const std::string& message) : std::runtime_error(message) {}
 };
 
+#ifdef _USE_MPI
+/**
+ * \~japanese-en MPIの実行時に失敗した例外
+ */
+class MPIRuntimeException : public std::runtime_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    MPIRuntimeException(const std::string& message)
+        : std::runtime_error(message) {}
+};
+
 /**
  * \~japanese-en mpi-size のエラー
  */
@@ -315,3 +330,4 @@ public:
     MPISizeException(const std::string& message)
         : std::runtime_error(message) {}
 };
+#endif
