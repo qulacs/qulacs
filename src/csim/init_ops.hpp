@@ -25,7 +25,7 @@ DllExport void initialize_Haar_random_state_with_seed(
 #ifdef _USE_MPI
 DllExport void initialize_quantum_state_mpi(
     CTYPE* state, ITYPE dim, UINT outer_qc);
+#endif
 
 DllExport void initialize_Haar_random_state_mpi_with_seed(
     CTYPE* state, ITYPE dim, UINT outer_qc, UINT seed);
-#endif

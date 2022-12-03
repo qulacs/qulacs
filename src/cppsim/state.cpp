@@ -19,6 +19,11 @@ CPPCTYPE inner_product(
 }
 QuantumState* tensor_product(
     const QuantumState* state_left, const QuantumState* state_right) {
+#ifdef _USE_MPI
+    if ((state_left->outer_qc > 0) || (state_right->outer_qc > 0))
+        throw NotImplementedException(
+            "Error: tensor_product does not support multi-cpu");
+#endif
     UINT qubit_count = state_left->qubit_count + state_right->qubit_count;
     QuantumState* qs = new QuantumState(qubit_count);
     state_tensor_product(state_left->data_c(), state_left->dim,

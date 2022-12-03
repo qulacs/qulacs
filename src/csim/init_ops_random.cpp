@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "MPIutil.hpp"
 #include "init_ops.hpp"
 #include "utility.hpp"
 #ifdef _OPENMP
@@ -13,55 +14,35 @@
 unsigned long xor_shift(unsigned long* state);
 double random_uniform(unsigned long* state);
 double random_normal(unsigned long* state);
-void initialize_Haar_random_state_with_seed_single(
-    CTYPE* state, ITYPE dim, UINT seed);
 void initialize_Haar_random_state_with_seed_parallel(
-    CTYPE* state, ITYPE dim, UINT seed);
+    CTYPE* state, ITYPE dim, UINT outer_qc, UINT seed);
 
 void initialize_Haar_random_state(CTYPE* state, ITYPE dim) {
     initialize_Haar_random_state_with_seed(state, dim, (unsigned)time(NULL));
 }
+
 void initialize_Haar_random_state_with_seed(
     CTYPE* state, ITYPE dim, UINT seed) {
+    initialize_Haar_random_state_mpi_with_seed(state, dim, 0, seed);
+}
+
+void initialize_Haar_random_state_mpi_with_seed(
+    CTYPE* state, ITYPE dim, UINT outer_qc, UINT seed) {
 #ifdef _OPENMP
-    UINT threshold = 8;
-    if (dim < (((ITYPE)1) << threshold)) {
-        initialize_Haar_random_state_with_seed_single(state, dim, seed);
-    } else {
-        initialize_Haar_random_state_with_seed_parallel(state, dim, seed);
-    }
-#else
-    initialize_Haar_random_state_with_seed_single(state, dim, seed);
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 8);
+#endif
+    initialize_Haar_random_state_with_seed_parallel(state, dim, outer_qc, seed);
+#ifdef _OPENMP
+    omputil->reset_qulacs_num_threads();
 #endif
 }
 
-// single thread
-void initialize_Haar_random_state_with_seed_single(
-    CTYPE* state, ITYPE dim, UINT seed) {
-    const int ignore_first = 40;
-    double norm = 0.;
-    unsigned long random_state[4];
-    srand(seed);
-    random_state[0] = rand();
-    random_state[1] = rand();
-    random_state[2] = rand();
-    random_state[3] = rand();
-    for (int i = 0; i < ignore_first; ++i) xor_shift(random_state);
-    for (ITYPE index = 0; index < dim; ++index) {
-        double r1, r2;
-        r1 = random_normal(random_state);
-        r2 = random_normal(random_state);
-        state[index] = r1 + 1.i * r2;
-        norm += r1 * r1 + r2 * r2;
-    }
-    norm = sqrt(norm);
-    for (ITYPE index = 0; index < dim; ++index) {
-        state[index] /= norm;
-    }
-}
-#ifdef _OPENMP
 void initialize_Haar_random_state_with_seed_parallel(
-    CTYPE* state, ITYPE dim, UINT seed) {
+    CTYPE* state, ITYPE dim, UINT outer_qc, UINT seed) {
+#ifndef _USE_MPI  // unused parameter if MPI is not used
+    (void)outer_qc;
+#endif
     // multi thread
     const int ignore_first = 40;
     const UINT thread_count = omp_get_max_threads();
@@ -79,7 +60,9 @@ void initialize_Haar_random_state_with_seed_parallel(
     for (UINT i = 0; i < thread_count; ++i) {
         norm_list[i] = 0;
     }
+#ifdef _OPENMP
 #pragma omp parallel
+#endif
     {
         UINT thread_id = omp_get_thread_num();
         unsigned long* my_random_state = random_state_list + 4 * thread_id;
@@ -107,16 +90,21 @@ void initialize_Haar_random_state_with_seed_parallel(
     for (UINT i = 0; i < thread_count; ++i) {
         normalizer += norm_list[i];
     }
+#ifdef _USE_MPI
+    MPIutil m = get_mpiutil();
+    if (outer_qc > 0) m->s_D_allreduce(&normalizer);
+#endif
     normalizer = 1. / sqrt(normalizer);
 
+#ifdef _OPENMP
 #pragma omp parallel for
+#endif
     for (ITYPE index = 0; index < dim; ++index) {
         state[index] *= normalizer;
     }
     free(random_state_list);
     free(norm_list);
 }
-#endif
 
 unsigned long xor_shift(unsigned long* state) {
     unsigned long t;

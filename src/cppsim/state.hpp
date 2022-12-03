@@ -34,8 +34,8 @@ protected:
 public:
     const UINT& qubit_count; /**< \~japanese-en 量子ビット数 */
 #ifdef _USE_MPI
-    const UINT inner_qc; /**< \~japanese-en ノード内量子ビット数 */
-    const UINT outer_qc; /**< \~japanese-en ノード外量子ビット数 */
+    const UINT& inner_qc; /**< \~japanese-en ノード内量子ビット数 */
+    const UINT& outer_qc; /**< \~japanese-en ノード外量子ビット数 */
 #endif
     const ITYPE& dim; /**< \~japanese-en 量子状態の次元 */
     const std::vector<UINT>&
@@ -584,16 +584,7 @@ public:
      * @return ノルム
      */
     virtual double get_squared_norm() const override {
-        double norm;
-#ifdef _USE_MPI
-        if (this->outer_qc > 0) {
-            norm = state_norm_squared_mpi(this->data_c(), _dim);
-        } else
-#endif
-        {
-            norm = state_norm_squared(this->data_c(), _dim);
-        }
-        return norm;
+        return state_norm_squared(this->data_c(), _dim);
     }
 
     /**
