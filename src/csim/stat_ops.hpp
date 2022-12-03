@@ -8,10 +8,15 @@ DllExport double state_norm_squared_single_thread(
 #ifdef _USE_MPI
 DllExport double state_norm_squared_mpi(const CTYPE* state, ITYPE dim);
 #endif
+
 DllExport double measurement_distribution_entropy(
     const CTYPE* state, ITYPE dim);
 DllExport CTYPE state_inner_product(
     const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim);
+#ifdef _USE_MPI
+DllExport CTYPE state_inner_product_mpi(
+    const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim);
+#endif
 
 DllExport void state_tensor_product(const CTYPE* state_left, ITYPE dim_left,
     const CTYPE* state_right, ITYPE dim_right, CTYPE* state_dst);
