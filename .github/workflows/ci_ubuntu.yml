@@ -290,7 +290,7 @@ jobs:
         run: USE_TEST=Yes ./script/build_mpicc.sh
 
       - name: Install qulacs Python module
-        run: pip install .[ci]
+        run: USE_MPI=Yes pip install .[ci]
 
       - name: Check stubs
         run: |

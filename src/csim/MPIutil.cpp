@@ -199,4 +199,4 @@ MPIutil get_mpiutil() {
 }
 
 #undef REGISTER_METHOD_POINTER
-#endif
+#endif  // #ifdef _USE_MPI

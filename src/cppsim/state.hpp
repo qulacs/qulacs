@@ -46,6 +46,25 @@ public:
      *
      * @param qubit_count_ 量子ビット数
      */
+    QuantumStateBase(UINT qubit_count_, bool is_state_vector)
+        : qubit_count(_qubit_count),
+#ifdef _USE_MPI
+          inner_qc(_inner_qc),
+          outer_qc(_outer_qc),
+#endif
+          dim(_dim),
+          classical_register(_classical_register),
+          device_number(_device_number) {
+        this->_qubit_count = qubit_count_;
+#ifdef _USE_MPI
+        this->_inner_qc = qubit_count_;
+        this->_outer_qc = 0;
+#endif
+        this->_dim = 1ULL << qubit_count_;
+        this->_is_state_vector = is_state_vector;
+        this->_device_number = 0;
+    }
+
 #ifdef _USE_MPI
     QuantumStateBase(
         UINT qubit_count_, bool use_multi_cpu, bool is_state_vector)
@@ -77,17 +96,6 @@ public:
         this->_dim = 1ULL << qubit_count_;
         this->_is_state_vector = is_state_vector;
         this->_device_number = mpirank;
-    }
-#else
-    QuantumStateBase(UINT qubit_count_, bool is_state_vector)
-        : qubit_count(_qubit_count),
-          dim(_dim),
-          classical_register(_classical_register),
-          device_number(_device_number) {
-        this->_qubit_count = qubit_count_;
-        this->_dim = 1ULL << qubit_count_;
-        this->_is_state_vector = is_state_vector;
-        this->_device_number = 0;
     }
 #endif
 
@@ -412,7 +420,7 @@ public:
         this->_state_vector =
             reinterpret_cast<CPPCTYPE*>(allocate_quantum_state(this->_dim));
 #ifdef _USE_MPI
-        initialize_quantum_state(this->data_c(), _dim, this->outer_qc);
+        initialize_quantum_state_mpi(this->data_c(), _dim, this->outer_qc);
 #else
         initialize_quantum_state(this->data_c(), _dim);
 #endif
@@ -439,7 +447,7 @@ public:
      */
     virtual void set_zero_state() override {
 #ifdef _USE_MPI
-        initialize_quantum_state(this->data_c(), _dim, this->outer_qc);
+        initialize_quantum_state_mpi(this->data_c(), _dim, this->outer_qc);
 #else
         initialize_quantum_state(this->data_c(), _dim);
 #endif
@@ -625,11 +633,9 @@ public:
         QuantumStateCpu* new_state;
 #ifdef _USE_MPI
         if (this->outer_qc > 0)
-            new_state =
-                new QuantumStateCpu(this->_qubit_count, true);
+            new_state = new QuantumStateCpu(this->_qubit_count, true);
         else
-            new_state =
-                new QuantumStateCpu(this->_qubit_count, false);
+            new_state = new QuantumStateCpu(this->_qubit_count, false);
 #else
         new_state = new QuantumStateCpu(this->_qubit_count);
 #endif

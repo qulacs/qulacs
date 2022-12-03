@@ -1,17 +1,17 @@
 //
 #ifdef _USE_MPI
 #pragma once
+#define OMPI_SKIP_MPICXX \
+    1  // Fixes compilation with GCC8+
+       // https://github.com/open-mpi/ompi/issues/5157
 
 #include <assert.h>
 #include <mpi.h>
 #include <pthread.h>
 #include <stdio.h>
 #include <stdlib.h>
-#include "type.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif /* __cplusplus */
+#include "type.hpp"
 
 typedef struct {
     int (*get_rank)();
@@ -39,8 +39,4 @@ typedef struct {
 typedef MPIutil_ *MPIutil;
 
 MPIutil get_mpiutil(void);
-
-#ifdef __cplusplus
-}
-#endif /* __cplusplus */
-#endif /* _USE_MPI */
+#endif  // #ifdef _USE_MPI
