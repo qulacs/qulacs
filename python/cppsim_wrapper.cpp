@@ -477,6 +477,12 @@ PYBIND11_MODULE(qulacs_core, m) {
             "to string");
     ;
 
+#ifdef _USE_MPI
+    m.def("check_build_for_mpi", [](){return true;});
+#else
+    m.def("check_build_for_mpi", [](){return false;});
+#endif
+
 #ifdef _USE_GPU
     py::class_<QuantumStateGpu, QuantumStateBase>(m, "QuantumStateGpu")
         .def(py::init<UINT>(), "Constructor", py::arg("qubit_count"))

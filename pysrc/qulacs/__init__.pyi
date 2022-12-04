@@ -38,6 +38,7 @@ __all__ = [
     "QuantumState",
     "QuantumStateBase",
     "StateVector",
+    "check_build_for_mpi",
     "circuit",
     "gate",
     "observable",
@@ -1011,5 +1012,7 @@ def StateVector(arg0: int) -> QuantumState:
     """
     StateVector
     """
+def check_build_for_mpi() -> bool:
+    pass
 def to_general_quantum_operator(gate: QuantumGateBase, qubits: int, tol: float) -> GeneralQuantumOperator:
     pass
