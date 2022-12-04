@@ -11,6 +11,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "cppsim/exception.hpp"
 #include "type.hpp"
 
 typedef struct {

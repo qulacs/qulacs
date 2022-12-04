@@ -22,9 +22,11 @@ static UINT mpireq_cnt = 0;
 
 static MPI_Request *get_request() {
     if (mpireq_cnt >= _MAX_REQUESTS) {
-        fprintf(stderr, "cannot get a request for communication, %s, %d\n",
-            __FILE__, __LINE__);
-        exit(1);
+        std::string msg1 = "cannot get a request for communication, ";
+        std::string msg2 = __FILE__;
+        std::string msg3 = ", ";
+        std::string msg4 = std::to_string(__LINE__);
+        throw MPIRuntimeException(msg1 + msg2 + msg3 + msg4);
     }
 
     mpireq_cnt++;
@@ -35,15 +37,22 @@ static MPI_Request *get_request() {
 
 static void mpi_wait(UINT count) {
     if (mpireq_cnt < count) {
-        fprintf(stderr,
-            "mpi_wait count(=%d) is over incompleted requests(=%d), %s, %d\n",
-            count, mpireq_cnt, __FILE__, __LINE__);
-        exit(1);
+        std::string msg1 = "mpi_wait count(=";
+        std::string msg2 = std::to_string(count);
+        std::string msg3 = ") is over incompleted requests(=";
+        std::string msg4 = std::to_string(mpireq_cnt);
+        std::string msg5 = "), ";
+        std::string msg6 = __FILE__;
+        std::string msg7 = ", ";
+        std::string msg8 = std::to_string(__LINE__);
+        throw MPIRuntimeException(
+            msg1 + msg2 + msg3 + msg4 + msg5 + msg6 + msg7 + msg8);
     }
 
     for (UINT i = 0; i < count; i++) {
         UINT idx = (_MAX_REQUESTS + mpireq_idx - mpireq_cnt) % _MAX_REQUESTS;
-        MPI_Wait(&(mpireq[idx]), &mpistat);
+        UINT ret = MPI_Wait(&(mpireq[idx]), &mpistat);
+        if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
         mpireq_cnt--;
     }
 }
@@ -76,9 +85,11 @@ static CTYPE *get_workarea(ITYPE *dim_work, ITYPE *num_work) {
         workarea = (CTYPE *)malloc(sizeof(CTYPE) * (1 << _NQUBIT_WORK));
 #endif
         if (workarea == NULL) {
-            fprintf(stderr, "Can't malloc for variable, %s, %d\n", __FILE__,
-                __LINE__);
-            exit(1);
+            std::string msg1 = "Can't malloc in get_workarea for MPI, ";
+            std::string msg2 = __FILE__;
+            std::string msg3 = ", ";
+            std::string msg4 = std::to_string(__LINE__);
+            throw MPIRuntimeException(msg1 + msg2 + msg3 + msg4);
         }
     }
     return workarea;
@@ -87,19 +98,23 @@ static CTYPE *get_workarea(ITYPE *dim_work, ITYPE *num_work) {
 static void barrier() { MPI_Barrier(mpicomm); }
 
 static void m_DC_allgather(void *sendbuf, void *recvbuf, int count) {
-    MPI_Allgather(sendbuf, count, MPI_CXX_DOUBLE_COMPLEX, recvbuf, count,
-        MPI_CXX_DOUBLE_COMPLEX, mpicomm);
+    UINT ret = MPI_Allgather(sendbuf, count, MPI_CXX_DOUBLE_COMPLEX, recvbuf,
+        count, MPI_CXX_DOUBLE_COMPLEX, mpicomm);
+    if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
 }
 
 static void m_DC_send(void *sendbuf, int count, int pair_rank) {
     int tag0 = get_tag();
-    MPI_Send(sendbuf, count, MPI_CXX_DOUBLE_COMPLEX, pair_rank, tag0, mpicomm);
+    UINT ret = MPI_Send(
+        sendbuf, count, MPI_CXX_DOUBLE_COMPLEX, pair_rank, tag0, mpicomm);
+    if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
 }
 
 static void m_DC_recv(void *recvbuf, int count, int pair_rank) {
     int tag0 = get_tag();
-    MPI_Recv(recvbuf, count, MPI_CXX_DOUBLE_COMPLEX, pair_rank, tag0, mpicomm,
-        &mpistat);
+    UINT ret = MPI_Recv(recvbuf, count, MPI_CXX_DOUBLE_COMPLEX, pair_rank, tag0,
+        mpicomm, &mpistat);
+    if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
 }
 
 static void m_DC_sendrecv(
@@ -107,17 +122,19 @@ static void m_DC_sendrecv(
     int tag0 = get_tag();
     int mpi_tag1 = tag0 + ((mpirank & pair_rank) << 1) + (mpirank > pair_rank);
     int mpi_tag2 = mpi_tag1 ^ 1;
-    MPI_Sendrecv(sendbuf, count, MPI_CXX_DOUBLE_COMPLEX, pair_rank, mpi_tag1,
-        recvbuf, count, MPI_CXX_DOUBLE_COMPLEX, pair_rank, mpi_tag2, mpicomm,
-        &mpistat);
+    UINT ret = MPI_Sendrecv(sendbuf, count, MPI_CXX_DOUBLE_COMPLEX, pair_rank,
+        mpi_tag1, recvbuf, count, MPI_CXX_DOUBLE_COMPLEX, pair_rank, mpi_tag2,
+        mpicomm, &mpistat);
+    if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
 }
 
 static void m_DC_sendrecv_replace(void *buf, int count, int pair_rank) {
     int tag0 = get_tag();
     int mpi_tag1 = tag0 + ((mpirank & pair_rank) << 1) + (mpirank > pair_rank);
     int mpi_tag2 = mpi_tag1 ^ 1;
-    MPI_Sendrecv_replace(buf, count, MPI_CXX_DOUBLE_COMPLEX, pair_rank,
-        mpi_tag1, pair_rank, mpi_tag2, mpicomm, &mpistat);
+    UINT ret = MPI_Sendrecv_replace(buf, count, MPI_CXX_DOUBLE_COMPLEX,
+        pair_rank, mpi_tag1, pair_rank, mpi_tag2, mpicomm, &mpistat);
+    if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
 }
 
 static void m_DC_isendrecv(
@@ -128,28 +145,37 @@ static void m_DC_isendrecv(
     MPI_Request *send_request = get_request();
     MPI_Request *recv_request = get_request();
 
-    MPI_Isend(sendbuf, count, MPI_CXX_DOUBLE_COMPLEX, pair_rank, mpi_tag1,
-        mpicomm, send_request);
-    MPI_Irecv(recvbuf, count, MPI_CXX_DOUBLE_COMPLEX, pair_rank, mpi_tag2,
+    UINT ret = MPI_Isend(sendbuf, count, MPI_CXX_DOUBLE_COMPLEX, pair_rank,
+        mpi_tag1, mpicomm, send_request);
+    if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
+    ret = MPI_Irecv(recvbuf, count, MPI_CXX_DOUBLE_COMPLEX, pair_rank, mpi_tag2,
         mpicomm, recv_request);
+    if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
 }
 
 static void m_I_allreduce(void *buf, UINT count) {
-    MPI_Allreduce(
+    UINT ret = MPI_Allreduce(
         MPI_IN_PLACE, buf, count, MPI_LONG_LONG_INT, MPI_SUM, mpicomm);
+    if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
 }
 
 static void s_D_allgather(double a, void *recvbuf) {
-    MPI_Allgather(&a, 1, MPI_DOUBLE, recvbuf, 1, MPI_DOUBLE, mpicomm);
+    UINT ret =
+        MPI_Allgather(&a, 1, MPI_DOUBLE, recvbuf, 1, MPI_DOUBLE, mpicomm);
+    if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
 }
 
 static void s_D_allreduce(void *buf) {
-    MPI_Allreduce(MPI_IN_PLACE, buf, 1, MPI_DOUBLE, MPI_SUM, mpicomm);
+    UINT ret =
+        MPI_Allreduce(MPI_IN_PLACE, buf, 1, MPI_DOUBLE, MPI_SUM, mpicomm);
+    if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
 }
 
 static void s_D_allreduce_ordersafe(void *buf) {
     double *recvbuf = (double *)malloc(mpisize * sizeof(double));
-    MPI_Allgather(buf, 1, MPI_DOUBLE, recvbuf, 1, MPI_DOUBLE, mpicomm);
+    UINT ret =
+        MPI_Allgather(buf, 1, MPI_DOUBLE, recvbuf, 1, MPI_DOUBLE, mpicomm);
+    if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
     double *sum = (double *)buf;
     *sum = 0.;
     for (int idx = 0; idx < mpisize; ++idx) {
@@ -158,9 +184,15 @@ static void s_D_allreduce_ordersafe(void *buf) {
     free(recvbuf);
 }
 
-static void s_u_bcast(UINT *a) { MPI_Bcast(a, 1, MPI_INT, 0, mpicomm); }
+static void s_u_bcast(UINT *a) {
+    UINT ret = MPI_Bcast(a, 1, MPI_INT, 0, mpicomm);
+    if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
+}
 
-static void s_D_bcast(double *a) { MPI_Bcast(a, 1, MPI_DOUBLE, 0, mpicomm); }
+static void s_D_bcast(double *a) {
+    UINT ret = MPI_Bcast(a, 1, MPI_DOUBLE, 0, mpicomm);
+    if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
+}
 
 #define REGISTER_METHOD_POINTER(M) mpiutil->M = M;
 
