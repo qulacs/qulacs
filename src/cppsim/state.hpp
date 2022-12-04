@@ -584,7 +584,16 @@ public:
      * @return ノルム
      */
     virtual double get_squared_norm() const override {
-        return state_norm_squared(this->data_c(), _dim);
+        double norm;
+#ifdef _USE_MPI
+        if (this->outer_qc > 0) {
+            norm = state_norm_squared_mpi(this->data_c(), _dim);
+        } else
+#endif
+        {
+            norm = state_norm_squared(this->data_c(), _dim);
+        }
+        return norm;
     }
 
     /**

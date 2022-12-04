@@ -247,8 +247,7 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 			(NOT "${CMAKE_CXX_COMPILER}" MATCHES ".*mpic\\+\\+"))
 			message(FATAL_ERROR, "USE_MPI must be used in mpicc/mpic++.")
 		endif()
-		add_compile_options("-D _USE_MPI")
-		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -lmpi")
+		add_compile_options("-D _USE_MPI -lmpi")
 	endif()
 
 	# Enable gpu
