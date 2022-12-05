@@ -246,6 +246,10 @@ class GeneralQuantumOperator():
         """
         Get is Herimitian
         """
+    def to_json(self) -> str: 
+        """
+        to json string
+        """
     pass
 class GradCalculator():
     def __init__(self) -> None: ...

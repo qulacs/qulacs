@@ -347,6 +347,23 @@ create_split_observable(std::string file_path) {
 
     return std::make_pair(observable_diag, observable_non_diag);
 }
+
+HermitianQuantumOperator* from_ptree(const boost::property_tree::ptree& pt) {
+    std::string name = pt.get<std::string>("name");
+    if (name != "GeneralQuantumOperator") {
+        throw UnknownPTreePropertyValueException(
+            "unknown value for property \"name\":" + name);
+    }
+    UINT qubit_count = pt.get<UINT>("qubit_count");
+    std::vector<boost::property_tree::ptree> operator_list_pt =
+        ptree::ptree_array_from_ptree(pt.get_child("operator_list"));
+    HermitianQuantumOperator* obs = new HermitianQuantumOperator(qubit_count);
+    for (const boost::property_tree::ptree& operator_pt : operator_list_pt) {
+        obs->add_operator_move(
+            quantum_operator::pauli_operator_from_ptree(operator_pt));
+    }
+    return obs;
+}
 }  // namespace observable
 
 ComplexMatrix convert_observable_to_matrix(const Observable& observable) {

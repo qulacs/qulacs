@@ -146,6 +146,15 @@ DllExport HermitianQuantumOperator* create_observable_from_openfermion_text(
 DllExport std::pair<HermitianQuantumOperator*, HermitianQuantumOperator*>
 create_split_observable(std::string file_path);
 
+/**
+ * \~japanese-en
+ * ptreeからObservableを構築する
+ *
+ * @param[in] ptree ptree
+ * @return Observableのインスタンス(ポインタ)
+ */
+DllExport HermitianQuantumOperator* from_ptree(
+    const boost::property_tree::ptree& pt);
 }  // namespace observable
 
 using Observable = HermitianQuantumOperator;

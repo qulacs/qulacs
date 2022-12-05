@@ -146,6 +146,12 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("copy", &GeneralQuantumOperator::copy,
             py::return_value_policy::take_ownership,
             "Create copied instance of General Quantum operator class")
+        .def(
+            "to_json",
+            [](const GeneralQuantumOperator& gqo) -> std::string {
+                return ptree::to_json(gqo.to_ptree());
+            },
+            "to json string")
         .def(py::self + py::self)
         .def(
             "__add__",
@@ -212,6 +218,13 @@ PYBIND11_MODULE(qulacs_core, m) {
     mquantum_operator.def("create_split_quantum_operator",
         &quantum_operator::create_split_general_quantum_operator,
         py::return_value_policy::take_ownership);
+    mquantum_operator.def(
+        "from_json",
+        [](const std::string& json) -> GeneralQuantumOperator* {
+            return quantum_operator::from_ptree(ptree::from_json(json));
+        },
+        py::return_value_policy::take_ownership, "from json string",
+        py::arg("json"));
 
     py::class_<HermitianQuantumOperator, GeneralQuantumOperator>(
         m, "Observable")
@@ -310,6 +323,13 @@ PYBIND11_MODULE(qulacs_core, m) {
     mobservable.def("create_split_observable",
         &observable::create_split_observable,
         py::return_value_policy::take_ownership);
+    mobservable.def(
+        "from_json",
+        [](const std::string& json) -> HermitianQuantumOperator* {
+            return observable::from_ptree(ptree::from_json(json));
+        },
+        py::return_value_policy::take_ownership, "from json string",
+        py::arg("json"));
 
     py::class_<QuantumStateBase>(m, "QuantumStateBase");
     py::class_<QuantumState, QuantumStateBase>(m, "QuantumState")
@@ -390,7 +410,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             "to string")
         .def(
             "to_json",
-            [](const QuantumState& state) {
+            [](const QuantumState& state) -> std::string {
                 return ptree::to_json(state.to_ptree());
             },
             "to json string");
@@ -483,7 +503,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             "to string")
         .def(
             "to_json",
-            [](const DensityMatrix& state) {
+            [](const DensityMatrix& state) -> std::string {
                 return ptree::to_json(state.to_ptree());
             },
             "to json string");
