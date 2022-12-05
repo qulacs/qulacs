@@ -602,4 +602,86 @@ QuantumGateBase* create_quantum_gate_from_string(std::string gate_string) {
     return gate;
 }
 
+QuantumGateBase* from_ptree(const boost::property_tree::ptree& pt) {
+    std::string name = pt.get<std::string>("name");
+    if (name == "PauliGate") {
+        PauliOperator* pauli =
+            quantum_operator::pauli_operator_from_ptree(pt.get_child("pauli"));
+        return new ClsPauliGate(pauli);
+    } else if (name == "PauliRotationGate") {
+        double angle = pt.get<double>("angle");
+        PauliOperator* pauli =
+            quantum_operator::pauli_operator_from_ptree(pt.get_child("pauli"));
+        return new ClsPauliRotationGate(angle, pauli);
+    } else if (name == "IGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return Identity(target_qubit);
+    } else if (name == "XGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return X(target_qubit);
+    } else if (name == "YGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return Y(target_qubit);
+    } else if (name == "ZGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return Z(target_qubit);
+    } else if (name == "HGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return H(target_qubit);
+    } else if (name == "SGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return S(target_qubit);
+    } else if (name == "SdagGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return Sdag(target_qubit);
+    } else if (name == "TGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return T(target_qubit);
+    } else if (name == "TdagGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return Tdag(target_qubit);
+    } else if (name == "sqrtXGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return sqrtX(target_qubit);
+    } else if (name == "sqrtYGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return sqrtY(target_qubit);
+    } else if (name == "sqrtYdagGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return sqrtYdag(target_qubit);
+    } else if (name == "Projection-0Gate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return P0(target_qubit);
+    } else if (name == "Projection-1Gate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return P1(target_qubit);
+    } else if (name == "X-rotationGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        double angle = pt.get<double>("angle");
+        return RX(target_qubit, angle);
+    } else if (name == "Y-rotationGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        double angle = pt.get<double>("angle");
+        return RY(target_qubit, angle);
+    } else if (name == "Z-rotationGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        double angle = pt.get<double>("angle");
+        return RZ(target_qubit, angle);
+    } else if (name == "SWAPGate") {
+        std::vector<UINT> target_qubit_list =
+            ptree::uint_array_from_ptree(pt.get_child("target_qubit_list"));
+        return SWAP(target_qubit_list[0], target_qubit_list[1]);
+    } else if (name == "CNOTGate") {
+        UINT control_qubit = pt.get<UINT>("control_qubit");
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return CNOT(control_qubit, target_qubit);
+    } else if (name == "CZGate") {
+        UINT control_qubit = pt.get<UINT>("control_qubit");
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return CZ(control_qubit, target_qubit);
+    } else {
+        throw UnknownPTreePropertyValueException(
+            "unknown value for property \"name\":" + name);
+    }
+}
 }  // namespace gate

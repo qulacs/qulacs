@@ -80,6 +80,25 @@ public:
         this->_matrix_element = ComplexMatrix::Zero(4, 4);
         this->_matrix_element << 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1;
     }
+
+    /**
+     * \~japanese-en ptreeに変換する
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const {
+        boost::property_tree::ptree pt;
+        pt.add("name", _name + "Gate");
+        std::vector<UINT> target_qubit_list_uint;
+        std::transform(_target_qubit_list.begin(), _target_qubit_list.end(),
+            std::back_inserter(target_qubit_list_uint),
+            [](const TargetQubitInfo& qubit_info) {
+                return qubit_info.index();
+            });
+        pt.add_child(
+            "target_qubit_list", ptree::to_ptree(target_qubit_list_uint));
+        return pt;
+    }
 };
 
 /**
@@ -172,6 +191,19 @@ public:
         this->_gate_property = FLAG_CLIFFORD;
         this->_matrix_element = ComplexMatrix::Zero(2, 2);
         this->_matrix_element << 1, 0, 0, -1;
+    }
+
+    /**
+     * \~japanese-en ptreeに変換する
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const {
+        boost::property_tree::ptree pt;
+        pt.add("name", _name + "Gate");
+        pt.add("control_qubit", _control_qubit_list[0].index());
+        pt.add("target_qubit", _target_qubit_list[0].index());
+        return pt;
     }
 };
 

@@ -63,6 +63,7 @@ __all__ = [
     "Y",
     "Z",
     "add",
+    "from_json",
     "merge",
     "sqrtX",
     "sqrtXdag",
@@ -314,6 +315,10 @@ def add(gate1: qulacs_core.QuantumGateBase, gate2: qulacs_core.QuantumGateBase) 
 @typing.overload
 def add(gate_list: typing.List[qulacs_core.QuantumGateBase]) -> qulacs_core.QuantumGateMatrix:
     pass
+def from_json(arg0: str) -> qulacs_core.QuantumGateBase:
+    """
+    from json string
+    """
 @typing.overload
 def merge(gate1: qulacs_core.QuantumGateBase, gate2: qulacs_core.QuantumGateBase) -> qulacs_core.QuantumGateMatrix:
     """
