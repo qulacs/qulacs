@@ -22,6 +22,7 @@
 #include "gate_named_two.hpp"
 #include "gate_reflect.hpp"
 #include "gate_reversible.hpp"
+#include "state_dm.hpp"
 #include "type.hpp"
 
 namespace gate {
@@ -679,6 +680,12 @@ QuantumGateBase* from_ptree(const boost::property_tree::ptree& pt) {
         UINT control_qubit = pt.get<UINT>("control_qubit");
         UINT target_qubit = pt.get<UINT>("target_qubit");
         return CZ(control_qubit, target_qubit);
+    } else if (name == "StateReflectionGate") {
+        QuantumStateBase* state =
+            state::from_ptree(pt.get_child("reflection_state"));
+        ClsStateReflectionGate* gate = StateReflection(state);
+        free(state);
+        return gate;
     } else {
         throw UnknownPTreePropertyValueException(
             "unknown value for property \"name\":" + name);
