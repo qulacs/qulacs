@@ -679,6 +679,39 @@ QuantumGateBase* from_ptree(const boost::property_tree::ptree& pt) {
         UINT control_qubit = pt.get<UINT>("control_qubit");
         UINT target_qubit = pt.get<UINT>("target_qubit");
         return CZ(control_qubit, target_qubit);
+    } else if (name == "DenseMatrixGate") {
+        std::vector<TargetQubitInfo> target_qubit_list =
+            ptree::target_qubit_list_from_ptree(
+                pt.get_child("target_qubit_list"));
+        std::vector<ControlQubitInfo> control_qubit_list =
+            ptree::control_qubit_list_from_ptree(
+                pt.get_child("control_qubit_list"));
+        ComplexMatrix matrix =
+            ptree::complex_matrix_from_ptree(pt.get_child("matrix"));
+        return new QuantumGateMatrix(
+            target_qubit_list, matrix, control_qubit_list);
+    } else if (name == "DiagonalMatrixGate") {
+        std::vector<TargetQubitInfo> target_qubit_list =
+            ptree::target_qubit_list_from_ptree(
+                pt.get_child("target_qubit_list"));
+        std::vector<ControlQubitInfo> control_qubit_list =
+            ptree::control_qubit_list_from_ptree(
+                pt.get_child("control_qubit_list"));
+        ComplexVector vector =
+            ptree::complex_vector_from_ptree(pt.get_child("vector"));
+        return new QuantumGateDiagonalMatrix(
+            target_qubit_list, vector, control_qubit_list);
+    } else if (name == "SparseMatrixGate") {
+        std::vector<TargetQubitInfo> target_qubit_list =
+            ptree::target_qubit_list_from_ptree(
+                pt.get_child("target_qubit_list"));
+        std::vector<ControlQubitInfo> control_qubit_list =
+            ptree::control_qubit_list_from_ptree(
+                pt.get_child("control_qubit_list"));
+        SparseComplexMatrix matrix =
+            ptree::sparse_complex_matrix_from_ptree(pt.get_child("matrix"));
+        return new QuantumGateSparseMatrix(
+            target_qubit_list, matrix, control_qubit_list);
     } else {
         throw UnknownPTreePropertyValueException(
             "unknown value for property \"name\":" + name);
