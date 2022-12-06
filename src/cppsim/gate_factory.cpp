@@ -686,6 +686,42 @@ QuantumGateBase* from_ptree(const boost::property_tree::ptree& pt) {
         ClsStateReflectionGate* gate = StateReflection(state);
         free(state);
         return gate;
+    } else if (name == "ProbabilisticGate") {
+        std::vector<double> distribution;
+        for (const boost::property_tree::ptree::value_type& p_pair :
+            pt.get_child("distribution")) {
+            distribution.push_back(p_pair.second.get<double>(""));
+        }
+        std::vector<QuantumGateBase*> gate_list;
+        for (const boost::property_tree::ptree::value_type& gate_pair :
+            pt.get_child("gate_list")) {
+            gate_list.push_back(from_ptree(gate_pair.second));
+        }
+        QuantumGate_Probabilistic* prob_gate =
+            new QuantumGate_Probabilistic(distribution, gate_list);
+        for (QuantumGateBase* gate : gate_list) {
+            free(gate);
+        }
+        return prob_gate;
+    } else if (name == "ProbabilisticInstrument") {
+        UINT classical_refister_address =
+            pt.get<UINT>("classical_register_address");
+        std::vector<double> distribution;
+        for (const boost::property_tree::ptree::value_type& p_pair :
+            pt.get_child("distribution")) {
+            distribution.push_back(p_pair.second.get<double>(""));
+        }
+        std::vector<QuantumGateBase*> gate_list;
+        for (const boost::property_tree::ptree::value_type& gate_pair :
+            pt.get_child("gate_list")) {
+            gate_list.push_back(from_ptree(gate_pair.second));
+        }
+        QuantumGate_Probabilistic* prob_gate = new QuantumGate_Probabilistic(
+            distribution, gate_list, classical_refister_address);
+        for (QuantumGateBase* gate : gate_list) {
+            free(gate);
+        }
+        return prob_gate;
     } else {
         throw UnknownPTreePropertyValueException(
             "unknown value for property \"name\":" + name);

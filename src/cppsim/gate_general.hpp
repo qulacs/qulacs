@@ -174,6 +174,33 @@ public:
         matrix = Eigen::MatrixXcd::Ones(1, 1);
     }
 
+    /**
+     * \~japanese-en ptreeに変換する
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const override {
+        boost::property_tree::ptree pt;
+        if (is_instrument) {
+            pt.put("name", "ProbabilisticInstrument");
+            pt.put("classical_register_address", _classical_register_address);
+        } else {
+            pt.put("name", "ProbabilisticGate");
+        }
+        boost::property_tree::ptree distribution_pt;
+        for (double p : _distribution) {
+            boost::property_tree::ptree child;
+            child.put("", p);
+            distribution_pt.push_back(std::make_pair("", child));
+        }
+        pt.put_child("distribution", distribution_pt);
+        boost::property_tree::ptree gate_list_pt;
+        for (const QuantumGateBase* gate : _gate_list) {
+            gate_list_pt.put_child("", gate->to_ptree());
+        }
+        pt.put_child("gate_list", gate_list_pt);
+    }
+
     /*
     added by kotamanegi.
     */
