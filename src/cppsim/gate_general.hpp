@@ -200,6 +200,7 @@ public:
         } else {
             pt.put("is_instrument", false);
         }
+        return pt;
     }
 
     /*
@@ -393,6 +394,7 @@ public:
         } else {
             pt.put("is_instrument", false);
         }
+        return pt;
     }
 };
 
@@ -550,6 +552,7 @@ public:
         pt.put("state_normalize", _state_normalize);
         pt.put("probability_normalize", _probability_normalize);
         pt.put("assign_zero_if_not_matched", _assign_zero_if_not_matched);
+        return pt;
     }
 };
 
