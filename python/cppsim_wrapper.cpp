@@ -1049,6 +1049,10 @@ PYBIND11_MODULE(qulacs_core, m) {
     mgate.def(
         "from_json",
         [](std::string json) -> QuantumGateBase* {
+            boost::property_tree::ptree pt = ptree::from_json(json);
+            if (pt.get<std::string>("name").substr(0, 10) == "Parametric") {
+                return gate::parametric_gate_from_ptree(pt);
+            }
             return gate::from_ptree(ptree::from_json(json));
         },
         py::return_value_policy::take_ownership, "from json string");
@@ -1063,8 +1067,10 @@ PYBIND11_MODULE(qulacs_core, m) {
         // In order to avoid double release, we force using add_gate_copy in
         // python
         //.def("add_gate_consume", (void
-        //(QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate, "Add
-        // gate and take ownership", py::arg("gate")) .def("add_gate_consume",
+        //(QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate,
+        //"Add
+        // gate and take ownership", py::arg("gate"))
+        // .def("add_gate_consume",
         //(void (QuantumCircuit::*)(QuantumGateBase*,
         // UINT))&QuantumCircuit::add_gate, "Add gate and take ownership",
         // py::arg("gate"), py::arg("position"))
@@ -1086,10 +1092,10 @@ PYBIND11_MODULE(qulacs_core, m) {
             "get_gate",
             [](const QuantumCircuit& circuit, UINT index) -> QuantumGateBase* {
                 if (index >= circuit.gate_list.size()) {
-                    std::cerr
-                        << "Error: QuantumCircuit::get_gate(const "
-                           "QuantumCircuit&, UINT): gate index is out of range"
-                        << std::endl;
+                    std::cerr << "Error: QuantumCircuit::get_gate(const "
+                                 "QuantumCircuit&, UINT): gate index is "
+                                 "out of range"
+                              << std::endl;
                     return NULL;
                 }
                 return circuit.gate_list[index]->copy();

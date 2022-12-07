@@ -18,4 +18,6 @@ DllExport QuantumGate_SingleParameter* ParametricRZ(
 DllExport QuantumGate_SingleParameter* ParametricPauliRotation(
     std::vector<UINT> target, std::vector<UINT> pauli_id,
     double initial_angle = 0.);
+DllExport QuantumGate_SingleParameter* parametric_gate_from_ptree(
+    const boost::property_tree::ptree& pt);
 }  // namespace gate
