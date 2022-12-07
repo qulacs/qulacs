@@ -191,7 +191,7 @@ public:
         pt.put_child("distribution", distribution_pt);
         boost::property_tree::ptree gate_list_pt;
         for (const QuantumGateBase* gate : _gate_list) {
-            gate_list_pt.put_child("", gate->to_ptree());
+            gate_list_pt.push_back(std::make_pair("", gate->to_ptree()));
         }
         pt.put_child("gate_list", gate_list_pt);
         if (is_instrument) {
@@ -384,7 +384,7 @@ public:
         pt.put("name", "CPTPMapGate");
         boost::property_tree::ptree gate_list_pt;
         for (const QuantumGateBase* gate : _gate_list) {
-            gate_list_pt.put_child("", gate->to_ptree());
+            gate_list_pt.push_back(std::make_pair("", gate->to_ptree()));
         }
         pt.put_child("gate_list", gate_list_pt);
         if (is_instrument) {
@@ -544,7 +544,7 @@ public:
         pt.put("name", "CPMapGate");
         boost::property_tree::ptree gate_list_pt;
         for (const QuantumGateBase* gate : _gate_list) {
-            gate_list_pt.put_child("", gate->to_ptree());
+            gate_list_pt.push_back(std::make_pair("", gate->to_ptree()));
         }
         pt.put_child("gate_list", gate_list_pt);
         pt.put("state_normalize", _state_normalize);
