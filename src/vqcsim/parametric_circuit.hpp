@@ -62,3 +62,11 @@ public:
     virtual std::vector<double> backprop(GeneralQuantumOperator* obs);
     virtual std::vector<double> backprop_inner_product(QuantumState* bistate);
 };
+
+namespace circuit {
+/**
+ * \~japanese-en ptreeからParametricQuantumCircuitを構築する
+ */
+ParametricQuantumCircuit* parametric_circuit_from_ptree(
+    const boost::property_tree::ptree& pt);
+}  // namespace circuit

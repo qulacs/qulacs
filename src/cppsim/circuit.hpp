@@ -12,6 +12,7 @@
 
 #include "exception.hpp"
 #include "type.hpp"
+#include "utility.hpp"
 
 class QuantumStateBase;
 class QuantumGateBase;
@@ -557,4 +558,18 @@ public:
     virtual void add_random_unitary_gate(std::vector<UINT> target_index_list);
     virtual void add_random_unitary_gate(
         std::vector<UINT> target_index_list, UINT seed);
+
+    /**
+     * \~japanese-en ptreeに変換
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const;
 };
+
+namespace circuit {
+/**
+ * \~japanese-en ptreeからQuantumCircuitを構築する
+ */
+QuantumCircuit* from_ptree(const boost::property_tree::ptree& pt);
+}  // namespace circuit

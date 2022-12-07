@@ -13,6 +13,7 @@ class QuantumCircuitOptimizer():
         """
         Constructor
         """
+    def from_json(self) -> qulacs_core.QuantumCircuit: ...
     def merge_all(self, circuit: qulacs_core.QuantumCircuit) -> qulacs_core.QuantumGateMatrix: ...
     def optimize(self, circuit: qulacs_core.QuantumCircuit, block_size: int) -> None: 
         """
