@@ -172,7 +172,7 @@ protected:
 public:
     ClsParametricPauliRotationGate(double angle, PauliOperator* pauli)
         : QuantumGate_SingleParameter(angle) {
-        _pauli = pauli;
+        _pauli = pauli->copy();
         this->_name = "ParametricPauliRotation";
         auto target_index_list = _pauli->get_index_list();
         auto pauli_id_list = _pauli->get_pauli_id_list();
