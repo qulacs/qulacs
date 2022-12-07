@@ -746,6 +746,38 @@ QuantumGateBase* from_ptree(const boost::property_tree::ptree& pt) {
             free(gate_option);
         }
         return gate;
+    } else if (name == "NoisyEvolutionGate") {
+        Observable* hamiltonian =
+            observable::from_ptree(pt.get_child("hamiltonian"));
+        std::vector<GeneralQuantumOperator*> c_ops;
+        for (const boost::property_tree::ptree::value_type& c_op_pair :
+            pt.get_child("c_ops")) {
+            c_ops.push_back(observable::from_ptree(c_op_pair.second));
+        }
+        double time = pt.get<double>("time");
+        double dt = pt.get<double>("dt");
+        ClsNoisyEvolution* gate = NoisyEvolution(hamiltonian, c_ops, time, dt);
+        free(hamiltonian);
+        for (GeneralQuantumOperator* c_op : c_ops) {
+            free(c_op);
+        }
+        return gate;
+    } else if (name == "NoisyEvolutionFastGate") {
+        Observable* hamiltonian =
+            observable::from_ptree(pt.get_child("hamiltonian"));
+        std::vector<GeneralQuantumOperator*> c_ops;
+        for (const boost::property_tree::ptree::value_type& c_op_pair :
+            pt.get_child("c_ops")) {
+            c_ops.push_back(observable::from_ptree(c_op_pair.second));
+        }
+        double time = pt.get<double>("time");
+        ClsNoisyEvolution_fast* gate =
+            NoisyEvolution_fast(hamiltonian, c_ops, time);
+        free(hamiltonian);
+        for (GeneralQuantumOperator* c_op : c_ops) {
+            free(c_op);
+        }
+        return gate;
     } else {
         throw UnknownPTreePropertyValueException(
             "unknown value for property \"name\":" + name);
