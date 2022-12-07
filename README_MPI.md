@@ -27,7 +27,6 @@
         | "cpu"   | state vector generated in a cpu |
         | "multi-cpu" | state vector generated in multi cpu |
         | "gpu"   | state vector generated in a gpu |
-        | (multi-gpu) | NOT SUPPORTED |
 
     - state.to_string()
       Each rank outputs only state information that has itself.
@@ -207,7 +206,7 @@ int main(int argc, char *argv[]) {
 
 - The number of MPI rank (WORLD_SIZE) should be 2^n
 - Unsupported gates/functions may cause severe error.
-- "device=gpu" not supported
+- Build with USE_MPI does not support with USE_GPU
 
 - The following items are supported. Qulacs with MPI does not support any other items.
   - QuantumCircuit
