@@ -653,15 +653,9 @@ DllExport void single_qubit_Pauli_rotation_gate(UINT target_qubit_index,
  */
 DllExport void single_qubit_dense_matrix_gate(
     UINT target_qubit_index, const CTYPE matrix[4], CTYPE* state, ITYPE dim);
-void single_qubit_dense_matrix_gate_single_unroll(
-    UINT target_qubit_index, const CTYPE matrix[4], CTYPE* state, ITYPE dim);
 void single_qubit_dense_matrix_gate_parallel_unroll(
     UINT target_qubit_index, const CTYPE matrix[4], CTYPE* state, ITYPE dim);
-void single_qubit_dense_matrix_gate_single(
-    UINT target_qubit_index, const CTYPE matrix[4], CTYPE* state, ITYPE dim);
 void single_qubit_dense_matrix_gate_parallel(
-    UINT target_qubit_index, const CTYPE matrix[4], CTYPE* state, ITYPE dim);
-void single_qubit_dense_matrix_gate_single_simd(
     UINT target_qubit_index, const CTYPE matrix[4], CTYPE* state, ITYPE dim);
 void single_qubit_dense_matrix_gate_parallel_simd(
     UINT target_qubit_index, const CTYPE matrix[4], CTYPE* state, ITYPE dim);
@@ -770,16 +764,10 @@ void single_qubit_phase_gate_parallel_simd(
 DllExport void single_qubit_control_single_qubit_dense_matrix_gate(
     UINT control_qubit_index, UINT control_value, UINT target_qubit_index,
     const CTYPE matrix[4], CTYPE* state, ITYPE dim);
-void single_qubit_control_single_qubit_dense_matrix_gate_single_unroll(
+void single_qubit_control_single_qubit_dense_matrix_gate_unroll(
     UINT control_qubit_index, UINT control_value, UINT target_qubit_index,
     const CTYPE matrix[4], CTYPE* state, ITYPE dim);
-void single_qubit_control_single_qubit_dense_matrix_gate_parallel_unroll(
-    UINT control_qubit_index, UINT control_value, UINT target_qubit_index,
-    const CTYPE matrix[4], CTYPE* state, ITYPE dim);
-void single_qubit_control_single_qubit_dense_matrix_gate_single_simd(
-    UINT control_qubit_index, UINT control_value, UINT target_qubit_index,
-    const CTYPE matrix[4], CTYPE* state, ITYPE dim);
-void single_qubit_control_single_qubit_dense_matrix_gate_parallel_simd(
+void single_qubit_control_single_qubit_dense_matrix_gate_simd(
     UINT control_qubit_index, UINT control_value, UINT target_qubit_index,
     const CTYPE matrix[4], CTYPE* state, ITYPE dim);
 
@@ -819,19 +807,11 @@ DllExport void multi_qubit_control_single_qubit_dense_matrix_gate(
     const UINT* control_qubit_index_list, const UINT* control_value_list,
     UINT control_qubit_index_count, UINT target_qubit_index,
     const CTYPE matrix[4], CTYPE* state, ITYPE dim);
-void multi_qubit_control_single_qubit_dense_matrix_gate_single_unroll(
+void multi_qubit_control_single_qubit_dense_matrix_gate_unroll(
     const UINT* control_qubit_index_list, const UINT* control_value_list,
     UINT control_qubit_index_count, UINT target_qubit_index,
     const CTYPE matrix[4], CTYPE* state, ITYPE dim);
-void multi_qubit_control_single_qubit_dense_matrix_gate_parallel_unroll(
-    const UINT* control_qubit_index_list, const UINT* control_value_list,
-    UINT control_qubit_index_count, UINT target_qubit_index,
-    const CTYPE matrix[4], CTYPE* state, ITYPE dim);
-void multi_qubit_control_single_qubit_dense_matrix_gate_single_simd(
-    const UINT* control_qubit_index_list, const UINT* control_value_list,
-    UINT control_qubit_index_count, UINT target_qubit_index,
-    const CTYPE matrix[4], CTYPE* state, ITYPE dim);
-void multi_qubit_control_single_qubit_dense_matrix_gate_parallel_simd(
+void multi_qubit_control_single_qubit_dense_matrix_gate_simd(
     const UINT* control_qubit_index_list, const UINT* control_value_list,
     UINT control_qubit_index_count, UINT target_qubit_index,
     const CTYPE matrix[4], CTYPE* state, ITYPE dim);
@@ -1246,9 +1226,6 @@ void double_qubit_dense_matrix_gate_simd(UINT target_qubit_index1,
 DllExport void multi_qubit_dense_matrix_gate(
     const UINT* target_qubit_index_list, UINT target_qubit_index_count,
     const CTYPE* matrix, CTYPE* state, ITYPE dim);
-void multi_qubit_dense_matrix_gate_single(const UINT* target_qubit_index_list,
-    UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state,
-    ITYPE dim);
 void multi_qubit_dense_matrix_gate_parallel(const UINT* target_qubit_index_list,
     UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state,
     ITYPE dim);
