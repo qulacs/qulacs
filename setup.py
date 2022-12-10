@@ -118,6 +118,13 @@ class CMakeBuild(build_ext):
             n_cpus = os.cpu_count()
             build_args += ["--", f"-j{n_cpus}"]
 
+            if sys.platform.startswith("darwin"):
+                # Cross-compile support for macOS - respect ARCHFLAGS if set
+                import re
+                archs = re.findall(r"-arch (\S+)", os.environ.get("ARCHFLAGS", ""))
+                if archs:
+                    cmake_args += ["-DCMAKE_OSX_ARCHITECTURES={}".format(";".join(archs))]
+
         return build_args, cmake_args
 
 

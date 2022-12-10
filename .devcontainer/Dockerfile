@@ -21,6 +21,8 @@ RUN apt-get update \
     gdb \
     cmake \
     libboost-dev \
+    doxygen \
+    pandoc \
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 RUN pip install -U pip \

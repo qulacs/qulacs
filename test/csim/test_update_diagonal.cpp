@@ -18,14 +18,10 @@ void test_single_diagonal_matrix_gate(
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
 
-    Eigen::MatrixXcd Identity(2, 2), Z(2, 2);
-    Identity << 1, 0, 0, 1;
-    Z << 1, 0, 0, -1;
+    const auto Identity = make_Identity();
+    const auto Z = make_Z();
 
     Eigen::Matrix<std::complex<double>, 2, 2, Eigen::RowMajor> U;
-
-    UINT target;
-    double icoef, zcoef, norm;
 
     auto state = allocate_quantum_state(dim);
     initialize_Haar_random_state(state, dim);
@@ -36,10 +32,10 @@ void test_single_diagonal_matrix_gate(
 
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         // single qubit diagonal matrix gate
-        target = rand_int(n);
-        icoef = rand_real();
-        zcoef = rand_real();
-        norm = sqrt(icoef * icoef + zcoef * zcoef);
+        const UINT target = rand_int(n);
+        double icoef = rand_real();
+        double zcoef = rand_real();
+        const double norm = sqrt(icoef * icoef + zcoef * zcoef);
         icoef /= norm;
         zcoef /= norm;
         U = icoef * Identity + 1.i * zcoef * Z;

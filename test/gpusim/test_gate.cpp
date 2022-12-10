@@ -490,7 +490,7 @@ TEST(GateTest, RandomPauliMerge) {
             assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
             assert_gpu_eq_gpu(test_state, state, dim, eps);
 
-            auto merged_gate = gate::Identity(0);
+            QuantumGateBase* merged_gate = gate::Identity(0);
             QuantumGateMatrix* next_merged_gate = NULL;
             QuantumGateBase* new_gate = NULL;
             Eigen::MatrixXcd total_matrix =
@@ -597,7 +597,7 @@ TEST(GateTest, RandomPauliRotationMerge) {
             assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
             assert_gpu_eq_gpu(test_state, state, dim, eps);
 
-            auto merged_gate = gate::Identity(0);
+            QuantumGateBase* merged_gate = gate::Identity(0);
             QuantumGateMatrix* next_merged_gate = NULL;
             QuantumGateBase* new_gate = NULL;
             Eigen::MatrixXcd total_matrix =
@@ -702,7 +702,7 @@ TEST(GateTest, RandomUnitaryMerge) {
             assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
             assert_gpu_eq_gpu(test_state, state, dim, eps);
 
-            auto merged_gate = gate::Identity(0);
+            QuantumGateBase* merged_gate = gate::Identity(0);
             QuantumGateMatrix* next_merged_gate = NULL;
             QuantumGateBase* new_gate = NULL;
             Eigen::MatrixXcd total_matrix =
@@ -800,8 +800,8 @@ TEST(GateTest, RandomUnitaryMergeLarge) {
             assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
             assert_gpu_eq_gpu(test_state, state, dim, eps);
 
-            auto merged_gate1 = gate::Identity(0);
-            auto merged_gate2 = gate::Identity(0);
+            QuantumGateBase* merged_gate1 = gate::Identity(0);
+            QuantumGateBase* merged_gate2 = gate::Identity(0);
             QuantumGateMatrix* next_merged_gate = NULL;
             QuantumGateBase* new_gate = NULL;
             for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
@@ -864,7 +864,8 @@ TEST(GateTest, RandomUnitaryMergeLarge) {
                 // dispose picked pauli
                 delete new_gate;
             }
-            auto merged_gate = gate::merge(merged_gate1, merged_gate2);
+            QuantumGateBase* merged_gate =
+                gate::merge(merged_gate1, merged_gate2);
             merged_gate->update_quantum_state(&state);
             merged_gate1->update_quantum_state(&test_state);
             merged_gate2->update_quantum_state(&test_state);
@@ -1073,8 +1074,8 @@ TEST(GateTest, RandomControlMergeSmall) {
             state.set_Haar_random_state();
             test_state.load(&state);
             set_eigen_from_gpu(test_state_eigen, state, dim);
-            auto merge_gate1 = gate::Identity(0);
-            auto merge_gate2 = gate::Identity(0);
+            QuantumGateBase* merge_gate1 = gate::Identity(0);
+            QuantumGateBase* merge_gate2 = gate::Identity(0);
 
             for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
                 std::random_shuffle(arr.begin(), arr.end());
@@ -1117,8 +1118,8 @@ TEST(GateTest, RandomControlMergeLarge) {
             state.set_Haar_random_state();
             test_state.load(&state);
             set_eigen_from_gpu(test_state_eigen, state, dim);
-            auto merge_gate1 = gate::Identity(0);
-            auto merge_gate2 = gate::Identity(0);
+            QuantumGateBase* merge_gate1 = gate::Identity(0);
+            QuantumGateBase* merge_gate2 = gate::Identity(0);
 
             for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
                 std::random_shuffle(arr.begin(), arr.end());

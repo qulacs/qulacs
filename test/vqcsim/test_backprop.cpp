@@ -41,7 +41,6 @@ TEST(Backprop, BackpropCircuit) {
 
     auto bk = kairo.backprop(&observable);
     for (int i = 0; i < 9; i++) {
-        cerr << bk[i] << " " << bibun[i].real() << endl;
         ASSERT_NEAR(bk[i], bibun[i].real(), 1e-10);
     }
 }
@@ -88,7 +87,6 @@ TEST(Backprop, BackpropCircuitInpro) {
         kairo.update_quantum_state(&Astate);
         CPPCTYPE gen_sco = state::inner_product(&state_soku, &Astate);
 
-        cerr << (gen_sco - mto_sco) * 10000.0 << " " << bk[h] << endl;
         ASSERT_NEAR(((gen_sco - mto_sco) * 10000.0).real(), bk[h], 1e-2);
 
         kairo.set_parameter(h, kaku[h]);
@@ -133,7 +131,6 @@ TEST(Backprop, BackpropPauliRotationCircuit) {
     auto bk = kairo.backprop(&observable);
     // 数値微分との比較
     for (int i = 0; i < 9; i++) {
-        cerr << bk[i] << " " << bibun[i].real() << endl;
         ASSERT_NEAR(bk[i], bibun[i].real(), 1e-10);
     }
 }
