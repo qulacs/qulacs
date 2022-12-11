@@ -718,11 +718,7 @@ void single_qubit_diagonal_matrix_gate_parallel_simd(UINT target_qubit_index,
  */
 DllExport void single_qubit_phase_gate(
     UINT target_qubit_index, CTYPE phase, CTYPE* state, ITYPE dim);
-void single_qubit_phase_gate_single_unroll(
-    UINT target_qubit_index, CTYPE phase, CTYPE* state, ITYPE dim);
 void single_qubit_phase_gate_parallel_unroll(
-    UINT target_qubit_index, CTYPE phase, CTYPE* state, ITYPE dim);
-void single_qubit_phase_gate_single_simd(
     UINT target_qubit_index, CTYPE phase, CTYPE* state, ITYPE dim);
 void single_qubit_phase_gate_parallel_simd(
     UINT target_qubit_index, CTYPE phase, CTYPE* state, ITYPE dim);

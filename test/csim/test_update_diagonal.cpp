@@ -92,14 +92,8 @@ void test_single_phase_gate(
 
 TEST(UpdateTest, SinglePhaseGateTest) {
     test_single_phase_gate(single_qubit_phase_gate);
-    test_single_phase_gate(single_qubit_phase_gate_single_unroll);
-#ifdef _OPENMP
     test_single_phase_gate(single_qubit_phase_gate_parallel_unroll);
-#endif
 #ifdef _USE_SIMD
-    test_single_phase_gate(single_qubit_phase_gate_single_simd);
-#ifdef _OPENMP
     test_single_phase_gate(single_qubit_phase_gate_parallel_simd);
-#endif
 #endif
 }
