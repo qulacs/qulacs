@@ -51,18 +51,10 @@ void test_single_diagonal_matrix_gate(
 TEST(UpdateTest, SingleDiagonalMatrixTest) {
     test_single_diagonal_matrix_gate(single_qubit_diagonal_matrix_gate);
     test_single_diagonal_matrix_gate(
-        single_qubit_diagonal_matrix_gate_single_unroll);
-#ifdef _OPENMP
-    test_single_diagonal_matrix_gate(
         single_qubit_diagonal_matrix_gate_parallel_unroll);
-#endif
 #ifdef _USE_SIMD
     test_single_diagonal_matrix_gate(
-        single_qubit_diagonal_matrix_gate_single_simd);
-#ifdef _OPENMP
-    test_single_diagonal_matrix_gate(
         single_qubit_diagonal_matrix_gate_parallel_simd);
-#endif
 #endif
 }
 
