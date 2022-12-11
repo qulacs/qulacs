@@ -27,9 +27,6 @@ protected:
     std::vector<UINT> _classical_register;
     UINT _device_number;
     void* _cuda_stream;
-#ifdef _USE_MPI
-    MPIutil mpiutil;
-#endif
 
 public:
     const UINT& qubit_count; /**< \~japanese-en 量子ビット数 */
@@ -67,16 +64,23 @@ public:
 
 #ifdef _USE_MPI
     QuantumStateBase(
-        UINT qubit_count_, bool use_multi_cpu, bool is_state_vector)
+        UINT qubit_count_, bool is_state_vector, bool use_multi_cpu)
         : qubit_count(_qubit_count),
           inner_qc(_inner_qc),
           outer_qc(_outer_qc),
           dim(_dim),
           classical_register(_classical_register),
           device_number(_device_number) {
-        mpiutil = get_mpiutil();
-        UINT mpirank = mpiutil->get_rank();
-        UINT mpisize = mpiutil->get_size();
+        UINT mpirank;
+        UINT mpisize;
+        if (use_multi_cpu) {
+            MPIutil mpiutil = get_mpiutil();
+            mpirank = mpiutil->get_rank();
+            mpisize = mpiutil->get_size();
+        } else {
+            mpirank = 0;
+            mpisize = 1;
+        }
         if ((mpisize & (mpisize - 1))) {
             throw MPISizeException(
                 "Error: QuantumStateBase::QuantumStateBase(UINT, bool, bool): "
@@ -411,26 +415,24 @@ public:
      * @param qubit_count_ 量子ビット数
      */
     explicit QuantumStateCpu(UINT qubit_count_)
-#ifdef _USE_MPI
-        : QuantumStateBase(qubit_count_, false, true)
-#else
-        : QuantumStateBase(qubit_count_, true)
-#endif
-    {
+        : QuantumStateBase(qubit_count_, true) {
         this->_state_vector =
             reinterpret_cast<CPPCTYPE*>(allocate_quantum_state(this->_dim));
-#ifdef _USE_MPI
-        initialize_quantum_state_mpi(this->data_c(), _dim, this->outer_qc);
-#else
         initialize_quantum_state(this->data_c(), _dim);
-#endif
     }
 #ifdef _USE_MPI
     explicit QuantumStateCpu(UINT qubit_count_, bool use_multi_cpu)
-        : QuantumStateBase(qubit_count_, use_multi_cpu, true) {
+        : QuantumStateBase(qubit_count_, true, use_multi_cpu) {
         this->_state_vector =
             reinterpret_cast<CPPCTYPE*>(allocate_quantum_state(this->_dim));
-        initialize_quantum_state_mpi(this->data_c(), _dim, this->outer_qc);
+#ifdef _USE_MPI
+        if (this->outer_qc > 0)
+            initialize_quantum_state_mpi(this->data_c(), _dim, this->outer_qc);
+        else
+#endif
+        {
+            initialize_quantum_state(this->data_c(), _dim);
+        }
     }
 #endif
     /**
@@ -438,7 +440,10 @@ public:
      */
     virtual ~QuantumStateCpu() {
 #ifdef _USE_MPI
-        mpiutil->release_workarea();
+        if (this->outer_qc > 0) {
+            MPIutil mpiutil = get_mpiutil();
+            mpiutil->release_workarea();
+        }
 #endif
         release_quantum_state(this->data_c());
     }
@@ -476,8 +481,12 @@ public:
         set_zero_state();
         _state_vector[0] = 0.;
 #ifdef _USE_MPI
-        if (this->outer_qc == 0 ||
-            comp_basis >> this->inner_qc == (ITYPE)mpiutil->get_rank()) {
+        ITYPE myrank = 0;
+        if (this->outer_qc > 0) {
+            MPIutil mpiutil = get_mpiutil();
+            myrank = (ITYPE)mpiutil->get_rank();
+        }
+        if (this->outer_qc == 0 || comp_basis >> this->inner_qc == myrank) {
             _state_vector[comp_basis & (_dim - 1)] = 1.;
         }
 #else
@@ -489,14 +498,14 @@ public:
      * randomにサンプリングされた量子状態に初期化する
      */
     virtual void set_Haar_random_state() override {
-#ifdef _USE_MPI
+#if 0
+        // すべてのrankで同一の結果を得るために、seedを共有する
         UINT seed = random.int32();
         if (mpiutil->get_size() > 1) mpiutil->s_u_bcast(&seed);
         set_Haar_random_state(seed);
-#else
+#endif
         initialize_Haar_random_state_with_seed(
             this->data_c(), _dim, random.int32());
-#endif
     }
     /**
      * \~japanese-en 量子状態をシードを用いてHaar
@@ -504,10 +513,13 @@ public:
      */
     virtual void set_Haar_random_state(UINT seed) override {
 #ifdef _USE_MPI
-        UINT seed_rank = seed;
-        if (this->outer_qc > 0) seed_rank += mpiutil->get_rank();
+        // 各rankで異なるseedを用いる必要がある
+        if (this->outer_qc > 0) {
+            MPIutil mpiutil = get_mpiutil();
+            seed += mpiutil->get_rank();
+        }
         initialize_Haar_random_state_mpi_with_seed(
-            this->data_c(), _dim, this->outer_qc, seed_rank);
+            this->data_c(), _dim, this->outer_qc, seed);
 #else
         initialize_Haar_random_state_with_seed(this->data_c(), _dim, seed);
 #endif
@@ -806,11 +818,12 @@ public:
      * @return サンプルされた値のリスト
      */
     virtual std::vector<ITYPE> sampling(UINT sampling_count) override {
-#ifdef _USE_MPI
+#if 0
+        // すべてのrankで同一の結果を得るために、seedを共有する
         UINT seed = rand();
         if (mpiutil->get_size() > 1) mpiutil->s_u_bcast(&seed);
         return this->sampling(sampling_count, seed);
-#else
+#endif
         std::vector<double> stacked_prob;
         std::vector<ITYPE> result;
         double sum = 0.;
@@ -829,30 +842,31 @@ public:
             result.push_back(index);
         }
         return result;
-#endif
     }
 
     virtual std::vector<ITYPE> sampling(
         UINT sampling_count, UINT random_seed) override {
         random.set_seed(random_seed);
-#ifdef _USE_MPI
-        std::vector<double> stacked_prob;
         std::vector<ITYPE> result;
-        double sum = 0.;
-        auto ptr = this->data_cpp();
-        // resize
-        stacked_prob.resize(this->dim + 1);
-        result.resize(sampling_count);
 
-        stacked_prob[0] = 0.;
-        for (UINT i = 0; i < this->dim; ++i) {
-            sum += norm(ptr[i]);
-            stacked_prob[i + 1] = sum;
-        }
+#ifdef _USE_MPI
+        if (this->outer_qc > 0) {
+            std::vector<double> stacked_prob;
+            MPIutil mpiutil = get_mpiutil();
+            UINT mpirank = mpiutil->get_rank();
+            UINT mpisize = mpiutil->get_size();
+            double sum = 0.;
+            auto ptr = this->data_cpp();
+            // resize
+            stacked_prob.resize(this->dim + 1);
+            result.resize(sampling_count);
 
-        UINT mpirank = mpiutil->get_rank();
-        UINT mpisize = mpiutil->get_size();
-        if (_outer_qc > 0) {
+            stacked_prob[0] = 0.;
+            for (UINT i = 0; i < this->dim; ++i) {
+                sum += norm(ptr[i]);
+                stacked_prob[i + 1] = sum;
+            }
+
             double* sumrank_prob;
             sumrank_prob = new double[mpisize];
 
@@ -866,17 +880,15 @@ public:
                 stacked_prob[i] += firstv;
             }
             delete[] sumrank_prob;
-        }
 
-        for (UINT count = 0; count < sampling_count; ++count) {
-            double r = random.uniform();
-            auto ite =
-                std::lower_bound(stacked_prob.begin(), stacked_prob.end(), r);
-            auto index = std::distance(stacked_prob.begin(), ite) - 1;
-            result[count] = index;
-        }
+            for (UINT count = 0; count < sampling_count; ++count) {
+                double r = random.uniform();
+                auto ite = std::lower_bound(
+                    stacked_prob.begin(), stacked_prob.end(), r);
+                auto index = std::distance(stacked_prob.begin(), ite) - 1;
+                result[count] = index;
+            }
 
-        if (_outer_qc > 0) {
             ITYPE geta = mpirank * this->dim;
             for (UINT i = 0; i < sampling_count; ++i) {
                 if (result[i] == -1ULL or result[i] == this->dim)
@@ -885,12 +897,13 @@ public:
                     result[i] += geta;
             }
             mpiutil->m_I_allreduce(result.data(), sampling_count);
+        } else
+#endif
+        {
+            result = this->sampling(sampling_count);
         }
 
         return result;
-#else
-        return this->sampling(sampling_count);
-#endif
     }
 };
 
