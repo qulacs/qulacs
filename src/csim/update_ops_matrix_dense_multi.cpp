@@ -31,7 +31,6 @@ void multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list,
         double_qubit_dense_matrix_gate_c(target_qubit_index_list[0],
             target_qubit_index_list[1], matrix, state, dim);
     } else {
-
 #ifdef _OPENMP
         OMPutil omputil = get_omputil();
         omputil->set_qulacs_num_threads(dim, 10);

@@ -21,7 +21,6 @@
 
 void single_qubit_diagonal_matrix_gate(UINT target_qubit_index,
     const CTYPE diagonal_matrix[2], CTYPE* state, ITYPE dim) {
-
 #ifdef _USE_SIMD
 #ifdef _OPENMP
     OMPutil omputil = get_omputil();

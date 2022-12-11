@@ -20,7 +20,6 @@
 
 void single_qubit_dense_matrix_gate(
     UINT target_qubit_index, const CTYPE matrix[4], CTYPE* state, ITYPE dim) {
-
 #ifdef _USE_SIMD
 #ifdef _OPENMP
     OMPutil omputil = get_omputil();

@@ -22,8 +22,7 @@ void CZ_gate(UINT control_qubit_index, UINT target_qubit_index, CTYPE* state,
 #endif
 
 #ifdef _USE_SIMD
-    CZ_gate_parallel_simd(
-        control_qubit_index, target_qubit_index, state, dim);
+    CZ_gate_parallel_simd(control_qubit_index, target_qubit_index, state, dim);
 #else
     CZ_gate_parallel_unroll(
         control_qubit_index, target_qubit_index, state, dim);

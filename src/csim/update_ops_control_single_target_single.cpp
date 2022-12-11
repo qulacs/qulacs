@@ -22,7 +22,6 @@
 void single_qubit_control_single_qubit_dense_matrix_gate(
     UINT control_qubit_index, UINT control_value, UINT target_qubit_index,
     const CTYPE matrix[4], CTYPE* state, ITYPE dim) {
-
 #ifdef _USE_SIMD
 #ifdef _OPENMP
     OMPutil omputil = get_omputil();
@@ -33,7 +32,7 @@ void single_qubit_control_single_qubit_dense_matrix_gate(
         control_qubit_index, control_value, target_qubit_index, matrix, state,
         dim);
 #ifdef _OPENMP
-        omputil->reset_qulacs_num_threads();
+    omputil->reset_qulacs_num_threads();
 #endif
 #else
 #ifdef _OPENMP
@@ -44,7 +43,7 @@ void single_qubit_control_single_qubit_dense_matrix_gate(
         control_qubit_index, control_value, target_qubit_index, matrix, state,
         dim);
 #ifdef _OPENMP
-        omputil->reset_qulacs_num_threads();
+    omputil->reset_qulacs_num_threads();
 #endif
 #endif
 }

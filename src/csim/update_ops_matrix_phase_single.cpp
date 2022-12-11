@@ -21,7 +21,6 @@
 
 void single_qubit_phase_gate(
     UINT target_qubit_index, CTYPE phase, CTYPE* state, ITYPE dim) {
-
 #ifdef _USE_SIMD
 #ifdef _OPENMP
     OMPutil omputil = get_omputil();
