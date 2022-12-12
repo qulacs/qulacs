@@ -7,6 +7,7 @@
 #include <numeric>
 
 #include "exception.hpp"
+#include "gate_merge.hpp"
 #include "state.hpp"
 #include "type.hpp"
 #ifdef _USE_GPU

@@ -493,3 +493,12 @@ void QuantumCircuit::add_random_unitary_gate(
     std::vector<UINT> target_index_list, UINT seed) {
     this->add_gate(gate::RandomUnitary(target_index_list, seed));
 }
+
+QuantumCircuit* QuantumCircuit::get_inverse(void) {
+    auto ans = new QuantumCircuit(this->qubit_count);
+    for (auto itr = std::rbegin(this->_gate_list);
+         itr != std::rend(this->_gate_list); ++itr) {
+        ans->add_gate((*itr)->get_inverse());
+    }
+    return ans;
+}

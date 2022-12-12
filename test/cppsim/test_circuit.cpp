@@ -18,21 +18,17 @@
 #include "../util/util.hpp"
 
 TEST(CircuitTest, CircuitBasic) {
-    Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2), H(2, 2),
-        S(2, 2), T(2, 2), sqrtX(2, 2), sqrtY(2, 2), P0(2, 2), P1(2, 2);
-
-    Identity << 1, 0, 0, 1;
-    X << 0, 1, 1, 0;
-    Y << 0, -1.i, 1.i, 0;
-    Z << 1, 0, 0, -1;
-    H << 1, 1, 1, -1;
-    H /= sqrt(2.);
-    S << 1, 0, 0, 1.i;
-    T << 1, 0, 0, (1. + 1.i) / sqrt(2.);
-    sqrtX << 0.5 + 0.5i, 0.5 - 0.5i, 0.5 - 0.5i, 0.5 + 0.5i;
-    sqrtY << 0.5 + 0.5i, -0.5 - 0.5i, 0.5 + 0.5i, 0.5 + 0.5i;
-    P0 << 1, 0, 0, 0;
-    P1 << 0, 0, 0, 1;
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
+    const auto H = make_H();
+    const auto S = make_S();
+    const auto T = make_T();
+    const auto sqrtX = make_sqrtX();
+    const auto sqrtY = make_sqrtY();
+    const auto P0 = make_P0();
+    const auto P1 = make_P1();
 
     const UINT n = 4;
     const UINT dim = 1ULL << n;
@@ -176,6 +172,107 @@ TEST(CircuitTest, CircuitBasic) {
         ASSERT_NEAR(abs(state_eigen[i] - state.data_cpp()[i]), 0, eps);
 }
 
+TEST(CircuitTest, CircuitRev) {
+    const UINT n = 4;
+    const UINT dim = 1ULL << n;
+
+    Random random;
+
+    QuantumState state(n);
+    ComplexVector state_eigen(dim);
+
+    state.set_Haar_random_state();
+    for (ITYPE i = 0; i < dim; ++i) state_eigen[i] = state.data_cpp()[i];
+
+    QuantumCircuit circuit(n);
+    UINT target, target_sub;
+    double angle;
+
+    target = random.int32() % n;
+    circuit.add_X_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_Y_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_Z_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_H_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_S_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_Sdag_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_T_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_Tdag_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_sqrtX_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_sqrtXdag_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_sqrtY_gate(target);
+
+    target = random.int32() % n;
+    circuit.add_sqrtYdag_gate(target);
+
+    target = random.int32() % n;
+    angle = random.uniform() * 3.14159;
+    circuit.add_RX_gate(target, angle * 2);
+    circuit.add_RotInvX_gate(target, angle + 0.5);
+    circuit.add_RotX_gate(target, angle * 2 + 0.5);
+
+    target = random.int32() % n;
+    angle = random.uniform() * 3.14159;
+    circuit.add_RotInvY_gate(target, angle);
+
+    target = random.int32() % n;
+    angle = random.uniform() * 3.14159;
+    circuit.add_RotZ_gate(target, -angle);
+
+    target = random.int32() % n;
+    target_sub = random.int32() % (n - 1);
+    if (target_sub >= target) target_sub++;
+    circuit.add_CNOT_gate(target, target_sub);
+
+    target = random.int32() % n;
+    target_sub = random.int32() % (n - 1);
+    if (target_sub >= target) target_sub++;
+    circuit.add_CZ_gate(target, target_sub);
+
+    target = random.int32() % n;
+    target_sub = random.int32() % (n - 1);
+    if (target_sub >= target) target_sub++;
+    circuit.add_SWAP_gate(target, target_sub);
+
+    Observable observable(n);
+    angle = 2 * PI * random.uniform();
+
+    observable.add_operator(1.0, "Z 0");
+    observable.add_operator(2.0, "Z 0 Z 1");
+
+    circuit.add_diagonal_observable_rotation_gate(observable, angle);
+
+    circuit.update_quantum_state(&state);
+
+    auto revcircuit = circuit.get_inverse();
+
+    revcircuit->update_quantum_state(&state);
+
+    for (ITYPE i = 0; i < dim; ++i)
+        ASSERT_NEAR(abs(state_eigen[i] - state.data_cpp()[i]), 0, eps);
+
+    delete revcircuit;
+}
+
 TEST(CircuitTest, CircuitOptimize) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;
@@ -198,10 +295,8 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -225,10 +320,8 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -252,10 +345,8 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -280,10 +371,8 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -308,10 +397,8 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -336,10 +423,7 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -364,10 +448,8 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -392,10 +474,8 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -420,11 +500,7 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        // std::cout << state << std::endl << test_state << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -449,10 +525,8 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -477,10 +551,7 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -515,10 +586,7 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -553,10 +621,7 @@ TEST(CircuitTest, CircuitOptimize) {
         qco.optimize(copy_circuit, block_size);
         circuit.update_quantum_state(&test_state);
         copy_circuit->update_quantum_state(&state);
-        // std::cout << circuit << std::endl << copy_circuit << std::endl;
-        for (UINT i = 0; i < dim; ++i)
-            ASSERT_NEAR(
-                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+        ASSERT_STATE_NEAR(state, test_state, eps);
         ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
@@ -604,10 +669,7 @@ TEST(CircuitTest, RandomCircuitOptimize) {
             qco.optimize(copy_circuit, block_size);
             state.load(&org_state);
             copy_circuit->update_quantum_state(&state);
-            // std::cout << copy_circuit << std::endl;
-            for (UINT i = 0; i < dim; ++i)
-                ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]),
-                    0, eps);
+            ASSERT_STATE_NEAR(state, test_state, eps);
             delete copy_circuit;
         }
     }
@@ -662,10 +724,7 @@ TEST(CircuitTest, RandomCircuitOptimize2) {
             qco.optimize(copy_circuit, block_size);
             state.load(&org_state);
             copy_circuit->update_quantum_state(&state);
-            // std::cout << copy_circuit << std::endl;
-            for (UINT i = 0; i < dim; ++i)
-                ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]),
-                    0, eps);
+            ASSERT_STATE_NEAR(state, test_state, eps);
             delete copy_circuit;
         }
     }
@@ -706,10 +765,7 @@ TEST(CircuitTest, RandomCircuitOptimize3) {
             qco.optimize(copy_circuit, block_size);
             state.load(&org_state);
             copy_circuit->update_quantum_state(&state);
-            // std::cout << copy_circuit << std::endl;
-            for (UINT i = 0; i < dim; ++i)
-                ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]),
-                    0, eps);
+            ASSERT_STATE_NEAR(state, test_state, eps);
             delete copy_circuit;
         }
     }
@@ -717,11 +773,10 @@ TEST(CircuitTest, RandomCircuitOptimize3) {
 
 TEST(CircuitTest, SuzukiTrotterExpansion) {
     CPPCTYPE J(0.0, 1.0);
-    Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
-    Identity << 1, 0, 0, 1;
-    X << 0, 1, 1, 0;
-    Y << 0, -J, J, 0;
-    Z << 1, 0, 0, -1;
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
 
     const UINT n = 2;
     const UINT dim = 1ULL << n;
@@ -801,11 +856,10 @@ TEST(CircuitTest, SuzukiTrotterExpansion) {
 
 TEST(CircuitTest, RotateDiagonalObservable) {
     CPPCTYPE J(0.0, 1.0);
-    Eigen::MatrixXcd Identity(2, 2), X(2, 2), Y(2, 2), Z(2, 2);
-    Identity << 1, 0, 0, 1;
-    X << 0, 1, 1, 0;
-    Y << 0, -J, J, 0;
-    Z << 1, 0, 0, -1;
+    const auto Identity = make_Identity();
+    const auto X = make_X();
+    const auto Y = make_Y();
+    const auto Z = make_Z();
 
     const UINT n = 2;
     const UINT dim = 1ULL << n;
@@ -841,18 +895,12 @@ TEST(CircuitTest, RotateDiagonalObservable) {
     state.set_computational_basis(0);
     test_state(0) = 1.;
 
-    // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] -
-    // state.data_cpp()[i]), 0, eps);
-
     circuit.update_quantum_state(&state);
     test_state = test_circuit * test_state;
 
     res = observable.get_expectation_value(&state);
     test_res = (test_state.adjoint() * test_observable * test_state);
 
-    // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] -
-    // state.data_cpp()[i]), 0, eps);
-    ASSERT_NEAR(abs(test_res.real() - res.real()) / test_res.real(), 0, 0.01);
     ASSERT_NEAR(res.imag(), 0, eps);
     ASSERT_NEAR(test_res.imag(), 0, eps);
 
@@ -868,8 +916,6 @@ TEST(CircuitTest, RotateDiagonalObservable) {
     res = observable.get_expectation_value(&state);
     test_res = (test_state.adjoint() * test_observable * test_state);
 
-    // for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(test_state[i] -
-    // state.data_cpp()[i]), 0, eps);
     ASSERT_NEAR(abs(test_res.real() - res.real()) / test_res.real(), 0, 0.01);
     ASSERT_NEAR(res.imag(), 0, eps);
     ASSERT_NEAR(test_res.imag(), 0, eps);
