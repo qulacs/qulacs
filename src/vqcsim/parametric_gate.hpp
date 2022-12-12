@@ -237,7 +237,7 @@ public:
         }
     };
     virtual ClsParametricPauliRotationGate* copy() const override {
-        return new ClsParametricPauliRotationGate(_angle, _pauli->copy());
+        return new ClsParametricPauliRotationGate(_angle, _pauli);
     };
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         get_Pauli_matrix(matrix, _pauli->get_pauli_id_list());
@@ -254,6 +254,6 @@ public:
         return pt;
     }
     virtual ClsParametricPauliRotationGate* get_inverse() const override {
-        return new ClsParametricPauliRotationGate(-_angle, _pauli->copy());
+        return new ClsParametricPauliRotationGate(-_angle, _pauli);
     };
 };

@@ -234,6 +234,7 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
                 RcPI =
                     gate::PauliRotation(pauli_gate_now->get_target_index_list(),
                         pauli_gate_now->get_pauli()->get_pauli_id_list(), M_PI);
+                delete pauli_gate_now;
             } else {
                 std::stringstream error_message_stream;
                 error_message_stream
