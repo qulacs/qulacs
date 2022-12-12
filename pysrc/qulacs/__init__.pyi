@@ -805,6 +805,10 @@ class QuantumState(QuantumStateBase):
         """
         Constructor
         """
+    def __init__(self, qubit_count: int, bool) -> None: 
+        """
+        Constructor
+        """
     def __str__(self) -> str: 
         """
         to string

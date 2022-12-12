@@ -97,7 +97,7 @@ public:
         }
 
         this->_qubit_count = qubit_count_;
-        this->_dim = 1ULL << qubit_count_;
+        this->_dim = 1ULL << this->_inner_qc;
         this->_is_state_vector = is_state_vector;
         this->_device_number = mpirank;
     }
