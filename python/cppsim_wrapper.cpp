@@ -1318,6 +1318,18 @@ PYBIND11_MODULE(qulacs_core, m) {
             py::arg("angles_of_gates"));
 
     auto mcircuit = m.def_submodule("circuit");
+    mcircuit.def(
+        "from_json",
+        [](const std::string& json) -> QuantumCircuit* {
+            boost::property_tree::ptree pt = ptree::from_json(json);
+            if (pt.get<std::string>("name") == "ParametricQuantumCircuit") {
+                return circuit::parametric_circuit_from_ptree(pt);
+            } else {
+                return circuit::from_ptree(pt);
+            }
+        },
+        "from json string", py::return_value_policy::take_ownership);
+
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
         .def(py::init<>(), "Constructor")
         .def("optimize", &QuantumCircuitOptimizer::optimize,
@@ -1326,15 +1338,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("optimize_light", &QuantumCircuitOptimizer::optimize_light,
             "Optimize quantum circuit with light method", py::arg("circuit"))
         .def("merge_all", &QuantumCircuitOptimizer::merge_all,
-            py::return_value_policy::take_ownership, py::arg("circuit"))
-        .def("from_json", [](const std::string& json) -> QuantumCircuit* {
-            boost::property_tree::ptree pt = ptree::from_json(json);
-            if (pt.get<std::string>("name") == "ParametricQuantumCircuit") {
-                return circuit::parametric_circuit_from_ptree(pt);
-            } else {
-                return circuit::from_ptree(pt);
-            }
-        });
+            py::return_value_policy::take_ownership, py::arg("circuit"));
 
     py::class_<QuantumCircuitSimulator>(m, "QuantumCircuitSimulator")
         .def(py::init<QuantumCircuit*, QuantumStateBase*>(), "Constructor",
