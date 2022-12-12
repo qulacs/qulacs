@@ -40,8 +40,8 @@
  *
  */
 DllExport void X_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim);
-void X_gate_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim);
-void X_gate_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim);
+void X_gate_parallel_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim);
+void X_gate_parallel_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 
 /**
  * \~english
@@ -319,9 +319,9 @@ void H_gate_parallel_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim);
  */
 DllExport void CNOT_gate(
     UINT control_qubit_index, UINT target_qubit_index, CTYPE* state, ITYPE dim);
-void CNOT_gate_unroll(
+void CNOT_gate_parallel_unroll(
     UINT control_qubit_index, UINT target_qubit_index, CTYPE* state, ITYPE dim);
-void CNOT_gate_simd(
+void CNOT_gate_parallel_simd(
     UINT control_qubit_index, UINT target_qubit_index, CTYPE* state, ITYPE dim);
 
 /**

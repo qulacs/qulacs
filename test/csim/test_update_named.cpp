@@ -43,9 +43,9 @@ TEST(UpdateTest, XGate) {
     Eigen::MatrixXcd mat(2, 2);
     mat << 0, 1, 1, 0;
     test_single_qubit_named_gate(6, "XGate", X_gate, mat);
-    test_single_qubit_named_gate(6, "XGate", X_gate_unroll, mat);
+    test_single_qubit_named_gate(6, "XGate", X_gate_parallel_unroll, mat);
 #ifdef _USE_SIMD
-    test_single_qubit_named_gate(6, "XGate", X_gate_simd, mat);
+    test_single_qubit_named_gate(6, "XGate", X_gate_parallel_simd, mat);
 #endif
 }
 TEST(UpdateTest, YGate) {
@@ -236,11 +236,11 @@ TEST(UpdateTest, CNOTGate) {
     const UINT n = 4;
     test_two_qubit_named_gate(
         n, "CNOT", CNOT_gate, get_eigen_matrix_full_qubit_CNOT);
-    test_two_qubit_named_gate(
-        6, "CNOTGate", CNOT_gate_unroll, get_eigen_matrix_full_qubit_CNOT);
+    test_two_qubit_named_gate(6, "CNOTGate", CNOT_gate_parallel_unroll,
+        get_eigen_matrix_full_qubit_CNOT);
 #ifdef _USE_SIMD
-    test_two_qubit_named_gate(
-        6, "CNOTGate", CNOT_gate_simd, get_eigen_matrix_full_qubit_CNOT);
+    test_two_qubit_named_gate(6, "CNOTGate", CNOT_gate_parallel_simd,
+        get_eigen_matrix_full_qubit_CNOT);
 #endif
 }
 
