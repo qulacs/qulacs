@@ -235,7 +235,7 @@ public:
         // bit_numberを決めて、実際に独立なゲートに振り分ける
         UINT n_qubit = hamiltonian->get_qubit_count();
         bit_number = std::vector<int>(n_qubit, -1);
-        int i;
+        UINT i;
         for (auto pauli : hamiltonian->get_terms()) {
             for (int bit : pauli->get_index_list()) {
                 bit_number[bit] = bit;
@@ -281,7 +281,7 @@ public:
             aru[bit_number[i]] = true;
         }
         std::vector<UINT> taiou(n_qubit);
-        int kaz = 0;
+        UINT kaz = 0;
         for (i = 0; i < n_qubit; i++) {
             if (aru[i]) {
                 taiou[i] = kaz;
