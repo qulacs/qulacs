@@ -40,8 +40,6 @@ jobs:
             os: "macos-11"
     runs-on: ${{ matrix.os }}
     env:
-      CXX_COMPILER: "g++-12"
-      C_COMPILER: "gcc-12"
       CIBW_BUILD: ${{ matrix.cibw-python }}-${{ matrix.os-arch }}
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
