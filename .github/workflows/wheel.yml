@@ -39,8 +39,8 @@ jobs:
             os: "macos-11"
     runs-on: ${{ matrix.os }}
     env:
-      CXX_COMPILER: "g++-10"
-      C_COMPILER: "gcc-10"
+      CXX_COMPILER: "g++-11"
+      C_COMPILER: "gcc-11"
       CIBW_BUILD: ${{ matrix.cibw-python }}-${{ matrix.os-arch }}
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
@@ -97,8 +97,8 @@ jobs:
         os: ["ubuntu-20.04"]
     runs-on: ${{ matrix.os }}
     env:
-      CXX_COMPILER: "g++-10"
-      C_COMPILER: "gcc-10"
+      CXX_COMPILER: "g++-11"
+      C_COMPILER: "gcc-11"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       TWINE_USERNAME: "__token__"

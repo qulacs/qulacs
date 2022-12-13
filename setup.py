@@ -1,5 +1,6 @@
 import os
 import platform
+import re
 import subprocess
 import sys
 
@@ -118,8 +119,9 @@ class CMakeBuild(build_ext):
             if platform.system() == "Darwin":
                 # This is for building Python package on GitHub Actions, whose architecture is x86_64.
                 # Without specifying the architecture explicitly, binaries for arm64 is built for x86_64 while cibuildwheel intends to build for arm64.
-                # `platform.machine()` returns a string such as "x86_64" or "arm64".
-                cmake_args += ["-DCMAKE_OSX_ARCHITECTURES=" + platform.machine()]
+                archs = re.findall(r"-arch (\S+)", os.environ.get("ARCHFLAGS", ""))
+                if len(archs) > 0:
+                    cmake_args += ["-DCMAKE_OSX_ARCHITECTURES={}".format(";".join(archs))]
 
             n_cpus = os.cpu_count()
             build_args += ["--", f"-j{n_cpus}"]
