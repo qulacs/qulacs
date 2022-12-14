@@ -1,7 +1,7 @@
 # Qulacs with MPI General info
 
 ## Functionality
-- Quantum state generation & gate simulation with multi-process and multi-nodes
+- Quantum state generation & gate simulation with multi-process and multi-nodes using distributed state vector (Single Program Multiple Data:SPMD model).
 - Qulacs distributes a state (QuantumState) when it is instantiated and flag "use_multi_cpu=true" is enabled.
   - However, in the case "(N - k) <= log2(S)", the flag is ignored.
     "S", "N" and "k" are the MPI size, the number of qubits and the min number of qubit per process (k = 2 constant), respectively.
