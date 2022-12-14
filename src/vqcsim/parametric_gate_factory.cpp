@@ -112,7 +112,7 @@ QuantumGate_SingleParameter* parametric_gate_from_ptree(
             quantum_operator::pauli_operator_from_ptree(pt.get_child("pauli"));
         ClsParametricPauliRotationGate* gate =
             new ClsParametricPauliRotationGate(angle, pauli);
-        free(pauli);
+        delete pauli;
         return gate;
     } else {
         throw UnknownPTreePropertyValueException(
