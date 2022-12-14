@@ -7,6 +7,7 @@
 #include <csim/utility.hpp>
 #include <numeric>
 
+#include "gate_merge.hpp"
 #include "state.hpp"
 #include "type.hpp"
 #ifdef _USE_GPU
@@ -286,6 +287,15 @@ std::string QuantumGateMatrix::to_string() const {
     return os.str();
 }
 
+boost::property_tree::ptree QuantumGateMatrix::to_ptree() const {
+    boost::property_tree::ptree pt;
+    pt.put("name", "DenseMatrixGate");
+    pt.put_child("target_qubit_list", ptree::to_ptree(_target_qubit_list));
+    pt.put_child("control_qubit_list", ptree::to_ptree(_control_qubit_list));
+    pt.put_child("matrix", ptree::to_ptree(_matrix_element));
+    return pt;
+}
+
 std::ostream& operator<<(std::ostream& os, const QuantumGateMatrix& gate) {
     os << gate.to_string();
     return os;
@@ -293,4 +303,8 @@ std::ostream& operator<<(std::ostream& os, const QuantumGateMatrix& gate) {
 std::ostream& operator<<(std::ostream& os, QuantumGateMatrix* gate) {
     os << *gate;
     return os;
+}
+
+QuantumGateMatrix* QuantumGateMatrix::get_inverse(void) const {
+    return gate::get_adjoint_gate(this);
 }

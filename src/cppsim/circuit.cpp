@@ -506,6 +506,15 @@ boost::property_tree::ptree QuantumCircuit::to_ptree() const {
     return pt;
 }
 
+QuantumCircuit* QuantumCircuit::get_inverse(void) {
+    auto ans = new QuantumCircuit(this->qubit_count);
+    for (auto itr = std::rbegin(this->_gate_list);
+         itr != std::rend(this->_gate_list); ++itr) {
+        ans->add_gate((*itr)->get_inverse());
+    }
+    return ans;
+}
+
 namespace circuit {
 QuantumCircuit* from_ptree(const boost::property_tree::ptree& pt) {
     std::string name = pt.get<std::string>("name");

@@ -154,6 +154,62 @@ boost::property_tree::ptree to_ptree(
     }
     return ptree;
 }
+boost::property_tree::ptree to_ptree(
+    const std::vector<TargetQubitInfo>& target_qubit_list) {
+    boost::property_tree::ptree pt;
+    for (const TargetQubitInfo& info : target_qubit_list) {
+        boost::property_tree::ptree child;
+        child.put("", info.index());
+        pt.push_back(std::make_pair("", child));
+    }
+    return pt;
+}
+boost::property_tree::ptree to_ptree(
+    const std::vector<ControlQubitInfo>& control_qubit_list) {
+    boost::property_tree::ptree pt;
+    for (const ControlQubitInfo& info : control_qubit_list) {
+        boost::property_tree::ptree child;
+        child.put("index", info.index());
+        child.put("value", info.control_value());
+        pt.push_back(std::make_pair("", child));
+    }
+    return pt;
+}
+boost::property_tree::ptree to_ptree(const ComplexVector& vector) {
+    boost::property_tree::ptree ptree;
+    UINT sz = vector.size();
+    ptree.put("size", sz);
+    ptree.put_child("data",
+        to_ptree(std::vector<CPPCTYPE>(vector.data(), vector.data() + sz)));
+    return ptree;
+}
+boost::property_tree::ptree to_ptree(const ComplexMatrix& matrix) {
+    boost::property_tree::ptree ptree;
+    UINT r = matrix.rows(), c = matrix.cols();
+    ptree.put("rows", r);
+    ptree.put("cols", c);
+    ptree.put_child("data", to_ptree(std::vector<CPPCTYPE>(
+                                matrix.data(), matrix.data() + matrix.size())));
+    return ptree;
+}
+boost::property_tree::ptree to_ptree(const SparseComplexMatrix& matrix) {
+    boost::property_tree::ptree ptree;
+    UINT r = matrix.rows(), c = matrix.cols();
+    ptree.put("rows", r);
+    ptree.put("cols", c);
+    std::vector<boost::property_tree::ptree> data;
+    for (UINT k = 0; k < matrix.outerSize(); ++k) {
+        for (SparseComplexMatrix::InnerIterator it(matrix, k); it; ++it) {
+            boost::property_tree::ptree child;
+            child.put("row", it.row());
+            child.put("col", it.col());
+            child.put_child("value", to_ptree(it.value()));
+            data.push_back(child);
+        }
+    }
+    ptree.put_child("data", to_ptree(data));
+    return ptree;
+}
 CPPCTYPE complex_from_ptree(const boost::property_tree::ptree& pt) {
     double real = pt.get<double>("real");
     double imag = pt.get<double>("imag");
@@ -181,6 +237,63 @@ std::vector<boost::property_tree::ptree> ptree_array_from_ptree(
         pt_array.push_back(pt_pair.second);
     }
     return pt_array;
+}
+std::vector<TargetQubitInfo> target_qubit_list_from_ptree(
+    const boost::property_tree::ptree& pt) {
+    std::vector<TargetQubitInfo> target_qubit_list;
+    for (const boost::property_tree::ptree::value_type& target_qubit_pair :
+        pt) {
+        target_qubit_list.push_back(
+            TargetQubitInfo(target_qubit_pair.second.get<UINT>("")));
+    }
+    return target_qubit_list;
+}
+std::vector<ControlQubitInfo> control_qubit_list_from_ptree(
+    const boost::property_tree::ptree& pt) {
+    std::vector<ControlQubitInfo> control_qubit_list;
+    for (const boost::property_tree::ptree::value_type& control_qubit_pair :
+        pt) {
+        boost::property_tree::ptree child = control_qubit_pair.second;
+        control_qubit_list.push_back(ControlQubitInfo(
+            child.get<UINT>("index"), child.get<UINT>("value")));
+    }
+    return control_qubit_list;
+}
+ComplexVector complex_vector_from_ptree(const boost::property_tree::ptree& pt) {
+    UINT sz = pt.get<UINT>("size");
+    ComplexVector vector(sz);
+    std::vector<CPPCTYPE> data = complex_array_from_ptree(pt.get_child("data"));
+    for (UINT i = 0; i < sz; i++) {
+        vector(i) = data[i];
+    }
+    return vector;
+}
+ComplexMatrix complex_matrix_from_ptree(const boost::property_tree::ptree& pt) {
+    UINT r = pt.get<UINT>("rows"), c = pt.get<UINT>("cols");
+    ComplexMatrix matrix(r, c);
+    std::vector<CPPCTYPE> data = complex_array_from_ptree(pt.get_child("data"));
+    for (UINT i = 0; i < r; i++) {
+        for (UINT j = 0; j < c; j++) {
+            matrix(i, j) = data[i * c + j];
+        }
+    }
+    return matrix;
+}
+SparseComplexMatrix sparse_complex_matrix_from_ptree(
+    const boost::property_tree::ptree& pt) {
+    UINT r = pt.get<UINT>("rows"), c = pt.get<UINT>("cols");
+    SparseComplexMatrix matrix(r, c);
+    std::vector<Eigen::Triplet<CPPCTYPE>> triplets;
+    std::vector<boost::property_tree::ptree> data =
+        ptree_array_from_ptree(pt.get_child("data"));
+    for (const boost::property_tree::ptree& child : data) {
+        UINT row = child.get<UINT>("row");
+        UINT col = child.get<UINT>("col");
+        CPPCTYPE value = complex_from_ptree(child.get_child("value"));
+        triplets.emplace_back(row, col, value);
+    }
+    matrix.setFromTriplets(triplets.begin(), triplets.end());
+    return matrix;
 }
 std::string to_json(const boost::property_tree::ptree& pt) {
     std::stringstream ss;

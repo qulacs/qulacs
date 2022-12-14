@@ -30,8 +30,7 @@ TEST(ObservableTest, CheckExpectationValue) {
     CPPCTYPE test_res;
     Random random;
 
-    Eigen::MatrixXcd X(2, 2);
-    X << 0, 1, 1, 0;
+    const auto X = make_X();
 
     QuantumState state(n);
     state.set_computational_basis(0);

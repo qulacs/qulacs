@@ -213,4 +213,8 @@ public:
         pt.add_child("pauli", _pauli->to_ptree());
         return pt;
     }
+
+    virtual ClsPauliRotationGate* get_inverse(void) const override {
+        return new ClsPauliRotationGate(-this->_angle, this->_pauli->copy());
+    }
 };

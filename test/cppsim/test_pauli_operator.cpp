@@ -31,7 +31,6 @@ TEST(PauliOperatorTest, PauliQubitOverflow) {
 }
 
 TEST(PauliOperatorTest, BrokenPauliStringA) {
-    int n = 5;
     double coef = 2.0;
     std::string Pauli_string = "X 0 X Z 1 Y 2";
     EXPECT_THROW(
@@ -39,7 +38,6 @@ TEST(PauliOperatorTest, BrokenPauliStringA) {
 }
 
 TEST(PauliOperatorTest, BrokenPauliStringB) {
-    int n = 5;
     double coef = 2.0;
     std::string Pauli_string = "X {i}";
     EXPECT_THROW(
@@ -47,7 +45,6 @@ TEST(PauliOperatorTest, BrokenPauliStringB) {
 }
 
 TEST(PauliOperatorTest, BrokenPauliStringC) {
-    int n = 5;
     double coef = 2.0;
     std::string Pauli_string = "X 4x";
     EXPECT_THROW(
@@ -55,7 +52,6 @@ TEST(PauliOperatorTest, BrokenPauliStringC) {
 }
 
 TEST(PauliOperatorTest, BrokenPauliStringD) {
-    int n = 5;
     double coef = 2.0;
     std::string Pauli_string = "4 X";
     EXPECT_THROW(
@@ -63,7 +59,6 @@ TEST(PauliOperatorTest, BrokenPauliStringD) {
 }
 
 TEST(PauliOperatorTest, SpacedPauliString) {
-    int n = 5;
     double coef = 2.0;
     std::string Pauli_string = "X 0 Y 1 ";
     PauliOperator pauli = PauliOperator(Pauli_string, coef);
@@ -72,7 +67,6 @@ TEST(PauliOperatorTest, SpacedPauliString) {
 }
 
 TEST(PauliOperatorTest, PartedPauliString) {
-    int n = 5;
     double coef = 2.0;
     std::string Pauli_string = "X 0 Y ";
     EXPECT_THROW(

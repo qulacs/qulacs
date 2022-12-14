@@ -19,8 +19,7 @@ TEST(UpdateTest, SingleQubitPauliTest) {
 
     UINT target, pauli;
 
-    Eigen::MatrixXcd Identity(2, 2);
-    Identity << 1, 0, 0, 1;
+    const auto Identity = make_Identity();
 
     auto state = allocate_quantum_state(dim);
     initialize_Haar_random_state(state, dim);
@@ -48,8 +47,7 @@ TEST(UpdateTest, SingleQubitPauliRotationTest) {
     UINT target, pauli;
     double angle;
 
-    Eigen::MatrixXcd Identity(2, 2);
-    Identity << 1, 0, 0, 1;
+    const auto Identity = make_Identity();
 
     auto state = allocate_quantum_state(dim);
     initialize_Haar_random_state(state, dim);

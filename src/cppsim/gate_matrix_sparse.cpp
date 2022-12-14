@@ -7,6 +7,7 @@
 #include <numeric>
 
 #include "exception.hpp"
+#include "gate_merge.hpp"
 #include "state.hpp"
 #include "type.hpp"
 #ifdef _USE_GPU
@@ -116,6 +117,15 @@ std::string QuantumGateSparseMatrix::to_string() const {
     os << " * Matrix" << std::endl;
     os << this->_matrix_element << std::endl;
     return os.str();
+}
+
+boost::property_tree::ptree QuantumGateSparseMatrix::to_ptree() const {
+    boost::property_tree::ptree pt;
+    pt.put("name", "SparseMatrixGate");
+    pt.put_child("target_qubit_list", ptree::to_ptree(_target_qubit_list));
+    pt.put_child("control_qubit_list", ptree::to_ptree(_control_qubit_list));
+    pt.put_child("matrix", ptree::to_ptree(_matrix_element));
+    return pt;
 }
 
 std::ostream& operator<<(
