@@ -63,10 +63,10 @@ private:
     /**
      * \~japanese-en
      *
-     * SamplingRequestの計画通りにサンプリングを行い、結果を配列で返す。
+     * SamplingRequestの計画通りにシミュレーションを行い、結果を配列で返す。
      * @param[in] sampling_request_vector SamplingRequestのvector
      */
-    std::vector<ITYPE> execute_sampling(
+    std::vector<std::pair<QuantumState*, UINT>> simulate(
         std::vector<SamplingRequest> sampling_request_vector);
 
 public:
@@ -95,4 +95,15 @@ public:
      * @param[in] sample_count 行うsamplingの回数
      */
     virtual std::vector<ITYPE> execute(const UINT sample_count);
+
+    /**
+     * \~japanese-en
+     *
+     * 実際にサンプリングまではせずにノイズがランダムにかかった量子状態の列を返す。
+     * @param[in] execution_count 実行回数
+     * @return
+     * 量子状態の列。pairの配列で、同じ量子状態は1つの要素にまとまっている。firstは量子状態、secondはその個数
+     */
+    virtual std::vector<std::pair<QuantumState*, UINT>> execute_and_get_state(
+        const UINT execution_count);
 };

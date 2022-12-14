@@ -40,9 +40,29 @@ NoiseSimulator::~NoiseSimulator() {
 }
 
 std::vector<ITYPE> NoiseSimulator::execute(const UINT sample_count) {
+    std::vector<std::pair<QuantumState*, UINT>> simulation_result =
+        execute_and_get_state(sample_count);
+    std::vector<ITYPE> sampling_result;
+    sampling_result.reserve(sample_count);
+    for (auto& p : simulation_result) {
+        std::vector<ITYPE> sampling_result_p = p.first->sampling(p.second);
+        std::copy(sampling_result_p.begin(), sampling_result_p.end(),
+            std::back_inserter(sampling_result));
+        delete p.first;
+    }
+
+    // shuffle result because near sampling result may be sampled from same
+    // merged state.
+    std::mt19937 randomizer(random.int32());
+    std::shuffle(sampling_result.begin(), sampling_result.end(), randomizer);
+    return sampling_result;
+}
+
+std::vector<std::pair<QuantumState*, UINT>>
+NoiseSimulator::execute_and_get_state(const UINT sample_count) {
     std::vector<SamplingRequest> sampling_required =
         generate_sampling_request(sample_count);
-    return execute_sampling(sampling_required);
+    return simulate(sampling_required);
 }
 
 std::vector<NoiseSimulator::SamplingRequest>
@@ -81,12 +101,12 @@ NoiseSimulator::generate_sampling_request(const UINT sample_count) {
     return required_sampling_requests;
 }
 
-std::vector<ITYPE> NoiseSimulator::execute_sampling(
+std::vector<std::pair<QuantumState*, UINT>> NoiseSimulator::simulate(
     std::vector<NoiseSimulator::SamplingRequest> sampling_requests) {
     std::sort(begin(sampling_requests), end(sampling_requests),
         [](auto l, auto r) { return l.gate_pos > r.gate_pos; });
 
-    std::vector<ITYPE> sampling_result;
+    std::vector<std::pair<QuantumState*, UINT>> simulation_result;
 
     QuantumState common_state(initial_state->qubit_count);
     QuantumState buffer(initial_state->qubit_count);
@@ -115,19 +135,11 @@ std::vector<ITYPE> NoiseSimulator::execute_sampling(
 
         buffer.load(&common_state);
         apply_gates(current_gate_pos, &buffer, done_itr);
-        std::vector<ITYPE> samples =
-            buffer.sampling(sampling_requests[i].num_of_sampling);
-        for (UINT q = 0; q < samples.size(); ++q) {
-            sampling_result.push_back(samples[q]);
-        }
+        simulation_result.emplace_back(
+            buffer.copy(), sampling_requests[i].num_of_sampling);
     }
 
-    // shuffle result because near sampling result may be sampled from same
-    // merged state.
-    std::mt19937 randomizer(random.int32());
-    std::shuffle(begin(sampling_result), end(sampling_result), randomizer);
-
-    return sampling_result;
+    return simulation_result;
 }
 
 UINT NoiseSimulator::randomly_select_which_gate_pos_to_apply(
