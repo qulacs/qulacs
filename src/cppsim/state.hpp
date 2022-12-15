@@ -54,8 +54,10 @@ public:
         this->_device_number = 0;
     }
 
-    QuantumStateBase(
-        UINT qubit_count_, bool is_state_vector, bool use_multi_cpu)
+    // 本来、QuantumStateBase(UINT, bool, bool) とすべきだが、
+    // QuantumStateBase(UINT, bool, UINT) に対し ambiguous error が発生するため
+    // QuantumStateBase(UINT, bool, int) とした
+    QuantumStateBase(UINT qubit_count_, bool is_state_vector, int use_multi_cpu)
         : qubit_count(_qubit_count),
           inner_qc(_inner_qc),
           outer_qc(_outer_qc),
@@ -432,7 +434,7 @@ public:
      * @param use_multi_cpu Flag to use multi CPUs
      */
     explicit QuantumStateCpu(UINT qubit_count_, bool use_multi_cpu)
-        : QuantumStateBase(qubit_count_, true, use_multi_cpu) {
+        : QuantumStateBase(qubit_count_, true, (int)use_multi_cpu) {
         this->_state_vector =
             reinterpret_cast<CPPCTYPE*>(allocate_quantum_state(this->_dim));
 #ifdef _USE_MPI
