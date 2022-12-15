@@ -1,0 +1,70 @@
+name: Windows CI
+
+on:
+  push:
+    paths-ignore:
+      - ".devcontainer/**"
+      - ".vscode/**"
+      - "doc/**"
+      - "*.md"
+    branches:
+      - "dev"
+  pull_request_review:
+    types: [submitted, edited]
+  workflow_dispatch:
+
+jobs:
+  gcc8-build:
+    name: GCC8 build
+    # For jobs triggered by pull_request_review, build task should run only if is in `approved` state.
+    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
+    strategy:
+      matrix:
+        python-version: ["3.7.5"]
+    runs-on: "windows-2019"
+    env:
+      CXX_COMPILER: "g++-8"
+      C_COMPILER: "gcc-8"
+      PYTHON: ${{ matrix.python-version }}
+      COVERAGE: "ON"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Install boost
+        uses: MarkusJx/install-boost@v2.0.0
+        id: install-boost
+        with:
+          boost_version: 1.77.0
+
+      - name: Install qulacs for Windows
+        run: |
+          $env:USE_TEST = "Yes"
+          ./script/build_msvc_2019.bat
+        env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+
+      - name: Install qulacs Python module
+        env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+        run: pip install .[ci]
+
+      - name: Test if stub is working
+        run: |
+          python python/stub-test/generate_mypy_tester.py qulacs
+          mypy python/stub-test/names_qulacs.py
+
+      - name: Test in Windows
+        env:
+          BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+        run: |
+          cmake --build ./visualstudio --target test --config Release
+          cmake --build ./visualstudio --target pythontest --config Release

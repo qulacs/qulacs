@@ -2,11 +2,16 @@
 
 #include <cppsim/simulator.hpp>
 
-class DllExport ParametricQuantumCircuitSimulator : public QuantumCircuitSimulator {
+#include "parametric_circuit.hpp"
+
+class DllExport ParametricQuantumCircuitSimulator
+    : public QuantumCircuitSimulator {
 private:
     ParametricQuantumCircuit* _parametric_circuit;
+
 public:
-    ParametricQuantumCircuitSimulator(ParametricQuantumCircuit* circuit, QuantumStateBase* state = NULL);
+    ParametricQuantumCircuitSimulator(
+        ParametricQuantumCircuit* circuit, QuantumStateBase* state = NULL);
     double get_parameter(UINT index) const;
     void add_parameter_value(UINT index, double value);
     void set_parameter_value(UINT index, double value);

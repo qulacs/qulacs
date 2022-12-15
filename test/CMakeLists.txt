@@ -6,4 +6,3 @@ if(USE_GPU)
 	add_subdirectory(gpusim)
 endif()
 add_subdirectory(vqcsim)
-

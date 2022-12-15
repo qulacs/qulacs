@@ -2,12 +2,12 @@
 #pragma once
 
 #include <cstdlib>
-#include "type.hpp"
+
 #include "circuit.hpp"
+#include "type.hpp"
 class QuantumStateBase;
 class HermitianQuantumOperator;
-typedef HermitianQuantumOperator Observable;
-
+using Observable = HermitianQuantumOperator;
 
 /**
  * \~japanese-en 量子回路をシミュレートするためのクラス
@@ -17,14 +17,18 @@ private:
     QuantumCircuit* _circuit;
     QuantumStateBase* _state;
     QuantumStateBase* _buffer;
+    bool _own_state = false;
+
 public:
     /**
      * \~japanese-en コンストラクタ
-     * 
-     * @param circuit シミュレートする量子回路 
-     * @param initial_state 初期量子状態。デフォルト値はNULLで、NULLの場合は0状態に初期化される。
+     *
+     * @param circuit シミュレートする量子回路
+     * @param initial_state
+     * 初期量子状態。デフォルト値はNULLで、NULLの場合は0状態に初期化される。
      */
-    QuantumCircuitSimulator(QuantumCircuit* circuit, QuantumStateBase* initial_state = NULL);
+    explicit QuantumCircuitSimulator(
+        QuantumCircuit* circuit, QuantumStateBase* initial_state = NULL);
 
     /**
      * \~japanese-en デストラクタ
@@ -33,14 +37,16 @@ public:
 
     /**
      * \~japanese-en 量子状態を計算基底に初期化する
-     * 
+     *
      * @param computationl_basis 初期化する計算基底を二進数にした値
      */
     void initialize_state(ITYPE computationl_basis = 0);
     /**
      * \~japanese-en ランダムな量子状態に初期化する。
+     * @param seed 乱数のシード値
      */
     void initialize_random_state();
+    void initialize_random_state(UINT seed);
 
     /**
      * \~japanese-en 量子回路全体シミュレートする。
@@ -48,16 +54,18 @@ public:
     void simulate();
 
     /**
-     * \~japanese-en 量子回路を<code>start</code>から<code>end</code>までの区間シミュレートする
-     * 
+     * \~japanese-en
+     * 量子回路を<code>start</code>から<code>end</code>までの区間シミュレートする
+     *
      * @param start シミュレートを開始する添え字
      * @param end シミュレートを終了する添え字
      */
     void simulate_range(UINT start, UINT end);
 
     /**
-     * \~japanese-en 現在の量子状態の受け取ったオブザーバブルの期待値を計算する。
-     * 
+     * \~japanese-en
+     * 現在の量子状態の受け取ったオブザーバブルの期待値を計算する。
+     *
      * @param observable オブザーバブル
      * @return 期待値
      */
@@ -65,7 +73,7 @@ public:
 
     /**
      * \~japanese-en 量子回路中のゲートの数を取得する
-     * 
+     *
      * @return ゲートの数
      */
     UINT get_gate_count();
@@ -85,10 +93,8 @@ public:
 
     /**
      * \~japanese-en 現在の量子状態のポインタを取得する
-     * 
+     *
      * @return 量子状態のポインタ
      */
     const QuantumStateBase* get_state_ptr() const { return _state; }
 };
-
-

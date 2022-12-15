@@ -1,0 +1,71 @@
+{
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build gcc",
+            "type": "shell",
+            "command": "USE_TEST=Yes ./script/build_gcc.sh"
+        },
+        {
+            "label": "build gcc with coverage option",
+            "type": "shell",
+            "command": "USE_TEST=Yes COVERAGE=Yes ./script/build_gcc.sh"
+        },
+        {
+            "label": "test",
+            "type": "shell",
+            "command": "make test -C build -j $(nproc)",
+            "dependsOn": [
+                "build gcc"
+            ]
+        },
+        {
+            "label": "test and generate coverage",
+            "type": "shell",
+            "command": "make coverage -C build -j $(nproc)",
+            "dependsOn": [
+                "build gcc with coverage option"
+            ]
+        },
+        {
+            "label": "pythontest",
+            "type": "shell",
+            "command": "make pythontest -C build -j $(nproc)",
+            "dependsOn": [
+                "install"
+            ]
+        },
+        {
+            "label": "install",
+            "type": "shell",
+            "command": "pip install .[dev]",
+            "dependsOn": [
+                "build gcc"
+            ]
+        },
+        {
+            "label": "format",
+            "type": "shell",
+            "command": "find ./src ./test ./benchmark ./python -regex '.*\\.\\(cu\\|cuh\\|cpp\\|h\\|hpp\\)' -exec clang-format -style=file -i {} \\;"
+        },
+        {
+            "label": "update stub",
+            "type": "shell",
+            "command": "script/update_stubs.sh",
+            "dependsOn": [
+                "install"
+            ],
+            "problemMatcher": [
+                "$gcc"
+            ]
+        },
+        {
+            "label": "clean",
+            "type": "shell",
+            "command": "script/clean.sh",
+            "problemMatcher": [
+                "$gcc"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,75 @@
+name: macOS CI
+
+on:
+  push:
+    paths-ignore:
+      - ".devcontainer/**"
+      - ".vscode/**"
+      - "doc/**"
+      - "*.md"
+  pull_request:
+    paths-ignore:
+      - ".devcontainer/**"
+      - ".vscode/**"
+      - "doc/**"
+      - "*.md"
+
+jobs:
+  gcc10-build:
+    name: GCC10 build
+    strategy:
+      matrix:
+        python-version: ["3.7.5"]
+    runs-on: "macos-11"
+    env:
+      CXX_COMPILER: "/usr/local/opt/ccache/libexec/g++-10"
+      C_COMPILER: "/usr/local/opt/ccache/libexec/gcc-10"
+      PYTHON: ${{ matrix.python-version }}
+      COVERAGE: "ON"
+      CACHE_NAME: "ccache-qulacs-build-v2"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Install ccache
+        run: brew install ccache
+
+      - name: Install Boost for macOS
+        run: |
+          brew upgrade
+          brew install boost
+          brew link boost
+
+      - name: Setup cache
+        uses: actions/cache@v3
+        with:
+          path: /Users/runner/Library/Caches/ccache
+          key: ${{ runner.os }}-${{ env.CACHE_NAME }}
+
+      - name: Install qulacs for macOS
+        run: USE_TEST=Yes ./script/build_gcc.sh
+
+      - name: Install qulacs Python module
+        run: pip install .[ci]
+
+      - name: Test if stub is working
+        run: |
+          python python/stub-test/generate_mypy_tester.py qulacs
+          mypy python/stub-test/names_qulacs.py
+
+      - name: Test in macOS
+        run: |
+          cd ./build
+          make test -j
+          make pythontest -j
+
+      - name: Show cache stats
+        run: ccache -s -v

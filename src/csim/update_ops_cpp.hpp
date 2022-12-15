@@ -3,48 +3,61 @@
 #include <Eigen/Core>
 #include <Eigen/Sparse>
 #include <functional>
-#ifndef _MSC_VER
-extern "C"{
-#include "type.h"
-}
-#else
-#include "type.h"
-#endif
 
-DllExport void double_qubit_dense_matrix_gate(UINT target_qubit_index0, UINT target_qubit_index1, const CTYPE matrix[16], CTYPE* state, ITYPE dim);
-DllExport void double_qubit_dense_matrix_gate(UINT target_qubit_index0, UINT target_qubit_index1, const Eigen::Matrix4cd& eigen_matrix, CTYPE* state, ITYPE dim);
-DllExport void double_qubit_dense_matrix_gate_eigen(UINT target_qubit_index0, UINT target_qubit_index1, const Eigen::Matrix4cd& eigen_matrix, CTYPE* state, ITYPE dim);
+#include "type.hpp"
 
-DllExport void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim);
-DllExport void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const Eigen::MatrixXcd& eigen_matrix, CTYPE* state, ITYPE dim);
-DllExport void multi_qubit_dense_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const Eigen::Matrix<std::complex<double>,Eigen::Dynamic,Eigen::Dynamic,Eigen::RowMajor>& eigen_matrix, CTYPE* state, ITYPE dim);
+DllExport void double_qubit_dense_matrix_gate(UINT target_qubit_index0,
+    UINT target_qubit_index1, const CTYPE matrix[16], CTYPE* state, ITYPE dim);
+DllExport void double_qubit_dense_matrix_gate(UINT target_qubit_index0,
+    UINT target_qubit_index1, const Eigen::Matrix4cd& eigen_matrix,
+    CTYPE* state, ITYPE dim);
+DllExport void double_qubit_dense_matrix_gate_eigen(UINT target_qubit_index0,
+    UINT target_qubit_index1, const Eigen::Matrix4cd& eigen_matrix,
+    CTYPE* state, ITYPE dim);
 
-DllExport void multi_qubit_sparse_matrix_gate_eigen(const UINT* target_qubit_index_list, UINT target_qubit_index_count, const Eigen::SparseMatrix<std::complex<double>>& eigen_matrix, CTYPE* state, ITYPE dim);
+DllExport void multi_qubit_dense_matrix_gate_eigen(
+    const UINT* target_qubit_index_list, UINT target_qubit_index_count,
+    const CTYPE* matrix, CTYPE* state, ITYPE dim);
+DllExport void multi_qubit_dense_matrix_gate_eigen(
+    const UINT* target_qubit_index_list, UINT target_qubit_index_count,
+    const Eigen::MatrixXcd& eigen_matrix, CTYPE* state, ITYPE dim);
+DllExport void multi_qubit_dense_matrix_gate_eigen(
+    const UINT* target_qubit_index_list, UINT target_qubit_index_count,
+    const Eigen::Matrix<std::complex<double>, Eigen::Dynamic, Eigen::Dynamic,
+        Eigen::RowMajor>& eigen_matrix,
+    CTYPE* state, ITYPE dim);
+
+DllExport void multi_qubit_sparse_matrix_gate_eigen(
+    const UINT* target_qubit_index_list, UINT target_qubit_index_count,
+    const Eigen::SparseMatrix<std::complex<double>>& eigen_matrix, CTYPE* state,
+    ITYPE dim);
 
 /**
  * \~english
  * Apply reversible boolean function as a unitary gate.
  *
- * Apply reversible boolean function as a unitary gate. Boolean function is given as a pointer of int -> int function.
+ * Apply reversible boolean function as a unitary gate. Boolean function is
+ * given as a pointer of int -> int function.
  *
- * @param[in] target_qubit_index_list ƒ^[ƒQƒbƒg—Êqƒrƒbƒg‚ÌƒŠƒXƒg
- * @param[in] target_qubit_index_count ƒ^[ƒQƒbƒg—Êqƒrƒbƒg‚Ì”
- * @param[in] matrix “Y‚¦š‚¨‚æ‚Ñ‘ÎÛƒrƒbƒg‚ÌŸŒ³‚ğó‚¯æ‚é‚Æ“Y‚¦š‚ğ•Ô‚·ŠÖ”
- * @param[in,out] state —Êqó‘Ô
- * @param[in] dim ŸŒ³
+ * @param[in] target_qubit_index_list ã‚¿ãƒ¼ã‚²ãƒƒãƒˆé‡å­ãƒ“ãƒƒãƒˆã®ãƒªã‚¹ãƒˆ
+ * @param[in] target_qubit_index_count ã‚¿ãƒ¼ã‚²ãƒƒãƒˆé‡å­ãƒ“ãƒƒãƒˆã®æ•°
+ * @param[in] matrix æ·»ãˆå­—ãŠã‚ˆã³å¯¾è±¡ãƒ“ãƒƒãƒˆã®æ¬¡å…ƒã‚’å—ã‘å–ã‚‹ã¨æ·»ãˆå­—ã‚’è¿”ã™é–¢æ•°
+ * @param[in,out] state é‡å­çŠ¶æ…‹
+ * @param[in] dim æ¬¡å…ƒ
  *
  *
  * \~japanese-en
- * ‰Â‹t‰ñ˜HŠÖ”‚ğƒ†ƒjƒ^ƒŠƒQ[ƒg‚Æ‚µ‚Äì—p‚·‚é
+ * å¯é€†å›è·¯é–¢æ•°ã‚’ãƒ¦ãƒ‹ã‚¿ãƒªã‚²ãƒ¼ãƒˆã¨ã—ã¦ä½œç”¨ã™ã‚‹
  *
- *  ‰Â‹t‰ñ˜HŠÖ”‚ğƒ†ƒjƒ^ƒŠƒQ[ƒg‚Æ‚µ‚Äì—p‚·‚éB‰Â‹t‰ñ˜HŠÖ”‚Í“Y‚¦š‚ğ—^‚¦‚é‚ÆŒ‹‰Ê‚Ì“Y‚¦š‚ğ•Ô‚·ŠÖ”B
+ *  å¯é€†å›è·¯é–¢æ•°ã‚’ãƒ¦ãƒ‹ã‚¿ãƒªã‚²ãƒ¼ãƒˆã¨ã—ã¦ä½œç”¨ã™ã‚‹ã€‚å¯é€†å›è·¯é–¢æ•°ã¯æ·»ãˆå­—ã‚’ä¸ãˆã‚‹ã¨çµæœã®æ·»ãˆå­—ã‚’è¿”ã™é–¢æ•°ã€‚
  *
- * @param[in] target_qubit_index_list ƒ^[ƒQƒbƒg—Êqƒrƒbƒg‚ÌƒŠƒXƒg
- * @param[in] target_qubit_index_count ƒ^[ƒQƒbƒg—Êqƒrƒbƒg‚Ì”
- * @param[in] matrix “Y‚¦š‚¨‚æ‚Ñ‘ÎÛƒrƒbƒg‚ÌŸŒ³‚ğó‚¯æ‚é‚Æ“Y‚¦š‚ğ•Ô‚·ŠÖ”
- * @param[in,out] state —Êqó‘Ô
- * @param[in] dim ŸŒ³
+ * @param[in] target_qubit_index_list ã‚¿ãƒ¼ã‚²ãƒƒãƒˆé‡å­ãƒ“ãƒƒãƒˆã®ãƒªã‚¹ãƒˆ
+ * @param[in] target_qubit_index_count ã‚¿ãƒ¼ã‚²ãƒƒãƒˆé‡å­ãƒ“ãƒƒãƒˆã®æ•°
+ * @param[in] matrix æ·»ãˆå­—ãŠã‚ˆã³å¯¾è±¡ãƒ“ãƒƒãƒˆã®æ¬¡å…ƒã‚’å—ã‘å–ã‚‹ã¨æ·»ãˆå­—ã‚’è¿”ã™é–¢æ•°
+ * @param[in,out] state é‡å­çŠ¶æ…‹
+ * @param[in] dim æ¬¡å…ƒ
  *
  */
-DllExport void reversible_boolean_gate(const UINT* target_qubit_index_list, UINT target_qubit_index_count, std::function<ITYPE(ITYPE,ITYPE)> function_ptr, CTYPE* state, ITYPE dim);
-
+DllExport void reversible_boolean_gate(const UINT* target_qubit_index_list,
+    UINT target_qubit_index_count,
+    std::function<ITYPE(ITYPE, ITYPE)> function_ptr, CTYPE* state, ITYPE dim);

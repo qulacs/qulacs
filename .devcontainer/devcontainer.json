@@ -1,0 +1,58 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.209.6/containers/cpp
+{
+	"name": "C++",
+	"build": {
+		"dockerfile": "Dockerfile",
+		"cacheFrom": "ghcr.io/qulacs/qulacs-devcontainer:latest"
+	},
+	"runArgs": [
+		"--cap-add=SYS_PTRACE",
+		"--security-opt",
+		"seccomp=unconfined"
+	],
+	// Set *default* container specific settings.json values on container create.
+	"settings": {
+		"python.linting.enabled": true,
+		"python.linting.pylintEnabled": false,
+		"python.linting.flake8Enabled": true,
+		"python.formatting.provider": "black",
+		"editor.formatOnSave": true,
+		"editor.codeActionsOnSave": {
+			"source.organizeImports": true
+		},
+		"editor.defaultFormatter": "xaver.clang-format",
+		"python.linting.mypyEnabled": true,
+		"python.terminal.activateEnvironment": false,
+		// CAVEAT: you need to restart after building qulacs to take effect.
+		"C_Cpp.default.includePath": [
+			"include",
+			"/usr/local/include/python3.9"
+		]
+	},
+	// Add the IDs of extensions you want installed when the container is created.
+	"extensions": [
+		"ms-vscode.cpptools",
+		"ms-vscode.cmake-tools",
+		"ms-python.python",
+		"ms-python.vscode-pylance",
+		"xaver.clang-format"
+	],
+	// Required by `mounts`.
+	// c.f. https://code.visualstudio.com/remote/advancedcontainers/improve-performance#_use-a-targeted-named-volume
+	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/qulacs,type=bind,consistency=cached",
+	"workspaceFolder": "/workspaces/qulacs",
+	"mounts": [
+		"source=${localWorkspaceFolderBasename}-build,target=${containerWorkspaceFolder}/build,type=volume"
+	],
+	// A location of gpg might differ from host machine's git config.
+	// This config accepts string or array. If you use array form destructure command like following; not a list of commands.
+	// ["echo", "hello"]
+	"postStartCommand": "/usr/bin/git config --global gpg.program /usr/bin/gpg && sudo chown vscode build",
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+	// Use 'postCreateCommand' to run commands after the container is created.
+	// "postCreateCommand": "gcc -v",
+	// Comment out connect as root instead. More info: https://aka.ms/vscode-remote/containers/non-root.
+	"remoteUser": "vscode",
+}
