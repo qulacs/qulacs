@@ -629,7 +629,7 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
         }
 
         for (UINT target = 0; target < n; target++) {
-            auto mat = make_Identity();
+            Eigen::MatrixXcd mat = Eigen::MatrixXcd::Identity(1, 1);
             Eigen::MatrixXcd pauli_op;
             std::vector<UINT> pauli_partial, pauli_index;
             std::vector<std::pair<UINT, UINT>> pauli_partial_pair;
