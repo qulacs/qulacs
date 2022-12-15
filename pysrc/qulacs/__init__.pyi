@@ -801,14 +801,15 @@ class QuantumGate_SingleParameter(QuantumGateBase):
         """
     pass
 class QuantumState(QuantumStateBase):
+    @typing.overload
     def __init__(self, qubit_count: int) -> None: 
         """
         Constructor
-        """
-    def __init__(self, qubit_count: int, bool) -> None: 
-        """
+
         Constructor
         """
+    @typing.overload
+    def __init__(self, qubit_count: int, use_multi_cpu: bool) -> None: ...
     def __str__(self) -> str: 
         """
         to string

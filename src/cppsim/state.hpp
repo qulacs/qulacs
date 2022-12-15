@@ -19,10 +19,8 @@ class QuantumStateBase {
 protected:
     ITYPE _dim;
     UINT _qubit_count;
-#ifdef _USE_MPI
     UINT _inner_qc;
     UINT _outer_qc;
-#endif
     bool _is_state_vector;
     std::vector<UINT> _classical_register;
     UINT _device_number;
@@ -30,11 +28,9 @@ protected:
 
 public:
     const UINT& qubit_count; /**< \~japanese-en 量子ビット数 */
-#ifdef _USE_MPI
     const UINT& inner_qc; /**< \~japanese-en ノード内量子ビット数 */
     const UINT& outer_qc; /**< \~japanese-en ノード外量子ビット数 */
-#endif
-    const ITYPE& dim; /**< \~japanese-en 量子状態の次元 */
+    const ITYPE& dim;     /**< \~japanese-en 量子状態の次元 */
     const std::vector<UINT>&
         classical_register; /**< \~japanese-en 古典ビットのレジスタ */
     const UINT& device_number;
@@ -45,24 +41,19 @@ public:
      */
     QuantumStateBase(UINT qubit_count_, bool is_state_vector)
         : qubit_count(_qubit_count),
-#ifdef _USE_MPI
           inner_qc(_inner_qc),
           outer_qc(_outer_qc),
-#endif
           dim(_dim),
           classical_register(_classical_register),
           device_number(_device_number) {
         this->_qubit_count = qubit_count_;
-#ifdef _USE_MPI
         this->_inner_qc = qubit_count_;
         this->_outer_qc = 0;
-#endif
         this->_dim = 1ULL << qubit_count_;
         this->_is_state_vector = is_state_vector;
         this->_device_number = 0;
     }
 
-#ifdef _USE_MPI
     QuantumStateBase(
         UINT qubit_count_, bool is_state_vector, bool use_multi_cpu)
         : qubit_count(_qubit_count),
@@ -74,9 +65,14 @@ public:
         UINT mpirank;
         UINT mpisize;
         if (use_multi_cpu) {
+#ifdef _USE_MPI
             MPIutil mpiutil = get_mpiutil();
             mpirank = mpiutil->get_rank();
             mpisize = mpiutil->get_size();
+#else
+            mpirank = 0;
+            mpisize = 1;
+#endif
         } else {
             mpirank = 0;
             mpisize = 1;
@@ -101,23 +97,18 @@ public:
         this->_is_state_vector = is_state_vector;
         this->_device_number = mpirank;
     }
-#endif
 
     QuantumStateBase(
         UINT qubit_count_, bool is_state_vector, UINT device_number_)
         : qubit_count(_qubit_count),
-#ifdef _USE_MPI
           inner_qc(_inner_qc),
           outer_qc(_outer_qc),
-#endif
           dim(_dim),
           classical_register(_classical_register),
           device_number(_device_number) {
         this->_qubit_count = qubit_count_;
-#ifdef _USE_MPI
         this->_inner_qc = qubit_count_;
         this->_outer_qc = 0;
-#endif
         this->_dim = 1ULL << qubit_count_;
         this->_is_state_vector = is_state_vector;
         this->_device_number = device_number_;
@@ -367,13 +358,26 @@ public:
         ComplexVector eigen_state(this->dim);
         auto data = this->data_cpp();
         for (UINT i = 0; i < this->dim; ++i) eigen_state[i] = data[i];
+
         os << " *** Quantum State ***" << std::endl;
-        os << " * Qubit Count : " << this->qubit_count << std::endl;
+        UINT myrank = 0;
 #ifdef _USE_MPI
-        os << " * Local Qubit Count : " << this->inner_qc << std::endl;
-        os << " * Global Qubit Count : " << this->outer_qc << std::endl;
+        if (this->outer_qc > 0) {
+            MPIutil mpiutil = get_mpiutil();
+            myrank = mpiutil->get_rank();
+        }
 #endif
-        os << " * Dimension   : " << this->dim << std::endl;
+        if (myrank == 0) {
+            os << " * Qubit Count : " << this->qubit_count << std::endl;
+            os << " * Dimension   : " << this->dim << std::endl;
+#ifdef _USE_MPI
+            os << " * Local Qubit Count : " << this->inner_qc << std::endl;
+            os << " * Global Qubit Count : " << this->outer_qc << std::endl;
+#endif
+        }
+        if (this->outer_qc > 0) {
+            os << " * Rank : " << myrank << std::endl;
+        }
         os << " * State vector : \n" << eigen_state << std::endl;
         return os.str();
     }
@@ -420,7 +424,13 @@ public:
             reinterpret_cast<CPPCTYPE*>(allocate_quantum_state(this->_dim));
         initialize_quantum_state(this->data_c(), _dim);
     }
-#ifdef _USE_MPI
+
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param qubit_count_ 量子ビット数
+     * @param use_multi_cpu Flag to use multi CPUs
+     */
     explicit QuantumStateCpu(UINT qubit_count_, bool use_multi_cpu)
         : QuantumStateBase(qubit_count_, true, use_multi_cpu) {
         this->_state_vector =
@@ -434,7 +444,7 @@ public:
             initialize_quantum_state(this->data_c(), _dim);
         }
     }
-#endif
+
     /**
      * \~japanese-en デストラクタ
      */
@@ -447,6 +457,7 @@ public:
 #endif
         release_quantum_state(this->data_c());
     }
+
     /**
      * \~japanese-en 量子状態を計算基底の0状態に初期化する
      */
@@ -486,7 +497,7 @@ public:
             MPIutil mpiutil = get_mpiutil();
             myrank = (ITYPE)mpiutil->get_rank();
         }
-        if (this->outer_qc == 0 || comp_basis >> this->inner_qc == myrank) {
+        if (this->outer_qc == 0 || (comp_basis >> this->inner_qc) == myrank) {
             _state_vector[comp_basis & (_dim - 1)] = 1.;
         }
 #else

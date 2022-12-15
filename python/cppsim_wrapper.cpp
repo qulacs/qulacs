@@ -314,10 +314,8 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<QuantumStateBase>(m, "QuantumStateBase");
     py::class_<QuantumState, QuantumStateBase>(m, "QuantumState")
         .def(py::init<UINT>(), "Constructor", py::arg("qubit_count"))
-#if 1
         .def(py::init<UINT, bool>(), "Constructor", py::arg("qubit_count"),
             py::arg("use_multi_cpu"))
-#endif
         .def(
             "set_zero_state", &QuantumState::set_zero_state, "Set state to |0>")
         .def("set_computational_basis", &QuantumState::set_computational_basis,
@@ -482,9 +480,9 @@ PYBIND11_MODULE(qulacs_core, m) {
     ;
 
 #ifdef _USE_MPI
-    m.def("check_build_for_mpi", [](){return true;});
+    m.def("check_build_for_mpi", []() { return true; });
 #else
-    m.def("check_build_for_mpi", [](){return false;});
+    m.def("check_build_for_mpi", []() { return false; });
 #endif
 
 #ifdef _USE_GPU
@@ -1080,7 +1078,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             (void (QuantumCircuit::*)(QuantumStateBase*, UINT, UINT)) &
                 QuantumCircuit::update_quantum_state,
             py::arg("state"), py::arg("start"), py::arg("end"))
-#if 0  // ifdef _USE_MPI
+#if 0  // not supported yet
         .def("update_quantum_state",
             (void (QuantumCircuit::*)(QuantumStateBase*, UINT)) &
                 QuantumCircuit::update_quantum_state,

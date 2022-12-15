@@ -302,7 +302,6 @@ public:
     IOException(const std::string& message) : std::runtime_error(message) {}
 };
 
-#ifdef _USE_MPI
 /**
  * \~japanese-en MPIの実行時に失敗した例外
  */
@@ -330,4 +329,3 @@ public:
     MPISizeException(const std::string& message)
         : std::runtime_error(message) {}
 };
-#endif
