@@ -78,7 +78,6 @@ void initialize_Haar_random_state_with_seed_parallel(
 
         for (index = start_index; index < end_index; ++index) {
             double r1, r2;
-            r1 = r2 = 1;
             r1 = random_normal(my_random_state);
             r2 = random_normal(my_random_state);
             state[index] = r1 + 1.i * r2;
@@ -91,8 +90,10 @@ void initialize_Haar_random_state_with_seed_parallel(
         normalizer += norm_list[i];
     }
 #ifdef _USE_MPI
-    MPIutil m = get_mpiutil();
-    if (outer_qc > 0) m->s_D_allreduce(&normalizer);
+    if (outer_qc > 0) {
+        MPIutil m = get_mpiutil();
+        m->s_D_allreduce(&normalizer);
+    }
 #endif
     normalizer = 1. / sqrt(normalizer);
 

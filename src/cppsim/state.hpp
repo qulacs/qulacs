@@ -500,7 +500,7 @@ public:
             myrank = (ITYPE)mpiutil->get_rank();
         }
         if (this->outer_qc == 0 || (comp_basis >> this->inner_qc) == myrank) {
-            _state_vector[comp_basis & (_dim - 1)] = 1.;
+            _state_vector[comp_basis & (this->_dim - 1)] = 1.;
         }
 #else
         _state_vector[comp_basis] = 1.;
@@ -511,14 +511,17 @@ public:
      * randomにサンプリングされた量子状態に初期化する
      */
     virtual void set_Haar_random_state() override {
-#if 0
-        // すべてのrankで同一の結果を得るために、seedを共有する
         UINT seed = random.int32();
-        if (mpiutil->get_size() > 1) mpiutil->s_u_bcast(&seed);
-        set_Haar_random_state(seed);
+#ifdef _USE_MPI
+        if (this->outer_qc > 0) {
+            // すべてのrankで同一の結果を得るために、seedを共有する
+            MPIutil mpiutil = get_mpiutil();
+            if (mpiutil->get_size() > 1) mpiutil->s_u_bcast(&seed);
+        } else
 #endif
-        initialize_Haar_random_state_with_seed(
-            this->data_c(), _dim, random.int32());
+        {
+            set_Haar_random_state(seed);
+        }
     }
     /**
      * \~japanese-en 量子状態をシードを用いてHaar
@@ -831,11 +834,14 @@ public:
      * @return サンプルされた値のリスト
      */
     virtual std::vector<ITYPE> sampling(UINT sampling_count) override {
-#if 0
-        // すべてのrankで同一の結果を得るために、seedを共有する
-        UINT seed = rand();
-        if (mpiutil->get_size() > 1) mpiutil->s_u_bcast(&seed);
-        return this->sampling(sampling_count, seed);
+#ifdef _USE_MPI
+        if (this->outer_qc > 0) {
+            // すべてのrankで同一の結果を得るために、seedを共有する
+            UINT seed = rand();
+            MPIutil mpiutil = get_mpiutil();
+            if (mpiutil->get_size() > 1) mpiutil->s_u_bcast(&seed);
+            return this->sampling(sampling_count, seed);
+        }
 #endif
         std::vector<double> stacked_prob;
         std::vector<ITYPE> result;

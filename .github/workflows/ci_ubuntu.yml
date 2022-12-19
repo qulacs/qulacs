@@ -310,15 +310,14 @@ jobs:
 
       - name: Test in Ubuntu
         run: |
-          pushd ./build
+          cd ./build
           make coverage
           make pythontest
-          popd
 
       - name: Test in Ubuntu
         run: |
-          pip list
           pip install pytest
+          mpirun -n 2 bin/cppsim_test --gtest_filter="*multicpu*"
           mpirun -n 2 pytest python/test/test_qulacs_multicpu.py
 
       - name: Upload coverage to codecov
