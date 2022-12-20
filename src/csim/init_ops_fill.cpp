@@ -3,41 +3,52 @@
 #include <stdlib.h>
 #include <time.h>
 
+#include "MPIutil.hpp"
 #include "init_ops.hpp"
 #include "utility.hpp"
 #ifdef _OPENMP
 #include <omp.h>
 #endif
 
-// state initialization
-void initialize_quantum_state_single(CTYPE* state, ITYPE dim);
-void initialize_quantum_state_parallel(CTYPE* state, ITYPE dim);
 void initialize_quantum_state(CTYPE* state, ITYPE dim) {
 #ifdef _OPENMP
-    UINT threshold = 15;
-    if (dim < (((ITYPE)1) << threshold)) {
-        initialize_quantum_state_single(state, dim);
-    } else {
-        initialize_quantum_state_parallel(state, dim);
-    }
-#else
-    initialize_quantum_state_single(state, dim);
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 15);
 #endif
-}
-void initialize_quantum_state_single(CTYPE* state, ITYPE dim) {
     ITYPE index;
-    for (index = 0; index < dim; ++index) {
-        state[index] = 0;
-    }
-    state[0] = 1.0;
-}
+
 #ifdef _OPENMP
-void initialize_quantum_state_parallel(CTYPE* state, ITYPE dim) {
-    ITYPE index;
 #pragma omp parallel for
+#endif
     for (index = 0; index < dim; ++index) {
         state[index] = 0;
     }
+#ifdef _OPENMP
+    omputil->reset_qulacs_num_threads();
+#endif
+
     state[0] = 1.0;
 }
+
+#ifdef _USE_MPI
+void initialize_quantum_state_mpi(CTYPE* state, ITYPE dim, UINT outer_qc) {
+#ifdef _OPENMP
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 15);
 #endif
+    ITYPE index;
+
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (index = 0; index < dim; ++index) {
+        state[index] = 0;
+    }
+#ifdef _OPENMP
+    omputil->reset_qulacs_num_threads();
+#endif
+
+    MPIutil mpiutil = get_mpiutil();
+    if (outer_qc == 0 || mpiutil->get_rank() == 0) state[0] = 1.0;
+}
+#endif  // #ifdef _USE_MPI

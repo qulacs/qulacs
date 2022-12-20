@@ -38,6 +38,7 @@ __all__ = [
     "QuantumState",
     "QuantumStateBase",
     "StateVector",
+    "check_build_for_mpi",
     "circuit",
     "gate",
     "observable",
@@ -800,10 +801,15 @@ class QuantumGate_SingleParameter(QuantumGateBase):
         """
     pass
 class QuantumState(QuantumStateBase):
+    @typing.overload
     def __init__(self, qubit_count: int) -> None: 
         """
         Constructor
+
+        Constructor
         """
+    @typing.overload
+    def __init__(self, qubit_count: int, use_multi_cpu: bool) -> None: ...
     def __str__(self) -> str: 
         """
         to string
@@ -1011,5 +1017,7 @@ def StateVector(arg0: int) -> QuantumState:
     """
     StateVector
     """
+def check_build_for_mpi() -> bool:
+    pass
 def to_general_quantum_operator(gate: QuantumGateBase, qubits: int, tol: float) -> GeneralQuantumOperator:
     pass

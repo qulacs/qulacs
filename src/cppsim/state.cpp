@@ -19,6 +19,11 @@ CPPCTYPE inner_product(
 }
 QuantumState* tensor_product(
     const QuantumState* state_left, const QuantumState* state_right) {
+#ifdef _USE_MPI
+    if ((state_left->outer_qc > 0) || (state_right->outer_qc > 0))
+        throw NotImplementedException(
+            "Error: tensor_product does not support multi-cpu");
+#endif
     UINT qubit_count = state_left->qubit_count + state_right->qubit_count;
     QuantumState* qs = new QuantumState(qubit_count);
     state_tensor_product(state_left->data_c(), state_left->dim,
@@ -27,6 +32,11 @@ QuantumState* tensor_product(
 }
 QuantumState* permutate_qubit(
     const QuantumState* state, std::vector<UINT> qubit_order) {
+#ifdef _USE_MPI
+    if (state->outer_qc > 0)
+        throw NotImplementedException(
+            "Error: permutate_qubit does not support multi-cpu");
+#endif
     if (state->qubit_count != (UINT)qubit_order.size()) {
         throw InvalidQubitCountException(
             "Error: permutate_qubit(const QuantumState*, "
@@ -40,6 +50,11 @@ QuantumState* permutate_qubit(
 }
 QuantumState* drop_qubit(const QuantumState* state, std::vector<UINT> target,
     std::vector<UINT> projection) {
+#ifdef _USE_MPI
+    if (state->outer_qc > 0)
+        throw NotImplementedException(
+            "Error: drop_qubit does not support multi-cpu");
+#endif
     if (state->qubit_count <= target.size() ||
         target.size() != projection.size()) {
         throw InvalidQubitCountException(

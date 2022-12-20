@@ -3,6 +3,10 @@
 #include "constant.hpp"
 #include "type.hpp"
 
+#ifdef _OPENMP
+#include "omp.h"
+#endif
+
 /**
  * Insert 0 to qubit_index-th bit of basis_index. basis_mask must be 1ULL <<
  * qubit_index.
@@ -107,3 +111,16 @@ void get_Pauli_masks_partial_list(const UINT* target_qubit_index_list,
 void get_Pauli_masks_whole_list(const UINT* Pauli_operator_type_list,
     UINT target_qubit_index_count, ITYPE* bit_flip_mask, ITYPE* phase_flip_mask,
     UINT* global_phase_90rot_count, UINT* pivot_qubit_index);
+
+/**
+ * OpenMP threads control utility
+ */
+#ifdef _OPENMP
+typedef struct {
+    void (*set_qulacs_num_threads)(ITYPE dim, UINT threshold);
+    void (*reset_qulacs_num_threads)();
+} OMPutil_;
+typedef OMPutil_* OMPutil;
+
+OMPutil get_omputil(void);
+#endif

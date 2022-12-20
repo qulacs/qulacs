@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "MPIutil.hpp"
 #include "constant.hpp"
 #include "utility.hpp"
 
@@ -12,12 +13,19 @@
 double state_norm_squared(const CTYPE* state, ITYPE dim) {
     ITYPE index;
     double norm = 0;
+
 #ifdef _OPENMP
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 15);
 #pragma omp parallel for reduction(+ : norm)
 #endif
     for (index = 0; index < dim; ++index) {
         norm += pow(_cabs(state[index]), 2);
     }
+#ifdef _OPENMP
+    omputil->reset_qulacs_num_threads();
+#endif
+
     return norm;
 }
 
@@ -31,13 +39,41 @@ double state_norm_squared_single_thread(const CTYPE* state, ITYPE dim) {
     return norm;
 }
 
+// calculate norm for mpi
+#ifdef _USE_MPI
+double state_norm_squared_mpi(const CTYPE* state, ITYPE dim) {
+    ITYPE index;
+    double norm = 0;
+
+#ifdef _OPENMP
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 15);
+#pragma omp parallel for reduction(+ : norm)
+#endif
+    for (index = 0; index < dim; ++index) {
+        norm += pow(_cabs(state[index]), 2);
+    }
+#ifdef _OPENMP
+    omputil->reset_qulacs_num_threads();
+#endif
+
+    MPIutil mpiutil = get_mpiutil();
+    mpiutil->s_D_allreduce(&norm);
+
+    return norm;
+}
+#endif
+
 // calculate inner product of two state vector
 CTYPE
 state_inner_product(const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
     double real_sum = 0.;
     double imag_sum = 0.;
     ITYPE index;
+
 #ifdef _OPENMP
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 15);
 #pragma omp parallel for reduction(+ : real_sum, imag_sum)
 #endif
     for (index = 0; index < dim; ++index) {
@@ -46,8 +82,43 @@ state_inner_product(const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
         real_sum += _creal(value);
         imag_sum += _cimag(value);
     }
+#ifdef _OPENMP
+    omputil->reset_qulacs_num_threads();
+#endif
+
     return real_sum + 1.i * imag_sum;
 }
+
+#ifdef _USE_MPI
+// calculate inner product of two state vector for mpi
+CTYPE
+state_inner_product_mpi(
+    const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
+    double real_sum = 0.;
+    double imag_sum = 0.;
+    ITYPE index;
+
+#ifdef _OPENMP
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 15);
+#pragma omp parallel for reduction(+ : real_sum, imag_sum)
+#endif
+    for (index = 0; index < dim; ++index) {
+        CTYPE value;
+        value += conj(state_bra[index]) * state_ket[index];
+        real_sum += _creal(value);
+        imag_sum += _cimag(value);
+    }
+#ifdef _OPENMP
+    omputil->reset_qulacs_num_threads();
+#endif
+
+    MPIutil mpiutil = get_mpiutil();
+    mpiutil->s_D_allreduce(&real_sum);
+    mpiutil->s_D_allreduce(&imag_sum);
+    return real_sum + 1.i * imag_sum;
+}
+#endif
 
 void state_tensor_product(const CTYPE* state_left, ITYPE dim_left,
     const CTYPE* state_right, ITYPE dim_right, CTYPE* state_dst) {

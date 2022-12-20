@@ -6,48 +6,66 @@ import warnings
 
 import numpy as np
 import qulacs
+multicpu = False
 if qulacs.check_build_for_mpi():
-    from mpi4py import MPI
-    mpicomm = MPI.COMM_WORLD
-    if mpicomm.Get_rank() == 0:
-        print("Test with MPI. size=", mpicomm.Get_size())
+    try:
+        from mpi4py import MPI
+        mpicomm = MPI.COMM_WORLD
+        if mpicomm.Get_rank() == 0:
+            print("Test with MPI. size=", mpicomm.Get_size())
+        multicpu = True
+    except:
+        print("To use multi-cpu, the mpi4py library is required.")
+        exit()
 
 for ind in range(1, len(sys.argv)):
     sys.path.append(sys.argv[ind])
 sys.argv = sys.argv[:1]
 
-
 class TestQuantumState(unittest.TestCase):
     def setUp(self):
-        self.n = 4
-        self.dim = 2**self.n
+        self.n = 6
         self.state = qulacs.QuantumState(self.n)
+        self.state_multi = qulacs.QuantumState(self.n, True)
+        self.dim_all = 2**self.n
+        self.dim = 2**self.n
+        if multicpu:
+            self.mpirank = mpicomm.Get_rank()
+            self.mpisize = mpicomm.Get_size()
+        else:
+            self.mpirank = 0
+            self.mpisize = 1
+        if self.state_multi.get_device_name() == "multi-cpu":
+            self.dim //= self.mpisize
 
     def tearDown(self):
         del self.state
+        del self.state_multi
 
     def test_state_dim(self):
-        vector = self.state.get_vector()
+        vector = self.state_multi.get_vector()
         self.assertEqual(len(vector), self.dim, msg="check vector size")
 
     def test_zero_state(self):
-        self.state.set_zero_state()
-        vector = self.state.get_vector()
+        self.state_multi.set_zero_state()
+        vector = self.state_multi.get_vector()
         vector_ans = np.zeros(self.dim)
-        vector_ans[0] = 1.
+        if self.state_multi.get_device_name() == "cpu" or self.mpirank == 0:
+            vector_ans[0] = 1.
         self.assertTrue(((vector - vector_ans) < 1e-10).all(),
                         msg="check set_zero_state")
 
     def test_comp_basis(self):
-        pos = 0b0101
-        self.state.set_computational_basis(pos)
-        vector = self.state.get_vector()
+        pos = 0b010100
+        self.state_multi.set_computational_basis(pos)
+        vector = self.state_multi.get_vector()
         vector_ans = np.zeros(self.dim)
-        vector_ans[pos] = 1.
+        if self.state_multi.get_device_name() == "cpu" or self.mpirank == pos // self.dim:
+            vector_ans[pos%self.dim] = 1.
         self.assertTrue(((vector - vector_ans) < 1e-10).all(),
                         msg="check set_computational_basis")
 
-
+"""
 class TestQuantumCircuit(unittest.TestCase):
     def setUp(self):
         self.n = 4
@@ -957,7 +975,7 @@ class TestQASM(unittest.TestCase):
         for x in range(transpiled_circuit.get_gate_count()):
             assert np.allclose(transpiled_circuit.get_gate(x).get_matrix(),
                                gates[x].get_matrix())
-
+"""
 
 if __name__ == "__main__":
     unittest.main()

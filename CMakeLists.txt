@@ -18,6 +18,7 @@ endif()
 
 ##### Set default behavior #####
 set(DEFAULT_USE_OMP Yes)
+set(DEFAULT_USE_MPI No)
 set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)
 set(DEFAULT_USE_TEST No)
@@ -44,6 +45,9 @@ endif()
 if(NOT DEFINED USE_OMP)
 	set(USE_OMP ${DEFAULT_USE_OMP})
 endif()
+if(NOT DEFINED USE_MPI)
+	set(USE_MPI ${DEFAULT_USE_MPI})
+endif()
 if(NOT DEFINED USE_GPU)
 	set(USE_GPU ${DEFAULT_USE_GPU})
 endif()
@@ -63,6 +67,7 @@ endif()
 message(STATUS "CMAKE_HOST_SYSTEM_PROCESSOR = ${CMAKE_HOST_SYSTEM_PROCESSOR}")
 message(STATUS "USE_SIMD = ${USE_SIMD}")
 message(STATUS "USE_OMP = ${USE_OMP}")
+message(STATUS "USE_MPI = ${USE_MPI}")
 message(STATUS "USE_GPU = ${USE_GPU}")
 message(STATUS "USE_TEST = ${USE_TEST}")
 message(STATUS "COVERAGE = ${COVERAGE}")
@@ -236,6 +241,15 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
 	endif()
 
+	# Enable openmpi
+	if(USE_MPI)
+		if((NOT "${CMAKE_C_COMPILER}" MATCHES ".*mpicc") OR
+			(NOT "${CMAKE_CXX_COMPILER}" MATCHES ".*mpic\\+\\+"))
+			message(FATAL_ERROR, "USE_MPI must be used in mpicc/mpic++.")
+		endif()
+		add_compile_options("-D _USE_MPI -lmpi")
+	endif()
+
 	# Enable gpu
 	if(USE_GPU)
 		add_compile_options("-D _USE_GPU")
@@ -310,6 +324,11 @@ elseif(MSVC)
 	# enable openmp
 	if(USE_OMP)
 		add_compile_options("/openmp")
+	endif()
+
+	# enable mpi
+	if(USE_MPI)
+		message(FATAL_ERROR, "USE_MPI is not supported in MSVC environment.")
 	endif()
 
 	# enable gpu
