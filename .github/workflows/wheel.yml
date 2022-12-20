@@ -81,6 +81,12 @@ jobs:
         if: ${{ !contains(matrix.os, 'windows') }}
         run: python -m cibuildwheel --output-dir wheels
 
+      - name: Upload wheel data to GitHub Archive
+        uses: actions/upload-artifact@v3
+        with:
+          name: wheel-data
+          path: wheels
+
       - name: Upload wheel data if the Git tag is set
         run: python -m twine upload wheels/*.whl
         if: ${{ contains(github.ref, '/tags/') }}
