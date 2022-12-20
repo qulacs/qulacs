@@ -343,6 +343,7 @@ TEST(GateTest, ApplyMultiPauliQubitGate) {
             pauli.get_index_list(), pauli.get_pauli_id_list(), n);
         test_state1 = large_mat * test_state1;
         gate->update_quantum_state(&state);
+        delete gate;
         for (ITYPE i = 0; i < dim; ++i)
             ASSERT_NEAR(abs(state.data_cpp()[i] - test_state1[i]), 0, eps);
     }
@@ -366,6 +367,7 @@ TEST(GateTest, ApplyMultiPauliQubitGate) {
         auto gate = gate::PauliRotation(
             pauli.get_index_list(), pauli.get_pauli_id_list(), angle);
         gate->update_quantum_state(&state);
+        delete gate;
         for (ITYPE i = 0; i < dim; ++i)
             ASSERT_NEAR(abs(state.data_cpp()[i] - test_state1[i]), 0, eps);
     }
