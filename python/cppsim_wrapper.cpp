@@ -1237,7 +1237,6 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def(
             "__str__", [](const QuantumCircuit& p) { return p.to_string(); },
             "to string");
-    ;
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(
         m, "ParametricQuantumCircuit")
