@@ -20,59 +20,30 @@
 
 void P0_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
 #ifdef _OPENMP
-    UINT threshold = 13;
-    if (dim < (((ITYPE)1) << threshold)) {
-        P0_gate_single(target_qubit_index, state, dim);
-    } else {
-        P0_gate_parallel(target_qubit_index, state, dim);
-    }
-#else
-    P0_gate_single(target_qubit_index, state, dim);
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 13);
+#endif
+
+    P0_gate_parallel(target_qubit_index, state, dim);
+
+#ifdef _OPENMP
+    omputil->reset_qulacs_num_threads();
 #endif
 }
 
 void P1_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
 #ifdef _OPENMP
-    UINT threshold = 13;
-    if (dim < (((ITYPE)1) << threshold)) {
-        P1_gate_single(target_qubit_index, state, dim);
-    } else {
-        P1_gate_parallel(target_qubit_index, state, dim);
-    }
-#else
-    P1_gate_single(target_qubit_index, state, dim);
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 13);
+#endif
+
+    P1_gate_parallel(target_qubit_index, state, dim);
+
+#ifdef _OPENMP
+    omputil->reset_qulacs_num_threads();
 #endif
 }
 
-void P0_gate_single(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
-    const ITYPE loop_dim = dim / 2;
-    const ITYPE mask = (1ULL << target_qubit_index);
-    const ITYPE low_mask = mask - 1;
-    const ITYPE high_mask = ~low_mask;
-
-    ITYPE state_index;
-    for (state_index = 0; state_index < loop_dim; ++state_index) {
-        ITYPE temp_index =
-            (state_index & low_mask) + ((state_index & high_mask) << 1) + mask;
-        state[temp_index] = 0;
-    }
-}
-
-void P1_gate_single(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
-    const ITYPE loop_dim = dim / 2;
-    const ITYPE mask = (1ULL << target_qubit_index);
-    const ITYPE low_mask = mask - 1;
-    const ITYPE high_mask = ~low_mask;
-
-    ITYPE state_index;
-    for (state_index = 0; state_index < loop_dim; ++state_index) {
-        ITYPE temp_index =
-            (state_index & low_mask) + ((state_index & high_mask) << 1);
-        state[temp_index] = 0;
-    }
-}
-
-#ifdef _OPENMP
 void P0_gate_parallel(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
     const ITYPE loop_dim = dim / 2;
     const ITYPE mask = (1ULL << target_qubit_index);
@@ -80,7 +51,9 @@ void P0_gate_parallel(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
     const ITYPE high_mask = ~low_mask;
 
     ITYPE state_index;
+#ifdef _OPENMP
 #pragma omp parallel for
+#endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
         ITYPE temp_index =
             (state_index & low_mask) + ((state_index & high_mask) << 1) + mask;
@@ -95,11 +68,12 @@ void P1_gate_parallel(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
     const ITYPE high_mask = ~low_mask;
 
     ITYPE state_index;
+#ifdef _OPENMP
 #pragma omp parallel for
+#endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
         ITYPE temp_index =
             (state_index & low_mask) + ((state_index & high_mask) << 1);
         state[temp_index] = 0;
     }
 }
-#endif

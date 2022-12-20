@@ -23,9 +23,11 @@ void CNOT_gate(UINT control_qubit_index, UINT target_qubit_index, CTYPE* state,
 #endif
 
 #ifdef _USE_SIMD
-    CNOT_gate_simd(control_qubit_index, target_qubit_index, state, dim);
+    CNOT_gate_parallel_simd(
+        control_qubit_index, target_qubit_index, state, dim);
 #else
-    CNOT_gate_unroll(control_qubit_index, target_qubit_index, state, dim);
+    CNOT_gate_parallel_unroll(
+        control_qubit_index, target_qubit_index, state, dim);
 #endif
 
 #ifdef _OPENMP
@@ -33,8 +35,8 @@ void CNOT_gate(UINT control_qubit_index, UINT target_qubit_index, CTYPE* state,
 #endif
 }
 
-void CNOT_gate_unroll(UINT control_qubit_index, UINT target_qubit_index,
-    CTYPE* state, ITYPE dim) {
+void CNOT_gate_parallel_unroll(UINT control_qubit_index,
+    UINT target_qubit_index, CTYPE* state, ITYPE dim) {
     const ITYPE loop_dim = dim / 4;
 
     const ITYPE target_mask = 1ULL << target_qubit_index;
@@ -98,7 +100,7 @@ void CNOT_gate_unroll(UINT control_qubit_index, UINT target_qubit_index,
 }
 
 #ifdef _USE_SIMD
-void CNOT_gate_simd(UINT control_qubit_index, UINT target_qubit_index,
+void CNOT_gate_parallel_simd(UINT control_qubit_index, UINT target_qubit_index,
     CTYPE* state, ITYPE dim) {
     const ITYPE loop_dim = dim / 4;
 

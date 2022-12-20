@@ -21,9 +21,9 @@ void X_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
 #endif
 
 #ifdef _USE_SIMD
-    X_gate_simd(target_qubit_index, state, dim);
+    X_gate_parallel_simd(target_qubit_index, state, dim);
 #else
-    X_gate_unroll(target_qubit_index, state, dim);
+    X_gate_parallel_unroll(target_qubit_index, state, dim);
 #endif
 
 #ifdef _OPENMP
@@ -31,7 +31,7 @@ void X_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
 #endif
 }
 
-void X_gate_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
+void X_gate_parallel_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
     const ITYPE loop_dim = dim / 2;
     const ITYPE mask = (1ULL << target_qubit_index);
     const ITYPE mask_low = mask - 1;
@@ -66,7 +66,7 @@ void X_gate_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
 }
 
 #ifdef _USE_SIMD
-void X_gate_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
+void X_gate_parallel_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
     const ITYPE loop_dim = dim / 2;
     const ITYPE mask = (1ULL << target_qubit_index);
     const ITYPE mask_low = mask - 1;
