@@ -39,7 +39,7 @@ UINT QuantumCircuitOptimizer::get_merged_gate_size(
             std::vector<UINT> index_list;
             std::transform(info_list.cbegin(), info_list.cend(),
                 std::back_inserter(index_list),
-                [](auto info) { return info.index(); });
+                [](const TargetQubitInfo& info) { return info.index(); });
             return index_list;
         };
     auto fetch_control_index =
@@ -47,7 +47,7 @@ UINT QuantumCircuitOptimizer::get_merged_gate_size(
             std::vector<UINT> index_list;
             std::transform(info_list.cbegin(), info_list.cend(),
                 std::back_inserter(index_list),
-                [](auto info) { return info.index(); });
+                [](const ControlQubitInfo& info) { return info.index(); });
             return index_list;
         };
 
