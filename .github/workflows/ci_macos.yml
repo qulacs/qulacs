@@ -48,7 +48,7 @@ jobs:
           architecture: x64
 
       - name: Install ccache
-        if: ${{ matrix.compiler == "gcc" }}
+        if: ${{ matrix.compiler == 'gcc' }}
         run: brew install ccache
 
       - name: Install Boost for macOS
@@ -58,7 +58,7 @@ jobs:
           brew link boost
 
       - name: Setup cache
-        if: ${{ matrix.compiler == "gcc" }}
+        if: ${{ matrix.compiler == 'gcc' }}
         uses: actions/cache@v3
         with:
           path: /Users/runner/Library/Caches/ccache
@@ -82,5 +82,5 @@ jobs:
           make pythontest -j
 
       - name: Show cache stats
-        if: ${{ matrix.compiler == "gcc" }}
+        if: ${{ matrix.compiler == 'gcc' }}
         run: ccache -s -v
