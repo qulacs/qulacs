@@ -1,9 +1,14 @@
 #pragma once
 
+#include <gtest/gtest.h>
+
 #include <Eigen/Core>
 #include <array>
+#include <cmath>
 #include <csim/type.hpp>
 #include <string>
+
+#include "cppsim/state.hpp"
 
 #ifdef __GNUC__
 #if __GNUC__ >= 8
@@ -187,6 +192,55 @@ static void state_equal(const CTYPE* state, const Eigen::VectorXcd& test_state,
     }
 }
 
+#define ASSERT_STATE_NEAR(state, other, eps) \
+    ASSERT_PRED_FORMAT3(_assert_state_near, state, other, eps)
+
+#define EXPECT_STATE_NEAR(state, other, eps) \
+    EXPECT_PRED_FORMAT3(_assert_state_near, state, other, eps)
+
+static testing::AssertionResult _assert_state_near(const char* state1_name,
+    const char* state2_name, const char* eps_name, const QuantumState& state1,
+    const QuantumState& state2, const double eps) {
+    if (state1.dim != state2.dim) {
+        return testing::AssertionFailure()
+               << "The dimension is different\nDimension of " << state1_name
+               << " is " << state1.dim << ",\n"
+               << "Dimension of " << state2_name << " is " << state2.dim << ".";
+    }
+
+    for (UINT i = 0; i < state1.dim; i++) {
+        const double real_diff = std::fabs(
+            state1.data_cpp()[i].real() - state2.data_cpp()[i].real());
+        if (real_diff > eps) {
+            return testing::AssertionFailure()
+                   << "The difference between " << i << "-th real part of "
+                   << state1_name << " and " << state2_name << " is "
+                   << real_diff << ", which exceeds " << eps << ", where\n"
+                   << state1_name << " evaluates to "
+                   << state1.data_cpp()[i].real() << ",\n"
+                   << state2_name << " evaluates to "
+                   << state2.data_cpp()[i].real() << ", and\n"
+                   << eps_name << " evaluates to " << eps << ".";
+        }
+
+        const double imag_diff = std::fabs(
+            state1.data_cpp()[i].real() - state2.data_cpp()[i].real());
+        if (imag_diff > eps) {
+            return testing::AssertionFailure()
+                   << "The difference between " << i << "-th imaginary part of "
+                   << state1_name << " and " << state2_name << " is "
+                   << imag_diff << ", which exceeds " << eps << ", where\n"
+                   << state1_name << " evaluates to "
+                   << state1.data_cpp()[i].imag() << ",\n"
+                   << state2_name << " evaluates to "
+                   << state2.data_cpp()[i].imag() << ", and\n"
+                   << eps_name << " evaluates to " << eps << ".";
+        }
+    }
+
+    return testing::AssertionSuccess();
+}
+
 #define _CHECK_NEAR(val1, val2, eps) \
     _check_near(val1, val2, eps, #val1, #val2, #eps, __FILE__, __LINE__)
 static std::string _check_near(double val1, double val2, double eps,
@@ -256,3 +310,44 @@ static std::string _check_ge(T val1, T val2, std::string val1_name,
                          << "), actual: " << val1 << " vs " << val2 << "\n";
     return error_message_stream.str();
 }
+
+static Eigen::MatrixXcd make_2x2_matrix(const Eigen::dcomplex a00,
+    const Eigen::dcomplex a01, const Eigen::dcomplex a10,
+    const Eigen::dcomplex a11) {
+    Eigen::MatrixXcd m(2, 2);
+    m << a00, a01, a10, a11;
+    return m;
+}
+
+static Eigen::MatrixXcd make_Identity() {
+    return Eigen::MatrixXcd::Identity(2, 2);
+}
+
+static Eigen::MatrixXcd make_X() { return make_2x2_matrix(0, 1, 1, 0); }
+
+static Eigen::MatrixXcd make_Y() { return make_2x2_matrix(0, -1.i, 1.i, 0); }
+
+static Eigen::MatrixXcd make_Z() { return make_2x2_matrix(1, 0, 0, -1); }
+
+static Eigen::MatrixXcd make_H() {
+    return make_2x2_matrix(
+        1 / sqrt(2.), 1 / sqrt(2.), 1 / sqrt(2.), -1 / sqrt(2.));
+}
+
+static Eigen::MatrixXcd make_S() { return make_2x2_matrix(1, 0, 0, 1.i); }
+
+static Eigen::MatrixXcd make_T() {
+    return make_2x2_matrix(1, 0, 0, (1. + 1.i) / sqrt(2.));
+}
+
+static Eigen::MatrixXcd make_sqrtX() {
+    return make_2x2_matrix(0.5 + 0.5i, 0.5 - 0.5i, 0.5 - 0.5i, 0.5 + 0.5i);
+}
+
+static Eigen::MatrixXcd make_sqrtY() {
+    return make_2x2_matrix(0.5 + 0.5i, -0.5 - 0.5i, 0.5 + 0.5i, 0.5 + 0.5i);
+}
+
+static Eigen::MatrixXcd make_P0() { return make_2x2_matrix(1, 0, 0, 0); }
+
+static Eigen::MatrixXcd make_P1() { return make_2x2_matrix(0, 0, 0, 1); }

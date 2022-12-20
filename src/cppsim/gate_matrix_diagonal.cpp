@@ -6,6 +6,7 @@
 #include <csim/utility.hpp>
 #include <numeric>
 
+#include "gate_merge.hpp"
 #include "state.hpp"
 #include "type.hpp"
 #ifdef _USE_GPU
@@ -145,6 +146,15 @@ std::string QuantumGateDiagonalMatrix::to_string() const {
     os << " * Diagonal element" << std::endl;
     os << this->_diagonal_element << std::endl;
     return os.str();
+}
+
+boost::property_tree::ptree QuantumGateDiagonalMatrix::to_ptree() const {
+    boost::property_tree::ptree pt;
+    pt.put("name", "DiagonalMatrixGate");
+    pt.put_child("target_qubit_list", ptree::to_ptree(_target_qubit_list));
+    pt.put_child("control_qubit_list", ptree::to_ptree(_control_qubit_list));
+    pt.put_child("vector", ptree::to_ptree(_diagonal_element));
+    return pt;
 }
 
 std::ostream& operator<<(

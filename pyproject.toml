@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 dynamic = ["version"]
 name = "qulacs"
 description = "Quantum circuit simulator for research"
-authors = [ 
+authors = [
     { name = "QunaSys", Email = "qulacs@qunasys.com" }
 ]
 readme = "README.md"
@@ -55,6 +55,17 @@ ci = [
     "pybind11-stubgen"
 ]
 
+doc = [
+    "sphinx",
+    "sphinx-rtd-theme",
+    "breathe",
+    "exhale",
+    "nbsphinx",
+    "myst-parser",
+    "sphinx-copybutton",
+    "ipykernel",
+]
+
 [tool.setuptools]
 include-package-data = true
 zip-safe = false
@@ -83,5 +94,5 @@ before-build = """\
 brew upgrade && brew install -f boost && \
 brew link boost && rm -rf {project}/build\
 """
-archs = ["x86_64", "arm64"]
+archs = ["x86_64", "universal2", "arm64"]
 repair-wheel-command = "delocate-listdeps {wheel} && script/fix_wheel_osx.sh {wheel} {dest_dir} && delocate-listdeps {wheel}"

@@ -7,6 +7,11 @@
             "command": "USE_TEST=Yes ./script/build_gcc.sh"
         },
         {
+            "label": "build gcc with coverage option",
+            "type": "shell",
+            "command": "USE_TEST=Yes COVERAGE=Yes ./script/build_gcc.sh"
+        },
+        {
             "label": "test",
             "type": "shell",
             "command": "make test -C build -j $(nproc)",
@@ -19,7 +24,7 @@
             "type": "shell",
             "command": "make coverage -C build -j $(nproc)",
             "dependsOn": [
-                "build gcc"
+                "build gcc with coverage option"
             ]
         },
         {

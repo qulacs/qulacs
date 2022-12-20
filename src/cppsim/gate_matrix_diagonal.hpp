@@ -114,6 +114,11 @@ public:
         return new QuantumGateDiagonalMatrix(*this);
     };
 
+    virtual QuantumGateDiagonalMatrix* get_inverse(void) const override {
+        return new QuantumGateDiagonalMatrix(this->target_qubit_list,
+            this->_diagonal_element.conjugate(), this->control_qubit_list);
+    }
+
     /**
      * \~japanese-en 自身の行列要素をセットする
      *
@@ -133,6 +138,13 @@ public:
      * @return 生成した文字列
      */
     virtual std::string to_string() const override;
+
+    /**
+     * \~japanese-en ptreeに変換
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const override;
 
     /**
      * \~japanese-en ゲートの情報を文字列で出力する

@@ -109,6 +109,10 @@ public:
         pt.put("angle", _angle);
         return pt;
     }
+    virtual ClsParametricRXGate* get_inverse() const override {
+        return new ClsParametricRXGate(
+            this->target_qubit_list[0].index(), -_angle);
+    };
 };
 
 class ClsParametricRYGate : public QuantumGate_SingleParameterOneQubitRotation {
@@ -139,6 +143,10 @@ public:
         pt.put("angle", _angle);
         return pt;
     }
+    virtual ClsParametricRYGate* get_inverse() const override {
+        return new ClsParametricRYGate(
+            this->target_qubit_list[0].index(), -_angle);
+    };
 };
 
 class ClsParametricRZGate : public QuantumGate_SingleParameterOneQubitRotation {
@@ -169,6 +177,10 @@ public:
         pt.put("angle", _angle);
         return pt;
     }
+    virtual ClsParametricRZGate* get_inverse() const override {
+        return new ClsParametricRZGate(
+            this->target_qubit_list[0].index(), -_angle);
+    };
 };
 
 class ClsParametricPauliRotationGate : public QuantumGate_SingleParameter {
@@ -241,4 +253,7 @@ public:
         pt.put_child("pauli", _pauli->to_ptree());
         return pt;
     }
+    virtual ClsParametricPauliRotationGate* get_inverse() const override {
+        return new ClsParametricPauliRotationGate(-_angle, _pauli->copy());
+    };
 };

@@ -16,26 +16,21 @@
 TEST(DensityMatrixObservableTest, CheckExpectationValue) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;
-
-    double coef;
-    CPPCTYPE res_vec, res_mat;
-    CPPCTYPE test_res;
     Random random;
 
-    Eigen::MatrixXcd X(2, 2);
-    X << 0, 1, 1, 0;
+    const auto X = make_X();
 
     QuantumState vector_state(n);
     DensityMatrix density_matrix(n);
     vector_state.set_computational_basis(0);
     density_matrix.load(&vector_state);
 
-    coef = random.uniform();
+    double coef = random.uniform();
     Observable observable(n);
     observable.add_operator(coef, "X 0");
 
-    res_vec = observable.get_expectation_value(&vector_state);
-    res_mat = observable.get_expectation_value(&density_matrix);
+    CPPCTYPE res_vec = observable.get_expectation_value(&vector_state);
+    CPPCTYPE res_mat = observable.get_expectation_value(&density_matrix);
     ASSERT_NEAR(res_vec.real(), res_mat.real(), eps);
     ASSERT_NEAR(res_vec.imag(), 0, eps);
     ASSERT_NEAR(res_mat.imag(), 0, eps);
@@ -103,22 +98,16 @@ TEST(DensityMatrixObservableTest, CheckParsedObservableFromOpenFermionText) {
         std::vector<std::string> lines = split(str, "\n");
 
         for (std::string line : lines) {
-            // std::cout << state->get_norm() << std::endl;
-
             std::vector<std::string> elems;
             elems = split(line, "()j[]+");
 
             chfmt(elems[3]);
 
             CPPCTYPE coef(std::stod(elems[0]), std::stod(elems[1]));
-            // std::cout << elems[3].c_str() << std::endl;
 
             PauliOperator mpt(elems[3].c_str(), coef.real());
 
-            // std::cout << mpt.get_coef() << " ";
-            // std::cout << elems[3].c_str() << std::endl;
             energy += mpt.get_expectation_value(state);
-            // mpt.get_expectation_value(state);
         }
         return energy;
     };
@@ -140,11 +129,9 @@ TEST(DensityMatrixObservableTest, CheckParsedObservableFromOpenFermionText) {
         "(0.17434925+0j) [Z1 Z3] +\n"
         "(-0.22279649999999998+0j) [Z2]";
 
-    CPPCTYPE res_vec, res_mat;
-
-    Observable* observable;
-    observable = observable::create_observable_from_openfermion_text(text);
-    ASSERT_NE(observable, (Observable*)NULL);
+    Observable* observable =
+        observable::create_observable_from_openfermion_text(text);
+    ASSERT_NE(observable, nullptr);
     UINT qubit_count = observable->get_qubit_count();
 
     QuantumState vector_state(qubit_count);
@@ -152,8 +139,8 @@ TEST(DensityMatrixObservableTest, CheckParsedObservableFromOpenFermionText) {
 
     vector_state.set_computational_basis(0);
     density_matrix.load(&vector_state);
-    res_vec = observable->get_expectation_value(&vector_state);
-    res_mat = observable->get_expectation_value(&density_matrix);
+    CPPCTYPE res_vec = observable->get_expectation_value(&vector_state);
+    CPPCTYPE res_mat = observable->get_expectation_value(&density_matrix);
     ASSERT_NEAR(res_vec.real(), res_mat.real(), eps);
     ASSERT_NEAR(res_vec.imag(), res_mat.imag(), eps);
 

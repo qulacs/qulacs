@@ -130,6 +130,13 @@ public:
     virtual std::string to_string() const override;
 
     /**
+     * \~japanese-en ptreeに変換する
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const override;
+
+    /**
      * \~japanese-en ゲートの情報を文字列で出力する
      *
      * @param os 出力するストリーム
@@ -148,4 +155,6 @@ public:
      */
     friend DllExport std::ostream& operator<<(
         std::ostream& os, QuantumGateMatrix* gate);
+
+    virtual QuantumGateMatrix* get_inverse(void) const;
 };
