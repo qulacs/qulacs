@@ -698,10 +698,8 @@ PYBIND11_MODULE(qulacs_core, m) {
             [](const QuantumGateBase& gate) -> std::string {
                 return ptree::to_json(gate.to_ptree());
             },
-            "to json string");
-    .def("get_inverse", &QuantumGateBase::get_inverse, "get inverse gate")
-
-        ;
+            "to json string")
+        .def("get_inverse", &QuantumGateBase::get_inverse, "get inverse gate");
 
     py::class_<QuantumGateMatrix, QuantumGateBase>(m, "QuantumGateMatrix")
         .def("add_control_qubit", &QuantumGateMatrix::add_control_qubit,
@@ -1237,13 +1235,10 @@ PYBIND11_MODULE(qulacs_core, m) {
             &QuantumCircuit::add_observable_rotation_gate,
             "Add observable rotation gate", py::arg("observable"),
             py::arg("angle"), py::arg("repeat"))
-
         .def("get_inverse", &QuantumCircuit::get_inverse, "get inverse circuit")
-
         .def(
             "__str__", [](const QuantumCircuit& p) { return p.to_string(); },
             "to string");
-    ;
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(
         m, "ParametricQuantumCircuit")
