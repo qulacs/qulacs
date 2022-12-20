@@ -33,7 +33,6 @@ jobs:
       CXX_COMPILER: ${{ matrix.cxx_compiler }}
       C_COMPILER: ${{ matrix.c_compiler }}
       PYTHON: ${{ matrix.python-version }}
-      COVERAGE: "ON"
       CACHE_NAME: "ccache-qulacs-build-v2"
     steps:
       - uses: actions/checkout@v3
