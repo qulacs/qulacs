@@ -15,15 +15,23 @@ on:
       - "*.md"
 
 jobs:
-  gcc10-build:
-    name: GCC10 build
+  macos-build:
+    name: Build on macOS
     strategy:
       matrix:
         python-version: ["3.7.5"]
+        compiler: ["gcc", "clang"]
+        include:
+          - compiler: "gcc"
+            cxx_compiler: "/usr/local/opt/ccache/libexec/g++-10"
+            c_compiler: "/usr/local/opt/ccache/libexec/gcc-10"
+          - compiler: "clang"
+            cxx_compiler: "clang"
+            c_compiler: "clang"
     runs-on: "macos-11"
     env:
-      CXX_COMPILER: "/usr/local/opt/ccache/libexec/g++-10"
-      C_COMPILER: "/usr/local/opt/ccache/libexec/gcc-10"
+      CXX_COMPILER: ${{ matrix.cxx_compiler }}
+      C_COMPILER: ${{ matrix.c_compiler }}
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       CACHE_NAME: "ccache-qulacs-build-v2"
@@ -40,6 +48,7 @@ jobs:
           architecture: x64
 
       - name: Install ccache
+        if: ${{ matrix.compiler == "gcc" }}
         run: brew install ccache
 
       - name: Install Boost for macOS
@@ -49,6 +58,7 @@ jobs:
           brew link boost
 
       - name: Setup cache
+        if: ${{ matrix.compiler == "gcc" }}
         uses: actions/cache@v3
         with:
           path: /Users/runner/Library/Caches/ccache
@@ -72,4 +82,5 @@ jobs:
           make pythontest -j
 
       - name: Show cache stats
+        if: ${{ matrix.compiler == "gcc" }}
         run: ccache -s -v
