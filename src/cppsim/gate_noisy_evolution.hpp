@@ -235,7 +235,6 @@ public:
         // bit_numberを決めて、実際に独立なゲートに振り分ける
         UINT n_qubit = hamiltonian->get_qubit_count();
         bit_number = std::vector<int>(n_qubit, -1);
-        int i;
         for (auto pauli : hamiltonian->get_terms()) {
             for (int bit : pauli->get_index_list()) {
                 bit_number[bit] = bit;
@@ -274,25 +273,25 @@ public:
         }
 
         std::vector<bool> aru(n_qubit);
-        for (i = 0; i < n_qubit; i++) {
+        for (UINT i = 0; i < n_qubit; i++) {
             if (bit_number[i] == -1) {
                 continue;
             }
             aru[bit_number[i]] = true;
         }
         std::vector<UINT> taiou(n_qubit);
-        int kaz = 0;
-        for (i = 0; i < n_qubit; i++) {
+        UINT kaz = 0;
+        for (UINT i = 0; i < n_qubit; i++) {
             if (aru[i]) {
                 taiou[i] = kaz;
                 kaz++;
             }
         }
-        for (i = 0; i < n_qubit; i++) {
+        for (UINT i = 0; i < n_qubit; i++) {
             bit_number[i] = taiou[bit_number[i]];
         }
         std::vector<Observable*> hamiltonians(kaz);
-        for (i = 0; i < kaz; i++) {
+        for (UINT i = 0; i < kaz; i++) {
             hamiltonians[i] = new Observable(n_qubit);
         }
         std::vector<std::vector<GeneralQuantumOperator*>> c_opss(kaz);
@@ -321,7 +320,7 @@ public:
             c_opss[uf_a].push_back(c_ops[k]);
         }
         gates.resize(kaz);
-        for (i = 0; i < kaz; i++) {
+        for (UINT i = 0; i < kaz; i++) {
             gates[i] =
                 new ClsNoisyEvolution_fast(hamiltonians[i], c_opss[i], time);
         }
