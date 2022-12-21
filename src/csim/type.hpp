@@ -46,3 +46,27 @@ using ITYPE = unsigned long long;
 #else
 #define DllExport __attribute__((visibility("default")))
 #endif
+
+//! ACLE
+#ifdef _USE_SVE
+#include "arm_acle.h"
+#include "arm_sve.h"
+
+typedef double ETYPE;
+//! complex value (SVE)
+typedef svfloat64_t SV_FTYPE
+    __attribute__((arm_sve_vector_bits(__ARM_FEATURE_SVE_BITS)));
+typedef svuint64_t SV_ITYPE
+    __attribute__((arm_sve_vector_bits(__ARM_FEATURE_SVE_BITS)));
+typedef svbool_t SV_PRED
+    __attribute__((arm_sve_vector_bits(__ARM_FEATURE_SVE_BITS)));
+
+inline static ITYPE getVecLength(void) { return svcntd(); }
+inline static SV_PRED Svptrue(void) { return svptrue_b64(); }
+inline static SV_FTYPE SvdupF(double val) { return svdup_f64(val); }
+inline static SV_ITYPE SvdupI(UINT val) { return svdup_u64(val); }
+inline static SV_ITYPE SvindexI(UINT base, UINT step) {
+    return svindex_u64(base, step);
+}
+
+#endif  // #ifdef _USE_SVE

@@ -77,6 +77,11 @@ TEST(UpdateTest, HGate) {
 #ifdef _USE_SIMD
     test_single_qubit_named_gate(6, "HGate", H_gate_parallel_simd, mat);
 #endif
+#ifdef _USE_SVE
+    test_single_qubit_named_gate(1, "HGate", H_gate_parallel_sve, mat);
+    test_single_qubit_named_gate(2, "HGate", H_gate_parallel_sve, mat);
+    test_single_qubit_named_gate(6, "HGate", H_gate_parallel_sve, mat);
+#endif
 }
 
 TEST(UpdateTest, SGate) {
