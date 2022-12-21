@@ -39,30 +39,49 @@ NoiseSimulator::~NoiseSimulator() {
     delete circuit;
 }
 
-std::vector<ITYPE> NoiseSimulator::execute(const UINT sample_count) {
-    std::vector<std::pair<QuantumState*, UINT>> simulation_result =
-        execute_and_get_state(sample_count);
+NoiseSimulator::Result::Result(
+    const std::vector<std::pair<QuantumState*, UINT>>& result_) {
+    std::transform(result_.begin(), result_.end(), std::back_inserter(result),
+        [](const std::pair<QuantumState*, UINT>& p) {
+            return std::make_pair(p.first->copy(), p.second);
+        });
+}
+
+NoiseSimulator::Result::~Result() {
+    for (const auto& p : result) {
+        delete p.first;
+    }
+}
+
+std::vector<ITYPE> NoiseSimulator::Result::sampling() const {
     std::vector<ITYPE> sampling_result;
-    sampling_result.reserve(sample_count);
-    for (auto& p : simulation_result) {
+    for (auto& p : result) {
         std::vector<ITYPE> sampling_result_p = p.first->sampling(p.second);
         std::copy(sampling_result_p.begin(), sampling_result_p.end(),
             std::back_inserter(sampling_result));
         delete p.first;
     }
-
-    // shuffle result because near sampling result may be sampled from same
-    // merged state.
-    std::mt19937 randomizer(random.int32());
-    std::shuffle(sampling_result.begin(), sampling_result.end(), randomizer);
     return sampling_result;
 }
 
-std::vector<std::pair<QuantumState*, UINT>>
-NoiseSimulator::execute_and_get_state(const UINT sample_count) {
+std::vector<ITYPE> NoiseSimulator::execute(const UINT execution_count) {
+    Result* result = execute_and_get_result(execution_count);
+    std::vector<ITYPE> ret = result->sampling();
+    delete result;
+    return ret;
+}
+
+NoiseSimulator::Result* NoiseSimulator::execute_and_get_result(
+    const UINT sample_count) {
     std::vector<SamplingRequest> sampling_required =
         generate_sampling_request(sample_count);
-    return simulate(sampling_required);
+    std::vector<std::pair<QuantumState*, UINT>> simulate_result =
+        simulate(sampling_required);
+    Result* result = new Result(simulate_result);
+    for (const std::pair<QuantumState*, UINT>& p : simulate_result) {
+        delete p.first;
+    }
+    return result;
 }
 
 std::vector<NoiseSimulator::SamplingRequest>
@@ -138,7 +157,6 @@ std::vector<std::pair<QuantumState*, UINT>> NoiseSimulator::simulate(
         simulation_result.emplace_back(
             buffer.copy(), sampling_requests[i].num_of_sampling);
     }
-
     return simulation_result;
 }
 
