@@ -54,12 +54,9 @@ using ITYPE = unsigned long long;
 
 typedef double ETYPE;
 //! complex value (SVE)
-typedef svfloat64_t SV_FTYPE
-    __attribute__((arm_sve_vector_bits(__ARM_FEATURE_SVE_BITS)));
-typedef svuint64_t SV_ITYPE
-    __attribute__((arm_sve_vector_bits(__ARM_FEATURE_SVE_BITS)));
-typedef svbool_t SV_PRED
-    __attribute__((arm_sve_vector_bits(__ARM_FEATURE_SVE_BITS)));
+typedef svfloat64_t SV_FTYPE;
+typedef svuint64_t SV_ITYPE;
+typedef svbool_t SV_PRED;
 
 inline static ITYPE getVecLength(void) { return svcntd(); }
 inline static SV_PRED Svptrue(void) { return svptrue_b64(); }
