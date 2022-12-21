@@ -59,7 +59,6 @@ std::vector<ITYPE> NoiseSimulator::Result::sampling() const {
         std::vector<ITYPE> sampling_result_p = p.first->sampling(p.second);
         std::copy(sampling_result_p.begin(), sampling_result_p.end(),
             std::back_inserter(sampling_result));
-        delete p.first;
     }
     return sampling_result;
 }
