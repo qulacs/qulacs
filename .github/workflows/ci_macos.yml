@@ -23,15 +23,15 @@ jobs:
         compiler: ["gcc", "clang"]
         include:
           - compiler: "gcc"
-            cxx_compiler: "/usr/local/opt/ccache/libexec/g++-10"
             c_compiler: "/usr/local/opt/ccache/libexec/gcc-10"
+            cxx_compiler: "/usr/local/opt/ccache/libexec/g++-10"
           - compiler: "clang"
-            cxx_compiler: "clang"
-            c_compiler: "clang++"
+            c_compiler: "clang"
+            cxx_compiler: "clang++"
     runs-on: "macos-11"
     env:
-      CXX_COMPILER: ${{ matrix.cxx_compiler }}
       C_COMPILER: ${{ matrix.c_compiler }}
+      CXX_COMPILER: ${{ matrix.cxx_compiler }}
       PYTHON: ${{ matrix.python-version }}
       CACHE_NAME: "ccache-qulacs-build-v2"
     steps:
