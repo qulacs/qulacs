@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <cassert>
+
 #include "constant.hpp"
 #include "stat_ops.hpp"
 #include "utility.hpp"
@@ -26,6 +28,7 @@ double expectation_value_X_Pauli_operator(
     const ITYPE mask = 1ULL << target_qubit_index;
     ITYPE state_index;
     double sum = 0.;
+
 #ifdef _OPENMP
     OMPutil omputil = get_omputil();
     omputil->set_qulacs_num_threads(dim, 10);
@@ -50,6 +53,7 @@ double expectation_value_Y_Pauli_operator(
     const ITYPE mask = 1ULL << target_qubit_index;
     ITYPE state_index;
     double sum = 0.;
+
 #ifdef _OPENMP
     OMPutil omputil = get_omputil();
     omputil->set_qulacs_num_threads(dim, 10);
@@ -73,6 +77,7 @@ double expectation_value_Z_Pauli_operator(
     const ITYPE loop_dim = dim;
     ITYPE state_index;
     double sum = 0.;
+
 #ifdef _OPENMP
     OMPutil omputil = get_omputil();
     omputil->set_qulacs_num_threads(dim, 10);
@@ -123,20 +128,109 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
     const ITYPE pivot_mask = 1ULL << pivot_qubit_index;
     ITYPE state_index;
     double sum = 0.;
+
+#ifdef _USE_SVE
+    ITYPE vec_len = getVecLength();  // # of double elements in a vector
+
+    if (loop_dim >= vec_len) {
+#pragma omp parallel reduction(+ : sum)
+        {
+            int img_flag = global_phase_90rot_count & 1;
+
+            SV_PRED pg = Svptrue();
+            SV_PRED pg_conj_neg;
+            SV_ITYPE sv_idx_ofs = SvindexI(0, 1);
+            SV_ITYPE sv_img_ofs = SvindexI(0, 1);
+
+            sv_idx_ofs = svlsr_x(pg, sv_idx_ofs, 1);
+            sv_img_ofs = svand_x(pg, sv_img_ofs, SvdupI(1));
+            pg_conj_neg = svcmpeq(pg, sv_img_ofs, SvdupI(0));
+
+            SV_FTYPE sv_sum = SvdupF(0.0);
+            SV_FTYPE sv_sign_base;
+            if (global_phase_90rot_count & 2)
+                sv_sign_base = SvdupF(-1.0);
+            else
+                sv_sign_base = SvdupF(1.0);
+
+#pragma omp for
+            for (state_index = 0; state_index < loop_dim;
+                 state_index += (vec_len >> 1)) {
+                SV_ITYPE sv_basis =
+                    svadd_x(pg, SvdupI(state_index), sv_idx_ofs);
+                SV_ITYPE sv_basis0 = svlsr_x(pg, sv_basis, pivot_qubit_index);
+                sv_basis0 = svlsl_x(pg, sv_basis0, pivot_qubit_index + 1);
+                sv_basis0 = svadd_x(pg, sv_basis0,
+                    svand_x(pg, sv_basis, SvdupI(pivot_mask - 1)));
+
+                SV_ITYPE sv_basis1 =
+                    sveor_x(pg, sv_basis0, SvdupI(bit_flip_mask));
+
+                SV_ITYPE sv_popc =
+                    svand_x(pg, sv_basis0, SvdupI(phase_flip_mask));
+                sv_popc = svcnt_z(pg, sv_popc);
+                sv_popc = svand_x(pg, sv_popc, SvdupI(1));
+                SV_FTYPE sv_sign = svneg_m(sv_sign_base,
+                    svcmpeq(pg, sv_popc, SvdupI(1)), sv_sign_base);
+                sv_sign = svmul_x(pg, sv_sign, SvdupF(2.0));
+
+                sv_basis0 = svmad_x(pg, sv_basis0, SvdupI(2), sv_img_ofs);
+                sv_basis1 = svmad_x(pg, sv_basis1, SvdupI(2), sv_img_ofs);
+                SV_FTYPE sv_input0 =
+                    svld1_gather_index(pg, (ETYPE*)state, sv_basis0);
+                SV_FTYPE sv_input1 =
+                    svld1_gather_index(pg, (ETYPE*)state, sv_basis1);
+
+                if (img_flag) {  // calc imag. parts
+
+                    SV_FTYPE sv_real = svtrn1(sv_input0, sv_input1);
+                    SV_FTYPE sv_imag = svtrn2(sv_input1, sv_input0);
+                    sv_imag = svneg_m(sv_imag, pg_conj_neg, sv_imag);
+
+                    SV_FTYPE sv_result = svmul_x(pg, sv_real, sv_imag);
+                    sv_result = svmul_x(pg, sv_result, sv_sign);
+                    sv_sum = svsub_x(pg, sv_sum, sv_result);
+
+                } else {  // calc real parts
+
+                    SV_FTYPE sv_result = svmul_x(pg, sv_input0, sv_input1);
+                    sv_result = svmul_x(pg, sv_result, sv_sign);
+                    sv_sum = svadd_x(pg, sv_sum, sv_result);
+                }
+            }
+
+            // reduction
+            if (vec_len >= 32)
+                sv_sum = svadd_z(pg, sv_sum, svext(sv_sum, sv_sum, 16));
+            if (vec_len >= 16)
+                sv_sum = svadd_z(pg, sv_sum, svext(sv_sum, sv_sum, 8));
+            if (vec_len >= 8)
+                sv_sum = svadd_z(pg, sv_sum, svext(sv_sum, sv_sum, 4));
+            if (vec_len >= 4)
+                sv_sum = svadd_z(pg, sv_sum, svext(sv_sum, sv_sum, 2));
+            if (vec_len >= 2)
+                sv_sum = svadd_z(pg, sv_sum, svext(sv_sum, sv_sum, 1));
+
+            sum += svlastb(svptrue_pat_b64(SV_VL1), sv_sum);
+        }
+    } else
+#endif
+    {
 #ifdef _OPENMP
     OMPutil omputil = get_omputil();
     omputil->set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum)
 #endif
-    for (state_index = 0; state_index < loop_dim; ++state_index) {
-        ITYPE basis_0 = insert_zero_to_basis_index(
-            state_index, pivot_mask, pivot_qubit_index);
-        ITYPE basis_1 = basis_0 ^ bit_flip_mask;
-        UINT sign_0 = count_population(basis_0 & phase_flip_mask) % 2;
+        for (state_index = 0; state_index < loop_dim; ++state_index) {
+            ITYPE basis_0 = insert_zero_to_basis_index(
+                state_index, pivot_mask, pivot_qubit_index);
+            ITYPE basis_1 = basis_0 ^ bit_flip_mask;
+            UINT sign_0 = count_population(basis_0 & phase_flip_mask) % 2;
 
-        sum += _creal(state[basis_0] * conj(state[basis_1]) *
-                      PHASE_90ROT[(global_phase_90rot_count + sign_0 * 2) % 4] *
-                      2.0);
+            sum += _creal(
+                state[basis_0] * conj(state[basis_1]) *
+                PHASE_90ROT[(global_phase_90rot_count + sign_0 * 2) % 4] * 2.0);
+        }
     }
 #ifdef _OPENMP
     omputil->reset_qulacs_num_threads();
@@ -149,15 +243,73 @@ double expectation_value_multi_qubit_Pauli_operator_Z_mask(
     const ITYPE loop_dim = dim;
     ITYPE state_index;
     double sum = 0.;
+
+#ifdef _USE_SVE
+    ITYPE vec_len = getVecLength();  // # of double elements in a vector
+    if (loop_dim >= vec_len) {
+#pragma omp parallel reduction(+ : sum)
+        {
+            SV_PRED pg = Svptrue();
+            SV_FTYPE sv_sum = SvdupF(0.0);
+            SV_ITYPE sv_offset = SvindexI(0, 1);
+            SV_ITYPE sv_phase_flip_mask = SvdupI(phase_flip_mask);
+
+#pragma omp for
+            for (state_index = 0; state_index < loop_dim;
+                 state_index += vec_len) {
+                ITYPE global_index = state_index;
+
+                SV_ITYPE svidx = svadd_z(pg, SvdupI(global_index), sv_offset);
+                SV_ITYPE sv_bit_parity = svand_z(pg, svidx, sv_phase_flip_mask);
+                sv_bit_parity = svcnt_z(pg, sv_bit_parity);
+                sv_bit_parity = svand_z(pg, sv_bit_parity, SvdupI(1));
+
+                SV_PRED pg_sign = svcmpeq(pg, sv_bit_parity, SvdupI(1));
+
+                SV_FTYPE sv_val0 = svld1(pg, (ETYPE*)&state[state_index]);
+                SV_FTYPE sv_val1 =
+                    svld1(pg, (ETYPE*)&state[state_index + (vec_len >> 1)]);
+
+                sv_val0 = svmul_z(pg, sv_val0, sv_val0);
+                sv_val1 = svmul_z(pg, sv_val1, sv_val1);
+
+                sv_val0 = svadd_z(pg, sv_val0, svext(sv_val0, sv_val0, 1));
+                sv_val1 = svadd_z(pg, sv_val1, svext(sv_val1, sv_val1, 1));
+
+                sv_val0 = svuzp1(sv_val0, sv_val1);
+                sv_val0 = svneg_m(sv_val0, pg_sign, sv_val0);
+
+                sv_sum = svadd_z(pg, sv_sum, sv_val0);
+            }
+
+            if (vec_len >= 32)
+                sv_sum = svadd_z(pg, sv_sum, svext(sv_sum, sv_sum, 16));
+            if (vec_len >= 16)
+                sv_sum = svadd_z(pg, sv_sum, svext(sv_sum, sv_sum, 8));
+            if (vec_len >= 8)
+                sv_sum = svadd_z(pg, sv_sum, svext(sv_sum, sv_sum, 4));
+            if (vec_len >= 4)
+                sv_sum = svadd_z(pg, sv_sum, svext(sv_sum, sv_sum, 2));
+            if (vec_len >= 2)
+                sv_sum = svadd_z(pg, sv_sum, svext(sv_sum, sv_sum, 1));
+
+            sum += svlastb(svptrue_pat_b64(SV_VL1), sv_sum);
+        }
+    } else
+#endif
+    {
+
 #ifdef _OPENMP
     OMPutil omputil = get_omputil();
     omputil->set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum)
 #endif
-    for (state_index = 0; state_index < loop_dim; ++state_index) {
-        int bit_parity = count_population(state_index & phase_flip_mask) % 2;
-        int sign = 1 - 2 * bit_parity;
-        sum += pow(_cabs(state[state_index]), 2) * sign;
+        for (state_index = 0; state_index < loop_dim; ++state_index) {
+            int bit_parity =
+                count_population(state_index & phase_flip_mask) % 2;
+            int sign = 1 - 2 * bit_parity;
+            sum += pow(_cabs(state[state_index]), 2) * sign;
+        }
     }
 #ifdef _OPENMP
     omputil->reset_qulacs_num_threads();
