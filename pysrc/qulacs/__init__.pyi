@@ -37,6 +37,7 @@ __all__ = [
     "QuantumGate_SingleParameter",
     "QuantumState",
     "QuantumStateBase",
+    "SimulationResult",
     "StateVector",
     "circuit",
     "gate",
@@ -269,6 +270,10 @@ class NoiseSimulator():
     def execute(self, arg0: int) -> typing.List[int]: 
         """
         Sampling & Return result [array]
+        """
+    def execute_and_get_result(self, arg0: int) -> SimulationResult: 
+        """
+        Simulate & Return ressult [array of (state, frequency)]
         """
     pass
 class Observable(GeneralQuantumOperator):
@@ -1005,6 +1010,20 @@ class DensityMatrix(QuantumStateBase):
     def to_string(self) -> str: 
         """
         to string
+        """
+    pass
+class SimulationResult():
+    def get_count(self) -> int: 
+        """
+        get state count
+        """
+    def get_frequency(self, arg0: int) -> int: 
+        """
+        get state frequency
+        """
+    def get_state(self, arg0: int) -> QuantumState: 
+        """
+        get state
         """
     pass
 def StateVector(arg0: int) -> QuantumState:
