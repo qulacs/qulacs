@@ -698,10 +698,8 @@ PYBIND11_MODULE(qulacs_core, m) {
             [](const QuantumGateBase& gate) -> std::string {
                 return ptree::to_json(gate.to_ptree());
             },
-            "to json string");
-    .def("get_inverse", &QuantumGateBase::get_inverse, "get inverse gate")
-
-        ;
+            "to json string")
+        .def("get_inverse", &QuantumGateBase::get_inverse, "get inverse gate");
 
     py::class_<QuantumGateMatrix, QuantumGateBase>(m, "QuantumGateMatrix")
         .def("add_control_qubit", &QuantumGateMatrix::add_control_qubit,
@@ -1231,13 +1229,14 @@ PYBIND11_MODULE(qulacs_core, m) {
             &QuantumCircuit::add_observable_rotation_gate,
             "Add observable rotation gate", py::arg("observable"),
             py::arg("angle"), py::arg("repeat"))
-
+        .def("to_json",
+            [](const QuantumCircuit& c) -> std::string {
+                return ptree::to_json(c.to_ptree());
+            })
         .def("get_inverse", &QuantumCircuit::get_inverse, "get inverse circuit")
-
         .def(
             "__str__", [](const QuantumCircuit& p) { return p.to_string(); },
             "to string");
-    ;
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(
         m, "ParametricQuantumCircuit")
@@ -1318,6 +1317,18 @@ PYBIND11_MODULE(qulacs_core, m) {
             py::arg("angles_of_gates"));
 
     auto mcircuit = m.def_submodule("circuit");
+    mcircuit.def(
+        "from_json",
+        [](const std::string& json) -> QuantumCircuit* {
+            boost::property_tree::ptree pt = ptree::from_json(json);
+            if (pt.get<std::string>("name") == "ParametricQuantumCircuit") {
+                return circuit::parametric_circuit_from_ptree(pt);
+            } else {
+                return circuit::from_ptree(pt);
+            }
+        },
+        "from json string", py::return_value_policy::take_ownership);
+
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
         .def(py::init<>(), "Constructor")
         .def("optimize", &QuantumCircuitOptimizer::optimize,
