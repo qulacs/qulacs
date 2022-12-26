@@ -39,7 +39,7 @@ public:
         std::vector<UINT> target_index;
         std::transform(this->_target_qubit_list.cbegin(),
             this->_target_qubit_list.cend(), std::back_inserter(target_index),
-            [](auto value) { return value.index(); });
+            [](const TargetQubitInfo& value) { return value.index(); });
         if (state->is_state_vector()) {
 #ifdef _USE_GPU
             if (state->get_device_name() == "gpu") {
