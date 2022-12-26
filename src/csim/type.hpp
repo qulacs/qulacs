@@ -51,13 +51,4 @@ using ITYPE = unsigned long long;
 #ifdef _USE_SVE
 #include "arm_acle.h"
 #include "arm_sve.h"
-
-typedef double ETYPE;
-//! complex value (SVE)
-typedef svfloat64_t SV_FTYPE;
-typedef svuint64_t SV_ITYPE;
-typedef svbool_t SV_PRED;
-
-#include "utility_sve.hpp"
-
 #endif  // #ifdef _USE_SVE

@@ -193,11 +193,11 @@ void Y_gate_parallel_sve(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
 
 #pragma omp for
             for (state_index = 0; state_index < dim; state_index += (VL << 1)) {
-                SV_FTYPE sv_input0, sv_input1, sv_output0, sv_output1,
+                svfloat64_t sv_input0, sv_input1, sv_output0, sv_output1,
                     sv_cval_real, sv_cval_imag, sv_shuffle0, sv_shuffle1;
 
-                sv_input0 = svld1(pall, (ETYPE*)&state[state_index]);
-                sv_input1 = svld1(pall, (ETYPE*)&state[state_index + VL]);
+                sv_input0 = svld1(pall, (double*)&state[state_index]);
+                sv_input1 = svld1(pall, (double*)&state[state_index + VL]);
 
                 sv_shuffle0 = svtbl(sv_input0, sv_shuffle_table);
                 sv_shuffle1 = svtbl(sv_input1, sv_shuffle_table);
