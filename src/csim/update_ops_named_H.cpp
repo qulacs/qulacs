@@ -133,7 +133,7 @@ void H_gate_parallel_sve(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
     const double sqrt2inv = 1. / sqrt(2.);
     ITYPE state_index = 0;
 
-    // # of complex128 numbers in a SVE register
+    // # of complex128 numbers in an SVE register
     ITYPE VL = svcntd() / 2;
 
     if (mask >= VL) {

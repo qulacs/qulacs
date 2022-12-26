@@ -123,7 +123,8 @@ void Y_gate_parallel_sve(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
     const ITYPE mask_high = ~mask_low;
     ITYPE state_index = 0;
     const CTYPE imag = 1.i;
-    // # of complex128 numbers in a SVE registers
+
+    // # of complex128 numbers in an SVE register
     ITYPE VL = svcntd() / 2;
 
     if (mask >= VL) {
