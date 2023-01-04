@@ -375,8 +375,7 @@ ClsReversibleBooleanGate* ReversibleBoolean(
     }
     return new ClsReversibleBooleanGate(target_qubit_index_list, function_ptr);
 }
-ClsStateReflectionGate* StateReflection(
-    const QuantumStateBase* reflection_state) {
+ClsStateReflectionGate* StateReflection(const QuantumState* reflection_state) {
     return new ClsStateReflectionGate(reflection_state);
 }
 
