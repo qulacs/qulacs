@@ -954,5 +954,72 @@ class TestQASM(unittest.TestCase):
                                gates[x].get_matrix())
 
 
+class TestJSON(unittest.TestCase):
+    def setUp(self):
+        pass
+    
+    def tearDown(self):
+        pass
+
+    def test_operator(self):
+        from qulacs import (PauliOperator, GeneralQuantumOperator,
+            Observable, QuantumState, quantum_operator, observable)
+        import random
+        import json
+
+        n = 5
+
+        def random_pauli_operator():
+            op = PauliOperator((random.random()*2-1) + (random.random()*2-1) * 1j)
+            for _ in range(random.randint(1, 5)):
+                op.add_single_Pauli(
+                    random.randint(0, n-1), random.randint(0, 3)
+                )
+            return op
+
+        def random_hermitian_pauli_operator():
+            op = PauliOperator(random.random()*2-1)
+            for _ in range(random.randint(1, 5)):
+                op.add_single_Pauli(
+                    random.randint(0, n-1), random.randint(0, 3)
+                )
+            return op
+        
+        oridinal_operator = GeneralQuantumOperator(5)
+        for _ in range(5):
+            oridinal_operator.add_operator(random_pauli_operator())
+        
+        json_string = oridinal_operator.to_json()
+        json.loads(json_string)
+        restored_operator = quantum_operator.from_json(json_string)
+
+        for _ in range(3):
+            state = QuantumState(n)
+            self.assertAlmostEqual(
+                oridinal_operator.get_expectation_value(state),
+                restored_operator.get_expectation_value(state)
+            )
+
+        oridinal_observable = Observable(n)
+        for _ in range(5):
+            oridinal_observable.add_operator(random_hermitian_pauli_operator())
+
+        json_string = oridinal_observable.to_json()
+        json.loads(json_string)
+        restored_observable = observable.from_json(json_string)
+
+        for _ in range(3):
+            state = QuantumState(n)
+            self.assertAlmostEqual(
+                oridinal_observable.get_expectation_value(state),
+                restored_observable.get_expectation_value(state)
+            )
+
+        non_hermitian_operator = GeneralQuantumOperator(1)
+        non_hermitian_operator.add_operator(1j, "X 0")
+        with self.assertRaises(RuntimeError):
+            observable.from_json(non_hermitian_operator.to_json())
+
+
 if __name__ == "__main__":
     unittest.main()
