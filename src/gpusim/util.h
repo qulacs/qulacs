@@ -5,13 +5,13 @@
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-//#include <cuda_runtime.h>
-//#include <cuda.h>
+// #include <cuda_runtime.h>
+// #include <cuda.h>
 
 #include <complex>
 
 #include "util_common.h"
-//#include "util.cuh"
+// #include "util.cuh"
 
 extern "C" DllExport void get_quantum_state_host(
     void* state_gpu, void* psi_cpu_copy, ITYPE dim);

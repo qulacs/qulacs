@@ -8,7 +8,7 @@
 
 GeneralQuantumOperator* to_general_quantum_operator(
     const QuantumGateBase* gate, UINT GQO_qubits, double tol = 1e-6) {
-    //返り値のqubitの数を指定
+    // 返り値のqubitの数を指定
     if (gate->get_control_index_list().size() > 0) {
         throw std::runtime_error("gate must not have control qubit. ");
     }

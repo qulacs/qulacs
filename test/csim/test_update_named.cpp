@@ -21,7 +21,8 @@ void test_single_qubit_named_gate(UINT n, std::string name,
     initialize_Haar_random_state_with_seed(state, dim, 0);
 
     Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-    for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+    for (ITYPE i = 0; i < dim; ++i)
+        test_state[i] = (std::complex<double>)state[i];
     std::vector<UINT> indices;
     for (UINT i = 0; i < n; ++i) indices.push_back(i);
 
@@ -156,7 +157,8 @@ void test_projection_gate(std::function<void(UINT, CTYPE*, ITYPE)> func,
             target = indices[i];
             initialize_Haar_random_state(state, dim);
             Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-            for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+            for (ITYPE i = 0; i < dim; ++i)
+                test_state[i] = (std::complex<double>)state[i];
 
             // Z-projection operators
             prob = prob_func(target, state, dim);
@@ -206,13 +208,16 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
     auto state = allocate_quantum_state(dim);
     initialize_Haar_random_state(state, dim);
     Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-    for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
-    using testset = std::tuple<std::function<void(UINT, double, CTYPE*, ITYPE)>,
-        Eigen::MatrixXcd, std::string>;
+    for (ITYPE i = 0; i < dim; ++i)
+        test_state[i] = (std::complex<double>)state[i];
+    typedef std::tuple<std::function<void(UINT, double, CTYPE*, ITYPE)>,
+        Eigen::MatrixXcd, std::string>
+        testset;
     std::vector<testset> test_list;
     test_list.push_back(std::make_tuple(RX_gate, X, "Xrot"));
     test_list.push_back(std::make_tuple(RY_gate, Y, "Yrot"));
     test_list.push_back(std::make_tuple(RZ_gate, Z, "Zrot"));
+    std::complex<double> imag_unit(0, 1);
 
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         for (auto tup : test_list) {
@@ -222,10 +227,11 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
             auto mat = std::get<1>(tup);
             auto name = std::get<2>(tup);
             func(target, angle, state, dim);
-            test_state =
-                get_expanded_eigen_matrix_with_identity(target,
-                    cos(angle / 2) * Identity + 1.i * sin(angle / 2) * mat, n) *
-                test_state;
+            test_state = get_expanded_eigen_matrix_with_identity(target,
+                             cos(angle / 2) * Identity +
+                                 imag_unit * sin(angle / 2) * mat,
+                             n) *
+                         test_state;
             state_equal(state, test_state, dim, name);
         }
     }
@@ -242,7 +248,8 @@ void test_two_qubit_named_gate(UINT n, std::string name,
     initialize_Haar_random_state_with_seed(state, dim, 0);
 
     Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-    for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+    for (ITYPE i = 0; i < dim; ++i)
+        test_state[i] = (std::complex<double>)state[i];
     std::vector<UINT> indices;
     for (UINT i = 0; i < n; ++i) indices.push_back(i);
 

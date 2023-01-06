@@ -247,7 +247,7 @@ public:
                 }
             }
         }
-        //使ってないビットは-1にした
+        // 使ってないビットは-1にした
 
         for (auto pauli : hamiltonian->get_terms()) {
             int uf_a = -1;
