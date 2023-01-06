@@ -104,6 +104,7 @@ class CMakeBuild(build_ext):
                 cmake_args += ["-A", "x64"]
             build_args += ["--", "/m"]
         else:
+            # In macOS, gcc/g++ is aliased to clang/clang++.
             gcc = os.getenv("C_COMPILER", "gcc")
             gxx = os.getenv("CXX_COMPILER", "g++")
             if gcc is None or gxx is None:
