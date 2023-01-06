@@ -252,6 +252,14 @@ TEST(UpdateTest, CNOTGate) {
     test_two_qubit_named_gate(6, "CNOTGate", CNOT_gate_parallel_simd,
         get_eigen_matrix_full_qubit_CNOT);
 #endif
+#ifdef _USE_SVE
+    test_two_qubit_named_gate(2, "CNOTGate", CNOT_gate_parallel_sve,
+        get_eigen_matrix_full_qubit_CNOT);
+    test_two_qubit_named_gate(3, "CNOTGate", CNOT_gate_parallel_sve,
+        get_eigen_matrix_full_qubit_CNOT);
+    test_two_qubit_named_gate(6, "CNOTGate", CNOT_gate_parallel_sve,
+        get_eigen_matrix_full_qubit_CNOT);
+#endif
 }
 
 TEST(UpdateTest, CZGate) {
