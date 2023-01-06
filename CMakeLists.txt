@@ -54,7 +54,6 @@ elseif ((${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang") OR (${CMAKE_CXX_COMPILER_ID}
 	if(${COVERAGE})
 		message(FATAL_ERROR "Coverage is not supported for clang. Do not set COVERAGE=Yes on this environment.")
 	endif()
-elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "Intel")
 else()
 	message(FATAL_ERROR "Unsupported Compiler.")
 endif()
