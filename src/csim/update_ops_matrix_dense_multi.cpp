@@ -67,7 +67,11 @@ void multi_qubit_dense_matrix_gate_parallel(const UINT* target_qubit_index_list,
     // loop variables
     const ITYPE loop_dim = dim >> target_qubit_index_count;
 
+#ifdef _OPENMP
     const UINT thread_count = omp_get_max_threads();
+#else
+    const UINT thread_count = 1;
+#endif
     CTYPE* buffer_list =
         (CTYPE*)malloc((size_t)(sizeof(CTYPE) * matrix_dim * thread_count));
 
@@ -78,7 +82,11 @@ void multi_qubit_dense_matrix_gate_parallel(const UINT* target_qubit_index_list,
 #pragma omp parallel
 #endif
     {
+#ifdef _OPENMP
         UINT thread_id = omp_get_thread_num();
+#else
+        UINT thread_id = 0;
+#endif
         ITYPE start_index = block_size * thread_id +
                             (residual > thread_id ? thread_id : residual);
         ITYPE end_index =
