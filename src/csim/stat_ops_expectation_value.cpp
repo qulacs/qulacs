@@ -27,6 +27,8 @@ double expectation_value_X_Pauli_operator(
     ITYPE state_index;
     double sum = 0.;
 #ifdef _OPENMP
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -35,6 +37,9 @@ double expectation_value_X_Pauli_operator(
         ITYPE basis_1 = basis_0 ^ mask;
         sum += _creal(conj(state[basis_0]) * state[basis_1]) * 2;
     }
+#ifdef _OPENMP
+    omputil->reset_qulacs_num_threads();
+#endif
     return sum;
 }
 
@@ -46,6 +51,8 @@ double expectation_value_Y_Pauli_operator(
     ITYPE state_index;
     double sum = 0.;
 #ifdef _OPENMP
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -54,6 +61,9 @@ double expectation_value_Y_Pauli_operator(
         ITYPE basis_1 = basis_0 ^ mask;
         sum += _cimag(conj(state[basis_0]) * state[basis_1]) * 2;
     }
+#ifdef _OPENMP
+    omputil->reset_qulacs_num_threads();
+#endif
     return sum;
 }
 
@@ -64,12 +74,17 @@ double expectation_value_Z_Pauli_operator(
     ITYPE state_index;
     double sum = 0.;
 #ifdef _OPENMP
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
         int sign = 1 - 2 * ((state_index >> target_qubit_index) % 2);
         sum += _creal(conj(state[state_index]) * state[state_index]) * sign;
     }
+#ifdef _OPENMP
+    omputil->reset_qulacs_num_threads();
+#endif
     return sum;
 }
 
@@ -109,6 +124,8 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
     ITYPE state_index;
     double sum = 0.;
 #ifdef _OPENMP
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -121,6 +138,9 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
                       PHASE_90ROT[(global_phase_90rot_count + sign_0 * 2) % 4] *
                       2.0);
     }
+#ifdef _OPENMP
+    omputil->reset_qulacs_num_threads();
+#endif
     return sum;
 }
 
@@ -130,6 +150,8 @@ double expectation_value_multi_qubit_Pauli_operator_Z_mask(
     ITYPE state_index;
     double sum = 0.;
 #ifdef _OPENMP
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -137,6 +159,9 @@ double expectation_value_multi_qubit_Pauli_operator_Z_mask(
         int sign = 1 - 2 * bit_parity;
         sum += pow(_cabs(state[state_index]), 2) * sign;
     }
+#ifdef _OPENMP
+    omputil->reset_qulacs_num_threads();
+#endif
     return sum;
 }
 
