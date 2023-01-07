@@ -34,10 +34,15 @@ void initialize_quantum_state_single(CTYPE* state, ITYPE dim) {
 #ifdef _OPENMP
 void initialize_quantum_state_parallel(CTYPE* state, ITYPE dim) {
     ITYPE index;
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 10);
+
 #pragma omp parallel for
     for (index = 0; index < dim; ++index) {
         state[index] = 0;
     }
     state[0] = 1.0;
+
+    omputil->reset_qulacs_num_threads();
 }
 #endif
