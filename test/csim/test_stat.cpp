@@ -21,7 +21,8 @@ TEST(StatOperationTest, ProbTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i)
+            test_state[i] = (std::complex<double>)state[i];
 
         for (UINT target = 0; target < n; ++target) {
             double p0 = M0_prob(target, state, dim);
@@ -57,7 +58,8 @@ TEST(StatOperationTest, MarginalProbTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i)
+            test_state[i] = (std::complex<double>)state[i];
 
         for (UINT target = 0; target < n; ++target) {
             // merginal probability check
@@ -101,7 +103,8 @@ TEST(StatOperationTest, EntropyTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i)
+            test_state[i] = (std::complex<double>)state[i];
 
         for (UINT target = 0; target < n; ++target) {
             double ent = 0;
@@ -127,13 +130,15 @@ TEST(StatOperationTest, InnerProductTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i)
+            test_state[i] = (std::complex<double>)state[i];
 
         for (UINT target = 0; target < n; ++target) {
             initialize_Haar_random_state(buffer, dim);
             CTYPE inp = state_inner_product(buffer, state, dim);
             Eigen::VectorXcd test_buffer(dim);
-            for (ITYPE i = 0; i < dim; ++i) test_buffer[i] = buffer[i];
+            for (ITYPE i = 0; i < dim; ++i)
+                test_buffer[i] = (std::complex<double>)buffer[i];
             std::complex<double> test_inp =
                 (test_buffer.adjoint() * test_state);
             ASSERT_NEAR(_creal(inp), test_inp.real(), eps);
@@ -161,7 +166,8 @@ TEST(StatOperationTest, SingleQubitExpectationValueTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i)
+            test_state[i] = (std::complex<double>)state[i];
 
         for (UINT target = 0; target < n; ++target) {
             // single qubit expectation value check
@@ -207,7 +213,8 @@ TEST(StatOperationTest, MultiQubitExpectationValueWholeTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i)
+            test_state[i] = (std::complex<double>)state[i];
 
         for (UINT target = 0; target < n; ++target) {
             // multi qubit expectation whole list value check
@@ -256,7 +263,8 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopWholeTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i)
+            test_state[i] = static_cast<std::complex<double>>(state[i]);
 
         for (UINT target = 0; target < n; ++target) {
             // multi qubit expectation whole list value check
@@ -301,7 +309,8 @@ TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i)
+            test_state[i] = (std::complex<double>)state[i];
 
         for (UINT target = 0; target < n; ++target) {
             // multi qubit expectation partial list value check
@@ -362,7 +371,8 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopPartialTest) {
         initialize_Haar_random_state(state, dim);
         ASSERT_NEAR(state_norm_squared(state, dim), 1, eps);
         Eigen::VectorXcd test_state(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+        for (ITYPE i = 0; i < dim; ++i)
+            test_state[i] = static_cast<std::complex<double>>(state[i]);
 
         for (UINT target = 0; target < n; ++target) {
             // multi qubit expectation partial list value check
@@ -425,8 +435,10 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeWholeTest) {
 
         Eigen::VectorXcd test_state_ket(dim);
         Eigen::VectorXcd test_state_bra(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state_ket[i] = state_ket[i];
-        for (ITYPE i = 0; i < dim; ++i) test_state_bra[i] = state_bra[i];
+        for (ITYPE i = 0; i < dim; ++i)
+            test_state_ket[i] = static_cast<std::complex<double>>(state_ket[i]);
+        for (ITYPE i = 0; i < dim; ++i)
+            test_state_bra[i] = static_cast<std::complex<double>>(state_bra[i]);
 
         for (UINT target = 0; target < n; ++target) {
             // multi qubit expectation whole list value check
@@ -482,8 +494,10 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopWholeTest) {
 
         Eigen::VectorXcd test_state_ket(dim);
         Eigen::VectorXcd test_state_bra(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state_ket[i] = state_ket[i];
-        for (ITYPE i = 0; i < dim; ++i) test_state_bra[i] = state_bra[i];
+        for (ITYPE i = 0; i < dim; ++i)
+            test_state_ket[i] = (std::complex<double>)state_ket[i];
+        for (ITYPE i = 0; i < dim; ++i)
+            test_state_bra[i] = (std::complex<double>)state_bra[i];
 
         for (UINT target = 0; target < n; ++target) {
             // multi qubit expectation whole list value check
@@ -536,8 +550,10 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudePartialTest) {
 
         Eigen::VectorXcd test_state_ket(dim);
         Eigen::VectorXcd test_state_bra(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state_ket[i] = state_ket[i];
-        for (ITYPE i = 0; i < dim; ++i) test_state_bra[i] = state_bra[i];
+        for (ITYPE i = 0; i < dim; ++i)
+            test_state_ket[i] = (std::complex<double>)state_ket[i];
+        for (ITYPE i = 0; i < dim; ++i)
+            test_state_bra[i] = (std::complex<double>)state_bra[i];
 
         for (UINT target = 0; target < n; ++target) {
             // multi qubit expectation partial list value check
@@ -605,16 +621,19 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
 
         Eigen::VectorXcd test_state_ket(dim);
         Eigen::VectorXcd test_state_bra(dim);
-        for (ITYPE i = 0; i < dim; ++i) test_state_ket[i] = state_ket[i];
-        for (ITYPE i = 0; i < dim; ++i) test_state_bra[i] = state_bra[i];
+        for (ITYPE i = 0; i < dim; ++i) {
+            test_state_ket[i] = (std::complex<double>)state_ket[i];
+        }
+        for (ITYPE i = 0; i < dim; ++i) {
+            test_state_bra[i] = (std::complex<double>)state_bra[i];
+        }
 
-        for (UINT target = 0; target < n; ++target) {
-            // multi qubit expectation partial list value check
+        for (UINT target = 0; target < n; target++) {
             Eigen::MatrixXcd mat = Eigen::MatrixXcd::Identity(1, 1);
             Eigen::MatrixXcd pauli_op;
-
             std::vector<UINT> pauli_partial, pauli_index;
             std::vector<std::pair<UINT, UINT>> pauli_partial_pair;
+
             for (UINT i = 0; i < n; ++i) {
                 UINT pauli = rand_int(2);
                 if (pauli == 1) pauli = 3;
@@ -639,9 +658,9 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
                 transition_amplitude_multi_qubit_Pauli_operator_partial_list(
                     pauli_index.data(), pauli_partial.data(),
                     (UINT)pauli_index.size(), state_bra, state_ket, dim);
-            ASSERT_NEAR(_creal(transition_amplitude),
+            ASSERT_NEAR(transition_amplitude.real(),
                 test_transition_amplitude.real(), eps);
-            ASSERT_NEAR(_cimag(transition_amplitude),
+            ASSERT_NEAR(transition_amplitude.imag(),
                 test_transition_amplitude.imag(), eps);
         }
     }

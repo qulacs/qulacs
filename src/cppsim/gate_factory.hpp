@@ -378,7 +378,7 @@ DllExport ClsReversibleBooleanGate* ReversibleBoolean(
  * @return 作成されたゲートのインスタンス
  */
 DllExport ClsStateReflectionGate* StateReflection(
-    const QuantumStateBase* reflection_state);
+    const QuantumState* reflection_state);
 
 /**
  * bit-flipノイズを発生させるゲート

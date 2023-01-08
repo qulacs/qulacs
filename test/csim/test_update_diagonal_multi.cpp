@@ -24,7 +24,8 @@ TEST(UpdateTest, MultiQubitDiagonalMatrixTest) {
     auto state = allocate_quantum_state(dim);
     initialize_Haar_random_state(state, dim);
     Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-    for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+    for (ITYPE i = 0; i < dim; ++i)
+        test_state[i] = (std::complex<double>)state[i];
 
     for (UINT gate_size = 1; gate_size <= 1; ++gate_size) {
         ITYPE gate_dim = (1ULL) << gate_size;
@@ -66,7 +67,8 @@ TEST(UpdateTest, MultiQubitDiagonalMatrixTest2) {
     auto state = allocate_quantum_state(dim);
     initialize_Haar_random_state(state, dim);
     Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-    for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+    for (ITYPE i = 0; i < dim; ++i)
+        test_state[i] = (std::complex<double>)state[i];
 
     for (UINT gate_size = 1; gate_size <= 1; ++gate_size) {
         ITYPE gate_dim = (1ULL) << gate_size;
@@ -113,7 +115,8 @@ TEST(UpdateTest, TwoQubitControlTwoQubitDiagonalMatrixTest) {
     auto state = allocate_quantum_state(dim);
     initialize_Haar_random_state(state, dim);
     Eigen::VectorXcd test_state = Eigen::VectorXcd::Zero(dim);
-    for (ITYPE i = 0; i < dim; ++i) test_state[i] = state[i];
+    for (ITYPE i = 0; i < dim; ++i)
+        test_state[i] = (std::complex<double>)state[i];
 
     Eigen::MatrixXcd whole_I = Eigen::MatrixXcd::Identity(dim, dim);
 

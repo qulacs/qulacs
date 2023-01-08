@@ -59,7 +59,7 @@ public:
         }
         std::transform(gate_list.cbegin(), gate_list.cend(),
             std::back_inserter(this->_gate_list),
-            [](auto gate) { return gate->copy(); });
+            [](const QuantumGateBase* gate) { return gate->copy(); });
         this->_name = "Probabilistic";
 
         bool fullsum = (sum > 1 - 1e-6);
@@ -226,7 +226,7 @@ public:
     explicit QuantumGate_CPTP(std::vector<QuantumGateBase*> gate_list) {
         std::transform(gate_list.cbegin(), gate_list.cend(),
             std::back_inserter(_gate_list),
-            [](auto gate) { return gate->copy(); });
+            [](const QuantumGateBase* gate) { return gate->copy(); });
         this->_name = "CPTP";
 
         for (UINT i = 0; i < _gate_list.size(); i++) {
@@ -367,7 +367,7 @@ public:
           _assign_zero_if_not_matched(assign_zero_if_not_matched) {
         std::transform(gate_list.cbegin(), gate_list.cend(),
             std::back_inserter(_gate_list),
-            [](auto gate) { return gate->copy(); });
+            [](const QuantumGateBase* gate) { return gate->copy(); });
         this->_name = "CP";
 
         for (UINT i = 0; i < _gate_list.size(); i++) {

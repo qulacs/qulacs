@@ -260,7 +260,7 @@ def SparseMatrix(index_list: typing.List[int], matrix: scipy.sparse.csc_matrix[n
     """
     Create sparse matrix gate
     """
-def StateReflection(state: qulacs_core.QuantumStateBase) -> qulacs_core.ClsStateReflectionGate:
+def StateReflection(state: qulacs_core.QuantumState) -> qulacs_core.ClsStateReflectionGate:
     """
     Create state reflection gate
     """

@@ -1341,8 +1341,31 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("get_coef_list", &CausalConeSimulator::get_coef_list,
             "Return coef_list");
 
+    py::class_<NoiseSimulator::Result>(m, "SimulationResult")
+        .def(
+            "get_count",
+            [](const NoiseSimulator::Result& result) -> UINT {
+                return result.result.size();
+            },
+            "get state count")
+        .def(
+            "get_state",
+            [](const NoiseSimulator::Result& result, UINT i) -> QuantumState* {
+                return result.result[i].first->copy();
+            },
+            "get state", py::return_value_policy::take_ownership)
+        .def(
+            "get_frequency",
+            [](const NoiseSimulator::Result& result, UINT i) -> UINT {
+                return result.result[i].second;
+            },
+            "get state frequency");
+
     py::class_<NoiseSimulator>(m, "NoiseSimulator")
         .def(py::init<QuantumCircuit*, QuantumState*>(), "Constructor")
         .def("execute", &NoiseSimulator::execute,
-            "Sampling & Return result [array]");
+            "Sampling & Return result [array]",
+            py::return_value_policy::take_ownership)
+        .def("execute_and_get_result", &NoiseSimulator::execute_and_get_result,
+            "Simulate & Return ressult [array of (state, frequency)]");
 }

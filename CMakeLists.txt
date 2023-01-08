@@ -1,20 +1,10 @@
-
-cmake_minimum_required(VERSION 2.8)
+cmake_minimum_required(VERSION 3.0)
 
 if (POLICY CMP0048)
-  cmake_policy(SET CMP0048 NEW)
+	cmake_policy(SET CMP0048 NEW)
 endif (POLICY CMP0048)
 
 project(qulacs)
-
-##### Check GCC version #####
-if(${CMAKE_C_COMPILER_VERSION} VERSION_LESS 7.0.0)
-	message(FATAL_ERROR, "gcc >= 7.0.0 is required.")
-endif()
-if(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 7.0.0)
-	message(FATAL_ERROR, "g++ >= 7.0.0 is required.")
-endif()
-
 
 ##### Set default behavior #####
 set(DEFAULT_USE_OMP Yes)
@@ -31,14 +21,46 @@ if(("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "aarch64") OR
 elseif(("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "^x86.*") OR
 		("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "AMD64"))
 	message(STATUS "SIMD SUPPORT: Yes")
-	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native -mfpmath=both")
+	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native")
 	set(DEFAULT_USE_SIMD Yes)
 else()
 	message(STATUS "SIMD SUPPORT: No")
-	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native")
 	set(DEFAULT_USE_SIMD No)
 endif()
 
+
+##### Check compiler Version #####
+message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "CMAKE_C_COMPILER_VERSION = ${CMAKE_C_COMPILER_VERSION}")
+message(STATUS "CMAKE_CXX_COMPILER_VERSION = ${CMAKE_CXX_COMPILER_VERSION}")
+
+message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
+
+if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+	if(${CMAKE_C_COMPILER_VERSION} VERSION_LESS 7.0.0)
+		message(FATAL_ERROR "gcc >= 7.0.0 is required.")
+	endif()
+	if(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 7.0.0)
+		message(FATAL_ERROR "g++ >= 7.0.0 is required.")
+	endif()
+	set(DEFAULT_OPT_FLAGS "${DEFAULT_OPT_FLAGS} -mfpmath=both")
+elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+	message(STATUS "MSVC_VERSION = ${MSVC_VERSION}")
+	if(${MSVC_VERSION} VERSION_LESS 1900)
+		message(FATAL_ERROR "MSVC >= 2015 is required.")
+	endif()
+elseif ((${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang") OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang"))
+	set(DEFAULT_USE_OMP No)
+	if(${COVERAGE})
+		message(FATAL_ERROR "Coverage is not supported for clang. Do not set COVERAGE=Yes on this environment.")
+	endif()
+else()
+	message(FATAL_ERROR "Unsupported Compiler.")
+endif()
+
+
+##### Update with given flags #####
 if(NOT DEFINED USE_SIMD)
 	set(USE_SIMD ${DEFAULT_USE_SIMD})
 endif()
@@ -210,20 +232,20 @@ if(NOT DEFINED PYTHON_SETUP_FLAG)
 	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
 
 	if(MSVC)
-	        set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/../lib)
-	        set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/../bin)
+		set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/../lib)
+		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/../bin)
 	endif()
 else()
 	message(STATUS "Install from pip")
 endif()
 
 ##### set flags #####
-if(MSYS OR MINGW OR UNIX OR APPLE)
+if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang") OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang"))
 	set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 	# Set C++ standard
-	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c11")
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
+	set(CMAKE_C_STANDARD 11)
+	set(CMAKE_CXX_STANDARD 14)
 	set(PYBIND11_CPP_STANDARD -std=c++14)
 
 	# Enable pthread
@@ -297,6 +319,8 @@ if(MSYS OR MINGW OR UNIX OR APPLE)
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
 	endif()
 
+elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
+	SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
 
 elseif(MSVC)
 	# Compile csim with cpp compiler since VC does not completely support C99 complex values

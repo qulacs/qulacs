@@ -183,9 +183,9 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
     // bistateはノルムが1のやつでなくてもよい
     int n = this->qubit_count;
     QuantumState* state = new QuantumState(n);
-    //これは、ゲートを前から適用したときの状態を示す
+    // これは、ゲートを前から適用したときの状態を示す
     state->set_zero_state();
-    this->update_quantum_state(state);  //一度最後までする
+    this->update_quantum_state(state);  // 一度最後までする
 
     int num_gates = this->gate_list.size();
     std::vector<int> inverse_parametric_gate_position(num_gates, -1);
@@ -215,7 +215,7 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
     ユニタリ性より、転置して共役な行列 = 逆行列
     なので、両社にadjoint_gateを掛けている
     */
-    QuantumState* Astate = new QuantumState(n);  //一時的なやつ
+    QuantumState* Astate = new QuantumState(n);  // 一時的なやつ
     for (int i = num_gates - 1; i >= 0; i--) {
         QuantumGateBase* gate_now = this->gate_list[i];  // sono gate
         if (inverse_parametric_gate_position[i] != -1) {
@@ -244,7 +244,7 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
             RcPI->update_quantum_state(Astate);
             ans[inverse_parametric_gate_position[i]] =
                 state::inner_product(bistate, Astate).real() /
-                2.0;  //だからここで2で割る
+                2.0;  // だからここで2で割る
             delete RcPI;
         }
         auto Agate = gate_now->get_inverse();
@@ -259,16 +259,16 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
 
 std::vector<double> ParametricQuantumCircuit::backprop(
     GeneralQuantumOperator* obs) {
-    //オブザーバブルから、最終段階での微分値を求めて、backprop_from_stateに流す関数
-    //上側から来た変動量 * 下側の対応する微分値 =
-    //最終的な変動量になるようにする。
+    // オブザーバブルから、最終段階での微分値を求めて、backprop_from_stateに流す関数
+    // 上側から来た変動量 * 下側の対応する微分値 =
+    // 最終的な変動量になるようにする。
 
     int n = this->qubit_count;
     QuantumState* state = new QuantumState(n);
     state->set_zero_state();
-    this->update_quantum_state(state);  //一度最後までする
+    this->update_quantum_state(state);  // 一度最後までする
     QuantumState* bistate = new QuantumState(n);
-    QuantumState* Astate = new QuantumState(n);  //一時的なやつ
+    QuantumState* Astate = new QuantumState(n);  // 一時的なやつ
 
     obs->apply_to_state(Astate, *state, bistate);
     bistate->multiply_coef(2);
@@ -279,7 +279,7 @@ std::vector<double> ParametricQuantumCircuit::backprop(
     オブザーバブルよくわからないけど、テストしたらできてた
     */
 
-    //ニューラルネットワークのbackpropにおける、後ろからの微分値的な役目を果たす
+    // ニューラルネットワークのbackpropにおける、後ろからの微分値的な役目を果たす
     auto ans = backprop_inner_product(bistate);
     delete bistate;
     delete state;
