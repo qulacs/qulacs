@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "MPIutil.hpp"
 #include "constant.hpp"
 #include "update_ops.hpp"
 #include "utility.hpp"
@@ -205,6 +206,68 @@ void single_qubit_dense_matrix_gate_parallel_simd(
 
             _mm256_storeu_pd(ptr0, data_r0);
             _mm256_storeu_pd(ptr1, data_r1);
+        }
+    }
+}
+#endif
+
+#ifdef _USE_MPI
+void single_qubit_dense_matrix_gate_partial(
+    CTYPE* t, const CTYPE matrix[4], CTYPE* state, ITYPE dim, int flag);
+
+void single_qubit_dense_matrix_gate_mpi(UINT target_qubit_index,
+    const CTYPE matrix[4], CTYPE* state, ITYPE dim, UINT inner_qc) {
+    if (target_qubit_index < inner_qc) {
+        single_qubit_dense_matrix_gate(target_qubit_index, matrix, state, dim);
+    } else {
+        const MPIutil m = get_mpiutil();
+        const int rank = m->get_rank();
+        ITYPE dim_work = dim;
+        ITYPE num_work = 0;
+        CTYPE* ptr_pair = m->get_workarea(&dim_work, &num_work);
+        assert(num_work > 0);
+        const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
+        const int pair_rank = rank ^ pair_rank_bit;
+        CTYPE* ptr_state = state;
+
+#ifdef _OPENMP
+        OMPutil omputil = get_omputil();
+        omputil->set_qulacs_num_threads(dim, 13);
+#endif
+        for (ITYPE iter = 0; iter < num_work; ++iter) {
+            m->m_DC_sendrecv(ptr_state, ptr_pair, dim_work, pair_rank);
+
+            single_qubit_dense_matrix_gate_partial(
+                ptr_pair, matrix, ptr_state, dim_work, rank & pair_rank_bit);
+
+            ptr_state += dim_work;
+        }
+#ifdef _OPENMP
+        omputil->reset_qulacs_num_threads();
+#endif
+    }
+}
+
+void single_qubit_dense_matrix_gate_partial(
+    CTYPE* t, const CTYPE matrix[4], CTYPE* state, ITYPE dim, int flag) {
+    {
+#pragma omp parallel for
+        for (ITYPE state_index = 0; state_index < dim; ++state_index) {
+            if (flag) {  // val=1
+                // fetch values
+                CTYPE cval_0 = t[state_index];
+                CTYPE cval_1 = state[state_index];
+
+                // set values
+                state[state_index] = matrix[2] * cval_0 + matrix[3] * cval_1;
+            } else {  // val=0
+                // fetch values
+                CTYPE cval_0 = state[state_index];
+                CTYPE cval_1 = t[state_index];
+
+                // set values
+                state[state_index] = matrix[0] * cval_0 + matrix[1] * cval_1;
+            }
         }
     }
 }
