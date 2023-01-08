@@ -602,7 +602,12 @@ public:
      * @return エントロピー
      */
     virtual double get_entropy() const override {
-        return measurement_distribution_entropy(this->data_c(), _dim);
+        double entropy = measurement_distribution_entropy(this->data_c(), _dim);
+#ifdef _USE_MPI
+        MPIutil mpiutil = get_mpiutil();
+        if (this->outer_qc > 0) mpiutil->s_D_allreduce_ordersafe(&entropy);
+#endif  //#ifdef _USE_MPI
+        return entropy;
     }
 
     /**
@@ -700,9 +705,39 @@ public:
             auto ptr = _state->duplicate_data_cpp();
             memcpy(this->data_cpp(), ptr, (size_t)(sizeof(CPPCTYPE) * _dim));
             free(ptr);
+#ifdef _USE_MPI
+        } else if (_state->outer_qc > 0) {
+            MPIutil mpiutil = get_mpiutil();
+            if (this->outer_qc > 0) {
+                if (_state->qubit_count != this->qubit_count) {
+                    throw InvalidQubitCountException(
+                        "Error: QuantumStateCpu::load(const QuantumStateBase*)"
+                        ": invalid global qubit count");
+                }
+                // load multicpu to multicpu
+                memcpy(this->data_cpp(), _state->data_cpp(),
+                    (size_t)(sizeof(CPPCTYPE) * _dim));
+            } else {
+                // load multicpu to cpu
+                mpiutil->m_DC_allgather(_state->data_cpp(), this->data_cpp(),
+                    _dim / mpiutil->get_size());
+            }
+#endif
         } else {
-            memcpy(this->data_cpp(), _state->data_cpp(),
-                (size_t)(sizeof(CPPCTYPE) * _dim));
+#ifdef _USE_MPI
+            if (this->outer_qc > 0) {
+                MPIutil mpiutil = get_mpiutil();
+                // load cpu to multicpu
+                ITYPE offs = _dim * mpiutil->get_rank();
+                memcpy(this->data_cpp(), _state->data_cpp() + offs,
+                    (size_t)(sizeof(CPPCTYPE) * _dim));
+            } else
+#endif
+            {
+                // load cpu to multicpu
+                memcpy(this->data_cpp(), _state->data_cpp(),
+                    (size_t)(sizeof(CPPCTYPE) * _dim));
+            }
         }
     }
     /**
