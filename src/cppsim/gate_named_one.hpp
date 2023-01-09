@@ -18,14 +18,17 @@
 
 static void Igate_idling(UINT, CTYPE*, ITYPE){};
 static void Igate_idling_gpu(UINT, void*, ITYPE, void*, UINT){};
+static void Igate_idling_mpi(UINT, CTYPE*, ITYPE, UINT){};
 
 class ClsOneQubitGate : public QuantumGateBase {
 protected:
     using UpdateFunc = void (*)(UINT, CTYPE*, ITYPE);
     using UpdateFuncGpu = void (*)(UINT, void*, ITYPE, void*, UINT);
+    using UpdateFuncMpi = void (*)(UINT, CTYPE*, ITYPE, UINT);
     UpdateFunc _update_func;
     UpdateFunc _update_func_dm;
     UpdateFuncGpu _update_func_gpu;
+    UpdateFuncMpi _update_func_mpi;
     ComplexMatrix _matrix_element;
 
 public:
@@ -42,14 +45,18 @@ public:
                 _update_func_gpu(this->target_qubit_list[0].index(),
                     state->data(), state->dim, state->get_cuda_stream(),
                     state->device_number);
-            } else {
+            } else
+#endif
+#ifdef _USE_MPI
+                if (state->outer_qc > 0) {
+                _update_func_mpi(this->_target_qubit_list[0].index(),
+                    state->data_c(), state->dim, state->inner_qc);
+            } else
+#endif
+            {
                 _update_func(this->_target_qubit_list[0].index(),
                     state->data_c(), state->dim);
             }
-#else
-            _update_func(this->_target_qubit_list[0].index(), state->data_c(),
-                state->dim);
-#endif
         } else {
             _update_func_dm(this->_target_qubit_list[0].index(),
                 state->data_c(), state->dim);
@@ -76,6 +83,7 @@ public:
         this->_update_func = Igate_idling;
         this->_update_func_dm = Igate_idling;
         this->_update_func_gpu = Igate_idling_gpu;
+        this->_update_func_mpi = Igate_idling_mpi;
         this->_name = "I";
         this->_target_qubit_list.push_back(TargetQubitInfo(target_qubit_index,
             FLAG_X_COMMUTE | FLAG_Y_COMMUTE | FLAG_Z_COMMUTE));
@@ -288,9 +296,11 @@ class ClsOneQubitRotationGate : public QuantumGateBase {
 protected:
     using UpdateFunc = void (*)(UINT, double, CTYPE*, ITYPE);
     using UpdateFuncGpu = void (*)(UINT, double, void*, ITYPE, void*, UINT);
+    using UpdateFuncMpi = void (*)(UINT, double, CTYPE*, ITYPE, UINT);
     UpdateFunc _update_func;
     UpdateFunc _update_func_dm;
     UpdateFuncGpu _update_func_gpu;
+    UpdateFuncMpi _update_func_mpi;
     ComplexMatrix _matrix_element;
     double _angle;
 
@@ -309,14 +319,18 @@ public:
                 _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
                     state->data(), state->dim, state->get_cuda_stream(),
                     state->device_number);
-            } else {
+            } else
+#endif
+#ifdef _USE_MPI
+                if (state->outer_qc > 0) {
+                _update_func_mpi(this->_target_qubit_list[0].index(), _angle,
+                    state->data_c(), state->dim, state->inner_qc);
+            } else
+#endif
+            {
                 _update_func(this->_target_qubit_list[0].index(), _angle,
                     state->data_c(), state->dim);
             }
-#else
-            _update_func(this->_target_qubit_list[0].index(), _angle,
-                state->data_c(), state->dim);
-#endif
         } else {
             _update_func_dm(this->_target_qubit_list[0].index(), _angle,
                 state->data_c(), state->dim);
@@ -346,6 +360,9 @@ public:
 #ifdef _USE_GPU
         this->_update_func_gpu = RX_gate_host;
 #endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = RX_gate_mpi;
+#endif
         this->_name = "X-rotation";
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
@@ -361,6 +378,9 @@ public:
 #ifdef _USE_GPU
         this->_update_func_gpu = RY_gate_host;
 #endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = RY_gate_mpi;
+#endif
         this->_name = "Y-rotation";
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
@@ -375,6 +395,9 @@ public:
         this->_update_func_dm = dm_RZ_gate;
 #ifdef _USE_GPU
         this->_update_func_gpu = RZ_gate_host;
+#endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = RZ_gate_mpi;
 #endif
         this->_name = "Z-rotation";
         this->_target_qubit_list.push_back(

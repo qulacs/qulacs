@@ -127,11 +127,9 @@ TEST(GateTest_multicpu, ApplySingleQubitRotationGate) {
     std::vector<std::pair<std::function<QuantumGateBase*(UINT, double)>,
         Eigen::MatrixXcd>>
         funclist;
-    /*
-        funclist.push_back(std::make_pair(gate::RX, X));
-        funclist.push_back(std::make_pair(gate::RY, Y));
-        funclist.push_back(std::make_pair(gate::RZ, Z));
-    */
+    funclist.push_back(std::make_pair(gate::RX, X));
+    funclist.push_back(std::make_pair(gate::RY, Y));
+    //funclist.push_back(std::make_pair(gate::RZ, Z));
 
     MPIutil m = get_mpiutil();
     const ITYPE inner_dim = dim >> state.outer_qc;

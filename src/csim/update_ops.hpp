@@ -500,6 +500,10 @@ DllExport void normalize_single_thread(
  */
 DllExport void RX_gate(
     UINT target_qubit_index, double angle, CTYPE* state, ITYPE dim);
+#ifdef _USE_MPI
+DllExport void RX_gate_mpi(UINT target_qubit_index, double angle, CTYPE* state,
+    ITYPE dim, UINT inner_qc);
+#endif
 
 /**
  * \~english
@@ -528,6 +532,10 @@ DllExport void RX_gate(
  */
 DllExport void RY_gate(
     UINT target_qubit_index, double angle, CTYPE* state, ITYPE dim);
+#ifdef _USE_MPI
+DllExport void RY_gate_mpi(UINT target_qubit_index, double angle, CTYPE* state,
+    ITYPE dim, UINT inner_qc);
+#endif
 
 /**
  * \~english
@@ -556,6 +564,10 @@ DllExport void RY_gate(
  */
 DllExport void RZ_gate(
     UINT target_qubit_index, double angle, CTYPE* state, ITYPE dim);
+#ifdef _USE_MPI
+DllExport void RZ_gate_mpi(UINT target_qubit_index, double angle, CTYPE* state,
+    ITYPE dim, UINT inner_qc);
+#endif
 
 /**
  * \~english
