@@ -4,13 +4,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "MPIutil.hpp"
 #include "constant.hpp"
 #include "update_ops.hpp"
 #include "utility.hpp"
 #ifdef _OPENMP
 #include <omp.h>
 #endif
-
 #ifdef _USE_SIMD
 #ifdef _MSC_VER
 #include <intrin.h>
@@ -117,6 +117,47 @@ void single_qubit_diagonal_matrix_gate_parallel_simd(UINT target_qubit_index,
             __m256d data1 = _mm256_mul_pd(data, mv5);
             data = _mm256_hadd_pd(data0, data1);
             _mm256_storeu_pd(ptr, data);
+        }
+    }
+}
+#endif
+
+#ifdef _USE_MPI
+void single_qubit_diagonal_matrix_gate_partial(
+    const CTYPE diagonal_matrix[2], CTYPE* state, ITYPE dim, int isone);
+
+void single_qubit_diagonal_matrix_gate_mpi(UINT target_qubit_index,
+    const CTYPE diagonal_matrix[2], CTYPE* state, ITYPE dim, UINT inner_qc) {
+    if (target_qubit_index < inner_qc) {
+        single_qubit_diagonal_matrix_gate(
+            target_qubit_index, diagonal_matrix, state, dim);
+    } else {
+#ifdef _OPENMP
+        OMPutil omputil = get_omputil();
+        omputil->set_qulacs_num_threads(dim, 12);
+#endif
+        const MPIutil m = get_mpiutil();
+        const int rank = m->get_rank();
+        const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
+
+        single_qubit_diagonal_matrix_gate_partial(
+            diagonal_matrix, state, dim, (rank & pair_rank_bit) != 0);
+#ifdef _OPENMP
+        omputil->reset_qulacs_num_threads();
+#endif
+    }
+}
+
+void single_qubit_diagonal_matrix_gate_partial(
+    const CTYPE diagonal_matrix[2], CTYPE* state, ITYPE dim, int isone) {
+    // loop variables
+    ITYPE state_index;
+
+    {
+#pragma omp parallel for
+        for (state_index = 0; state_index < dim; state_index += 2) {
+            state[state_index] *= diagonal_matrix[isone];
+            state[state_index + 1] *= diagonal_matrix[isone];
         }
     }
 }

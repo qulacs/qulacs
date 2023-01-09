@@ -90,15 +90,6 @@ TEST(GateTest_multicpu, ApplySingleQubitGate) {
                 get_expanded_eigen_matrix_with_identity(target, mat, n) *
                 test_state2;
 
-            // std::cout << "# rank,repeat,funcNo,target: " << m->get_rank() <<
-            // "," << repeat << "," << ++j << "," << target <<
-            //	": " << state.data_cpp()[0] << ", " <<
-            // state_ref.data_cpp()[offs] << ", " << test_state1[offs] << "(" <<
-            // offs << ")"
-            //	": " << test_state2[offs] << "(" << offs << ")"
-            //	"::: " << test_state1[(offs+16)%dim] << "(" << (offs+16)%dim <<
-            //")" << std::endl; std::cout << "# mat: " << mat << ", " <<
-            // small_mat << std::endl;
             for (ITYPE i = 0; i < inner_dim; ++i)
                 ASSERT_NEAR(
                     abs(state.data_cpp()[i] - test_state1[i + offs]), 0, eps);
@@ -129,7 +120,7 @@ TEST(GateTest_multicpu, ApplySingleQubitRotationGate) {
         funclist;
     funclist.push_back(std::make_pair(gate::RX, X));
     funclist.push_back(std::make_pair(gate::RY, Y));
-    //funclist.push_back(std::make_pair(gate::RZ, Z));
+    funclist.push_back(std::make_pair(gate::RZ, Z));
 
     MPIutil m = get_mpiutil();
     const ITYPE inner_dim = dim >> state.outer_qc;
@@ -164,20 +155,6 @@ TEST(GateTest_multicpu, ApplySingleQubitRotationGate) {
                 get_expanded_eigen_matrix_with_identity(target, mat, n) *
                 test_state2;
 
-            // std::cout << "# Rot:rank,repeat,funcNo,target: " << m->get_rank()
-            // << "," << repeat << "," << ++funcid << "," << target <<
-            //	":( " << offs << ") " << state.data_cpp()[0] << ", " <<
-            // test_state1[0 + offs] << ", " << test_state2[0 + offs] <<
-            // std::endl <<
-            //	":( " << offs << ") " << state.data_cpp()[1] << ", " <<
-            // test_state1[1 + offs] << ", " << test_state2[1 + offs] <<
-            // std::endl <<
-            //	":( " << offs << ") " << state.data_cpp()[2] << ", " <<
-            // test_state1[2 + offs] << ", " << test_state2[2 + offs] <<
-            // std::endl <<
-            //	":( " << offs << ") " << state.data_cpp()[3] << ", " <<
-            // test_state1[3 + offs] << ", " << test_state2[3 + offs] <<
-            // std::endl;
             for (ITYPE i = 0; i < inner_dim; ++i)
                 ASSERT_NEAR(
                     real(state.data_cpp()[i] - test_state1[i + offs]), 0, eps);

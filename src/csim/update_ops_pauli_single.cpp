@@ -129,9 +129,8 @@ void RZ_gate_mpi(UINT target_qubit_index, double angle, CTYPE* state, ITYPE dim,
         single_qubit_diagonal_matrix_gate(
             target_qubit_index, diagonal_matrix, state, dim);
     } else {
-        // not supported yet!
-        // single_qubit_diagonal_matrix_gate_mpi(
-        //    target_qubit_index, diagonal_matrix, state, dim, inner_qc);
+        single_qubit_diagonal_matrix_gate_mpi(
+            target_qubit_index, diagonal_matrix, state, dim, inner_qc);
     }
 }
 #endif
