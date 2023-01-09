@@ -13,9 +13,11 @@ class ClsTwoQubitGate : public QuantumGateBase {
 protected:
     using UpdateFunc = void (*)(UINT, UINT, CTYPE*, ITYPE);
     using UpdateFuncGpu = void (*)(UINT, UINT, void*, ITYPE, void*, UINT);
+    using UpdateFuncMpi = void (*)(UINT, UINT, CTYPE*, ITYPE, UINT);
     UpdateFunc _update_func;
     UpdateFunc _update_func_dm;
     UpdateFuncGpu _update_func_gpu;
+    UpdateFuncMpi _update_func_mpi;
     ComplexMatrix _matrix_element;
 
 public:
@@ -32,16 +34,20 @@ public:
                 _update_func_gpu(this->_target_qubit_list[0].index(),
                     this->_target_qubit_list[1].index(), state->data(),
                     state->dim, state->get_cuda_stream(), state->device_number);
-            } else {
+            } else
+#endif
+#ifdef _USE_MPI
+                if (state->outer_qc > 0) {
+                _update_func_mpi(this->_target_qubit_list[0].index(),
+                    this->_target_qubit_list[1].index(), state->data_c(),
+                    state->dim, state->inner_qc);
+            } else
+#endif
+            {
                 _update_func(this->_target_qubit_list[0].index(),
                     this->_target_qubit_list[1].index(), state->data_c(),
                     state->dim);
             }
-#else
-            _update_func(this->_target_qubit_list[0].index(),
-                this->_target_qubit_list[1].index(), state->data_c(),
-                state->dim);
-#endif
         } else {
             _update_func_dm(this->_target_qubit_list[0].index(),
                 this->_target_qubit_list[1].index(), state->data_c(),
@@ -71,6 +77,9 @@ public:
 #ifdef _USE_GPU
         this->_update_func_gpu = SWAP_gate_host;
 #endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = nullptr;  // SWAP_gate_mpi; not supported yet
+#endif
         this->_name = "SWAP";
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index1, 0));
@@ -98,9 +107,11 @@ class ClsOneControlOneTargetGate : public QuantumGateBase {
 protected:
     using UpdateFunc = void (*)(UINT, UINT, CTYPE*, ITYPE);
     using UpdateFuncGpu = void (*)(UINT, UINT, void*, ITYPE, void*, UINT);
+    using UpdateFuncMpi = void (*)(UINT, UINT, CTYPE*, ITYPE, UINT);
     UpdateFunc _update_func;
     UpdateFunc _update_func_dm;
     UpdateFuncGpu _update_func_gpu;
+    UpdateFuncMpi _update_func_mpi;
     ComplexMatrix _matrix_element;
 
 public:
@@ -117,16 +128,20 @@ public:
                 _update_func_gpu(this->_control_qubit_list[0].index(),
                     this->_target_qubit_list[0].index(), state->data(),
                     state->dim, state->get_cuda_stream(), state->device_number);
-            } else {
+            } else
+#endif
+#ifdef _USE_MPI
+                if (state->outer_qc > 0) {
+                _update_func_mpi(this->_control_qubit_list[0].index(),
+                    this->_target_qubit_list[0].index(), state->data_c(),
+                    state->dim, state->inner_qc);
+            } else
+#endif
+            {
                 _update_func(this->_control_qubit_list[0].index(),
                     this->_target_qubit_list[0].index(), state->data_c(),
                     state->dim);
             }
-#else
-            _update_func(this->_control_qubit_list[0].index(),
-                this->_target_qubit_list[0].index(), state->data_c(),
-                state->dim);
-#endif
         } else {
             _update_func_dm(this->_control_qubit_list[0].index(),
                 this->_target_qubit_list[0].index(), state->data_c(),
@@ -156,6 +171,9 @@ public:
 #ifdef _USE_GPU
         this->_update_func_gpu = CNOT_gate_host;
 #endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = CNOT_gate_mpi;
+#endif
         this->_name = "CNOT";
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
@@ -171,6 +189,9 @@ public:
         this->_update_func_dm = dm_CZ_gate;
 #ifdef _USE_GPU
         this->_update_func_gpu = CZ_gate_host;
+#endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = nullptr;  // CZ_gate_mpi; not supported yet
 #endif
         this->_name = "CZ";
         this->_target_qubit_list.push_back(
