@@ -1118,11 +1118,11 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Get qubit count")
 
         .def("update_quantum_state",
-            (void (QuantumCircuit::*)(QuantumStateBase*)) &
+            (void(QuantumCircuit::*)(QuantumStateBase*)) &
                 QuantumCircuit::update_quantum_state,
             "Update quantum state", py::arg("state"))
         .def("update_quantum_state",
-            (void (QuantumCircuit::*)(QuantumStateBase*, UINT, UINT)) &
+            (void(QuantumCircuit::*)(QuantumStateBase*, UINT, UINT)) &
                 QuantumCircuit::update_quantum_state,
             py::arg("state"), py::arg("start"), py::arg("end"))
         .def("calculate_depth", &QuantumCircuit::calculate_depth,
@@ -1235,6 +1235,10 @@ PYBIND11_MODULE(qulacs_core, m) {
             &QuantumCircuit::add_observable_rotation_gate,
             "Add observable rotation gate", py::arg("observable"),
             py::arg("angle"), py::arg("repeat"))
+        .def("to_json",
+            [](const QuantumCircuit& c) -> std::string {
+                return ptree::to_json(c.to_ptree());
+            })
         .def("get_inverse", &QuantumCircuit::get_inverse, "get inverse circuit")
         .def(
             "__str__", [](const QuantumCircuit& p) { return p.to_string(); },
@@ -1319,6 +1323,18 @@ PYBIND11_MODULE(qulacs_core, m) {
             py::arg("angles_of_gates"));
 
     auto mcircuit = m.def_submodule("circuit");
+    mcircuit.def(
+        "from_json",
+        [](const std::string& json) -> QuantumCircuit* {
+            boost::property_tree::ptree pt = ptree::from_json(json);
+            if (pt.get<std::string>("name") == "ParametricQuantumCircuit") {
+                return circuit::parametric_circuit_from_ptree(pt);
+            } else {
+                return circuit::from_ptree(pt);
+            }
+        },
+        "from json string", py::return_value_policy::take_ownership);
+
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
         .def(py::init<>(), "Constructor")
         .def("optimize", &QuantumCircuitOptimizer::optimize,

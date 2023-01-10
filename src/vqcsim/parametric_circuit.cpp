@@ -287,3 +287,28 @@ std::vector<double> ParametricQuantumCircuit::backprop(
     return ans;
 
 }  // CPP
+
+namespace circuit {
+ParametricQuantumCircuit* parametric_circuit_from_ptree(
+    const boost::property_tree::ptree& pt) {
+    std::string name = pt.get<std::string>("name");
+    if (name != "ParametricQuantumCircuit") {
+        throw UnknownPTreePropertyValueException(
+            "unknown value for property \"name\":" + name);
+    }
+    UINT qubit_count = pt.get<UINT>("qubit_count");
+    ParametricQuantumCircuit* circuit =
+        new ParametricQuantumCircuit(qubit_count);
+    for (const boost::property_tree::ptree::value_type& gate_pair :
+        pt.get_child("gate_list")) {
+        QuantumGateBase* gate = gate::from_ptree(gate_pair.second);
+        if (gate->is_parametric()) {
+            circuit->add_parametric_gate(
+                dynamic_cast<QuantumGate_SingleParameter*>(gate));
+        } else {
+            circuit->add_gate(gate);
+        }
+    }
+    return circuit;
+}
+}  // namespace circuit

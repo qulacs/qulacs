@@ -559,6 +559,7 @@ class QuantumCircuit():
         """
         Remove gate
         """
+    def to_json(self) -> str: ...
     def to_string(self) -> str: 
         """
         Get string representation
