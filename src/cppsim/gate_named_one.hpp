@@ -98,6 +98,9 @@ public:
 #ifdef _USE_GPU
         this->_update_func_gpu = X_gate_host;
 #endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = X_gate_mpi;
+#endif
         this->_name = "X";
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
@@ -111,6 +114,9 @@ public:
         this->_update_func_dm = dm_Y_gate;
 #ifdef _USE_GPU
         this->_update_func_gpu = Y_gate_host;
+#endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = Y_gate_mpi;
 #endif
         this->_name = "Y";
         this->_target_qubit_list.push_back(
@@ -126,6 +132,9 @@ public:
 #ifdef _USE_GPU
         this->_update_func_gpu = Z_gate_host;
 #endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = Z_gate_mpi;
+#endif
         this->_name = "Z";
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
@@ -139,6 +148,9 @@ public:
         this->_update_func_dm = dm_H_gate;
 #ifdef _USE_GPU
         this->_update_func_gpu = H_gate_host;
+#endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = nullptr;  // H_gate_mpi; not supported yet
 #endif
         this->_name = "H";
         this->_target_qubit_list.push_back(
@@ -155,6 +167,9 @@ public:
 #ifdef _USE_GPU
         this->_update_func_gpu = S_gate_host;
 #endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = nullptr;  // S_gate_mpi; not supported yet
+#endif
         this->_name = "S";
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
@@ -168,6 +183,9 @@ public:
         this->_update_func_dm = dm_Sdag_gate;
 #ifdef _USE_GPU
         this->_update_func_gpu = Sdag_gate_host;
+#endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = nullptr;  // Sdag_gate_mpi; not supported yet
 #endif
         this->_name = "Sdag";
         this->_target_qubit_list.push_back(
@@ -183,6 +201,9 @@ public:
 #ifdef _USE_GPU
         this->_update_func_gpu = T_gate_host;
 #endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = nullptr;  // T_gate_mpi; not supported yet
+#endif
         this->_name = "T";
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
@@ -196,6 +217,9 @@ public:
         this->_update_func_dm = dm_Tdag_gate;
 #ifdef _USE_GPU
         this->_update_func_gpu = Tdag_gate_host;
+#endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = nullptr;  // Tdag_gate_mpi; not supported yet
 #endif
         this->_name = "Tdag";
         this->_target_qubit_list.push_back(
@@ -211,6 +235,9 @@ public:
 #ifdef _USE_GPU
         this->_update_func_gpu = sqrtX_gate_host;
 #endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = nullptr;  // sqrtX_gate_mpi; not supported yet
+#endif
         this->_name = "sqrtX";
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
@@ -224,6 +251,10 @@ public:
 #ifdef _USE_GPU
         this->_update_func_gpu = sqrtXdag_gate_host;
 #endif
+#ifdef _USE_MPI
+        this->_update_func_mpi =
+            nullptr;  // sqrtXdag_gate_mpi; not supported yet
+#endif
         this->_name = "sqrtXdag";
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
@@ -236,6 +267,9 @@ public:
         this->_update_func_dm = dm_sqrtY_gate;
 #ifdef _USE_GPU
         this->_update_func_gpu = sqrtY_gate_host;
+#endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = nullptr;  // sqrtY_gate_mpi; not supported yet
 #endif
         this->_name = "sqrtY";
         this->_target_qubit_list.push_back(
@@ -251,6 +285,10 @@ public:
 #ifdef _USE_GPU
         this->_update_func_gpu = sqrtYdag_gate_host;
 #endif
+#ifdef _USE_MPI
+        this->_update_func_mpi =
+            nullptr;  // sqrtYdag_gate_mpi; not supported yet
+#endif
         this->_name = "sqrtYdag";
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
@@ -265,6 +303,9 @@ public:
 #ifdef _USE_GPU
         this->_update_func_gpu = P0_gate_host;
 #endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = nullptr;  // P0_gate_mpi; not supported yet
+#endif
         this->_name = "Projection-0";
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, 0));
@@ -277,6 +318,9 @@ public:
         this->_update_func_dm = dm_P1_gate;
 #ifdef _USE_GPU
         this->_update_func_gpu = P1_gate_host;
+#endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = nullptr;  // P1_gate_mpi; not supported yet
 #endif
         this->_name = "Projection-1";
         this->_target_qubit_list.push_back(

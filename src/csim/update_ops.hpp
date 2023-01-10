@@ -42,6 +42,10 @@
 DllExport void X_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void X_gate_parallel_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void X_gate_parallel_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim);
+#ifdef _USE_MPI
+DllExport void X_gate_mpi(
+    UINT target_qubit_index, CTYPE* state, ITYPE dim, UINT inner_qc);
+#endif
 
 /**
  * \~english
@@ -67,6 +71,10 @@ void Y_gate_single_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void Y_gate_single_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void Y_gate_parallel_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void Y_gate_parallel_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim);
+#ifdef _USE_MPI
+DllExport void Y_gate_mpi(
+    UINT target_qubit_index, CTYPE* state, ITYPE dim, UINT inner_qc);
+#endif
 
 /**
  * \~english
@@ -92,6 +100,10 @@ void Z_gate_single_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void Z_gate_single_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void Z_gate_parallel_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void Z_gate_parallel_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim);
+#ifdef _USE_MPI
+DllExport void Z_gate_mpi(
+    UINT target_qubit_index, CTYPE* state, ITYPE dim, UINT inner_qc);
+#endif
 
 /**
  * \~english

@@ -1,4 +1,5 @@
 
+#include "MPIutil.hpp"
 #include "constant.hpp"
 #include "update_ops.hpp"
 #include "utility.hpp"
@@ -109,6 +110,56 @@ void Y_gate_parallel_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
             _mm256_storeu_pd(ptr1, data0);
             _mm256_storeu_pd(ptr0, data1);
         }
+    }
+}
+#endif
+
+#ifdef _USE_MPI
+void Y_gate_mpi(
+    UINT target_qubit_index, CTYPE* state, ITYPE dim, UINT inner_qc) {
+    if (target_qubit_index < inner_qc) {
+        Y_gate(target_qubit_index, state, dim);
+    } else {
+        const MPIutil m = get_mpiutil();
+        const int rank = m->get_rank();
+        ITYPE dim_work = dim;
+        ITYPE num_work = 0;
+        CTYPE* t = m->get_workarea(&dim_work, &num_work);
+        assert(num_work > 0);
+#ifdef _OPENMP
+        OMPutil omputil = get_omputil();
+        omputil->set_qulacs_num_threads(dim_work, 13);
+#endif
+        const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
+        const int pair_rank = rank ^ pair_rank_bit;
+        const CTYPE imag = 1.i;
+        CTYPE* si = state;
+        // printf("#debug dim,dim_work,num_work,t: %lld, %lld, %lld, %p\n", dim,
+        // dim_work, num_work, t);
+        for (ITYPE iter = 0; iter < num_work; ++iter) {
+            m->m_DC_sendrecv(si, t, dim_work, pair_rank);
+            ITYPE state_index = 0;
+            if (rank & pair_rank_bit) {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+                for (state_index = 0; state_index < dim_work; ++state_index) {
+                    si[state_index] = imag * t[state_index];
+                }
+            } else {
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+                for (state_index = 0; state_index < dim_work; ++state_index) {
+                    si[state_index] = -imag * t[state_index];
+                }
+            }
+            si += dim_work;
+        }
+
+#ifdef _OPENMP
+        omputil->reset_qulacs_num_threads();
+#endif
     }
 }
 #endif

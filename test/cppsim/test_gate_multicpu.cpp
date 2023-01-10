@@ -42,10 +42,10 @@ TEST(GateTest_multicpu, ApplySingleQubitGate) {
         std::pair<std::function<QuantumGateBase*(UINT)>, Eigen::MatrixXcd>>
         funclist;
     funclist.push_back(std::make_pair(gate::Identity, Identity));
+    funclist.push_back(std::make_pair(gate::X, X));
+    funclist.push_back(std::make_pair(gate::Y, Y));
+    funclist.push_back(std::make_pair(gate::Z, Z));
     /*
-        funclist.push_back(std::make_pair(gate::X, X));
-        funclist.push_back(std::make_pair(gate::Y, Y));
-        funclist.push_back(std::make_pair(gate::Z, Z));
         funclist.push_back(std::make_pair(gate::H, H));
         funclist.push_back(std::make_pair(gate::S, S));
         funclist.push_back(std::make_pair(gate::Sdag, S.adjoint()));
