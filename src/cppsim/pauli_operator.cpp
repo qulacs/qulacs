@@ -79,7 +79,7 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list,
         } else {
             throw InvalidPauliIdentifierException(
                 "invalid Pauli string is given : " +
-                Pauli_operator_type_list[term_index]);
+                std::string{Pauli_operator_type_list[term_index]});
         }
 
         if (pauli_type != 0)

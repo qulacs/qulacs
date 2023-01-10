@@ -19,6 +19,7 @@
 #include "state.hpp"
 #include "type.hpp"
 #include "utility.hpp"
+
 double ClsNoisyEvolution::_find_collapse(QuantumStateBase* k1,
     QuantumStateBase* k2, QuantumStateBase* k3, QuantumStateBase* k4,
     QuantumStateBase* prev_state, QuantumStateBase* now_state,
@@ -272,10 +273,10 @@ void ClsNoisyEvolution::update_quantum_state(QuantumStateBase* state) {
             }
 
             // determine which collapse operator to be applied
-            auto jump_r = _random.uniform() * prob_sum;
-            auto ite = std::lower_bound(
+            const auto jump_r = _random.uniform() * prob_sum;
+            const auto ite = std::lower_bound(
                 cumulative_dist.begin(), cumulative_dist.end(), jump_r);
-            auto index = std::distance(cumulative_dist.begin(), ite);
+            const auto index = static_cast<size_t>(std::distance(cumulative_dist.begin(), ite));
 
             // apply the collapse operator and normalize the state
             // ルンゲクッタ法の誤差により、normが1にならない場合があります。

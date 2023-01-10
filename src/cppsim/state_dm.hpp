@@ -196,7 +196,7 @@ public:
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
-    virtual void load(const QuantumStateBase* _state) {
+    virtual void load(const QuantumStateBase* _state) override {
         if (_state->qubit_count != this->qubit_count) {
             throw InvalidQubitCountException(
                 "Error: DensityMatrixCpu::load(const QuantumStateBase*): "
@@ -220,7 +220,7 @@ public:
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
-    virtual void load(const std::vector<CPPCTYPE>& _state) {
+    virtual void load(const std::vector<CPPCTYPE>& _state) override {
         if (_state.size() != _dim && _state.size() != _dim * _dim) {
             throw InvalidStateVectorSizeException(
                 "Error: DensityMatrixCpu::load(vector<Complex>&): invalid "
@@ -266,7 +266,7 @@ public:
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
-    virtual void load(const CPPCTYPE* _state) {
+    virtual void load(const CPPCTYPE* _state) override {
         memcpy(
             this->data_cpp(), _state, (size_t)(sizeof(CPPCTYPE) * _dim * _dim));
     }
@@ -401,7 +401,7 @@ public:
         random.set_seed(random_seed);
         return this->sampling(sampling_count);
     }
-    virtual std::string to_string() const {
+    virtual std::string to_string() const override {
         std::stringstream os;
         ComplexMatrix eigen_state(this->dim, this->dim);
         auto data = this->data_cpp();
