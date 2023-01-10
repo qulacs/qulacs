@@ -97,7 +97,7 @@ public:
         this->_find_collapse_max_steps = n;
     }
 
-    virtual void update_quantum_state(QuantumStateBase* state);
+    virtual void update_quantum_state(QuantumStateBase* state) override;
 };
 
 /*
@@ -203,7 +203,7 @@ public:
      *
      * @param state 更新する量子状態
      */
-    virtual void update_quantum_state(QuantumStateBase* state);
+    virtual void update_quantum_state(QuantumStateBase* state) override;
 };
 
 // noisyEvolution_auto
@@ -341,7 +341,7 @@ public:
             it->set_seed(seed);
         }
     };
-    virtual void update_quantum_state(QuantumStateBase* state) {
+    virtual void update_quantum_state(QuantumStateBase* state) override {
         for (auto gate : gates) {
             gate->update_quantum_state(state);
         }
