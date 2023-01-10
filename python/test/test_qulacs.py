@@ -1076,7 +1076,6 @@ class TestJSON(unittest.TestCase):
             qc_json = QuantumCircuit(n)
             qs = QuantumState(n)
             qs_json = QuantumState(n)
-            ref = QuantumState(n)
             sparse_mat = lil_matrix((4, 4))
             sparse_mat[0, 0] = 1
             sparse_mat[1, 1] = 1
@@ -1129,6 +1128,62 @@ class TestJSON(unittest.TestCase):
 
         for _ in range(10):
             execute_test_gate()
+
+    def test_matrix_gate(self):
+        from qulacs import QuantumCircuit, QuantumState, circuit
+        from qulacs.gate import (
+            DenseMatrix,
+            SparseMatrix)
+        from scipy.sparse import csc_matrix
+        import json
+        import random
+
+        n = 3
+
+        def get_index():
+            return np.random.randint(0, n - 1)
+
+        def execute_test_matrix_gate():
+            qc = QuantumCircuit(n)
+            qc_json = QuantumCircuit(n)
+            qs = QuantumState(n)
+            qs_json = QuantumState(n)
+
+            # DenseMatrix
+            matrix = np.array(
+                [[random.random(), random.random()], [random.random(), random.random()]])
+            d = DenseMatrix(get_index(), matrix)
+            qc.add_gate(d)
+            json_string = d.to_json()
+            json.loads(json_string)
+
+            # SparseMatrix
+            matrix = np.array(
+                [[random.random(), random.random()], [random.random(), random.random()]])
+            csc = csc_matrix(matrix)
+            g = SparseMatrix([get_index()], csc)
+            qc.add_gate(g)
+            json_string = g.to_json()
+            json.loads(json_string)
+
+            qc.update_quantum_state(qs)
+            json_string = qc.to_json()
+            json.loads(json_string)
+            qc_json = circuit.from_json(json_string)
+            qc_json.update_quantum_state(qs_json)
+            for i in range(n):
+                self.assertAlmostEqual(qs.get_zero_probability(
+                    i), qs_json.get_zero_probability(i))
+
+            d = None
+            g = None
+            qc = None
+            qs = None
+            qc_json = None
+            qs_json = None
+
+        for _ in range(10):
+            execute_test_matrix_gate()
 
 
 if __name__ == "__main__":
