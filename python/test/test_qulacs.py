@@ -1069,7 +1069,6 @@ class TestJSON(unittest.TestCase):
         qc_json = QuantumCircuit(3)
         qs = QuantumState(3)
         qs_json = QuantumState(3)
-        ref = QuantumState(3)
         sparse_mat = lil_matrix((4, 4))
         sparse_mat[0, 0] = 1
         sparse_mat[1, 1] = 1
@@ -1108,6 +1107,45 @@ class TestJSON(unittest.TestCase):
         qc_json.update_quantum_state(qs_json)
         self.assertAlmostEqual(qs.get_zero_probability(
             0), qs_json.get_zero_probability(0))
+
+        qc = None
+        qs = None
+        qc_json = None
+        qs_json = None
+        for g in gates:
+            g = None
+        gates = None
+
+    def test_parametric_gate(self):
+        from qulacs import ParametricQuantumCircuit, QuantumState, circuit
+        from qulacs.gate import (
+            ParametricRX, ParametricRY, ParametricRZ, ParametricPauliRotation)
+        import json
+
+        qc = ParametricQuantumCircuit(3)
+        qc_json = ParametricQuantumCircuit(3)
+        qs = QuantumState(3)
+        qs_json = QuantumState(3)
+
+        gates = [
+            ParametricRX(0, 0.1), ParametricRY(0, 0.1), ParametricRZ(
+                0, 0.1), ParametricPauliRotation([0, 1], [1, 1], 0.1)
+        ]
+
+        for g in gates:
+            qc.add_gate(g)
+            json_string = g.to_json()
+            json.loads(json_string)
+            #print(json_string)
+
+        qc.update_quantum_state(qs)
+        json_string = qc.to_json()
+        json.loads(json_string)
+        #print(json_string)
+        qc_json = circuit.from_json(json_string)
+        qc_json.update_quantum_state(qs_json)
+        #self.assertAlmostEqual(qs.get_zero_probability(
+        #    0), qs_json.get_zero_probability(0))
 
         qc = None
         qs = None
