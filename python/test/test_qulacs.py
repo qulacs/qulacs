@@ -1064,58 +1064,71 @@ class TestJSON(unittest.TestCase):
                                  to_matrix_gate)
         from scipy.sparse import lil_matrix
         import json
+        import random
 
-        qc = QuantumCircuit(3)
-        qc_json = QuantumCircuit(3)
-        qs = QuantumState(3)
-        qs_json = QuantumState(3)
-        ref = QuantumState(3)
-        sparse_mat = lil_matrix((4, 4))
-        sparse_mat[0, 0] = 1
-        sparse_mat[1, 1] = 1
+        n = 3
 
-        gates = [
-            Identity(0), X(0), Y(0), Z(0), H(0), S(0), Sdag(0), T(
-                0), Tdag(0), sqrtX(0), sqrtXdag(0),
-            sqrtY(0), sqrtYdag(0),
-            Probabilistic([0.5, 0.5], [X(0), Y(0)]), CPTP(
-                [P0(0), P1(0)]),  # Instrument([P0(0), P1(0)], 1), Adaptive(X(0), adap),
-            CNOT(0, 1), CZ(0, 1), SWAP(0, 1), TOFFOLI(0, 1, 2), FREDKIN(
-                0, 1, 2), Pauli([0, 1], [1, 2]), PauliRotation([0, 1], [1, 2], 0.1),
-            DenseMatrix(0, np.eye(2)), DenseMatrix(
-                [0, 1], np.eye(4)), SparseMatrix([0, 1], sparse_mat),
-            DiagonalMatrix([0, 1], np.ones(4)), RandomUnitary(
-                [0, 1]),  # ReversibleBoolean([0, 1], func), StateReflection(ref),
-            BitFlipNoise(0, 0.1), DephasingNoise(0, 0.1), IndependentXZNoise(
-                0, 0.1), DepolarizingNoise(0, 0.1), TwoQubitDepolarizingNoise(0, 1, 0.1),
-            AmplitudeDampingNoise(0, 0.1), Measurement(0, 1), merge(
-                X(0), Y(1)), add(X(0), Y(1)), to_matrix_gate(X(0)),
-            P0(0), P1(0), U1(0, 0.), U2(0, 0., 0.), U3(
-                0, 0., 0., 0.), RX(0, 0.), RY(0, 0.), RZ(0, 0.),
-        ]
-        gates.append(merge(gates[0], gates[1]))
-        gates.append(add(gates[0], gates[1]))
+        def get_index():
+            return np.random.randint(0, n - 1)
 
-        for g in gates:
-            qc.add_gate(g)
-            json_string = g.to_json()
+        def execute_test_gate():
+            qc = QuantumCircuit(n)
+            qc_json = QuantumCircuit(n)
+            qs = QuantumState(n)
+            qs_json = QuantumState(n)
+            ref = QuantumState(n)
+            sparse_mat = lil_matrix((4, 4))
+            sparse_mat[0, 0] = 1
+            sparse_mat[1, 1] = 1
+
+            r = random.random()
+
+            gates = [
+                Identity(get_index()), X(get_index()), Y(get_index()), Z(get_index()), H(get_index()), S(get_index()), Sdag(get_index()), T(
+                    get_index()), Tdag(get_index()), sqrtX(get_index()), sqrtXdag(get_index()),
+                sqrtY(get_index()), sqrtYdag(get_index()),
+                Probabilistic([r, 1.0 - r], [X(0), Y(0)]), CPTP(
+                    [P0(get_index()), P1(get_index())]),  # Instrument([P0(0), P1(0)], 1), Adaptive(X(0), adap),
+                CNOT(0, 1), CZ(0, 1), SWAP(0, 1), TOFFOLI(0, 1, 2), FREDKIN(
+                    0, 1, 2), Pauli([0, 1], [1, 2]), PauliRotation([0, 1], [1, 2], random.random()),
+                DenseMatrix(0, np.eye(2)), DenseMatrix(
+                    [0, 1], np.eye(4)), SparseMatrix([0, 1], sparse_mat),
+                DiagonalMatrix([0, 1], np.ones(4)), RandomUnitary(
+                    [0, 1]),  # ReversibleBoolean([0, 1], func), StateReflection(ref),
+                BitFlipNoise(get_index(), random.random()), DephasingNoise(get_index(), random.random()), IndependentXZNoise(
+                    get_index(), random.random()), DepolarizingNoise(get_index(), random.random()), TwoQubitDepolarizingNoise(0, 1, random.random()),
+                AmplitudeDampingNoise(0, 0.1), Measurement(0, 1), merge(
+                    X(0), Y(1)), add(X(0), Y(1)), to_matrix_gate(X(0)),
+                P0(0), P1(0), U1(0, 0.), U2(0, 0., 0.), U3(
+                    0, 0., 0., 0.), RX(0, 0.), RY(0, 0.), RZ(0, 0.),
+            ]
+            gates.append(merge(Identity(0), X(0)))
+            gates.append(add(Identity(0), X(0)))
+
+            for g in gates:
+                qc.add_gate(g)
+                json_string = g.to_json()
+                json.loads(json_string)
+
+            qc.update_quantum_state(qs)
+            json_string = qc.to_json()
             json.loads(json_string)
+            qc_json = circuit.from_json(json_string)
+            qc_json.update_quantum_state(qs_json)
+            for i in range(n):
+                self.assertAlmostEqual(qs.get_zero_probability(
+                    i), qs_json.get_zero_probability(i))
 
-        qc.update_quantum_state(qs)
-        json_string = qc.to_json()
-        json.loads(json_string)
-        qc_json = circuit.from_json(json_string)
-        qc_json.update_quantum_state(qs_json)
-        self.assertAlmostEqual(qs.get_zero_probability(
-            0), qs_json.get_zero_probability(0))
+            qc = None
+            qs = None
+            qc_json = None
+            qs_json = None
+            for g in gates:
+                g = None
+            gates = None
 
-        qc = None
-        qs = None
-        qc_json = None
-        qs_json = None
-        for g in gates:
-            g = None
-        gates = None
+        for _ in range(10):
+            execute_test_gate()
 
 
 if __name__ == "__main__":
