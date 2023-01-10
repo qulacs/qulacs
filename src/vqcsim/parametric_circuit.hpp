@@ -44,7 +44,7 @@ public:
      * @param[in] circuit マージする量子回路
      */
     virtual void merge_circuit(const ParametricQuantumCircuit* circuit);
-    virtual std::string to_string() const;
+    virtual std::string to_string() const override;
     friend DllExport std::ostream& operator<<(
         std::ostream& os, const ParametricQuantumCircuit&);
     friend DllExport std::ostream& operator<<(
