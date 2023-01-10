@@ -91,4 +91,33 @@ QuantumGateBase* create_parametric_quantum_gate_from_string(
     return gate;
 }
 
+QuantumGate_SingleParameter* parametric_gate_from_ptree(
+    const boost::property_tree::ptree& pt) {
+    std::string name = pt.get<std::string>("name");
+    if (name == "ParametricRXGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        double angle = pt.get<double>("angle");
+        return new ClsParametricRXGate(target_qubit, angle);
+    } else if (name == "ParametricRYGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        double angle = pt.get<double>("angle");
+        return new ClsParametricRYGate(target_qubit, angle);
+    } else if (name == "ParametricRZGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        double angle = pt.get<double>("angle");
+        return new ClsParametricRZGate(target_qubit, angle);
+    } else if (name == "ParametricPauliRotationGate") {
+        double angle = pt.get<double>("angle");
+        PauliOperator* pauli =
+            quantum_operator::pauli_operator_from_ptree(pt.get_child("pauli"));
+        ClsParametricPauliRotationGate* gate =
+            new ClsParametricPauliRotationGate(angle, pauli);
+        delete pauli;
+        return gate;
+    } else {
+        throw UnknownPTreePropertyValueException(
+            "unknown value for property \"name\":" + name);
+    }
+}
+
 }  // namespace gate

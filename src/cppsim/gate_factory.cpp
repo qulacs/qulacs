@@ -718,8 +718,8 @@ QuantumGateBase* from_ptree(const boost::property_tree::ptree& pt) {
         return new QuantumGateSparseMatrix(
             target_qubit_list, matrix, control_qubit_list);
     } else if (name == "StateReflectionGate") {
-        QuantumStateBase* state =
-            state::from_ptree(pt.get_child("reflection_state"));
+        QuantumState* state = dynamic_cast<QuantumState*>(
+            state::from_ptree(pt.get_child("reflection_state")));
         ClsStateReflectionGate* gate = StateReflection(state);
         free(state);
         return gate;

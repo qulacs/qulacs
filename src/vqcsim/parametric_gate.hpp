@@ -102,7 +102,13 @@ public:
     virtual ClsParametricRXGate* copy() const override {
         return new ClsParametricRXGate(*this);
     };
-
+    virtual boost::property_tree::ptree to_ptree() const override {
+        boost::property_tree::ptree pt;
+        pt.put("name", "ParametricRXGate");
+        pt.put("target_qubit", _target_qubit_list[0].index());
+        pt.put("angle", _angle);
+        return pt;
+    }
     virtual ClsParametricRXGate* get_inverse() const override {
         return new ClsParametricRXGate(
             this->target_qubit_list[0].index(), -_angle);
@@ -130,7 +136,13 @@ public:
     virtual ClsParametricRYGate* copy() const override {
         return new ClsParametricRYGate(*this);
     };
-
+    virtual boost::property_tree::ptree to_ptree() const override {
+        boost::property_tree::ptree pt;
+        pt.put("name", "ParametricRYGate");
+        pt.put("target_qubit", _target_qubit_list[0].index());
+        pt.put("angle", _angle);
+        return pt;
+    }
     virtual ClsParametricRYGate* get_inverse() const override {
         return new ClsParametricRYGate(
             this->target_qubit_list[0].index(), -_angle);
@@ -158,7 +170,13 @@ public:
     virtual ClsParametricRZGate* copy() const override {
         return new ClsParametricRZGate(*this);
     };
-
+    virtual boost::property_tree::ptree to_ptree() const override {
+        boost::property_tree::ptree pt;
+        pt.put("name", "ParametricRZGate");
+        pt.put("target_qubit", _target_qubit_list[0].index());
+        pt.put("angle", _angle);
+        return pt;
+    }
     virtual ClsParametricRZGate* get_inverse() const override {
         return new ClsParametricRZGate(
             this->target_qubit_list[0].index(), -_angle);
@@ -228,7 +246,13 @@ public:
                  1.i * sin(_angle / 2) * matrix;
     };
     virtual PauliOperator* get_pauli() const { return _pauli; };
-
+    virtual boost::property_tree::ptree to_ptree() const override {
+        boost::property_tree::ptree pt;
+        pt.put("name", "ParametricPauliRotationGate");
+        pt.put("angle", _angle);
+        pt.put_child("pauli", _pauli->to_ptree());
+        return pt;
+    }
     virtual ClsParametricPauliRotationGate* get_inverse() const override {
         return new ClsParametricPauliRotationGate(-_angle, _pauli->copy());
     };
