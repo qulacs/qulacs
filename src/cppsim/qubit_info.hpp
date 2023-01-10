@@ -18,6 +18,8 @@ class DllExport QubitInfo {
 protected:
     UINT _index; /**< \~japanese-en 量子ビットの添え字 */
 public:
+    virtual ~QubitInfo() {}
+
     /**
      * \~japanese-en 量子ビットの添え字を返す
      *
