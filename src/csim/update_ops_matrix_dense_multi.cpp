@@ -5,6 +5,7 @@
 #include <string.h>
 
 #include "constant.hpp"
+#include "cppsim/exception.hpp"
 #include "update_ops.hpp"
 #include "utility.hpp"
 #ifdef _OPENMP
@@ -122,3 +123,35 @@ void multi_qubit_dense_matrix_gate_parallel(const UINT* target_qubit_index_list,
     free(buffer_list);
     free((ITYPE*)matrix_mask_list);
 }
+
+#ifdef _USE_MPI
+void multi_qubit_dense_matrix_gate_mpi(const UINT* target_qubit_index_list,
+    UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim,
+    UINT inner_qc) {
+    // printf("#enter multi_qubit_dense_matrix_gate_mpi, %d, %d, %d, %lld,
+    // %d\n",
+    //        target_qubit_index_list[0], target_qubit_index_list[1],
+    //        target_qubit_index_count, dim, inner_qc);
+
+    UINT all_inner = 1;
+    for (UINT i = 0; i < target_qubit_index_count; ++i)
+        if (target_qubit_index_list[i] >= inner_qc) all_inner = 0;
+
+    if (all_inner) {
+        multi_qubit_dense_matrix_gate(target_qubit_index_list,
+            target_qubit_index_count, matrix, state, dim);
+    } else {
+        if (target_qubit_index_count == 1) {
+            single_qubit_dense_matrix_gate_mpi(
+                target_qubit_index_list[0], matrix, state, dim, inner_qc);
+        } else if (target_qubit_index_count == 2) {
+            double_qubit_dense_matrix_gate_mpi(target_qubit_index_list[0],
+                target_qubit_index_list[1], matrix, state, dim, inner_qc);
+        } else {  // targets > 2
+            throw NotImplementedException(
+                "Dense Matrix multi-target gate for MPI"
+                " with more than three qubits is not Implemented");
+        }
+    }
+}
+#endif

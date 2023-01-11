@@ -78,7 +78,7 @@ public:
         this->_update_func_gpu = SWAP_gate_host;
 #endif
 #ifdef _USE_MPI
-        this->_update_func_mpi = nullptr;  // SWAP_gate_mpi; not supported yet
+        this->_update_func_mpi = SWAP_gate_mpi;
 #endif
         this->_name = "SWAP";
         this->_target_qubit_list.push_back(

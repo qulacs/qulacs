@@ -333,6 +333,7 @@ TEST(GateTest_multicpu, ApplyCZGate_small) {
     _ApplyTwoQubitGate(n, 0, 1, gate::CZ, get_eigen_matrix_full_qubit_CZ);
     _ApplyTwoQubitGate(n, 1, 0, gate::CZ, get_eigen_matrix_full_qubit_CZ);
 }
+*/
 
 TEST(GateTest_multicpu, ApplySWAPGate_10qubit_all) {
     UINT n = 10;
@@ -348,16 +349,11 @@ TEST(GateTest_multicpu, ApplySWAPGate_10qubit_all) {
 TEST(GateTest_multicpu, ApplySWAPGate_corner) {
     Random random;
     random.set_seed(2022);
-    _ApplyTwoQubitGate(
-        2, 0, 1, gate::SWAP, get_eigen_matrix_full_qubit_SWAP);
-    _ApplyTwoQubitGate(
-        2, 1, 0, gate::SWAP, get_eigen_matrix_full_qubit_SWAP);
-    _ApplyTwoQubitGate(
-        5, 4, 3, gate::SWAP, get_eigen_matrix_full_qubit_SWAP);
-    _ApplyTwoQubitGate(
-        5, 3, 4, gate::SWAP, get_eigen_matrix_full_qubit_SWAP);
+    _ApplyTwoQubitGate(2, 0, 1, gate::SWAP, get_eigen_matrix_full_qubit_SWAP);
+    _ApplyTwoQubitGate(2, 1, 0, gate::SWAP, get_eigen_matrix_full_qubit_SWAP);
+    _ApplyTwoQubitGate(5, 4, 3, gate::SWAP, get_eigen_matrix_full_qubit_SWAP);
+    _ApplyTwoQubitGate(5, 3, 4, gate::SWAP, get_eigen_matrix_full_qubit_SWAP);
 }
-*/
 
 void _ApplyTwoQubitGate(UINT n, UINT control, UINT target,
     std::function<QuantumGateBase*(UINT, UINT)> func,
@@ -574,6 +570,7 @@ TEST(GateTest_multicpu, ApplyMultiQubitGate) {
                 abs(state.data_cpp()[i] - test_state1[i + offs]), 0, eps);
     }
 }
+*/
 
 // need implementation of dense-matrix gate double
 TEST(GateTest_multicpu, MergeTensorProduct) {
@@ -598,18 +595,21 @@ TEST(GateTest_multicpu, MergeTensorProduct) {
     xy01->update_quantum_state(&state);
     x0->update_quantum_state(&test_state);
     y1->update_quantum_state(&test_state);
-    Eigen::MatrixXcd mat = get_eigen_matrix_full_qubit_pauli({ 1,2 });
+    Eigen::MatrixXcd mat = get_eigen_matrix_full_qubit_pauli({1, 2});
     test_state_eigen = mat * test_state_eigen;
 
-    for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] -
-test_state_eigen[i]), 0, eps); for (ITYPE i = 0; i < dim; ++i)
-ASSERT_NEAR(abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+    for (ITYPE i = 0; i < dim; ++i)
+        ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps);
+    for (ITYPE i = 0; i < dim; ++i)
+        ASSERT_NEAR(
+            abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
 
     delete x0;
     delete y1;
     delete xy01;
 }
 
+/*
 TEST(GateTest_multicpu, MergeMultiply) {
     UINT n = 1;
     ITYPE dim = 1ULL << n;

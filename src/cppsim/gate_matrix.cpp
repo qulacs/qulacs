@@ -222,11 +222,11 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
             } else
 #endif
 #ifdef _USE_MPI
-                if (state->outer_qc > 0)
-                throw NotImplementedException(
-                    "Dense Matrix w/o congrol multi-target"
-                    " gate for MPI is not Implemented");
-            else
+                if (state->outer_qc > 0) {
+                multi_qubit_dense_matrix_gate_mpi(target_index.data(),
+                    (UINT)(target_index.size()), matrix_ptr, state->data_c(),
+                    state->dim, state->inner_qc);
+            } else
 #endif
             {
                 multi_qubit_dense_matrix_gate(target_index.data(),

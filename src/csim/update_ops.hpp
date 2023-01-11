@@ -67,8 +67,6 @@ DllExport void X_gate_mpi(
  *
  */
 DllExport void Y_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim);
-void Y_gate_single_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim);
-void Y_gate_single_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void Y_gate_parallel_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void Y_gate_parallel_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 #ifdef _USE_MPI
@@ -96,8 +94,6 @@ DllExport void Y_gate_mpi(
  *
  */
 DllExport void Z_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim);
-void Z_gate_single_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim);
-void Z_gate_single_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void Z_gate_parallel_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void Z_gate_parallel_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 #ifdef _USE_MPI
@@ -301,8 +297,6 @@ DllExport void sqrtYdag_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim);
  *
  */
 DllExport void H_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim);
-void H_gate_single_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim);
-void H_gate_single_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void H_gate_parallel_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void H_gate_parallel_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 
@@ -361,11 +355,7 @@ DllExport void CNOT_gate_mpi(UINT control_qubit_index, UINT target_qubit_index,
  */
 DllExport void CZ_gate(
     UINT control_qubit_index, UINT target_qubit_index, CTYPE* state, ITYPE dim);
-void CZ_gate_single_unroll(
-    UINT control_qubit_index, UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void CZ_gate_parallel_unroll(
-    UINT control_qubit_index, UINT target_qubit_index, CTYPE* state, ITYPE dim);
-void CZ_gate_single_simd(
     UINT control_qubit_index, UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void CZ_gate_parallel_simd(
     UINT control_qubit_index, UINT target_qubit_index, CTYPE* state, ITYPE dim);
@@ -391,14 +381,14 @@ void CZ_gate_parallel_simd(
  */
 DllExport void SWAP_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
     CTYPE* state, ITYPE dim);
-void SWAP_gate_single_unroll(UINT target_qubit_index_0,
-    UINT target_qubit_index_1, CTYPE* state, ITYPE dim);
-void SWAP_gate_single_simd(UINT target_qubit_index_0, UINT target_qubit_index_1,
-    CTYPE* state, ITYPE dim);
 void SWAP_gate_parallel_unroll(UINT target_qubit_index_0,
     UINT target_qubit_index_1, CTYPE* state, ITYPE dim);
 void SWAP_gate_parallel_simd(UINT target_qubit_index_0,
     UINT target_qubit_index_1, CTYPE* state, ITYPE dim);
+#ifdef _USE_MPI
+DllExport void SWAP_gate_mpi(UINT target_qubit_index_0,
+    UINT target_qubit_index_1, CTYPE* state, ITYPE dim, UINT inner_qc);
+#endif
 
 /**
  * \~english
@@ -420,7 +410,6 @@ void SWAP_gate_parallel_simd(UINT target_qubit_index_0,
  *
  */
 DllExport void P0_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim);
-void P0_gate_single(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void P0_gate_parallel(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 
 /**
@@ -443,7 +432,6 @@ void P0_gate_parallel(UINT target_qubit_index, CTYPE* state, ITYPE dim);
  *
  */
 DllExport void P1_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim);
-void P1_gate_single(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void P1_gate_parallel(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 
 /**
@@ -1209,6 +1197,11 @@ void double_qubit_dense_matrix_gate_nosimd(UINT target_qubit_index1,
     UINT target_qubit_index2, const CTYPE matrix[16], CTYPE* state, ITYPE dim);
 void double_qubit_dense_matrix_gate_simd(UINT target_qubit_index1,
     UINT target_qubit_index2, const CTYPE matrix[16], CTYPE* state, ITYPE dim);
+#ifdef _USE_MPI
+DllExport void double_qubit_dense_matrix_gate_mpi(UINT target_qubit_index1,
+    UINT target_qubit_index2, const CTYPE matrix[16], CTYPE* state, ITYPE dim,
+    UINT inner_qc);
+#endif
 
 /**
  * \~english
@@ -1257,6 +1250,11 @@ DllExport void multi_qubit_dense_matrix_gate(
 void multi_qubit_dense_matrix_gate_parallel(const UINT* target_qubit_index_list,
     UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state,
     ITYPE dim);
+#ifdef _USE_MPI
+DllExport void multi_qubit_dense_matrix_gate_mpi(
+    const UINT* target_qubit_index_list, UINT target_qubit_index_count,
+    const CTYPE* matrix, CTYPE* state, ITYPE dim, UINT inner_qc);
+#endif
 
 /**
  * \~english
