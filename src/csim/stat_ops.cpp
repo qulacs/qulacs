@@ -16,7 +16,7 @@ double state_norm_squared(const CTYPE* state, ITYPE dim) {
 
 #ifdef _OPENMP
     OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 15);
+    omputil->set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : norm)
 #endif
     for (index = 0; index < dim; ++index) {
@@ -100,7 +100,7 @@ state_inner_product_mpi(
 
 #ifdef _OPENMP
     OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 15);
+    omputil->set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : real_sum, imag_sum)
 #endif
     for (index = 0; index < dim; ++index) {

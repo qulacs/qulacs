@@ -115,9 +115,9 @@ Install single-thread Qulacs:
 USE_OMP=No pip install .
 ```
 
-The number of threads used in Qulacs installed with default options can be controlled via the environment variable `OMP_NUM_THREADS`.
-However, typically this option also affects the parallelization of other libraries. 
-If you want to force only Qulacs to use a single thread, You can install single-thread Qulacs with the above command.
+The number of threads used in Qulacs installed with default options can be controlled via the environment variable `OMP_NUM_THREADS` or `QULACS_NUM_THREADS`.
+While `OMP_NUM_THREADS` affects the parallelization of other libraries, `QULACS_NUM_THREADS` controls only the parallelization of QULACS.
+Or, if you want to force only Qulacs to use a single thread, You can install single-thread Qulacs with the above command.
 
 For development purpose, optional dependencies can be installed as follows.
 ```
