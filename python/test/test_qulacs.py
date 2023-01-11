@@ -1061,6 +1061,7 @@ class TestJSON(unittest.TestCase):
                                  SparseMatrix, T, Tdag,
                                  TwoQubitDepolarizingNoise, X, Y, Z, add,
                                  merge, sqrtX, sqrtXdag, sqrtY, sqrtYdag,
+                                 Instrument, StateReflection,
                                  to_matrix_gate)
         from scipy.sparse import lil_matrix
         import json
@@ -1083,18 +1084,20 @@ class TestJSON(unittest.TestCase):
 
             r = random.random()
 
+            ref.set_Haar_random_state()
+
             gates = [
                 Identity(get_index()), X(get_index()), Y(get_index()), Z(get_index()), H(get_index()), S(get_index()), Sdag(get_index()), T(
                     get_index()), Tdag(get_index()), sqrtX(get_index()), sqrtXdag(get_index()),
                 sqrtY(get_index()), sqrtYdag(get_index()),
                 Probabilistic([r, 1.0 - r], [X(0), Y(0)]), CPTP(
-                    [P0(get_index()), P1(get_index())]),  # Instrument([P0(0), P1(0)], 1), Adaptive(X(0), adap),
+                    [P0(get_index()), P1(get_index())]),  Instrument([P0(0), P1(0)], 1),
                 CNOT(0, 1), CZ(0, 1), SWAP(0, 1), TOFFOLI(0, 1, 2), FREDKIN(
                     0, 1, 2), Pauli([0, 1], [1, 2]), PauliRotation([0, 1], [1, 2], random.random()),
                 DenseMatrix(0, np.eye(2)), DenseMatrix(
                     [0, 1], np.eye(4)), SparseMatrix([0, 1], sparse_mat),
                 DiagonalMatrix([0, 1], np.ones(4)), RandomUnitary(
-                    [0, 1]),  # ReversibleBoolean([0, 1], func), StateReflection(ref),
+                    [0, 1]),  StateReflection(ref),
                 BitFlipNoise(get_index(), random.random()), DephasingNoise(get_index(), random.random()), IndependentXZNoise(
                     get_index(), random.random()), DepolarizingNoise(get_index(), random.random()), TwoQubitDepolarizingNoise(0, 1, random.random()),
                 AmplitudeDampingNoise(0, 0.1), Measurement(0, 1), merge(
@@ -1126,6 +1129,7 @@ class TestJSON(unittest.TestCase):
             for g in gates:
                 g = None
             gates = None
+            ref = None
 
         for _ in range(10):
             execute_test_gate()
