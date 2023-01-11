@@ -4,11 +4,8 @@
 #include <time.h>
 
 #include "MPIutil.hpp"
+#include "csim/utility.hpp"
 #include "init_ops.hpp"
-#include "utility.hpp"
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 
 // state randomization
 unsigned long xor_shift(unsigned long* state);
@@ -44,10 +41,14 @@ void initialize_Haar_random_state_with_seed_parallel(
     (void)outer_qc;
 #endif
     // multi thread
+#ifdef _OPENMP
     OMPutil omputil = get_omputil();
     omputil->set_qulacs_num_threads(dim, 10);
-    const int ignore_first = 40;
     const UINT thread_count = omp_get_max_threads();
+#else
+    const UINT thread_count = 1;
+#endif
+    const int ignore_first = 40;
     const ITYPE block_size = dim / thread_count;
     const ITYPE residual = dim % thread_count;
 
@@ -66,7 +67,11 @@ void initialize_Haar_random_state_with_seed_parallel(
 #pragma omp parallel
 #endif
     {
+#ifdef _OPENMP
         UINT thread_id = omp_get_thread_num();
+#else
+        UINT thread_id = 0;
+#endif
         unsigned long* my_random_state = random_state_list + 4 * thread_id;
         ITYPE start_index = block_size * thread_id +
                             (residual > thread_id ? thread_id : residual);
@@ -105,7 +110,9 @@ void initialize_Haar_random_state_with_seed_parallel(
     for (ITYPE index = 0; index < dim; ++index) {
         state[index] *= normalizer;
     }
+#ifdef _OPENMP
     omputil->reset_qulacs_num_threads();
+#endif
     free(random_state_list);
     free(norm_list);
 }

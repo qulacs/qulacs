@@ -6,9 +6,6 @@
 #include "MPIutil.hpp"
 #include "init_ops.hpp"
 #include "utility.hpp"
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 
 void initialize_quantum_state(CTYPE* state, ITYPE dim) {
 #ifdef _OPENMP
