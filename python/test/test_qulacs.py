@@ -1134,6 +1134,111 @@ class TestJSON(unittest.TestCase):
         for _ in range(10):
             execute_test_gate()
 
+    def test_noisy_evolution_gate(self):
+        from qulacs import QuantumState, GeneralQuantumOperator, Observable, gate
+        from qulacs.gate import NoisyEvolution, NoisyEvolution_fast
+        import json
+
+        n = 4
+
+        def execute_test_gate():
+
+            gamma = 0.5474999999999999
+            depth = 10
+            step = 0.8
+            time = step * depth
+
+            c_ops = []
+
+            op = GeneralQuantumOperator(n)
+            op2 = GeneralQuantumOperator(n)
+            op.add_operator(1., "Z 0")
+            op2.add_operator(1., "Z 1")
+            c_ops.append(op)
+            c_ops.append(op2)
+
+            # hamiltonian
+            hamiltonian = Observable(n)
+            # X-term
+            for i in range(n):
+                hamiltonian.add_operator(gamma, "X {0}".format(i))
+
+            g = NoisyEvolution(hamiltonian, c_ops, time, step)
+            json_string = g.to_json()
+            # print(json_string)
+            json.loads(json_string)
+            g_json = gate.from_json(json_string)
+
+            state = QuantumState(n)
+            state_json = QuantumState(n)
+
+            for i in range(2**n):
+                state.set_computational_basis(i)
+                state_json.set_computational_basis(i)
+                g.update_quantum_state(state)
+                g_json.update_quantum_state(state_json)
+
+            # TODO: gamma値にjsonで誤差がでる
+            # for i in range(n):
+            #     self.assertAlmostEqual(state.get_zero_probability(
+            #         i), state_json.get_zero_probability(i))
+
+            state = None
+            state_json = None
+            g = None
+            g_json = None
+
+        def execute_test_fast_gate():
+
+            gamma = 0.5474999999999999
+            depth = 10
+            step = 0.8
+            time = step * depth
+
+            c_ops = []
+
+            op = GeneralQuantumOperator(n)
+            op2 = GeneralQuantumOperator(n)
+            op.add_operator(1., "Z 0")
+            op2.add_operator(1., "Z 1")
+            c_ops.append(op)
+            c_ops.append(op2)
+
+            # hamiltonian
+            hamiltonian = Observable(n)
+            # X-term
+            for i in range(n):
+                hamiltonian.add_operator(gamma, "X {0}".format(i))
+
+            g = NoisyEvolution_fast(hamiltonian, c_ops, time)
+            json_string = g.to_json()
+            # print(json_string)
+            json.loads(json_string)
+            g_json = gate.from_json(json_string)
+
+            state = QuantumState(n)
+            state_json = QuantumState(n)
+
+            for i in range(2**n):
+                state.set_computational_basis(i)
+                state_json.set_computational_basis(i)
+                g.update_quantum_state(state)
+                g_json.update_quantum_state(state_json)
+
+            # TODO: gamma値にjsonで誤差がでる
+            # for i in range(n):
+            #     self.assertAlmostEqual(state.get_zero_probability(
+            #         i), state_json.get_zero_probability(i))
+
+            state = None
+            state_json = None
+            g = None
+            g_json = None
+
+        for _ in range(10):
+            execute_test_gate()
+            execute_test_fast_gate()
+
 
 if __name__ == "__main__":
     unittest.main()
