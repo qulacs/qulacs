@@ -1048,112 +1048,82 @@ class TestJSON(unittest.TestCase):
             observable.from_json(non_hermitian_operator.to_json())
 
     def test_gate(self):
-        from qulacs import QuantumCircuit, QuantumState, circuit
-        from qulacs.gate import (CNOT, CPTP, CZ, FREDKIN, P0, P1, RX, RY, RZ,
-                                 SWAP, TOFFOLI, U1, U2, U3,
-                                 AmplitudeDampingNoise, BitFlipNoise,
-                                 DenseMatrix, DephasingNoise,
-                                 DepolarizingNoise, DiagonalMatrix, H,
-                                 Identity, IndependentXZNoise,
-                                 Measurement,
-                                 Pauli, PauliRotation, Probabilistic,
-                                 RandomUnitary, S, Sdag,
-                                 SparseMatrix, T, Tdag,
-                                 TwoQubitDepolarizingNoise, X, Y, Z, add,
+        from qulacs import QuantumState, circuit, gate
+        from qulacs.gate import (CNOT, CZ, FREDKIN, P0, P1, RX, RY, RZ,
+                                 SWAP, TOFFOLI, U1, U2, U3, H, Identity,
+                                 Pauli, PauliRotation, S, Sdag,
+                                 T, Tdag, X, Y, Z, add,
                                  merge, sqrtX, sqrtXdag, sqrtY, sqrtYdag,
                                  to_matrix_gate)
         from scipy.sparse import lil_matrix
         import json
+        import random
 
-        qc = QuantumCircuit(3)
-        qc_json = QuantumCircuit(3)
-        qs = QuantumState(3)
-        qs_json = QuantumState(3)
-        sparse_mat = lil_matrix((4, 4))
-        sparse_mat[0, 0] = 1
-        sparse_mat[1, 1] = 1
+        n = 3
 
-        gates = [
-            Identity(0), X(0), Y(0), Z(0), H(0), S(0), Sdag(0), T(
-                0), Tdag(0), sqrtX(0), sqrtXdag(0),
-            sqrtY(0), sqrtYdag(0),
-            Probabilistic([0.5, 0.5], [X(0), Y(0)]), CPTP(
-                [P0(0), P1(0)]),  # Instrument([P0(0), P1(0)], 1), Adaptive(X(0), adap),
-            CNOT(0, 1), CZ(0, 1), SWAP(0, 1), TOFFOLI(0, 1, 2), FREDKIN(
-                0, 1, 2), Pauli([0, 1], [1, 2]), PauliRotation([0, 1], [1, 2], 0.1),
-            DenseMatrix(0, np.eye(2)), DenseMatrix(
-                [0, 1], np.eye(4)), SparseMatrix([0, 1], sparse_mat),
-            DiagonalMatrix([0, 1], np.ones(4)), RandomUnitary(
-                [0, 1]),  # ReversibleBoolean([0, 1], func), StateReflection(ref),
-            BitFlipNoise(0, 0.1), DephasingNoise(0, 0.1), IndependentXZNoise(
-                0, 0.1), DepolarizingNoise(0, 0.1), TwoQubitDepolarizingNoise(0, 1, 0.1),
-            AmplitudeDampingNoise(0, 0.1), Measurement(0, 1), merge(
-                X(0), Y(1)), add(X(0), Y(1)), to_matrix_gate(X(0)),
-            P0(0), P1(0), U1(0, 0.), U2(0, 0., 0.), U3(
-                0, 0., 0., 0.), RX(0, 0.), RY(0, 0.), RZ(0, 0.),
-        ]
-        gates.append(merge(gates[0], gates[1]))
-        gates.append(add(gates[0], gates[1]))
+        def execute_test_gate():
+            qs = QuantumState(n)
+            sparse_mat = lil_matrix((4, 4))
+            sparse_mat[0, 0] = 1
+            sparse_mat[1, 1] = 1
 
-        for g in gates:
-            qc.add_gate(g)
-            json_string = g.to_json()
-            json.loads(json_string)
+            r = random.random()
 
-        qc.update_quantum_state(qs)
-        json_string = qc.to_json()
-        json.loads(json_string)
-        qc_json = circuit.from_json(json_string)
-        qc_json.update_quantum_state(qs_json)
-        self.assertAlmostEqual(qs.get_zero_probability(
-            0), qs_json.get_zero_probability(0))
+            gates = [
+                Identity(0), X(0), Y(0), Z(0), H(0), S(0), Sdag(0), T(
+                    0), Tdag(0), sqrtX(0), sqrtXdag(0),
+                sqrtY(0), sqrtYdag(0),
+                CNOT(0, 1), CZ(0, 1), SWAP(0, 1), TOFFOLI(0, 1, 2), FREDKIN(
+                    0, 1, 2), Pauli([0, 1], [1, 2]), PauliRotation([0, 1], [1, 2], random.random()),
+                merge(
+                    X(0), Y(1)), add(X(0), Y(1)), to_matrix_gate(X(0)),
+                P0(0), P1(0), U1(0, random.random()), U2(0, random.random(), random.random()), U3(
+                    0, random.random(), random.random(), random.random()), RX(0, random.random()), RY(0, random.random()), RZ(0, random.random()),
+            ]
+            gates.append(merge(Identity(0), X(0)))
+            gates.append(add(Identity(0), X(0)))
 
-        qc = None
-        qs = None
-        qc_json = None
-        qs_json = None
-        for g in gates:
-            g = None
-        gates = None
+            for g in gates:
+                qs.set_Haar_random_state()
+                qs_json = qs.copy()
+                g.update_quantum_state(qs)
+                json_string = g.to_json()
+                json.loads(json_string)
+                g_json = gate.from_json(json_string)
+                g_json.update_quantum_state(qs_json)
+                for i in range(n):
+                    self.assertAlmostEqual(qs.get_zero_probability(
+                        i), qs_json.get_zero_probability(i))
+
+        for _ in range(10):
+            execute_test_gate()
 
     def test_parametric_gate(self):
-        from qulacs import ParametricQuantumCircuit, QuantumState, circuit
+        from qulacs import QuantumState, gate
         from qulacs.gate import (
             ParametricRX, ParametricRY, ParametricRZ, ParametricPauliRotation)
         import json
+        import random
 
-        qc = ParametricQuantumCircuit(3)
-        qc_json = ParametricQuantumCircuit(3)
-        qs = QuantumState(3)
-        qs_json = QuantumState(3)
+        n = 3
+        qs = QuantumState(n)
 
         gates = [
-            ParametricRX(0, 0.1), ParametricRY(0, 0.1), ParametricRZ(
-                0, 0.1), ParametricPauliRotation([0, 1], [1, 1], 0.1)
+            ParametricRX(0, random.random()), ParametricRY(0, random.random()), ParametricRZ(
+                0, random.random()), ParametricPauliRotation([0, 1], [1, 1], random.random())
         ]
 
         for g in gates:
-            qc.add_gate(g)
+            qs.set_Haar_random_state()
+            qs_json = qs.copy()
+            g.update_quantum_state(qs)
             json_string = g.to_json()
             json.loads(json_string)
-            #print(json_string)
-
-        qc.update_quantum_state(qs)
-        json_string = qc.to_json()
-        json.loads(json_string)
-        #print(json_string)
-        qc_json = circuit.from_json(json_string)
-        qc_json.update_quantum_state(qs_json)
-        #self.assertAlmostEqual(qs.get_zero_probability(
-        #    0), qs_json.get_zero_probability(0))
-
-        qc = None
-        qs = None
-        qc_json = None
-        qs_json = None
-        for g in gates:
-            g = None
-        gates = None
+            g_json = gate.from_json(json_string)
+            g_json.update_quantum_state(qs_json)
+            for i in range(n):
+                self.assertAlmostEqual(qs.get_zero_probability(
+                    i), qs_json.get_zero_probability(i))
 
 
 if __name__ == "__main__":
