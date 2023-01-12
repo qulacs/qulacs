@@ -1098,6 +1098,40 @@ class TestJSON(unittest.TestCase):
         for _ in range(10):
             execute_test_gate()
 
+    def test_probabilistic_gate(self):
+        from qulacs import gate
+        from qulacs.gate import (X, Y, BitFlipNoise,
+                                 DephasingNoise, Probabilistic,
+                                 DepolarizingNoise, IndependentXZNoise,
+                                 TwoQubitDepolarizingNoise)
+        import json
+        import random
+
+        n = 3
+        r = random.random()
+        gates = [
+            Probabilistic([r, 1. - r], [X(0), Y(0)]),
+            BitFlipNoise(0, random.random()), DephasingNoise(
+                0, random.random()),
+            IndependentXZNoise(0, random.random()), DepolarizingNoise(
+                0, random.random()),
+            TwoQubitDepolarizingNoise(0, 1, random.random(
+            )),
+        ]
+
+        for g in gates:
+            json_string = g.to_json()
+            json.loads(json_string)
+            g_json = gate.from_json(json_string)
+
+            ds = g.get_distribution()
+            ds_json = g_json.get_distribution()
+
+            for i in range(len(ds)):
+                self.assertAlmostEqual(ds[i], ds_json[i])
+
+    # AmplitudeDampingNoise(0, random.random()),
+
     def test_noisy_evolution_gate(self):
         from qulacs import QuantumState, GeneralQuantumOperator, Observable, gate
         from qulacs.gate import NoisyEvolution, NoisyEvolution_fast, PauliRotation, H
