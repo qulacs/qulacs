@@ -18,6 +18,8 @@ def convert_qulacs_circuit_to_QASM(cir: QuantumCircuit) -> typing.List[str]:
     # This method uses extended QASM for serializing Density Matrix.
     # This serializes almost all gate type defined in qelib1.inc,
     # except for sqrtY gate.
+    # CAVEAT: this function currently does not accept leading zero notation like
+    # .5, .832 etc.
 
     out_strs = [
         "OPENQASM 2.0;",
