@@ -150,7 +150,7 @@ if(USE_TEST)
 	FetchContent_Declare(
 		googletest_fetch
 		GIT_REPOSITORY https://github.com/google/googletest
-		GIT_TAG release-1.8.1
+		GIT_TAG release-1.12.1
 	)
 	FetchContent_GetProperties(googletest_fetch)
 	if(NOT googletest_fetch_POPULATED)
