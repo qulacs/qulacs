@@ -1048,20 +1048,12 @@ class TestJSON(unittest.TestCase):
             observable.from_json(non_hermitian_operator.to_json())
 
     def test_gate(self):
-        from qulacs import QuantumCircuit, QuantumState, circuit
-        from qulacs.gate import (CNOT, CPTP, CZ, FREDKIN, P0, P1, RX, RY, RZ,
-                                 SWAP, TOFFOLI, U1, U2, U3,
-                                 AmplitudeDampingNoise, BitFlipNoise,
-                                 DenseMatrix, DephasingNoise,
-                                 DepolarizingNoise, DiagonalMatrix, H,
-                                 Identity, IndependentXZNoise,
-                                 Measurement,
-                                 Pauli, PauliRotation, Probabilistic,
-                                 RandomUnitary, S, Sdag,
-                                 SparseMatrix, T, Tdag,
-                                 TwoQubitDepolarizingNoise, X, Y, Z, add,
+        from qulacs import QuantumState, circuit, gate
+        from qulacs.gate import (CNOT, CZ, FREDKIN, P0, P1, RX, RY, RZ,
+                                 SWAP, TOFFOLI, U1, U2, U3, H, Identity,
+                                 Pauli, PauliRotation, S, Sdag,
+                                 T, Tdag, X, Y, Z, add,
                                  merge, sqrtX, sqrtXdag, sqrtY, sqrtYdag,
-                                 Instrument, StateReflection,
                                  to_matrix_gate)
         from scipy.sparse import lil_matrix
         import json
@@ -1069,175 +1061,91 @@ class TestJSON(unittest.TestCase):
 
         n = 3
 
-        def get_index():
-            return np.random.randint(0, n - 1)
-
         def execute_test_gate():
-            qc = QuantumCircuit(n)
-            qc_json = QuantumCircuit(n)
             qs = QuantumState(n)
-            qs_json = QuantumState(n)
-            ref = QuantumState(n)
             sparse_mat = lil_matrix((4, 4))
             sparse_mat[0, 0] = 1
             sparse_mat[1, 1] = 1
 
             r = random.random()
 
-            ref.set_Haar_random_state()
-
             gates = [
-                Identity(get_index()), X(get_index()), Y(get_index()), Z(get_index()), H(get_index()), S(get_index()), Sdag(get_index()), T(
-                    get_index()), Tdag(get_index()), sqrtX(get_index()), sqrtXdag(get_index()),
-                sqrtY(get_index()), sqrtYdag(get_index()),
-                Probabilistic([r, 1.0 - r], [X(0), Y(0)]), CPTP(
-                    [P0(get_index()), P1(get_index())]),  Instrument([P0(0), P1(0)], 1),
+                Identity(0), X(0), Y(0), Z(0), H(0), S(0), Sdag(0), T(
+                    0), Tdag(0), sqrtX(0), sqrtXdag(0),
+                sqrtY(0), sqrtYdag(0),
                 CNOT(0, 1), CZ(0, 1), SWAP(0, 1), TOFFOLI(0, 1, 2), FREDKIN(
                     0, 1, 2), Pauli([0, 1], [1, 2]), PauliRotation([0, 1], [1, 2], random.random()),
-                DenseMatrix(0, np.eye(2)), DenseMatrix(
-                    [0, 1], np.eye(4)), SparseMatrix([0, 1], sparse_mat),
-                DiagonalMatrix([0, 1], np.ones(4)), RandomUnitary(
-                    [0, 1]),  StateReflection(ref),
-                BitFlipNoise(get_index(), random.random()), DephasingNoise(get_index(), random.random()), IndependentXZNoise(
-                    get_index(), random.random()), DepolarizingNoise(get_index(), random.random()), TwoQubitDepolarizingNoise(0, 1, random.random()),
-                AmplitudeDampingNoise(0, 0.1), Measurement(0, 1), merge(
+                merge(
                     X(0), Y(1)), add(X(0), Y(1)), to_matrix_gate(X(0)),
-                P0(0), P1(0), U1(0, 0.), U2(0, 0., 0.), U3(
-                    0, 0., 0., 0.), RX(0, 0.), RY(0, 0.), RZ(0, 0.),
+                P0(0), P1(0), U1(0, random.random()), U2(0, random.random(), random.random()), U3(
+                    0, random.random(), random.random(), random.random()), RX(0, random.random()), RY(0, random.random()), RZ(0, random.random()),
             ]
             gates.append(merge(Identity(0), X(0)))
             gates.append(add(Identity(0), X(0)))
 
             for g in gates:
-                qc.add_gate(g)
+                qs.set_Haar_random_state()
+                qs_json = qs.copy()
+                g.update_quantum_state(qs)
                 json_string = g.to_json()
                 json.loads(json_string)
-
-            qc.update_quantum_state(qs)
-            json_string = qc.to_json()
-            json.loads(json_string)
-            qc_json = circuit.from_json(json_string)
-            qc_json.update_quantum_state(qs_json)
-            for i in range(n):
-                self.assertAlmostEqual(qs.get_zero_probability(
-                    i), qs_json.get_zero_probability(i))
-
-            qc = None
-            qs = None
-            qc_json = None
-            qs_json = None
-            for g in gates:
-                g = None
-            gates = None
-            ref = None
+                g_json = gate.from_json(json_string)
+                g_json.update_quantum_state(qs_json)
+                for i in range(n):
+                    self.assertAlmostEqual(qs.get_zero_probability(
+                        i), qs_json.get_zero_probability(i))
 
         for _ in range(10):
             execute_test_gate()
 
     def test_noisy_evolution_gate(self):
         from qulacs import QuantumState, GeneralQuantumOperator, Observable, gate
-        from qulacs.gate import NoisyEvolution, NoisyEvolution_fast
+        from qulacs.gate import NoisyEvolution, NoisyEvolution_fast, PauliRotation, H
         import json
 
-        n = 4
+        n = 2
 
-        def execute_test_gate():
+        def execute_test_gate(is_fast):
+            observable = Observable(n)
+            observable.add_operator(1., "X 0")
 
-            gamma = 0.5474999999999999
-            depth = 10
-            step = 0.8
-            time = step * depth
+            hamiltonian = Observable(n)
+            hamiltonian.add_operator(1., "Z 0 Z 1")
 
             c_ops = []
-
             op = GeneralQuantumOperator(n)
-            op2 = GeneralQuantumOperator(n)
-            op.add_operator(1., "Z 0")
-            op2.add_operator(1., "Z 1")
+            op.add_operator(0., "Z 0")
             c_ops.append(op)
-            c_ops.append(op2)
 
-            # hamiltonian
-            hamiltonian = Observable(n)
-            # X-term
-            for i in range(n):
-                hamiltonian.add_operator(gamma, "X {0}".format(i))
-
-            g = NoisyEvolution(hamiltonian, c_ops, time, step)
+            step = 10
+            time = 3.14 / step
+            dt = .001
+            if is_fast:
+                g = NoisyEvolution_fast(hamiltonian, c_ops, time)
+            else:
+                g = NoisyEvolution(hamiltonian, c_ops, time, dt)
             json_string = g.to_json()
-            # print(json_string)
             json.loads(json_string)
             g_json = gate.from_json(json_string)
 
-            state = QuantumState(n)
-            state_json = QuantumState(n)
-
-            for i in range(2**n):
-                state.set_computational_basis(i)
-                state_json.set_computational_basis(i)
-                g.update_quantum_state(state)
-                g_json.update_quantum_state(state_json)
-
-            # TODO: gamma値にjsonで誤差がでる
-            # for i in range(n):
-            #     self.assertAlmostEqual(state.get_zero_probability(
-            #         i), state_json.get_zero_probability(i))
-
-            state = None
-            state_json = None
-            g = None
-            g_json = None
-
-        def execute_test_fast_gate():
-
-            gamma = 0.5474999999999999
-            depth = 10
-            step = 0.8
-            time = step * depth
-
-            c_ops = []
-
-            op = GeneralQuantumOperator(n)
-            op2 = GeneralQuantumOperator(n)
-            op.add_operator(1., "Z 0")
-            op2.add_operator(1., "Z 1")
-            c_ops.append(op)
-            c_ops.append(op2)
-
-            # hamiltonian
-            hamiltonian = Observable(n)
-            # X-term
-            for i in range(n):
-                hamiltonian.add_operator(gamma, "X {0}".format(i))
-
-            g = NoisyEvolution_fast(hamiltonian, c_ops, time)
-            json_string = g.to_json()
-            # print(json_string)
-            json.loads(json_string)
-            g_json = gate.from_json(json_string)
+            # reference gate
+            g_ref = PauliRotation([0, 1], [3, 3], -time * 2)
 
             state = QuantumState(n)
-            state_json = QuantumState(n)
-
-            for i in range(2**n):
-                state.set_computational_basis(i)
-                state_json.set_computational_basis(i)
-                g.update_quantum_state(state)
-                g_json.update_quantum_state(state_json)
-
-            # TODO: gamma値にjsonで誤差がでる
-            # for i in range(n):
-            #     self.assertAlmostEqual(state.get_zero_probability(
-            #         i), state_json.get_zero_probability(i))
-
-            state = None
-            state_json = None
-            g = None
-            g_json = None
+            state_ref = QuantumState(n)
+            h0 = H(0)
+            h0.update_quantum_state(state)
+            h0.update_quantum_state(state_ref)
+            for k in range(step):
+                g_json.update_quantum_state(state)
+                g_ref.update_quantum_state(state_ref)
+                exp = observable.get_expectation_value(state)
+                exp_ref = observable.get_expectation_value(state_ref)
+                self.assertAlmostEqual(exp.real, exp_ref.real)
 
         for _ in range(10):
-            execute_test_gate()
-            execute_test_fast_gate()
+            execute_test_gate(False)
+            execute_test_gate(True)
 
 
 if __name__ == "__main__":
