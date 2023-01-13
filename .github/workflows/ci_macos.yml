@@ -19,7 +19,7 @@ jobs:
     name: Build on macOS
     strategy:
       matrix:
-        python-version: ["3.7.5"]
+        python-version: ["3.10"]
         compiler: ["gcc", "clang"]
         include:
           - compiler: "gcc"
