@@ -276,7 +276,8 @@ void ClsNoisyEvolution::update_quantum_state(QuantumStateBase* state) {
             const auto jump_r = _random.uniform() * prob_sum;
             const auto ite = std::lower_bound(
                 cumulative_dist.begin(), cumulative_dist.end(), jump_r);
-            const auto index = static_cast<size_t>(std::distance(cumulative_dist.begin(), ite));
+            const auto index = static_cast<size_t>(
+                std::distance(cumulative_dist.begin(), ite));
 
             // apply the collapse operator and normalize the state
             // ルンゲクッタ法の誤差により、normが1にならない場合があります。
