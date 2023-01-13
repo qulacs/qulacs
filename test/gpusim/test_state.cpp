@@ -453,8 +453,7 @@ TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
                         pauli_partial_pair.push_back(std::make_pair(i, pauli));
                     }
                 }
-                std::random_shuffle(
-                    pauli_partial_pair.begin(), pauli_partial_pair.end());
+                std::shuffle(                    pauli_partial_pair.begin(), pauli_partial_pair.end(), engine);
                 for (auto val : pauli_partial_pair) {
                     pauli_index.push_back(val.first);
                     pauli_partial.push_back(val.second);
@@ -523,8 +522,7 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopPartialTest) {
                         pauli_partial_pair.push_back(std::make_pair(i, pauli));
                     }
                 }
-                std::random_shuffle(
-                    pauli_partial_pair.begin(), pauli_partial_pair.end());
+                std::shuffle(                    pauli_partial_pair.begin(), pauli_partial_pair.end(), engine);
                 for (auto val : pauli_partial_pair) {
                     pauli_index.push_back(val.first);
                     pauli_partial.push_back(val.second);
@@ -771,8 +769,7 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudePartialTest) {
                         pauli_partial_pair.push_back(std::make_pair(i, pauli));
                     }
                 }
-                std::random_shuffle(
-                    pauli_partial_pair.begin(), pauli_partial_pair.end());
+                std::shuffle(                    pauli_partial_pair.begin(), pauli_partial_pair.end(), engine);
                 for (auto val : pauli_partial_pair) {
                     pauli_index.push_back(val.first);
                     pauli_partial.push_back(val.second);
@@ -861,8 +858,7 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
                         pauli_partial_pair.push_back(std::make_pair(i, pauli));
                     }
                 }
-                std::random_shuffle(
-                    pauli_partial_pair.begin(), pauli_partial_pair.end());
+                std::shuffle(                    pauli_partial_pair.begin(), pauli_partial_pair.end(), engine);
                 for (auto val : pauli_partial_pair) {
                     pauli_index.push_back(val.first);
                     pauli_partial.push_back(val.second);

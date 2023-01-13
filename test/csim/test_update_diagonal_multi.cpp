@@ -27,10 +27,12 @@ TEST(UpdateTest, MultiQubitDiagonalMatrixTest) {
     for (ITYPE i = 0; i < dim; ++i)
         test_state[i] = (std::complex<double>)state[i];
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (UINT gate_size = 1; gate_size <= 1; ++gate_size) {
         ITYPE gate_dim = (1ULL) << gate_size;
         for (UINT r = 0; r < max_repeat; ++r) {
-            std::random_shuffle(index_list.begin(), index_list.end());
+            std::shuffle(index_list.begin(), index_list.end(), engine);
             auto diag =
                 get_eigen_diagonal_matrix_random_multi_qubit_unitary(gate_size);
             Eigen::MatrixXcd matrix = Eigen::MatrixXcd::Zero(dim, dim);
@@ -70,10 +72,12 @@ TEST(UpdateTest, MultiQubitDiagonalMatrixTest2) {
     for (ITYPE i = 0; i < dim; ++i)
         test_state[i] = (std::complex<double>)state[i];
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (UINT gate_size = 1; gate_size <= 1; ++gate_size) {
         ITYPE gate_dim = (1ULL) << gate_size;
         for (UINT r = 0; r < max_repeat; ++r) {
-            std::random_shuffle(index_list.begin(), index_list.end());
+            std::shuffle(index_list.begin(), index_list.end(), engine);
             auto diag =
                 get_eigen_diagonal_matrix_random_multi_qubit_unitary(gate_size);
             Eigen::MatrixXcd matrix = Eigen::MatrixXcd::Zero(dim, dim);
@@ -120,11 +124,13 @@ TEST(UpdateTest, TwoQubitControlTwoQubitDiagonalMatrixTest) {
 
     Eigen::MatrixXcd whole_I = Eigen::MatrixXcd::Identity(dim, dim);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         // two qubit control-11 two qubit gate
         d = get_eigen_diagonal_matrix_random_multi_qubit_unitary(1);
         d2 = get_eigen_diagonal_matrix_random_multi_qubit_unitary(1);
-        std::random_shuffle(index_list.begin(), index_list.end());
+        std::shuffle(index_list.begin(), index_list.end(), engine);
         targets[0] = index_list[0];
         targets[1] = index_list[1];
         controls[0] = index_list[2];

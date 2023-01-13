@@ -26,6 +26,8 @@ void test_single_qubit_named_gate(UINT n, std::string name,
     std::vector<UINT> indices;
     for (UINT i = 0; i < n; ++i) indices.push_back(i);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         for (UINT i = 0; i < n; ++i) {
             UINT target = indices[i];
@@ -35,7 +37,7 @@ void test_single_qubit_named_gate(UINT n, std::string name,
                 test_state;
             state_equal(state, test_state, dim, name);
         }
-        std::random_shuffle(indices.begin(), indices.end());
+        std::shuffle(indices.begin(), indices.end(), engine);
     }
     release_quantum_state(state);
 }
@@ -152,6 +154,8 @@ void test_projection_gate(std::function<void(UINT, CTYPE*, ITYPE)> func,
     std::vector<UINT> indices;
     for (UINT i = 0; i < n; ++i) indices.push_back(i);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         for (int i = 0; i < n; ++i) {
             target = indices[i];
@@ -174,7 +178,7 @@ void test_projection_gate(std::function<void(UINT, CTYPE*, ITYPE)> func,
             test_state.normalize();
             state_equal(state, test_state, dim, "Projection gate");
         }
-        std::random_shuffle(indices.begin(), indices.end());
+        std::shuffle(indices.begin(), indices.end(), engine);
     }
     release_quantum_state(state);
 }
@@ -253,6 +257,8 @@ void test_two_qubit_named_gate(UINT n, std::string name,
     std::vector<UINT> indices;
     for (UINT i = 0; i < n; ++i) indices.push_back(i);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         for (UINT i = 0; i + 1 < n; i += 2) {
             UINT target = indices[i];
@@ -262,7 +268,7 @@ void test_two_qubit_named_gate(UINT n, std::string name,
             test_state = mat * test_state;
             state_equal(state, test_state, dim, name);
         }
-        std::random_shuffle(indices.begin(), indices.end());
+        std::shuffle(indices.begin(), indices.end(), engine);
     }
     release_quantum_state(state);
 }

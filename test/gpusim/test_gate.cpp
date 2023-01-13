@@ -1089,7 +1089,7 @@ TEST(GateTest, RandomControlMergeSmall) {
             QuantumGateBase* merge_gate2 = gate::Identity(0);
 
             for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
-                std::random_shuffle(arr.begin(), arr.end());
+                std::shuffle(arr.begin(), arr.end(), engine);
                 UINT target = arr[0];
                 UINT control = arr[1];
                 auto new_gate = gate::CNOT(control, target);
@@ -1133,7 +1133,7 @@ TEST(GateTest, RandomControlMergeLarge) {
             QuantumGateBase* merge_gate2 = gate::Identity(0);
 
             for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
-                std::random_shuffle(arr.begin(), arr.end());
+                std::shuffle(arr.begin(), arr.end(), engine);
                 UINT target = arr[0];
                 UINT control = arr[1];
                 auto new_gate = gate::CNOT(control, target);
@@ -1145,7 +1145,7 @@ TEST(GateTest, RandomControlMergeLarge) {
             }
 
             for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
-                std::random_shuffle(arr.begin(), arr.end());
+                std::shuffle(arr.begin(), arr.end(), engine);
                 UINT target = arr[0];
                 UINT control = arr[1];
                 auto new_gate = gate::CNOT(control, target);

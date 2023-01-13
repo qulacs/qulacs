@@ -253,6 +253,8 @@ TEST(CircuitTest, RandomCircuitOptimizeLight3) {
     std::vector<UINT> qubit_list;
     for (int i = 0; i < n; ++i) qubit_list.push_back(i);
 
+        std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
         QuantumState state(n), org_state(n), test_state(n);
         state.set_Haar_random_state();
@@ -260,7 +262,7 @@ TEST(CircuitTest, RandomCircuitOptimizeLight3) {
         QuantumCircuit circuit(n);
 
         for (UINT d = 0; d < depth; ++d) {
-            std::random_shuffle(qubit_list.begin(), qubit_list.end());
+                    std::shuffle(qubit_list.begin(), qubit_list.end(), engine);
             std::vector<UINT> mylist;
             mylist.push_back(qubit_list[0]);
             mylist.push_back(qubit_list[1]);

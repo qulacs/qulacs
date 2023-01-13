@@ -31,7 +31,7 @@ void test_single_qubit_named_gate(UINT n, std::string name,
                     test_state;
                 state_equal_gpu(state, test_state, dim, name, stream_ptr, idx);
             }
-            std::random_shuffle(indices.begin(), indices.end());
+            std::shuffle(indices.begin(), indices.end(), engine);
         }
         release_quantum_state_host(state, idx);
         release_cuda_stream_host(stream_ptr, 1, idx);
@@ -244,7 +244,7 @@ void test_two_qubit_named_gate(UINT n, std::string name,
                 test_state = mat * test_state;
                 state_equal_gpu(state, test_state, dim, name, stream_ptr, idx);
             }
-            std::random_shuffle(indices.begin(), indices.end());
+            std::shuffle(indices.begin(), indices.end(), engine);
         }
         release_quantum_state_host(state, idx);
         release_cuda_stream_host(stream_ptr, 1, idx);

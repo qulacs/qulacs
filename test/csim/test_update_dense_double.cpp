@@ -34,12 +34,15 @@ void test_double_dense_matrix_gate(
 
     Eigen::MatrixXcd whole_I = Eigen::MatrixXcd::Identity(dim, dim);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
+
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         // two qubit dense matrix gate
         U = get_eigen_matrix_random_single_qubit_unitary();
         U2 = get_eigen_matrix_random_single_qubit_unitary();
 
-        std::random_shuffle(index_list.begin(), index_list.end());
+        std::shuffle(index_list.begin(), index_list.end(), engine);
 
         targets[0] = index_list[0];
         targets[1] = index_list[1];
@@ -62,12 +65,13 @@ void test_double_dense_matrix_gate(
             test_pairs.push_back(std::make_pair(i, j));
         }
     }
+
     for (auto pair : test_pairs) {
         // two qubit dense matrix gate
         U = get_eigen_matrix_random_single_qubit_unitary();
         U2 = get_eigen_matrix_random_single_qubit_unitary();
 
-        std::random_shuffle(index_list.begin(), index_list.end());
+        std::shuffle(index_list.begin(), index_list.end(), engine);
         targets[0] = pair.first;
         targets[1] = pair.second;
         Umerge = kronecker_product(U2, U);

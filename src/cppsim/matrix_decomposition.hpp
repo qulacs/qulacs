@@ -159,13 +159,13 @@ KAK_data KAK_decomposition_internal(QuantumGateBase* target_gate) {
 
     a0 *= std::exp(1.0i * wxyz[0]);
     QuantumGateMatrix* a0_gate =
-        gate::DenseMatrix({target_gate->get_target_index_list()[0]}, a0);
+        gate::DenseMatrix(target_gate->get_target_index_list()[0], a0);
     QuantumGateMatrix* a1_gate =
-        gate::DenseMatrix({target_gate->get_target_index_list()[1]}, a1);
+        gate::DenseMatrix(target_gate->get_target_index_list()[1], a1);
     QuantumGateMatrix* b0_gate =
-        gate::DenseMatrix({target_gate->get_target_index_list()[0]}, b0);
+        gate::DenseMatrix(target_gate->get_target_index_list()[0], b0);
     QuantumGateMatrix* b1_gate =
-        gate::DenseMatrix({target_gate->get_target_index_list()[1]}, b1);
+        gate::DenseMatrix(target_gate->get_target_index_list()[1], b1);
 
     ans.single_qubit_operations_after[0] = a0_gate;
     ans.single_qubit_operations_after[1] = a1_gate;
