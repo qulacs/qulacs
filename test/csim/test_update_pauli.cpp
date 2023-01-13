@@ -108,7 +108,8 @@ TEST(UpdateTest, MultiQubitPauliTest) {
                 pauli_partial_pair.push_back(std::make_pair(i, pauli));
             }
         }
-        std::shuffle(pauli_partial_pair.begin(), pauli_partial_pair.end(), engine);
+        std::shuffle(
+            pauli_partial_pair.begin(), pauli_partial_pair.end(), engine);
         for (auto val : pauli_partial_pair) {
             pauli_partial_index.push_back(val.first);
             pauli_partial.push_back(val.second);
@@ -170,7 +171,8 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
                 pauli_partial_pair.push_back(std::make_pair(i, pauli));
             }
         }
-        std::shuffle(            pauli_partial_pair.begin(), pauli_partial_pair.end(), engine);
+        std::shuffle(
+            pauli_partial_pair.begin(), pauli_partial_pair.end(), engine);
         for (auto val : pauli_partial_pair) {
             pauli_partial_index.push_back(val.first);
             pauli_partial.push_back(val.second);

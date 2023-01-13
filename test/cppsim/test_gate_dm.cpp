@@ -649,7 +649,7 @@ TEST(DensityMatrixGateTest, RandomControlMergeSmall) {
         QuantumGateBase* merge_gate2 = gate::Identity(0);
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
-                    std::shuffle(arr.begin(), arr.end(), engine);
+            std::shuffle(arr.begin(), arr.end(), engine);
             UINT target = arr[0];
             UINT control = arr[1];
             auto new_gate = gate::CNOT(control, target);
@@ -688,7 +688,7 @@ TEST(DensityMatrixGateTest, RandomControlMergeLarge) {
     std::vector<UINT> arr;
     for (UINT i = 0; i < n; ++i) arr.push_back(i);
 
-        std::random_device seed_gen;
+    std::random_device seed_gen;
     std::mt19937 engine(seed_gen());
     for (gate_count = 1; gate_count < n * 2; ++gate_count) {
         ComplexMatrix mat = ComplexMatrix::Identity(dim, dim);
@@ -703,7 +703,7 @@ TEST(DensityMatrixGateTest, RandomControlMergeLarge) {
         QuantumGateBase* merge_gate2 = gate::Identity(0);
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
-                    std::shuffle(arr.begin(), arr.end(), engine);
+            std::shuffle(arr.begin(), arr.end(), engine);
             UINT target = arr[0];
             UINT control = arr[1];
             auto new_gate = gate::CNOT(control, target);
