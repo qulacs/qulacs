@@ -1130,102 +1130,87 @@ class TestJSON(unittest.TestCase):
             for i in range(len(ds)):
                 self.assertAlmostEqual(ds[i], ds_json[i])
 
-    # AmplitudeDampingNoise(0, random.random()),
-    #  CPTP([P0(0), P1(0)]), Instrument([P0(0), P1(0)], 1), Adaptive(X(0), adap),
-
     def test_cptp_gate(self):
         from qulacs import QuantumState, gate
-        from qulacs.gate import P0, P1, CPTP, AmplitudeDampingNoise, Measurement
+        from qulacs.gate import P0, P1, CPTP, AmplitudeDampingNoise,Instrument, Measurement, Adaptive
         import json
         import random
 
         n = 2
-        cp = CPTP([P0(0), P1(0)])
-        json_string = cp.to_json()
-        # print(cp)
-        print(json_string)
-        print(dir(cp))
-        #gl = cp.gate_list()
-        # print(gl)
+        gates = [
+            AmplitudeDampingNoise(0, random.random()),
+            CPTP([P0(0), P1(0)]), 
+            Instrument([P0(0), P1(0)], 0), Measurement(0,0),
+        ]
 
-        # def execute_test_gate():
-        #     # qs = QuantumState(n)
-        #     g = AmplitudeDampingNoise(0, random.random())
-        #     json_string = g.to_json()
-        #     json.loads(json_string)
-        #     g_json = gate.from_json(json_string)
-        #     print(dir(g))
-        #     # qg = QuantumGate_CPTP()
-        #     # print(g)
-        #     # print(json_string)
-        #     # for gg in g.get_gate_list():
-        #     #     if gg.get_name == "DenseMatrixGate":
-        #     #         print(gg.get_matrix())
+        for g in gates:
+            g_list = g.get_gate_list()
+            json_string = g.to_json()
+            g_json = gate.from_json(json_string)
+            g_json_list = g_json.get_gate_list()
 
-        #     # g.get_cumulative_distribution()
-        #     # g.get_distribution()
-        #     # g.get_matrix()
-        #     # print(g.get_matrix())
+            qs = QuantumState(n)
 
-        #     # qs.set_Haar_random_state()
-        #     # qs_json = qs.copy()
-        #     # g.update_quantum_state(qs)
-        #     # g_json.update_quantum_state(qs_json)
-        #     # for i in range(n):
-        #     #     self.assertAlmostEqual(qs.get_zero_probability(
-        #     #         i), qs_json.get_zero_probability(i))
+            for i in range(len(g_list)):
+                gg = g_list[i]
+                gg_json = g_json_list[i]
+                qs.set_Haar_random_state()
+                qs_json = qs.copy()
+                gg.update_quantum_state(qs)
+                gg_json.update_quantum_state(qs_json)
+                for i in range(n):
+                    self.assertAlmostEqual(qs.get_zero_probability(
+                        i), qs_json.get_zero_probability(i))
 
-        # for _ in range(1):
-        #     execute_test_gate()
 
-    # def test_noisy_evolution_gate(self):
-    #     from qulacs import QuantumState, GeneralQuantumOperator, Observable, gate
-    #     from qulacs.gate import NoisyEvolution, NoisyEvolution_fast, PauliRotation, H
-    #     import json
+    def test_noisy_evolution_gate(self):
+        from qulacs import QuantumState, GeneralQuantumOperator, Observable, gate
+        from qulacs.gate import NoisyEvolution, NoisyEvolution_fast, PauliRotation, H
+        import json
 
-    #     n = 2
+        n = 2
 
-    #     def execute_test_gate(is_fast):
-    #         observable = Observable(n)
-    #         observable.add_operator(1., "X 0")
+        def execute_test_gate(is_fast):
+            observable = Observable(n)
+            observable.add_operator(1., "X 0")
 
-    #         hamiltonian = Observable(n)
-    #         hamiltonian.add_operator(1., "Z 0 Z 1")
+            hamiltonian = Observable(n)
+            hamiltonian.add_operator(1., "Z 0 Z 1")
 
-    #         c_ops = []
-    #         op = GeneralQuantumOperator(n)
-    #         op.add_operator(0., "Z 0")
-    #         c_ops.append(op)
+            c_ops = []
+            op = GeneralQuantumOperator(n)
+            op.add_operator(0., "Z 0")
+            c_ops.append(op)
 
-    #         step = 10
-    #         time = 3.14 / step
-    #         dt = .001
-    #         if is_fast:
-    #             g = NoisyEvolution_fast(hamiltonian, c_ops, time)
-    #         else:
-    #             g = NoisyEvolution(hamiltonian, c_ops, time, dt)
-    #         json_string = g.to_json()
-    #         json.loads(json_string)
-    #         g_json = gate.from_json(json_string)
+            step = 10
+            time = 3.14 / step
+            dt = .001
+            if is_fast:
+                g = NoisyEvolution_fast(hamiltonian, c_ops, time)
+            else:
+                g = NoisyEvolution(hamiltonian, c_ops, time, dt)
+            json_string = g.to_json()
+            json.loads(json_string)
+            g_json = gate.from_json(json_string)
 
-    #         # reference gate
-    #         g_ref = PauliRotation([0, 1], [3, 3], -time * 2)
+            # reference gate
+            g_ref = PauliRotation([0, 1], [3, 3], -time * 2)
 
-    #         state = QuantumState(n)
-    #         state_ref = QuantumState(n)
-    #         h0 = H(0)
-    #         h0.update_quantum_state(state)
-    #         h0.update_quantum_state(state_ref)
-    #         for k in range(step):
-    #             g_json.update_quantum_state(state)
-    #             g_ref.update_quantum_state(state_ref)
-    #             exp = observable.get_expectation_value(state)
-    #             exp_ref = observable.get_expectation_value(state_ref)
-    #             self.assertAlmostEqual(exp.real, exp_ref.real)
+            state = QuantumState(n)
+            state_ref = QuantumState(n)
+            h0 = H(0)
+            h0.update_quantum_state(state)
+            h0.update_quantum_state(state_ref)
+            for k in range(step):
+                g_json.update_quantum_state(state)
+                g_ref.update_quantum_state(state_ref)
+                exp = observable.get_expectation_value(state)
+                exp_ref = observable.get_expectation_value(state_ref)
+                self.assertAlmostEqual(exp.real, exp_ref.real)
 
-    #     for _ in range(10):
-    #         execute_test_gate(False)
-    #         execute_test_gate(True)
+        for _ in range(10):
+            execute_test_gate(False)
+            execute_test_gate(True)
 
 
 if __name__ == "__main__":
