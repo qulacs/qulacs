@@ -59,4 +59,24 @@ void Tdag_gate_mpi(
     single_qubit_phase_gate_mpi(
         target_qubit_index, (1. - 1.i) / sqrt(2.), state, dim, inner_qc);
 }
+void sqrtX_gate_mpi(
+    UINT target_qubit_index, CTYPE* state, ITYPE dim, UINT inner_qc) {
+    single_qubit_dense_matrix_gate_mpi(
+        target_qubit_index, SQRT_X_GATE_MATRIX, state, dim, inner_qc);
+}
+void sqrtXdag_gate_mpi(
+    UINT target_qubit_index, CTYPE* state, ITYPE dim, UINT inner_qc) {
+    single_qubit_dense_matrix_gate_mpi(
+        target_qubit_index, SQRT_X_DAG_GATE_MATRIX, state, dim, inner_qc);
+}
+void sqrtY_gate_mpi(
+    UINT target_qubit_index, CTYPE* state, ITYPE dim, UINT inner_qc) {
+    single_qubit_dense_matrix_gate_mpi(
+        target_qubit_index, SQRT_Y_GATE_MATRIX, state, dim, inner_qc);
+}
+void sqrtYdag_gate_mpi(
+    UINT target_qubit_index, CTYPE* state, ITYPE dim, UINT inner_qc) {
+    single_qubit_dense_matrix_gate_mpi(
+        target_qubit_index, SQRT_Y_DAG_GATE_MATRIX, state, dim, inner_qc);
+}
 #endif

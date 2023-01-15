@@ -50,11 +50,11 @@ TEST(GateTest_multicpu, ApplySingleQubitGate) {
     funclist.push_back(std::make_pair(gate::Sdag, S.adjoint()));
     funclist.push_back(std::make_pair(gate::T, T));
     funclist.push_back(std::make_pair(gate::Tdag, T.adjoint()));
+    funclist.push_back(std::make_pair(gate::sqrtX, sqrtX));
+    funclist.push_back(std::make_pair(gate::sqrtXdag, sqrtX.adjoint()));
+    funclist.push_back(std::make_pair(gate::sqrtY, sqrtY));
+    funclist.push_back(std::make_pair(gate::sqrtYdag, sqrtY.adjoint()));
     /*
-        funclist.push_back(std::make_pair(gate::sqrtX, sqrtX));
-        funclist.push_back(std::make_pair(gate::sqrtXdag, sqrtX.adjoint()));
-        funclist.push_back(std::make_pair(gate::sqrtY, sqrtY));
-        funclist.push_back(std::make_pair(gate::sqrtYdag, sqrtY.adjoint()));
         funclist.push_back(std::make_pair(gate::P0, P0));
         funclist.push_back(std::make_pair(gate::P1, P1));
     */
