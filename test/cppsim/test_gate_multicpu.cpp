@@ -314,7 +314,6 @@ TEST(GateTest_multicpu, ApplyCNOTGate_small) {
     _ApplyTwoQubitGate(n, 1, 0, gate::CNOT, get_eigen_matrix_full_qubit_CNOT);
 }
 
-/*
 TEST(GateTest_multicpu, ApplyCZGate_10qubit_all) {
     UINT n = 10;
     for (UINT c = 0; c < n; ++c) {
@@ -333,7 +332,6 @@ TEST(GateTest_multicpu, ApplyCZGate_small) {
     _ApplyTwoQubitGate(n, 0, 1, gate::CZ, get_eigen_matrix_full_qubit_CZ);
     _ApplyTwoQubitGate(n, 1, 0, gate::CZ, get_eigen_matrix_full_qubit_CZ);
 }
-*/
 
 TEST(GateTest_multicpu, ApplySWAPGate_10qubit_all) {
     UINT n = 10;

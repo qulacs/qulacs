@@ -191,7 +191,7 @@ public:
         this->_update_func_gpu = CZ_gate_host;
 #endif
 #ifdef _USE_MPI
-        this->_update_func_mpi = nullptr;  // CZ_gate_mpi; not supported yet
+        this->_update_func_mpi = CZ_gate_mpi;
 #endif
         this->_name = "CZ";
         this->_target_qubit_list.push_back(
