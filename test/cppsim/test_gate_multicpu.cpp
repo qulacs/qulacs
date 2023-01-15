@@ -54,10 +54,8 @@ TEST(GateTest_multicpu, ApplySingleQubitGate) {
     funclist.push_back(std::make_pair(gate::sqrtXdag, sqrtX.adjoint()));
     funclist.push_back(std::make_pair(gate::sqrtY, sqrtY));
     funclist.push_back(std::make_pair(gate::sqrtYdag, sqrtY.adjoint()));
-    /*
-        funclist.push_back(std::make_pair(gate::P0, P0));
-        funclist.push_back(std::make_pair(gate::P1, P1));
-    */
+    funclist.push_back(std::make_pair(gate::P0, P0));
+    funclist.push_back(std::make_pair(gate::P1, P1));
 
     MPIutil m = get_mpiutil();
     const ITYPE inner_dim = dim >> state.outer_qc;

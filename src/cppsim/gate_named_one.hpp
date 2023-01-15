@@ -302,7 +302,7 @@ public:
         this->_update_func_gpu = P0_gate_host;
 #endif
 #ifdef _USE_MPI
-        this->_update_func_mpi = nullptr;  // P0_gate_mpi; not supported yet
+        this->_update_func_mpi = P0_gate_mpi;
 #endif
         this->_name = "Projection-0";
         this->_target_qubit_list.push_back(
@@ -318,7 +318,7 @@ public:
         this->_update_func_gpu = P1_gate_host;
 #endif
 #ifdef _USE_MPI
-        this->_update_func_mpi = nullptr;  // P1_gate_mpi; not supported yet
+        this->_update_func_mpi = P1_gate_mpi;
 #endif
         this->_name = "Projection-1";
         this->_target_qubit_list.push_back(
