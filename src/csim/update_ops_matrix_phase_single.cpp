@@ -1,15 +1,7 @@
 
-#include <assert.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#include "constant.hpp"
+#include "MPIutil.hpp"
 #include "update_ops.hpp"
 #include "utility.hpp"
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 
 #ifdef _USE_SIMD
 #ifdef _MSC_VER
@@ -107,6 +99,22 @@ void single_qubit_phase_gate_parallel_simd(
             data = _mm256_hadd_pd(data0, data1);
             _mm256_storeu_pd(ptr, data);
         }
+    }
+}
+#endif
+
+#ifdef _USE_MPI
+void single_qubit_phase_gate_mpi(UINT target_qubit_index, CTYPE phase,
+    CTYPE* state, ITYPE dim, UINT inner_qc) {
+    if (target_qubit_index < inner_qc) {
+        single_qubit_phase_gate(target_qubit_index, phase, state, dim);
+    } else {
+        int target_rank_bit = 1 << (target_qubit_index - inner_qc);
+        MPIutil m = get_mpiutil();
+        int rank = m->get_rank();
+        if (rank & target_rank_bit) {
+            state_multiply(phase, state, dim);
+        }  // if else, nothing to do.
     }
 }
 #endif

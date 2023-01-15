@@ -123,7 +123,7 @@ void CZ_gate_parallel_simd(UINT control_qubit_index, UINT target_qubit_index,
 
 #ifdef _USE_MPI
 void CZ_gate_mpi(UINT control_qubit_index, UINT target_qubit_index,
-    CTYPE *state, ITYPE dim, UINT inner_qc) {
+    CTYPE* state, ITYPE dim, UINT inner_qc) {
     UINT left_qubit, right_qubit;
     if (control_qubit_index > target_qubit_index) {
         left_qubit = control_qubit_index;

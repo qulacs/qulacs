@@ -606,7 +606,7 @@ public:
 #ifdef _USE_MPI
         MPIutil mpiutil = get_mpiutil();
         if (this->outer_qc > 0) mpiutil->s_D_allreduce_ordersafe(&entropy);
-#endif  //#ifdef _USE_MPI
+#endif
         return entropy;
     }
 
