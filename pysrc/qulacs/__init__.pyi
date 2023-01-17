@@ -437,18 +437,15 @@ class QuantumCircuit():
         """
         Add adjoint of pi/8 phase gate
         """
-    @staticmethod
-    def add_U1_gate(*args, **kwargs) -> typing.Any: 
+    def add_U1_gate(self, index: int, lambda_: float) -> None: 
         """
         Add QASM U1 gate
         """
-    @staticmethod
-    def add_U2_gate(*args, **kwargs) -> typing.Any: 
+    def add_U2_gate(self, index: int, phi: float, lambda_: float) -> None: 
         """
         Add QASM U2 gate
         """
-    @staticmethod
-    def add_U3_gate(*args, **kwargs) -> typing.Any: 
+    def add_U3_gate(self, index: int, theta: float, phi: float, lambda_: float) -> None: 
         """
         Add QASM U3 gate
         """
