@@ -5,6 +5,7 @@ import unittest
 import warnings
 
 import numpy as np
+
 import qulacs
 
 for ind in range(1, len(sys.argv)):
@@ -76,6 +77,7 @@ class TestObservable(unittest.TestCase):
 
     def test_get_matrix(self):
         import numpy as np
+
         from qulacs import Observable
         n_qubits = 3
         obs = Observable(n_qubits)
@@ -159,6 +161,8 @@ class TestPointerHandling(unittest.TestCase):
         func2()
 
     def test_circuit_add_gate(self):
+        from scipy.sparse import lil_matrix
+
         from qulacs import QuantumCircuit, QuantumState
         from qulacs.gate import (CNOT, CPTP, CZ, FREDKIN, P0, P1, RX, RY, RZ,
                                  SWAP, TOFFOLI, U1, U2, U3, Adaptive,
@@ -173,7 +177,6 @@ class TestPointerHandling(unittest.TestCase):
                                  TwoQubitDepolarizingNoise, X, Y, Z, add,
                                  merge, sqrtX, sqrtXdag, sqrtY, sqrtYdag,
                                  to_matrix_gate)
-        from scipy.sparse import lil_matrix
         qc = QuantumCircuit(3)
         qs = QuantumState(3)
         ref = QuantumState(3)
@@ -225,6 +228,8 @@ class TestPointerHandling(unittest.TestCase):
         parametric_gates = None
 
     def test_circuit_add_parametric_gate(self):
+        from scipy.sparse import lil_matrix
+
         from qulacs import ParametricQuantumCircuit, QuantumState
         from qulacs.gate import (CNOT, CPTP, CZ, FREDKIN, P0, P1, RX, RY, RZ,
                                  SWAP, TOFFOLI, U1, U2, U3, Adaptive,
@@ -240,7 +245,6 @@ class TestPointerHandling(unittest.TestCase):
                                  TwoQubitDepolarizingNoise, X, Y, Z, add,
                                  merge, sqrtX, sqrtXdag, sqrtY, sqrtYdag,
                                  to_matrix_gate)
-        from scipy.sparse import lil_matrix
         qc = ParametricQuantumCircuit(3)
         qs = QuantumState(3)
         ref = QuantumState(3)
@@ -380,9 +384,10 @@ class TestPointerHandling(unittest.TestCase):
 
     def test_sparse_matrix(self):
 
+        from scipy.sparse import lil_matrix
+
         from qulacs import QuantumState
         from qulacs.gate import SparseMatrix
-        from scipy.sparse import lil_matrix
         n = 5
         state = QuantumState(n)
         matrix = lil_matrix((4, 4), dtype=np.complex128)
@@ -648,6 +653,7 @@ class TestUtils(unittest.TestCase):
 
     def test_convert_openfermion_op(self):
         from openfermion import QubitOperator
+
         from qulacs.utils import convert_openfermion_op
         openfermion_op = QubitOperator()
         openfermion_op += 1. * QubitOperator("X0")
@@ -925,6 +931,7 @@ class TestQASM(unittest.TestCase):
 
     def test_qasm_converter(self):
         import numpy as np
+
         from qulacs import QuantumCircuit
         from qulacs.converter import (convert_QASM_to_qulacs_circuit,
                                       convert_qulacs_circuit_to_QASM)
@@ -962,10 +969,11 @@ class TestJSON(unittest.TestCase):
         pass
 
     def test_operator(self):
-        from qulacs import (PauliOperator, GeneralQuantumOperator,
-            Observable, QuantumState, quantum_operator, observable)
-        import random
         import json
+        import random
+
+        from qulacs import (GeneralQuantumOperator, Observable, PauliOperator,
+                            QuantumState, observable, quantum_operator)
 
         n = 5
 
@@ -1010,6 +1018,7 @@ class TestJSON(unittest.TestCase):
 
         for _ in range(3):
             state = QuantumState(n)
+            state.set_Haar_random_state()
             self.assertAlmostEqual(
                 oridinal_observable.get_expectation_value(state),
                 restored_observable.get_expectation_value(state)
