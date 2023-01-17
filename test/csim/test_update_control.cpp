@@ -110,9 +110,12 @@ void test_two_control_single_target(std::function<void(
 
     Eigen::MatrixXcd whole_I = Eigen::MatrixXcd::Identity(dim, dim);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
+
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         // two qubit control-10 single qubit gate
-        std::random_shuffle(index_list.begin(), index_list.end());
+        std::shuffle(index_list.begin(), index_list.end(), engine);
         target = index_list[0];
         controls[0] = index_list[1];
         controls[1] = index_list[2];
@@ -184,11 +187,13 @@ TEST(UpdateTest, SingleQubitControlTwoQubitDenseMatrixTest) {
 
     Eigen::MatrixXcd whole_I = Eigen::MatrixXcd::Identity(dim, dim);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         // single qubit 1-controlled qubit dense matrix gate
         U = get_eigen_matrix_random_single_qubit_unitary();
         U2 = get_eigen_matrix_random_single_qubit_unitary();
-        std::random_shuffle(index_list.begin(), index_list.end());
+        std::shuffle(index_list.begin(), index_list.end(), engine);
         targets[0] = index_list[0];
         targets[1] = index_list[1];
         control = index_list[2];
@@ -232,11 +237,14 @@ TEST(UpdateTest, TwoQubitControlTwoQubitDenseMatrixTest) {
 
     Eigen::MatrixXcd whole_I = Eigen::MatrixXcd::Identity(dim, dim);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
+
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         // two qubit control-11 two qubit gate
         U = get_eigen_matrix_random_single_qubit_unitary();
         U2 = get_eigen_matrix_random_single_qubit_unitary();
-        std::random_shuffle(index_list.begin(), index_list.end());
+        std::shuffle(index_list.begin(), index_list.end(), engine);
         targets[0] = index_list[0];
         targets[1] = index_list[1];
         controls[0] = index_list[2];

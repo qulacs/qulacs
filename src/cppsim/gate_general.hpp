@@ -209,7 +209,7 @@ public:
         return;
     }
 
-    virtual bool is_noise() { return true; }
+    virtual bool is_noise() override { return true; }
 };
 
 /**

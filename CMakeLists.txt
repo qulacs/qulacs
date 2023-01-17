@@ -199,19 +199,34 @@ endif()
 
 ##### set warnings #####
 if(NOT USE_GPU)
-	set(WARNING_C "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
-	 -Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
-	 -Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=missing-declarations -Werror=return-type \
-	 -Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
-	 -Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
-	 -Wnested-externs -fdiagnostics-color=auto")
-	set(WARNING_CPP "-Wall -Wextra -Wlogical-op -Wmissing-include-dirs \
-	 -Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
-	 -Werror=missing-declarations -Werror=return-type \
-	 -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
-	 -Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
-	 -fdiagnostics-color=auto")
-	 # -Werror=undef is eliminated due to conflict with boost
+	if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+		set(WARNING_C "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
+			-Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
+			-Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=missing-declarations -Werror=return-type \
+			-Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
+			-Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
+			-Wnested-externs -fdiagnostics-color=auto")
+		set(WARNING_CPP "-Wall -Wextra -Wlogical-op -Wmissing-include-dirs \
+			-Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
+			-Werror=missing-declarations -Werror=return-type \
+			-Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
+			-Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
+			-fdiagnostics-color=auto")
+		# -Werror=undef is eliminated due to conflict with boost
+	elseif ((${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang") OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang"))
+		set(WARNING_C "-Wall -Wextra -Werror=undef -Wmissing-include-dirs \
+			-Wpointer-arith -Winit-self -Wfloat-equal \
+			-Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=missing-declarations -Werror=return-type \
+			-Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
+			-Wimplicit-fallthrough -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
+			-Wnested-externs -fdiagnostics-color=auto")
+		set(WARNING_CPP "-Wall -Wextra -Wmissing-include-dirs \
+			-Wpointer-arith -Winit-self -Wfloat-equal \
+			-Werror=missing-declarations -Werror=return-type \
+			-Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
+			-Wimplicit-fallthrough -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
+			-fdiagnostics-color=auto")
+	endif()
 endif()
 
 ##### set output directory #####

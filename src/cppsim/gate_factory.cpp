@@ -460,8 +460,8 @@ QuantumGate_CPTP* AmplitudeDampingNoise(UINT target_index, double prob) {
     ComplexMatrix damping_matrix_0(2, 2), damping_matrix_1(2, 2);
     damping_matrix_0 << 1, 0, 0, sqrt(1 - prob);
     damping_matrix_1 << 0, sqrt(prob), 0, 0;
-    auto gate0 = DenseMatrix({target_index}, damping_matrix_0);
-    auto gate1 = DenseMatrix({target_index}, damping_matrix_1);
+    auto gate0 = DenseMatrix(target_index, damping_matrix_0);
+    auto gate1 = DenseMatrix(target_index, damping_matrix_1);
     auto new_gate = new QuantumGate_CPTP({gate0, gate1});
     delete gate0;
     delete gate1;
