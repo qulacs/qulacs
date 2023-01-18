@@ -1242,6 +1242,7 @@ class TestJSON(unittest.TestCase):
             for i in range(len(g_list)):
                 gg = g_list[i]
                 gg_json = g_json_list[i]
+                self.assertEqual(gg.get_name(), gg_json.get_name())
                 qs.set_Haar_random_state()
                 qs_json = qs.copy()
                 gg.update_quantum_state(qs)
