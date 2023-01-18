@@ -767,11 +767,19 @@ class QuantumGateSparseMatrix(QuantumGateBase):
 class QuantumGate_Adaptive(QuantumGateBase):
     pass
 class QuantumGate_CP(QuantumGateBase):
+    def get_gate_list(self) -> typing.List[QuantumGateBase]: 
+        """
+        get_gate_list
+        """
     pass
 class QuantumGate_CPTP(QuantumGateBase):
     """
     QuantumGate_Instrument
     """
+    def get_gate_list(self) -> typing.List[QuantumGateBase]: 
+        """
+        get_gate_list
+        """
     pass
 class QuantumGate_Probabilistic(QuantumGateBase):
     """

@@ -1060,10 +1060,11 @@ class TestJSON(unittest.TestCase):
             observable.from_json(non_hermitian_operator.to_json())
 
     def test_gate(self):
-        from qulacs import QuantumState, circuit, gate
+        from qulacs import QuantumState, gate
         from qulacs.gate import (CNOT, CZ, FREDKIN, P0, P1, RX, RY, RZ,
                                  SWAP, TOFFOLI, U1, U2, U3, H, Identity,
                                  Pauli, PauliRotation, S, Sdag,
+                                 StateReflection,
                                  T, Tdag, X, Y, Z, add,
                                  merge, sqrtX, sqrtXdag, sqrtY, sqrtYdag,
                                  to_matrix_gate)
@@ -1079,7 +1080,8 @@ class TestJSON(unittest.TestCase):
             sparse_mat[0, 0] = 1
             sparse_mat[1, 1] = 1
 
-            r = random.random()
+            axis = QuantumState(n)
+            axis.set_Haar_random_state()
 
             gates = [
                 Identity(0), X(0), Y(0), Z(0), H(0), S(0), Sdag(0), T(
@@ -1087,6 +1089,7 @@ class TestJSON(unittest.TestCase):
                 sqrtY(0), sqrtYdag(0),
                 CNOT(0, 1), CZ(0, 1), SWAP(0, 1), TOFFOLI(0, 1, 2), FREDKIN(
                     0, 1, 2), Pauli([0, 1], [1, 2]), PauliRotation([0, 1], [1, 2], random.random()),
+                StateReflection(axis),
                 merge(
                     X(0), Y(1)), add(X(0), Y(1)), to_matrix_gate(X(0)),
                 P0(0), P1(0), U1(0, random.random()), U2(0, random.random(), random.random()), U3(
@@ -1114,8 +1117,8 @@ class TestJSON(unittest.TestCase):
         from qulacs import QuantumState, gate
         from qulacs.gate import (
             ParametricRX, ParametricRY, ParametricRZ, ParametricPauliRotation)
-        import json
         import random
+        import json
 
         n = 3
         qs = QuantumState(n)
@@ -1184,6 +1187,118 @@ class TestJSON(unittest.TestCase):
 
         for _ in range(10):
             execute_test_matrix_gate()
+
+    def test_probabilistic_gate(self):
+        from qulacs import gate
+        from qulacs.gate import (X, Y, BitFlipNoise,
+                                 DephasingNoise, Probabilistic,
+                                 DepolarizingNoise, IndependentXZNoise,
+                                 TwoQubitDepolarizingNoise)
+        import json
+        import random
+
+        r = random.random()
+        gates = [
+            Probabilistic([r, 1. - r], [X(0), Y(0)]),
+            BitFlipNoise(0, random.random()), DephasingNoise(
+                0, random.random()),
+            IndependentXZNoise(0, random.random()), DepolarizingNoise(
+                0, random.random()),
+            TwoQubitDepolarizingNoise(0, 1, random.random(
+            )),
+        ]
+
+        for g in gates:
+            json_string = g.to_json()
+            json.loads(json_string)
+            g_json = gate.from_json(json_string)
+
+            ds = g.get_distribution()
+            ds_json = g_json.get_distribution()
+
+            for i in range(len(ds)):
+                self.assertAlmostEqual(ds[i], ds_json[i])
+
+    def test_cptp_gate(self):
+        from qulacs import QuantumState, gate
+        from qulacs.gate import P0, P1, CPTP, AmplitudeDampingNoise, Instrument, Measurement, Adaptive
+        import random
+
+        n = 2
+        gates = [
+            AmplitudeDampingNoise(0, random.random()),
+            CPTP([P0(0), P1(0)]),
+            Instrument([P0(0), P1(0)], 0), Measurement(0, 0),
+        ]
+
+        for g in gates:
+            g_list = g.get_gate_list()
+            json_string = g.to_json()
+            g_json = gate.from_json(json_string)
+            g_json_list = g_json.get_gate_list()
+
+            qs = QuantumState(n)
+
+            for i in range(len(g_list)):
+                gg = g_list[i]
+                gg_json = g_json_list[i]
+                self.assertEqual(gg.get_name(), gg_json.get_name())
+                qs.set_Haar_random_state()
+                qs_json = qs.copy()
+                gg.update_quantum_state(qs)
+                gg_json.update_quantum_state(qs_json)
+                for i in range(n):
+                    self.assertAlmostEqual(qs.get_zero_probability(
+                        i), qs_json.get_zero_probability(i))
+
+    def test_noisy_evolution_gate(self):
+        from qulacs import QuantumState, GeneralQuantumOperator, Observable, gate
+        from qulacs.gate import NoisyEvolution, NoisyEvolution_fast, PauliRotation, H
+        import json
+
+        n = 2
+
+        def execute_test_gate(is_fast):
+            observable = Observable(n)
+            observable.add_operator(1., "X 0")
+
+            hamiltonian = Observable(n)
+            hamiltonian.add_operator(1., "Z 0 Z 1")
+
+            c_ops = []
+            op = GeneralQuantumOperator(n)
+            op.add_operator(0., "Z 0")
+            c_ops.append(op)
+
+            step = 10
+            time = 3.14 / step
+            dt = .001
+            if is_fast:
+                g = NoisyEvolution_fast(hamiltonian, c_ops, time)
+            else:
+                g = NoisyEvolution(hamiltonian, c_ops, time, dt)
+            json_string = g.to_json()
+            json.loads(json_string)
+            g_json = gate.from_json(json_string)
+
+            # reference gate
+            g_ref = PauliRotation([0, 1], [3, 3], -time * 2)
+
+            state = QuantumState(n)
+            state_ref = QuantumState(n)
+            h0 = H(0)
+            h0.update_quantum_state(state)
+            h0.update_quantum_state(state_ref)
+            for k in range(step):
+                g_json.update_quantum_state(state)
+                g_ref.update_quantum_state(state_ref)
+                exp = observable.get_expectation_value(state)
+                exp_ref = observable.get_expectation_value(state_ref)
+                self.assertAlmostEqual(exp.real, exp_ref.real)
+
+        for _ in range(10):
+            execute_test_gate(False)
+            execute_test_gate(True)
 
     def test_circuit(self):
         from qulacs import QuantumState, QuantumCircuit, circuit

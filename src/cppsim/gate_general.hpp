@@ -396,6 +396,7 @@ public:
         }
         return pt;
     }
+    virtual std::vector<QuantumGateBase*> get_gate_list() { return _gate_list; }
 };
 
 /**
@@ -554,6 +555,7 @@ public:
         pt.put("assign_zero_if_not_matched", _assign_zero_if_not_matched);
         return pt;
     }
+    virtual std::vector<QuantumGateBase*> get_gate_list() { return _gate_list; }
 };
 
 /**
