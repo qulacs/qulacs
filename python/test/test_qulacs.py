@@ -1098,6 +1098,33 @@ class TestJSON(unittest.TestCase):
         for _ in range(10):
             execute_test_gate()
 
+    def test_parametric_gate(self):
+        from qulacs import QuantumState, gate
+        from qulacs.gate import (
+            ParametricRX, ParametricRY, ParametricRZ, ParametricPauliRotation)
+        import json
+        import random
+
+        n = 3
+        qs = QuantumState(n)
+
+        gates = [
+            ParametricRX(0, random.random()), ParametricRY(0, random.random()), ParametricRZ(
+                0, random.random()), ParametricPauliRotation([0, 1], [1, 1], random.random())
+        ]
+
+        for g in gates:
+            qs.set_Haar_random_state()
+            qs_json = qs.copy()
+            g.update_quantum_state(qs)
+            json_string = g.to_json()
+            json.loads(json_string)
+            g_json = gate.from_json(json_string)
+            g_json.update_quantum_state(qs_json)
+            for i in range(n):
+                self.assertAlmostEqual(qs.get_zero_probability(
+                    i), qs_json.get_zero_probability(i))
+
 
 if __name__ == "__main__":
     unittest.main()
