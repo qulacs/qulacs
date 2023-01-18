@@ -645,6 +645,9 @@ QuantumGateBase* from_ptree(const boost::property_tree::ptree& pt) {
     } else if (name == "sqrtXGate") {
         UINT target_qubit = pt.get<UINT>("target_qubit");
         return sqrtX(target_qubit);
+    } else if (name == "sqrtXdagGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return sqrtXdag(target_qubit);
     } else if (name == "sqrtYGate") {
         UINT target_qubit = pt.get<UINT>("target_qubit");
         return sqrtY(target_qubit);
