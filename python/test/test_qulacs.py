@@ -1185,6 +1185,62 @@ class TestJSON(unittest.TestCase):
         for _ in range(10):
             execute_test_matrix_gate()
 
+    def test_circuit(self):
+        from qulacs import QuantumState, QuantumCircuit, circuit
+        from qulacs.gate import RandomUnitary
+        import json
+
+        n = 3
+
+        circ = QuantumCircuit(n)
+        for _ in range(3):
+            g = RandomUnitary([0, 1, 2])
+            circ.add_gate(g)
+
+        json_string = circ.to_json()
+        json.loads(json_string)
+        circ_json = circuit.from_json(json_string)
+
+        qs = QuantumState(n)
+        qs.set_Haar_random_state()
+        qs_json = qs.copy()
+
+        circ.update_quantum_state(qs)
+        circ_json.update_quantum_state(qs_json)
+
+        for i in range(n):
+            self.assertAlmostEqual(qs.get_zero_probability(
+                i), qs_json.get_zero_probability(i))
+
+    def test_parametric_circuit(self):
+        from qulacs import QuantumState, ParametricQuantumCircuit, circuit
+        from qulacs.gate import ParametricPauliRotation
+        import json
+        import random
+
+        n = 2
+
+        circ = ParametricQuantumCircuit(n)
+
+        for _ in range(3):
+            g = ParametricPauliRotation([0, 1], [1, 1], random.random())
+            circ.add_gate(g)
+
+        json_string = circ.to_json()
+        json.loads(json_string)
+        circ_json = circuit.from_json(json_string)
+
+        qs = QuantumState(n)
+        qs.set_Haar_random_state()
+        qs_json = qs.copy()
+
+        circ.update_quantum_state(qs)
+        circ_json.update_quantum_state(qs_json)
+
+        for i in range(n):
+            self.assertAlmostEqual(qs.get_zero_probability(
+                i), qs_json.get_zero_probability(i))
+
 
 if __name__ == "__main__":
     unittest.main()
