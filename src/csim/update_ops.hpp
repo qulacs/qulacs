@@ -375,13 +375,11 @@ void CZ_gate_parallel_simd(
  */
 DllExport void SWAP_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
     CTYPE* state, ITYPE dim);
-void SWAP_gate_single_unroll(UINT target_qubit_index_0,
-    UINT target_qubit_index_1, CTYPE* state, ITYPE dim);
-void SWAP_gate_single_simd(UINT target_qubit_index_0, UINT target_qubit_index_1,
-    CTYPE* state, ITYPE dim);
 void SWAP_gate_parallel_unroll(UINT target_qubit_index_0,
     UINT target_qubit_index_1, CTYPE* state, ITYPE dim);
 void SWAP_gate_parallel_simd(UINT target_qubit_index_0,
+    UINT target_qubit_index_1, CTYPE* state, ITYPE dim);
+void SWAP_gate_parallel_sve(UINT target_qubit_index_0,
     UINT target_qubit_index_1, CTYPE* state, ITYPE dim);
 
 /**

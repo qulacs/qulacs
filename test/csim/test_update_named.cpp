@@ -283,4 +283,10 @@ TEST(UpdateTest, SWAPGate) {
     test_two_qubit_named_gate(6, "SWAPGate", SWAP_gate_parallel_simd,
         get_eigen_matrix_full_qubit_SWAP);
 #endif
+#ifdef _USE_SVE
+    test_two_qubit_named_gate(2, "SWAPGate", SWAP_gate_parallel_sve,
+        get_eigen_matrix_full_qubit_SWAP);
+    test_two_qubit_named_gate(6, "SWAPGate", SWAP_gate_parallel_sve,
+        get_eigen_matrix_full_qubit_SWAP);
+#endif
 }
