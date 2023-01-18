@@ -1137,6 +1137,54 @@ class TestJSON(unittest.TestCase):
                 self.assertAlmostEqual(qs.get_zero_probability(
                     i), qs_json.get_zero_probability(i))
 
+    def test_matrix_gate(self):
+        from qulacs import QuantumState, gate
+        from qulacs.gate import (
+            DenseMatrix,
+            SparseMatrix)
+        from scipy.sparse import csc_matrix
+        import json
+        import random
+
+        n = 3
+
+        def execute_test_matrix_gate():
+            qs = QuantumState(n)
+
+            # DenseMatrix
+            matrix = np.array(
+                [[random.random(), random.random()], [random.random(), random.random()]])
+            g = DenseMatrix(0, matrix)
+            qs.set_Haar_random_state()
+            qs_json = qs.copy()
+            g.update_quantum_state(qs)
+            json_string = g.to_json()
+            json.loads(json_string)
+            g_json = gate.from_json(json_string)
+            g_json.update_quantum_state(qs_json)
+            for i in range(n):
+                self.assertAlmostEqual(qs.get_zero_probability(
+                    i), qs_json.get_zero_probability(i))
+
+            # SparseMatrix
+            matrix = np.array(
+                [[random.random(), random.random()], [random.random(), random.random()]])
+            csc = csc_matrix(matrix)
+            g = SparseMatrix([0], csc)
+            qs.set_Haar_random_state()
+            qs_json = qs.copy()
+            g.update_quantum_state(qs)
+            json_string = g.to_json()
+            json.loads(json_string)
+            g_json = gate.from_json(json_string)
+            g_json.update_quantum_state(qs_json)
+            for i in range(n):
+                self.assertAlmostEqual(qs.get_zero_probability(
+                    i), qs_json.get_zero_probability(i))
+
+        for _ in range(10):
+            execute_test_matrix_gate()
+
 
 if __name__ == "__main__":
     unittest.main()
