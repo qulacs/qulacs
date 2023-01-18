@@ -61,6 +61,13 @@ public:
         double initial_angle);
     virtual std::vector<double> backprop(GeneralQuantumOperator* obs);
     virtual std::vector<double> backprop_inner_product(QuantumState* bistate);
+
+    /**
+     * \~japanese-en ptreeに変換
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const;
 };
 
 namespace circuit {
