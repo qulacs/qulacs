@@ -737,13 +737,13 @@ PYBIND11_MODULE(qulacs_core, m) {
         "Create projection gate to |1> subspace", py::arg("index"));
 
     mgate.def("U1", &gate::U1, py::return_value_policy::take_ownership,
-        "Create QASM U1 gate", py::arg("index"), py::arg("lambda"));
+        "Create QASM U1 gate", py::arg("index"), py::arg("lambda_"));
     mgate.def("U2", &gate::U2, py::return_value_policy::take_ownership,
         "Create QASM U2 gate", py::arg("index"), py::arg("phi"),
-        py::arg("lambda"));
+        py::arg("lambda_"));
     mgate.def("U3", &gate::U3, py::return_value_policy::take_ownership,
         "Create QASM U3 gate", py::arg("index"), py::arg("theta"),
-        py::arg("phi"), py::arg("lambda"));
+        py::arg("phi"), py::arg("lambda_"));
 
     mgate.def("RX", &gate::RX, py::return_value_policy::take_ownership,
         "Create Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
@@ -1131,12 +1131,12 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Add Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
 
         .def("add_U1_gate", &QuantumCircuit::add_U1_gate, "Add QASM U1 gate",
-            py::arg("index"), py::arg("lambda"))
+            py::arg("index"), py::arg("lambda_"))
         .def("add_U2_gate", &QuantumCircuit::add_U2_gate, "Add QASM U2 gate",
-            py::arg("index"), py::arg("phi"), py::arg("lambda"))
+            py::arg("index"), py::arg("phi"), py::arg("lambda_"))
         .def("add_U3_gate", &QuantumCircuit::add_U3_gate, "Add QASM U3 gate",
             py::arg("index"), py::arg("theta"), py::arg("phi"),
-            py::arg("lambda"))
+            py::arg("lambda_"))
 
         .def("add_multi_Pauli_gate",
             py::overload_cast<std::vector<UINT>, std::vector<UINT>>(
