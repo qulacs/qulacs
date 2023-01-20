@@ -129,6 +129,11 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
     ITYPE state_index;
     double sum = 0.;
 
+#ifdef _OPENMP
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 10);
+#endif
+
 #ifdef _USE_SVE
     // # of complex128 numbers in an SVE register
     ITYPE VL = svcntd() / 2;
@@ -219,11 +224,7 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
     } else
 #endif
     {
-#ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum)
-#endif
         for (state_index = 0; state_index < loop_dim; ++state_index) {
             ITYPE basis_0 = insert_zero_to_basis_index(
                 state_index, pivot_mask, pivot_qubit_index);
@@ -246,6 +247,11 @@ double expectation_value_multi_qubit_Pauli_operator_Z_mask(
     const ITYPE loop_dim = dim;
     ITYPE state_index;
     double sum = 0.;
+
+#ifdef _OPENMP
+    OMPutil omputil = get_omputil();
+    omputil->set_qulacs_num_threads(dim, 10);
+#endif
 
 #ifdef _USE_SVE
     // # of complex128 numbers in an SVE registers
@@ -305,11 +311,7 @@ double expectation_value_multi_qubit_Pauli_operator_Z_mask(
 #endif
     {
 
-#ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum)
-#endif
         for (state_index = 0; state_index < loop_dim; ++state_index) {
             int bit_parity =
                 count_population(state_index & phase_flip_mask) % 2;
