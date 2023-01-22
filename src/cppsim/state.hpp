@@ -603,7 +603,7 @@ public:
         double entropy = measurement_distribution_entropy(this->data_c(), _dim);
 #ifdef _USE_MPI
         MPIutil mpiutil = get_mpiutil();
-        if (this->outer_qc > 0) mpiutil->s_D_allreduce_ordersafe(&entropy);
+        if (this->outer_qc > 0) mpiutil->s_D_allreduce(&entropy);
 #endif
         return entropy;
     }

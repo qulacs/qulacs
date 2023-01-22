@@ -171,19 +171,6 @@ static void s_D_allreduce(void *buf) {
     if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
 }
 
-static void s_D_allreduce_ordersafe(void *buf) {
-    double *recvbuf = (double *)malloc(mpisize * sizeof(double));
-    UINT ret =
-        MPI_Allgather(buf, 1, MPI_DOUBLE, recvbuf, 1, MPI_DOUBLE, mpicomm);
-    if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
-    double *sum = (double *)buf;
-    *sum = 0.;
-    for (int idx = 0; idx < mpisize; ++idx) {
-        *sum += recvbuf[idx];
-    }
-    free(recvbuf);
-}
-
 static void s_u_bcast(UINT *a) {
     UINT ret = MPI_Bcast(a, 1, MPI_INT, 0, mpicomm);
     if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
@@ -224,7 +211,6 @@ MPIutil get_mpiutil() {
     REGISTER_METHOD_POINTER(m_I_allreduce)
     REGISTER_METHOD_POINTER(s_D_allgather)
     REGISTER_METHOD_POINTER(s_D_allreduce)
-    REGISTER_METHOD_POINTER(s_D_allreduce_ordersafe)
     REGISTER_METHOD_POINTER(s_u_bcast)
     REGISTER_METHOD_POINTER(s_D_bcast)
     return mpiutil;

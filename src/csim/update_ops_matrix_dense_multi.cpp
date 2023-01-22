@@ -149,8 +149,9 @@ void multi_qubit_dense_matrix_gate_mpi(const UINT* target_qubit_index_list,
                 target_qubit_index_list[1], matrix, state, dim, inner_qc);
         } else {  // targets > 2
             throw NotImplementedException(
-                "Dense Matrix multi-target gate for MPI"
-                " with more than three qubits is not Implemented");
+                "Dense Matrix multi-target gate for MPI with " +
+                std::to_string(target_qubit_index_count) +
+                " target-qubits is not Implemented");
         }
     }
 }

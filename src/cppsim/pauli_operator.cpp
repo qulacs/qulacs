@@ -1,17 +1,6 @@
-#include <stdarg.h>
-#include <stdio.h>
-#include <stdlib.h>
 
 #include <boost/dynamic_bitset.hpp>
-#include <cassert>
-#include <cstring>
-#include <fstream>
-#include <iostream>
-#include <string>
-#include <utility>
-#include <vector>
 
-#include "type.hpp"
 #include "utility.hpp"
 #ifdef _USE_GPU
 #include <gpusim/stat_ops.h>
@@ -161,7 +150,21 @@ CPPCTYPE PauliOperator::get_expectation_value(
                        (UINT)this->get_index_list().size(), state->data(),
                        state->dim, state->get_cuda_stream(),
                        state->device_number);
-        } else {
+        } else
+#endif
+#ifdef _USE_MPI
+            if (state->outer_qc > 0) {
+            CPPCTYPE result =
+                _coef *
+                expectation_value_multi_qubit_Pauli_operator_partial_list_mpi(
+                    this->get_index_list().data(),
+                    this->get_pauli_id_list().data(),
+                    (UINT)this->get_index_list().size(), state->data_c(),
+                    state->dim, state->outer_qc, state->inner_qc);
+            return result;
+        } else
+#endif
+        {
             return _coef *
                    expectation_value_multi_qubit_Pauli_operator_partial_list(
                        this->get_index_list().data(),
@@ -169,14 +172,6 @@ CPPCTYPE PauliOperator::get_expectation_value(
                        (UINT)this->get_index_list().size(), state->data_c(),
                        state->dim);
         }
-#else
-        return _coef *
-               expectation_value_multi_qubit_Pauli_operator_partial_list(
-                   this->get_index_list().data(),
-                   this->get_pauli_id_list().data(),
-                   (UINT)this->get_index_list().size(), state->data_c(),
-                   state->dim);
-#endif
     } else {
         return _coef *
                dm_expectation_value_multi_qubit_Pauli_operator_partial_list(
@@ -202,6 +197,12 @@ CPPCTYPE PauliOperator::get_expectation_value_single_thread(
                        state->dim, state->get_cuda_stream(),
                        state->device_number);
         }
+#endif
+#ifdef _USE_MPI
+        if (state->outer_qc > 0)
+            std::cout
+                << "# Warning! This implementation with MPI is not thread-safe."
+                << std::endl;
 #endif
         return _coef *
                expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
@@ -239,7 +240,9 @@ CPPCTYPE PauliOperator::get_transition_amplitude(
                        (UINT)this->get_index_list().size(), state_bra->data(),
                        state_ket->data(), state_bra->dim,
                        state_ket->get_cuda_stream(), state_ket->device_number);
-    } else {
+    } else
+#endif
+    {
         return _coef *
                (CPPCTYPE)
                    transition_amplitude_multi_qubit_Pauli_operator_partial_list(
@@ -248,15 +251,6 @@ CPPCTYPE PauliOperator::get_transition_amplitude(
                        (UINT)this->get_index_list().size(), state_bra->data_c(),
                        state_ket->data_c(), state_bra->dim);
     }
-#else
-    return _coef *
-           (CPPCTYPE)
-               transition_amplitude_multi_qubit_Pauli_operator_partial_list(
-                   this->get_index_list().data(),
-                   this->get_pauli_id_list().data(),
-                   (UINT)this->get_index_list().size(), state_bra->data_c(),
-                   state_ket->data_c(), state_bra->dim);
-#endif
 }
 
 PauliOperator* PauliOperator::copy() const {
