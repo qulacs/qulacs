@@ -166,10 +166,10 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    //QuantumState state(3); // same as original-qulacs
+    QuantumState ref_state(3); // use single cpu
     QuantumState state(3, 1); // 1(ture): use_multi_cpu
-    //QuantumState state(3, 0); // 0(false): don't use_multi_cpu
     state.set_Haar_random_state();
+    ref_state.load(&state);
 
     QuantumCircuit circuit(3);
     circuit.add_X_gate(0);
@@ -177,19 +177,25 @@ int main(int argc, char *argv[]) {
     auto merged_gate = gate::merge(gate::CNOT(0, 1),gate::Y(1));
     circuit.add_gate(merged_gate);
     circuit.add_RX_gate(1, 0.5);
-    // circuit.update_quantum_state(&state); // not supported yet
+    circuit.update_quantum_state(&ref_state); // update SV w/o MPI
+    circuit.update_quantum_state(&state); // update SV with MPI
 
     // sampling
     //   1st param. is number of sampling.
     //   2nd param. is random-seed.
     // You must call state.sampling on every mpi-ranks
     // with the same random seed.
-    // std::vector<ITYPE> sample = state.sampling(50, 2021); // not supported yet
-    // if (rank==0) {
-    //     std::cout << "#result_state.sampling: ";
-    //     for (const auto& e : sample) std::cout << e << " ";
-    //     std::cout << std::endl;
-    // }
+    std::vector<ITYPE> ref_sample = ref_state.sampling(50, 2021); // not supported yet
+    std::vector<ITYPE> sample = state.sampling(50, 2021); // not supported yet
+    if (rank==0) {
+        std::cout << "#result_state.sampling(      cpu): ";
+        for (const auto& e : ref_sample) std::cout << e << " ";
+        std::cout << std::endl;
+
+        std::cout << "#result_state.sampling(multi-cpu): ";
+        for (const auto& e : sample) std::cout << e << " ";
+        std::cout << std::endl;
+    }
 
     //
     // observable function is not available in mpi.
@@ -197,8 +203,10 @@ int main(int argc, char *argv[]) {
     Observable observable(3);
     observable.add_operator(2.0, "X 2 Y 1 Z 0");
     observable.add_operator(-3.0, "Z 2");
-    // auto value = observable.get_expectation_value(&state); // not supported yet
-    // std::cout << value << std::endl;
+    auto ref_value = observable.get_expectation_value(&ref_state); // not supported yet
+    auto value = observable.get_expectation_value(&state); // not supported yet
+    std::cout << "#result observable(      cpu) " << ref_value << std::endl;
+    std::cout << "#result observable(multi-cpu) " << value << std::endl;
     return 0;
 }
 ```
@@ -219,6 +227,22 @@ int main(int argc, char *argv[]) {
       - set_computational_basis
       - set_Haar_random_state
       - to_string
+      - copy
+      - load
+      - get_entropy
+      - sampling
+  - gate
+      - Identity / H / X / Y / Z
+      - CNOT / CZ / SWAP
+      - RX / RY / RZ
+      - S / Sdag / T / Tdag
+      - SqrtX / SqrtXdag / SqrtY / SqrtYdag
+      - U1 / U2 / U3
+      - P0 / P1
+      - Pauli (single)
+      - PauliRotation (single)
+      - DenseMatrix gate (single-target, double-target)
+      - DiagonalMatrix gate (single target)
 
 ## Additional info
 
@@ -227,42 +251,25 @@ int main(int argc, char *argv[]) {
       - optimize
       - optimize_light
   - ParametricQuantumCircuit
-  - QuantumState
-      - copy
-      - load
-      - get_entropy
-      - sampling
   - gate
-      - X / Y / Z
-      - CNOT / CZ / SWAP
-      - Identity / H
-      - P0 / P1
-      - RX / RY / RZ
-      - S / Sdag / T / Tdag
-      - SqrtX / SqrtXdag / SqrtY / SqrtYdag
-      - U1 / U2 / U3
-      - Pauli
-      - PauliRotation
-      - DenseMatrix gate (single control, single target)
-      - DiagonalMatrix gate (single target)
+      - DenseMatrix gate (multi-target, single-control, multi-control)
       - Measurement
-      - merge (max number of qubits = 2)
+      - merge (number of qubits > 1)
+      - Pauli (multi)
+      - PauliRotation (multi)
       - CPTP
       - Instrument
       - Adaptive
       - RandomUnitary
       - to_matrix_gate
-  - GeneralQuantumOperator (w/o get_transition_amplitude)
-  - Observable (w/o get_transition_amplitude)
-  - PauliOperator (w/o get_transition_amplitude)
-
-  - gate
       - TOFFOLI
       - FREDKIN
       - DenseMatrix gate(multi control, multi target)
       - DiagonalMatrix(multi target)
-  - QuantumCircuitOptimizer
-      - optimize (block_size > 1)
+  - GeneralQuantumOperator (w/o get_transition_amplitude)
+  - Observable (w/o get_transition_amplitude)
+  - PauliOperator (w/o get_transition_amplitude)
+
   - QuantumCircuitSimulator
   - state
       - inner_product
