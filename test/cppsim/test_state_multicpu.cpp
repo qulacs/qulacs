@@ -55,6 +55,64 @@ TEST(StateTest_multicpu, GenerateAndRelease) {
     }
 }
 
+TEST(StateTest_multicpu, setHaarRandomState) {
+    UINT n = 10;
+    UINT mpirank, mpisize, global_qubit, local_qubit;
+    ITYPE part_dim, offs;
+
+    QuantumState state_multicpu(n, true);
+    QuantumState state_singlecpu(n, false);
+
+    if (state_multicpu.get_device_name() == "multi-cpu") {
+        MPIutil mpiutil = get_mpiutil();
+        mpirank = mpiutil->get_rank();
+        mpisize = mpiutil->get_size();
+        global_qubit = std::log2(mpisize);
+        local_qubit = n - global_qubit;
+        part_dim = (1ULL << n) / mpisize;
+        offs = part_dim * mpirank;
+    } else {
+        mpirank = 0;
+        mpisize = 1;
+        global_qubit = 0;
+        local_qubit = n;
+        part_dim = 1ULL << n;
+        offs = 0ULL;
+    }
+
+    state_multicpu.set_computational_basis(600);
+    state_singlecpu.load(&state_multicpu);
+    for (UINT i = 0; i < state_multicpu.dim; ++i) {
+        ASSERT_NEAR(abs(state_multicpu.data_cpp()[i] -
+                        state_singlecpu.data_cpp()[i + offs]),
+            0, eps);
+    }
+
+    state_singlecpu.set_computational_basis(600);
+    state_multicpu.load(&state_singlecpu);
+    for (UINT i = 0; i < state_multicpu.dim; ++i) {
+        ASSERT_NEAR(abs(state_multicpu.data_cpp()[i] -
+                        state_singlecpu.data_cpp()[i + offs]),
+            0, eps);
+    }
+
+    state_multicpu.set_Haar_random_state();
+    state_singlecpu.load(&state_multicpu);
+    for (UINT i = 0; i < state_multicpu.dim; ++i) {
+        ASSERT_NEAR(abs(state_multicpu.data_cpp()[i] -
+                        state_singlecpu.data_cpp()[i + offs]),
+            0, eps);
+    }
+
+    state_singlecpu.set_Haar_random_state();
+    state_multicpu.load(&state_singlecpu);
+    for (UINT i = 0; i < state_multicpu.dim; ++i) {
+        ASSERT_NEAR(abs(state_multicpu.data_cpp()[i] -
+                        state_singlecpu.data_cpp()[i + offs]),
+            0, eps);
+    }
+}
+
 TEST(StateTest_multicpu, SamplingComputationalBasis) {
     const UINT n = 10;
     const UINT nshot = 1024;

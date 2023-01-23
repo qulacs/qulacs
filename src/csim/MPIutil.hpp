@@ -33,7 +33,6 @@ typedef struct {
     void (*m_I_allreduce)(void *buf, UINT count);
     void (*s_D_allgather)(double a, void *recvbuf);
     void (*s_D_allreduce)(void *buf);
-    void (*s_D_allreduce_ordersafe)(void *buf);
     void (*s_u_bcast)(UINT *a);
     void (*s_D_bcast)(double *a);
 } MPIutil_;

@@ -103,7 +103,8 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
     }
 
     const size_t n_terms = this->_operator_list.size();
-    if (state->get_device_name() == "gpu") {
+    std::string device = state->get_device_name();
+    if (device == "gpu" || device == "multi-cpu") {
         CPPCTYPE sum = 0;
         for (UINT i = 0; i < n_terms; ++i) {
             sum += _operator_list[i]->get_expectation_value(state);

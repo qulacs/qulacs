@@ -517,11 +517,9 @@ public:
             // すべてのrankで同一の結果を得るために、seedを共有する
             MPIutil mpiutil = get_mpiutil();
             if (mpiutil->get_size() > 1) mpiutil->s_u_bcast(&seed);
-        } else
-#endif
-        {
-            set_Haar_random_state(seed);
         }
+#endif
+        set_Haar_random_state(seed);
     }
     /**
      * \~japanese-en 量子状態をシードを用いてHaar
@@ -605,7 +603,7 @@ public:
         double entropy = measurement_distribution_entropy(this->data_c(), _dim);
 #ifdef _USE_MPI
         MPIutil mpiutil = get_mpiutil();
-        if (this->outer_qc > 0) mpiutil->s_D_allreduce_ordersafe(&entropy);
+        if (this->outer_qc > 0) mpiutil->s_D_allreduce(&entropy);
 #endif
         return entropy;
     }
