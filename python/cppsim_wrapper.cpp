@@ -871,7 +871,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             const ITYPE dim = 1ULL << target_qubit_index_list.size();
             if (diagonal_element.size() != dim)
                 throw std::invalid_argument(
-                    "dim of diagonal elemet is not consistent.");
+                    "dim of diagonal element is not consistent.");
             auto ptr =
                 gate::DiagonalMatrix(target_qubit_index_list, diagonal_element);
             return ptr;
