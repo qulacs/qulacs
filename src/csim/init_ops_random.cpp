@@ -63,8 +63,7 @@ void initialize_Haar_random_state_with_seed_single(
 void initialize_Haar_random_state_with_seed_parallel(
     CTYPE* state, ITYPE dim, UINT seed) {
     // multi thread
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
     const int ignore_first = 40;
     const UINT thread_count = omp_get_max_threads();
     const ITYPE block_size = dim / thread_count;
@@ -115,7 +114,7 @@ void initialize_Haar_random_state_with_seed_parallel(
     for (ITYPE index = 0; index < dim; ++index) {
         state[index] *= normalizer;
     }
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
     free(random_state_list);
     free(norm_list);
 }

@@ -8,7 +8,7 @@
 
 
 Qulacs is a Python/C++ library for fast simulation of large, noisy, or parametric quantum circuits.
-Qulacs is developed at QunaSys, Osaka University, and NTT.
+Qulacs is developed at QunaSys, Osaka University, NTT and Fujitsu.
 
 Qulacs is licensed under the [MIT license](https://github.com/qulacs/qulacs/blob/master/LICENSE).
 

@@ -22,15 +22,14 @@ CTYPE* dm_allocate_quantum_state(ITYPE dim) {
 void dm_initialize_quantum_state(CTYPE* state, ITYPE dim) {
     ITYPE index;
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for
 #endif
     for (index = 0; index < dim * dim; ++index) {
         state[index] = 0;
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     state[0] = 1.0;
 }
@@ -41,8 +40,7 @@ void dm_initialize_with_pure_state(
     CTYPE* state, const CTYPE* pure_state, ITYPE dim) {
     ITYPE ind_y;
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for
 #endif
     for (ind_y = 0; ind_y < dim; ++ind_y) {
@@ -53,6 +51,6 @@ void dm_initialize_with_pure_state(
         }
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 }

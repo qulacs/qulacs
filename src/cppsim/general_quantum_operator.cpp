@@ -115,8 +115,7 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
     double sum_imag = 0.;
     CPPCTYPE tmp(0., 0.);
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(n_terms, 0);
+    OMPutil::get_inst().set_qulacs_num_threads(n_terms, 0);
 #pragma omp parallel for reduction(+ : sum_real, sum_imag) private(tmp)
 #endif
     for (int i = 0; i < (int)n_terms;
@@ -127,7 +126,7 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
         sum_imag += tmp.imag();
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     return CPPCTYPE(sum_real, sum_imag);
 }
