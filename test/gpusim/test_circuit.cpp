@@ -5,8 +5,8 @@
 #include <csim/constant.hpp>
 
 #include "../util/util.hpp"
-//#define _USE_MATH_DEFINES
-//#include <cmath>
+// #define _USE_MATH_DEFINES
+// #include <cmath>
 #include <cppsim/circuit.hpp>
 #include <cppsim/circuit_optimizer.hpp>
 #include <cppsim/gate_factory.hpp>
@@ -83,6 +83,7 @@ TEST(CircuitTest, CircuitBasic) {
     const UINT dim = 1ULL << n;
 
     Random random;
+    std::complex<double> imag_unit(0, 1);
 
     int ngpus = get_num_device();
     for (int idx = 0; idx < ngpus; ++idx) {

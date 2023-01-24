@@ -37,6 +37,7 @@ __all__ = [
     "QuantumGate_SingleParameter",
     "QuantumState",
     "QuantumStateBase",
+    "SimulationResult",
     "StateVector",
     "circuit",
     "gate",
@@ -270,6 +271,10 @@ class NoiseSimulator():
         """
         Sampling & Return result [array]
         """
+    def execute_and_get_result(self, arg0: int) -> SimulationResult: 
+        """
+        Simulate & Return ressult [array of (state, frequency)]
+        """
     pass
 class Observable(GeneralQuantumOperator):
     def __init__(self, qubit_count: int) -> None: 
@@ -432,18 +437,15 @@ class QuantumCircuit():
         """
         Add adjoint of pi/8 phase gate
         """
-    @staticmethod
-    def add_U1_gate(*args, **kwargs) -> typing.Any: 
+    def add_U1_gate(self, index: int, lambda_: float) -> None: 
         """
         Add QASM U1 gate
         """
-    @staticmethod
-    def add_U2_gate(*args, **kwargs) -> typing.Any: 
+    def add_U2_gate(self, index: int, phi: float, lambda_: float) -> None: 
         """
         Add QASM U2 gate
         """
-    @staticmethod
-    def add_U3_gate(*args, **kwargs) -> typing.Any: 
+    def add_U3_gate(self, index: int, theta: float, phi: float, lambda_: float) -> None: 
         """
         Add QASM U3 gate
         """
@@ -1005,6 +1007,20 @@ class DensityMatrix(QuantumStateBase):
     def to_string(self) -> str: 
         """
         to string
+        """
+    pass
+class SimulationResult():
+    def get_count(self) -> int: 
+        """
+        get state count
+        """
+    def get_frequency(self, arg0: int) -> int: 
+        """
+        get state frequency
+        """
+    def get_state(self, arg0: int) -> QuantumState: 
+        """
+        get state
         """
     pass
 def StateVector(arg0: int) -> QuantumState:

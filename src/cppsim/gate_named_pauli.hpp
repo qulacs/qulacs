@@ -184,9 +184,10 @@ public:
      */
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         get_Pauli_matrix(matrix, _pauli->get_pauli_id_list());
+        std::complex<double> imag_unit(0, 1);
         matrix = cos(_angle / 2) *
                      ComplexMatrix::Identity(matrix.rows(), matrix.cols()) +
-                 1.i * sin(_angle / 2) * matrix;
+                 imag_unit * sin(_angle / 2) * matrix;
     }
     virtual ClsPauliRotationGate* get_inverse(void) const override {
         return new ClsPauliRotationGate(-this->_angle, this->_pauli->copy());

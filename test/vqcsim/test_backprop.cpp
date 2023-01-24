@@ -65,7 +65,7 @@ TEST(Backprop, BackpropCircuitInpro) {
     kairo.add_gate(gate::H(1));
     kairo.add_parametric_RX_gate(1, -1);
     kairo.add_parametric_RY_gate(2, 1);
-    //回路に適当にゲートを加える
+    // 回路に適当にゲートを加える
 
     std::vector<CPPCTYPE> state_hai = {
         1.0, 0.5, 3.0, -0.2, -2.0, 1.0, 0.7, 3.0};

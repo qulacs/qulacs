@@ -46,6 +46,7 @@ TEST(UpdateTest, SingleQubitPauliRotationTest) {
 
     UINT target, pauli;
     double angle;
+    std::complex<double> imag_unit(0, 1);
 
     Eigen::MatrixXcd Identity(2, 2);
     Identity << 1, 0, 0, 1;
@@ -67,7 +68,7 @@ TEST(UpdateTest, SingleQubitPauliRotationTest) {
                 target, pauli, angle, state, dim, stream_ptr, idx);
             test_state = get_expanded_eigen_matrix_with_identity(target,
                              cos(angle / 2) * Identity +
-                                 1.i * sin(angle / 2) *
+                                 imag_unit * sin(angle / 2) *
                                      get_eigen_matrix_single_Pauli(pauli),
                              n) *
                          test_state;
@@ -122,8 +123,8 @@ TEST(UpdateTest, MultiQubitPauliTest) {
                     pauli_partial_pair.push_back(std::make_pair(i, pauli));
                 }
             }
-            std::random_shuffle(
-                pauli_partial_pair.begin(), pauli_partial_pair.end());
+            std::shuffle(
+                pauli_partial_pair.begin(), pauli_partial_pair.end(), engine);
             for (auto val : pauli_partial_pair) {
                 pauli_partial_index.push_back(val.first);
                 pauli_partial.push_back(val.second);
@@ -145,6 +146,7 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
     const UINT n = 6;
     const ITYPE dim = 1ULL << n;
     const UINT max_repeat = 10;
+    std::complex<double> imag_unit(0, 1);
 
     UINT pauli;
     double angle;
@@ -174,7 +176,7 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
                 pauli_whole.data(), n, angle, state, dim, stream_ptr, idx);
             test_state =
                 (cos(angle / 2) * whole_I +
-                    1.i * sin(angle / 2) *
+                    imag_unit * sin(angle / 2) *
                         get_eigen_matrix_full_qubit_pauli(pauli_whole)) *
                 test_state;
             state_equal_gpu(state, test_state, dim,
@@ -191,8 +193,8 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
                     pauli_partial_pair.push_back(std::make_pair(i, pauli));
                 }
             }
-            std::random_shuffle(
-                pauli_partial_pair.begin(), pauli_partial_pair.end());
+            std::shuffle(
+                pauli_partial_pair.begin(), pauli_partial_pair.end(), engine);
             for (auto val : pauli_partial_pair) {
                 pauli_partial_index.push_back(val.first);
                 pauli_partial.push_back(val.second);
@@ -203,7 +205,7 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
                 (UINT)pauli_partial.size(), angle, state, dim, stream_ptr, idx);
             test_state =
                 (cos(angle / 2) * whole_I +
-                    1.i * sin(angle / 2) *
+                    imag_unit * sin(angle / 2) *
                         get_eigen_matrix_full_qubit_pauli(pauli_whole)) *
                 test_state;
             state_equal_gpu(state, test_state, dim,

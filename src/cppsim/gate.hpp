@@ -266,7 +266,7 @@ public:
     virtual bool is_noise() { return false; }
     virtual void set_seed(int) { return; };
 
-    //ここから勝手にjupiroがつくったやつ
+    // ここから勝手にjupiroがつくったやつ
     void set_target_index_list(const std::vector<UINT>& target_index_list) {
         if (target_qubit_list.size() < target_index_list.size()) {
             target_qubit_list.resize(target_index_list.size());

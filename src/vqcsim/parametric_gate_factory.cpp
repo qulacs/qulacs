@@ -38,7 +38,9 @@ QuantumGate_SingleParameter* ParametricPauliRotation(std::vector<UINT> target,
             "but it changed to throw exception.");
     }
     auto pauli = new PauliOperator(target, pauli_id, initial_angle);
-    return new ClsParametricPauliRotationGate(initial_angle, pauli);
+    auto gate = new ClsParametricPauliRotationGate(initial_angle, pauli);
+    delete pauli;
+    return gate;
 }
 
 QuantumGateBase* create_parametric_quantum_gate_from_string(

@@ -172,7 +172,7 @@ protected:
 public:
     ClsParametricPauliRotationGate(double angle, PauliOperator* pauli)
         : QuantumGate_SingleParameter(angle) {
-        _pauli = pauli;
+        _pauli = pauli->copy();
         this->_name = "ParametricPauliRotation";
         auto target_index_list = _pauli->get_index_list();
         auto pauli_id_list = _pauli->get_pauli_id_list();
@@ -219,17 +219,19 @@ public:
         }
     };
     virtual ClsParametricPauliRotationGate* copy() const override {
-        return new ClsParametricPauliRotationGate(_angle, _pauli->copy());
+        return new ClsParametricPauliRotationGate(_angle, _pauli);
     };
     virtual void set_matrix(ComplexMatrix& matrix) const override {
         get_Pauli_matrix(matrix, _pauli->get_pauli_id_list());
+        std::complex<double> imag_unit(0, 1);
         matrix = cos(_angle / 2) *
                      ComplexMatrix::Identity(matrix.rows(), matrix.cols()) +
-                 1.i * sin(_angle / 2) * matrix;
-    };
+                 imag_unit * sin(_angle / 2) * matrix;
+    }
+
     virtual PauliOperator* get_pauli() const { return _pauli; };
 
     virtual ClsParametricPauliRotationGate* get_inverse() const override {
-        return new ClsParametricPauliRotationGate(-_angle, _pauli->copy());
+        return new ClsParametricPauliRotationGate(-_angle, _pauli);
     };
 };

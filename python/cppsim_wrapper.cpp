@@ -737,13 +737,13 @@ PYBIND11_MODULE(qulacs_core, m) {
         "Create projection gate to |1> subspace", py::arg("index"));
 
     mgate.def("U1", &gate::U1, py::return_value_policy::take_ownership,
-        "Create QASM U1 gate", py::arg("index"), py::arg("lambda"));
+        "Create QASM U1 gate", py::arg("index"), py::arg("lambda_"));
     mgate.def("U2", &gate::U2, py::return_value_policy::take_ownership,
         "Create QASM U2 gate", py::arg("index"), py::arg("phi"),
-        py::arg("lambda"));
+        py::arg("lambda_"));
     mgate.def("U3", &gate::U3, py::return_value_policy::take_ownership,
         "Create QASM U3 gate", py::arg("index"), py::arg("theta"),
-        py::arg("phi"), py::arg("lambda"));
+        py::arg("phi"), py::arg("lambda_"));
 
     mgate.def("RX", &gate::RX, py::return_value_policy::take_ownership,
         "Create Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
@@ -1131,12 +1131,12 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Add Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
 
         .def("add_U1_gate", &QuantumCircuit::add_U1_gate, "Add QASM U1 gate",
-            py::arg("index"), py::arg("lambda"))
+            py::arg("index"), py::arg("lambda_"))
         .def("add_U2_gate", &QuantumCircuit::add_U2_gate, "Add QASM U2 gate",
-            py::arg("index"), py::arg("phi"), py::arg("lambda"))
+            py::arg("index"), py::arg("phi"), py::arg("lambda_"))
         .def("add_U3_gate", &QuantumCircuit::add_U3_gate, "Add QASM U3 gate",
             py::arg("index"), py::arg("theta"), py::arg("phi"),
-            py::arg("lambda"))
+            py::arg("lambda_"))
 
         .def("add_multi_Pauli_gate",
             py::overload_cast<std::vector<UINT>, std::vector<UINT>>(
@@ -1322,8 +1322,31 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("get_coef_list", &CausalConeSimulator::get_coef_list,
             "Return coef_list");
 
+    py::class_<NoiseSimulator::Result>(m, "SimulationResult")
+        .def(
+            "get_count",
+            [](const NoiseSimulator::Result& result) -> UINT {
+                return result.result.size();
+            },
+            "get state count")
+        .def(
+            "get_state",
+            [](const NoiseSimulator::Result& result, UINT i) -> QuantumState* {
+                return result.result[i].first->copy();
+            },
+            "get state", py::return_value_policy::take_ownership)
+        .def(
+            "get_frequency",
+            [](const NoiseSimulator::Result& result, UINT i) -> UINT {
+                return result.result[i].second;
+            },
+            "get state frequency");
+
     py::class_<NoiseSimulator>(m, "NoiseSimulator")
         .def(py::init<QuantumCircuit*, QuantumState*>(), "Constructor")
         .def("execute", &NoiseSimulator::execute,
-            "Sampling & Return result [array]");
+            "Sampling & Return result [array]",
+            py::return_value_policy::take_ownership)
+        .def("execute_and_get_result", &NoiseSimulator::execute_and_get_result,
+            "Simulate & Return ressult [array of (state, frequency)]");
 }

@@ -125,7 +125,7 @@ public:
                     }
                 }
             }
-            //分解処理
+            // 分解処理
 
             auto term_index_list = term->get_index_list();
             auto pauli_id_list = term->get_pauli_id_list();

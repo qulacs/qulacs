@@ -19,6 +19,7 @@
 #include "state.hpp"
 #include "type.hpp"
 #include "utility.hpp"
+
 double ClsNoisyEvolution::_find_collapse(QuantumStateBase* k1,
     QuantumStateBase* k2, QuantumStateBase* k3, QuantumStateBase* k4,
     QuantumStateBase* prev_state, QuantumStateBase* now_state,
@@ -104,7 +105,7 @@ double ClsNoisyEvolution::_find_collapse(QuantumStateBase* k1,
                 "smaller dt.");
         }
     }
-    //ここには来ない
+    // ここには来ない
     throw std::runtime_error(
         "unexpectedly come to end of _find_collapse function.");
 }
@@ -272,10 +273,11 @@ void ClsNoisyEvolution::update_quantum_state(QuantumStateBase* state) {
             }
 
             // determine which collapse operator to be applied
-            auto jump_r = _random.uniform() * prob_sum;
-            auto ite = std::lower_bound(
+            const auto jump_r = _random.uniform() * prob_sum;
+            const auto ite = std::lower_bound(
                 cumulative_dist.begin(), cumulative_dist.end(), jump_r);
-            auto index = std::distance(cumulative_dist.begin(), ite);
+            const auto index = static_cast<size_t>(
+                std::distance(cumulative_dist.begin(), ite));
 
             // apply the collapse operator and normalize the state
             // ルンゲクッタ法の誤差により、normが1にならない場合があります。
@@ -308,7 +310,7 @@ void ClsNoisyEvolution::update_quantum_state(QuantumStateBase* state) {
     delete buffer;
 }
 
-//ここからfast
+// ここからfast
 
 double ClsNoisyEvolution_fast::_find_collapse(QuantumStateBase* prev_state,
     QuantumStateBase* now_state, double target_norm, double t_step) {
@@ -395,7 +397,7 @@ double ClsNoisyEvolution_fast::_find_collapse(QuantumStateBase* prev_state,
                 "smaller t_step.");
         }
     }
-    //ここには来ない
+    // ここには来ない
     throw std::runtime_error(
         "unexpectedly come to end of _find_collapse function.");
 }
@@ -458,7 +460,7 @@ ClsNoisyEvolution_fast::ClsNoisyEvolution_fast(Observable* hamiltonian,
     std::vector<QuantumGateBase*> gate_list;
     std::vector<bool> bit_list(hamiltonian->get_qubit_count());
     for (auto pauli : _effective_hamiltonian->get_terms()) {
-        //要素をゲートのマージで作る
+        // 要素をゲートのマージで作る
         auto pauli_gate =
             gate::Pauli(pauli->get_index_list(), pauli->get_pauli_id_list());
 
@@ -492,11 +494,11 @@ ClsNoisyEvolution_fast::ClsNoisyEvolution_fast(Observable* hamiltonian,
 
     QuantumGateMatrix* iH = gate::add(gate_list);
     this->set_target_index_list(iH->get_target_index_list());
-    //注意　このtarget_index_listはPや対角行列　に対してのlistである。
-    //このlistに入っていないが、c_opsには入っている　というパターンもありうる。
-    //ここで、　対角化を求める
-    // A = PBP^-1 のとき、　e^A = P e^B P^-1
-    // の性質を使って,e^-iHを計算する
+    // 注意　このtarget_index_listはPや対角行列　に対してのlistである。
+    // このlistに入っていないが、c_opsには入っている　というパターンもありうる。
+    // ここで、　対角化を求める
+    //  A = PBP^-1 のとき、　e^A = P e^B P^-1
+    //  の性質を使って,e^-iHを計算する
 
     ComplexMatrix hamilMatrix;
     iH->set_matrix(hamilMatrix);
