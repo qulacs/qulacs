@@ -657,6 +657,8 @@ void single_qubit_dense_matrix_gate_parallel(
     UINT target_qubit_index, const CTYPE matrix[4], CTYPE* state, ITYPE dim);
 void single_qubit_dense_matrix_gate_parallel_simd(
     UINT target_qubit_index, const CTYPE matrix[4], CTYPE* state, ITYPE dim);
+void single_qubit_dense_matrix_gate_parallel_sve(
+    UINT target_qubit_index, const CTYPE matrix[4], CTYPE* state, ITYPE dim);
 
 /**
  * \~english

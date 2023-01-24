@@ -51,6 +51,9 @@ TEST(UpdateTest, SingleDenseMatrixTest) {
 #ifdef _USE_SIMD
     test_single_dense_matrix_gate(single_qubit_dense_matrix_gate_parallel_simd);
 #endif
+#ifdef _USE_SVE
+    test_single_dense_matrix_gate(single_qubit_dense_matrix_gate_parallel_sve);
+#endif
 }
 
 void test_general_dense_matrix_gate(
