@@ -138,7 +138,7 @@ public:
      *
      * @param[in] circuit マージする量子回路
      */
-    virtual void merge_circuit(const QuantumCircuit* circuit) {
+    void merge_circuit(const QuantumCircuit* circuit) {
         for (auto gate : circuit->gate_list) {
             this->add_gate_copy(gate);
         }

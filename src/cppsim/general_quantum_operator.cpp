@@ -531,7 +531,7 @@ GeneralQuantumOperator& GeneralQuantumOperator::operator+=(
     const PauliOperator& target) {
     bool flag = true;
     ITYPE i;
-    //#pragma omp parallel for
+    // #pragma omp parallel for
     for (i = 0; i < _operator_list.size(); i++) {
         auto pauli_operator = _operator_list[i];
         auto pauli_x = pauli_operator->get_x_bits();

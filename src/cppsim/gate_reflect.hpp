@@ -19,10 +19,10 @@
  */
 class ClsStateReflectionGate : public QuantumGateBase {
 private:
-    QuantumStateBase* reflection_state;
+    QuantumState* reflection_state;
 
 public:
-    explicit ClsStateReflectionGate(const QuantumStateBase* _reflection_state) {
+    explicit ClsStateReflectionGate(const QuantumState* _reflection_state) {
         reflection_state = _reflection_state->copy();
         UINT qubit_count = _reflection_state->qubit_count;
         for (UINT qubit_index = 0; qubit_index < qubit_count; ++qubit_index) {
@@ -39,6 +39,12 @@ public:
      */
     virtual void update_quantum_state(QuantumStateBase* state) override {
         if (state->is_state_vector()) {
+            if (state->qubit_count != reflection_state->qubit_count) {
+                throw InvalidQubitCountException(
+                    "ClsStateReflectionGate::update_quantumstate("
+                    "QuantumStateBase*): qubit count must be equal to "
+                    "reflection_state's");
+            }
 #ifdef _USE_GPU
             if (state->get_device_name() !=
                 reflection_state->get_device_name()) {

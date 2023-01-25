@@ -1,4 +1,3 @@
-#pragma once
 #include "gate_factory.hpp"
 
 ClsOneQubitGate* ClsOneQubitGate::get_inverse(void) const {

@@ -88,7 +88,7 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
   */
     const CTYPE* matrix_ptr =
         reinterpret_cast<const CTYPE*>(this->_matrix_element.data());
-    //#endif
+    // #endif
 
     // convert list of QubitInfo to list of UINT
     std::vector<UINT> target_index;
@@ -96,7 +96,7 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
     std::vector<UINT> control_value;
     std::transform(this->_target_qubit_list.cbegin(),
         this->_target_qubit_list.cend(), std::back_inserter(target_index),
-        [](auto value) { return value.index(); });
+        [](const TargetQubitInfo& value) { return value.index(); });
     for (auto val : this->_control_qubit_list) {
         control_index.push_back(val.index());
         control_value.push_back(val.control_value());

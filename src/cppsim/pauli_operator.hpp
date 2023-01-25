@@ -108,7 +108,7 @@ public:
         std::vector<UINT> index_list;
         std::transform(_pauli_list.cbegin(), _pauli_list.cend(),
             std::back_inserter(index_list),
-            [](auto val) { return val.index(); });
+            [](const SinglePauliOperator& val) { return val.index(); });
         return index_list;
     }
 
@@ -138,7 +138,7 @@ public:
         std::vector<UINT> pauli_id_list;
         std::transform(_pauli_list.cbegin(), _pauli_list.cend(),
             std::back_inserter(pauli_id_list),
-            [](auto val) { return val.pauli_id(); });
+            [](const SinglePauliOperator& val) { return val.pauli_id(); });
         return pauli_id_list;
     }
 

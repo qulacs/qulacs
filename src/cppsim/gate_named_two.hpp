@@ -107,7 +107,7 @@ public:
         throw NotImplementedException(
             "Inverse of " + this->_name + " gate is not Implemented");
     }
-    //現状SWAPゲートしかないので、自身がget_inverseになるが、　そうでないゲートが追加されたときの保険として、　判定をする
+    // 現状SWAPゲートしかないので、自身がget_inverseになるが、　そうでないゲートが追加されたときの保険として、　判定をする
 };
 
 /**
@@ -222,7 +222,7 @@ public:
         throw NotImplementedException(
             "Inverse of " + this->_name + " gate is not Implemented");
     }
-    //現状CZ,CNOTゲートしかないので、自身がinverseになるが、　そうでないゲートが追加されたときの保険として、　判定をする
+    // 現状CZ,CNOTゲートしかないので、自身がinverseになるが、　そうでないゲートが追加されたときの保険として、　判定をする
 };
 
 using QuantumGate_TwoQubit = ClsTwoQubitGate;

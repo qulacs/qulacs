@@ -103,14 +103,12 @@ TEST(DensityMatrixGateTest, ApplySingleQubitRotationGate) {
         for (auto func_mat : funclist) {
             UINT target = random.int32() % n;
             double angle = random.uniform() * 3.14159;
-
-            auto func = func_mat.first;
-            auto mat = cos(angle / 2) * Eigen::MatrixXcd::Identity(2, 2) +
-                       1.i * sin(angle / 2) * func_mat.second;
+            std::complex<double> imag_unit(0, 1);
 
             test_state.set_Haar_random_state();
             state.load(&test_state);
 
+            const auto func = func_mat.first;
             auto gate = func(target, angle);
             gate->update_quantum_state(&state);
             gate->update_quantum_state(&test_state);
@@ -491,6 +489,7 @@ TEST(DensityMatrixGateTest, RandomUnitaryMerge) {
     // define states
     DensityMatrix state(n);
     QuantumState test_state(n);
+    std::complex<double> imag_unit(0, 1);
 
     for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
         // pick random state and copy to test
@@ -559,6 +558,7 @@ TEST(DensityMatrixGateTest, RandomUnitaryMergeLarge) {
     // define states
     DensityMatrix state(n), state2(n);
     QuantumState test_state(n);
+    std::complex<double> imag_unit(0, 1);
 
     for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
         // pick random state and copy to test
@@ -568,8 +568,7 @@ TEST(DensityMatrixGateTest, RandomUnitaryMergeLarge) {
 
         QuantumGateBase* merged_gate1 = gate::Identity(0);
         QuantumGateBase* merged_gate2 = gate::Identity(0);
-        QuantumGateMatrix* next_merged_gate = NULL;
-        QuantumGateBase* new_gate = NULL;
+        // QuantumGateMatrix* next_merged_gate = NULL;
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
             // pick random pauli
             UINT new_pauli_id = (random.int32() % 3) + 1;
@@ -585,46 +584,16 @@ TEST(DensityMatrixGateTest, RandomUnitaryMergeLarge) {
             dz /= norm;
             ComplexMatrix mat =
                 di * get_eigen_matrix_single_Pauli(0) +
-                1.i * (dx * get_eigen_matrix_single_Pauli(1) +
-                          dy * get_eigen_matrix_single_Pauli(2) +
-                          dz * get_eigen_matrix_single_Pauli(3));
+                imag_unit * (dx * get_eigen_matrix_single_Pauli(1) +
+                                dy * get_eigen_matrix_single_Pauli(2) +
+                                dz * get_eigen_matrix_single_Pauli(3));
 
             auto new_gate = gate::DenseMatrix(target, mat);
 
             // create new gate with merge
-            next_merged_gate = gate::merge(merged_gate1, new_gate);
+            auto next_merged_gate = gate::merge(merged_gate1, new_gate);
             delete merged_gate1;
             merged_gate1 = next_merged_gate;
-            next_merged_gate = NULL;
-
-            // dispose picked pauli
-            delete new_gate;
-        }
-        for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
-            // pick random pauli
-            UINT new_pauli_id = (random.int32() % 3) + 1;
-            UINT target = random.int32() % n;
-            double di = random.uniform();
-            double dx = random.uniform();
-            double dy = random.uniform();
-            double dz = random.uniform();
-            double norm = sqrt(di * di + dx * dx + dy * dy + dz * dz);
-            di /= norm;
-            dx /= norm;
-            dy /= norm;
-            dz /= norm;
-            ComplexMatrix mat =
-                di * get_eigen_matrix_single_Pauli(0) +
-                1.i * (dx * get_eigen_matrix_single_Pauli(1) +
-                          dy * get_eigen_matrix_single_Pauli(2) +
-                          dz * get_eigen_matrix_single_Pauli(3));
-
-            auto new_gate = gate::DenseMatrix(target, mat);
-
-            // create new gate with merge
-            next_merged_gate = gate::merge(merged_gate2, new_gate);
-            delete merged_gate2;
-            merged_gate2 = next_merged_gate;
             next_merged_gate = NULL;
 
             // dispose picked pauli
@@ -666,6 +635,8 @@ TEST(DensityMatrixGateTest, RandomControlMergeSmall) {
     std::vector<UINT> arr;
     for (UINT i = 0; i < n; ++i) arr.push_back(i);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (gate_count = 1; gate_count < n * 2; ++gate_count) {
         ComplexMatrix mat = ComplexMatrix::Identity(dim, dim);
         DensityMatrix state(n);
@@ -678,7 +649,7 @@ TEST(DensityMatrixGateTest, RandomControlMergeSmall) {
         QuantumGateBase* merge_gate2 = gate::Identity(0);
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
-            std::random_shuffle(arr.begin(), arr.end());
+            std::shuffle(arr.begin(), arr.end(), engine);
             UINT target = arr[0];
             UINT control = arr[1];
             auto new_gate = gate::CNOT(control, target);
@@ -717,6 +688,8 @@ TEST(DensityMatrixGateTest, RandomControlMergeLarge) {
     std::vector<UINT> arr;
     for (UINT i = 0; i < n; ++i) arr.push_back(i);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (gate_count = 1; gate_count < n * 2; ++gate_count) {
         ComplexMatrix mat = ComplexMatrix::Identity(dim, dim);
         DensityMatrix state(n), state2(n);
@@ -730,7 +703,7 @@ TEST(DensityMatrixGateTest, RandomControlMergeLarge) {
         QuantumGateBase* merge_gate2 = gate::Identity(0);
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
-            std::random_shuffle(arr.begin(), arr.end());
+            std::shuffle(arr.begin(), arr.end(), engine);
             UINT target = arr[0];
             UINT control = arr[1];
             auto new_gate = gate::CNOT(control, target);
@@ -745,7 +718,7 @@ TEST(DensityMatrixGateTest, RandomControlMergeLarge) {
         }
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
-            std::random_shuffle(arr.begin(), arr.end());
+            std::shuffle(arr.begin(), arr.end(), engine);
             UINT target = arr[0];
             UINT control = arr[1];
             auto new_gate = gate::CNOT(control, target);
@@ -796,8 +769,10 @@ TEST(DensityMatrixGateTest, MultiTarget) {
     std::vector<UINT> arr;
     for (UINT i = 0; i < n; ++i) arr.push_back(i);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (UINT repeat = 0; repeat < 10; ++repeat) {
-        std::random_shuffle(arr.begin(), arr.end());
+        std::shuffle(arr.begin(), arr.end(), engine);
         std::vector<UINT> target_list;
         for (UINT i = 0; i < target_count; ++i) target_list.push_back(arr[i]);
         QuantumGateBase* gate = gate::RandomUnitary(target_list);
@@ -832,8 +807,10 @@ TEST(DensityMatrixGateTest, MultiControlSingleTarget) {
     std::vector<UINT> arr;
     for (UINT i = 0; i < n; ++i) arr.push_back(i);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (UINT repeat = 0; repeat < 10; ++repeat) {
-        std::random_shuffle(arr.begin(), arr.end());
+        std::shuffle(arr.begin(), arr.end(), engine);
         std::vector<UINT> target_list;
         target_list.push_back(arr[0]);
         auto gate = gate::RandomUnitary(target_list);
@@ -871,8 +848,10 @@ TEST(DensityMatrixGateTest, SingleControlMultiTarget) {
     std::vector<UINT> arr;
     for (UINT i = 0; i < n; ++i) arr.push_back(i);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (UINT repeat = 0; repeat < 10; ++repeat) {
-        std::random_shuffle(arr.begin(), arr.end());
+        std::shuffle(arr.begin(), arr.end(), engine);
         std::vector<UINT> target_list;
         for (UINT i = 0; i < target_count; ++i) target_list.push_back(arr[i]);
         UINT control = arr[target_count + 1];
@@ -911,8 +890,10 @@ TEST(DensityMatrixGateTest, MultiControlMultiTarget) {
     std::vector<UINT> arr;
     for (UINT i = 0; i < n; ++i) arr.push_back(i);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (UINT repeat = 0; repeat < 10; ++repeat) {
-        std::random_shuffle(arr.begin(), arr.end());
+        std::shuffle(arr.begin(), arr.end(), engine);
         std::vector<UINT> target_list;
         for (UINT i = 0; i < target_count; ++i) target_list.push_back(arr[i]);
         auto gate = gate::RandomUnitary(target_list);

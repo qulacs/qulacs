@@ -284,7 +284,7 @@ public:
         pt.add("target_qubit", _target_qubit_list[0].index());
         return pt;
     }
-    virtual ClsOneQubitGate* get_inverse(void) const;
+    virtual ClsOneQubitGate* get_inverse(void) const override;
 };
 
 /**
@@ -397,7 +397,7 @@ public:
         pt.add("angle", _angle);
         return pt;
     }
-    virtual ClsOneQubitRotationGate* get_inverse(void) const;
+    virtual ClsOneQubitRotationGate* get_inverse(void) const override;
 };
 
 using QuantumGate_OneQubit = ClsOneQubitGate;

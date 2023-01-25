@@ -68,7 +68,7 @@ public:
      * @param[in] pauli_string
      * パウリ演算子と掛かるindexの組からなる文字列。(example: "X 1 Y 2 Z 5")
      */
-    void add_operator(CPPCTYPE coef, std::string pauli_string);
+    void add_operator(CPPCTYPE coef, std::string pauli_string) override;
 
     /**
      * \~japanese-en
@@ -98,7 +98,7 @@ public:
      *
      * @return 自身のディープコピー
      */
-    virtual HermitianQuantumOperator* copy() const {
+    virtual HermitianQuantumOperator* copy() const override {
         auto hermitian_quantum_operator =
             new HermitianQuantumOperator(this->get_qubit_count());
         for (auto pauli : this->get_terms()) {

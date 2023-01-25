@@ -31,7 +31,7 @@ void test_single_qubit_named_gate(UINT n, std::string name,
                     test_state;
                 state_equal_gpu(state, test_state, dim, name, stream_ptr, idx);
             }
-            std::random_shuffle(indices.begin(), indices.end());
+            std::shuffle(indices.begin(), indices.end(), engine);
         }
         release_quantum_state_host(state, idx);
         release_cuda_stream_host(stream_ptr, 1, idx);
@@ -171,6 +171,7 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
     X << 0, 1, 1, 0;
     Y << 0, -1.i, 1.i, 0;
     Z << 1, 0, 0, -1;
+    std::complex<double> imag_unit(0, 1);
 
     UINT target;
     double angle;
@@ -202,11 +203,11 @@ TEST(UpdateTest, SingleQubitRotationGateTest) {
                 auto mat = std::get<1>(tup);
                 auto name = std::get<2>(tup);
                 func(target, angle, state, dim, stream_ptr, idx);
-                test_state =
-                    get_expanded_eigen_matrix_with_identity(target,
-                        cos(angle / 2) * Identity + 1.i * sin(angle / 2) * mat,
-                        n) *
-                    test_state;
+                test_state = get_expanded_eigen_matrix_with_identity(target,
+                                 cos(angle / 2) * Identity +
+                                     imag_unit * sin(angle / 2) * mat,
+                                 n) *
+                             test_state;
                 state_equal_gpu(state, test_state, dim, name, stream_ptr, idx);
             }
         }
@@ -243,7 +244,7 @@ void test_two_qubit_named_gate(UINT n, std::string name,
                 test_state = mat * test_state;
                 state_equal_gpu(state, test_state, dim, name, stream_ptr, idx);
             }
-            std::random_shuffle(indices.begin(), indices.end());
+            std::shuffle(indices.begin(), indices.end(), engine);
         }
         release_quantum_state_host(state, idx);
         release_cuda_stream_host(stream_ptr, 1, idx);

@@ -261,7 +261,7 @@ def SparseMatrix(index_list: typing.List[int], matrix: scipy.sparse.csc_matrix[n
     """
     Create sparse matrix gate
     """
-def StateReflection(state: qulacs_core.QuantumStateBase) -> qulacs_core.ClsStateReflectionGate:
+def StateReflection(state: qulacs_core.QuantumState) -> qulacs_core.ClsStateReflectionGate:
     """
     Create state reflection gate
     """
@@ -281,15 +281,15 @@ def TwoQubitDepolarizingNoise(index1: int, index2: int, prob: float) -> qulacs_c
     """
     Create two-qubit depolarizing noise
     """
-def U1(*args, **kwargs) -> typing.Any:
+def U1(index: int, lambda_: float) -> qulacs_core.QuantumGateMatrix:
     """
     Create QASM U1 gate
     """
-def U2(*args, **kwargs) -> typing.Any:
+def U2(index: int, phi: float, lambda_: float) -> qulacs_core.QuantumGateMatrix:
     """
     Create QASM U2 gate
     """
-def U3(*args, **kwargs) -> typing.Any:
+def U3(index: int, theta: float, phi: float, lambda_: float) -> qulacs_core.QuantumGateMatrix:
     """
     Create QASM U3 gate
     """
