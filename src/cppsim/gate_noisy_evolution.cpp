@@ -324,20 +324,6 @@ boost::property_tree::ptree ClsNoisyEvolution::to_ptree() const {
     return pt;
 }
 
-boost::property_tree::ptree ClsNoisyEvolution::to_ptree() const {
-    boost::property_tree::ptree pt;
-    pt.put("name", "NoisyEvolutionGate");
-    pt.put_child("hamiltonian", _hamiltonian->to_ptree());
-    boost::property_tree::ptree c_ops_pt;
-    for (const GeneralQuantumOperator* c_op : _c_ops) {
-        c_ops_pt.push_back(std::make_pair("", c_op->to_ptree()));
-    }
-    pt.put_child("c_ops", c_ops_pt);
-    pt.put("time", _time);
-    pt.put("dt", _dt);
-    return pt;
-}
-
 // ここからfast
 
 double ClsNoisyEvolution_fast::_find_collapse(QuantumStateBase* prev_state,
