@@ -19,6 +19,7 @@ extensions = [
     'sphinx.ext.autodoc',
     'sphinx.ext.graphviz',
     'sphinx.ext.inheritance_diagram',
+    'autoapi.extension',
 ]
 
 exclude_patterns = ['_build', '**.ipynb_checkpoints']
@@ -45,7 +46,7 @@ breathe_default_project = "Docs"
 # Setup the exhale extension
 exhale_args = {
     # These arguments are required
-    "containmentFolder":     "./api",
+    "containmentFolder":     "./cppapi",
     "rootFileName":          "cpp_library_root.rst",
     "rootFileTitle":         "C++ APIリファレンス",
     "doxygenStripFromPath":  "..",
@@ -69,6 +70,18 @@ exhale_args = {
         HIDE_UNDOC_RELATIONS   = YES\n \
         CLASS_DIAGRAMS         = YES\n"
 }
+
+autoapi_type = "python"
+autoapi_keep_files = True
+autoapi_root = "pythonapi"
+# The order of `autoapi_file_patterns`` specifies the order of preference for reading files.
+# So, we give priority to `*.pyi`.
+# https://github.com/readthedocs/sphinx-autoapi/issues/243#issuecomment-684190179
+autoapi_file_patterns = ["*.pyi", "*.py"]
+autoapi_dirs = ["../../../pysrc/qulacs"]
+autoapi_add_toctree_entry = False
+# Avoid `maximum recursion depth exceeded while calling a Python object` error.
+autoapi_ignore = ["*/vistest/__init__.py", "*/visualizer/__init__.py"]
 
 # Tell sphinx what the primary language being documented is.
 #primary_domain = 'cpp'

@@ -77,5 +77,5 @@ intro/4.2_cpp_tutorial
 :hidden:
 
 pyRef/modules
-api/cpp_library_root
+cppapi/cpp_library_root
 ```
