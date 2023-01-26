@@ -77,6 +77,9 @@ TEST(UpdateTest, ZGate) {
 #ifdef _USE_SIMD
     test_single_qubit_named_gate(6, "ZGate", Z_gate_parallel_simd, mat);
 #endif
+#ifdef _USE_SVE
+    test_single_qubit_named_gate(6, "ZGate", Z_gate_parallel_sve, mat);
+#endif
 }
 TEST(UpdateTest, HGate) {
     const UINT n = 3;
