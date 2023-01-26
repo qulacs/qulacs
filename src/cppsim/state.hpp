@@ -877,7 +877,7 @@ public:
 #ifdef _USE_MPI
         if (this->outer_qc > 0) {
             // すべてのrankで同一の結果を得るために、seedを共有する
-            UINT seed = rand();
+            UINT seed = random.int32();
             MPIutil& mpiutil = MPIutil::get_inst();
             if (mpiutil.get_size() > 1) mpiutil.s_u_bcast(&seed);
             return this->sampling(sampling_count, seed);
