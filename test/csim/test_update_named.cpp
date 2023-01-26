@@ -50,6 +50,9 @@ TEST(UpdateTest, XGate) {
 #ifdef _USE_SIMD
     test_single_qubit_named_gate(6, "XGate", X_gate_parallel_simd, mat);
 #endif
+#ifdef _USE_SVE
+    test_single_qubit_named_gate(6, "XGate", X_gate_parallel_sve, mat);
+#endif
 }
 TEST(UpdateTest, YGate) {
     Eigen::MatrixXcd mat(2, 2);

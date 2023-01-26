@@ -42,6 +42,7 @@
 DllExport void X_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void X_gate_parallel_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 void X_gate_parallel_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim);
+void X_gate_parallel_sve(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 
 /**
  * \~english
