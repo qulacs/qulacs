@@ -284,6 +284,10 @@ TEST(UpdateTest, CZGate) {
     test_two_qubit_named_gate(
         6, "CZGate", CZ_gate_parallel_simd, get_eigen_matrix_full_qubit_CZ);
 #endif
+#ifdef _USE_SVE
+    test_two_qubit_named_gate(
+        6, "CZGate", CZ_gate_parallel_sve, get_eigen_matrix_full_qubit_CZ);
+#endif
 }
 
 TEST(UpdateTest, SWAPGate) {
