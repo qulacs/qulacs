@@ -332,8 +332,6 @@ PYBIND11_MODULE(qulacs_core, m) {
         py::arg("json"));
 
     py::class_<QuantumStateBase>(m, "QuantumStateBase");
-
-    ;
     py::class_<QuantumState, QuantumStateBase>(m, "QuantumState")
         .def(py::init<UINT>(), "Constructor", py::arg("qubit_count"))
         .def(
