@@ -4,6 +4,12 @@ if (POLICY CMP0048)
 	cmake_policy(SET CMP0048 NEW)
 endif (POLICY CMP0048)
 
+# Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 3.24:
+# ref: https://github.com/qulacs/qulacs/issues/406
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
+	cmake_policy(SET CMP0135 NEW)
+endif()
+
 project(qulacs)
 
 ##### Set default behavior #####
@@ -38,7 +44,11 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
 	if(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 7.0.0)
 		message(FATAL_ERROR "g++ >= 7.0.0 is required.")
 	endif()
-	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native -mfpmath=both")
+	if("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "^x86.*")
+		set(DEFAULT_OPT_FLAGS "-mtune=native -march=native -mfpmath=both")
+	else()
+		set(DEFAULT_OPT_FLAGS "-mtune=native -march=native")
+	endif()
 elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
 	message(STATUS "MSVC_VERSION = ${MSVC_VERSION}")
 	if(${MSVC_VERSION} VERSION_LESS 1900)
@@ -150,7 +160,7 @@ if(USE_TEST)
 	FetchContent_Declare(
 		googletest_fetch
 		GIT_REPOSITORY https://github.com/google/googletest
-		GIT_TAG release-1.8.1
+		GIT_TAG release-1.12.1
 	)
 	FetchContent_GetProperties(googletest_fetch)
 	if(NOT googletest_fetch_POPULATED)
@@ -307,7 +317,7 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 	# Add optimization flags
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${OPT_FLAGS}")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OPT_FLAGS}")
-	
+
 	# Add coverage flags
 	if(COVERAGE)
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")
