@@ -40,10 +40,11 @@ jobs:
           architecture: x64
 
       - name: Install boost
-        uses: MarkusJx/install-boost@v2.0.0
+        uses: MarkusJx/install-boost@v2.4.3
         id: install-boost
         with:
           boost_version: 1.77.0
+          platform_version: 2019
 
       - name: Install qulacs for Windows
         run: |
