@@ -123,19 +123,17 @@ private:
     UINT qulacs_force_threshold = 0;
 
     OMPutil() {
-        errno = 0;
-        char* endp;
         qulacs_num_thread_max = omp_get_max_threads();
         if (const char* tmp = std::getenv("QULACS_NUM_THREADS")) {
-            const UINT tmp_val = strtol(tmp, &endp, 0);
+            const UINT tmp_val = strtol(tmp, nullptr, 0);
             if (0 < tmp_val && tmp_val <= MAX_NUM_THREADS)
                 qulacs_num_thread_max = tmp_val;
         }
 
         qulacs_force_threshold = 0;
-        if (const char* tmp = std::getenv("QULACS_FORCE_THRESHOLD")) {
-            const UINT tmp_val = strtol(tmp, &endp, 0);
-            if (0 < tmp_val && tmp_val <= MAX_NUM_THRESHOLD)
+        if (const char* tmp = std::getenv("QULACS_PARALLEL_NQUBIT_THRESHOLD")) {
+            const UINT tmp_val = strtol(tmp, nullptr, 0);
+            if (0 < tmp_val && tmp_val <= PARALLEL_NQUBIT_THRESHOLD)
                 qulacs_force_threshold = tmp_val;
         }
 

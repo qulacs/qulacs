@@ -61,4 +61,4 @@ extern const CTYPE PHASE_M90ROT[4];
 #define MAX_NUM_THREADS 1024
 
 //! Maximum number of threashold
-#define MAX_NUM_THRESHOLD 64
+#define PARALLEL_NQUBIT_THRESHOLD 64
