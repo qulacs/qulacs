@@ -62,6 +62,7 @@
 
 #include "qubit_info.hpp"
 #include "type.hpp"
+#include "utility.hpp"
 
 //! Flgas for gate property: gate is Pauli
 #define FLAG_PAULI 0x01
@@ -262,6 +263,13 @@ public:
      */
     friend DllExport std::ostream& operator<<(
         std::ostream& os, const QuantumGateBase* gate);
+
+    /**
+     * \~ japanese-en ptreeに変換する
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const;
 
     virtual bool is_noise() { return false; }
     virtual void set_seed(int) { return; };

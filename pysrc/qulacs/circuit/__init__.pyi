@@ -4,7 +4,8 @@ import typing
 import qulacs_core
 
 __all__ = [
-    "QuantumCircuitOptimizer"
+    "QuantumCircuitOptimizer",
+    "from_json"
 ]
 
 
@@ -23,3 +24,7 @@ class QuantumCircuitOptimizer():
         Optimize quantum circuit with light method
         """
     pass
+def from_json(arg0: str) -> qulacs_core.QuantumCircuit:
+    """
+    from json string
+    """

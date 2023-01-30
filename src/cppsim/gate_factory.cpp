@@ -23,6 +23,7 @@
 #include "gate_named_two.hpp"
 #include "gate_reflect.hpp"
 #include "gate_reversible.hpp"
+#include "state_dm.hpp"
 #include "type.hpp"
 
 namespace gate {
@@ -602,4 +603,220 @@ QuantumGateBase* create_quantum_gate_from_string(std::string gate_string) {
     return gate;
 }
 
+QuantumGateBase* from_ptree(const boost::property_tree::ptree& pt) {
+    std::string name = pt.get<std::string>("name");
+    if (name == "PauliGate") {
+        PauliOperator* pauli =
+            quantum_operator::pauli_operator_from_ptree(pt.get_child("pauli"));
+        return new ClsPauliGate(pauli);
+    } else if (name == "PauliRotationGate") {
+        double angle = pt.get<double>("angle");
+        PauliOperator* pauli =
+            quantum_operator::pauli_operator_from_ptree(pt.get_child("pauli"));
+        return new ClsPauliRotationGate(angle, pauli);
+    } else if (name == "IGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return Identity(target_qubit);
+    } else if (name == "XGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return X(target_qubit);
+    } else if (name == "YGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return Y(target_qubit);
+    } else if (name == "ZGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return Z(target_qubit);
+    } else if (name == "HGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return H(target_qubit);
+    } else if (name == "SGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return S(target_qubit);
+    } else if (name == "SdagGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return Sdag(target_qubit);
+    } else if (name == "TGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return T(target_qubit);
+    } else if (name == "TdagGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return Tdag(target_qubit);
+    } else if (name == "sqrtXGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return sqrtX(target_qubit);
+    } else if (name == "sqrtXdagGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return sqrtXdag(target_qubit);
+    } else if (name == "sqrtYGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return sqrtY(target_qubit);
+    } else if (name == "sqrtYdagGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return sqrtYdag(target_qubit);
+    } else if (name == "Projection-0Gate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return P0(target_qubit);
+    } else if (name == "Projection-1Gate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return P1(target_qubit);
+    } else if (name == "X-rotationGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        double angle = pt.get<double>("angle");
+        return RX(target_qubit, angle);
+    } else if (name == "Y-rotationGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        double angle = pt.get<double>("angle");
+        return RY(target_qubit, angle);
+    } else if (name == "Z-rotationGate") {
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        double angle = pt.get<double>("angle");
+        return RZ(target_qubit, angle);
+    } else if (name == "SWAPGate") {
+        std::vector<UINT> target_qubit_list =
+            ptree::uint_array_from_ptree(pt.get_child("target_qubit_list"));
+        return SWAP(target_qubit_list[0], target_qubit_list[1]);
+    } else if (name == "CNOTGate") {
+        UINT control_qubit = pt.get<UINT>("control_qubit");
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return CNOT(control_qubit, target_qubit);
+    } else if (name == "CZGate") {
+        UINT control_qubit = pt.get<UINT>("control_qubit");
+        UINT target_qubit = pt.get<UINT>("target_qubit");
+        return CZ(control_qubit, target_qubit);
+    } else if (name == "DenseMatrixGate") {
+        std::vector<TargetQubitInfo> target_qubit_list =
+            ptree::target_qubit_list_from_ptree(
+                pt.get_child("target_qubit_list"));
+        std::vector<ControlQubitInfo> control_qubit_list =
+            ptree::control_qubit_list_from_ptree(
+                pt.get_child("control_qubit_list"));
+        ComplexMatrix matrix =
+            ptree::complex_matrix_from_ptree(pt.get_child("matrix"));
+        return new QuantumGateMatrix(
+            target_qubit_list, matrix, control_qubit_list);
+    } else if (name == "DiagonalMatrixGate") {
+        std::vector<TargetQubitInfo> target_qubit_list =
+            ptree::target_qubit_list_from_ptree(
+                pt.get_child("target_qubit_list"));
+        std::vector<ControlQubitInfo> control_qubit_list =
+            ptree::control_qubit_list_from_ptree(
+                pt.get_child("control_qubit_list"));
+        ComplexVector vector =
+            ptree::complex_vector_from_ptree(pt.get_child("vector"));
+        return new QuantumGateDiagonalMatrix(
+            target_qubit_list, vector, control_qubit_list);
+    } else if (name == "SparseMatrixGate") {
+        std::vector<TargetQubitInfo> target_qubit_list =
+            ptree::target_qubit_list_from_ptree(
+                pt.get_child("target_qubit_list"));
+        std::vector<ControlQubitInfo> control_qubit_list =
+            ptree::control_qubit_list_from_ptree(
+                pt.get_child("control_qubit_list"));
+        SparseComplexMatrix matrix =
+            ptree::sparse_complex_matrix_from_ptree(pt.get_child("matrix"));
+        return new QuantumGateSparseMatrix(
+            target_qubit_list, matrix, control_qubit_list);
+    } else if (name == "StateReflectionGate") {
+        QuantumState* state = dynamic_cast<QuantumState*>(
+            state::from_ptree(pt.get_child("reflection_state")));
+        ClsStateReflectionGate* gate = StateReflection(state);
+        free(state);
+        return gate;
+    } else if (name == "ProbabilisticGate") {
+        std::vector<double> distribution;
+        for (const boost::property_tree::ptree::value_type& p_pair :
+            pt.get_child("distribution")) {
+            distribution.push_back(p_pair.second.get<double>(""));
+        }
+        std::vector<QuantumGateBase*> gate_list;
+        for (const boost::property_tree::ptree::value_type& gate_pair :
+            pt.get_child("gate_list")) {
+            gate_list.push_back(from_ptree(gate_pair.second));
+        }
+        bool is_instrument = pt.get<bool>("is_instrument");
+        QuantumGate_Probabilistic* gate;
+        if (is_instrument) {
+            UINT classical_register_address =
+                pt.get<UINT>("classical_register_address");
+            gate = new QuantumGate_Probabilistic(
+                distribution, gate_list, classical_register_address);
+        } else {
+            gate = new QuantumGate_Probabilistic(distribution, gate_list);
+        }
+        for (QuantumGateBase* gate_option : gate_list) {
+            free(gate_option);
+        }
+        return gate;
+    } else if (name == "CPTPMapGate") {
+        std::vector<QuantumGateBase*> gate_list;
+        for (const boost::property_tree::ptree::value_type& gate_pair :
+            pt.get_child("gate_list")) {
+            gate_list.push_back(from_ptree(gate_pair.second));
+        }
+        bool is_instrument = pt.get<bool>("is_instrument");
+        QuantumGate_CPTP* gate;
+        if (is_instrument) {
+            UINT classical_register_address =
+                pt.get<UINT>("classical_register_address");
+            gate = new QuantumGate_CPTP(gate_list, classical_register_address);
+        } else {
+            gate = new QuantumGate_CPTP(gate_list);
+        }
+        for (QuantumGateBase* gate_option : gate_list) {
+            free(gate_option);
+        }
+        return gate;
+    } else if (name == "CPMapGate") {
+        std::vector<QuantumGateBase*> gate_list;
+        for (const boost::property_tree::ptree::value_type& gate_pair :
+            pt.get_child("gate_list")) {
+            gate_list.push_back(from_ptree(gate_pair.second));
+        }
+        bool state_normalize = pt.get<bool>("state_normalize");
+        bool probability_normalize = pt.get<bool>("probability_normalize");
+        bool assign_zero_if_not_matched =
+            pt.get<bool>("assign_zero_if_not_matched");
+        QuantumGate_CP* gate = new QuantumGate_CP(gate_list, state_normalize,
+            probability_normalize, assign_zero_if_not_matched);
+        for (QuantumGateBase* gate_option : gate_list) {
+            free(gate_option);
+        }
+        return gate;
+    } else if (name == "NoisyEvolutionGate") {
+        Observable* hamiltonian =
+            observable::from_ptree(pt.get_child("hamiltonian"));
+        std::vector<GeneralQuantumOperator*> c_ops;
+        for (const boost::property_tree::ptree::value_type& c_op_pair :
+            pt.get_child("c_ops")) {
+            c_ops.push_back(observable::from_ptree(c_op_pair.second));
+        }
+        double time = pt.get<double>("time");
+        double dt = pt.get<double>("dt");
+        ClsNoisyEvolution* gate = NoisyEvolution(hamiltonian, c_ops, time, dt);
+        free(hamiltonian);
+        for (GeneralQuantumOperator* c_op : c_ops) {
+            free(c_op);
+        }
+        return gate;
+    } else if (name == "NoisyEvolutionFastGate") {
+        Observable* hamiltonian =
+            observable::from_ptree(pt.get_child("hamiltonian"));
+        std::vector<GeneralQuantumOperator*> c_ops;
+        for (const boost::property_tree::ptree::value_type& c_op_pair :
+            pt.get_child("c_ops")) {
+            c_ops.push_back(observable::from_ptree(c_op_pair.second));
+        }
+        double time = pt.get<double>("time");
+        ClsNoisyEvolution_fast* gate =
+            NoisyEvolution_fast(hamiltonian, c_ops, time);
+        free(hamiltonian);
+        for (GeneralQuantumOperator* c_op : c_ops) {
+            free(c_op);
+        }
+        return gate;
+    } else {
+        throw UnknownPTreePropertyValueException(
+            "unknown value for property \"name\":" + name);
+    }
+}
 }  // namespace gate

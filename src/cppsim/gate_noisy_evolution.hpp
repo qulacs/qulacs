@@ -98,6 +98,11 @@ public:
     }
 
     virtual void update_quantum_state(QuantumStateBase* state) override;
+
+    /**
+     * \~japanese-en ptreeに変換する
+     */
+    virtual boost::property_tree::ptree to_ptree() const;
 };
 
 /*
@@ -204,6 +209,11 @@ public:
      * @param state 更新する量子状態
      */
     virtual void update_quantum_state(QuantumStateBase* state) override;
+
+    /**
+     * \~japanese-en ptreeに変換する
+     */
+    virtual boost::property_tree::ptree to_ptree() const;
 };
 
 // noisyEvolution_auto

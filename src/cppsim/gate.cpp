@@ -140,3 +140,7 @@ std::ostream& operator<<(std::ostream& stream, const QuantumGateBase* gate) {
     stream << *gate;
     return stream;
 }
+
+boost::property_tree::ptree QuantumGateBase::to_ptree() const {
+    throw NotImplementedException("ptree for this gate is not implemented");
+}
