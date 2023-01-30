@@ -56,3 +56,9 @@ extern const CTYPE PROJ_1_MATRIX[4];
 extern const CTYPE PHASE_90ROT[4];
 //! complex values for exp(-j * i*pi/4 )
 extern const CTYPE PHASE_M90ROT[4];
+
+//! Maximum number of threads expected
+#define MAX_NUM_THREADS 1024
+
+//! Maximum number of threashold
+#define PARALLEL_NQUBIT_THRESHOLD 64

@@ -1,6 +1,7 @@
 #include "utility.hpp"
 
 #include <assert.h>
+#include <errno.h>
 #include <limits.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -128,3 +129,19 @@ UINT* create_sorted_ui_list_list(
     sort_ui(new_array, size1 + size2);
     return new_array;
 }
+
+#ifdef _OPENMP
+void OMPutil::set_qulacs_num_threads(ITYPE dim, UINT para_threshold) {
+    UINT threshold = para_threshold;
+    if (qulacs_force_threshold > 0) threshold = qulacs_force_threshold;
+    if (dim < (((ITYPE)1) << threshold)) {
+        omp_set_num_threads(1);
+    } else {
+        omp_set_num_threads(qulacs_num_thread_max);
+    }
+}
+
+void OMPutil::reset_qulacs_num_threads() {
+    omp_set_num_threads(qulacs_num_default_thread_max);
+}
+#endif

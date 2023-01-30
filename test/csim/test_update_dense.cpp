@@ -46,18 +46,11 @@ void test_single_dense_matrix_gate(
 
 TEST(UpdateTest, SingleDenseMatrixTest) {
     test_single_dense_matrix_gate(single_qubit_dense_matrix_gate);
-    test_single_dense_matrix_gate(single_qubit_dense_matrix_gate_single);
-    test_single_dense_matrix_gate(single_qubit_dense_matrix_gate_single_unroll);
-#ifdef _OPENMP
     test_single_dense_matrix_gate(single_qubit_dense_matrix_gate_parallel);
     test_single_dense_matrix_gate(
         single_qubit_dense_matrix_gate_parallel_unroll);
-#endif
 #ifdef _USE_SIMD
-    test_single_dense_matrix_gate(single_qubit_dense_matrix_gate_single_simd);
-#ifdef _OPENMP
     test_single_dense_matrix_gate(single_qubit_dense_matrix_gate_parallel_simd);
-#endif
 #endif
 }
 
@@ -157,8 +150,5 @@ void test_general_dense_matrix_gate(
 
 TEST(UpdateTest, ThreeQubitDenseMatrixTest) {
     test_general_dense_matrix_gate(multi_qubit_dense_matrix_gate);
-    test_general_dense_matrix_gate(multi_qubit_dense_matrix_gate_single);
-#ifdef _OPENMP
     test_general_dense_matrix_gate(multi_qubit_dense_matrix_gate_parallel);
-#endif
 }

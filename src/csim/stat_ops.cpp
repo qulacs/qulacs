@@ -13,11 +13,15 @@ double state_norm_squared(const CTYPE* state, ITYPE dim) {
     ITYPE index;
     double norm = 0;
 #ifdef _OPENMP
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : norm)
 #endif
     for (index = 0; index < dim; ++index) {
         norm += pow(_cabs(state[index]), 2);
     }
+#ifdef _OPENMP
+    OMPutil::get_inst().reset_qulacs_num_threads();
+#endif
     return norm;
 }
 
@@ -38,6 +42,7 @@ state_inner_product(const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
     double imag_sum = 0.;
     ITYPE index;
 #ifdef _OPENMP
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : real_sum, imag_sum)
 #endif
     for (index = 0; index < dim; ++index) {
@@ -46,6 +51,9 @@ state_inner_product(const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
         real_sum += _creal(value);
         imag_sum += _cimag(value);
     }
+#ifdef _OPENMP
+    OMPutil::get_inst().reset_qulacs_num_threads();
+#endif
     return real_sum + 1.i * imag_sum;
 }
 
