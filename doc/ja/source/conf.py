@@ -1,4 +1,4 @@
-import textwrap
+import qulacs
 
 project = "Qulacs"
 
@@ -110,4 +110,4 @@ templates_path = ["_templates"]
 html_static_path = ['_static']
 
 copyright = '2018 Qulacs Authors'
-version = '0.5.5'
+version = qulacs._version.__version__
