@@ -157,15 +157,6 @@ void H_gate_parallel_sve(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
                 sv_output0 = svmul_x(pall, sv_output0, sv_factor);
                 sv_output1 = svmul_x(pall, sv_output1, sv_factor);
 
-                if (5 <= target_qubit_index && target_qubit_index <= 8) {
-                    // L1 prefetch
-                    __builtin_prefetch(&state[basis_index_0 + mask * 4], 1, 3);
-                    __builtin_prefetch(&state[basis_index_1 + mask * 4], 1, 3);
-                    // L2 prefetch
-                    __builtin_prefetch(&state[basis_index_0 + mask * 8], 1, 2);
-                    __builtin_prefetch(&state[basis_index_1 + mask * 8], 1, 2);
-                }
-
                 svst1(pall, (double *)&state[basis_index_0], sv_output0);
                 svst1(pall, (double *)&state[basis_index_1], sv_output1);
             }
