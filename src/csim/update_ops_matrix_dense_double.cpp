@@ -779,7 +779,6 @@ void double_qubit_dense_matrix_gate_simd_middle(UINT target_qubit_index1,
     const ITYPE loop_dim = dim / 4;
     ITYPE state_index;
 
-    // TODO: fix compile warning.
     double* ptr_vec = (double*)vec;
     char* ptr_mat_char = (char*)mat;  // workaround for compile warning
                                       // "dereferencing type-punned pointer"
