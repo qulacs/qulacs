@@ -22,8 +22,7 @@
 void single_qubit_diagonal_matrix_gate(UINT target_qubit_index,
     const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim) {
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 12);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 12);
 #endif
 
 #ifdef _USE_SIMD
@@ -38,7 +37,7 @@ void single_qubit_diagonal_matrix_gate(UINT target_qubit_index,
 #endif
 
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 }
 

@@ -287,6 +287,15 @@ std::string QuantumGateMatrix::to_string() const {
     return os.str();
 }
 
+boost::property_tree::ptree QuantumGateMatrix::to_ptree() const {
+    boost::property_tree::ptree pt;
+    pt.put("name", "DenseMatrixGate");
+    pt.put_child("target_qubit_list", ptree::to_ptree(_target_qubit_list));
+    pt.put_child("control_qubit_list", ptree::to_ptree(_control_qubit_list));
+    pt.put_child("matrix", ptree::to_ptree(_matrix_element));
+    return pt;
+}
+
 std::ostream& operator<<(std::ostream& os, const QuantumGateMatrix& gate) {
     os << gate.to_string();
     return os;

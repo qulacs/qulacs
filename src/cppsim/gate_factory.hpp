@@ -486,4 +486,9 @@ DllExport ClsNoisyEvolution_fast* NoisyEvolution_fast(Observable* hamiltonian,
  */
 DllExport ClsNoisyEvolution_auto* NoisyEvolution_auto(Observable* hamiltonian,
     std::vector<GeneralQuantumOperator*> c_ops, double time);
+
+/**
+ * \~japanese-en ptreeからゲートを構築
+ */
+DllExport QuantumGateBase* from_ptree(const boost::property_tree::ptree& pt);
 }  // namespace gate

@@ -33,8 +33,7 @@ void multi_qubit_diagonal_matrix_gate(const UINT* target_qubit_index_list,
     const ITYPE loop_dim = dim >> target_qubit_index_count;
     ITYPE state_index;
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 14);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 14);
 #pragma omp parallel for
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -52,7 +51,7 @@ void multi_qubit_diagonal_matrix_gate(const UINT* target_qubit_index_list,
         }
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     free((UINT*)sorted_insert_index_list);
     free((ITYPE*)matrix_mask_list);
@@ -85,8 +84,7 @@ void multi_qubit_control_multi_qubit_diagonal_matrix_gate(
     ITYPE state_index;
 
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 14);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 14);
 #pragma omp parallel for
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -107,7 +105,7 @@ void multi_qubit_control_multi_qubit_diagonal_matrix_gate(
         }
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     free(sorted_insert_index_list);
     free(matrix_mask_list);

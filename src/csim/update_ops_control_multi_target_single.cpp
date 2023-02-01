@@ -43,8 +43,7 @@ void multi_qubit_control_single_qubit_dense_matrix_gate(
         return;
     }
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 13);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
 #endif
 
 #ifdef _USE_SIMD
@@ -58,7 +57,7 @@ void multi_qubit_control_single_qubit_dense_matrix_gate(
 #endif
 
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 }
 

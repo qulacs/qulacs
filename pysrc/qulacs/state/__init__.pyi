@@ -5,6 +5,7 @@ import qulacs_core
 
 __all__ = [
     "drop_qubit",
+    "from_json",
     "inner_product",
     "make_mixture",
     "make_superposition",
@@ -17,6 +18,10 @@ __all__ = [
 def drop_qubit(state: qulacs_core.QuantumState, target: typing.List[int], projection: typing.List[int]) -> qulacs_core.QuantumState:
     """
     Drop qubits from state
+    """
+def from_json(json: str) -> qulacs_core.QuantumStateBase:
+    """
+    from json string
     """
 def inner_product(state_bra: qulacs_core.QuantumState, state_ket: qulacs_core.QuantumState) -> complex:
     """

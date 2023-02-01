@@ -14,8 +14,7 @@ double M0_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim) {
     ITYPE state_index;
     double sum = 0.;
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -24,7 +23,7 @@ double M0_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim) {
         sum += pow(_cabs(state[basis_0]), 2);
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     return sum;
 }
@@ -36,8 +35,7 @@ double M1_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim) {
     ITYPE state_index;
     double sum = 0.;
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -47,7 +45,7 @@ double M1_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim) {
         sum += pow(_cabs(state[basis_1]), 2);
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     return sum;
 }
@@ -62,8 +60,7 @@ double marginal_prob(const UINT* sorted_target_qubit_index_list,
     ITYPE state_index;
     double sum = 0.;
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -77,7 +74,7 @@ double marginal_prob(const UINT* sorted_target_qubit_index_list,
         sum += pow(_cabs(state[basis]), 2);
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     return sum;
 }
@@ -88,8 +85,7 @@ double measurement_distribution_entropy(const CTYPE* state, ITYPE dim) {
     double ent = 0;
     const double eps = 1e-15;
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : ent)
 #endif
     for (index = 0; index < dim; ++index) {
@@ -98,7 +94,7 @@ double measurement_distribution_entropy(const CTYPE* state, ITYPE dim) {
         ent += -1.0 * prob * log(prob);
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     return ent;
 }

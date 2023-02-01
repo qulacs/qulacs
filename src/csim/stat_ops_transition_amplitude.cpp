@@ -28,8 +28,7 @@ transition_amplitude_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
     double sum_real = 0.;
     double sum_imag = 0.;
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum_real, sum_imag)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -49,7 +48,7 @@ transition_amplitude_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
     }
     CTYPE sum(sum_real, sum_imag);
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     return sum;
 }
@@ -63,8 +62,7 @@ transition_amplitude_multi_qubit_Pauli_operator_Z_mask(ITYPE phase_flip_mask,
     double sum_real = 0.;
     double sum_imag = 0.;
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum_real, sum_imag)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -77,7 +75,7 @@ transition_amplitude_multi_qubit_Pauli_operator_Z_mask(ITYPE phase_flip_mask,
     }
     CTYPE sum(sum_real, sum_imag);
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     return sum;
 }

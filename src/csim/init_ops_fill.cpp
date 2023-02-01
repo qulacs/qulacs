@@ -13,14 +13,13 @@
 void initialize_quantum_state_parallel(CTYPE* state, ITYPE dim);
 void initialize_quantum_state(CTYPE* state, ITYPE dim) {
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 15);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 15);
 #endif
 
     initialize_quantum_state_parallel(state, dim);
 
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 }
 

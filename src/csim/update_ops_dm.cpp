@@ -16,8 +16,7 @@ void dm_normalize(double squared_norm, CTYPE* state, ITYPE dim) {
     const double normalize_factor = 1. / squared_norm;
     ITYPE state_index_y;
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for
 #endif
     for (state_index_y = 0; state_index_y < loop_dim; ++state_index_y) {
@@ -27,7 +26,7 @@ void dm_normalize(double squared_norm, CTYPE* state, ITYPE dim) {
         }
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 }
 
@@ -54,8 +53,7 @@ void dm_single_qubit_dense_matrix_gate(
 
     ITYPE state_index_x, state_index_y;
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for private(state_index_x)
 #endif
     for (state_index_y = 0; state_index_y < loop_dim; ++state_index_y) {
@@ -99,7 +97,7 @@ void dm_single_qubit_dense_matrix_gate(
         }
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 }
 
@@ -131,8 +129,7 @@ void dm_multi_qubit_control_single_qubit_dense_matrix_gate(
 
     ITYPE state_index_x, state_index_y;
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for private(state_index_y)
 #endif
     for (state_index_x = 0; state_index_x < dim; ++state_index_x) {
@@ -200,7 +197,7 @@ void dm_multi_qubit_control_single_qubit_dense_matrix_gate(
         }
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 
     free(insert_index_list);
@@ -421,8 +418,7 @@ void dm_multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list,
     }
     free(buffer);
 #else
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 0);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 0);
     const UINT thread_count = omp_get_max_threads();
     CTYPE* buffer_list = (CTYPE*)malloc(
         (size_t)(sizeof(CTYPE) * matrix_dim * matrix_dim * thread_count));
@@ -493,7 +489,7 @@ void dm_multi_qubit_dense_matrix_gate(const UINT* target_qubit_index_list,
             }
         }
     }
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
     free(buffer_list);
 #endif
     free(adjoint_matrix);
@@ -600,8 +596,7 @@ void dm_multi_qubit_control_multi_qubit_dense_matrix_gate(
     }
     free(buffer);
 #else
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 0);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 0);
     const UINT thread_count = omp_get_max_threads();
     CTYPE* buffer_list =
         (CTYPE*)malloc((size_t)(sizeof(CTYPE) * matrix_dim * thread_count));
@@ -683,7 +678,7 @@ void dm_multi_qubit_control_multi_qubit_dense_matrix_gate(
             }
         }
     }
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
     free(buffer_list);
 #endif
     free(adjoint_matrix);
