@@ -86,7 +86,7 @@ public:
      *
      * @return ptree
      */
-    virtual boost::property_tree::ptree to_ptree() const {
+    virtual boost::property_tree::ptree to_ptree() const override {
         boost::property_tree::ptree pt;
         pt.add("name", _name + "Gate");
         std::vector<UINT> target_qubit_list_uint;
@@ -207,7 +207,7 @@ public:
      *
      * @return ptree
      */
-    virtual boost::property_tree::ptree to_ptree() const {
+    virtual boost::property_tree::ptree to_ptree() const override {
         boost::property_tree::ptree pt;
         pt.add("name", _name + "Gate");
         pt.add("control_qubit", _control_qubit_list[0].index());
