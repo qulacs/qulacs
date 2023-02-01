@@ -50,6 +50,9 @@ TEST(UpdateTest, XGate) {
 #ifdef _USE_SIMD
     test_single_qubit_named_gate(6, "XGate", X_gate_parallel_simd, mat);
 #endif
+#ifdef _USE_SVE
+    test_single_qubit_named_gate(6, "XGate", X_gate_parallel_sve, mat);
+#endif
 }
 TEST(UpdateTest, YGate) {
     Eigen::MatrixXcd mat(2, 2);
@@ -73,6 +76,9 @@ TEST(UpdateTest, ZGate) {
     test_single_qubit_named_gate(6, "ZGate", Z_gate_parallel_unroll, mat);
 #ifdef _USE_SIMD
     test_single_qubit_named_gate(6, "ZGate", Z_gate_parallel_simd, mat);
+#endif
+#ifdef _USE_SVE
+    test_single_qubit_named_gate(6, "ZGate", Z_gate_parallel_sve, mat);
 #endif
 }
 TEST(UpdateTest, HGate) {
@@ -283,6 +289,10 @@ TEST(UpdateTest, CZGate) {
 #ifdef _USE_SIMD
     test_two_qubit_named_gate(
         6, "CZGate", CZ_gate_parallel_simd, get_eigen_matrix_full_qubit_CZ);
+#endif
+#ifdef _USE_SVE
+    test_two_qubit_named_gate(
+        6, "CZGate", CZ_gate_parallel_sve, get_eigen_matrix_full_qubit_CZ);
 #endif
 }
 
