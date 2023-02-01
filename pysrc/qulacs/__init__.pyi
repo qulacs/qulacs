@@ -133,6 +133,10 @@ class QuantumGateBase():
         """
         Check this gate is parametric gate
         """
+    def to_json(self) -> str: 
+        """
+        to json string
+        """
     def to_string(self) -> str: 
         """
         to string
@@ -251,6 +255,10 @@ class GeneralQuantumOperator():
     def is_hermitian(self) -> bool: 
         """
         Get is Herimitian
+        """
+    def to_json(self) -> str: 
+        """
+        to json string
         """
     pass
 class GradCalculator():
@@ -438,18 +446,15 @@ class QuantumCircuit():
         """
         Add adjoint of pi/8 phase gate
         """
-    @staticmethod
-    def add_U1_gate(*args, **kwargs) -> typing.Any: 
+    def add_U1_gate(self, index: int, lambda_: float) -> None: 
         """
         Add QASM U1 gate
         """
-    @staticmethod
-    def add_U2_gate(*args, **kwargs) -> typing.Any: 
+    def add_U2_gate(self, index: int, phi: float, lambda_: float) -> None: 
         """
         Add QASM U2 gate
         """
-    @staticmethod
-    def add_U3_gate(*args, **kwargs) -> typing.Any: 
+    def add_U3_gate(self, index: int, theta: float, phi: float, lambda_: float) -> None: 
         """
         Add QASM U3 gate
         """
@@ -557,6 +562,7 @@ class QuantumCircuit():
         """
         Remove gate
         """
+    def to_json(self) -> str: ...
     def to_string(self) -> str: 
         """
         Get string representation
@@ -764,11 +770,19 @@ class QuantumGateSparseMatrix(QuantumGateBase):
 class QuantumGate_Adaptive(QuantumGateBase):
     pass
 class QuantumGate_CP(QuantumGateBase):
+    def get_gate_list(self) -> typing.List[QuantumGateBase]: 
+        """
+        get_gate_list
+        """
     pass
 class QuantumGate_CPTP(QuantumGateBase):
     """
     QuantumGate_Instrument
     """
+    def get_gate_list(self) -> typing.List[QuantumGateBase]: 
+        """
+        get_gate_list
+        """
     pass
 class QuantumGate_Probabilistic(QuantumGateBase):
     """
@@ -912,6 +926,10 @@ class QuantumState(QuantumStateBase):
         """
         Set state to |0>
         """
+    def to_json(self) -> str: 
+        """
+        to json string
+        """
     def to_string(self) -> str: 
         """
         to string
@@ -1012,6 +1030,10 @@ class DensityMatrix(QuantumStateBase):
     def set_zero_state(self) -> None: 
         """
         Set state to |0>
+        """
+    def to_json(self) -> str: 
+        """
+        to json string
         """
     def to_string(self) -> str: 
         """

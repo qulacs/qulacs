@@ -13,27 +13,25 @@
 
 void P0_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 13);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
 #endif
 
     P0_gate_parallel(target_qubit_index, state, dim);
 
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 }
 
 void P1_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 13);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
 #endif
 
     P1_gate_parallel(target_qubit_index, state, dim);
 
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 }
 
@@ -82,15 +80,14 @@ void P0_gate_mpi(
         const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
         if ((rank & pair_rank_bit) != 0) {
 #ifdef _OPENMP
-            OMPutil omputil = get_omputil();
-            omputil->set_qulacs_num_threads(dim, 13);
+			OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
 #pragma omp parallel for
 #endif
             for (ITYPE iter = 0; iter < dim; ++iter) {
                 state[iter] = 0;
             }
 #ifdef _OPENMP
-            omputil->reset_qulacs_num_threads();
+			OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
         }  // else nothing to do.
     }
@@ -106,15 +103,14 @@ void P1_gate_mpi(
         const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
         if ((rank & pair_rank_bit) == 0) {
 #ifdef _OPENMP
-            OMPutil omputil = get_omputil();
-            omputil->set_qulacs_num_threads(dim, 13);
+			OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
 #pragma omp parallel for
 #endif
             for (ITYPE iter = 0; iter < dim; ++iter) {
                 state[iter] = 0;
             }
 #ifdef _OPENMP
-            omputil->reset_qulacs_num_threads();
+			OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
         }  // else nothing to do.
     }

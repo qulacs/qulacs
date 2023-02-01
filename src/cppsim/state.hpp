@@ -351,6 +351,13 @@ public:
         UINT sampling_count, UINT random_seed) = 0;
 
     /**
+     * \~japanese-en property treeに変換
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const = 0;
+
+    /**
      * \~japanese-en 量子回路のデバッグ情報の文字列を生成する
      *
      * @return 生成した文字列
@@ -956,6 +963,16 @@ public:
         }
 
         return result;
+    }
+    virtual boost::property_tree::ptree to_ptree() const {
+        boost::property_tree::ptree pt;
+        pt.put("name", "QuantumState");
+        pt.put("qubit_count", _qubit_count);
+        pt.put_child(
+            "classical_register", ptree::to_ptree(_classical_register));
+        pt.put_child("state_vector", ptree::to_ptree(std::vector<CPPCTYPE>(
+                                         _state_vector, _state_vector + _dim)));
+        return pt;
     }
 };
 

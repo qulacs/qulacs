@@ -44,7 +44,7 @@ public:
      * @param[in] circuit マージする量子回路
      */
     virtual void merge_circuit(const ParametricQuantumCircuit* circuit);
-    virtual std::string to_string() const;
+    virtual std::string to_string() const override;
     friend DllExport std::ostream& operator<<(
         std::ostream& os, const ParametricQuantumCircuit&);
     friend DllExport std::ostream& operator<<(
@@ -61,4 +61,19 @@ public:
         double initial_angle);
     virtual std::vector<double> backprop(GeneralQuantumOperator* obs);
     virtual std::vector<double> backprop_inner_product(QuantumState* bistate);
+
+    /**
+     * \~japanese-en ptreeに変換
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const;
 };
+
+namespace circuit {
+/**
+ * \~japanese-en ptreeからParametricQuantumCircuitを構築する
+ */
+ParametricQuantumCircuit* parametric_circuit_from_ptree(
+    const boost::property_tree::ptree& pt);
+}  // namespace circuit

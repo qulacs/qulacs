@@ -12,6 +12,7 @@
 
 #include "exception.hpp"
 #include "type.hpp"
+#include "utility.hpp"
 
 class QuantumStateBase;
 class QuantumGateBase;
@@ -137,7 +138,7 @@ public:
      *
      * @param[in] circuit マージする量子回路
      */
-    virtual void merge_circuit(const QuantumCircuit* circuit) {
+    void merge_circuit(const QuantumCircuit* circuit) {
         for (auto gate : circuit->gate_list) {
             this->add_gate_copy(gate);
         }
@@ -558,5 +559,19 @@ public:
     virtual void add_random_unitary_gate(
         std::vector<UINT> target_index_list, UINT seed);
 
+    /**
+     * \~japanese-en ptreeに変換
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const;
+
     virtual QuantumCircuit* get_inverse(void);
 };
+
+namespace circuit {
+/**
+ * \~japanese-en ptreeからQuantumCircuitを構築する
+ */
+QuantumCircuit* from_ptree(const boost::property_tree::ptree& pt);
+}  // namespace circuit

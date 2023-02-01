@@ -1081,6 +1081,8 @@ TEST(GateTest, RandomControlMergeSmall) {
     std::vector<UINT> arr;
     for (UINT i = 0; i < n; ++i) arr.push_back(i);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (gate_count = 1; gate_count < n * 2; ++gate_count) {
         ComplexMatrix mat = ComplexMatrix::Identity(dim, dim);
         QuantumState state(n), test_state(n);
@@ -1092,7 +1094,7 @@ TEST(GateTest, RandomControlMergeSmall) {
         QuantumGateBase* merge_gate1 = gate::Identity(0);
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
-            std::random_shuffle(arr.begin(), arr.end());
+            std::shuffle(arr.begin(), arr.end(), engine);
             UINT target = arr[0];
             UINT control = arr[1];
             auto new_gate = gate::CNOT(control, target);
@@ -1130,6 +1132,8 @@ TEST(GateTest, RandomControlMergeLarge) {
     std::vector<UINT> arr;
     for (UINT i = 0; i < n; ++i) arr.push_back(i);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (gate_count = 1; gate_count < n * 2; ++gate_count) {
         ComplexMatrix mat = ComplexMatrix::Identity(dim, dim);
         QuantumState state(n), test_state(n);
@@ -1142,7 +1146,7 @@ TEST(GateTest, RandomControlMergeLarge) {
         QuantumGateBase* merge_gate2 = gate::Identity(0);
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
-            std::random_shuffle(arr.begin(), arr.end());
+            std::shuffle(arr.begin(), arr.end(), engine);
             UINT target = arr[0];
             UINT control = arr[1];
             auto new_gate = gate::CNOT(control, target);
@@ -1157,7 +1161,7 @@ TEST(GateTest, RandomControlMergeLarge) {
         }
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
-            std::random_shuffle(arr.begin(), arr.end());
+            std::shuffle(arr.begin(), arr.end(), engine);
             UINT target = arr[0];
             UINT control = arr[1];
             auto new_gate = gate::CNOT(control, target);

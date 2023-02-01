@@ -181,23 +181,33 @@ TEST(CircuitTest_multicpu, CircuitBasic) {
 
     circuit.update_quantum_state(&state);
 
-    for (ITYPE i = 0; i < inner_dim; ++i)
-        ASSERT_NEAR(abs(state_eigen[i + offs] - state.data_cpp()[i]), 0, eps)
-            << i;
+	if (state.get_device_name() == "multi-cpu")
+        for (ITYPE i = 0; i < inner_dim; ++i)
+            ASSERT_NEAR(abs(state_eigen[i + offs] - state.data_cpp()[i]), 0, eps);
+	else
+        for (ITYPE i = 0; i < dim; ++i)
+            ASSERT_NEAR(abs(state_eigen[i] - state.data_cpp()[i]), 0, eps);
 }
 
 TEST(CircuitTest_multicpu, CircuitRev) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;
+    MPIutil mpiutil = get_mpiutil();
+    UINT mpirank = mpiutil->get_rank();
+    UINT mpisize = mpiutil->get_size();
+    ITYPE inner_dim = dim / mpisize;
+    ITYPE offs = inner_dim * mpirank;
 
     Random random;
     random.set_seed(2022);
 
     QuantumState state(n, true);
+    QuantumState state_ref(n, false);
     ComplexVector state_eigen(dim);
 
     state.set_Haar_random_state();
-    for (ITYPE i = 0; i < dim; ++i) state_eigen[i] = state.data_cpp()[i];
+    state_ref.load(&state);
+    for (ITYPE i = 0; i < dim; ++i) state_eigen[i] = state_ref.data_cpp()[i];
 
     QuantumCircuit circuit(n);
     UINT target, target_sub;
@@ -282,8 +292,12 @@ TEST(CircuitTest_multicpu, CircuitRev) {
 
     revcircuit->update_quantum_state(&state);
 
-    for (ITYPE i = 0; i < dim; ++i)
-        ASSERT_NEAR(abs(state_eigen[i] - state.data_cpp()[i]), 0, eps);
+	if (state.get_device_name() == "multi-cpu")
+        for (ITYPE i = 0; i < inner_dim; ++i)
+            ASSERT_NEAR(abs(state_eigen[i + offs] - state.data_cpp()[i]), 0, eps);
+	else
+        for (ITYPE i = 0; i < dim; ++i)
+            ASSERT_NEAR(abs(state_eigen[i] - state.data_cpp()[i]), 0, eps);
 
     delete revcircuit;
 }

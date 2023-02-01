@@ -4,6 +4,12 @@ if (POLICY CMP0048)
 	cmake_policy(SET CMP0048 NEW)
 endif (POLICY CMP0048)
 
+# Avoid warning about DOWNLOAD_EXTRACT_TIMESTAMP in CMake 3.24:
+# ref: https://github.com/qulacs/qulacs/issues/406
+if (CMAKE_VERSION VERSION_GREATER_EQUAL "3.24.0")
+	cmake_policy(SET CMP0135 NEW)
+endif()
+
 project(qulacs)
 
 ##### Set default behavior #####
@@ -16,12 +22,10 @@ set(DEFAULT_COVERAGE No)
 if(("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "aarch64") OR
 		("${CMAKE_C_COMPILER}" MATCHES "/usr/bin/aarch64-linux-gnu-gcc*")) # for cross-compile
 	message(STATUS "SIMD SUPPORT: Yes")
-	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native")
 	set(DEFAULT_USE_SIMD Yes)
 elseif(("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "^x86.*") OR
 		("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "AMD64"))
 	message(STATUS "SIMD SUPPORT: Yes")
-	set(DEFAULT_OPT_FLAGS "-mtune=native -march=native")
 	set(DEFAULT_USE_SIMD Yes)
 else()
 	message(STATUS "SIMD SUPPORT: No")
@@ -34,9 +38,6 @@ message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
 message(STATUS "CMAKE_C_COMPILER_VERSION = ${CMAKE_C_COMPILER_VERSION}")
 message(STATUS "CMAKE_CXX_COMPILER_VERSION = ${CMAKE_CXX_COMPILER_VERSION}")
 
-message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
-message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
-
 if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
 	if(${CMAKE_C_COMPILER_VERSION} VERSION_LESS 7.0.0)
 		message(FATAL_ERROR "gcc >= 7.0.0 is required.")
@@ -44,7 +45,11 @@ if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
 	if(${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 7.0.0)
 		message(FATAL_ERROR "g++ >= 7.0.0 is required.")
 	endif()
-	set(DEFAULT_OPT_FLAGS "${DEFAULT_OPT_FLAGS} -mfpmath=both")
+	if("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "^x86.*")
+		set(DEFAULT_OPT_FLAGS "-mtune=native -march=native -mfpmath=both")
+	else()
+		set(DEFAULT_OPT_FLAGS "-mtune=native -march=native")
+	endif()
 elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
 	message(STATUS "MSVC_VERSION = ${MSVC_VERSION}")
 	if(${MSVC_VERSION} VERSION_LESS 1900)
@@ -160,7 +165,7 @@ if(USE_TEST)
 	FetchContent_Declare(
 		googletest_fetch
 		GIT_REPOSITORY https://github.com/google/googletest
-		GIT_TAG release-1.8.1
+		GIT_TAG release-1.12.1
 	)
 	FetchContent_GetProperties(googletest_fetch)
 	if(NOT googletest_fetch_POPULATED)
@@ -209,19 +214,34 @@ endif()
 
 ##### set warnings #####
 if(NOT USE_GPU)
-	set(WARNING_C "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
-	 -Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
-	 -Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=missing-declarations -Werror=return-type \
-	 -Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
-	 -Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
-	 -Wnested-externs -fdiagnostics-color=auto")
-	set(WARNING_CPP "-Wall -Wextra -Wlogical-op -Wmissing-include-dirs \
-	 -Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
-	 -Werror=missing-declarations -Werror=return-type \
-	 -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
-	 -Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
-	 -fdiagnostics-color=auto")
-	 # -Werror=undef is eliminated due to conflict with boost
+	if (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU")
+		set(WARNING_C "-Wall -Wextra -Werror=undef -Wlogical-op -Wmissing-include-dirs \
+			-Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
+			-Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=missing-declarations -Werror=return-type \
+			-Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
+			-Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
+			-Wnested-externs -fdiagnostics-color=auto")
+		set(WARNING_CPP "-Wall -Wextra -Wlogical-op -Wmissing-include-dirs \
+			-Wpointer-arith -Winit-self -Wfloat-equal -Wsuggest-attribute=noreturn \
+			-Werror=missing-declarations -Werror=return-type \
+			-Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
+			-Wimplicit-fallthrough=5 -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
+			-fdiagnostics-color=auto")
+		# -Werror=undef is eliminated due to conflict with boost
+	elseif ((${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang") OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang"))
+		set(WARNING_C "-Wall -Wextra -Werror=undef -Wmissing-include-dirs \
+			-Wpointer-arith -Winit-self -Wfloat-equal \
+			-Werror=missing-prototypes -Werror=implicit-function-declaration -Werror=missing-declarations -Werror=return-type \
+			-Werror=incompatible-pointer-types -Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
+			-Wimplicit-fallthrough -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
+			-Wnested-externs -fdiagnostics-color=auto")
+		set(WARNING_CPP "-Wall -Wextra -Wmissing-include-dirs \
+			-Wpointer-arith -Winit-self -Wfloat-equal \
+			-Werror=missing-declarations -Werror=return-type \
+			-Werror=format=2 -Wredundant-decls -Wmissing-noreturn \
+			-Wimplicit-fallthrough -Wshadow -Wendif-labels -Wstrict-aliasing=2 -Wwrite-strings -Werror=overflow -Wdate-time \
+			-fdiagnostics-color=auto")
+	endif()
 endif()
 
 ##### set output directory #####
@@ -311,7 +331,7 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 	# Add optimization flags
 	set(CMAKE_C_FLAGS_RELEASE "${CMAKE_C_FLAGS_RELEASE} ${OPT_FLAGS}")
 	set(CMAKE_CXX_FLAGS_RELEASE "${CMAKE_CXX_FLAGS_RELEASE} ${OPT_FLAGS}")
-	
+
 	# Add coverage flags
 	if(COVERAGE)
 		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} --coverage")

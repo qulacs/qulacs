@@ -68,7 +68,7 @@ PauliOperator::PauliOperator(const std::vector<UINT>& target_qubit_list,
         } else {
             throw InvalidPauliIdentifierException(
                 "invalid Pauli string is given : " +
-                Pauli_operator_type_list[term_index]);
+                std::string{Pauli_operator_type_list[term_index]});
         }
 
         if (pauli_type != 0)
@@ -286,6 +286,18 @@ std::string PauliOperator::get_pauli_string() const {
 }
 
 void PauliOperator::change_coef(CPPCTYPE new_coef) { _coef = new_coef; }
+
+boost::property_tree::ptree PauliOperator::to_ptree() const {
+    boost::property_tree::ptree pt;
+    pt.put("name", "PauliOperator");
+    std::vector<boost::property_tree::ptree> pauli_list_pt;
+    std::transform(_pauli_list.begin(), _pauli_list.end(),
+        std::back_inserter(pauli_list_pt),
+        [](const SinglePauliOperator& spo) { return spo.to_ptree(); });
+    pt.put_child("pauli_list", ptree::to_ptree(pauli_list_pt));
+    pt.put_child("coef", ptree::to_ptree(_coef));
+    return pt;
+}
 
 PauliOperator PauliOperator::operator*(const PauliOperator& target) const {
     CPPCTYPE bits_coef = 1.0;

@@ -15,15 +15,14 @@ double state_norm_squared(const CTYPE* state, ITYPE dim) {
     double norm = 0;
 
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : norm)
 #endif
     for (index = 0; index < dim; ++index) {
         norm += pow(_cabs(state[index]), 2);
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 
     return norm;
@@ -46,15 +45,14 @@ double state_norm_squared_mpi(const CTYPE* state, ITYPE dim) {
     double norm = 0;
 
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 15);
+	OMPutil::get_inst().set_qulacs_num_threads(dim, 15);
 #pragma omp parallel for reduction(+ : norm)
 #endif
     for (index = 0; index < dim; ++index) {
         norm += pow(_cabs(state[index]), 2);
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 
     MPIutil mpiutil = get_mpiutil();
@@ -72,8 +70,7 @@ state_inner_product(const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
     ITYPE index;
 
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 15);
+	OMPutil::get_inst().set_qulacs_num_threads(dim, 15);
 #pragma omp parallel for reduction(+ : real_sum, imag_sum)
 #endif
     for (index = 0; index < dim; ++index) {
@@ -83,7 +80,7 @@ state_inner_product(const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
         imag_sum += _cimag(value);
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+	OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 
     return real_sum + 1.i * imag_sum;
@@ -99,8 +96,7 @@ state_inner_product_mpi(
     ITYPE index;
 
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : real_sum, imag_sum)
 #endif
     for (index = 0; index < dim; ++index) {
@@ -110,7 +106,7 @@ state_inner_product_mpi(
         imag_sum += _cimag(value);
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 
     MPIutil mpiutil = get_mpiutil();

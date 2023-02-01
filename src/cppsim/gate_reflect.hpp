@@ -90,4 +90,15 @@ public:
         throw NotImplementedException(
             "ReflectionGate::set_matrix is not implemented");
     }
+    /**
+     * \~japanese-en ptreeに変換する
+     *
+     * @param ptree ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const override {
+        boost::property_tree::ptree pt;
+        pt.put("name", "StateReflectionGate");
+        pt.put_child("reflection_state", reflection_state->to_ptree());
+        return pt;
+    }
 };

@@ -116,8 +116,7 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
     double sum_imag = 0.;
     CPPCTYPE tmp(0., 0.);
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(n_terms, 0);
+    OMPutil::get_inst().set_qulacs_num_threads(n_terms, 0);
 #pragma omp parallel for reduction(+ : sum_real, sum_imag) private(tmp)
 #endif
     for (int i = 0; i < (int)n_terms;
@@ -128,7 +127,7 @@ CPPCTYPE GeneralQuantumOperator::get_expectation_value(
         sum_imag += tmp.imag();
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     return CPPCTYPE(sum_real, sum_imag);
 }
@@ -457,6 +456,18 @@ GeneralQuantumOperator* GeneralQuantumOperator::get_dagger() const {
             std::conj(pauli->get_coef()), pauli->get_pauli_string());
     }
     return quantum_operator;
+}
+
+boost::property_tree::ptree GeneralQuantumOperator::to_ptree() const {
+    boost::property_tree::ptree pt;
+    pt.put("name", "GeneralQuantumOperator");
+    pt.put("qubit_count", _qubit_count);
+    std::vector<boost::property_tree::ptree> operator_list_pt;
+    std::transform(_operator_list.begin(), _operator_list.end(),
+        std::back_inserter(operator_list_pt),
+        [](const PauliOperator* po) { return po->to_ptree(); });
+    pt.put_child("operator_list", ptree::to_ptree(operator_list_pt));
+    return pt;
 }
 
 GeneralQuantumOperator GeneralQuantumOperator::operator+(
@@ -863,6 +874,53 @@ create_split_general_quantum_operator(std::string file_path) {
 
     return std::make_pair(
         general_quantum_operator_diag, general_quantum_operator_non_diag);
+}
+
+SinglePauliOperator* single_pauli_operator_from_ptree(
+    const boost::property_tree::ptree& pt) {
+    std::string name = pt.get<std::string>("name");
+    if (name != "SinglePauliOperator") {
+        throw UnknownPTreePropertyValueException(
+            "unknown value for property \"name\":" + name);
+    }
+    UINT index = pt.get<UINT>("index");
+    UINT pauli_id = pt.get<UINT>("pauli_id");
+    return new SinglePauliOperator(index, pauli_id);
+}
+
+PauliOperator* pauli_operator_from_ptree(
+    const boost::property_tree::ptree& pt) {
+    std::string name = pt.get<std::string>("name");
+    if (name != "PauliOperator") {
+        throw UnknownPTreePropertyValueException(
+            "unknown value for property \"name\":" + name);
+    }
+    std::vector<boost::property_tree::ptree> pauli_list_pt =
+        ptree::ptree_array_from_ptree(pt.get_child("pauli_list"));
+    CPPCTYPE coef = ptree::complex_from_ptree(pt.get_child("coef"));
+    PauliOperator* po = new PauliOperator(coef);
+    for (const boost::property_tree::ptree& pauli_pt : pauli_list_pt) {
+        SinglePauliOperator* spo = single_pauli_operator_from_ptree(pauli_pt);
+        po->add_single_Pauli(spo->index(), spo->pauli_id());
+        free(spo);
+    }
+    return po;
+}
+
+GeneralQuantumOperator* from_ptree(const boost::property_tree::ptree& pt) {
+    std::string name = pt.get<std::string>("name");
+    if (name != "GeneralQuantumOperator") {
+        throw UnknownPTreePropertyValueException(
+            "unknown value for property \"name\":" + name);
+    }
+    UINT qubit_count = pt.get<UINT>("qubit_count");
+    std::vector<boost::property_tree::ptree> operator_list_pt =
+        ptree::ptree_array_from_ptree(pt.get_child("operator_list"));
+    GeneralQuantumOperator* gqo = new GeneralQuantumOperator(qubit_count);
+    for (const boost::property_tree::ptree& operator_pt : operator_list_pt) {
+        gqo->add_operator_move(pauli_operator_from_ptree(operator_pt));
+    }
+    return gqo;
 }
 }  // namespace quantum_operator
 

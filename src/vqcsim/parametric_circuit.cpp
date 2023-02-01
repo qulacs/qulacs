@@ -230,7 +230,7 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
                     M_PI);  // 本当はここで2で割りたいけど、行列を割るのは実装が面倒
             } else if (gate_now->get_name() == "ParametricPauliRotation") {
                 ClsParametricPauliRotationGate* pauli_gate_now =
-                    (ClsParametricPauliRotationGate*)gate_now;
+                    dynamic_cast<ClsParametricPauliRotationGate*>(gate_now);
                 RcPI =
                     gate::PauliRotation(pauli_gate_now->get_target_index_list(),
                         pauli_gate_now->get_pauli()->get_pauli_id_list(), M_PI);
@@ -287,3 +287,41 @@ std::vector<double> ParametricQuantumCircuit::backprop(
     return ans;
 
 }  // CPP
+
+boost::property_tree::ptree ParametricQuantumCircuit::to_ptree() const {
+    boost::property_tree::ptree pt;
+    pt.put("name", "ParametricQuantumCircuit");
+    pt.put("qubit_count", _qubit_count);
+    boost::property_tree::ptree gate_list_pt;
+    for (const QuantumGateBase* gate : _gate_list) {
+        gate_list_pt.push_back(std::make_pair("", gate->to_ptree()));
+    }
+    pt.put_child("gate_list", gate_list_pt);
+    return pt;
+}  // CPP
+
+namespace circuit {
+ParametricQuantumCircuit* parametric_circuit_from_ptree(
+    const boost::property_tree::ptree& pt) {
+    std::string name = pt.get<std::string>("name");
+    if (name != "ParametricQuantumCircuit") {
+        throw UnknownPTreePropertyValueException(
+            "unknown value for property \"name\":" + name);
+    }
+    UINT qubit_count = pt.get<UINT>("qubit_count");
+    ParametricQuantumCircuit* circuit =
+        new ParametricQuantumCircuit(qubit_count);
+    for (const boost::property_tree::ptree::value_type& gate_pair :
+        pt.get_child("gate_list")) {
+        if (pt.get<std::string>("name").substr(0, 10) == "Parametric") {
+            QuantumGate_SingleParameter* gate =
+                gate::parametric_gate_from_ptree(gate_pair.second);
+            circuit->add_parametric_gate(gate);
+        } else {
+            QuantumGateBase* gate = gate::from_ptree(gate_pair.second);
+            circuit->add_gate(gate);
+        }
+    }
+    return circuit;
+}
+}  // namespace circuit

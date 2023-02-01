@@ -146,6 +146,12 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("copy", &GeneralQuantumOperator::copy,
             py::return_value_policy::take_ownership,
             "Create copied instance of General Quantum operator class")
+        .def(
+            "to_json",
+            [](const GeneralQuantumOperator& gqo) -> std::string {
+                return ptree::to_json(gqo.to_ptree());
+            },
+            "to json string")
         .def(py::self + py::self)
         .def(
             "__add__",
@@ -212,6 +218,13 @@ PYBIND11_MODULE(qulacs_core, m) {
     mquantum_operator.def("create_split_quantum_operator",
         &quantum_operator::create_split_general_quantum_operator,
         py::return_value_policy::take_ownership);
+    mquantum_operator.def(
+        "from_json",
+        [](const std::string& json) -> GeneralQuantumOperator* {
+            return quantum_operator::from_ptree(ptree::from_json(json));
+        },
+        py::return_value_policy::take_ownership, "from json string",
+        py::arg("json"));
 
     py::class_<HermitianQuantumOperator, GeneralQuantumOperator>(
         m, "Observable")
@@ -310,6 +323,13 @@ PYBIND11_MODULE(qulacs_core, m) {
     mobservable.def("create_split_observable",
         &observable::create_split_observable,
         py::return_value_policy::take_ownership);
+    mobservable.def(
+        "from_json",
+        [](const std::string& json) -> HermitianQuantumOperator* {
+            return observable::from_ptree(ptree::from_json(json));
+        },
+        py::return_value_policy::take_ownership, "from json string",
+        py::arg("json"));
 
     py::class_<QuantumStateBase>(m, "QuantumStateBase");
     py::class_<QuantumState, QuantumStateBase>(m, "QuantumState")
@@ -389,7 +409,13 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Get qubit count")
         .def(
             "__str__", [](const QuantumState& p) { return p.to_string(); },
-            "to string");
+            "to string")
+        .def(
+            "to_json",
+            [](const QuantumState& state) -> std::string {
+                return ptree::to_json(state.to_ptree());
+            },
+            "to json string");
     ;
 
     m.def(
@@ -476,7 +502,13 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Get qubit count")
         .def(
             "__str__", [](const DensityMatrix& p) { return p.to_string(); },
-            "to string");
+            "to string")
+        .def(
+            "to_json",
+            [](const DensityMatrix& state) -> std::string {
+                return ptree::to_json(state.to_ptree());
+            },
+            "to json string");
     ;
 
 #ifdef _USE_MPI
@@ -624,6 +656,13 @@ PYBIND11_MODULE(qulacs_core, m) {
         py::return_value_policy::take_ownership, "Create a mixed state",
         py::arg("prob1"), py::arg("state1"), py::arg("prob2"),
         py::arg("state2"));
+    mstate.def(
+        "from_json",
+        [](const std::string& json) -> QuantumStateBase* {
+            return state::from_ptree(ptree::from_json(json));
+        },
+        py::return_value_policy::take_ownership, "from json string",
+        py::arg("json"));
 
     py::class_<QuantumGateBase>(m, "QuantumGateBase")
         .def("update_quantum_state", &QuantumGateBase::update_quantum_state,
@@ -662,9 +701,13 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Check this gate is parametric gate")
         .def("is_diagonal", &QuantumGateBase::is_diagonal,
             "Check the gate matrix is diagonal")
-        .def("get_inverse", &QuantumGateBase::get_inverse, "get inverse gate")
-
-        ;
+        .def(
+            "to_json",
+            [](const QuantumGateBase& gate) -> std::string {
+                return ptree::to_json(gate.to_ptree());
+            },
+            "to json string")
+        .def("get_inverse", &QuantumGateBase::get_inverse, "get inverse gate");
 
     py::class_<QuantumGateMatrix, QuantumGateBase>(m, "QuantumGateMatrix")
         .def("add_control_qubit", &QuantumGateMatrix::add_control_qubit,
@@ -691,7 +734,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<QuantumGate_Probabilistic, QuantumGateBase>(
         m, "QuantumGate_Probabilistic", "QuantumGate_ProbabilisticInstrument")
         .def("get_gate_list", &QuantumGate_Probabilistic::get_gate_list,
-            "get_gate_list")
+            py::return_value_policy::reference, "get_gate_list")
         .def("optimize_ProbablisticGate",
             &QuantumGate_Probabilistic::optimize_ProbablisticGate,
             "optimize_ProbablisticGate")
@@ -701,8 +744,12 @@ PYBIND11_MODULE(qulacs_core, m) {
             &QuantumGate_Probabilistic::get_cumulative_distribution,
             "get_cumulative_distribution");
     py::class_<QuantumGate_CPTP, QuantumGateBase>(
-        m, "QuantumGate_CPTP", "QuantumGate_Instrument");
-    py::class_<QuantumGate_CP, QuantumGateBase>(m, "QuantumGate_CP");
+        m, "QuantumGate_CPTP", "QuantumGate_Instrument")
+        .def("get_gate_list", &QuantumGate_CPTP::get_gate_list,
+            py::return_value_policy::reference, "get_gate_list");
+    py::class_<QuantumGate_CP, QuantumGateBase>(m, "QuantumGate_CP")
+        .def("get_gate_list", &QuantumGate_CP::get_gate_list,
+            py::return_value_policy::reference, "get_gate_list");
     py::class_<QuantumGate_Adaptive, QuantumGateBase>(
         m, "QuantumGate_Adaptive");
     py::class_<QuantumGateDiagonalMatrix, QuantumGateBase>(
@@ -745,13 +792,13 @@ PYBIND11_MODULE(qulacs_core, m) {
         "Create projection gate to |1> subspace", py::arg("index"));
 
     mgate.def("U1", &gate::U1, py::return_value_policy::take_ownership,
-        "Create QASM U1 gate", py::arg("index"), py::arg("lambda"));
+        "Create QASM U1 gate", py::arg("index"), py::arg("lambda_"));
     mgate.def("U2", &gate::U2, py::return_value_policy::take_ownership,
         "Create QASM U2 gate", py::arg("index"), py::arg("phi"),
-        py::arg("lambda"));
+        py::arg("lambda_"));
     mgate.def("U3", &gate::U3, py::return_value_policy::take_ownership,
         "Create QASM U3 gate", py::arg("index"), py::arg("theta"),
-        py::arg("phi"), py::arg("lambda"));
+        py::arg("phi"), py::arg("lambda_"));
 
     mgate.def("RX", &gate::RX, py::return_value_policy::take_ownership,
         "Create Pauli-X rotation gate", py::arg("index"), py::arg("angle"));
@@ -1011,6 +1058,16 @@ PYBIND11_MODULE(qulacs_core, m) {
         py::return_value_policy::take_ownership,
         "Create parametric multi-qubit Pauli rotation gate",
         py::arg("index_list"), py::arg("pauli_ids"), py::arg("angle"));
+    mgate.def(
+        "from_json",
+        [](std::string json) -> QuantumGateBase* {
+            boost::property_tree::ptree pt = ptree::from_json(json);
+            if (pt.get<std::string>("name").substr(0, 10) == "Parametric") {
+                return gate::parametric_gate_from_ptree(pt);
+            }
+            return gate::from_ptree(ptree::from_json(json));
+        },
+        py::return_value_policy::take_ownership, "from json string");
 
     m.def("to_general_quantum_operator", &to_general_quantum_operator,
         py::arg("gate"), py::arg("qubits"), py::arg("tol"));
@@ -1022,8 +1079,10 @@ PYBIND11_MODULE(qulacs_core, m) {
         // In order to avoid double release, we force using add_gate_copy in
         // python
         //.def("add_gate_consume", (void
-        //(QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate, "Add
-        // gate and take ownership", py::arg("gate")) .def("add_gate_consume",
+        //(QuantumCircuit::*)(QuantumGateBase*))&QuantumCircuit::add_gate,
+        //"Add
+        // gate and take ownership", py::arg("gate"))
+        // .def("add_gate_consume",
         //(void (QuantumCircuit::*)(QuantumGateBase*,
         // UINT))&QuantumCircuit::add_gate, "Add gate and take ownership",
         // py::arg("gate"), py::arg("position"))
@@ -1045,10 +1104,10 @@ PYBIND11_MODULE(qulacs_core, m) {
             "get_gate",
             [](const QuantumCircuit& circuit, UINT index) -> QuantumGateBase* {
                 if (index >= circuit.gate_list.size()) {
-                    std::cerr
-                        << "Error: QuantumCircuit::get_gate(const "
-                           "QuantumCircuit&, UINT): gate index is out of range"
-                        << std::endl;
+                    std::cerr << "Error: QuantumCircuit::get_gate(const "
+                                 "QuantumCircuit&, UINT): gate index is "
+                                 "out of range"
+                              << std::endl;
                     return NULL;
                 }
                 return circuit.gate_list[index]->copy();
@@ -1071,11 +1130,11 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Get qubit count")
 
         .def("update_quantum_state",
-            (void (QuantumCircuit::*)(QuantumStateBase*)) &
+            (void(QuantumCircuit::*)(QuantumStateBase*)) &
                 QuantumCircuit::update_quantum_state,
             "Update quantum state", py::arg("state"))
         .def("update_quantum_state",
-            (void (QuantumCircuit::*)(QuantumStateBase*, UINT, UINT)) &
+            (void(QuantumCircuit::*)(QuantumStateBase*, UINT, UINT)) &
                 QuantumCircuit::update_quantum_state,
             py::arg("state"), py::arg("start"), py::arg("end"))
 #if 0  // not supported yet
@@ -1150,12 +1209,12 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Add Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
 
         .def("add_U1_gate", &QuantumCircuit::add_U1_gate, "Add QASM U1 gate",
-            py::arg("index"), py::arg("lambda"))
+            py::arg("index"), py::arg("lambda_"))
         .def("add_U2_gate", &QuantumCircuit::add_U2_gate, "Add QASM U2 gate",
-            py::arg("index"), py::arg("phi"), py::arg("lambda"))
+            py::arg("index"), py::arg("phi"), py::arg("lambda_"))
         .def("add_U3_gate", &QuantumCircuit::add_U3_gate, "Add QASM U3 gate",
             py::arg("index"), py::arg("theta"), py::arg("phi"),
-            py::arg("lambda"))
+            py::arg("lambda_"))
 
         .def("add_multi_Pauli_gate",
             py::overload_cast<std::vector<UINT>, std::vector<UINT>>(
@@ -1199,13 +1258,14 @@ PYBIND11_MODULE(qulacs_core, m) {
             &QuantumCircuit::add_observable_rotation_gate,
             "Add observable rotation gate", py::arg("observable"),
             py::arg("angle"), py::arg("repeat"))
-
+        .def("to_json",
+            [](const QuantumCircuit& c) -> std::string {
+                return ptree::to_json(c.to_ptree());
+            })
         .def("get_inverse", &QuantumCircuit::get_inverse, "get inverse circuit")
-
         .def(
             "__str__", [](const QuantumCircuit& p) { return p.to_string(); },
             "to string");
-    ;
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(
         m, "ParametricQuantumCircuit")
@@ -1286,6 +1346,18 @@ PYBIND11_MODULE(qulacs_core, m) {
             py::arg("angles_of_gates"));
 
     auto mcircuit = m.def_submodule("circuit");
+    mcircuit.def(
+        "from_json",
+        [](const std::string& json) -> QuantumCircuit* {
+            boost::property_tree::ptree pt = ptree::from_json(json);
+            if (pt.get<std::string>("name") == "ParametricQuantumCircuit") {
+                return circuit::parametric_circuit_from_ptree(pt);
+            } else {
+                return circuit::from_ptree(pt);
+            }
+        },
+        "from json string", py::return_value_policy::take_ownership);
+
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
         .def(py::init<>(), "Constructor")
         .def("optimize", &QuantumCircuitOptimizer::optimize,

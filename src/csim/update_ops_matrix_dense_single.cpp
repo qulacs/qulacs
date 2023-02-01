@@ -22,8 +22,7 @@
 void single_qubit_dense_matrix_gate(
     UINT target_qubit_index, const CTYPE matrix[4], CTYPE* state, ITYPE dim) {
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 13);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
 #endif
 
 #ifdef _USE_SIMD
@@ -35,7 +34,7 @@ void single_qubit_dense_matrix_gate(
 #endif
 
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 }
 
@@ -231,8 +230,7 @@ void single_qubit_dense_matrix_gate_mpi(UINT target_qubit_index,
         CTYPE* ptr_state = state;
 
 #ifdef _OPENMP
-        OMPutil omputil = get_omputil();
-        omputil->set_qulacs_num_threads(dim, 13);
+		OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
 #endif
         for (ITYPE iter = 0; iter < num_work; ++iter) {
             m->m_DC_sendrecv(ptr_state, ptr_pair, dim_work, pair_rank);
@@ -243,7 +241,7 @@ void single_qubit_dense_matrix_gate_mpi(UINT target_qubit_index,
             ptr_state += dim_work;
         }
 #ifdef _OPENMP
-        omputil->reset_qulacs_num_threads();
+		OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     }
 }

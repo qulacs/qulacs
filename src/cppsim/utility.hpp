@@ -6,6 +6,8 @@
 
 #pragma once
 
+#include <boost/property_tree/json_parser.hpp>
+#include <boost/property_tree/ptree.hpp>
 #include <cctype>
 #include <chrono>
 #include <cstdio>
@@ -14,6 +16,7 @@
 #include <tuple>
 #include <vector>
 
+#include "qubit_info.hpp"
 #include "type.hpp"
 
 /**
@@ -212,3 +215,34 @@ bool check_is_unique_index_list(const std::vector<UINT>& index_list);
  * @return 末尾の空白文字を削除された文字列
  */
 std::string& rtrim(std::string& str);
+
+namespace ptree {
+boost::property_tree::ptree to_ptree(const CPPCTYPE& cnum);
+boost::property_tree::ptree to_ptree(const std::vector<UINT>& uarray);
+boost::property_tree::ptree to_ptree(const std::vector<CPPCTYPE>& carray);
+boost::property_tree::ptree to_ptree(
+    const std::vector<boost::property_tree::ptree>& pt_array);
+boost::property_tree::ptree to_ptree(
+    const std::vector<TargetQubitInfo>& target_qubit_list);
+boost::property_tree::ptree to_ptree(
+    const std::vector<ControlQubitInfo>& control_qubit_list);
+boost::property_tree::ptree to_ptree(const ComplexVector& vector);
+boost::property_tree::ptree to_ptree(const ComplexMatrix& matrix);
+boost::property_tree::ptree to_ptree(const SparseComplexMatrix& sparse_matrix);
+CPPCTYPE complex_from_ptree(const boost::property_tree::ptree& pt);
+std::vector<UINT> uint_array_from_ptree(const boost::property_tree::ptree& pt);
+std::vector<CPPCTYPE> complex_array_from_ptree(
+    const boost::property_tree::ptree& pt);
+std::vector<boost::property_tree::ptree> ptree_array_from_ptree(
+    const boost::property_tree::ptree& pt);
+std::vector<TargetQubitInfo> target_qubit_list_from_ptree(
+    const boost::property_tree::ptree& pt);
+std::vector<ControlQubitInfo> control_qubit_list_from_ptree(
+    const boost::property_tree::ptree& pt);
+ComplexVector complex_vector_from_ptree(const boost::property_tree::ptree& pt);
+ComplexMatrix complex_matrix_from_ptree(const boost::property_tree::ptree& pt);
+SparseComplexMatrix sparse_complex_matrix_from_ptree(
+    const boost::property_tree::ptree& pt);
+std::string to_json(const boost::property_tree::ptree& ptree);
+boost::property_tree::ptree from_json(const std::string& json);
+}  // namespace ptree

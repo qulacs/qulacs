@@ -9,15 +9,14 @@
 
 void initialize_quantum_state(CTYPE* state, ITYPE dim) {
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 15);
 #pragma omp parallel for
 #endif
     for (ITYPE index = 0; index < dim; ++index) {
         state[index] = 0;
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 
     state[0] = 1.0;
@@ -26,15 +25,14 @@ void initialize_quantum_state(CTYPE* state, ITYPE dim) {
 #ifdef _USE_MPI
 void initialize_quantum_state_mpi(CTYPE* state, ITYPE dim, UINT outer_qc) {
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+	OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for
 #endif
     for (ITYPE index = 0; index < dim; ++index) {
         state[index] = 0;
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+	OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 
     MPIutil mpiutil = get_mpiutil();

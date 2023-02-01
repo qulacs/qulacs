@@ -494,6 +494,18 @@ void QuantumCircuit::add_random_unitary_gate(
     this->add_gate(gate::RandomUnitary(target_index_list, seed));
 }
 
+boost::property_tree::ptree QuantumCircuit::to_ptree() const {
+    boost::property_tree::ptree pt;
+    pt.put("name", "QuantumCircuit");
+    pt.put("qubit_count", _qubit_count);
+    boost::property_tree::ptree gate_list_pt;
+    for (const QuantumGateBase* gate : _gate_list) {
+        gate_list_pt.push_back(std::make_pair("", gate->to_ptree()));
+    }
+    pt.put_child("gate_list", gate_list_pt);
+    return pt;
+}
+
 QuantumCircuit* QuantumCircuit::get_inverse(void) {
     auto ans = new QuantumCircuit(this->qubit_count);
     for (auto itr = std::rbegin(this->_gate_list);
@@ -502,3 +514,21 @@ QuantumCircuit* QuantumCircuit::get_inverse(void) {
     }
     return ans;
 }
+
+namespace circuit {
+QuantumCircuit* from_ptree(const boost::property_tree::ptree& pt) {
+    std::string name = pt.get<std::string>("name");
+    if (name != "QuantumCircuit") {
+        throw UnknownPTreePropertyValueException(
+            "unknown value for property \"name\":" + name);
+    }
+    UINT qubit_count = pt.get<UINT>("qubit_count");
+    QuantumCircuit* circuit = new QuantumCircuit(qubit_count);
+    for (const boost::property_tree::ptree::value_type& gate_pair :
+        pt.get_child("gate_list")) {
+        QuantumGateBase* gate = gate::from_ptree(gate_pair.second);
+        circuit->add_gate(gate);
+    }
+    return circuit;
+}
+}  // namespace circuit

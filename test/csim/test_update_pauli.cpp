@@ -81,6 +81,8 @@ TEST(UpdateTest, MultiQubitPauliTest) {
     for (ITYPE i = 0; i < dim; ++i)
         test_state[i] = (std::complex<double>)state[i];
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         // multi pauli whole
         std::vector<UINT> pauli_whole, pauli_partial, pauli_partial_index;
@@ -106,8 +108,8 @@ TEST(UpdateTest, MultiQubitPauliTest) {
                 pauli_partial_pair.push_back(std::make_pair(i, pauli));
             }
         }
-        std::random_shuffle(
-            pauli_partial_pair.begin(), pauli_partial_pair.end());
+        std::shuffle(
+            pauli_partial_pair.begin(), pauli_partial_pair.end(), engine);
         for (auto val : pauli_partial_pair) {
             pauli_partial_index.push_back(val.first);
             pauli_partial.push_back(val.second);
@@ -138,6 +140,8 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
     Eigen::MatrixXcd whole_I = Eigen::MatrixXcd::Identity(dim, dim);
     std::complex<double> imag_unit(0, 1);
 
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (UINT rep = 0; rep < max_repeat; ++rep) {
         std::vector<UINT> pauli_whole, pauli_partial, pauli_partial_index;
         std::vector<std::pair<UINT, UINT>> pauli_partial_pair;
@@ -167,8 +171,8 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
                 pauli_partial_pair.push_back(std::make_pair(i, pauli));
             }
         }
-        std::random_shuffle(
-            pauli_partial_pair.begin(), pauli_partial_pair.end());
+        std::shuffle(
+            pauli_partial_pair.begin(), pauli_partial_pair.end(), engine);
         for (auto val : pauli_partial_pair) {
             pauli_partial_index.push_back(val.first);
             pauli_partial.push_back(val.second);

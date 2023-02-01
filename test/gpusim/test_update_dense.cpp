@@ -78,7 +78,7 @@ void test_double_dense_matrix_gate(
             U = get_eigen_matrix_random_single_qubit_unitary();
             U2 = get_eigen_matrix_random_single_qubit_unitary();
 
-            std::random_shuffle(index_list.begin(), index_list.end());
+            std::shuffle(index_list.begin(), index_list.end(), engine);
 
             targets[0] = index_list[0];
             targets[1] = index_list[1];
@@ -138,7 +138,7 @@ void test_three_dense_matrix_gate(std::function<void(
             U2 = get_eigen_matrix_random_single_qubit_unitary();
             U3 = get_eigen_matrix_random_single_qubit_unitary();
 
-            std::random_shuffle(index_list.begin(), index_list.end());
+            std::shuffle(index_list.begin(), index_list.end(), engine);
             targets[0] = index_list[0];
             targets[1] = index_list[1];
             targets[2] = index_list[2];
@@ -198,7 +198,7 @@ void test_quad_dense_matrix_gate(
             U3 = get_eigen_matrix_random_single_qubit_unitary();
             U4 = get_eigen_matrix_random_single_qubit_unitary();
 
-            std::random_shuffle(index_list.begin(), index_list.end());
+            std::shuffle(index_list.begin(), index_list.end(), engine);
             targets[0] = index_list[0];
             targets[1] = index_list[1];
             targets[2] = index_list[2];
@@ -262,7 +262,7 @@ void test_penta_dense_matrix_gate(
             U4 = get_eigen_matrix_random_single_qubit_unitary();
             U5 = get_eigen_matrix_random_single_qubit_unitary();
 
-            std::random_shuffle(index_list.begin(), index_list.end());
+            std::shuffle(index_list.begin(), index_list.end(), engine);
             targets[0] = index_list[0];
             targets[1] = index_list[1];
             targets[2] = index_list[2];
@@ -331,7 +331,7 @@ void test_general_dense_matrix_gate(std::function<void(
             U5 = get_eigen_matrix_random_single_qubit_unitary();
             U6 = get_eigen_matrix_random_single_qubit_unitary();
 
-            std::random_shuffle(index_list.begin(), index_list.end());
+            std::shuffle(index_list.begin(), index_list.end(), engine);
             targets[0] = index_list[0];
             targets[1] = index_list[1];
             targets[2] = index_list[2];

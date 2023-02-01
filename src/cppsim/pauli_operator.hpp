@@ -13,6 +13,7 @@
 
 #include "exception.hpp"
 #include "type.hpp"
+#include "utility.hpp"
 
 class QuantumStateBase;
 
@@ -64,6 +65,20 @@ public:
      * 自身のもつパウリ演算子を表す整数。(I,X,Y,Z)が(0,1,2,3)に対応する。
      */
     UINT pauli_id() const { return _pauli_id; }
+
+    /**
+     * \~japanese-en
+     * ptreeに変換する
+     *
+     * @return ptree
+     */
+    boost::property_tree::ptree to_ptree() const {
+        boost::property_tree::ptree pt;
+        pt.put("name", "SinglePauliOperator");
+        pt.put("index", _index);
+        pt.put("pauli_id", _pauli_id);
+        return pt;
+    }
 };
 
 /**
@@ -286,6 +301,14 @@ public:
      * パウリ演算子に対応する文字列を返す
      */
     virtual std::string get_pauli_string() const;
+
+    /**
+     * \~japanese-en
+     * ptreeに変換する
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const;
 
     PauliOperator operator*(const PauliOperator& target) const;
 

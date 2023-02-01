@@ -26,12 +26,11 @@ void initialize_Haar_random_state_with_seed(
 void initialize_Haar_random_state_mpi_with_seed(
     CTYPE* state, ITYPE dim, UINT outer_qc, UINT seed) {
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 8);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 8);
 #endif
     initialize_Haar_random_state_with_seed_parallel(state, dim, outer_qc, seed);
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 }
 
@@ -42,8 +41,7 @@ void initialize_Haar_random_state_with_seed_parallel(
 #endif
     // multi thread
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
     const UINT thread_count = omp_get_max_threads();
 #else
     const UINT thread_count = 1;
@@ -111,7 +109,7 @@ void initialize_Haar_random_state_with_seed_parallel(
         state[index] *= normalizer;
     }
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     free(random_state_list);
     free(norm_list);

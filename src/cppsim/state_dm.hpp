@@ -196,7 +196,7 @@ public:
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
-    virtual void load(const QuantumStateBase* _state) {
+    virtual void load(const QuantumStateBase* _state) override {
         if (_state->qubit_count != this->qubit_count) {
             throw InvalidQubitCountException(
                 "Error: DensityMatrixCpu::load(const QuantumStateBase*): "
@@ -220,7 +220,7 @@ public:
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
-    virtual void load(const std::vector<CPPCTYPE>& _state) {
+    virtual void load(const std::vector<CPPCTYPE>& _state) override {
         if (_state.size() != _dim && _state.size() != _dim * _dim) {
             throw InvalidStateVectorSizeException(
                 "Error: DensityMatrixCpu::load(vector<Complex>&): invalid "
@@ -266,7 +266,7 @@ public:
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
-    virtual void load(const CPPCTYPE* _state) {
+    virtual void load(const CPPCTYPE* _state) override {
         memcpy(
             this->data_cpp(), _state, (size_t)(sizeof(CPPCTYPE) * _dim * _dim));
     }
@@ -401,7 +401,7 @@ public:
         random.set_seed(random_seed);
         return this->sampling(sampling_count);
     }
-    virtual std::string to_string() const {
+    virtual std::string to_string() const override {
         std::stringstream os;
         ComplexMatrix eigen_state(this->dim, this->dim);
         auto data = this->data_cpp();
@@ -415,6 +415,17 @@ public:
         os << " * Dimension   : " << this->dim << std::endl;
         os << " * Density matrix : \n" << eigen_state << std::endl;
         return os.str();
+    }
+    virtual boost::property_tree::ptree to_ptree() const {
+        boost::property_tree::ptree pt;
+        pt.put("name", "DensityMatrix");
+        pt.put("qubit_count", _qubit_count);
+        pt.put_child(
+            "classical_register", ptree::to_ptree(_classical_register));
+        pt.put_child("density_matrix",
+            ptree::to_ptree(std::vector<CPPCTYPE>(
+                _density_matrix, _density_matrix + _dim * _dim)));
+        return pt;
     }
 };
 
@@ -434,4 +445,5 @@ DllExport DensityMatrixCpu* partial_trace(
 DllExport DensityMatrixCpu* make_mixture(CPPCTYPE prob1,
     const QuantumStateBase* state1, CPPCTYPE prob2,
     const QuantumStateBase* state2);
+DllExport QuantumStateBase* from_ptree(const boost::property_tree::ptree& pt);
 }  // namespace state

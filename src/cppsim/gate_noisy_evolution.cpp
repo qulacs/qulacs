@@ -19,6 +19,7 @@
 #include "state.hpp"
 #include "type.hpp"
 #include "utility.hpp"
+
 double ClsNoisyEvolution::_find_collapse(QuantumStateBase* k1,
     QuantumStateBase* k2, QuantumStateBase* k3, QuantumStateBase* k4,
     QuantumStateBase* prev_state, QuantumStateBase* now_state,
@@ -272,10 +273,11 @@ void ClsNoisyEvolution::update_quantum_state(QuantumStateBase* state) {
             }
 
             // determine which collapse operator to be applied
-            auto jump_r = _random.uniform() * prob_sum;
-            auto ite = std::lower_bound(
+            const auto jump_r = _random.uniform() * prob_sum;
+            const auto ite = std::lower_bound(
                 cumulative_dist.begin(), cumulative_dist.end(), jump_r);
-            auto index = std::distance(cumulative_dist.begin(), ite);
+            const auto index = static_cast<size_t>(
+                std::distance(cumulative_dist.begin(), ite));
 
             // apply the collapse operator and normalize the state
             // ルンゲクッタ法の誤差により、normが1にならない場合があります。
@@ -306,6 +308,20 @@ void ClsNoisyEvolution::update_quantum_state(QuantumStateBase* state) {
     delete k3;
     delete k4;
     delete buffer;
+}
+
+boost::property_tree::ptree ClsNoisyEvolution::to_ptree() const {
+    boost::property_tree::ptree pt;
+    pt.put("name", "NoisyEvolutionGate");
+    pt.put_child("hamiltonian", _hamiltonian->to_ptree());
+    boost::property_tree::ptree c_ops_pt;
+    for (const GeneralQuantumOperator* c_op : _c_ops) {
+        c_ops_pt.push_back(std::make_pair("", c_op->to_ptree()));
+    }
+    pt.put_child("c_ops", c_ops_pt);
+    pt.put("time", _time);
+    pt.put("dt", _dt);
+    return pt;
 }
 
 // ここからfast
@@ -582,4 +598,17 @@ void ClsNoisyEvolution_fast::update_quantum_state(QuantumStateBase* state) {
         state->get_squared_norm_single_thread() / initial_squared_norm);
 
     delete buffer;
+}
+
+boost::property_tree::ptree ClsNoisyEvolution_fast::to_ptree() const {
+    boost::property_tree::ptree pt;
+    pt.put("name", "NoisyEvolutionFastGate");
+    pt.put_child("hamiltonian", _hamiltonian->to_ptree());
+    boost::property_tree::ptree c_ops_pt;
+    for (const GeneralQuantumOperator* c_op : _c_ops) {
+        c_ops_pt.push_back(std::make_pair("", c_op->to_ptree()));
+    }
+    pt.put_child("c_ops", c_ops_pt);
+    pt.put("time", _time);
+    return pt;
 }

@@ -1,5 +1,6 @@
 import os
 import platform
+import re
 import subprocess
 import sys
 
@@ -106,6 +107,7 @@ class CMakeBuild(build_ext):
                 cmake_args += ["-A", "x64"]
             build_args += ["--", "/m"]
         else:
+            # In macOS, gcc/g++ is aliased to clang/clang++.
             gcc = os.getenv("C_COMPILER", "gcc")
             gxx = os.getenv("CXX_COMPILER", "g++")
             if gcc is None or gxx is None:
@@ -120,6 +122,13 @@ class CMakeBuild(build_ext):
 
             if gcc == "mpicc":
                 cmake_args += ["-DUSE_MPI:STR=Yes"]
+
+            if platform.system() == "Darwin":
+                # This is for building Python package on GitHub Actions, whose architecture is x86_64.
+                # Without specifying the architecture explicitly, binaries for arm64 is built for x86_64 while cibuildwheel intends to build for arm64.
+                archs = re.findall(r"-arch (\S+)", os.environ.get("ARCHFLAGS", ""))
+                if len(archs) > 0:
+                    cmake_args += ["-DCMAKE_OSX_ARCHITECTURES={}".format(";".join(archs))]
 
             n_cpus = os.cpu_count()
             build_args += ["--", f"-j{n_cpus}"]

@@ -328,7 +328,13 @@ public:
         this->_matrix_element << 0, 0, 0, 1;
     }
 
-    virtual ClsOneQubitGate* get_inverse(void) const;
+    virtual boost::property_tree::ptree to_ptree() const {
+        boost::property_tree::ptree pt;
+        pt.add("name", _name + "Gate");
+        pt.add("target_qubit", _target_qubit_list[0].index());
+        return pt;
+    }
+    virtual ClsOneQubitGate* get_inverse(void) const override;
 };
 
 /**
@@ -448,7 +454,15 @@ public:
         this->_matrix_element << cos(_angle / 2) + 1.i * sin(_angle / 2), 0, 0,
             cos(_angle / 2) - 1.i * sin(_angle / 2);
     }
-    virtual ClsOneQubitRotationGate* get_inverse(void) const;
+
+    virtual boost::property_tree::ptree to_ptree() const {
+        boost::property_tree::ptree pt;
+        pt.add("name", _name + "Gate");
+        pt.add("target_qubit", _target_qubit_list[0].index());
+        pt.add("angle", _angle);
+        return pt;
+    }
+    virtual ClsOneQubitRotationGate* get_inverse(void) const override;
 };
 
 using QuantumGate_OneQubit = ClsOneQubitGate;

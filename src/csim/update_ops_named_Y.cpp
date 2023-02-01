@@ -17,8 +17,7 @@
 
 void Y_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
 #ifdef _OPENMP
-    OMPutil omputil = get_omputil();
-    omputil->set_qulacs_num_threads(dim, 13);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
 #endif
 
 #ifdef _USE_SIMD
@@ -28,7 +27,7 @@ void Y_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
 #endif
 
 #ifdef _OPENMP
-    omputil->reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 }
 
@@ -127,8 +126,7 @@ void Y_gate_mpi(
         CTYPE* t = m->get_workarea(&dim_work, &num_work);
         assert(num_work > 0);
 #ifdef _OPENMP
-        OMPutil omputil = get_omputil();
-        omputil->set_qulacs_num_threads(dim_work, 13);
+		OMPutil::get_inst().set_qulacs_num_threads(dim_work, 13);
 #endif
         const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
         const int pair_rank = rank ^ pair_rank_bit;
@@ -158,7 +156,7 @@ void Y_gate_mpi(
         }
 
 #ifdef _OPENMP
-        omputil->reset_qulacs_num_threads();
+		OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     }
 }

@@ -174,6 +174,35 @@ public:
         matrix = Eigen::MatrixXcd::Ones(1, 1);
     }
 
+    /**
+     * \~japanese-en ptreeに変換する
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const override {
+        boost::property_tree::ptree pt;
+        pt.put("name", "ProbabilisticGate");
+        boost::property_tree::ptree distribution_pt;
+        for (double p : _distribution) {
+            boost::property_tree::ptree child;
+            child.put("", p);
+            distribution_pt.push_back(std::make_pair("", child));
+        }
+        pt.put_child("distribution", distribution_pt);
+        boost::property_tree::ptree gate_list_pt;
+        for (const QuantumGateBase* gate : _gate_list) {
+            gate_list_pt.push_back(std::make_pair("", gate->to_ptree()));
+        }
+        pt.put_child("gate_list", gate_list_pt);
+        if (is_instrument) {
+            pt.put("is_instrument", true);
+            pt.put("classical_register_address", _classical_register_address);
+        } else {
+            pt.put("is_instrument", false);
+        }
+        return pt;
+    }
+
     /*
     added by kotamanegi.
     */
@@ -209,7 +238,7 @@ public:
         return;
     }
 
-    virtual bool is_noise() { return true; }
+    virtual bool is_noise() override { return true; }
 };
 
 /**
@@ -345,6 +374,29 @@ public:
                   << std::endl;
         matrix = Eigen::MatrixXcd::Ones(1, 1);
     }
+
+    /**
+     * \~japanese-en ptreeに変換する
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const override {
+        boost::property_tree::ptree pt;
+        pt.put("name", "CPTPMapGate");
+        boost::property_tree::ptree gate_list_pt;
+        for (const QuantumGateBase* gate : _gate_list) {
+            gate_list_pt.push_back(std::make_pair("", gate->to_ptree()));
+        }
+        pt.put_child("gate_list", gate_list_pt);
+        if (is_instrument) {
+            pt.put("is_instrument", true);
+            pt.put("classical_register_address", _classical_register_address);
+        } else {
+            pt.put("is_instrument", false);
+        }
+        return pt;
+    }
+    virtual std::vector<QuantumGateBase*> get_gate_list() { return _gate_list; }
 };
 
 /**
@@ -484,6 +536,26 @@ public:
                   << std::endl;
         matrix = Eigen::MatrixXcd::Ones(1, 1);
     }
+
+    /**
+     * \~japanese-en ptreeに変換する
+     *
+     * @return ptree
+     */
+    virtual boost::property_tree::ptree to_ptree() const override {
+        boost::property_tree::ptree pt;
+        pt.put("name", "CPMapGate");
+        boost::property_tree::ptree gate_list_pt;
+        for (const QuantumGateBase* gate : _gate_list) {
+            gate_list_pt.push_back(std::make_pair("", gate->to_ptree()));
+        }
+        pt.put_child("gate_list", gate_list_pt);
+        pt.put("state_normalize", _state_normalize);
+        pt.put("probability_normalize", _probability_normalize);
+        pt.put("assign_zero_if_not_matched", _assign_zero_if_not_matched);
+        return pt;
+    }
+    virtual std::vector<QuantumGateBase*> get_gate_list() { return _gate_list; }
 };
 
 /**

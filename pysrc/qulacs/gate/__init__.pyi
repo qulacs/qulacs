@@ -63,6 +63,7 @@ __all__ = [
     "Y",
     "Z",
     "add",
+    "from_json",
     "merge",
     "sqrtX",
     "sqrtXdag",
@@ -280,15 +281,15 @@ def TwoQubitDepolarizingNoise(index1: int, index2: int, prob: float) -> qulacs_c
     """
     Create two-qubit depolarizing noise
     """
-def U1(*args, **kwargs) -> typing.Any:
+def U1(index: int, lambda_: float) -> qulacs_core.QuantumGateMatrix:
     """
     Create QASM U1 gate
     """
-def U2(*args, **kwargs) -> typing.Any:
+def U2(index: int, phi: float, lambda_: float) -> qulacs_core.QuantumGateMatrix:
     """
     Create QASM U2 gate
     """
-def U3(*args, **kwargs) -> typing.Any:
+def U3(index: int, theta: float, phi: float, lambda_: float) -> qulacs_core.QuantumGateMatrix:
     """
     Create QASM U3 gate
     """
@@ -314,6 +315,10 @@ def add(gate1: qulacs_core.QuantumGateBase, gate2: qulacs_core.QuantumGateBase) 
 @typing.overload
 def add(gate_list: typing.List[qulacs_core.QuantumGateBase]) -> qulacs_core.QuantumGateMatrix:
     pass
+def from_json(arg0: str) -> qulacs_core.QuantumGateBase:
+    """
+    from json string
+    """
 @typing.overload
 def merge(gate1: qulacs_core.QuantumGateBase, gate2: qulacs_core.QuantumGateBase) -> qulacs_core.QuantumGateMatrix:
     """
