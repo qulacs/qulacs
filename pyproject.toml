@@ -7,7 +7,7 @@ dynamic = ["version"]
 name = "qulacs"
 description = "Quantum circuit simulator for research"
 authors = [
-    { name = "QunaSys", Email = "qulacs@qunasys.com" }
+    { name = "QunaSys", email = "qulacs@qunasys.com" }
 ]
 readme = "README.md"
 license = { file = "LICENSE" }
