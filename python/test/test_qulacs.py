@@ -5,6 +5,7 @@ import unittest
 import warnings
 
 import numpy as np
+
 import qulacs
 
 for ind in range(1, len(sys.argv)):
@@ -76,6 +77,7 @@ class TestObservable(unittest.TestCase):
 
     def test_get_matrix(self):
         import numpy as np
+
         from qulacs import Observable
         n_qubits = 3
         obs = Observable(n_qubits)
@@ -115,7 +117,6 @@ class TestObservable(unittest.TestCase):
         )
         self.assertLessEqual(np.linalg.norm(
             ans-obs.get_matrix().todense()), 1e-6)
-        
 
 
 class TestPointerHandling(unittest.TestCase):
@@ -159,6 +160,8 @@ class TestPointerHandling(unittest.TestCase):
         func2()
 
     def test_circuit_add_gate(self):
+        from scipy.sparse import lil_matrix
+
         from qulacs import QuantumCircuit, QuantumState
         from qulacs.gate import (CNOT, CPTP, CZ, FREDKIN, P0, P1, RX, RY, RZ,
                                  SWAP, TOFFOLI, U1, U2, U3, Adaptive,
@@ -173,7 +176,6 @@ class TestPointerHandling(unittest.TestCase):
                                  TwoQubitDepolarizingNoise, X, Y, Z, add,
                                  merge, sqrtX, sqrtXdag, sqrtY, sqrtYdag,
                                  to_matrix_gate)
-        from scipy.sparse import lil_matrix
         qc = QuantumCircuit(3)
         qs = QuantumState(3)
         ref = QuantumState(3)
@@ -225,6 +227,8 @@ class TestPointerHandling(unittest.TestCase):
         parametric_gates = None
 
     def test_circuit_add_parametric_gate(self):
+        from scipy.sparse import lil_matrix
+
         from qulacs import ParametricQuantumCircuit, QuantumState
         from qulacs.gate import (CNOT, CPTP, CZ, FREDKIN, P0, P1, RX, RY, RZ,
                                  SWAP, TOFFOLI, U1, U2, U3, Adaptive,
@@ -240,7 +244,6 @@ class TestPointerHandling(unittest.TestCase):
                                  TwoQubitDepolarizingNoise, X, Y, Z, add,
                                  merge, sqrtX, sqrtXdag, sqrtY, sqrtYdag,
                                  to_matrix_gate)
-        from scipy.sparse import lil_matrix
         qc = ParametricQuantumCircuit(3)
         qs = QuantumState(3)
         ref = QuantumState(3)
@@ -380,9 +383,10 @@ class TestPointerHandling(unittest.TestCase):
 
     def test_sparse_matrix(self):
 
+        from scipy.sparse import lil_matrix
+
         from qulacs import QuantumState
         from qulacs.gate import SparseMatrix
-        from scipy.sparse import lil_matrix
         n = 5
         state = QuantumState(n)
         matrix = lil_matrix((4, 4), dtype=np.complex128)
@@ -474,6 +478,7 @@ class TestPointerHandling(unittest.TestCase):
         pqc.remove_gate(3)  # [1, 0, 3, *, 2]
         check(pqc, [1, 0, 4, 2])
 
+
 class TestDensityMatrixHandling(unittest.TestCase):
     def setUp(self):
         pass
@@ -489,8 +494,8 @@ class TestDensityMatrixHandling(unittest.TestCase):
         dm.load(sv)
         svv = np.atleast_2d(sv.get_vector()).T
         mat = np.dot(svv, svv.T.conj())
-        self.assertTrue(np.allclose(dm.get_matrix(), mat), msg="check pure matrix to density matrix")
-
+        self.assertTrue(np.allclose(dm.get_matrix(), mat),
+                        msg="check pure matrix to density matrix")
 
     def test_tensor_product_sv(self):
         num_qubit = 4
@@ -500,7 +505,8 @@ class TestDensityMatrixHandling(unittest.TestCase):
         sv2.set_Haar_random_state(seed=1)
         sv3 = qulacs.state.tensor_product(sv1, sv2)
         sv3_test = np.kron(sv1.get_vector(), sv2.get_vector())
-        self.assertTrue(np.allclose(sv3_test, sv3.get_vector()), msg="check pure state tensor product")
+        self.assertTrue(np.allclose(sv3_test, sv3.get_vector()),
+                        msg="check pure state tensor product")
         del sv1
         del sv2
         del sv3
@@ -513,7 +519,8 @@ class TestDensityMatrixHandling(unittest.TestCase):
         dm2.set_Haar_random_state(seed=1)
         dm3 = qulacs.state.tensor_product(dm1, dm2)
         dm3_test = np.kron(dm1.get_matrix(), dm2.get_matrix())
-        self.assertTrue(np.allclose(dm3_test, dm3.get_matrix()), msg="check density matrix tensor product")
+        self.assertTrue(np.allclose(dm3_test, dm3.get_matrix()),
+                        msg="check density matrix tensor product")
         del dm1
         del dm2
         del dm3
@@ -526,7 +533,8 @@ class TestDensityMatrixHandling(unittest.TestCase):
         sv2.set_Haar_random_state(seed=1)
         sv3 = qulacs.state.tensor_product(sv1, sv2)
         sv3_test = np.kron(sv1.get_vector(), sv2.get_vector())
-        self.assertTrue(np.allclose(sv3_test, sv3.get_vector()), msg="check pure state tensor product")
+        self.assertTrue(np.allclose(sv3_test, sv3.get_vector()),
+                        msg="check pure state tensor product")
         del sv1
         del sv2
         del sv3
@@ -539,11 +547,11 @@ class TestDensityMatrixHandling(unittest.TestCase):
         dm2.set_Haar_random_state(seed=1)
         dm3 = qulacs.state.tensor_product(dm1, dm2)
         dm3_test = np.kron(dm1.get_matrix(), dm2.get_matrix())
-        self.assertTrue(np.allclose(dm3_test, dm3.get_matrix()), msg="check density matrix tensor product")
+        self.assertTrue(np.allclose(dm3_test, dm3.get_matrix()),
+                        msg="check density matrix tensor product")
         del dm1
         del dm2
         del dm3
-
 
     def test_permutate_qubit_sv(self):
         num_qubit = 8
@@ -563,7 +571,8 @@ class TestDensityMatrixHandling(unittest.TestCase):
             arr.append(int(s, 2))
 
         sv_perm = qulacs.state.permutate_qubit(sv, order)
-        self.assertTrue(np.allclose(sv.get_vector()[arr], sv_perm.get_vector()), msg="check pure state permutation")
+        self.assertTrue(np.allclose(sv.get_vector()[
+                        arr], sv_perm.get_vector()), msg="check pure state permutation")
         del sv_perm
         del sv
 
@@ -588,7 +597,8 @@ class TestDensityMatrixHandling(unittest.TestCase):
         dm_perm_test = dm.get_matrix()
         dm_perm_test = dm_perm_test[arr, :]
         dm_perm_test = dm_perm_test[:, arr]
-        self.assertTrue(np.allclose(dm_perm_test, dm_perm.get_matrix()), msg="check density matrix permutation")
+        self.assertTrue(np.allclose(dm_perm_test, dm_perm.get_matrix()),
+                        msg="check density matrix permutation")
         del dm_perm
         del dm
 
@@ -605,15 +615,17 @@ class TestDensityMatrixHandling(unittest.TestCase):
         target_cor = [num_qubit-1-i for i in target]
         target_cor.sort()
 
-        dmt = mat.reshape([2,2]*num_qubit)
-        for cnt,val in enumerate(target_cor):
+        dmt = mat.reshape([2, 2]*num_qubit)
+        for cnt, val in enumerate(target_cor):
             ofs = num_qubit - cnt
             dmt = np.trace(dmt, axis1=val-cnt, axis2=ofs+val-cnt)
-        dmt = dmt.reshape([2**(num_qubit-num_traceout),2**(num_qubit-num_traceout)])
+        dmt = dmt.reshape([2**(num_qubit-num_traceout),
+                          2**(num_qubit-num_traceout)])
 
         pdm = qulacs.state.partial_trace(dm, target)
-        self.assertTrue(np.allclose(pdm.get_matrix(), dmt), msg="check density matrix partial trace")
-        del dm,pdm
+        self.assertTrue(np.allclose(pdm.get_matrix(), dmt),
+                        msg="check density matrix partial trace")
+        del dm, pdm
 
     def test_partial_trace_sv(self):
         num_qubit = 6
@@ -629,14 +641,17 @@ class TestDensityMatrixHandling(unittest.TestCase):
         target_cor = [num_qubit-1-i for i in target]
         target_cor.sort()
 
-        dmt = mat.reshape([2,2]*num_qubit)
-        for cnt,val in enumerate(target_cor):
+        dmt = mat.reshape([2, 2]*num_qubit)
+        for cnt, val in enumerate(target_cor):
             ofs = num_qubit - cnt
             dmt = np.trace(dmt, axis1=val-cnt, axis2=ofs+val-cnt)
-        dmt = dmt.reshape([2**(num_qubit-num_traceout),2**(num_qubit-num_traceout)])
+        dmt = dmt.reshape([2**(num_qubit-num_traceout),
+                          2**(num_qubit-num_traceout)])
 
         pdm = qulacs.state.partial_trace(sv, target)
-        self.assertTrue(np.allclose(pdm.get_matrix(), dmt), msg="check pure state partial trace")
+        self.assertTrue(np.allclose(pdm.get_matrix(), dmt),
+                        msg="check pure state partial trace")
+
 
 class TestUtils(unittest.TestCase):
     def setUp(self):
@@ -648,6 +663,7 @@ class TestUtils(unittest.TestCase):
 
     def test_convert_openfermion_op(self):
         from openfermion import QubitOperator
+
         from qulacs.utils import convert_openfermion_op
         openfermion_op = QubitOperator()
         openfermion_op += 1. * QubitOperator("X0")
@@ -678,10 +694,6 @@ class TestUtils(unittest.TestCase):
         self.assertTrue(inpro > 0.99, msg="GQO_test")
 
 
-
-
-
-
 class TestDensityMatrixHandling(unittest.TestCase):
     def setUp(self):
         pass
@@ -697,8 +709,8 @@ class TestDensityMatrixHandling(unittest.TestCase):
         dm.load(sv)
         svv = np.atleast_2d(sv.get_vector()).T
         mat = np.dot(svv, svv.T.conj())
-        self.assertTrue(np.allclose(dm.get_matrix(), mat), msg="check pure matrix to density matrix")
-        
+        self.assertTrue(np.allclose(dm.get_matrix(), mat),
+                        msg="check pure matrix to density matrix")
 
     def test_tensor_product_sv(self):
         num_qubit = 4
@@ -708,7 +720,8 @@ class TestDensityMatrixHandling(unittest.TestCase):
         sv2.set_Haar_random_state(seed=1)
         sv3 = qulacs.state.tensor_product(sv1, sv2)
         sv3_test = np.kron(sv1.get_vector(), sv2.get_vector())
-        self.assertTrue(np.allclose(sv3_test, sv3.get_vector()), msg="check pure state tensor product")
+        self.assertTrue(np.allclose(sv3_test, sv3.get_vector()),
+                        msg="check pure state tensor product")
         del sv1
         del sv2
         del sv3
@@ -721,7 +734,8 @@ class TestDensityMatrixHandling(unittest.TestCase):
         dm2.set_Haar_random_state(seed=1)
         dm3 = qulacs.state.tensor_product(dm1, dm2)
         dm3_test = np.kron(dm1.get_matrix(), dm2.get_matrix())
-        self.assertTrue(np.allclose(dm3_test, dm3.get_matrix()), msg="check density matrix tensor product")
+        self.assertTrue(np.allclose(dm3_test, dm3.get_matrix()),
+                        msg="check density matrix tensor product")
         del dm1
         del dm2
         del dm3
@@ -734,7 +748,8 @@ class TestDensityMatrixHandling(unittest.TestCase):
         sv2.set_Haar_random_state(seed=1)
         sv3 = qulacs.state.tensor_product(sv1, sv2)
         sv3_test = np.kron(sv1.get_vector(), sv2.get_vector())
-        self.assertTrue(np.allclose(sv3_test, sv3.get_vector()), msg="check pure state tensor product")
+        self.assertTrue(np.allclose(sv3_test, sv3.get_vector()),
+                        msg="check pure state tensor product")
         del sv1
         del sv2
         del sv3
@@ -747,11 +762,12 @@ class TestDensityMatrixHandling(unittest.TestCase):
         dm2.set_Haar_random_state(seed=1)
         dm3 = qulacs.state.tensor_product(dm1, dm2)
         dm3_test = np.kron(dm1.get_matrix(), dm2.get_matrix())
-        self.assertTrue(np.allclose(dm3_test, dm3.get_matrix()), msg="check density matrix tensor product")
+        self.assertTrue(np.allclose(dm3_test, dm3.get_matrix()),
+                        msg="check density matrix tensor product")
         del dm1
         del dm2
         del dm3
-        
+
     def test_permutate_qubit_sv(self):
         num_qubit = 8
         sv = qulacs.StateVector(num_qubit)
@@ -770,7 +786,8 @@ class TestDensityMatrixHandling(unittest.TestCase):
             arr.append(int(s, 2))
 
         sv_perm = qulacs.state.permutate_qubit(sv, order)
-        self.assertTrue(np.allclose(sv.get_vector()[arr], sv_perm.get_vector()), msg="check pure state permutation")
+        self.assertTrue(np.allclose(sv.get_vector()[
+                        arr], sv_perm.get_vector()), msg="check pure state permutation")
         del sv_perm
         del sv
 
@@ -795,7 +812,8 @@ class TestDensityMatrixHandling(unittest.TestCase):
         dm_perm_test = dm.get_matrix()
         dm_perm_test = dm_perm_test[arr, :]
         dm_perm_test = dm_perm_test[:, arr]
-        self.assertTrue(np.allclose(dm_perm_test, dm_perm.get_matrix()), msg="check density matrix permutation")
+        self.assertTrue(np.allclose(dm_perm_test, dm_perm.get_matrix()),
+                        msg="check density matrix permutation")
         del dm_perm
         del dm
 
@@ -812,15 +830,17 @@ class TestDensityMatrixHandling(unittest.TestCase):
         target_cor = [num_qubit-1-i for i in target]
         target_cor.sort()
 
-        dmt = mat.reshape([2,2]*num_qubit)
-        for cnt,val in enumerate(target_cor):
+        dmt = mat.reshape([2, 2]*num_qubit)
+        for cnt, val in enumerate(target_cor):
             ofs = num_qubit - cnt
             dmt = np.trace(dmt, axis1=val-cnt, axis2=ofs+val-cnt)
-        dmt = dmt.reshape([2**(num_qubit-num_traceout),2**(num_qubit-num_traceout)])
-        
+        dmt = dmt.reshape([2**(num_qubit-num_traceout),
+                          2**(num_qubit-num_traceout)])
+
         pdm = qulacs.state.partial_trace(dm, target)
-        self.assertTrue(np.allclose(pdm.get_matrix(), dmt), msg="check density matrix partial trace")
-        del dm,pdm
+        self.assertTrue(np.allclose(pdm.get_matrix(), dmt),
+                        msg="check density matrix partial trace")
+        del dm, pdm
 
     def test_partial_trace_sv(self):
         num_qubit = 6
@@ -836,14 +856,16 @@ class TestDensityMatrixHandling(unittest.TestCase):
         target_cor = [num_qubit-1-i for i in target]
         target_cor.sort()
 
-        dmt = mat.reshape([2,2]*num_qubit)
-        for cnt,val in enumerate(target_cor):
+        dmt = mat.reshape([2, 2]*num_qubit)
+        for cnt, val in enumerate(target_cor):
             ofs = num_qubit - cnt
             dmt = np.trace(dmt, axis1=val-cnt, axis2=ofs+val-cnt)
-        dmt = dmt.reshape([2**(num_qubit-num_traceout),2**(num_qubit-num_traceout)])
-        
+        dmt = dmt.reshape([2**(num_qubit-num_traceout),
+                          2**(num_qubit-num_traceout)])
+
         pdm = qulacs.state.partial_trace(sv, target)
-        self.assertTrue(np.allclose(pdm.get_matrix(), dmt), msg="check pure state partial trace")
+        self.assertTrue(np.allclose(pdm.get_matrix(), dmt),
+                        msg="check pure state partial trace")
 
 
 class TestNoiseSimulator(unittest.TestCase):
@@ -852,10 +874,11 @@ class TestNoiseSimulator(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
     def test_noise_simulator(self):
         def get_heavy_output_probability(n, depth, error_prob, shots=1000):
-            one_qubit_noise = ["Depolarizing", "BitFlip", "Dephasing", "IndependentXZ", "AmplitudeDamping"]
+            one_qubit_noise = ["Depolarizing", "BitFlip",
+                               "Dephasing", "IndependentXZ", "AmplitudeDamping"]
             two_qubit_noise = ["Depolarizing"]
             from qulacs import NoiseSimulator, QuantumState
             from qulacs.gate import CNOT, CZ, T, sqrtX, sqrtY
@@ -865,23 +888,28 @@ class TestNoiseSimulator(unittest.TestCase):
                 for i in range(n):
                     r = np.random.randint(0, 5)
                     if r == 0:
-                        circuit_with_noise.add_noise_gate(sqrtX(i), one_qubit_noise[np.random.randint(0, 5)], error_prob)
+                        circuit_with_noise.add_noise_gate(
+                            sqrtX(i), one_qubit_noise[np.random.randint(0, 5)], error_prob)
                         circuit_without_noise.add_sqrtX_gate(i)
                     elif r == 1:
-                        circuit_with_noise.add_noise_gate(sqrtY(i), one_qubit_noise[np.random.randint(0, 5)], error_prob)
+                        circuit_with_noise.add_noise_gate(
+                            sqrtY(i), one_qubit_noise[np.random.randint(0, 5)], error_prob)
                         circuit_without_noise.add_sqrtY_gate(i)
                     elif r == 2:
-                        circuit_with_noise.add_noise_gate(T(i), one_qubit_noise[np.random.randint(0, 5)], error_prob)
+                        circuit_with_noise.add_noise_gate(
+                            T(i), one_qubit_noise[np.random.randint(0, 5)], error_prob)
                         circuit_without_noise.add_T_gate(i)
                     elif r == 3:
                         if i + 1 < n:
-                            circuit_with_noise.add_noise_gate(CNOT(i, i + 1), two_qubit_noise[np.random.randint(0, 1)], error_prob)
+                            circuit_with_noise.add_noise_gate(
+                                CNOT(i, i + 1), two_qubit_noise[np.random.randint(0, 1)], error_prob)
                             circuit_without_noise.add_CNOT_gate(i, i + 1)
                     elif r == 4:
                         if i + 1 < n:
-                            circuit_with_noise.add_noise_gate(CZ(i, i + 1), two_qubit_noise[np.random.randint(0, 1)], error_prob)
+                            circuit_with_noise.add_noise_gate(
+                                CZ(i, i + 1), two_qubit_noise[np.random.randint(0, 1)], error_prob)
                             circuit_without_noise.add_CZ_gate(i, i + 1)
-            
+
             ideal_state = qulacs.QuantumState(n)
             circuit_without_noise.update_quantum_state(ideal_state)
             prob_dist = [abs(x)**2 for x in ideal_state.get_vector()]
@@ -890,8 +918,8 @@ class TestNoiseSimulator(unittest.TestCase):
             for i in range(2**n):
                 if prob_dist[i] > p_median:
                     heavy_output.add(i)
-            
-            sim = NoiseSimulator(circuit_with_noise,QuantumState(n))
+
+            sim = NoiseSimulator(circuit_with_noise, QuantumState(n))
             noisy_sample = sim.execute(shots)
             num_heavy_output = 0
             for sample in noisy_sample:
@@ -899,19 +927,23 @@ class TestNoiseSimulator(unittest.TestCase):
                     num_heavy_output += 1
             return num_heavy_output / shots, heavy_output, noisy_sample
 
-        low_noise_prob, low_noise_heavy_output,low_noise_result = get_heavy_output_probability(7, 100, 1e-5)
-        high_noise_prob, high_noise_heavy_output,high_noise_result = get_heavy_output_probability(7, 100, 0.01)
+        low_noise_prob, low_noise_heavy_output, low_noise_result = get_heavy_output_probability(
+            7, 100, 1e-5)
+        high_noise_prob, high_noise_heavy_output, high_noise_result = get_heavy_output_probability(
+            7, 100, 0.01)
         if low_noise_prob < 2/3:
-            print(f"[ERROR] On low noise environment Heavy Output percentage should be > 0.666, but was {low_noise_prob}")
+            print(
+                f"[ERROR] On low noise environment Heavy Output percentage should be > 0.666, but was {low_noise_prob}")
             print("Telemetry Information:")
             print(f"Sampling Result: {low_noise_result}")
             print(f"Heavy Output: {low_noise_heavy_output}")
         if high_noise_prob > 2/3:
-            print(f"[ERROR] On high noise environment Heavy Output percentage should be < 0.666, but was {high_noise_prob}")
+            print(
+                f"[ERROR] On high noise environment Heavy Output percentage should be < 0.666, but was {high_noise_prob}")
             print("Telemetry Information:")
             print(f"Sampling Result: {high_noise_result}")
             print(f"Heavy Output: {high_noise_heavy_output}")
-        
+
         self.assertGreater(low_noise_prob, 2 / 3)
         self.assertLess(high_noise_prob, 2 / 3)
 
@@ -925,6 +957,7 @@ class TestQASM(unittest.TestCase):
 
     def test_qasm_converter(self):
         import numpy as np
+
         from qulacs import QuantumCircuit
         from qulacs.converter import (convert_QASM_to_qulacs_circuit,
                                       convert_qulacs_circuit_to_QASM)
@@ -936,11 +969,11 @@ class TestQASM(unittest.TestCase):
             Identity(0), X(0), Y(0), Z(0), H(0), S(0), Sdag(0), T(
                 0), Tdag(0), sqrtX(0), sqrtXdag(0),
             CNOT(0, 1), CZ(0, 1), SWAP(0, 1), TOFFOLI(0, 1, 2), FREDKIN(
-                0, 1, 2),  
+                0, 1, 2),
             DenseMatrix(0, np.eye(2)), DenseMatrix(
                 [0, 1], np.eye(4)), RandomUnitary(
                 [0, 1]), merge(
-              X(0), Y(1)), add(X(0), Y(1)), to_matrix_gate(X(0)),
+                X(0), Y(1)), add(X(0), Y(1)), to_matrix_gate(X(0)),
             U1(0, 0.), U2(0, 0., 0.), U3(
                 0, 0., 0., 0.), RX(0, 0.), RY(0, 0.), RZ(0, 0.),
         ]
@@ -954,6 +987,376 @@ class TestQASM(unittest.TestCase):
                                gates[x].get_matrix())
 
 
+class TestJSON(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_operator(self):
+        from qulacs import (PauliOperator, GeneralQuantumOperator,
+                            Observable, QuantumState, quantum_operator, observable)
+        import random
+        import json
+        import random
+
+        from qulacs import (GeneralQuantumOperator, Observable, PauliOperator,
+                            QuantumState, observable, quantum_operator)
+
+        n = 5
+
+        def random_pauli_operator():
+            op = PauliOperator((random.random()*2-1) +
+                               (random.random()*2-1) * 1j)
+            for _ in range(random.randint(1, 5)):
+                op.add_single_Pauli(
+                    random.randint(0, n-1), random.randint(0, 3)
+                )
+            return op
+
+        def random_hermitian_pauli_operator():
+            op = PauliOperator(random.random()*2-1)
+            for _ in range(random.randint(1, 5)):
+                op.add_single_Pauli(
+                    random.randint(0, n-1), random.randint(0, 3)
+                )
+            return op
+
+        oridinal_operator = GeneralQuantumOperator(5)
+        for _ in range(5):
+            oridinal_operator.add_operator(random_pauli_operator())
+
+        json_string = oridinal_operator.to_json()
+        json.loads(json_string)
+        restored_operator = quantum_operator.from_json(json_string)
+
+        for _ in range(3):
+            state = QuantumState(n)
+            self.assertAlmostEqual(
+                oridinal_operator.get_expectation_value(state),
+                restored_operator.get_expectation_value(state)
+            )
+
+        oridinal_observable = Observable(n)
+        for _ in range(5):
+            oridinal_observable.add_operator(random_hermitian_pauli_operator())
+
+        json_string = oridinal_observable.to_json()
+        json.loads(json_string)
+        restored_observable = observable.from_json(json_string)
+
+        for _ in range(3):
+            state = QuantumState(n)
+            state.set_Haar_random_state()
+            self.assertAlmostEqual(
+                oridinal_observable.get_expectation_value(state),
+                restored_observable.get_expectation_value(state)
+            )
+
+        non_hermitian_operator = GeneralQuantumOperator(1)
+        non_hermitian_operator.add_operator(1j, "X 0")
+        with self.assertRaises(RuntimeError):
+            observable.from_json(non_hermitian_operator.to_json())
+
+    def test_gate(self):
+        from qulacs import QuantumState, gate
+        from qulacs.gate import (CNOT, CZ, FREDKIN, P0, P1, RX, RY, RZ,
+                                 SWAP, TOFFOLI, U1, U2, U3, H, Identity,
+                                 Pauli, PauliRotation, S, Sdag,
+                                 StateReflection,
+                                 T, Tdag, X, Y, Z, add,
+                                 merge, sqrtX, sqrtXdag, sqrtY, sqrtYdag,
+                                 to_matrix_gate)
+        from scipy.sparse import lil_matrix
+        import json
+        import random
+
+        n = 3
+
+        def execute_test_gate():
+            qs = QuantumState(n)
+            sparse_mat = lil_matrix((4, 4))
+            sparse_mat[0, 0] = 1
+            sparse_mat[1, 1] = 1
+
+            axis = QuantumState(n)
+            axis.set_Haar_random_state()
+
+            gates = [
+                Identity(0), X(0), Y(0), Z(0), H(0), S(0), Sdag(0), T(
+                    0), Tdag(0), sqrtX(0), sqrtXdag(0),
+                sqrtY(0), sqrtYdag(0),
+                CNOT(0, 1), CZ(0, 1), SWAP(0, 1), TOFFOLI(0, 1, 2), FREDKIN(
+                    0, 1, 2), Pauli([0, 1], [1, 2]), PauliRotation([0, 1], [1, 2], random.random()),
+                StateReflection(axis),
+                merge(
+                    X(0), Y(1)), add(X(0), Y(1)), to_matrix_gate(X(0)),
+                P0(0), P1(0), U1(0, random.random()), U2(0, random.random(), random.random()), U3(
+                    0, random.random(), random.random(), random.random()), RX(0, random.random()), RY(0, random.random()), RZ(0, random.random()),
+            ]
+            gates.append(merge(Identity(0), X(0)))
+            gates.append(add(Identity(0), X(0)))
+
+            for g in gates:
+                qs.set_Haar_random_state()
+                qs_json = qs.copy()
+                g.update_quantum_state(qs)
+                json_string = g.to_json()
+                json.loads(json_string)
+                g_json = gate.from_json(json_string)
+                g_json.update_quantum_state(qs_json)
+                for i in range(n):
+                    self.assertAlmostEqual(qs.get_zero_probability(
+                        i), qs_json.get_zero_probability(i))
+
+        for _ in range(10):
+            execute_test_gate()
+
+    def test_parametric_gate(self):
+        from qulacs import QuantumState, gate
+        from qulacs.gate import (
+            ParametricRX, ParametricRY, ParametricRZ, ParametricPauliRotation)
+        import random
+        import json
+
+        n = 3
+        qs = QuantumState(n)
+
+        gates = [
+            ParametricRX(0, random.random()), ParametricRY(0, random.random()), ParametricRZ(
+                0, random.random()), ParametricPauliRotation([0, 1], [1, 1], random.random())
+        ]
+
+        for g in gates:
+            qs.set_Haar_random_state()
+            qs_json = qs.copy()
+            g.update_quantum_state(qs)
+            json_string = g.to_json()
+            json.loads(json_string)
+            g_json = gate.from_json(json_string)
+            g_json.update_quantum_state(qs_json)
+            for i in range(n):
+                self.assertAlmostEqual(qs.get_zero_probability(
+                    i), qs_json.get_zero_probability(i))
+
+    def test_matrix_gate(self):
+        from qulacs import QuantumState, gate
+        from qulacs.gate import (
+            DenseMatrix,
+            SparseMatrix)
+        from scipy.sparse import csc_matrix
+        import json
+        import random
+
+        n = 3
+
+        def execute_test_matrix_gate():
+            qs = QuantumState(n)
+
+            # DenseMatrix
+            matrix = np.array(
+                [[random.random(), random.random()], [random.random(), random.random()]])
+            g = DenseMatrix(0, matrix)
+            qs.set_Haar_random_state()
+            qs_json = qs.copy()
+            g.update_quantum_state(qs)
+            json_string = g.to_json()
+            json.loads(json_string)
+            g_json = gate.from_json(json_string)
+            g_json.update_quantum_state(qs_json)
+            for i in range(n):
+                self.assertAlmostEqual(qs.get_zero_probability(
+                    i), qs_json.get_zero_probability(i))
+
+            # SparseMatrix
+            matrix = np.array(
+                [[random.random(), random.random()], [random.random(), random.random()]])
+            csc = csc_matrix(matrix)
+            g = SparseMatrix([0], csc)
+            qs.set_Haar_random_state()
+            qs_json = qs.copy()
+            g.update_quantum_state(qs)
+            json_string = g.to_json()
+            json.loads(json_string)
+            g_json = gate.from_json(json_string)
+            g_json.update_quantum_state(qs_json)
+            for i in range(n):
+                self.assertAlmostEqual(qs.get_zero_probability(
+                    i), qs_json.get_zero_probability(i))
+
+        for _ in range(10):
+            execute_test_matrix_gate()
+
+    def test_probabilistic_gate(self):
+        from qulacs import gate
+        from qulacs.gate import (X, Y, BitFlipNoise,
+                                 DephasingNoise, Probabilistic,
+                                 DepolarizingNoise, IndependentXZNoise,
+                                 TwoQubitDepolarizingNoise)
+        import json
+        import random
+
+        r = random.random()
+        gates = [
+            Probabilistic([r, 1. - r], [X(0), Y(0)]),
+            BitFlipNoise(0, random.random()), DephasingNoise(
+                0, random.random()),
+            IndependentXZNoise(0, random.random()), DepolarizingNoise(
+                0, random.random()),
+            TwoQubitDepolarizingNoise(0, 1, random.random(
+            )),
+        ]
+
+        for g in gates:
+            json_string = g.to_json()
+            json.loads(json_string)
+            g_json = gate.from_json(json_string)
+
+            ds = g.get_distribution()
+            ds_json = g_json.get_distribution()
+
+            for i in range(len(ds)):
+                self.assertAlmostEqual(ds[i], ds_json[i])
+
+    def test_cptp_gate(self):
+        from qulacs import QuantumState, gate
+        from qulacs.gate import P0, P1, CPTP, AmplitudeDampingNoise, Instrument, Measurement, Adaptive
+        import random
+
+        n = 2
+        gates = [
+            AmplitudeDampingNoise(0, random.random()),
+            CPTP([P0(0), P1(0)]),
+            Instrument([P0(0), P1(0)], 0), Measurement(0, 0),
+        ]
+
+        for g in gates:
+            g_list = g.get_gate_list()
+            json_string = g.to_json()
+            g_json = gate.from_json(json_string)
+            g_json_list = g_json.get_gate_list()
+
+            qs = QuantumState(n)
+
+            for i in range(len(g_list)):
+                gg = g_list[i]
+                gg_json = g_json_list[i]
+                self.assertEqual(gg.get_name(), gg_json.get_name())
+                qs.set_Haar_random_state()
+                qs_json = qs.copy()
+                gg.update_quantum_state(qs)
+                gg_json.update_quantum_state(qs_json)
+                for i in range(n):
+                    self.assertAlmostEqual(qs.get_zero_probability(
+                        i), qs_json.get_zero_probability(i))
+
+    def test_noisy_evolution_gate(self):
+        from qulacs import QuantumState, GeneralQuantumOperator, Observable, gate
+        from qulacs.gate import NoisyEvolution, NoisyEvolution_fast, PauliRotation, H
+        import json
+
+        n = 2
+
+        def execute_test_gate(is_fast):
+            observable = Observable(n)
+            observable.add_operator(1., "X 0")
+
+            hamiltonian = Observable(n)
+            hamiltonian.add_operator(1., "Z 0 Z 1")
+
+            c_ops = []
+            op = GeneralQuantumOperator(n)
+            op.add_operator(0., "Z 0")
+            c_ops.append(op)
+
+            step = 10
+            time = 3.14 / step
+            dt = .001
+            if is_fast:
+                g = NoisyEvolution_fast(hamiltonian, c_ops, time)
+            else:
+                g = NoisyEvolution(hamiltonian, c_ops, time, dt)
+            json_string = g.to_json()
+            json.loads(json_string)
+            g_json = gate.from_json(json_string)
+
+            # reference gate
+            g_ref = PauliRotation([0, 1], [3, 3], -time * 2)
+
+            state = QuantumState(n)
+            state_ref = QuantumState(n)
+            h0 = H(0)
+            h0.update_quantum_state(state)
+            h0.update_quantum_state(state_ref)
+            for k in range(step):
+                g_json.update_quantum_state(state)
+                g_ref.update_quantum_state(state_ref)
+                exp = observable.get_expectation_value(state)
+                exp_ref = observable.get_expectation_value(state_ref)
+                self.assertAlmostEqual(exp.real, exp_ref.real)
+
+        for _ in range(10):
+            execute_test_gate(False)
+            execute_test_gate(True)
+
+    def test_circuit(self):
+        from qulacs import QuantumState, QuantumCircuit, circuit
+        from qulacs.gate import RandomUnitary
+        import json
+
+        n = 3
+
+        circ = QuantumCircuit(n)
+        for _ in range(3):
+            g = RandomUnitary([0, 1, 2])
+            circ.add_gate(g)
+
+        json_string = circ.to_json()
+        json.loads(json_string)
+        circ_json = circuit.from_json(json_string)
+
+        qs = QuantumState(n)
+        qs.set_Haar_random_state()
+        qs_json = qs.copy()
+
+        circ.update_quantum_state(qs)
+        circ_json.update_quantum_state(qs_json)
+
+        for i in range(n):
+            self.assertAlmostEqual(qs.get_zero_probability(
+                i), qs_json.get_zero_probability(i))
+
+    def test_parametric_circuit(self):
+        from qulacs import QuantumState, ParametricQuantumCircuit, circuit
+        from qulacs.gate import ParametricPauliRotation
+        import json
+        import random
+
+        n = 2
+
+        circ = ParametricQuantumCircuit(n)
+
+        for _ in range(3):
+            g = ParametricPauliRotation([0, 1], [1, 1], random.random())
+            circ.add_gate(g)
+
+        json_string = circ.to_json()
+        json.loads(json_string)
+        circ_json = circuit.from_json(json_string)
+
+        qs = QuantumState(n)
+        qs.set_Haar_random_state()
+        qs_json = qs.copy()
+
+        circ.update_quantum_state(qs)
+        circ_json.update_quantum_state(qs_json)
+
+        for i in range(n):
+            self.assertAlmostEqual(qs.get_zero_probability(
+                i), qs_json.get_zero_probability(i))
+
+
 class TestPickle(unittest.TestCase):
     def setUp(self):
         pass
@@ -965,6 +1368,7 @@ class TestPickle(unittest.TestCase):
         import pickle
 
         import numpy
+
         from qulacs import QuantumState
         state = QuantumState(10)
         state.set_Haar_random_state()
@@ -977,6 +1381,7 @@ class TestPickle(unittest.TestCase):
         import pickle
 
         import numpy
+
         from qulacs import DensityMatrix
         state = DensityMatrix(5)
         state.set_Haar_random_state()
@@ -989,6 +1394,7 @@ class TestPickle(unittest.TestCase):
         import pickle
 
         import numpy as np
+
         from qulacs import QuantumCircuit
         from qulacs.gate import (CNOT, CZ, FREDKIN, RX, RY, RZ, SWAP, TOFFOLI,
                                  U1, U2, U3, DenseMatrix, H, Identity,
@@ -1022,6 +1428,7 @@ class TestPickle(unittest.TestCase):
         import random
 
         import numpy as np
+
         from qulacs import ParametricQuantumCircuit
         from qulacs.gate import ParametricPauliRotation
 
@@ -1044,3 +1451,4 @@ class TestPickle(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
