@@ -137,6 +137,8 @@ dmypy.json
 **/_build/
 **/xml/
 */source/api
+*/source/cppapi
+*/source/pythonapi
 
 
 **/.DS_Store
