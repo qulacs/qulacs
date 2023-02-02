@@ -78,4 +78,5 @@ intro/4.2_cpp_tutorial
 
 pyRef/modules
 cppapi/cpp_library_root
+pythonapi/index
 ```
