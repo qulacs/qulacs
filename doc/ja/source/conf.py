@@ -80,6 +80,7 @@ autoapi_root = "pythonapi"
 autoapi_file_patterns = ["*.pyi", "*.py"]
 autoapi_dirs = ["../../../pysrc/qulacs"]
 autoapi_add_toctree_entry = False
+autoapi_template_dir = "_templates/autoapi"
 # Avoid `maximum recursion depth exceeded while calling a Python object` error.
 autoapi_ignore = ["*/vistest/__init__.py", "*/visualizer/__init__.py"]
 
