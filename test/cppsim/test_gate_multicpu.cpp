@@ -239,7 +239,8 @@ TEST(GateTest_multicpu, SingleQubitUnitaryGate) {
         }
     }
 }
-/*
+
+#if 0  // need update_quantum_seed with seed API or singletonize Random Class
 TEST(GateTest_multicpu, MeasurementGate) {
     UINT n = 8;
     const ITYPE dim = 1ULL << n;
@@ -287,7 +288,7 @@ TEST(GateTest_multicpu, MeasurementGate) {
         }
     }
 }
-*/
+#endif
 
 void _ApplyTwoQubitGate(UINT n, UINT control, UINT target,
     std::function<QuantumGateBase*(UINT, UINT)>,
@@ -385,26 +386,20 @@ void _ApplyTwoQubitGate(UINT n, UINT control, UINT target,
         test_state1 = large_mat * test_state1;
 
         // update dense state
-        /*
-                ComplexMatrix small_mat;
-                gate->set_matrix(small_mat);
-                auto gate_dense = new QuantumGateMatrix(
-                    gate->target_qubit_list, small_mat,
-           gate->control_qubit_list);
-                gate_dense->update_quantum_state(&test_state);
-                delete gate_dense;
-        */
+        ComplexMatrix small_mat;
+        gate->set_matrix(small_mat);
+        auto gate_dense = new QuantumGateMatrix(
+            gate->target_qubit_list, small_mat, gate->control_qubit_list);
+        gate_dense->update_quantum_state(&test_state);
+        delete gate_dense;
 
         for (ITYPE i = 0; i < inner_dim; ++i)
             ASSERT_NEAR(
                 abs(state.data_cpp()[i] - test_state1[(i + offs) % dim]), 0,
                 eps);
-        /*
-                for (ITYPE i = 0; i < inner_dim; ++i)
-                    ASSERT_NEAR(
-                        abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0,
-           eps);
-        */
+        for (ITYPE i = 0; i < inner_dim; ++i)
+            ASSERT_NEAR(
+                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
         for (ITYPE i = 0; i < inner_dim; ++i)
             ASSERT_NEAR(abs(state.data_cpp()[i] -
                             state_ref.data_cpp()[(i + offs) % dim]),
@@ -412,7 +407,7 @@ void _ApplyTwoQubitGate(UINT n, UINT control, UINT target,
     }
 }
 
-/*
+#if 0
 void _ApplyFusedSWAPGate(UINT n, UINT control, UINT target, UINT block_size) {
     const ITYPE dim = 1ULL << n;
 
@@ -436,13 +431,13 @@ void _ApplyFusedSWAPGate(UINT n, UINT control, UINT target, UINT block_size) {
             auto swap_gate = gate::SWAP(control + i, target + i);
             swap_gate->update_quantum_state(&state_ref);
         }
+
         //// FusedSWAP
         // printf("call gate::FusedSWAP(%d, %d, %d)\n", control, target,
         // block_size);
         auto bswap_gate = gate::FusedSWAP(control, target, block_size);
         bswap_gate->update_quantum_state(&state);
 
-#if 0
         // update dense state. is it need?
         ComplexMatrix small_mat;
         gate->set_matrix(small_mat);
@@ -450,7 +445,6 @@ void _ApplyFusedSWAPGate(UINT n, UINT control, UINT target, UINT block_size) {
             gate->target_qubit_list, small_mat, gate->control_qubit_list);
 
         delete gate_dense;
-#endif
 
         for (ITYPE i = 0; i < inner_dim; ++i)
             ASSERT_NEAR(abs(state.data_cpp()[i] -
@@ -566,7 +560,7 @@ TEST(GateTest_multicpu, ApplyMultiQubitGate) {
                 abs(state.data_cpp()[i] - test_state1[i + offs]), 0, eps);
     }
 }
-*/
+#endif
 
 // need implementation of dense-matrix gate double
 TEST(GateTest_multicpu, MergeTensorProduct) {
