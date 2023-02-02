@@ -13,11 +13,15 @@ double dm_state_norm_squared(const CTYPE* state, ITYPE dim) {
     ITYPE index;
     double norm = 0;
 #ifdef _OPENMP
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : norm)
 #endif
     for (index = 0; index < dim; ++index) {
         norm += _creal(state[index * dim + index]);
     }
+#ifdef _OPENMP
+    OMPutil::get_inst().reset_qulacs_num_threads();
+#endif
     return norm;
 }
 
@@ -27,6 +31,7 @@ double dm_measurement_distribution_entropy(const CTYPE* state, ITYPE dim) {
     double ent = 0;
     const double eps = 1e-15;
 #ifdef _OPENMP
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : ent)
 #endif
     for (index = 0; index < dim; ++index) {
@@ -35,6 +40,9 @@ double dm_measurement_distribution_entropy(const CTYPE* state, ITYPE dim) {
             ent += -1.0 * prob * log(prob);
         }
     }
+#ifdef _OPENMP
+    OMPutil::get_inst().reset_qulacs_num_threads();
+#endif
     return ent;
 }
 
@@ -45,6 +53,7 @@ double dm_M0_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim) {
     ITYPE state_index;
     double sum = 0.;
 #ifdef _OPENMP
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -52,6 +61,9 @@ double dm_M0_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim) {
             insert_zero_to_basis_index(state_index, mask, target_qubit_index);
         sum += _creal(state[basis_0 * dim + basis_0]);
     }
+#ifdef _OPENMP
+    OMPutil::get_inst().reset_qulacs_num_threads();
+#endif
     return sum;
 }
 
@@ -62,6 +74,7 @@ double dm_M1_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim) {
     ITYPE state_index;
     double sum = 0.;
 #ifdef _OPENMP
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -70,6 +83,9 @@ double dm_M1_prob(UINT target_qubit_index, const CTYPE* state, ITYPE dim) {
             mask;
         sum += _creal(state[basis_1 * dim + basis_1]);
     }
+#ifdef _OPENMP
+    OMPutil::get_inst().reset_qulacs_num_threads();
+#endif
     return sum;
 }
 
@@ -83,6 +99,7 @@ double dm_marginal_prob(const UINT* sorted_target_qubit_index_list,
     ITYPE state_index;
     double sum = 0.;
 #ifdef _OPENMP
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for reduction(+ : sum)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
@@ -95,38 +112,53 @@ double dm_marginal_prob(const UINT* sorted_target_qubit_index_list,
         }
         sum += _creal(state[basis * dim + basis]);
     }
+#ifdef _OPENMP
+    OMPutil::get_inst().reset_qulacs_num_threads();
+#endif
     return sum;
 }
 
 void dm_state_add(const CTYPE* state_added, CTYPE* state, ITYPE dim) {
     ITYPE index;
 #ifdef _OPENMP
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for
 #endif
     for (index = 0; index < dim * dim; ++index) {
         state[index] += state_added[index];
     }
+#ifdef _OPENMP
+    OMPutil::get_inst().reset_qulacs_num_threads();
+#endif
 }
 
 void dm_state_add_with_coef(
     CTYPE coef, const CTYPE* state_added, CTYPE* state, ITYPE dim) {
     ITYPE index;
 #ifdef _OPENMP
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for
 #endif
     for (index = 0; index < dim * dim; ++index) {
         state[index] += coef * state_added[index];
     }
+#ifdef _OPENMP
+    OMPutil::get_inst().reset_qulacs_num_threads();
+#endif
 }
 
 void dm_state_multiply(CTYPE coef, CTYPE* state, ITYPE dim) {
     ITYPE index;
 #ifdef _OPENMP
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #pragma omp parallel for
 #endif
     for (index = 0; index < dim * dim; ++index) {
         state[index] *= coef;
     }
+#ifdef _OPENMP
+    OMPutil::get_inst().reset_qulacs_num_threads();
+#endif
 }
 
 double dm_expectation_value_multi_qubit_Pauli_operator_partial_list(

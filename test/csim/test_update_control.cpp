@@ -69,18 +69,10 @@ TEST(UpdateTest, SingleQubitControlSingleQubitDenseMatrixTest) {
     test_single_control_single_target(
         single_qubit_control_single_qubit_dense_matrix_gate);
     test_single_control_single_target(
-        single_qubit_control_single_qubit_dense_matrix_gate_single_unroll);
-#ifdef _OPENMP
-    test_single_control_single_target(
-        single_qubit_control_single_qubit_dense_matrix_gate_parallel_unroll);
-#endif
+        single_qubit_control_single_qubit_dense_matrix_gate_unroll);
 #ifdef _USE_SIMD
     test_single_control_single_target(
-        single_qubit_control_single_qubit_dense_matrix_gate_single_simd);
-#ifdef _OPENMP
-    test_single_control_single_target(
-        single_qubit_control_single_qubit_dense_matrix_gate_parallel_simd);
-#endif
+        single_qubit_control_single_qubit_dense_matrix_gate_simd);
 #endif
 }
 
@@ -148,18 +140,10 @@ TEST(UpdateTest, TwoQubitControlSingleQubitDenseMatrixTest) {
     test_two_control_single_target(
         multi_qubit_control_single_qubit_dense_matrix_gate);
     test_two_control_single_target(
-        multi_qubit_control_single_qubit_dense_matrix_gate_single_unroll);
-#ifdef _OPENMP
-    test_two_control_single_target(
-        multi_qubit_control_single_qubit_dense_matrix_gate_parallel_unroll);
-#endif
+        multi_qubit_control_single_qubit_dense_matrix_gate_unroll);
 #ifdef _USE_SIMD
     test_two_control_single_target(
-        multi_qubit_control_single_qubit_dense_matrix_gate_single_simd);
-#ifdef _OPENMP
-    test_two_control_single_target(
-        multi_qubit_control_single_qubit_dense_matrix_gate_parallel_simd);
-#endif
+        multi_qubit_control_single_qubit_dense_matrix_gate_simd);
 #endif
 }
 
