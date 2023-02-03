@@ -889,6 +889,12 @@ void multi_qubit_control_single_qubit_dense_matrix_gate_simd(
     const UINT* control_qubit_index_list, const UINT* control_value_list,
     UINT control_qubit_index_count, UINT target_qubit_index,
     const CTYPE matrix[4], CTYPE* state, ITYPE dim);
+#ifdef _USE_MPI
+DllExport void multi_qubit_control_single_qubit_dense_matrix_gate_mpi(
+    const UINT* control_qubit_index_list, const UINT* control_value_list,
+    UINT control_qubit_index_count, UINT target_qubit_index,
+    const CTYPE matrix[4], CTYPE* state, ITYPE dim, UINT inner_qc);
+#endif
 
 /**
  * \~english

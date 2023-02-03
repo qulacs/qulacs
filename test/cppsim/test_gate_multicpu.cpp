@@ -407,7 +407,57 @@ void _ApplyTwoQubitGate(UINT n, UINT control, UINT target,
     }
 }
 
-#if 0
+TEST(GateTest_multicpu, ApplyMultiControl) {
+    const UINT n = 10;
+    const ITYPE dim = 1ULL << n;
+    Random random;
+    random.set_seed(2023);
+
+    QuantumState state(n, 1);
+    QuantumState state_ref(n);
+
+    MPIutil m = get_mpiutil();
+    const ITYPE inner_dim = dim >> state.outer_qc;
+    const ITYPE offs = inner_dim * m->get_rank();
+
+    for (UINT i = 0; i < 10; ++i) {
+        state.set_Haar_random_state(2022);
+        state_ref.load(&state);
+
+        UINT target = random.int32() % n;
+        auto gate_added_c = gate::to_matrix_gate(gate::X(target));
+        UINT control = 0;
+        UINT addlimit = n;
+        UINT numcontrol = random.int32() % 5;
+        UINT beforenum = target;
+
+        for (UINT c = 0; c < numcontrol; ++c) {
+            control =
+                (beforenum + 1 + random.int32() % (addlimit - numcontrol + c)) %
+                n;
+            addlimit -= (beforenum - control);
+            beforenum = control;
+            if (control == target) control = (control + 1) % n;
+            gate_added_c->add_control_qubit(control, random.int32() % 2);
+        }
+
+        // if (m->get_rank() == 0) std::cout << "# gate" << gate_added_c <<
+        // std::endl;
+        gate_added_c->update_quantum_state(&state);
+        gate_added_c->update_quantum_state(&state_ref);
+        delete gate_added_c;
+
+        for (ITYPE i = 0; i < inner_dim; ++i)
+            ASSERT_NEAR(real(state.data_cpp()[i]),
+                real(state_ref.data_cpp()[i + offs]), eps)
+                << i;
+        ASSERT_NEAR(imag(state.data_cpp()[i]),
+            imag(state_ref.data_cpp()[i + offs]), eps)
+            << i;
+    }
+}
+
+#if 0  // use multi target gate
 void _ApplyFusedSWAPGate(UINT n, UINT control, UINT target, UINT block_size) {
     const ITYPE dim = 1ULL << n;
 
@@ -468,7 +518,9 @@ TEST(GateTest_multicpu, ApplyFusedSWAPGate_10qubit_all) {
         }
     }
 }
+#endif
 
+#if 0  // multi-target gate
 TEST(GateTest_multicpu, ApplyMultiQubitGate) {
     const UINT n = 1;
     const ITYPE dim = 1ULL << n;
