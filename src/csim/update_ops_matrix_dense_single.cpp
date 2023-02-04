@@ -230,7 +230,7 @@ void single_qubit_dense_matrix_gate_mpi(UINT target_qubit_index,
         CTYPE* ptr_state = state;
 
 #ifdef _OPENMP
-		OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
+        OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
 #endif
         for (ITYPE iter = 0; iter < num_work; ++iter) {
             m->m_DC_sendrecv(ptr_state, ptr_pair, dim_work, pair_rank);
@@ -241,7 +241,7 @@ void single_qubit_dense_matrix_gate_mpi(UINT target_qubit_index,
             ptr_state += dim_work;
         }
 #ifdef _OPENMP
-		OMPutil::get_inst().reset_qulacs_num_threads();
+        OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     }
 }

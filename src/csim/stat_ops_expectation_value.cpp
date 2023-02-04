@@ -170,7 +170,7 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list(
         &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
     double result;
 #ifdef _OPENMP
-	OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #endif
     if (bit_flip_mask == 0) {
         result = expectation_value_multi_qubit_Pauli_operator_Z_mask(
@@ -181,7 +181,7 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list(
             pivot_qubit_index, state, dim);
     }
 #ifdef _OPENMP
-	OMPutil::get_inst().reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     return result;
 }
@@ -198,7 +198,7 @@ double expectation_value_multi_qubit_Pauli_operator_whole_list(
         &pivot_qubit_index);
     double result;
 #ifdef _OPENMP
-	OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #endif
     if (bit_flip_mask == 0) {
         result = expectation_value_multi_qubit_Pauli_operator_Z_mask(
@@ -209,7 +209,7 @@ double expectation_value_multi_qubit_Pauli_operator_whole_list(
             pivot_qubit_index, state, dim);
     }
 #ifdef _OPENMP
-	OMPutil::get_inst().reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     return result;
 }
@@ -236,7 +236,7 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
         &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
     double result;
 #ifdef _OPENMP
-	OMPutil::get_inst().set_qulacs_num_threads(1, 1);  // set num_thread=1
+    OMPutil::get_inst().set_qulacs_num_threads(1, 1);  // set num_thread=1
 #endif
     if (bit_flip_mask == 0) {
         result = expectation_value_multi_qubit_Pauli_operator_Z_mask(
@@ -247,7 +247,7 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
             pivot_qubit_index, state, dim);
     }
 #ifdef _OPENMP
-	OMPutil::get_inst().reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     return result;
 }
@@ -268,7 +268,7 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list_mpi(
     MPIutil m = get_mpiutil();
 
 #ifdef _OPENMP
-	OMPutil::get_inst().set_qulacs_num_threads(dim, 15);
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 15);
 #endif
     if (bit_flip_mask == 0) {
         result = expectation_value_multi_qubit_Pauli_operator_Z_mask_mpi(
@@ -279,7 +279,7 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list_mpi(
             pivot_qubit_index, state, dim, inner_qc);
     }
 #ifdef _OPENMP
-	OMPutil::get_inst().reset_qulacs_num_threads();
+    OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 
     if (outer_qc > 0) m->s_D_allreduce(&result);

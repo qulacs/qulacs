@@ -132,7 +132,7 @@ void single_qubit_diagonal_matrix_gate_mpi(UINT target_qubit_index,
             target_qubit_index, diagonal_matrix, state, dim);
     } else {
 #ifdef _OPENMP
-		OMPutil::get_inst().set_qulacs_num_threads(dim, 12);
+        OMPutil::get_inst().set_qulacs_num_threads(dim, 12);
 #endif
         const MPIutil m = get_mpiutil();
         const int rank = m->get_rank();
@@ -141,7 +141,7 @@ void single_qubit_diagonal_matrix_gate_mpi(UINT target_qubit_index,
         single_qubit_diagonal_matrix_gate_partial(
             diagonal_matrix, state, dim, (rank & pair_rank_bit) != 0);
 #ifdef _OPENMP
-		OMPutil::get_inst().reset_qulacs_num_threads();
+        OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     }
 }

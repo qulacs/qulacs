@@ -134,7 +134,7 @@ void H_gate_mpi(
         const int pair_rank = rank ^ pair_rank_bit;
 
 #ifdef _OPENMP
-		OMPutil::get_inst().set_qulacs_num_threads(dim_work, 13);
+        OMPutil::get_inst().set_qulacs_num_threads(dim_work, 13);
 #endif
 
         CTYPE* si = state;
@@ -146,7 +146,7 @@ void H_gate_mpi(
             si += dim_work;
         }
 #ifdef _OPENMP
-		OMPutil::get_inst().reset_qulacs_num_threads();
+        OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
     }
 }

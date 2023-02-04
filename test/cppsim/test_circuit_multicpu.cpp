@@ -181,10 +181,11 @@ TEST(CircuitTest_multicpu, CircuitBasic) {
 
     circuit.update_quantum_state(&state);
 
-	if (state.get_device_name() == "multi-cpu")
+    if (state.get_device_name() == "multi-cpu")
         for (ITYPE i = 0; i < inner_dim; ++i)
-            ASSERT_NEAR(abs(state_eigen[i + offs] - state.data_cpp()[i]), 0, eps);
-	else
+            ASSERT_NEAR(
+                abs(state_eigen[i + offs] - state.data_cpp()[i]), 0, eps);
+    else
         for (ITYPE i = 0; i < dim; ++i)
             ASSERT_NEAR(abs(state_eigen[i] - state.data_cpp()[i]), 0, eps);
 }
@@ -292,10 +293,11 @@ TEST(CircuitTest_multicpu, CircuitRev) {
 
     revcircuit->update_quantum_state(&state);
 
-	if (state.get_device_name() == "multi-cpu")
+    if (state.get_device_name() == "multi-cpu")
         for (ITYPE i = 0; i < inner_dim; ++i)
-            ASSERT_NEAR(abs(state_eigen[i + offs] - state.data_cpp()[i]), 0, eps);
-	else
+            ASSERT_NEAR(
+                abs(state_eigen[i + offs] - state.data_cpp()[i]), 0, eps);
+    else
         for (ITYPE i = 0; i < dim; ++i)
             ASSERT_NEAR(abs(state_eigen[i] - state.data_cpp()[i]), 0, eps);
 
