@@ -125,30 +125,41 @@ else:
     print("Qulacs module was build without USE_MPI.")
     exit()
 
-state_on_single_cpu = qulacs.QuantumState(3)
-state_on_multi_cpu = qulacs.QuantumState(3, use_multi_cpu=True)
-state_on_single_cpu.set_Haar_random_state()
-state_on_multi_cpu.load(state_on_single_cpu)
+mpicomm = MPI.COMM_WORLD
+mpirank = mpicomm.Get_rank()
 
-print("# qulacs.check_build_for_mpi() =", qulacs.check_build_for_mpi())
-print(state_on_single_cpu)
+nqubits = 5
 
-circuit = qulacs.QuantumCircuit(3)
+state_on_multi_cpu = qulacs.QuantumState(nqubits, use_multi_cpu=True)
+state_on_multi_cpu.set_Haar_random_state()
+# for check
+state_on_single_cpu = qulacs.QuantumState(nqubits)
+state_on_single_cpu.load(state_on_multi_cpu)
+
+if mpirank == 0:
+    print("# qulacs.check_build_for_mpi() =", qulacs.check_build_for_mpi())
+print(state_on_multi_cpu)
+
+circuit = qulacs.QuantumCircuit(nqubits)
 
 circuit.add_X_gate(0)
 merged_gate = merge(CNOT(0,1),Y(1))
 circuit.add_gate(merged_gate)
 circuit.add_RX_gate(1,0.5)
-circuit.update_quantum_state(state_on_single_cpu)
-# circuit.update_quantum_state(state_on_multi_cpu) # not supported yet
+circuit.update_quantum_state(state_on_multi_cpu)
 
-observable = qulacs.Observable(3)
+observable = qulacs.Observable(nqubits)
 observable.add_operator(2.0, "X 2 Y 1 Z 0")
 observable.add_operator(-3.0, "Z 2")
+value_multi = observable.get_expectation_value(state_on_multi_cpu)
+if mpirank == 0:
+    print("value(multi cpu) =", value_multi)
+
+# for check
+circuit.update_quantum_state(state_on_single_cpu)
 value_single = observable.get_expectation_value(state_on_single_cpu)
-#value_multi = observable.get_expectation_value(state_on_multi_cpu) # not supported yet
-print("value(single cpu) =", value_single)
-#print("value(multi cpu) =", value_multi) # not supported yet
+if mpirank == 0:
+    print("value(single cpu) =", value_single)
 ```
 
 ### C++ sample code
@@ -166,12 +177,13 @@ int main(int argc, char *argv[]) {
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
-    QuantumState ref_state(3); // use single cpu
-    QuantumState state(3, 1); // 1(ture): use_multi_cpu
+    int nqubits = 5;
+    QuantumState ref_state(nqubits); // use single cpu
+    QuantumState state(nqubits, 1); // 1(ture): use_multi_cpu
     state.set_Haar_random_state();
     ref_state.load(&state);
 
-    QuantumCircuit circuit(3);
+    QuantumCircuit circuit(nqubits);
     circuit.add_X_gate(0);
 
     auto merged_gate = gate::merge(gate::CNOT(0, 1),gate::Y(1));
@@ -200,7 +212,7 @@ int main(int argc, char *argv[]) {
     //
     // observable function is not available in mpi.
     //
-    Observable observable(3);
+    Observable observable(nqubits);
     observable.add_operator(2.0, "X 2 Y 1 Z 0");
     observable.add_operator(-3.0, "Z 2");
     auto ref_value = observable.get_expectation_value(&ref_state); // not supported yet
