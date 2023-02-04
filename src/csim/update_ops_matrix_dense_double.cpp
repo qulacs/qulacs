@@ -975,8 +975,7 @@ void double_qubit_dense_matrix_gate_mpi(UINT target_qubit_index1,
         if (inner_qc < 2)
             throw NotImplementedException(
                 "Dense matrix gate with less than two-local qubit");
-        // Add two swap gates before and after a double-target dense-gate
-        // operation
+        // Add two swap gates before and after a dense-gate operation
         UINT act_target_qubit_index1 = inner_qc - 1;
         UINT act_target_qubit_index2 = inner_qc - 2;
         SWAP_gate_mpi(
@@ -994,8 +993,7 @@ void double_qubit_dense_matrix_gate_mpi(UINT target_qubit_index1,
 
     } else {
         if (target1_is_outer) {
-            // Add a swap gate before and after a double-target dense-gate
-            // operation
+            // Add a swap gate before and after a dense-gate operation
             UINT act_target_qubit_index1 =
                 (target_qubit_index2 == (inner_qc - 1)) ? inner_qc - 2
                                                         : inner_qc - 1;
@@ -1008,8 +1006,7 @@ void double_qubit_dense_matrix_gate_mpi(UINT target_qubit_index1,
             SWAP_gate_mpi(act_target_qubit_index1, target_qubit_index1, state,
                 dim, inner_qc);
         } else {
-            // Add a swap gate before and after a double-target dense-gate
-            // operation
+            // Add a swap gate before and after a dense-gate operation
             UINT act_target_qubit_index2 =
                 (target_qubit_index1 == (inner_qc - 1)) ? inner_qc - 2
                                                         : inner_qc - 1;
