@@ -43,6 +43,7 @@ void normalize_single_thread(double squared_norm, CTYPE* state, ITYPE dim) {
     }
 }
 
+// TODO: support when one of the states is multi-cpu
 void state_add(const CTYPE* state_added, CTYPE* state, ITYPE dim) {
     ITYPE index;
 #ifdef _OPENMP
@@ -57,6 +58,7 @@ void state_add(const CTYPE* state_added, CTYPE* state, ITYPE dim) {
 #endif
 }
 
+// TODO: support when one of the states is multi-cpu
 void state_add_with_coef(
     CTYPE coef, const CTYPE* state_added, CTYPE* state, ITYPE dim) {
     ITYPE index;
@@ -72,6 +74,7 @@ void state_add_with_coef(
 #endif
 }
 
+// TODO: support when one of the states is multi-cpu
 void state_add_with_coef_single_thread(
     CTYPE coef, const CTYPE* state_added, CTYPE* state, ITYPE dim) {
     ITYPE index;
