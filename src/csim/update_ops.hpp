@@ -1393,10 +1393,12 @@ DllExport void single_qubit_control_multi_qubit_dense_matrix_gate(
     UINT control_qubit_index, UINT control_value,
     const UINT* target_qubit_index_list, UINT target_qubit_index_count,
     const CTYPE* matrix, CTYPE* state, ITYPE dim);
-//#ifdef _USE_MPI
-// TODO: single_qubit_control_multi_qubit_dense_matrix_gate is not implemented
-// for multi-cpu yet
-//#endif
+#ifdef _USE_MPI
+DllExport void single_qubit_control_multi_qubit_dense_matrix_gate_mpi(
+    UINT control_qubit_index, UINT control_value,
+    const UINT* target_qubit_index_list, UINT target_qubit_index_count,
+    const CTYPE* matrix, CTYPE* state, ITYPE dim, UINT inner_qc);
+#endif
 
 /**
  * \~english

@@ -11,6 +11,7 @@
 #include <cppsim/state.hpp>
 #include <cppsim/utility.hpp>
 #include <functional>
+#include <iostream>
 
 #include "../util/util.hpp"
 
@@ -1181,259 +1182,114 @@ TEST(GateTest_multicpu, RandomUnitaryMergeLarge) {
     }
 }
 
-/*
-TEST(GateTest_multicpu, U3MergeIBMQGate) {
-    auto gate1 = gate::U3(0, 0.1, 0.1, 0.1);
-    auto gate2 = gate::U3(0, 0.1, 0.1, 0.1);
-    auto gate3 = gate::merge(gate1, gate2);
-}
-
-TEST(GateTest_multicpu, ControlMerge) {
-    UINT n = 2;
-    ITYPE dim = 1ULL << n;
-
-    {
-        auto x0 = gate::X(0);
-        auto cx01 = gate::CNOT(0, 1);
-        auto res = gate::merge(x0, cx01);
-        //std::cout << res << std::endl;
-
-        auto mat_x = get_expanded_eigen_matrix_with_identity(0,
-get_eigen_matrix_single_Pauli(1), 2); auto mat_cx =
-get_eigen_matrix_full_qubit_CNOT(0, 1, 2); auto mat_res = mat_cx * mat_x;
-        //std::cout << mat_res << std::endl;
-
-        ComplexMatrix checkmat;
-        res->set_matrix(checkmat);
-        for (ITYPE x = 0; x < dim; ++x) for (ITYPE y = 0; y < dim; ++y)
-ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps) << res << "\n\n" <<
-mat_res << std::endl;
-    }
-
-    {
-        auto x0 = gate::X(0);
-        auto cx01 = gate::CNOT(0, 1);
-        auto res = gate::merge(cx01,x0);
-        //std::cout << res << std::endl;
-
-        auto mat_x = get_expanded_eigen_matrix_with_identity(0,
-get_eigen_matrix_single_Pauli(1), 2); auto mat_cx =
-get_eigen_matrix_full_qubit_CNOT(0, 1, 2); auto mat_res = mat_x * mat_cx;
-        //std::cout << mat_res << std::endl;
-
-        ComplexMatrix checkmat;
-        res->set_matrix(checkmat);
-        for (ITYPE x = 0; x < dim; ++x) for (ITYPE y = 0; y < dim; ++y)
-ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps) << res << "\n\n" <<
-mat_res << std::endl;
-    }
-
-    {
-        auto x1 = gate::X(1);
-        auto cx01 = gate::CNOT(0, 1);
-        auto res = gate::merge(x1, cx01);
-        //std::cout << res << std::endl;
-
-        auto mat_x = get_expanded_eigen_matrix_with_identity(1,
-get_eigen_matrix_single_Pauli(1), 2); auto mat_cx =
-get_eigen_matrix_full_qubit_CNOT(0, 1, 2); auto mat_res = mat_cx * mat_x;
-        //std::cout << mat_res << std::endl;
-
-        ComplexMatrix checkmat;
-        res->set_matrix(checkmat);
-        for (ITYPE x = 0; x < dim; ++x) for (ITYPE y = 0; y < dim; ++y)
-ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps) << res << "\n\n" <<
-mat_res << std::endl;
-    }
-
-    {
-        auto x1 = gate::X(1);
-        auto cx01 = gate::CNOT(0, 1);
-        auto res = gate::merge(cx01, x1);
-        //std::cout << res << std::endl;
-
-        auto mat_x = get_expanded_eigen_matrix_with_identity(1,
-get_eigen_matrix_single_Pauli(1), 2); auto mat_cx =
-get_eigen_matrix_full_qubit_CNOT(0, 1, 2); auto mat_res = mat_x * mat_cx;
-        //std::cout << mat_res << std::endl;
-
-        ComplexMatrix checkmat;
-        res->set_matrix(checkmat);
-        for (ITYPE x = 0; x < dim; ++x) for (ITYPE y = 0; y < dim; ++y)
-ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps) << res << "\n\n" <<
-mat_res << std::endl;
-    }
-
-    {
-        auto cz01 = gate::CZ(0,1);
-        auto cx01 = gate::CNOT(0, 1);
-        auto res = gate::merge(cx01, cz01);
-        //std::cout << res << std::endl;
-
-        ASSERT_EQ(res->control_qubit_list.size(), 1);
-        ASSERT_EQ(res->control_qubit_list[0].index(), 0);
-        ComplexMatrix mat_res = 1.i * get_eigen_matrix_single_Pauli(2);
-
-
-        ComplexMatrix checkmat;
-        res->set_matrix(checkmat);
-        for (ITYPE x = 0; x < 2; ++x) for (ITYPE y = 0; y < 2; ++y)
-ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps) << res << "\n\n" <<
-mat_res << std::endl;
-    }
-
-    {
-        auto cz10 = gate::CZ(1,0);
-        auto cx01 = gate::CNOT(0, 1);
-        auto res = gate::merge(cx01, cz10);
-
-        auto mat_cz = get_eigen_matrix_full_qubit_CZ(1, 0,2);
-        auto mat_cx = get_eigen_matrix_full_qubit_CNOT(0, 1, 2);
-        auto mat_res = mat_cz * mat_cx;
-
-        ComplexMatrix checkmat;
-        res->set_matrix(checkmat);
-        for (ITYPE x = 0; x < dim; ++x) for (ITYPE y = 0; y < dim; ++y)
-ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps) << res << "\n\n" <<
-mat_res << std::endl;
-    }
-
-
-    n = 3;
-    dim = 1ULL << n;
-    {
-        auto x2 = gate::X(2);
-        auto cx01 = gate::CNOT(0, 1);
-        auto res = gate::merge(x2, cx01);
-        //std::cout << res << std::endl;
-
-        auto mat_x = get_expanded_eigen_matrix_with_identity(2,
-get_eigen_matrix_single_Pauli(1), n); auto mat_cx =
-get_eigen_matrix_full_qubit_CNOT(0, 1, n); auto mat_res = mat_cx * mat_x;
-        //std::cout << mat_res << std::endl;
-
-        ComplexMatrix checkmat;
-        res->set_matrix(checkmat);
-        for (ITYPE x = 0; x < dim; ++x) for (ITYPE y = 0; y < dim; ++y)
-ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps) << res << "\n\n" <<
-mat_res << std::endl;
-    }
-
-    {
-        auto x2 = gate::X(2);
-        auto cx01 = gate::CNOT(0, 1);
-        auto res = gate::merge(cx01, x2);
-        //std::cout << res << std::endl;
-
-        auto mat_x = get_expanded_eigen_matrix_with_identity(2,
-get_eigen_matrix_single_Pauli(1), n); auto mat_cx =
-get_eigen_matrix_full_qubit_CNOT(0, 1, n); auto mat_res = mat_x * mat_cx;
-        //std::cout << mat_res << std::endl;
-
-        ComplexMatrix checkmat;
-        res->set_matrix(checkmat);
-        for (ITYPE x = 0; x < dim; ++x) for (ITYPE y = 0; y < dim; ++y)
-ASSERT_NEAR(abs(checkmat(x, y) - (mat_res(x, y))), 0, eps) << res << "\n\n" <<
-mat_res << std::endl;
-    }
-
-}
-
-
-TEST(GateTest_multicpu, RandomControlMergeSmall) {
-    UINT n = 4;
+TEST(GateTest_multicpu, RandomControlMerge) {
+    UINT n = 10;
     ITYPE dim = 1ULL << n;
 
     UINT gate_count = 10;
     Random random;
+    random.set_seed(2023);
+    std::mt19937 eng(2020);
 
-    std::vector<UINT> arr;
-    for (UINT i = 0; i < n; ++i) arr.push_back(i);
+    QuantumState dum_state(n, 1);
+    MPIutil m = get_mpiutil();
+    const ITYPE inner_dim = dim >> dum_state.outer_qc;
+    const ITYPE offs = (dum_state.outer_qc != 0) * inner_dim * m->get_rank();
 
     for (gate_count = 1; gate_count < n * 2; ++gate_count) {
-        ComplexMatrix mat = ComplexMatrix::Identity(dim, dim);
+        std::vector<UINT> arr;
+        // for (UINT i = 0; i < 5; ++i) arr.push_back(i); // max 5 qubit
+        // dense-matrix-gate
+        for (UINT i = 0; i < n; ++i)
+            arr.push_back(i);  // max 5 qubit dense-matrix-gate
+        std::shuffle(arr.begin(), arr.end(), eng);
+        arr.resize(5);
+
+        QuantumState ref_state(n);
         QuantumState state(n, 1), test_state(n, 1);
-        ComplexVector test_state_eigen(dim);
         state.set_Haar_random_state();
+        ref_state.load(&state);
         test_state.load(&state);
-        for (ITYPE i = 0; i < dim; ++i) test_state_eigen[i] =
-state.data_cpp()[i]; auto merge_gate1 = gate::Identity(0); auto merge_gate2 =
-gate::Identity(0);
+        QuantumGateBase* merge_gate1 = gate::Identity(0);
+        QuantumGateBase* merge_gate2 = gate::Identity(0);
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
-            std::random_shuffle(arr.begin(), arr.end());
+            std::shuffle(arr.begin(), arr.end(), eng);
             UINT target = arr[0];
             UINT control = arr[1];
             auto new_gate = gate::CNOT(control, target);
             merge_gate1 = gate::merge(merge_gate1, new_gate);
 
             new_gate->update_quantum_state(&test_state);
-
-            auto cmat = get_eigen_matrix_full_qubit_CNOT(control, target, n);
-            mat = cmat * mat;
         }
         merge_gate1->update_quantum_state(&state);
-        test_state_eigen = mat * test_state_eigen;
+        merge_gate1->update_quantum_state(&ref_state);
 
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] -
-test_state.data_cpp()[i]), 0, eps); for (ITYPE i = 0; i < dim; ++i)
-ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps) << state <<
-"\n\n" << test_state_eigen << "\n";
+        for (ITYPE i = 0; i < inner_dim; ++i) {
+            ASSERT_NEAR(
+                abs(ref_state.data_cpp()[i + offs] - test_state.data_cpp()[i]),
+                0, eps)
+                << m->get_rank() << ", " << i << ", " << offs;
+            //    << ref_state << "\n\n"
+            //    << test_state << "\n";
+            ASSERT_NEAR(
+                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
+            //    << state << "\n\n"
+            //    << test_state << "\n";
+        }
     }
 }
 
-TEST(GateTest_multicpu, RandomControlMergeLarge) {
-    UINT n = 4;
+TEST(GateTest_multicpu, RandomUnitaryMergeWithControl) {
+    UINT n = 10;
     ITYPE dim = 1ULL << n;
 
     UINT gate_count = 10;
     Random random;
+    random.set_seed(2023);
+    std::mt19937 eng(2020);
 
-    std::vector<UINT> arr;
-    for (UINT i = 0; i < n; ++i) arr.push_back(i);
+    QuantumState dum_state(n, 1);
+    MPIutil m = get_mpiutil();
+    const ITYPE inner_dim = dim >> dum_state.outer_qc;
+    const ITYPE offs = (dum_state.outer_qc != 0) * inner_dim * m->get_rank();
 
     for (gate_count = 1; gate_count < n * 2; ++gate_count) {
-        ComplexMatrix mat = ComplexMatrix::Identity(dim, dim);
-        QuantumState state(n, 1), test_state(n, 1);
-        ComplexVector test_state_eigen(dim);
+        // max 5 qubit dense-matrix-gate
+        std::vector<UINT> arr;
+        for (UINT i = 0; i < n; ++i) arr.push_back(i);
+        std::shuffle(arr.begin(), arr.end(), eng);
+        UINT control = arr[5];
+        arr.resize(5);
+
+        QuantumState ref_state(n);
+        QuantumState state(n, 1);
         state.set_Haar_random_state();
-        test_state.load(&state);
-        for (ITYPE i = 0; i < dim; ++i) test_state_eigen[i] =
-state.data_cpp()[i]; auto merge_gate1 = gate::Identity(0); auto merge_gate2 =
-gate::Identity(0);
+        ref_state.load(&state);
+        QuantumGateBase* merge_gate1 = gate::H(arr[0]);
 
         for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
-            std::random_shuffle(arr.begin(), arr.end());
-            UINT target = arr[0];
-            UINT control = arr[1];
-            auto new_gate = gate::CNOT(control, target);
+            std::shuffle(arr.begin(), arr.end(), eng);
+            UINT target1 = arr[0];
+            UINT target2 = arr[1];
+            auto new_gate = gate::RandomUnitary({target1, target2}, 2020);
             merge_gate1 = gate::merge(merge_gate1, new_gate);
-
-            auto cmat = get_eigen_matrix_full_qubit_CNOT(control, target, n);
-            mat = cmat*mat;
         }
-
-        for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
-            std::random_shuffle(arr.begin(), arr.end());
-            UINT target = arr[0];
-            UINT control = arr[1];
-            auto new_gate = gate::CNOT(control, target);
-            merge_gate2 = gate::merge(merge_gate2, new_gate);
-
-            auto cmat = get_eigen_matrix_full_qubit_CNOT(control, target, n);
-            mat = cmat * mat;
-        }
-
-        auto merge_gate = gate::merge(merge_gate1, merge_gate2);
+        auto merge_gate = gate::to_matrix_gate(merge_gate1);
+        merge_gate->add_control_qubit(control, random.int32() % 2);
         merge_gate->update_quantum_state(&state);
-        merge_gate1->update_quantum_state(&test_state);
-        merge_gate2->update_quantum_state(&test_state);
-        test_state_eigen = mat * test_state_eigen;
+        merge_gate->update_quantum_state(&ref_state);
 
-        for (ITYPE i = 0; i < dim; ++i) ASSERT_NEAR(abs(state.data_cpp()[i] -
-test_state.data_cpp()[i]), 0, eps); for (ITYPE i = 0; i < dim; ++i)
-ASSERT_NEAR(abs(state.data_cpp()[i] - test_state_eigen[i]), 0, eps) << state <<
-"\n\n" << test_state_eigen << "\n";
+        for (ITYPE i = 0; i < inner_dim; ++i) {
+            // ASSERT_NEAR(abs(ref_state.data_cpp()[i + offs] -
+            // state.data_cpp()[i]), 0, eps)
+            ASSERT_NEAR(real(ref_state.data_cpp()[i + offs]),
+                real(state.data_cpp()[i]), eps)
+                << m->get_rank() << ", " << i << ", " << offs;
+            ASSERT_NEAR(imag(ref_state.data_cpp()[i + offs]),
+                imag(state.data_cpp()[i]), eps)
+                << m->get_rank() << ", " << i << ", " << offs;
+        }
     }
 }
 
@@ -1452,6 +1308,7 @@ TEST(GateTest_multicpu, ProbabilisticGate) {
     delete prob_gate;
 }
 
+/*
 TEST(GateTest_multicpu, CPTPGate) {
     auto gate1 = gate::merge(gate::P0(0), gate::P0(1));
     auto gate2 = gate::merge(gate::P0(0), gate::P1(1));

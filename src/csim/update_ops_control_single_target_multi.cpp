@@ -4,6 +4,11 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <algorithm>
+#include <numeric>
+#include <vector>
+
+#include "MPIutil.hpp"
 #include "constant.hpp"
 #include "update_ops.hpp"
 #include "utility.hpp"
@@ -63,3 +68,70 @@ void single_qubit_control_multi_qubit_dense_matrix_gate(
     free(buffer);
     free(matrix_mask_list);
 }
+
+#ifdef _USE_MPI
+void single_qubit_control_multi_qubit_dense_matrix_gate_mpi(
+    UINT control_qubit_index, UINT control_value,
+    const UINT* target_qubit_index_list, UINT target_qubit_index_count,
+    const CTYPE* matrix, CTYPE* state, ITYPE dim, UINT inner_qc) {
+    UINT num_outer_target = 0;
+    for (UINT i = 0; i < target_qubit_index_count; ++i)
+        if (target_qubit_index_list[i] >= inner_qc) ++num_outer_target;
+
+    if (control_qubit_index < inner_qc) {
+        // swap all outer qubits
+        std::vector<UINT> outer_target_index;
+        std::vector<UINT> inner_avail_qubit(inner_qc);
+        std::vector<UINT> new_target_index(target_qubit_index_count);
+        for (UINT i = 0; i < target_qubit_index_count; ++i)
+            new_target_index[i] = target_qubit_index_list[i];
+        if (num_outer_target != 0) {
+            std::vector<UINT> swapped_i;
+
+            // set act_target_index
+            std::iota(inner_avail_qubit.begin(), inner_avail_qubit.end(), 0);
+            std::reverse(inner_avail_qubit.begin(), inner_avail_qubit.end());
+            std::remove(inner_avail_qubit.begin(), inner_avail_qubit.end(),
+                control_qubit_index);
+            for (UINT i = 0; i < target_qubit_index_count; ++i) {
+                if (target_qubit_index_list[i] >= inner_qc) {
+                    outer_target_index.push_back(target_qubit_index_list[i]);
+                    swapped_i.push_back(i);
+                } else {
+                    std::remove(inner_avail_qubit.begin(),
+                        inner_avail_qubit.end(), target_qubit_index_list[i]);
+                }
+            }
+            for (UINT i = 0; i < num_outer_target; ++i)
+                new_target_index[swapped_i[i]] = inner_avail_qubit[i];
+            // swap all outer qubits
+            for (UINT i = 0; i < num_outer_target; ++i) {
+                SWAP_gate_mpi(outer_target_index[i], inner_avail_qubit[i],
+                    state, dim, inner_qc);
+            }
+        }
+
+        single_qubit_control_multi_qubit_dense_matrix_gate(control_qubit_index,
+            control_value, new_target_index.data(), target_qubit_index_count,
+            matrix, state, dim);
+
+        // revert all outer qubits
+        if (num_outer_target != 0) {
+            // swap all outer qubits
+            for (UINT i = 0; i < num_outer_target; ++i) {
+                SWAP_gate_mpi(outer_target_index[i], inner_avail_qubit[i],
+                    state, dim, inner_qc);
+            }
+        }
+    } else {
+        const MPIutil m = get_mpiutil();
+        const UINT rank = m->get_rank();
+        const UINT control_rank_bit = 1 << (control_qubit_index - inner_qc);
+        if ((rank & control_rank_bit) >> (control_qubit_index - inner_qc) ==
+            control_value)
+            multi_qubit_dense_matrix_gate_mpi(target_qubit_index_list,
+                target_qubit_index_count, matrix, state, dim, inner_qc);
+        // else, nothing to do
+    }
+}
+#endif
