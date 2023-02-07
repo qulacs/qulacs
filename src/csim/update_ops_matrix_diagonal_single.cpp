@@ -135,7 +135,7 @@ void single_qubit_diagonal_matrix_gate_parallel_sve(UINT target_qubit_index,
     // # of complex128 numbers in an SVE register
     ITYPE VL = svcntd() / 2;
 
-    if (target_qubit_index > VL) {
+    if (mask > VL) {
 #pragma omp parallel
         {
             svbool_t pg = svptrue_b64();
