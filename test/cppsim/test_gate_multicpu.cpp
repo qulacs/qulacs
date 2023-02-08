@@ -728,7 +728,9 @@ TEST(GateTest_multicpu, MergeTensorProductAndMultiply) {
 }
 
 TEST(GateTest_multicpu, RandomPauliMerge) {
-    UINT n = 10;
+    MPIutil m = get_mpiutil();
+    const UINT num_global_qubit = (UINT)std::log2(m->get_size());
+    UINT n = 10 + num_global_qubit;
     ITYPE dim = 1ULL << n;
 
     UINT gate_count = 10;
@@ -743,7 +745,6 @@ TEST(GateTest_multicpu, RandomPauliMerge) {
     QuantumState state_ref(n);
     QuantumState state(n, 1), test_state(n, 1);
 
-    MPIutil m = get_mpiutil();
     const ITYPE inner_dim = dim >> state.outer_qc;
     const ITYPE offs = (state.outer_qc != 0) * inner_dim * m->get_rank();
 
@@ -939,7 +940,9 @@ TEST(GateTest_multicpu, RandomPauliRotationMerge) {
 }
 
 TEST(GateTest_multicpu, RandomUnitaryMerge) {
-    UINT n = 5;
+    MPIutil m = get_mpiutil();
+    const UINT num_global_qubit = (UINT)std::log2(m->get_size());
+    UINT n = 5 + num_global_qubit;
     ITYPE dim = 1ULL << n;
 
     UINT gate_count = 10;
@@ -955,7 +958,6 @@ TEST(GateTest_multicpu, RandomUnitaryMerge) {
     QuantumState state(n, 1), test_state(n, 1);
     Eigen::VectorXcd test_state_eigen(dim);
 
-    MPIutil m = get_mpiutil();
     const ITYPE inner_dim = dim >> state.outer_qc;
     const ITYPE offs = (state.outer_qc != 0) * inner_dim * m->get_rank();
 
@@ -1062,7 +1064,9 @@ TEST(GateTest_multicpu, RandomUnitaryMerge) {
 
 // need implementation to multi_qubit_dense_matrix_gate for a outer qubit.
 TEST(GateTest_multicpu, RandomUnitaryMergeLarge) {
-    UINT n = 10;
+    MPIutil m = get_mpiutil();
+    const UINT num_global_qubit = (UINT)std::log2(m->get_size());
+    UINT n = 10 + num_global_qubit;
     ITYPE dim = 1ULL << n;
 
     UINT gate_count = 5;
@@ -1078,7 +1082,6 @@ TEST(GateTest_multicpu, RandomUnitaryMergeLarge) {
     QuantumState state(n, 1), test_state(n, 1);
     Eigen::VectorXcd test_state_eigen(dim);
 
-    MPIutil m = get_mpiutil();
     const ITYPE inner_dim = dim >> state.outer_qc;
     const ITYPE offs = (state.outer_qc != 0) * inner_dim * m->get_rank();
 
@@ -1183,7 +1186,9 @@ TEST(GateTest_multicpu, RandomUnitaryMergeLarge) {
 }
 
 TEST(GateTest_multicpu, RandomControlMerge) {
-    UINT n = 10;
+    MPIutil m = get_mpiutil();
+    const UINT num_global_qubit = (UINT)std::log2(m->get_size());
+    UINT n = 10 + num_global_qubit;
     ITYPE dim = 1ULL << n;
 
     UINT gate_count = 10;
@@ -1192,7 +1197,6 @@ TEST(GateTest_multicpu, RandomControlMerge) {
     std::mt19937 eng(2020);
 
     QuantumState dum_state(n, 1);
-    MPIutil m = get_mpiutil();
     const ITYPE inner_dim = dim >> dum_state.outer_qc;
     const ITYPE offs = (dum_state.outer_qc != 0) * inner_dim * m->get_rank();
 
@@ -1241,20 +1245,21 @@ TEST(GateTest_multicpu, RandomControlMerge) {
 }
 
 TEST(GateTest_multicpu, RandomUnitaryMergeWithControl) {
-    UINT n = 10;
+    MPIutil m = get_mpiutil();
+    const ITYPE mpisize = m->get_size();
+    const UINT num_global_qubit = (UINT)std::log2(m->get_size());
+    UINT n = 10 + num_global_qubit;
     ITYPE dim = 1ULL << n;
 
-    UINT gate_count = 10;
     Random random;
     random.set_seed(2023);
     std::mt19937 eng(2020);
 
     QuantumState dum_state(n, 1);
-    MPIutil m = get_mpiutil();
     const ITYPE inner_dim = dim >> dum_state.outer_qc;
     const ITYPE offs = (dum_state.outer_qc != 0) * inner_dim * m->get_rank();
 
-    for (gate_count = 1; gate_count < n * 2; ++gate_count) {
+    for (UINT gate_count = 1; gate_count < n * 2; ++gate_count) {
         // max 5 qubit dense-matrix-gate
         std::vector<UINT> arr;
         for (UINT i = 0; i < n; ++i) arr.push_back(i);
@@ -1272,11 +1277,68 @@ TEST(GateTest_multicpu, RandomUnitaryMergeWithControl) {
             std::shuffle(arr.begin(), arr.end(), eng);
             UINT target1 = arr[0];
             UINT target2 = arr[1];
-            auto new_gate = gate::RandomUnitary({target1, target2}, 2020);
+            UINT seed = 2020 + gate_count * 100 + gate_index;
+            auto new_gate = gate::RandomUnitary({target1, target2}, seed);
             merge_gate1 = gate::merge(merge_gate1, new_gate);
         }
         auto merge_gate = gate::to_matrix_gate(merge_gate1);
         merge_gate->add_control_qubit(control, random.int32() % 2);
+        merge_gate->update_quantum_state(&state);
+        merge_gate->update_quantum_state(&ref_state);
+
+        for (ITYPE i = 0; i < inner_dim; ++i) {
+            // ASSERT_NEAR(abs(ref_state.data_cpp()[i + offs] -
+            // state.data_cpp()[i]), 0, eps)
+            ASSERT_NEAR(real(ref_state.data_cpp()[i + offs]),
+                real(state.data_cpp()[i]), eps)
+                << m->get_rank() << ", " << i << ", " << offs;
+            ASSERT_NEAR(imag(ref_state.data_cpp()[i + offs]),
+                imag(state.data_cpp()[i]), eps)
+                << m->get_rank() << ", " << i << ", " << offs;
+        }
+    }
+}
+
+TEST(GateTest_multicpu, RandomUnitaryMergeWithTwoControl) {
+    MPIutil m = get_mpiutil();
+    const UINT num_global_qubit = (UINT)std::log2(m->get_size());
+    UINT n = 10 + num_global_qubit;
+    ITYPE dim = 1ULL << n;
+
+    Random random;
+    random.set_seed(2024);
+    std::mt19937 eng(2025);
+
+    QuantumState dum_state(n, 1);
+    const ITYPE inner_dim = dim >> dum_state.outer_qc;
+    const ITYPE offs = (dum_state.outer_qc != 0) * inner_dim * m->get_rank();
+
+    for (UINT gate_count = 1; gate_count < n * 2; ++gate_count) {
+        // max 5 qubit dense-matrix-gate
+        std::vector<UINT> arr;
+        for (UINT i = 0; i < n; ++i) arr.push_back(i);
+        std::shuffle(arr.begin(), arr.end(), eng);
+        UINT control1 = arr[5];
+        UINT control2 = arr[6];
+        arr.resize(5);
+
+        QuantumState ref_state(n);
+        QuantumState state(n, 1);
+        state.set_Haar_random_state();
+        ref_state.load(&state);
+        QuantumGateBase* merge_gate1 = gate::H(arr[0]);
+
+        for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
+            std::shuffle(arr.begin(), arr.end(), eng);
+            UINT target1 = arr[0];
+            UINT target2 = arr[1];
+            UINT seed = 2030 + gate_count * 100 + gate_index;
+            auto new_gate = gate::RandomUnitary({target1, target2}, seed);
+            merge_gate1 = gate::merge(merge_gate1, new_gate);
+        }
+        auto merge_gate = gate::to_matrix_gate(merge_gate1);
+        merge_gate->add_control_qubit(control1, random.int32() % 2);
+        merge_gate->add_control_qubit(control2, random.int32() % 2);
         merge_gate->update_quantum_state(&state);
         merge_gate->update_quantum_state(&ref_state);
 
