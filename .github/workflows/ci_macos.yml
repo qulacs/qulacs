@@ -26,8 +26,8 @@ jobs:
             c_compiler: "/usr/local/opt/ccache/libexec/gcc-10"
             cxx_compiler: "/usr/local/opt/ccache/libexec/g++-10"
           - compiler: "clang"
-            c_compiler: "clang"
-            cxx_compiler: "clang++"
+            c_compiler: "/usr/local/opt/ccache/libexec/clang"
+            cxx_compiler: "/usr/local/opt/ccache/libexec/clang++"
     runs-on: "macos-11"
     env:
       C_COMPILER: ${{ matrix.c_compiler }}
@@ -43,7 +43,8 @@ jobs:
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: ${{ github.job }}-${{ matrix.os }}
+          # Include compiler to distinguish cache for each compiler.
+          key: ${{ github.job }}-${{ matrix.os }}-{{ matrix.compiler }}
           verbose: 2
 
       - name: Setup Python
