@@ -61,10 +61,10 @@
     - Even if a seed is not specified, the random value in rank0 is shared (bcast) and used as a seed.
     - If you specify a seed, use the same one in all ranks.
 
-  - state.load(vector)  // not supported yet
+  - state.load(vector)
     - In the case state vector distributed in multi nodes, load to the element with each rank.
 
-  - state.get_vector()  // not supported yet
+  - state.get_vector()
     - In the case state vector distributed in multi nodes, returns the elements that each rank has.
 
   - Automatic FusedSWAP gate insertion of QuantumCircuitOptimizer  // not supported yet
@@ -118,7 +118,9 @@ $ mpirun -n 2 pytest python/test
 ### Python sample code
 ```python=
 import qulacs
-from qulacs.gate import Y,CNOT,merge
+from qulacs.gate import Y, CNOT, merge
+from qulacs.circuit import QuantumCircuitOptimizer as QCO
+import numpy as np
 if qulacs.check_build_for_mpi():
     from mpi4py import MPI
 else:
@@ -127,39 +129,56 @@ else:
 
 mpicomm = MPI.COMM_WORLD
 mpirank = mpicomm.Get_rank()
+mpisize = mpicomm.Get_size()
+globalqubits = int(np.log2(mpisize))
 
 nqubits = 5
 
-state_on_multi_cpu = qulacs.QuantumState(nqubits, use_multi_cpu=True)
-state_on_multi_cpu.set_Haar_random_state()
-# for check
+# Even if use_multi_cpu=True is specified, state vector(state) is not
+# distributed if the number of local qubits is less than 2.
+state = qulacs.QuantumState(nqubits, use_multi_cpu = True)
+
+# If seed is not specified AND state is not distributed, the state of each
+# process has would be initialised with a different value. 
+state.set_Haar_random_state(2023)
+
+# If use_multi_cpu is not specified, state vector is not distributed.
 state_on_single_cpu = qulacs.QuantumState(nqubits)
-state_on_single_cpu.load(state_on_multi_cpu)
+state_on_single_cpu.load(state)
 
 if mpirank == 0:
-    print("# qulacs.check_build_for_mpi() =", qulacs.check_build_for_mpi())
-print(state_on_multi_cpu)
+    devicename = state.get_device_name()
+    print("Device name of the state vector:", devicename)
+    if devicename == "multi-cpu":
+        print("- Number of qubits:", nqubits)
+        print("- Number of global qubits:", globalqubits)
+        print("- Number of local qubits:", nqubits - globalqubits)
 
+# build a circuit
 circuit = qulacs.QuantumCircuit(nqubits)
-
 circuit.add_X_gate(0)
-merged_gate = merge(CNOT(0,1),Y(1))
+merged_gate = merge(CNOT(0,1), Y(1))
 circuit.add_gate(merged_gate)
-circuit.add_RX_gate(1,0.5)
-circuit.update_quantum_state(state_on_multi_cpu)
+circuit.add_RX_gate(1, 0.5)
+
+# updating the state
+QCO().optimize_light(circuit)
+circuit.update_quantum_state(state)
+
+print("Sampling =", state.sampling(20, 2021))
+print("Sampling(single cpu) =", state_on_single_cpu.sampling(20, 2021))
 
 observable = qulacs.Observable(nqubits)
 observable.add_operator(2.0, "X 2 Y 1 Z 0")
 observable.add_operator(-3.0, "Z 2")
-value_multi = observable.get_expectation_value(state_on_multi_cpu)
+value = observable.get_expectation_value(state)
 if mpirank == 0:
-    print("value(multi cpu) =", value_multi)
+    print("Expectation value =", value)
 
 # for check
 circuit.update_quantum_state(state_on_single_cpu)
 value_single = observable.get_expectation_value(state_on_single_cpu)
-if mpirank == 0:
-    print("value(single cpu) =", value_single)
+print("Expectation value(single cpu) =", value_single)
 ```
 
 ### C++ sample code
@@ -172,16 +191,26 @@ if mpirank == 0:
 #include <cppsim/gate_merge.hpp>
 
 int main(int argc, char *argv[]) {
-    int rank, size;
+    int mpirank, mpisize;
     MPI_Init(&argc, &argv);
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    MPI_Comm_rank(MPI_COMM_WORLD, &mpirank);
+    MPI_Comm_size(MPI_COMM_WORLD, &mpisize);
+	const UINT global_nqubits = (UINT)std::log2(mpisize);
 
     int nqubits = 5;
     QuantumState ref_state(nqubits); // use single cpu
-    QuantumState state(nqubits, 1); // 1(ture): use_multi_cpu
-    state.set_Haar_random_state();
+    QuantumState state(nqubits, 1); // use multi_cpu if possible
+    state.set_Haar_random_state(2023);
     ref_state.load(&state);
+    if (mpirank == 0) {
+		std::string device_name = state.get_device_name();
+		std::cout << "Device name of the state vector: " << device_name << std::endl;
+        if (device_name == "multi-cpu") {
+			std::cout << "- Number of qubits:" << nqubits << std::endl;
+            std::cout << "- Number of global qubits:" << global_nqubits << std::endl;
+            std::cout << "- Number of local qubits:" << nqubits - global_nqubits << std::endl;
+		}
+	}
 
     QuantumCircuit circuit(nqubits);
     circuit.add_X_gate(0);
@@ -189,36 +218,35 @@ int main(int argc, char *argv[]) {
     auto merged_gate = gate::merge(gate::CNOT(0, 1),gate::Y(1));
     circuit.add_gate(merged_gate);
     circuit.add_RX_gate(1, 0.5);
-    circuit.update_quantum_state(&ref_state); // update SV w/o MPI
-    circuit.update_quantum_state(&state); // update SV with MPI
+    circuit.update_quantum_state(&ref_state);
+    circuit.update_quantum_state(&state);
 
     // sampling
     //   1st param. is number of sampling.
     //   2nd param. is random-seed.
-    // You must call state.sampling on every mpi-ranks
-    // with the same random seed.
-    std::vector<ITYPE> ref_sample = ref_state.sampling(50, 2021); // not supported yet
-    std::vector<ITYPE> sample = state.sampling(50, 2021); // not supported yet
-    if (rank==0) {
-        std::cout << "#result_state.sampling(      cpu): ";
-        for (const auto& e : ref_sample) std::cout << e << " ";
+    // You must call state.sampling with the same random seed in all mpi-ranks
+    std::vector<ITYPE> ref_sample = ref_state.sampling(50, 2021);
+    std::vector<ITYPE> sample = state.sampling(50, 2021);
+    if (mpirank == 0) {
+        std::cout << "Sampling = ";
+        for (const auto& e : sample) std::cout << e << " ";
         std::cout << std::endl;
 
-        std::cout << "#result_state.sampling(multi-cpu): ";
-        for (const auto& e : sample) std::cout << e << " ";
+        std::cout << "Sampling(single cpu) = ";
+        for (const auto& e : ref_sample) std::cout << e << " ";
         std::cout << std::endl;
     }
 
-    //
-    // observable function is not available in mpi.
-    //
     Observable observable(nqubits);
     observable.add_operator(2.0, "X 2 Y 1 Z 0");
     observable.add_operator(-3.0, "Z 2");
-    auto ref_value = observable.get_expectation_value(&ref_state); // not supported yet
-    auto value = observable.get_expectation_value(&state); // not supported yet
-    std::cout << "#result observable(      cpu) " << ref_value << std::endl;
-    std::cout << "#result observable(multi-cpu) " << value << std::endl;
+    auto ref_value = observable.get_expectation_value(&ref_state);
+    auto value = observable.get_expectation_value(&state);
+    if (mpirank == 0)
+        std::cout << "Expectation value = " << value << std::endl;
+    std::cout << "Expectation value(single cpu) = " << ref_value << std::endl;
+
+    MPI_Finalize();
     return 0;
 }
 ```
@@ -251,36 +279,33 @@ int main(int argc, char *argv[]) {
       - SqrtX / SqrtXdag / SqrtY / SqrtYdag
       - U1 / U2 / U3
       - P0 / P1
-      - Pauli (single)
-      - PauliRotation (single)
-      - DenseMatrix gate (single-target, double-target)
+      - TOFFOLI
+      - FREDKIN
+      - Pauli
+      - PauliRotation
+      - RandomUnitary
+      - merge
+      - to_matrix_gate
+      - DenseMatrix gate (number of qubits <= number of local qubits)
       - DiagonalMatrix gate (single target)
+  - GeneralQuantumOperator (w/o get_transition_amplitude)
+  - Observable (w/o get_transition_amplitude)
+  - PauliOperator (w/o get_transition_amplitude)
 
 ## Additional info
 
-- To be supported later (T.B.D.)
+- Might be supported in future (T.B.D.)
   - QuantumCircuitOptimizer
       - optimize
       - optimize_light
   - ParametricQuantumCircuit
   - gate
-      - DenseMatrix gate (multi-target, single-control, multi-control)
       - Measurement
-      - merge (number of qubits > 1)
-      - Pauli (multi)
-      - PauliRotation (multi)
+      - merge (number of qubits > number of local qubits)
       - CPTP
       - Instrument
       - Adaptive
-      - RandomUnitary
-      - to_matrix_gate
-      - TOFFOLI
-      - FREDKIN
-      - DenseMatrix gate(multi control, multi target)
       - DiagonalMatrix(multi target)
-  - GeneralQuantumOperator (w/o get_transition_amplitude)
-  - Observable (w/o get_transition_amplitude)
-  - PauliOperator (w/o get_transition_amplitude)
 
   - QuantumCircuitSimulator
   - state
@@ -297,7 +322,6 @@ int main(int argc, char *argv[]) {
   - Observable.get_transition_amplitude( )
   - PauliOperator.get_transition_amplitude( )
 
-- Might be supported in future (T.B.D.)
   - gate
       - SparseMatrix
       - ReversibleBoolean
@@ -312,7 +336,6 @@ int main(int argc, char *argv[]) {
       - Probabilistic
       - ProbabilisticInstrument
       - CP
-      - merge(> 2qubit)
   - DensityMatrix simulation
   - QuantumGate_SingleParameter
 
