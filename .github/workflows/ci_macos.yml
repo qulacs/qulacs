@@ -40,28 +40,23 @@ jobs:
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.os }}
+          verbose: 2
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
 
-      - name: Install ccache
-        if: ${{ matrix.compiler == 'gcc' }}
-        run: brew install ccache
-
       - name: Install Boost for macOS
         run: |
           brew upgrade
           brew install boost
           brew link boost
-
-      - name: Setup cache
-        if: ${{ matrix.compiler == 'gcc' }}
-        uses: actions/cache@v3
-        with:
-          path: /Users/runner/Library/Caches/ccache
-          key: ${{ runner.os }}-${{ env.CACHE_NAME }}
 
       - name: Install qulacs for macOS
         run: USE_TEST=Yes ./script/build_gcc.sh
@@ -79,7 +74,3 @@ jobs:
           cd ./build
           make test -j
           make pythontest -j
-
-      - name: Show cache stats
-        if: ${{ matrix.compiler == 'gcc' }}
-        run: ccache -s -v
