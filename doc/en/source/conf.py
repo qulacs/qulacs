@@ -1,4 +1,4 @@
-import textwrap
+import qulacs
 
 project = "Qulacs"
 
@@ -106,4 +106,8 @@ templates_path = ["_templates"]
 html_static_path = ["_static"]
 
 copyright = "2018 Qulacs Authors"
-version = "0.5.5"
+
+# `version` is only used for local build.
+# On Read the Docs, the latest version is `latest`` and the specific version
+# is the Git tag name.
+version = qulacs._version.__version__
