@@ -34,20 +34,17 @@ jobs:
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.os }}
+          verbose: 2
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
-
-      - name: Install ccache
-        run: sudo apt install ccache
-
-      - name: Setup cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.ccache
-          key: ${{ runner.os }}-${{ env.CACHE_NAME }}
 
       - name: Install boost
         run: sudo apt install libboost-dev
@@ -86,9 +83,6 @@ jobs:
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3
 
-      - name: Show cache stats
-        run: ccache -s
-
   gcc10-build-with-address-sanitizer:
     name: GCC10 build with -fsanitizer=address enabled
     runs-on: "ubuntu-20.04"
@@ -104,14 +98,11 @@ jobs:
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
-      - name: Install ccache
-        run: sudo apt install ccache
-
-      - name: Setup cache
-        uses: actions/cache@v3
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
         with:
-          path: ~/.ccache
-          key: ${{ runner.os }}-${{ env.CACHE_NAME }}
+          key: ${{ github.job }}-${{ matrix.os }}
+          verbose: 2
 
       - name: Install boost
         run: sudo apt install libboost-dev
@@ -124,9 +115,6 @@ jobs:
         run: |
           cd ./build
           make test
-
-      - name: Show cache stats
-        run: ccache -s
 
   nvcc-gcc8-GPUbuild:
     name: nvcc + gcc8 build
@@ -144,20 +132,17 @@ jobs:
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key: ${{ github.job }}-${{ matrix.os }}
+          verbose: 2
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
           python-version: "3.7.5"
           architecture: x64
-
-      - name: Install ccache
-        run: sudo apt install ccache
-
-      - name: Setup cache
-        uses: actions/cache@v3
-        with:
-          path: ~/.ccache
-          key: ${{ runner.os }}-${{ env.CACHE_NAME }}
 
       - name: Install boost
         run: sudo apt install libboost-dev
