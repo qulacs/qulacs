@@ -79,10 +79,17 @@ autoapi_root = "pythonapi"
 # https://github.com/readthedocs/sphinx-autoapi/issues/243#issuecomment-684190179
 autoapi_file_patterns = ["*.pyi", "*.py"]
 autoapi_dirs = ["../../../pysrc/qulacs"]
-autoapi_add_toctree_entry = False
+autoapi_add_toctree_entry = True
 autoapi_template_dir = "_templates/autoapi"
 # Avoid `maximum recursion depth exceeded while calling a Python object` error.
 autoapi_ignore = ["*/vistest/__init__.py", "*/visualizer/__init__.py"]
+autoapi_options = [
+    "members",
+    "undoc-members",
+    "show-inheritance",
+    "show-module-summary",
+    "imported-members",
+]
 
 # Tell sphinx what the primary language being documented is.
 #primary_domain = 'cpp'
