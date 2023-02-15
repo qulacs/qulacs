@@ -828,6 +828,9 @@ PYBIND11_MODULE(qulacs_core, m) {
         "Create CZ gate", py::arg("control"), py::arg("target"));
     mgate.def("SWAP", &gate::SWAP, py::return_value_policy::take_ownership,
         "Create SWAP gate", py::arg("target1"), py::arg("target2"));
+    mgate.def("FusedSWAP", &gate::FusedSWAP,
+        py::return_value_policy::take_ownership, "Create FusedSWAP gate",
+        py::arg("target1"), py::arg("target2"), py::arg("block_size"));
 
     mgate.def(
         "TOFFOLI",
@@ -1130,11 +1133,11 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Get qubit count")
 
         .def("update_quantum_state",
-            (void(QuantumCircuit::*)(QuantumStateBase*)) &
+            (void (QuantumCircuit::*)(QuantumStateBase*)) &
                 QuantumCircuit::update_quantum_state,
             "Update quantum state", py::arg("state"))
         .def("update_quantum_state",
-            (void(QuantumCircuit::*)(QuantumStateBase*, UINT, UINT)) &
+            (void (QuantumCircuit::*)(QuantumStateBase*, UINT, UINT)) &
                 QuantumCircuit::update_quantum_state,
             py::arg("state"), py::arg("start"), py::arg("end"))
 #if 0  // not supported yet
@@ -1188,6 +1191,9 @@ PYBIND11_MODULE(qulacs_core, m) {
             py::arg("control"), py::arg("target"))
         .def("add_SWAP_gate", &QuantumCircuit::add_SWAP_gate, "Add SWAP gate",
             py::arg("target1"), py::arg("target2"))
+        .def("add_FusedSWAP_gate", &QuantumCircuit::add_FusedSWAP_gate,
+            "Add FusedSWAP gate", py::arg("target1"), py::arg("target2"),
+            py::arg("block_size"))
 
         .def("add_RX_gate", &QuantumCircuit::add_RX_gate,
             "Add Pauli-X rotation gate", py::arg("index"), py::arg("angle"))
