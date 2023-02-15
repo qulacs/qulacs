@@ -458,7 +458,6 @@ TEST(GateTest_multicpu, ApplyMultiControl) {
     }
 }
 
-#if 0  // use FSWAP gate
 void _ApplyFusedSWAPGate(UINT n, UINT control, UINT target, UINT block_size) {
     const ITYPE dim = 1ULL << n;
 
@@ -489,14 +488,6 @@ void _ApplyFusedSWAPGate(UINT n, UINT control, UINT target, UINT block_size) {
         auto bswap_gate = gate::FusedSWAP(control, target, block_size);
         bswap_gate->update_quantum_state(&state);
 
-        // update dense state. is it need?
-        ComplexMatrix small_mat;
-        gate->set_matrix(small_mat);
-        auto gate_dense = new QuantumGateMatrix(
-            gate->target_qubit_list, small_mat, gate->control_qubit_list);
-
-        delete gate_dense;
-
         for (ITYPE i = 0; i < inner_dim; ++i)
             ASSERT_NEAR(abs(state.data_cpp()[i] -
                             state_ref.data_cpp()[(i + offs) % dim]),
@@ -519,7 +510,6 @@ TEST(GateTest_multicpu, ApplyFusedSWAPGate_10qubit_all) {
         }
     }
 }
-#endif
 
 TEST(GateTest_multicpu, ApplyMultiQubitGate) {
     const UINT n = 1;
@@ -819,11 +809,13 @@ TEST(GateTest_multicpu, RandomPauliMerge) {
 }
 
 TEST(GateTest_multicpu, RandomPauliRotationMerge) {
-    UINT n = 5;
+    MPIutil m = get_mpiutil();
+    const UINT num_global_qubit = (UINT)std::log2(m->get_size());
+    UINT n = 6 + num_global_qubit;
     ITYPE dim = 1ULL << n;
 
-    UINT gate_count = 10;
-    UINT max_repeat = 3;
+    UINT gate_count = 5;
+    UINT max_repeat = 2;
     Random random;
     random.set_seed(2);
 
@@ -835,7 +827,6 @@ TEST(GateTest_multicpu, RandomPauliRotationMerge) {
     QuantumState state(n, 1), test_state(n, 1);
     Eigen::VectorXcd test_state_eigen(dim);
 
-    MPIutil m = get_mpiutil();
     const ITYPE inner_dim = dim >> state.outer_qc;
     const ITYPE offs = (state.outer_qc != 0) * inner_dim * m->get_rank();
 
@@ -918,35 +909,30 @@ TEST(GateTest_multicpu, RandomPauliRotationMerge) {
             // dispose picked pauli
             delete new_gate;
         }
-        // need implementation to multi_qubit_dense_matrix_gate for a outer
-        // qubit.
-        //      merged_gate->update_quantum_state(&state);
+        merged_gate->update_quantum_state(&state);
         delete merged_gate;
         // check equivalence
         for (ITYPE i = 0; i < inner_dim; ++i)
             ASSERT_NEAR(
                 abs(test_state.data_cpp()[i] - test_state_eigen[i + offs]), 0,
                 eps);
-        // need implementation to multi_qubit_dense_matrix_gate for a outer
-        // qubit.
-        //      for (ITYPE i = 0; i < inner_dim; ++i)
-        //          ASSERT_NEAR(abs(state.data_cpp()[i] -
-        //          test_state_eigen[i+offs]), 0, eps);
-        //      for (ITYPE i = 0; i < inner_dim; ++i)
-        //          ASSERT_NEAR(
-        //              abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0,
-        //              eps);
+        for (ITYPE i = 0; i < inner_dim; ++i)
+            ASSERT_NEAR(
+                abs(state.data_cpp()[i] - test_state_eigen[i + offs]), 0, eps);
+        for (ITYPE i = 0; i < inner_dim; ++i)
+            ASSERT_NEAR(
+                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
     }
 }
 
 TEST(GateTest_multicpu, RandomUnitaryMerge) {
     MPIutil m = get_mpiutil();
     const UINT num_global_qubit = (UINT)std::log2(m->get_size());
-    UINT n = 5 + num_global_qubit;
+    UINT n = 6 + num_global_qubit;
     ITYPE dim = 1ULL << n;
 
-    UINT gate_count = 10;
-    UINT max_repeat = 3;
+    UINT gate_count = 5;
+    UINT max_repeat = 2;
     Random random;
     random.set_seed(2);
 
@@ -1041,28 +1027,22 @@ TEST(GateTest_multicpu, RandomUnitaryMerge) {
             // dispose picked pauli
             delete new_gate;
         }
-        // need implementation to multi_qubit_dense_matrix_gate for a outer
-        // qubit.
-        //      merged_gate->update_quantum_state(&state);
+        merged_gate->update_quantum_state(&state);
         delete merged_gate;
         // check equivalence
         for (ITYPE i = 0; i < inner_dim; ++i)
             ASSERT_NEAR(
                 abs(test_state.data_cpp()[i] - test_state_eigen[i + offs]), 0,
                 eps);
-        // need implementation to multi_qubit_dense_matrix_gate for a outer
-        // qubit.
-        //      for (ITYPE i = 0; i < inner_dim; ++i)
-        //          ASSERT_NEAR(abs(state.data_cpp()[i] -
-        //          test_state_eigen[i+offs]), 0, eps);
-        //      for (ITYPE i = 0; i < inner_dim; ++i)
-        //          ASSERT_NEAR(
-        //              abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0,
-        //              eps);
+        for (ITYPE i = 0; i < inner_dim; ++i)
+            ASSERT_NEAR(
+                abs(state.data_cpp()[i] - test_state_eigen[i + offs]), 0, eps);
+        for (ITYPE i = 0; i < inner_dim; ++i)
+            ASSERT_NEAR(
+                abs(state.data_cpp()[i] - test_state.data_cpp()[i]), 0, eps);
     }
 }
 
-// need implementation to multi_qubit_dense_matrix_gate for a outer qubit.
 TEST(GateTest_multicpu, RandomUnitaryMergeLarge) {
     MPIutil m = get_mpiutil();
     const UINT num_global_qubit = (UINT)std::log2(m->get_size());
