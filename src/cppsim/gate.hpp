@@ -269,7 +269,7 @@ public:
      *
      * @return ptree
      */
-    virtual boost::property_tree::ptree to_ptree() const;
+    [[noreturn]] virtual boost::property_tree::ptree to_ptree() const;
 
     virtual bool is_noise() { return false; }
     virtual void set_seed(int) { return; };
@@ -305,5 +305,5 @@ public:
         }
     }
 
-    virtual QuantumGateBase* get_inverse(void) const;
+    [[noreturn]] virtual QuantumGateBase* get_inverse(void) const;
 };

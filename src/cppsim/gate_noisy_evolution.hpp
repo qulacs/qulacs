@@ -102,7 +102,7 @@ public:
     /**
      * \~japanese-en ptreeに変換する
      */
-    virtual boost::property_tree::ptree to_ptree() const;
+    virtual boost::property_tree::ptree to_ptree() const override;
 };
 
 /*
@@ -213,7 +213,7 @@ public:
     /**
      * \~japanese-en ptreeに変換する
      */
-    virtual boost::property_tree::ptree to_ptree() const;
+    virtual boost::property_tree::ptree to_ptree() const override;
 };
 
 // noisyEvolution_auto

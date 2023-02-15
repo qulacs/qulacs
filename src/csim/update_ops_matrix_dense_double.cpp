@@ -737,26 +737,30 @@ void double_qubit_dense_matrix_gate_simd_low(UINT target_qubit_index1,
     }
 }
 
-__inline void _element_swap(CTYPE* vec, UINT i1, UINT i2) {
-    CTYPE temp = vec[i1];
-    vec[i1] = vec[i2];
-    vec[i2] = temp;
+__inline void _complex_element_swap(double* vec, UINT i1, UINT i2) {
+    double temp;
+    temp = vec[i1 << 1];
+    vec[i1 << 1] = vec[i2 << 1];
+    vec[i2 << 1] = temp;
+    temp = vec[i1 << 1 | 1];
+    vec[i1 << 1 | 1] = vec[i2 << 1 | 1];
+    vec[i2 << 1 | 1] = temp;
 }
 
 void double_qubit_dense_matrix_gate_simd_middle(UINT target_qubit_index1,
     UINT target_qubit_index2, const CTYPE _mat[16], CTYPE* vec, ITYPE dim) {
-    CTYPE mat[16];
+    double mat[32];
     memcpy(mat, _mat, sizeof(CTYPE) * 16);
     if (target_qubit_index2 < target_qubit_index1) {
         UINT temp = target_qubit_index1;
         target_qubit_index1 = target_qubit_index2;
         target_qubit_index2 = temp;
-        _element_swap(mat, 1, 2);
-        _element_swap(mat, 4, 8);
-        _element_swap(mat, 7, 11);
-        _element_swap(mat, 13, 14);
-        _element_swap(mat, 5, 10);
-        _element_swap(mat, 6, 9);
+        _complex_element_swap(mat, 1, 2);
+        _complex_element_swap(mat, 4, 8);
+        _complex_element_swap(mat, 7, 11);
+        _complex_element_swap(mat, 13, 14);
+        _complex_element_swap(mat, 5, 10);
+        _complex_element_swap(mat, 6, 9);
     }
     assert(target_qubit_index1 < 2);
     assert(target_qubit_index2 >= 2);
@@ -779,9 +783,8 @@ void double_qubit_dense_matrix_gate_simd_middle(UINT target_qubit_index1,
     const ITYPE loop_dim = dim / 4;
     ITYPE state_index;
 
-    // TODO: fix compile warning.
     double* ptr_vec = (double*)vec;
-    const double* ptr_mat = (const double*)mat;
+    double* ptr_mat = (double*)mat;
 #ifdef _OPENMP
 #pragma omp parallel for
 #endif
