@@ -137,9 +137,7 @@ dmypy.json
 **/_build/
 **/xml/
 */source/api
-*/source/cppapi
-*/source/pythonapi
-
+*/source/pyRef
 
 **/.DS_Store
 .vscode/settings.json

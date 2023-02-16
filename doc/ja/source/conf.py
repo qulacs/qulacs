@@ -46,7 +46,7 @@ breathe_default_project = "Docs"
 # Setup the exhale extension
 exhale_args = {
     # These arguments are required
-    "containmentFolder":     "./cppapi",
+    "containmentFolder":     "./api",
     "rootFileName":          "cpp_library_root.rst",
     "rootFileTitle":         "C++ APIリファレンス",
     "doxygenStripFromPath":  "..",
@@ -73,7 +73,7 @@ exhale_args = {
 
 autoapi_type = "python"
 autoapi_keep_files = True
-autoapi_root = "pythonapi"
+autoapi_root = "pyRef"
 # The order of `autoapi_file_patterns`` specifies the order of preference for reading files.
 # So, we give priority to `*.pyi`.
 # https://github.com/readthedocs/sphinx-autoapi/issues/243#issuecomment-684190179
