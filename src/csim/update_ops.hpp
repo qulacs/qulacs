@@ -415,17 +415,17 @@ DllExport void SWAP_gate_mpi(UINT target_qubit_index_0,
  * \~japanese-en
  * FusedSWAP演算を作用させて状態を更新。
  *
- * (2xn)量子ビット演算、FusedSWAP演算を作用させて状態を更新。num_qubits個の２つの量子ビットに対して対称に作用する（インデックスを入れ替えても同じ作用）。
+ * (2n)量子ビット演算、FusedSWAP演算を作用させて状態を更新。block_size個の２つの量子ビットに対して対称に作用する（インデックスを入れ替えても同じ作用）。
  * @param[in] target_qubit_index_0 作用する量子ビットの最初のインデックス
  * @param[in] target_qubit_index_1 作用する量子ビットの最初のインデックス
- * @param[in] num_qubits 作用する量子ビット数
+ * @param[in] block_size 作用する量子ビット数
  * @param[in,out] state 量子状態
  * @param[in] dim 次元
  */
 DllExport void FusedSWAP_gate(UINT target_qubit_index_0,
-    UINT target_qubit_index_1, UINT num_qubits, CTYPE* state, ITYPE dim);
+    UINT target_qubit_index_1, UINT block_size, CTYPE* state, ITYPE dim);
 DllExport void FusedSWAP_gate_mpi(UINT target_qubit_index_0,
-    UINT target_qubit_index_1, UINT num_qubits, CTYPE* state, ITYPE dim,
+    UINT target_qubit_index_1, UINT block_size, CTYPE* state, ITYPE dim,
     UINT inner_qc);
 
 /**

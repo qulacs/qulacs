@@ -343,10 +343,9 @@ public:
     /**
      * \~japanese-en FusedSWAP gateを追加する。
      *
-     * @param[in] target_index1 作用するtarget qubitブロックの先頭の添え字
-     * @param[in] target_index2 作用するもう一方のtarget
-     * qubitブロックの先頭の添え字
-     * @param[in] block_size target qubit blockの大きさ
+     * @param[in] target_index1 作用するqubitブロックの先頭の添え字
+     * @param[in] target_index2 作用するもう一方のqubitブロックの先頭の添え字
+     * @param[in] block_size 作用するqubitブロックの大きさ
      */
     virtual void add_FusedSWAP_gate(
         UINT target_index1, UINT target_index2, UINT block_size);
