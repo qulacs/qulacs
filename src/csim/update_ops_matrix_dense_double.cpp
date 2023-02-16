@@ -29,6 +29,15 @@ void double_qubit_dense_matrix_gate_simd_low(UINT target_qubit_index1,
     UINT target_qubit_index2, const CTYPE mat[16], CTYPE* vec, ITYPE dim);
 #endif
 
+#ifdef _USE_SVE
+void double_qubit_dense_matrix_gate_sve512_high(UINT target_qubit_index1,
+    UINT target_qubit_index2, const CTYPE matrix[16], CTYPE* state, ITYPE dim);
+void double_qubit_dense_matrix_gate_sve512_middle(UINT target_qubit_index1,
+    UINT target_qubit_index2, const CTYPE matrix[16], CTYPE* state, ITYPE dim);
+void double_qubit_dense_matrix_gate_sve512_low(UINT target_qubit_index1,
+    UINT target_qubit_index2, const CTYPE matrix[16], CTYPE* state, ITYPE dim);
+#endif
+
 void double_qubit_dense_matrix_gate_c(UINT target_qubit_index1,
     UINT target_qubit_index2, const CTYPE matrix[16], CTYPE* state, ITYPE dim) {
 #ifdef _OPENMP
@@ -37,6 +46,9 @@ void double_qubit_dense_matrix_gate_c(UINT target_qubit_index1,
 
 #ifdef _USE_SIMD
     double_qubit_dense_matrix_gate_simd(
+        target_qubit_index1, target_qubit_index2, matrix, state, dim);
+#elif defined(_USE_SVE)
+    double_qubit_dense_matrix_gate_sve(
         target_qubit_index1, target_qubit_index2, matrix, state, dim);
 #else
     double_qubit_dense_matrix_gate_nosimd(
@@ -962,4 +974,731 @@ void double_qubit_dense_matrix_gate_simd(UINT target_qubit_index1,
             target_qubit_index1, target_qubit_index2, mat, vec, dim);
     }
 }
+#endif
+
+#ifdef _USE_SVE
+static inline void MatrixVectorProduct4x4(svbool_t pg, svfloat64_t input0ir,
+    svfloat64_t input1ir, svfloat64_t input2ir, svfloat64_t input3ir,
+    svfloat64_t input0ri, svfloat64_t input1ri, svfloat64_t input2ri,
+    svfloat64_t input3ri, svfloat64_t mat01rr, svfloat64_t mat23rr,
+    svfloat64_t mat0ii, svfloat64_t mat1ii, svfloat64_t mat2ii,
+    svfloat64_t mat3ii, svfloat64_t* output0, svfloat64_t* output1,
+    svfloat64_t* output2, svfloat64_t* output3);
+
+static inline void PrepareMatrixElements(svbool_t pg, const CTYPE matrix[16],
+    svfloat64_t* mat01rr, svfloat64_t* mat23rr, svfloat64_t* mat0ii,
+    svfloat64_t* mat1ii, svfloat64_t* mat2ii, svfloat64_t* mat3ii);
+
+static inline void MatrixVectorProduct4x4MT1(svbool_t pg, svfloat64_t input0ir,
+    svfloat64_t input1ir, svfloat64_t input2ir, svfloat64_t input3ir,
+    svfloat64_t input0ri, svfloat64_t input1ri, svfloat64_t input2ri,
+    svfloat64_t input3ri, svfloat64_t mat01rr, svfloat64_t mat23rr,
+    svfloat64_t mat01ii, svfloat64_t mat23ii, svfloat64_t* output0,
+    svfloat64_t* output1, svfloat64_t* output2, svfloat64_t* output3);
+
+static inline void PrepareMatrixElementsMT1(svbool_t pg, const CTYPE matrix[16],
+    svfloat64_t* mat01rr, svfloat64_t* mat23rr, svfloat64_t* mat01ii,
+    svfloat64_t* mat23ii);
+
+// clang-format off
+/*
+ * This function performs multiplication of a 4x4 matrix and four vectors
+ *
+ *            4x4 matrix                              four vectors
+ * [ x_00 + iy_00 ... x_03+iy_03]   [ a_0+ib_0 ][ c_0+id_0 ][ e_0+if_0 ][ g_0+ih_0 ]
+ * [              ...           ] * [    ...   ][    ...   ][    ...   ][    ...   ]
+ * [ x_30 + iy_30 ... x_33+iy_33]   [ a_3+ib_3 ][ c_3+id_3 ][ e_3+if_3 ][ g_3+ih_3 ]
+ *
+ */
+// clang-format on
+static inline void MatrixVectorProduct4x4(svbool_t pg, svfloat64_t input0ir,
+    svfloat64_t input1ir, svfloat64_t input2ir, svfloat64_t input3ir,
+    svfloat64_t input0ri, svfloat64_t input1ri, svfloat64_t input2ri,
+    svfloat64_t input3ri, svfloat64_t mat01rr, svfloat64_t mat23rr,
+    svfloat64_t mat0ii, svfloat64_t mat1ii, svfloat64_t mat2ii,
+    svfloat64_t mat3ii, svfloat64_t* output0, svfloat64_t* output1,
+    svfloat64_t* output2, svfloat64_t* output3) {
+    // perform matrix-vector product
+    *output0 = svmul_z(pg, svdup_lane(mat01rr, 0), input0ir);
+    *output1 = svmul_z(pg, svdup_lane(mat01rr, 1), input0ir);
+    *output2 = svmul_z(pg, svdup_lane(mat23rr, 0), input0ir);
+    *output3 = svmul_z(pg, svdup_lane(mat23rr, 1), input0ir);
+
+    *output0 = svmla_z(pg, *output0, svdupq_lane(mat0ii, 0), input0ri);
+    *output1 = svmla_z(pg, *output1, svdupq_lane(mat1ii, 0), input0ri);
+    *output2 = svmla_z(pg, *output2, svdupq_lane(mat2ii, 0), input0ri);
+    *output3 = svmla_z(pg, *output3, svdupq_lane(mat3ii, 0), input0ri);
+
+    *output0 = svmla_z(pg, *output0, svdup_lane(mat01rr, 2), input1ir);
+    *output1 = svmla_z(pg, *output1, svdup_lane(mat01rr, 3), input1ir);
+    *output2 = svmla_z(pg, *output2, svdup_lane(mat23rr, 2), input1ir);
+    *output3 = svmla_z(pg, *output3, svdup_lane(mat23rr, 3), input1ir);
+
+    *output0 = svmla_z(pg, *output0, svdupq_lane(mat0ii, 1), input1ri);
+    *output1 = svmla_z(pg, *output1, svdupq_lane(mat1ii, 1), input1ri);
+    *output2 = svmla_z(pg, *output2, svdupq_lane(mat2ii, 1), input1ri);
+    *output3 = svmla_z(pg, *output3, svdupq_lane(mat3ii, 1), input1ri);
+
+    *output0 = svmla_z(pg, *output0, svdup_lane(mat01rr, 4), input2ir);
+    *output1 = svmla_z(pg, *output1, svdup_lane(mat01rr, 5), input2ir);
+    *output2 = svmla_z(pg, *output2, svdup_lane(mat23rr, 4), input2ir);
+    *output3 = svmla_z(pg, *output3, svdup_lane(mat23rr, 5), input2ir);
+
+    *output0 = svmla_z(pg, *output0, svdupq_lane(mat0ii, 2), input2ri);
+    *output1 = svmla_z(pg, *output1, svdupq_lane(mat1ii, 2), input2ri);
+    *output2 = svmla_z(pg, *output2, svdupq_lane(mat2ii, 2), input2ri);
+    *output3 = svmla_z(pg, *output3, svdupq_lane(mat3ii, 2), input2ri);
+
+    *output0 = svmla_z(pg, *output0, svdup_lane(mat01rr, 6), input3ir);
+    *output1 = svmla_z(pg, *output1, svdup_lane(mat01rr, 7), input3ir);
+    *output2 = svmla_z(pg, *output2, svdup_lane(mat23rr, 6), input3ir);
+    *output3 = svmla_z(pg, *output3, svdup_lane(mat23rr, 7), input3ir);
+
+    *output0 = svmla_z(pg, *output0, svdupq_lane(mat0ii, 3), input3ri);
+    *output1 = svmla_z(pg, *output1, svdupq_lane(mat1ii, 3), input3ri);
+    *output2 = svmla_z(pg, *output2, svdupq_lane(mat2ii, 3), input3ri);
+    *output3 = svmla_z(pg, *output3, svdupq_lane(mat3ii, 3), input3ri);
+}
+
+// clang-format off
+/*
+ * This function prepare SVE registers mat01rr, mat23rr, mat0ii, mat1ii,
+ * mat2ii, and mat3ii for the MatrixVectorProduct4x4 function.
+ */
+// clang-format on
+static inline void PrepareMatrixElements(svbool_t pg, const CTYPE matrix[16],
+    svfloat64_t* mat01rr, svfloat64_t* mat23rr, svfloat64_t* mat0ii,
+    svfloat64_t* mat1ii, svfloat64_t* mat2ii, svfloat64_t* mat3ii) {
+    svbool_t pred_01;
+    svuint64_t vec_tbl;
+
+    // load each row
+    *mat0ii = svld1(pg, (double*)&matrix[0]);
+    *mat1ii = svld1(pg, (double*)&matrix[4]);
+    *mat2ii = svld1(pg, (double*)&matrix[8]);
+    *mat3ii = svld1(pg, (double*)&matrix[12]);
+
+    // gather the real parts of every two rows
+    *mat01rr = svtrn1(*mat0ii, *mat1ii);
+    *mat23rr = svtrn1(*mat2ii, *mat3ii);
+
+    // gather the imag. parts in each row
+    vec_tbl = svorr_z(pg, svindex_u64(0, 1), svdup_u64(1));
+    *mat0ii = svtbl(*mat0ii, vec_tbl);
+    *mat1ii = svtbl(*mat1ii, vec_tbl);
+    *mat2ii = svtbl(*mat2ii, vec_tbl);
+    *mat3ii = svtbl(*mat3ii, vec_tbl);
+
+    // even elements are sign-reversed
+    pred_01 =
+        svcmpeq(pg, svand_z(pg, svindex_u64(0, 1), svdup_u64(1)), svdup_u64(0));
+    *mat0ii = svneg_m(*mat0ii, pred_01, *mat0ii);
+    *mat1ii = svneg_m(*mat1ii, pred_01, *mat1ii);
+    *mat2ii = svneg_m(*mat2ii, pred_01, *mat2ii);
+    *mat3ii = svneg_m(*mat3ii, pred_01, *mat3ii);
+}
+
+// clang-format off
+/*
+ * This function performs multiplication of a 4x4 matrix and four vectors
+ *  - called when either of two targets is one and the other is greater than one
+ *
+ *            4x4 matrix                              four vectors
+ * [ x_00 + iy_00 ... x_03+iy_03]   [ a_0+ib_0 ][ c_0+id_0 ][ e_0+if_0 ][ g_0+ih_0 ]
+ * [              ...           ] * [    ...   ][    ...   ][    ...   ][    ...   ]
+ * [ x_30 + iy_30 ... x_33+iy_33]   [ a_3+ib_3 ][ c_3+id_3 ][ e_3+if_3 ][ g_3+ih_3 ]
+ *
+ */
+// clang-format on
+static inline void MatrixVectorProduct4x4MT1(svbool_t pg, svfloat64_t input0ir,
+    svfloat64_t input1ir, svfloat64_t input2ir, svfloat64_t input3ir,
+    svfloat64_t input0ri, svfloat64_t input1ri, svfloat64_t input2ri,
+    svfloat64_t input3ri, svfloat64_t mat01rr, svfloat64_t mat23rr,
+    svfloat64_t mat01ii, svfloat64_t mat23ii, svfloat64_t* output0,
+    svfloat64_t* output1, svfloat64_t* output2, svfloat64_t* output3) {
+    // perform matrix-vector product
+    *output0 = svmul_z(pg, svdup_lane(mat01rr, 0), input0ir);
+    *output0 = svmla_z(pg, *output0, svdup_lane(mat01ii, 0), input0ri);
+    *output0 = svmla_z(pg, *output0, svdup_lane(mat01rr, 2), input1ir);
+    *output0 = svmla_z(pg, *output0, svdup_lane(mat01ii, 2), input1ri);
+    *output0 = svmla_z(pg, *output0, svdup_lane(mat01rr, 4), input2ir);
+    *output0 = svmla_z(pg, *output0, svdup_lane(mat01ii, 4), input2ri);
+    *output0 = svmla_z(pg, *output0, svdup_lane(mat01rr, 6), input3ir);
+    *output0 = svmla_z(pg, *output0, svdup_lane(mat01ii, 6), input3ri);
+
+    *output1 = svmul_z(pg, svdup_lane(mat01rr, 1), input0ir);
+    *output1 = svmla_z(pg, *output1, svdup_lane(mat01ii, 1), input0ri);
+    *output1 = svmla_z(pg, *output1, svdup_lane(mat01rr, 3), input1ir);
+    *output1 = svmla_z(pg, *output1, svdup_lane(mat01ii, 3), input1ri);
+    *output1 = svmla_z(pg, *output1, svdup_lane(mat01rr, 5), input2ir);
+    *output1 = svmla_z(pg, *output1, svdup_lane(mat01ii, 5), input2ri);
+    *output1 = svmla_z(pg, *output1, svdup_lane(mat01rr, 7), input3ir);
+    *output1 = svmla_z(pg, *output1, svdup_lane(mat01ii, 7), input3ri);
+
+    *output2 = svmul_z(pg, svdup_lane(mat23rr, 0), input0ir);
+    *output2 = svmla_z(pg, *output2, svdup_lane(mat23ii, 0), input0ri);
+    *output2 = svmla_z(pg, *output2, svdup_lane(mat23rr, 2), input1ir);
+    *output2 = svmla_z(pg, *output2, svdup_lane(mat23ii, 2), input1ri);
+    *output2 = svmla_z(pg, *output2, svdup_lane(mat23rr, 4), input2ir);
+    *output2 = svmla_z(pg, *output2, svdup_lane(mat23ii, 4), input2ri);
+    *output2 = svmla_z(pg, *output2, svdup_lane(mat23rr, 6), input3ir);
+    *output2 = svmla_z(pg, *output2, svdup_lane(mat23ii, 6), input3ri);
+
+    *output3 = svmul_z(pg, svdup_lane(mat23rr, 1), input0ir);
+    *output3 = svmla_z(pg, *output3, svdup_lane(mat23ii, 1), input0ri);
+    *output3 = svmla_z(pg, *output3, svdup_lane(mat23rr, 3), input1ir);
+    *output3 = svmla_z(pg, *output3, svdup_lane(mat23ii, 3), input1ri);
+    *output3 = svmla_z(pg, *output3, svdup_lane(mat23rr, 5), input2ir);
+    *output3 = svmla_z(pg, *output3, svdup_lane(mat23ii, 5), input2ri);
+    *output3 = svmla_z(pg, *output3, svdup_lane(mat23rr, 7), input3ir);
+    *output3 = svmla_z(pg, *output3, svdup_lane(mat23ii, 7), input3ri);
+}
+
+static inline void PrepareMatrixElementsMT1(svbool_t pg, const CTYPE matrix[16],
+    svfloat64_t* mat01rr, svfloat64_t* mat23rr, svfloat64_t* mat01ii,
+    svfloat64_t* mat23ii) {
+    // load each row of the matrix
+    svfloat64_t input0 = svld1(pg, (double*)&matrix[0]);
+    svfloat64_t input1 = svld1(pg, (double*)&matrix[4]);
+    svfloat64_t input2 = svld1(pg, (double*)&matrix[8]);
+    svfloat64_t input3 = svld1(pg, (double*)&matrix[12]);
+
+    // gather the real parts of every two rows
+    *mat01rr = svtrn1(input0, input1);
+    *mat23rr = svtrn1(input2, input3);
+
+    // gather the imag. parts of every two rows
+    *mat01ii = svtrn2(input0, input1);
+    *mat23ii = svtrn2(input2, input3);
+}
+
+void double_qubit_dense_matrix_gate_sve512_high(UINT target_qubit_index1,
+    UINT target_qubit_index2, const CTYPE matrix[16], CTYPE* state, ITYPE dim) {
+    const UINT min_qubit_index =
+        get_min_ui(target_qubit_index1, target_qubit_index2);
+    const UINT max_qubit_index =
+        get_max_ui(target_qubit_index1, target_qubit_index2);
+    const ITYPE min_qubit_mask = 1ULL << min_qubit_index;
+    const ITYPE max_qubit_mask = 1ULL << (max_qubit_index - 1);
+    const ITYPE low_mask = min_qubit_mask - 1;
+    const ITYPE mid_mask = (max_qubit_mask - 1) ^ low_mask;
+    const ITYPE high_mask = ~(max_qubit_mask - 1);
+
+    const ITYPE target_mask1 = 1ULL << target_qubit_index1;
+    const ITYPE target_mask2 = 1ULL << target_qubit_index2;
+
+    // loop variables
+    const ITYPE loop_dim = dim / 4;
+    ITYPE state_index;
+    ITYPE VL = svcntd() / 2;
+
+#pragma omp parallel
+    {
+        svbool_t pg = svptrue_b64();
+        svuint64_t vec_tbl;
+
+        svfloat64_t mat01rr, mat23rr;
+        svfloat64_t mat0ii, mat1ii, mat2ii, mat3ii;
+
+        // load each row of the matrix
+        PrepareMatrixElements(
+            pg, matrix, &mat01rr, &mat23rr, &mat0ii, &mat1ii, &mat2ii, &mat3ii);
+
+        // create a table for swap
+        vec_tbl = sveor_z(pg, svindex_u64(0, 1), svdup_u64(1));
+
+#pragma omp for
+        for (state_index = 0; state_index < loop_dim; state_index += VL) {
+            // create index
+            ITYPE basis_0 = (state_index & low_mask) +
+                            ((state_index & mid_mask) << 1) +
+                            ((state_index & high_mask) << 2);
+
+            // gather index
+            ITYPE basis_1 = basis_0 + target_mask1;
+            ITYPE basis_2 = basis_0 + target_mask2;
+            ITYPE basis_3 = basis_1 + target_mask2;
+
+            // fetch values
+            svfloat64_t input0ir = svld1(pg, (double*)&state[basis_0]);
+            svfloat64_t input1ir = svld1(pg, (double*)&state[basis_1]);
+            svfloat64_t input2ir = svld1(pg, (double*)&state[basis_2]);
+            svfloat64_t input3ir = svld1(pg, (double*)&state[basis_3]);
+
+            // swap the real and imag. parts
+            svfloat64_t input0ri = svtbl(input0ir, vec_tbl);
+            svfloat64_t input1ri = svtbl(input1ir, vec_tbl);
+            svfloat64_t input2ri = svtbl(input2ir, vec_tbl);
+            svfloat64_t input3ri = svtbl(input3ir, vec_tbl);
+
+            svfloat64_t output0, output1, output2, output3;
+            MatrixVectorProduct4x4(pg, input0ir, input1ir, input2ir, input3ir,
+                input0ri, input1ri, input2ri, input3ri, mat01rr, mat23rr,
+                mat0ii, mat1ii, mat2ii, mat3ii, &output0, &output1, &output2,
+                &output3);
+
+            // set values
+            svst1(pg, (double*)&state[basis_0], output0);
+            svst1(pg, (double*)&state[basis_1], output1);
+            svst1(pg, (double*)&state[basis_2], output2);
+            svst1(pg, (double*)&state[basis_3], output3);
+        }
+    }
+}
+
+void double_qubit_dense_matrix_gate_sve512_middle(UINT target_qubit_index1,
+    UINT target_qubit_index2, const CTYPE matrix[16], CTYPE* state, ITYPE dim) {
+    const UINT min_qubit_index =
+        get_min_ui(target_qubit_index1, target_qubit_index2);
+    const UINT max_qubit_index =
+        get_max_ui(target_qubit_index1, target_qubit_index2);
+    const ITYPE min_qubit_mask = 1ULL << min_qubit_index;
+    const ITYPE max_qubit_mask = 1ULL << (max_qubit_index - 1);
+    const ITYPE low_mask = min_qubit_mask - 1;
+    const ITYPE mid_mask = (max_qubit_mask - 1) ^ low_mask;
+    const ITYPE high_mask = ~(max_qubit_mask - 1);
+
+    const ITYPE target_mask1 = 1ULL << target_qubit_index1;
+    const ITYPE target_mask2 = 1ULL << target_qubit_index2;
+
+    // loop variables
+    const ITYPE loop_dim = dim / 4;
+    ITYPE state_index;
+    ITYPE VL = svcntd() / 2;
+
+#pragma omp parallel
+    {
+        svbool_t pg = svptrue_b64();
+        if (min_qubit_index == 1) {
+            svbool_t pg_neg;
+            svuint64_t vec_tbl;
+
+            svfloat64_t mat01rr, mat23rr, mat01ii, mat23ii;
+
+            // load elements of the matrix
+            PrepareMatrixElementsMT1(
+                pg, matrix, &mat01rr, &mat23rr, &mat01ii, &mat23ii);
+
+            // create a table for swapping the real and imag. parts
+            vec_tbl = sveor_z(pg, svindex_u64(0, 1), svdup_u64(2));
+
+            // creat a predicate register for sign reversal
+            pg_neg = svcmpeq(
+                pg, svand_z(pg, svindex_u64(0, 1), svdup_u64(2)), svdup_u64(0));
+
+            if (target_qubit_index1 == 1) {
+#pragma omp for
+                for (state_index = 0; state_index < loop_dim;
+                     state_index += VL) {
+                    // create index
+                    ITYPE basis_0 = (state_index & low_mask) +
+                                    ((state_index & mid_mask) << 1) +
+                                    ((state_index & high_mask) << 2);
+                    ITYPE basis_1 = state_index + (VL >> 1);
+                    basis_1 = (basis_1 & low_mask) +
+                              ((basis_1 & mid_mask) << 1) +
+                              ((basis_1 & high_mask) << 2);
+                    ITYPE basis_2 = basis_0 + target_mask2;
+                    ITYPE basis_3 = basis_1 + target_mask2;
+
+                    // fetch values
+                    svfloat64_t input0 = svld1(pg, (double*)&state[basis_0]);
+                    svfloat64_t input1 = svld1(pg, (double*)&state[basis_1]);
+                    svfloat64_t input2 = svld1(pg, (double*)&state[basis_2]);
+                    svfloat64_t input3 = svld1(pg, (double*)&state[basis_3]);
+
+                    // shuffle
+                    svfloat64_t cval0ir = svzip1(input0, input1);
+                    svfloat64_t cval1ir = svzip2(input0, input1);
+                    svfloat64_t cval2ir = svzip1(input2, input3);
+                    svfloat64_t cval3ir = svzip2(input2, input3);
+
+                    // swap the real and imag. parts
+                    svfloat64_t cval0ri = svtbl(cval0ir, vec_tbl);
+                    svfloat64_t cval1ri = svtbl(cval1ir, vec_tbl);
+                    svfloat64_t cval2ri = svtbl(cval2ir, vec_tbl);
+                    svfloat64_t cval3ri = svtbl(cval3ir, vec_tbl);
+
+                    // reverse the sign every two elements
+                    cval0ri = svneg_m(cval0ri, pg_neg, cval0ri);
+                    cval1ri = svneg_m(cval1ri, pg_neg, cval1ri);
+                    cval2ri = svneg_m(cval2ri, pg_neg, cval2ri);
+                    cval3ri = svneg_m(cval3ri, pg_neg, cval3ri);
+
+                    // perform matrix-vector product
+                    svfloat64_t result0, result1, result2, result3;
+                    svfloat64_t output0, output1, output2, output3;
+                    MatrixVectorProduct4x4MT1(pg, cval0ir, cval1ir, cval2ir,
+                        cval3ir, cval0ri, cval1ri, cval2ri, cval3ri, mat01rr,
+                        mat23rr, mat01ii, mat23ii, &result0, &result1, &result2,
+                        &result3);
+
+                    // reshuffle
+                    output0 = svuzp1(result0, result1);
+                    output1 = svuzp2(result0, result1);
+                    output2 = svuzp1(result2, result3);
+                    output3 = svuzp2(result2, result3);
+
+                    // set values
+                    svst1(pg, (double*)&state[basis_0], output0);
+                    svst1(pg, (double*)&state[basis_1], output1);
+                    svst1(pg, (double*)&state[basis_2], output2);
+                    svst1(pg, (double*)&state[basis_3], output3);
+                }
+            } else {  // target_qubit_index2 == 1
+#pragma omp for
+                for (state_index = 0; state_index < loop_dim;
+                     state_index += VL) {
+                    // create index
+                    ITYPE basis_0 = (state_index & low_mask) +
+                                    ((state_index & mid_mask) << 1) +
+                                    ((state_index & high_mask) << 2);
+                    ITYPE basis_1 = state_index + (VL >> 1);
+                    basis_1 = (basis_1 & low_mask) +
+                              ((basis_1 & mid_mask) << 1) +
+                              ((basis_1 & high_mask) << 2);
+                    ITYPE basis_2 = basis_0 + target_mask1;
+                    ITYPE basis_3 = basis_1 + target_mask1;
+
+                    // fetch values
+                    svfloat64_t input0 = svld1(pg, (double*)&state[basis_0]);
+                    svfloat64_t input1 = svld1(pg, (double*)&state[basis_1]);
+                    svfloat64_t input2 = svld1(pg, (double*)&state[basis_2]);
+                    svfloat64_t input3 = svld1(pg, (double*)&state[basis_3]);
+
+                    // shuffle
+                    svfloat64_t cval0ir = svzip1(input0, input1);
+                    svfloat64_t cval2ir = svzip2(input0, input1);
+                    svfloat64_t cval1ir = svzip1(input2, input3);
+                    svfloat64_t cval3ir = svzip2(input2, input3);
+
+                    // swap the real and imag. parts
+                    svfloat64_t cval0ri = svtbl(cval0ir, vec_tbl);
+                    svfloat64_t cval1ri = svtbl(cval1ir, vec_tbl);
+                    svfloat64_t cval2ri = svtbl(cval2ir, vec_tbl);
+                    svfloat64_t cval3ri = svtbl(cval3ir, vec_tbl);
+
+                    // reverse the sign every two elements
+                    cval0ri = svneg_m(cval0ri, pg_neg, cval0ri);
+                    cval1ri = svneg_m(cval1ri, pg_neg, cval1ri);
+                    cval2ri = svneg_m(cval2ri, pg_neg, cval2ri);
+                    cval3ri = svneg_m(cval3ri, pg_neg, cval3ri);
+
+                    // perform matrix-vector product
+                    svfloat64_t result0, result1, result2, result3;
+                    svfloat64_t output0, output1, output2, output3;
+                    MatrixVectorProduct4x4MT1(pg, cval0ir, cval1ir, cval2ir,
+                        cval3ir, cval0ri, cval1ri, cval2ri, cval3ri, mat01rr,
+                        mat23rr, mat01ii, mat23ii, &result0, &result1, &result2,
+                        &result3);
+
+                    // reshuffle
+                    output0 = svuzp1(result0, result2);
+                    output1 = svuzp2(result0, result2);
+                    output2 = svuzp1(result1, result3);
+                    output3 = svuzp2(result1, result3);
+
+                    // set values
+                    svst1(pg, (double*)&state[basis_0], output0);
+                    svst1(pg, (double*)&state[basis_1], output1);
+                    svst1(pg, (double*)&state[basis_2], output2);
+                    svst1(pg, (double*)&state[basis_3], output3);
+                }
+            }
+        } else {  // min_qubit_index == 0
+
+            svbool_t pg_select;
+            svuint64_t vec_tbl;
+
+            svfloat64_t mat0ii, mat1ii, mat2ii, mat3ii;
+            svfloat64_t mat01rr, mat23rr;
+
+            // load each row of the matrix
+            PrepareMatrixElements(pg, matrix, &mat01rr, &mat23rr, &mat0ii,
+                &mat1ii, &mat2ii, &mat3ii);
+
+            // create a table for swap
+            vec_tbl = sveor_z(pg, svindex_u64(0, 1), svdup_u64(1));
+
+            if (target_qubit_index2 >
+                target_qubit_index1) {  // target_qubit_index1 == 0
+
+                // creat element index for shuffling in a vector
+                pg_select = svcmpeq(pg,
+                    svand_z(
+                        pg, svindex_u64(0, 1), svdup_u64(target_mask1 << 1)),
+                    svdup_u64(0));
+
+#pragma omp for
+                for (state_index = 0; state_index < loop_dim;
+                     state_index += VL) {
+                    // create index
+                    ITYPE basis_0 = (state_index & low_mask) +
+                                    ((state_index & mid_mask) << 1) +
+                                    ((state_index & high_mask) << 2);
+                    ITYPE basis_1 = state_index + (VL >> 1);
+                    basis_1 = (basis_1 & low_mask) +
+                              ((basis_1 & mid_mask) << 1) +
+                              ((basis_1 & high_mask) << 2);
+                    ITYPE basis_2 = basis_0 + target_mask2;
+                    ITYPE basis_3 = basis_1 + target_mask2;
+
+                    // fetch values
+                    svfloat64_t input0 = svld1(pg, (double*)&state[basis_0]);
+                    svfloat64_t input1 = svld1(pg, (double*)&state[basis_1]);
+                    svfloat64_t input2 = svld1(pg, (double*)&state[basis_2]);
+                    svfloat64_t input3 = svld1(pg, (double*)&state[basis_3]);
+
+                    // shuffle
+                    svfloat64_t cval0ir =
+                        svsel(pg_select, input0, svext(input1, input1, 6));
+                    svfloat64_t cval1ir =
+                        svsel(pg_select, svext(input0, input0, 2), input1);
+                    svfloat64_t cval2ir =
+                        svsel(pg_select, input2, svext(input3, input3, 6));
+                    svfloat64_t cval3ir =
+                        svsel(pg_select, svext(input2, input2, 2), input3);
+                    // swap
+                    svfloat64_t cval0ri = svtbl(cval0ir, vec_tbl);
+                    svfloat64_t cval1ri = svtbl(cval1ir, vec_tbl);
+                    svfloat64_t cval2ri = svtbl(cval2ir, vec_tbl);
+                    svfloat64_t cval3ri = svtbl(cval3ir, vec_tbl);
+
+                    // perform matrix-vector product
+                    svfloat64_t result0, result1, result2, result3;
+                    svfloat64_t output0, output1, output2, output3;
+                    MatrixVectorProduct4x4(pg, cval0ir, cval1ir, cval2ir,
+                        cval3ir, cval0ri, cval1ri, cval2ri, cval3ri, mat01rr,
+                        mat23rr, mat0ii, mat1ii, mat2ii, mat3ii, &result0,
+                        &result1, &result2, &result3);
+
+                    // reshuffle
+                    output0 =
+                        svsel(pg_select, result0, svext(result1, result1, 6));
+                    output1 =
+                        svsel(pg_select, svext(result0, result0, 2), result1);
+                    output2 =
+                        svsel(pg_select, result2, svext(result3, result3, 6));
+                    output3 =
+                        svsel(pg_select, svext(result2, result2, 2), result3);
+
+                    // set values
+                    svst1(pg, (double*)&state[basis_0], output0);
+                    svst1(pg, (double*)&state[basis_1], output1);
+                    svst1(pg, (double*)&state[basis_2], output2);
+                    svst1(pg, (double*)&state[basis_3], output3);
+                }
+            } else {  // target_qubit_index2 == 0
+
+                // create element index for shuffling in a vector
+                pg_select = svcmpeq(pg,
+                    svand_z(
+                        pg, svindex_u64(0, 1), svdup_u64(target_mask2 << 1)),
+                    svdup_u64(0));
+#pragma omp for
+                for (state_index = 0; state_index < loop_dim;
+                     state_index += VL) {
+                    // create index
+                    ITYPE basis_0 = (state_index & low_mask) +
+                                    ((state_index & mid_mask) << 1) +
+                                    ((state_index & high_mask) << 2);
+
+                    ITYPE basis_1 = state_index + (VL >> 1);
+                    basis_1 = (basis_1 & low_mask) +
+                              ((basis_1 & mid_mask) << 1) +
+                              ((basis_1 & high_mask) << 2);
+                    ITYPE basis_2 = basis_0 + target_mask1;
+                    ITYPE basis_3 = basis_1 + target_mask1;
+
+                    // fetch values
+                    svfloat64_t input0 = svld1(pg, (double*)&state[basis_0]);
+                    svfloat64_t input1 = svld1(pg, (double*)&state[basis_1]);
+                    svfloat64_t input2 = svld1(pg, (double*)&state[basis_2]);
+                    svfloat64_t input3 = svld1(pg, (double*)&state[basis_3]);
+
+                    // shuffle
+                    svfloat64_t cval0ir =
+                        svsel(pg_select, input0, svext(input1, input1, 6));
+                    svfloat64_t cval2ir =
+                        svsel(pg_select, svext(input0, input0, 2), input1);
+                    svfloat64_t cval1ir =
+                        svsel(pg_select, input2, svext(input3, input3, 6));
+                    svfloat64_t cval3ir =
+                        svsel(pg_select, svext(input2, input2, 2), input3);
+                    // swap
+                    svfloat64_t cval0ri = svtbl(cval0ir, vec_tbl);
+                    svfloat64_t cval1ri = svtbl(cval1ir, vec_tbl);
+                    svfloat64_t cval2ri = svtbl(cval2ir, vec_tbl);
+                    svfloat64_t cval3ri = svtbl(cval3ir, vec_tbl);
+
+                    // perform matrix-vector product
+                    svfloat64_t result0, result1, result2, result3;
+                    svfloat64_t output0, output1, output2, output3;
+                    MatrixVectorProduct4x4(pg, cval0ir, cval1ir, cval2ir,
+                        cval3ir, cval0ri, cval1ri, cval2ri, cval3ri, mat01rr,
+                        mat23rr, mat0ii, mat1ii, mat2ii, mat3ii, &result0,
+                        &result1, &result2, &result3);
+
+                    // reshuffle
+                    output0 =
+                        svsel(pg_select, result0, svext(result2, result2, 6));
+                    output1 =
+                        svsel(pg_select, svext(result0, result0, 2), result2);
+                    output2 =
+                        svsel(pg_select, result1, svext(result3, result3, 6));
+                    output3 =
+                        svsel(pg_select, svext(result1, result1, 2), result3);
+
+                    // set values
+                    svst1(pg, (double*)&state[basis_0], output0);
+                    svst1(pg, (double*)&state[basis_1], output1);
+                    svst1(pg, (double*)&state[basis_2], output2);
+                    svst1(pg, (double*)&state[basis_3], output3);
+                }
+            }
+        }
+    }
+}
+
+void double_qubit_dense_matrix_gate_sve512_low(UINT target_qubit_index1,
+    UINT target_qubit_index2, const CTYPE matrix[16], CTYPE* state, ITYPE dim) {
+    const UINT min_qubit_index =
+        get_min_ui(target_qubit_index1, target_qubit_index2);
+    const UINT max_qubit_index =
+        get_max_ui(target_qubit_index1, target_qubit_index2);
+    const ITYPE min_qubit_mask = 1ULL << min_qubit_index;
+    const ITYPE max_qubit_mask = 1ULL << (max_qubit_index - 1);
+    const ITYPE low_mask = min_qubit_mask - 1;
+    const ITYPE mid_mask = (max_qubit_mask - 1) ^ low_mask;
+    const ITYPE high_mask = ~(max_qubit_mask - 1);
+
+    // loop variables
+    const ITYPE loop_dim = dim / 4;
+    ITYPE state_index;
+
+#pragma omp parallel
+    {
+        svbool_t pg = svptrue_b64();
+        // create tables to extract real or imag. parts
+        svuint64_t vec_tbl_real = svand_z(pg, svindex_u64(0, 1), svdup_u64(62));
+        svuint64_t vec_tbl_imag = svorr_z(pg, svindex_u64(0, 1), svdup_u64(1));
+        // create a predicate register for sign-reversal
+        svbool_t pg_neg = svcmpeq(
+            pg, svand_z(pg, svindex_u64(0, 1), svdup_u64(1)), svdup_u64(0));
+        // create a table for swapping the real and imag. parts
+        svuint64_t vec_tbl = sveor_z(pg, svindex_u64(0, 1), svdup_u64(1));
+
+        // make the following vector: (0, 1, 4, 5, 2, 3, 6, 7)
+        svuint64_t vec_shuffle_index;
+        if (target_qubit_index1 > target_qubit_index2) {
+            vec_shuffle_index = svindex_u64(0, 1);
+            vec_shuffle_index = svlsr_z(pg, vec_shuffle_index, 1);
+            vec_shuffle_index = svorr_z(pg,
+                svlsl_z(pg, svand_z(pg, vec_shuffle_index, svdup_u64(1)), 1),
+                svlsr_z(pg, vec_shuffle_index, 1));
+            vec_shuffle_index = svorr_z(pg, svlsl_z(pg, vec_shuffle_index, 1),
+                svand_z(pg, svindex_u64(0, 1), 1));
+        }
+
+        svfloat64_t mat0ir, mat1ir, mat2ir, mat3ir;
+        svfloat64_t mat0ri, mat1ri, mat2ri, mat3ri;
+
+        mat0ir = svld1(pg, (double*)&matrix[0]);
+        mat1ir = svld1(pg, (double*)&matrix[4]);
+        mat2ir = svld1(pg, (double*)&matrix[8]);
+        mat3ir = svld1(pg, (double*)&matrix[12]);
+
+        // transpose 4x4 ComplexMatrix
+        mat0ri = svuzp1(mat0ir, mat1ir);
+        mat1ri = svuzp2(mat0ir, mat1ir);
+        mat2ri = svuzp1(mat2ir, mat3ir);
+        mat3ri = svuzp2(mat2ir, mat3ir);
+
+        mat0ir = svtrn1(mat0ri, mat1ri);
+        mat1ir = svtrn2(mat0ri, mat1ri);
+        mat2ir = svtrn1(mat2ri, mat3ri);
+        mat3ir = svtrn2(mat2ri, mat3ri);
+
+        mat0ri = svuzp1(mat0ir, mat2ir);
+        mat2ri = svuzp2(mat0ir, mat2ir);
+        mat1ri = svuzp1(mat1ir, mat3ir);
+        mat3ri = svuzp2(mat1ir, mat3ir);
+
+        mat0ir = svtrn1(mat0ri, mat2ri);
+        mat2ir = svtrn2(mat0ri, mat2ri);
+        mat1ir = svtrn1(mat1ri, mat3ri);
+        mat3ir = svtrn2(mat1ri, mat3ri);
+
+        //
+        mat0ri = svtbl(mat0ir, vec_tbl);
+        mat1ri = svtbl(mat1ir, vec_tbl);
+        mat2ri = svtbl(mat2ir, vec_tbl);
+        mat3ri = svtbl(mat3ir, vec_tbl);
+
+        mat0ri = svneg_m(mat0ri, pg_neg, mat0ri);
+        mat1ri = svneg_m(mat1ri, pg_neg, mat1ri);
+        mat2ri = svneg_m(mat2ri, pg_neg, mat2ri);
+        mat3ri = svneg_m(mat3ri, pg_neg, mat3ri);
+
+#pragma omp for
+        for (state_index = 0; state_index < loop_dim; state_index++) {
+            // create index
+            ITYPE basis_0 = (state_index & low_mask) +
+                            ((state_index & mid_mask) << 1) +
+                            ((state_index & high_mask) << 2);
+
+            // fetch values
+            svfloat64_t input = svld1(pg, (double*)&state[basis_0]);
+            if (target_qubit_index1 > target_qubit_index2)
+                input = svtbl(input, vec_shuffle_index);
+
+            svfloat64_t inputrr = svtbl(input, vec_tbl_real);
+            svfloat64_t inputii = svtbl(input, vec_tbl_imag);
+
+            // perform matrix-vector product
+            svfloat64_t output;
+            output = svmul_z(pg, svdupq_lane(inputrr, 0), mat0ir);
+            output = svmla_z(pg, output, svdupq_lane(inputii, 0), mat0ri);
+            output = svmla_z(pg, output, svdupq_lane(inputrr, 1), mat1ir);
+            output = svmla_z(pg, output, svdupq_lane(inputii, 1), mat1ri);
+            output = svmla_z(pg, output, svdupq_lane(inputrr, 2), mat2ir);
+            output = svmla_z(pg, output, svdupq_lane(inputii, 2), mat2ri);
+            output = svmla_z(pg, output, svdupq_lane(inputrr, 3), mat3ir);
+            output = svmla_z(pg, output, svdupq_lane(inputii, 3), mat3ri);
+
+            if (target_qubit_index1 > target_qubit_index2)
+                output = svtbl(output, vec_shuffle_index);
+
+            svst1(pg, (double*)&state[basis_0], output);
+        }
+    }
+}
+
+void double_qubit_dense_matrix_gate_sve(UINT target_qubit_index1,
+    UINT target_qubit_index2, const CTYPE mat[16], CTYPE* vec, ITYPE dim) {
+    ITYPE VL = svcntd() / 2;
+
+    assert(target_qubit_index1 != target_qubit_index2);
+    if ((dim >= VL) && (VL == 4) && (target_qubit_index1 < 2) &&
+        (target_qubit_index2 < 2)) {
+        assert(sizeof(double) == sizeof(double));
+        double_qubit_dense_matrix_gate_sve512_low(
+            target_qubit_index1, target_qubit_index2, mat, vec, dim);
+    } else if ((dim > (VL << 1)) && (VL == 4) &&
+               ((target_qubit_index1 < 2) || (target_qubit_index2 < 2))) {
+        assert(sizeof(double) == sizeof(double));
+        double_qubit_dense_matrix_gate_sve512_middle(
+            target_qubit_index1, target_qubit_index2, mat, vec, dim);
+
+    } else if ((VL >= 4) && (target_qubit_index1 >= 2) &&
+               (target_qubit_index2 >= 2)) {
+        assert(sizeof(double) == sizeof(double));
+        double_qubit_dense_matrix_gate_sve512_high(
+            target_qubit_index1, target_qubit_index2, mat, vec, dim);
+    } else {
+        double_qubit_dense_matrix_gate_nosimd(
+            target_qubit_index1, target_qubit_index2, mat, vec, dim);
+    }
+}
+
 #endif
