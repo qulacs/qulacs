@@ -43,14 +43,15 @@ public:
 #ifdef _USE_MPI
                 if (state->outer_qc > 0) {
                 _update_func_mpi(this->_target_qubit_list[0].index(),
-                    this->_target_qubit_list[1].index(), this->_block_size,
-                    state->data_c(), state->dim, state->inner_qc);
+                    this->_target_qubit_list[_block_size].index(),
+                    this->_block_size, state->data_c(), state->dim,
+                    state->inner_qc);
             } else
 #endif
             {
                 _update_func(this->_target_qubit_list[0].index(),
-                    this->_target_qubit_list[1].index(), this->_block_size,
-                    state->data_c(), state->dim);
+                    this->_target_qubit_list[_block_size].index(),
+                    this->_block_size, state->data_c(), state->dim);
             }
         } else {
             throw NotImplementedException(
@@ -88,10 +89,17 @@ public:
         this->_update_func_mpi = FusedSWAP_gate_mpi;
 #endif
         this->_name = "FusedSWAP";
-        this->_target_qubit_list.push_back(
-            TargetQubitInfo(target_qubit_index1, 0));
-        this->_target_qubit_list.push_back(
-            TargetQubitInfo(target_qubit_index2, 0));
+        // 以下の順序でtarget_qubit_listに追加
+        // [target_qubit_index1, target_qubit_index1+1, ...,
+        // target_qubit_index1+(num_qubits-1),
+        //  target_qubit_index2, target_qubit_index2+1, ...,
+        //  target_qubit_index2+(num_qubits-1)]
+        for (int i = 0; i < block_size; ++i)
+            this->_target_qubit_list.push_back(
+                TargetQubitInfo(target_qubit_index1 + i, 0));
+        for (int i = 0; i < block_size; ++i)
+            this->_target_qubit_list.push_back(
+                TargetQubitInfo(target_qubit_index2 + i, 0));
         this->_block_size = block_size;
         this->_gate_property = FLAG_CLIFFORD;
         // matrix生成
