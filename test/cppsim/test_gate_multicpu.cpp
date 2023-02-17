@@ -477,11 +477,13 @@ void _ApplyFusedSWAPGate_multicpu(
         for (UINT i = 0; i < block_size; ++i) {
             auto swap_gate = gate::SWAP(target0 + i, target1 + i);
             swap_gate->update_quantum_state(&state_ref);
+            delete swap_gate;
         }
 
         // update "state" using FusedSWAP gate
         auto bswap_gate = gate::FusedSWAP(target0, target1, block_size);
         bswap_gate->update_quantum_state(&state);
+        delete bswap_gate;
 
         for (ITYPE i = 0; i < inner_dim; ++i)
             ASSERT_NEAR(abs(state.data_cpp()[i] -

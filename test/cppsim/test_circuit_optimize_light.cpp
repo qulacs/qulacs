@@ -302,4 +302,5 @@ TEST(CircuitTest, FusedSWAPregression1) {
     opt_circuit->update_quantum_state(&opt_state);
 
     ASSERT_STATE_NEAR(ref_state, opt_state, eps);
+    delete opt_circuit;
 }
