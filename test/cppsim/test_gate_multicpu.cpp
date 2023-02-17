@@ -458,7 +458,8 @@ TEST(GateTest_multicpu, ApplyMultiControl) {
     }
 }
 
-void _ApplyFusedSWAPGate(UINT n, UINT control, UINT target, UINT block_size) {
+void _ApplyFusedSWAPGate_multicpu(
+    UINT n, UINT target0, UINT target1, UINT block_size) {
     const ITYPE dim = 1ULL << n;
 
     QuantumState state_ref(n);
@@ -469,43 +470,37 @@ void _ApplyFusedSWAPGate(UINT n, UINT control, UINT target, UINT block_size) {
     const ITYPE offs = inner_dim * m->get_rank();
 
     {
-        if (target == control) target = (target + 1) % n;
-
         state_ref.set_Haar_random_state(2022);
-        for (ITYPE i = 0; i < inner_dim; ++i)
-            state.data_cpp()[i] = state_ref.data_cpp()[(i + offs) % dim];
+        state.load(&state_ref);
 
-        // update state
-        //// SWAP
+        // update "state_ref" using SWAP gate
         for (UINT i = 0; i < block_size; ++i) {
-            auto swap_gate = gate::SWAP(control + i, target + i);
+            auto swap_gate = gate::SWAP(target0 + i, target1 + i);
             swap_gate->update_quantum_state(&state_ref);
         }
 
-        //// FusedSWAP
-        // printf("call gate::FusedSWAP(%d, %d, %d)\n", control, target,
-        // block_size);
-        auto bswap_gate = gate::FusedSWAP(control, target, block_size);
+        // update "state" using FusedSWAP gate
+        auto bswap_gate = gate::FusedSWAP(target0, target1, block_size);
         bswap_gate->update_quantum_state(&state);
 
         for (ITYPE i = 0; i < inner_dim; ++i)
             ASSERT_NEAR(abs(state.data_cpp()[i] -
                             state_ref.data_cpp()[(i + offs) % dim]),
                 0, eps)
-                << "[rank:" << m->get_rank() << "] FusedSWAP(" << control << ","
-                << target << "," << block_size << ") diff at " << i;
+                << "[rank:" << m->get_rank() << "] FusedSWAP(" << target0 << ","
+                << target1 << "," << block_size << ") diff at " << i;
     }
 }
 
 TEST(GateTest_multicpu, ApplyFusedSWAPGate_10qubit_all) {
     UINT n = 10;
-    for (UINT c = 0; c < n; ++c) {
-        for (UINT t = 0; t < n; ++t) {
-            if (c == t) continue;
-            UINT max_bs =
-                std::min((c < t) ? (t - c) : (c - t), std::min(n - c, n - t));
+    for (UINT t0 = 0; t0 < n; ++t0) {
+        for (UINT t1 = 0; t1 < n; ++t1) {
+            if (t0 == t1) continue;
+            UINT max_bs = std::min(
+                (t0 < t1) ? (t1 - t0) : (t0 - t1), std::min(n - t0, n - t1));
             for (UINT bs = 1; bs <= max_bs; ++bs) {
-                _ApplyFusedSWAPGate(n, c, t, bs);
+                _ApplyFusedSWAPGate_multicpu(n, t0, t1, bs);
             }
         }
     }
