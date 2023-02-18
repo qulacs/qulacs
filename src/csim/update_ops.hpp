@@ -424,6 +424,8 @@ DllExport void SWAP_gate_mpi(UINT target_qubit_index_0,
  */
 DllExport void FusedSWAP_gate(UINT target_qubit_index_0,
     UINT target_qubit_index_1, UINT block_size, CTYPE* state, ITYPE dim);
+void FusedSWAP_gate_global(UINT target_qubit_index_0, UINT target_qubit_index_1,
+    UINT block_size, CTYPE* state, ITYPE dim);
 DllExport void FusedSWAP_gate_mpi(UINT target_qubit_index_0,
     UINT target_qubit_index_1, UINT block_size, CTYPE* state, ITYPE dim,
     UINT inner_qc);
