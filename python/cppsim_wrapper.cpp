@@ -1141,8 +1141,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("update_quantum_state",
             (void (QuantumCircuit::*)(QuantumStateBase*, UINT)) &
                 QuantumCircuit::update_quantum_state,
-            "Update quantum state with random seed", py::arg("state"),
-            py::arg("seed"))
+            py::arg("state"), py::arg("seed"))
         .def("update_quantum_state",
             (void (QuantumCircuit::*)(QuantumStateBase*, UINT, UINT, UINT)) &
                 QuantumCircuit::update_quantum_state,
