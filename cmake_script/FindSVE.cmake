@@ -1,17 +1,19 @@
-# check for SVE instruction support
-# At current, only 512 bit vector length is supported.
+#check for SVE instruction support
+#At current, only 512 bit vector length is supported.
 
 INCLUDE(CheckCSourceRuns)
 INCLUDE(CheckCXXSourceRuns)
 
 SET(SVE_CODE "
-#include <assert.h>
 #include <arm_sve.h>
+#include <assert.h>
 int main() {
-  int n = 0;
-  n = svcntb() * 8;
-  if (n == 512) return 0;
-  else assert(0);
+    int n = 0;
+    n = svcntb() * 8;
+    if (!(n % 256))
+        return 0;
+    else
+        assert(0);
 }
 ")
 
