@@ -116,7 +116,7 @@ void X_gate_parallel_sve(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
     // # of complex128 numbers in an SVE register
     ITYPE VL = svcntd() / 2;
 
-    if (target_qubit_index < VL) {
+    if (mask < VL) {
 #pragma omp parallel for
         for (state_index = 0; state_index < loop_dim; state_index++) {
             ITYPE basis_index_0 =
