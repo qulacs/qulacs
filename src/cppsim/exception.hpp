@@ -24,14 +24,14 @@ public:
 /**
  * \~japanese-en StateVectorとDensityMatrixが混ざっていて処理不能な例外
  */
-class InOperatableQuantumStateTypeException : public std::logic_error {
+class InoperatableQuantumStateTypeException : public std::logic_error {
 public:
     /**
      * \~japanese-en コンストラクタ
      *
      * @param message エラーメッセージ
      */
-    InOperatableQuantumStateTypeException(const std::string& message)
+    InoperatableQuantumStateTypeException(const std::string& message)
         : std::logic_error(message) {}
 };
 

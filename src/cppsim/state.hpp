@@ -533,7 +533,7 @@ public:
                 "invalid qubit count");
         }
         if (!_state->is_state_vector()) {
-            throw InOperatableQuantumStateTypeException(
+            throw InoperatableQuantumStateTypeException(
                 "Error: QuantumStateCpu::load(const QuantumStateBase*): "
                 "cannot load DensityMatrix to StateVector");
         }
@@ -613,7 +613,7 @@ public:
      */
     virtual void add_state(const QuantumStateBase* state) override {
         if (!state->is_state_vector()) {
-            throw InOperatableQuantumStateTypeException(
+            throw InoperatableQuantumStateTypeException(
                 "Error: QuantumStateCpu::add_state(const QuantumStateBase*): "
                 "cannot add DensityMatrix to StateVector");
         }
@@ -630,7 +630,7 @@ public:
     virtual void add_state_with_coef(
         CPPCTYPE coef, const QuantumStateBase* state) override {
         if (!state->is_state_vector()) {
-            throw InOperatableQuantumStateTypeException(
+            throw InoperatableQuantumStateTypeException(
                 "Error: QuantumStateCpu::add_state_with_coef(const "
                 "QuantumStateBase*): "
                 "cannot add DensityMatrix to StateVector");
@@ -649,7 +649,7 @@ public:
     virtual void add_state_with_coef_single_thread(
         CPPCTYPE coef, const QuantumStateBase* state) override {
         if (!state->is_state_vector()) {
-            throw InOperatableQuantumStateTypeException(
+            throw InoperatableQuantumStateTypeException(
                 "Error: "
                 "QuantumStateCpu::add_state_with_coef_single_thread(const "
                 "QuantumStateBase*): "
