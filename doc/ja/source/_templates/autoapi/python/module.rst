@@ -1,3 +1,5 @@
+{% import 'macros.rst' as macros %}
+
 {% if not obj.display %}
 :orphan:
 
@@ -67,12 +69,7 @@ Classes
 Functions
 ~~~~~~~~~
 
-.. autoapisummary::
-
-{% for function in visible_functions %}
-   {{ function.id }}
-{% endfor %}
-
+{{ macros.auto_summary(visible_functions) }}
 
 {% endif %}
 {% endblock %}
