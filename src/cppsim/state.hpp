@@ -964,7 +964,7 @@ public:
 
         return result;
     }
-    virtual boost::property_tree::ptree to_ptree() const {
+    virtual boost::property_tree::ptree to_ptree() const override {
         boost::property_tree::ptree pt;
         pt.put("name", "QuantumState");
         pt.put("qubit_count", _qubit_count);

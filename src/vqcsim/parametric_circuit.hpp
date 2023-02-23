@@ -67,7 +67,7 @@ public:
      *
      * @return ptree
      */
-    virtual boost::property_tree::ptree to_ptree() const;
+    virtual boost::property_tree::ptree to_ptree() const override;
 };
 
 namespace circuit {

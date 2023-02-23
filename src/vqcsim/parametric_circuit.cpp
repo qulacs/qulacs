@@ -313,7 +313,8 @@ ParametricQuantumCircuit* parametric_circuit_from_ptree(
         new ParametricQuantumCircuit(qubit_count);
     for (const boost::property_tree::ptree::value_type& gate_pair :
         pt.get_child("gate_list")) {
-        if (pt.get<std::string>("name").substr(0, 10) == "Parametric") {
+        if (gate_pair.second.get<std::string>("name").substr(0, 10) ==
+            "Parametric") {
             QuantumGate_SingleParameter* gate =
                 gate::parametric_gate_from_ptree(gate_pair.second);
             circuit->add_parametric_gate(gate);

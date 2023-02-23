@@ -334,7 +334,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<QuantumStateBase>(m, "QuantumStateBase");
     py::class_<QuantumState, QuantumStateBase>(m, "QuantumState")
         .def(py::init<UINT>(), "Constructor", py::arg("qubit_count"))
-        .def(py::init<UINT, bool>(), "Constructor", py::arg("qubit_count"),
+        .def(py::init<UINT, bool>(), py::arg("qubit_count"),
             py::arg("use_multi_cpu"))
         .def(
             "set_zero_state", &QuantumState::set_zero_state, "Set state to |0>")
@@ -415,7 +415,16 @@ PYBIND11_MODULE(qulacs_core, m) {
             [](const QuantumState& state) -> std::string {
                 return ptree::to_json(state.to_ptree());
             },
-            "to json string");
+            "to json string")
+        .def(py::pickle(
+            [](const QuantumState& state) -> std::string {
+                return ptree::to_json(state.to_ptree());
+            },
+            [](std::string json) -> QuantumState* {
+                return static_cast<QuantumState*>(
+                    state::from_ptree(ptree::from_json(json)));
+            }));
+
     ;
 
     m.def(
@@ -508,7 +517,15 @@ PYBIND11_MODULE(qulacs_core, m) {
             [](const DensityMatrix& state) -> std::string {
                 return ptree::to_json(state.to_ptree());
             },
-            "to json string");
+            "to json string")
+        .def(py::pickle(
+            [](const DensityMatrix& state) -> std::string {
+                return ptree::to_json(state.to_ptree());
+            },
+            [](std::string json) -> DensityMatrix* {
+                return static_cast<DensityMatrix*>(
+                    state::from_ptree(ptree::from_json(json)));
+            }));
     ;
 
 #ifdef _USE_MPI
@@ -1130,11 +1147,11 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Get qubit count")
 
         .def("update_quantum_state",
-            (void(QuantumCircuit::*)(QuantumStateBase*)) &
+            (void (QuantumCircuit::*)(QuantumStateBase*)) &
                 QuantumCircuit::update_quantum_state,
             "Update quantum state", py::arg("state"))
         .def("update_quantum_state",
-            (void(QuantumCircuit::*)(QuantumStateBase*, UINT, UINT)) &
+            (void (QuantumCircuit::*)(QuantumStateBase*, UINT, UINT)) &
                 QuantumCircuit::update_quantum_state,
             py::arg("state"), py::arg("start"), py::arg("end"))
 #if 0  // not supported yet
@@ -1264,7 +1281,15 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("get_inverse", &QuantumCircuit::get_inverse, "get inverse circuit")
         .def(
             "__str__", [](const QuantumCircuit& p) { return p.to_string(); },
-            "to string");
+            "to string")
+        .def(py::pickle(
+            [](const QuantumCircuit& c) -> std::string {
+                return ptree::to_json(c.to_ptree());
+            },
+            [](std::string json) {
+                boost::property_tree::ptree pt = ptree::from_json(json);
+                return circuit::from_ptree(pt);
+            }));
 
     py::class_<ParametricQuantumCircuit, QuantumCircuit>(
         m, "ParametricQuantumCircuit")
@@ -1328,8 +1353,15 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def(
             "__str__",
             [](const ParametricQuantumCircuit& p) { return p.to_string(); },
-            "to string");
-    ;
+            "to string")
+        .def(py::pickle(
+            [](const ParametricQuantumCircuit& c) -> std::string {
+                return ptree::to_json(c.to_ptree());
+            },
+            [](std::string json) {
+                boost::property_tree::ptree pt = ptree::from_json(json);
+                return circuit::parametric_circuit_from_ptree(pt);
+            }));
 
     py::class_<GradCalculator>(m, "GradCalculator")
         .def(py::init<>())

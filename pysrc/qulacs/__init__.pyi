@@ -362,10 +362,12 @@ class Observable(GeneralQuantumOperator):
         """
     pass
 class QuantumCircuit():
+    def __getstate__(self) -> str: ...
     def __init__(self, qubit_count: int) -> None: 
         """
         Constructor
         """
+    def __setstate__(self, arg0: str) -> None: ...
     def __str__(self) -> str: 
         """
         to string
@@ -631,10 +633,12 @@ class PauliOperator():
         """
     pass
 class ParametricQuantumCircuit(QuantumCircuit):
+    def __getstate__(self) -> str: ...
     def __init__(self, qubit_count: int) -> None: 
         """
         Constructor
         """
+    def __setstate__(self, arg0: str) -> None: ...
     def __str__(self) -> str: 
         """
         to string
@@ -820,15 +824,15 @@ class QuantumGate_SingleParameter(QuantumGateBase):
         """
     pass
 class QuantumState(QuantumStateBase):
+    def __getstate__(self) -> str: ...
     @typing.overload
     def __init__(self, qubit_count: int) -> None: 
         """
         Constructor
-
-        Constructor
         """
     @typing.overload
     def __init__(self, qubit_count: int, use_multi_cpu: bool) -> None: ...
+    def __setstate__(self, arg0: str) -> None: ...
     def __str__(self) -> str: 
         """
         to string
@@ -936,10 +940,12 @@ class QuantumState(QuantumStateBase):
         """
     pass
 class DensityMatrix(QuantumStateBase):
+    def __getstate__(self) -> str: ...
     def __init__(self, qubit_count: int) -> None: 
         """
         Constructor
         """
+    def __setstate__(self, arg0: str) -> None: ...
     def __str__(self) -> str: 
         """
         to string

@@ -101,7 +101,7 @@ public:
      *
      * @return ptree
      */
-    virtual boost::property_tree::ptree to_ptree() const {
+    virtual boost::property_tree::ptree to_ptree() const override {
         boost::property_tree::ptree pt;
         pt.add("name", "PauliGate");
         pt.add_child("pauli", _pauli->to_ptree());
@@ -207,7 +207,7 @@ public:
      *
      * @return ptree
      */
-    virtual boost::property_tree::ptree to_ptree() const {
+    virtual boost::property_tree::ptree to_ptree() const override {
         boost::property_tree::ptree pt;
         pt.add("name", "PauliRotationGate");
         pt.add("angle", _angle);

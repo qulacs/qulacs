@@ -22,6 +22,8 @@ void Y_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
 
 #ifdef _USE_SIMD
     Y_gate_parallel_simd(target_qubit_index, state, dim);
+#elif defined(_USE_SVE)
+    Y_gate_parallel_sve(target_qubit_index, state, dim);
 #else
     Y_gate_parallel_unroll(target_qubit_index, state, dim);
 #endif
@@ -108,6 +110,111 @@ void Y_gate_parallel_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
             data1 = _mm256_mul_pd(data1, minus_odd);
             _mm256_storeu_pd(ptr1, data0);
             _mm256_storeu_pd(ptr0, data1);
+        }
+    }
+}
+#endif
+
+#ifdef _USE_SVE
+void Y_gate_parallel_sve(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
+    const ITYPE loop_dim = dim / 2;
+    const ITYPE mask = (1ULL << target_qubit_index);
+    const ITYPE mask_low = mask - 1;
+    const ITYPE mask_high = ~mask_low;
+    ITYPE state_index = 0;
+    const CTYPE imag = 1.i;
+
+    // # of complex128 numbers in an SVE register
+    ITYPE VL = svcntd() / 2;
+
+    if (mask >= VL) {
+#pragma omp parallel
+        {
+            svbool_t pall = svptrue_b64();
+            svfloat64_t sv_minus_even = svzip1(svdup_f64(1.0), svdup_f64(-1.0));
+            svfloat64_t sv_minus_odd = svzip1(svdup_f64(-1.0), svdup_f64(1.0));
+
+#pragma omp for
+            for (state_index = 0; state_index < loop_dim; state_index += VL) {
+                svfloat64_t sv_input0, sv_input1, sv_output0, sv_output1,
+                    sv_cval_real, sv_cval_imag;
+                ITYPE basis_index_0 =
+                    (state_index & mask_low) + ((state_index & mask_high) << 1);
+                ITYPE basis_index_1 = basis_index_0 + mask;
+
+                sv_input0 = svld1(pall, (double*)&state[basis_index_0]);
+                sv_input1 = svld1(pall, (double*)&state[basis_index_1]);
+
+                sv_cval_real = svuzp1(sv_input0, sv_input1);
+                sv_cval_imag = svuzp2(sv_input0, sv_input1);
+
+                sv_output0 = svzip1(sv_cval_imag, sv_cval_real);
+                sv_output1 = svzip2(sv_cval_imag, sv_cval_real);
+
+                sv_output0 = svmul_x(pall, sv_output0, sv_minus_odd);
+                sv_output1 = svmul_x(pall, sv_output1, sv_minus_even);
+
+                svst1(pall, (double*)&state[basis_index_0], sv_output1);
+                svst1(pall, (double*)&state[basis_index_1], sv_output0);
+            }
+        }
+    } else if (dim >= (VL << 1)) {
+#pragma omp parallel
+        {
+            svbool_t pall = svptrue_b64();
+            svfloat64_t sv_minus_even = svzip1(svdup_f64(1.0), svdup_f64(-1.0));
+            svfloat64_t sv_minus_odd = svzip1(svdup_f64(-1.0), svdup_f64(1.0));
+            svfloat64_t sv_minus_half;
+            svuint64_t sv_shuffle_table;
+
+            sv_minus_half = svdup_f64(0.0);
+            ITYPE len = 0;
+            while (len < (VL << 1)) {
+                for (ITYPE i = 0; i < (1ULL << target_qubit_index); ++i)
+                    sv_minus_half = svext(sv_minus_half, sv_minus_even, 2);
+                len += (1ULL << (target_qubit_index + 1));
+
+                for (ITYPE i = 0; i < (1ULL << target_qubit_index); ++i)
+                    sv_minus_half = svext(sv_minus_half, sv_minus_odd, 2);
+                len += (1ULL << (target_qubit_index + 1));
+            }
+
+            sv_shuffle_table = sveor_z(pall, svindex_u64(0, 1),
+                svdup_u64(1ULL << (target_qubit_index + 1)));
+
+#pragma omp for
+            for (state_index = 0; state_index < dim; state_index += (VL << 1)) {
+                svfloat64_t sv_input0, sv_input1, sv_output0, sv_output1,
+                    sv_cval_real, sv_cval_imag, sv_shuffle0, sv_shuffle1;
+
+                sv_input0 = svld1(pall, (double*)&state[state_index]);
+                sv_input1 = svld1(pall, (double*)&state[state_index + VL]);
+
+                sv_shuffle0 = svtbl(sv_input0, sv_shuffle_table);
+                sv_shuffle1 = svtbl(sv_input1, sv_shuffle_table);
+
+                sv_cval_real = svuzp1(sv_shuffle0, sv_shuffle1);
+                sv_cval_imag = svuzp2(sv_shuffle0, sv_shuffle1);
+
+                sv_output0 = svzip1(sv_cval_imag, sv_cval_real);
+                sv_output1 = svzip2(sv_cval_imag, sv_cval_real);
+
+                sv_shuffle0 = svmul_x(pall, sv_output0, sv_minus_half);
+                sv_shuffle1 = svmul_x(pall, sv_output1, sv_minus_half);
+
+                svst1(pall, (double*)&state[state_index], sv_shuffle0);
+                svst1(pall, (double*)&state[state_index + VL], sv_shuffle1);
+            }
+        }
+    } else {
+#pragma omp parallel for
+        for (state_index = 0; state_index < loop_dim; ++state_index) {
+            ITYPE basis_index_0 =
+                (state_index & mask_low) + ((state_index & mask_high) << 1);
+            ITYPE basis_index_1 = basis_index_0 + mask;
+            CTYPE temp = state[basis_index_0];
+            state[basis_index_0] = -imag * state[basis_index_1];
+            state[basis_index_1] = imag * temp;
         }
     }
 }
