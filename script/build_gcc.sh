@@ -21,6 +21,5 @@ if [ "${QULACS_OPT_FLAGS:-"__UNSET__"}" = "__UNSET__" ]; then
 else
   cmake -G "Unix Makefiles" ${CMAKE_OPS} -D OPT_FLAGS="${QULACS_OPT_FLAGS}" ..
 fi
-#make -j $(nproc)
-make -j 1
+make -j $(nproc)
 cd ../
