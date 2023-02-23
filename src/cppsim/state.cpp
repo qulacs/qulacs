@@ -22,9 +22,10 @@ CPPCTYPE inner_product(
             state_bra->data_c(), state_ket->data_c(), state_bra->dim);
     }
 #ifdef _USE_MPI
-    else
+    else {
         result = state_inner_product_mpi(state_bra->data_c(),
             state_ket->data_c(), state_bra->dim, state_ket->dim);
+    }
 #endif
     return result;
 }
