@@ -153,17 +153,17 @@ void X_gate_mpi(
     if (target_qubit_index < inner_qc) {
         X_gate(target_qubit_index, state, dim);
     } else {
-        const MPIutil m = get_mpiutil();
-        const int rank = m->get_rank();
+        MPIutil& m = MPIutil::get_inst();
+        const int rank = m.get_rank();
         ITYPE dim_work = dim;
         ITYPE num_work = 0;
-        CTYPE* t = m->get_workarea(&dim_work, &num_work);
+        CTYPE* t = m.get_workarea(&dim_work, &num_work);
         assert(num_work > 0);
         const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
         const int pair_rank = rank ^ pair_rank_bit;
         CTYPE* si = state;
         for (ITYPE i = 0; i < num_work; ++i) {
-            m->m_DC_sendrecv(si, t, dim_work, pair_rank);
+            m.m_DC_sendrecv(si, t, dim_work, pair_rank);
             memcpy(si, t, dim_work * sizeof(CTYPE));
             si += dim_work;
         }

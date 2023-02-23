@@ -399,28 +399,28 @@ void single_qubit_dense_matrix_gate_parallel_sve(
 
 #ifdef _USE_MPI
 void single_qubit_dense_matrix_gate_partial(
-    CTYPE* t, const CTYPE matrix[4], CTYPE* state, ITYPE dim, int flag);
+    CTYPE *t, const CTYPE matrix[4], CTYPE *state, ITYPE dim, int flag);
 
 void single_qubit_dense_matrix_gate_mpi(UINT target_qubit_index,
-    const CTYPE matrix[4], CTYPE* state, ITYPE dim, UINT inner_qc) {
+    const CTYPE matrix[4], CTYPE *state, ITYPE dim, UINT inner_qc) {
     if (target_qubit_index < inner_qc) {
         single_qubit_dense_matrix_gate(target_qubit_index, matrix, state, dim);
     } else {
-        const MPIutil m = get_mpiutil();
-        const int rank = m->get_rank();
+        MPIutil &m = MPIutil::get_inst();
+        const int rank = m.get_rank();
         ITYPE dim_work = dim;
         ITYPE num_work = 0;
-        CTYPE* ptr_pair = m->get_workarea(&dim_work, &num_work);
+        CTYPE *ptr_pair = m.get_workarea(&dim_work, &num_work);
         assert(num_work > 0);
         const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
         const int pair_rank = rank ^ pair_rank_bit;
-        CTYPE* ptr_state = state;
+        CTYPE *ptr_state = state;
 
 #ifdef _OPENMP
         OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
 #endif
         for (ITYPE iter = 0; iter < num_work; ++iter) {
-            m->m_DC_sendrecv(ptr_state, ptr_pair, dim_work, pair_rank);
+            m.m_DC_sendrecv(ptr_state, ptr_pair, dim_work, pair_rank);
 
             single_qubit_dense_matrix_gate_partial(
                 ptr_pair, matrix, ptr_state, dim_work, rank & pair_rank_bit);
@@ -434,7 +434,7 @@ void single_qubit_dense_matrix_gate_mpi(UINT target_qubit_index,
 }
 
 void single_qubit_dense_matrix_gate_partial(
-    CTYPE* t, const CTYPE matrix[4], CTYPE* state, ITYPE dim, int flag) {
+    CTYPE *t, const CTYPE matrix[4], CTYPE *state, ITYPE dim, int flag) {
     {
 #pragma omp parallel for
         for (ITYPE state_index = 0; state_index < dim; ++state_index) {

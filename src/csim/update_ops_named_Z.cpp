@@ -128,8 +128,7 @@ void Z_gate_mpi(
     if (target_qubit_index < inner_qc) {
         Z_gate(target_qubit_index, state, dim);
     } else {
-        const MPIutil m = get_mpiutil();
-        const int rank = m->get_rank();
+        const int rank = MPIutil::get_inst().get_rank();
         const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
         if (rank & pair_rank_bit) {
             state_multiply(-1., state, dim);

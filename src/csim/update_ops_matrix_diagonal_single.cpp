@@ -251,10 +251,10 @@ void single_qubit_diagonal_matrix_gate_parallel_sve(UINT target_qubit_index,
 
 #ifdef _USE_MPI
 void single_qubit_diagonal_matrix_gate_partial(
-    const CTYPE diagonal_matrix[2], CTYPE* state, ITYPE dim, int isone);
+    const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim, int isone);
 
 void single_qubit_diagonal_matrix_gate_mpi(UINT target_qubit_index,
-    const CTYPE diagonal_matrix[2], CTYPE* state, ITYPE dim, UINT inner_qc) {
+    const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim, UINT inner_qc) {
     if (target_qubit_index < inner_qc) {
         single_qubit_diagonal_matrix_gate(
             target_qubit_index, diagonal_matrix, state, dim);
@@ -262,8 +262,7 @@ void single_qubit_diagonal_matrix_gate_mpi(UINT target_qubit_index,
 #ifdef _OPENMP
         OMPutil::get_inst().set_qulacs_num_threads(dim, 12);
 #endif
-        const MPIutil m = get_mpiutil();
-        const int rank = m->get_rank();
+        const int rank = MPIutil::get_inst().get_rank();
         const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
 
         single_qubit_diagonal_matrix_gate_partial(
@@ -275,7 +274,7 @@ void single_qubit_diagonal_matrix_gate_mpi(UINT target_qubit_index,
 }
 
 void single_qubit_diagonal_matrix_gate_partial(
-    const CTYPE diagonal_matrix[2], CTYPE* state, ITYPE dim, int isone) {
+    const CTYPE diagonal_matrix[2], CTYPE *state, ITYPE dim, int isone) {
     // loop variables
     ITYPE state_index;
 

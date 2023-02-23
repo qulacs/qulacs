@@ -55,8 +55,7 @@ double state_norm_squared_mpi(const CTYPE* state, ITYPE dim) {
     OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 
-    MPIutil mpiutil = get_mpiutil();
-    mpiutil->s_D_allreduce(&norm);
+    MPIutil::get_inst().s_D_allreduce(&norm);
 
     return norm;
 }
@@ -109,9 +108,8 @@ state_inner_product_mpi(
     OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 
-    MPIutil mpiutil = get_mpiutil();
-    mpiutil->s_D_allreduce(&real_sum);
-    mpiutil->s_D_allreduce(&imag_sum);
+    MPIutil::get_inst().s_D_allreduce(&real_sum);
+    MPIutil::get_inst().s_D_allreduce(&imag_sum);
     return real_sum + 1.i * imag_sum;
 }
 #endif

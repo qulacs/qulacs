@@ -264,12 +264,12 @@ void single_qubit_control_single_qubit_dense_matrix_gate_mpi_OO(
 void single_qubit_control_single_qubit_dense_matrix_gate_mpi(
     UINT control_qubit_index, UINT control_value, UINT target_qubit_index,
     const CTYPE matrix[4], CTYPE* state, ITYPE dim, UINT inner_qc) {
-    const MPIutil m = get_mpiutil();
-    const UINT rank = m->get_rank();
+    MPIutil& m = MPIutil::get_inst();
+    const UINT rank = m.get_rank();
     const UINT control_rank_bit = 1 << (control_qubit_index - inner_qc);
     ITYPE dim_work = dim;
     ITYPE num_work = 0;
-    CTYPE* t = m->get_workarea(&dim_work, &num_work);
+    CTYPE* t = m.get_workarea(&dim_work, &num_work);
     assert(num_work > 0);
     const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
     const int pair_rank = rank ^ pair_rank_bit;
@@ -289,7 +289,7 @@ void single_qubit_control_single_qubit_dense_matrix_gate_mpi(
         } else {  // control, target: inner, outer
 
             for (ITYPE iter = 0; iter < num_work; ++iter) {
-                m->m_DC_sendrecv(si, t, dim_work, pair_rank);
+                m.m_DC_sendrecv(si, t, dim_work, pair_rank);
 
                 UINT index_offset = iter * dim_work;
                 single_qubit_control_single_qubit_dense_matrix_gate_mpi_OI(
@@ -311,9 +311,9 @@ void single_qubit_control_single_qubit_dense_matrix_gate_mpi(
                     (!(rank & control_rank_bit) && (control_value == 0)));
             for (ITYPE iter = 0; iter < num_work; ++iter) {
                 if (dummy_flag) {  // only count up tag
-                    m->get_tag();
+                    m.get_tag();
                 } else {
-                    m->m_DC_sendrecv(si, t, dim_work, pair_rank);
+                    m.m_DC_sendrecv(si, t, dim_work, pair_rank);
 
                     single_qubit_control_single_qubit_dense_matrix_gate_mpi_OO(
                         t, matrix, si, dim_work, rank & pair_rank_bit);

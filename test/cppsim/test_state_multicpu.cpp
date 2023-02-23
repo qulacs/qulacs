@@ -14,9 +14,9 @@ TEST(StateTest_multicpu, GenerateAndRelease) {
 
     QuantumState state_multicpu(n, true);
     if (state_multicpu.get_device_name() == "multi-cpu") {
-        MPIutil mpiutil = get_mpiutil();
-        mpirank = mpiutil->get_rank();
-        mpisize = mpiutil->get_size();
+        MPIutil &mpiutil = MPIutil::get_inst();
+        mpirank = mpiutil.get_rank();
+        mpisize = mpiutil.get_size();
         global_qubit = std::log2(mpisize);
         local_qubit = n - global_qubit;
         part_dim = (1ULL << n) / mpisize;
@@ -64,9 +64,9 @@ TEST(StateTest_multicpu, setHaarRandomState) {
     QuantumState state_singlecpu(n, false);
 
     if (state_multicpu.get_device_name() == "multi-cpu") {
-        MPIutil mpiutil = get_mpiutil();
-        mpirank = mpiutil->get_rank();
-        mpisize = mpiutil->get_size();
+        MPIutil &mpiutil = MPIutil::get_inst();
+        mpirank = mpiutil.get_rank();
+        mpisize = mpiutil.get_size();
         global_qubit = std::log2(mpisize);
         local_qubit = n - global_qubit;
         part_dim = (1ULL << n) / mpisize;

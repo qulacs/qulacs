@@ -127,8 +127,7 @@ void single_qubit_control_multi_qubit_dense_matrix_gate_mpi(
             control_value, new_target_index_list, target_qubit_index_count,
             matrix, state, dim);
     } else {
-        const MPIutil m = get_mpiutil();
-        const UINT rank = m->get_rank();
+        const UINT rank = MPIutil::get_inst().get_rank();
         const UINT control_rank_bit = 1 << (new_control_index - inner_qc);
         if ((rank & control_rank_bit) >> (new_control_index - inner_qc) ==
             control_value)

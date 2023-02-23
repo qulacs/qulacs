@@ -1,19 +1,75 @@
 //
-#ifdef _USE_MPI
+//#ifdef _USE_MPI
 #pragma once
 #define OMPI_SKIP_MPICXX \
     1  // Fixes compilation with GCC8+
        // https://github.com/open-mpi/ompi/issues/5157
 
-#include <assert.h>
+#ifdef _USE_MPI
 #include <mpi.h>
-#include <pthread.h>
-#include <stdio.h>
-#include <stdlib.h>
+
+#include <cassert>
 
 #include "cppsim/exception.hpp"
 #include "type.hpp"
 
+#if true
+#define _NQUBIT_WORK 22  // 4 Mi x 16 Byte(CTYPE)
+#define _MAX_REQUESTS 4  // 2 (isend/irecv) * 2 (double buffering)
+
+class MPIutil {
+private:
+    MPI_Comm mpicomm = 0;
+    int mpirank = 0;
+    int mpisize = 0;
+    int mpitag = 0;
+    MPI_Status mpistat;
+    CTYPE *workarea = NULL;
+    MPI_Request mpireq[_MAX_REQUESTS];
+    UINT mpireq_idx = 0;
+    UINT mpireq_cnt = 0;
+    MPIutil() {
+        mpicomm = MPI_COMM_WORLD;
+        // printf("# MPI_COMM_WORLD %p\n", mpicomm);
+        MPI_Comm_rank(mpicomm, &mpirank);
+        MPI_Comm_size(mpicomm, &mpisize);
+        mpitag = 0;
+    }
+    ~MPIutil() = default;
+
+public:
+    MPIutil(const MPIutil &) = delete;
+    MPIutil &operator=(const MPIutil &) = delete;
+    MPIutil(MPIutil &&) = delete;
+    MPIutil &operator=(MPIutil &&) = delete;
+
+    static MPIutil &get_inst() {
+        static MPIutil instance;
+        return instance;
+    }
+
+    MPI_Request *get_request();
+    int get_rank();
+    int get_size();
+    int get_tag();
+    CTYPE *get_workarea(ITYPE *dim_work, ITYPE *num_work);
+    void release_workarea();
+    void barrier();
+    void mpi_wait(UINT count);
+    void m_DC_allgather(void *sendbuf, void *recvbuf, int count);
+    void m_DC_send(void *sendbuf, int count, int pair_rank);
+    void m_DC_recv(void *recvbuf, int count, int pair_rank);
+    void m_DC_sendrecv(void *sendbuf, void *recvbuf, int count, int pair_rank);
+    void m_DC_sendrecv_replace(void *buf, int count, int pair_rank);
+    void m_DC_isendrecv(void *sendbuf, void *recvbuf, int count, int pair_rank);
+    void m_I_allreduce(void *buf, UINT count);
+    void s_D_allgather(double a, void *recvbuf);
+    void s_D_allreduce(void *buf);
+    void s_u_bcast(UINT *a);
+    void s_D_bcast(double *a);
+};
+
+#else
 typedef struct {
     int (*get_rank)();
     int (*get_size)();
@@ -39,4 +95,5 @@ typedef struct {
 typedef MPIutil_ *MPIutil;
 
 MPIutil get_mpiutil(void);
-#endif  // #ifdef _USE_MPI
+#endif
+#endif

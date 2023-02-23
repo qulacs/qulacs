@@ -185,15 +185,13 @@ void CZ_gate_mpi(UINT control_qubit_index, UINT target_qubit_index,
     if (left_qubit < inner_qc) {
         CZ_gate(control_qubit_index, target_qubit_index, state, dim);
     } else if (right_qubit < inner_qc) {  // one quibit is outer
-        const MPIutil m = get_mpiutil();
-        const UINT rank = m->get_rank();
+        const UINT rank = MPIutil::get_inst().get_rank();
         const UINT tgt_rank_bit = 1 << (left_qubit - inner_qc);
         if (rank & tgt_rank_bit) {
             Z_gate(right_qubit, state, dim);
         }     // if else, nothing to do.
     } else {  // both qubits are outer;
-        const MPIutil m = get_mpiutil();
-        const UINT rank = m->get_rank();
+        const UINT rank = MPIutil::get_inst().get_rank();
         const UINT tgt0_rank_bit = 1 << (left_qubit - inner_qc);
         const UINT tgt1_rank_bit = 1 << (right_qubit - inner_qc);
         if (rank & tgt0_rank_bit && rank & tgt1_rank_bit) {

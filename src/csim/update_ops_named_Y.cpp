@@ -226,11 +226,11 @@ void Y_gate_mpi(
     if (target_qubit_index < inner_qc) {
         Y_gate(target_qubit_index, state, dim);
     } else {
-        const MPIutil m = get_mpiutil();
-        const int rank = m->get_rank();
+        MPIutil& m = MPIutil::get_inst();
+        const int rank = m.get_rank();
         ITYPE dim_work = dim;
         ITYPE num_work = 0;
-        CTYPE* t = m->get_workarea(&dim_work, &num_work);
+        CTYPE* t = m.get_workarea(&dim_work, &num_work);
         assert(num_work > 0);
 #ifdef _OPENMP
         OMPutil::get_inst().set_qulacs_num_threads(dim_work, 13);
@@ -242,7 +242,7 @@ void Y_gate_mpi(
         // printf("#debug dim,dim_work,num_work,t: %lld, %lld, %lld, %p\n", dim,
         // dim_work, num_work, t);
         for (ITYPE iter = 0; iter < num_work; ++iter) {
-            m->m_DC_sendrecv(si, t, dim_work, pair_rank);
+            m.m_DC_sendrecv(si, t, dim_work, pair_rank);
             ITYPE state_index = 0;
             if (rank & pair_rank_bit) {
 #ifdef _OPENMP

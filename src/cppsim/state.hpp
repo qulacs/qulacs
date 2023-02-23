@@ -68,9 +68,9 @@ public:
         UINT mpisize;
         if (use_multi_cpu) {
 #ifdef _USE_MPI
-            MPIutil mpiutil = get_mpiutil();
-            mpirank = mpiutil->get_rank();
-            mpisize = mpiutil->get_size();
+            MPIutil& mpiutil = MPIutil::get_inst();
+            mpirank = mpiutil.get_rank();
+            mpisize = mpiutil.get_size();
 #else
             mpirank = 0;
             mpisize = 1;
@@ -372,8 +372,8 @@ public:
         UINT myrank = 0;
 #ifdef _USE_MPI
         if (this->outer_qc > 0) {
-            MPIutil mpiutil = get_mpiutil();
-            myrank = mpiutil->get_rank();
+            MPIutil& mpiutil = MPIutil::get_inst();
+            myrank = mpiutil.get_rank();
         }
 #endif
         if (myrank == 0) {
@@ -460,8 +460,8 @@ public:
     virtual ~QuantumStateCpu() {
 #ifdef _USE_MPI
         if (this->outer_qc > 0) {
-            MPIutil mpiutil = get_mpiutil();
-            mpiutil->release_workarea();
+            MPIutil& mpiutil = MPIutil::get_inst();
+            mpiutil.release_workarea();
         }
 #endif
         release_quantum_state(this->data_c());
@@ -503,8 +503,8 @@ public:
 #ifdef _USE_MPI
         ITYPE myrank = 0;
         if (this->outer_qc > 0) {
-            MPIutil mpiutil = get_mpiutil();
-            myrank = (ITYPE)mpiutil->get_rank();
+            MPIutil& mpiutil = MPIutil::get_inst();
+            myrank = (ITYPE)mpiutil.get_rank();
         }
         if (this->outer_qc == 0 || (comp_basis >> this->inner_qc) == myrank) {
             _state_vector[comp_basis & (this->_dim - 1)] = 1.;
@@ -522,8 +522,8 @@ public:
 #ifdef _USE_MPI
         if (this->outer_qc > 0) {
             // すべてのrankで同一の結果を得るために、seedを共有する
-            MPIutil mpiutil = get_mpiutil();
-            if (mpiutil->get_size() > 1) mpiutil->s_u_bcast(&seed);
+            MPIutil& mpiutil = MPIutil::get_inst();
+            if (mpiutil.get_size() > 1) mpiutil.s_u_bcast(&seed);
         }
 #endif
         set_Haar_random_state(seed);
@@ -536,8 +536,8 @@ public:
 #ifdef _USE_MPI
         // 各rankで異なるseedを用いる必要がある
         if (this->outer_qc > 0) {
-            MPIutil mpiutil = get_mpiutil();
-            seed += mpiutil->get_rank();
+            MPIutil& mpiutil = MPIutil::get_inst();
+            seed += mpiutil.get_rank();
         }
         initialize_Haar_random_state_mpi_with_seed(
             this->data_c(), _dim, this->outer_qc, seed);
@@ -609,8 +609,8 @@ public:
     virtual double get_entropy() const override {
         double entropy = measurement_distribution_entropy(this->data_c(), _dim);
 #ifdef _USE_MPI
-        MPIutil mpiutil = get_mpiutil();
-        if (this->outer_qc > 0) mpiutil->s_D_allreduce(&entropy);
+        MPIutil& mpiutil = MPIutil::get_inst();
+        if (this->outer_qc > 0) mpiutil.s_D_allreduce(&entropy);
 #endif
         return entropy;
     }
@@ -712,7 +712,7 @@ public:
             free(ptr);
 #ifdef _USE_MPI
         } else if (_state->outer_qc > 0) {
-            MPIutil mpiutil = get_mpiutil();
+            MPIutil& mpiutil = MPIutil::get_inst();
             if (this->outer_qc > 0) {
                 if (_state->qubit_count != this->qubit_count) {
                     throw InvalidQubitCountException(
@@ -724,16 +724,16 @@ public:
                     (size_t)(sizeof(CPPCTYPE) * _dim));
             } else {
                 // load multicpu to cpu
-                mpiutil->m_DC_allgather(_state->data_cpp(), this->data_cpp(),
-                    _dim / mpiutil->get_size());
+                mpiutil.m_DC_allgather(_state->data_cpp(), this->data_cpp(),
+                    _dim / mpiutil.get_size());
             }
 #endif
         } else {
 #ifdef _USE_MPI
             if (this->outer_qc > 0) {
-                MPIutil mpiutil = get_mpiutil();
+                MPIutil& mpiutil = MPIutil::get_inst();
                 // load cpu to multicpu
-                ITYPE offs = _dim * mpiutil->get_rank();
+                ITYPE offs = _dim * mpiutil.get_rank();
                 memcpy(this->data_cpp(), _state->data_cpp() + offs,
                     (size_t)(sizeof(CPPCTYPE) * _dim));
             } else
@@ -878,8 +878,8 @@ public:
         if (this->outer_qc > 0) {
             // すべてのrankで同一の結果を得るために、seedを共有する
             UINT seed = rand();
-            MPIutil mpiutil = get_mpiutil();
-            if (mpiutil->get_size() > 1) mpiutil->s_u_bcast(&seed);
+            MPIutil& mpiutil = MPIutil::get_inst();
+            if (mpiutil.get_size() > 1) mpiutil.s_u_bcast(&seed);
             return this->sampling(sampling_count, seed);
         }
 #endif
@@ -911,9 +911,9 @@ public:
 #ifdef _USE_MPI
         if (this->outer_qc > 0) {
             std::vector<double> stacked_prob;
-            MPIutil mpiutil = get_mpiutil();
-            UINT mpirank = mpiutil->get_rank();
-            UINT mpisize = mpiutil->get_size();
+            MPIutil& mpiutil = MPIutil::get_inst();
+            UINT mpirank = mpiutil.get_rank();
+            UINT mpisize = mpiutil.get_size();
             double sum = 0.;
             auto ptr = this->data_cpp();
             // resize
@@ -929,7 +929,7 @@ public:
             double* sumrank_prob;
             sumrank_prob = new double[mpisize];
 
-            mpiutil->s_D_allgather(sum, sumrank_prob);
+            mpiutil.s_D_allgather(sum, sumrank_prob);
 
             double firstv = 0.;
             for (UINT i = 0; i < mpirank; ++i) {
@@ -955,7 +955,7 @@ public:
                 else
                     result[i] += geta;
             }
-            mpiutil->m_I_allreduce(result.data(), sampling_count);
+            mpiutil.m_I_allreduce(result.data(), sampling_count);
         } else
 #endif
         {

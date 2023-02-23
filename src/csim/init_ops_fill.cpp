@@ -35,7 +35,7 @@ void initialize_quantum_state_mpi(CTYPE* state, ITYPE dim, UINT outer_qc) {
     OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 
-    MPIutil mpiutil = get_mpiutil();
-    if (outer_qc == 0 || mpiutil->get_rank() == 0) state[0] = 1.0;
+    MPIutil& mpiutil = MPIutil::get_inst();
+    if (outer_qc == 0 || mpiutil.get_rank() == 0) state[0] = 1.0;
 }
 #endif

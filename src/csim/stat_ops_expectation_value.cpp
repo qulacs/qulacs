@@ -265,14 +265,14 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list_mpi(
         Pauli_operator_type_list, target_qubit_index_count, &bit_flip_mask,
         &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
     double result;
-    MPIutil m = get_mpiutil();
+    MPIutil& m = MPIutil::get_inst();
 
 #ifdef _OPENMP
     OMPutil::get_inst().set_qulacs_num_threads(dim, 15);
 #endif
     if (bit_flip_mask == 0) {
         result = expectation_value_multi_qubit_Pauli_operator_Z_mask_mpi(
-            phase_flip_mask, state, dim, m->get_rank(), inner_qc);
+            phase_flip_mask, state, dim, m.get_rank(), inner_qc);
     } else {
         result = expectation_value_multi_qubit_Pauli_operator_XZ_mask_mpi(
             bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
@@ -282,7 +282,7 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list_mpi(
     OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 
-    if (outer_qc > 0) m->s_D_allreduce(&result);
+    if (outer_qc > 0) MPIutil::get_inst().s_D_allreduce(&result);
     return result;
 }
 
@@ -295,15 +295,15 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_mpi(
 
     int comm_flag = bit_flip_mask >> inner_qc;
 
-    MPIutil m = get_mpiutil();
-    int mpirank = m->get_rank();
+    MPIutil& m = MPIutil::get_inst();
+    int mpirank = m.get_rank();
     int pair_rank = mpirank ^ comm_flag;
     ITYPE global_offset = mpirank << inner_qc;
 
     if (comm_flag) {
         ITYPE dim_work = dim;
         ITYPE num_work = 0;
-        CTYPE* recvptr = m->get_workarea(&dim_work, &num_work);
+        CTYPE* recvptr = m.get_workarea(&dim_work, &num_work);
         ITYPE inner_mask = dim - 1;
         ITYPE i, j;
 
@@ -313,7 +313,7 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_mpi(
             const CTYPE* sendptr = state + dim_work * i;
             if (mpirank < pair_rank) {
                 // recv
-                m->m_DC_recv(recvptr, dim_work, pair_rank);
+                m.m_DC_recv(recvptr, dim_work, pair_rank);
 
 #ifdef _OPENMP
 #pragma omp parallel for reduction(+ : sum)
@@ -335,7 +335,7 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_mpi(
                 state_index += dim_work;
             } else {
                 // send
-                m->m_DC_send((void*)sendptr, dim_work, pair_rank);
+                m.m_DC_send((void*)sendptr, dim_work, pair_rank);
             }
         }
     } else {

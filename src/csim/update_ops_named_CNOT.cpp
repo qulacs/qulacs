@@ -278,12 +278,12 @@ void CNOT_gate_single_unroll_cin_tout(
 
 void CNOT_gate_mpi(UINT control_qubit_index, UINT target_qubit_index,
     CTYPE* state, ITYPE dim, UINT inner_qc) {
+    MPIutil& m = MPIutil::get_inst();
     if (control_qubit_index < inner_qc) {
         if (target_qubit_index < inner_qc) {
             CNOT_gate(control_qubit_index, target_qubit_index, state, dim);
         } else {
-            const MPIutil m = get_mpiutil();
-            const UINT rank = m->get_rank();
+            const UINT rank = m.get_rank();
             const UINT pair_rank_bit = 1 << (target_qubit_index - inner_qc);
             const UINT pair_rank = rank ^ pair_rank_bit;
 
@@ -291,8 +291,7 @@ void CNOT_gate_mpi(UINT control_qubit_index, UINT target_qubit_index,
                 control_qubit_index, pair_rank, state, dim);
         }
     } else {  // (control_qubit_index >= inner_qc)
-        const MPIutil m = get_mpiutil();
-        const int rank = m->get_rank();
+        const int rank = m.get_rank();
         const int control_rank_bit = 1 << (control_qubit_index - inner_qc);
         if (target_qubit_index < inner_qc) {
             if (rank & control_rank_bit) {
@@ -303,15 +302,15 @@ void CNOT_gate_mpi(UINT control_qubit_index, UINT target_qubit_index,
             const int pair_rank = rank ^ pair_rank_bit;
             ITYPE dim_work = dim;
             ITYPE num_work = 0;
-            CTYPE* t = m->get_workarea(&dim_work, &num_work);
+            CTYPE* t = m.get_workarea(&dim_work, &num_work);
             CTYPE* si = state;
             for (ITYPE i = 0; i < num_work; ++i) {
                 if (rank & control_rank_bit) {
-                    m->m_DC_sendrecv(si, t, dim_work, pair_rank);
+                    m.m_DC_sendrecv(si, t, dim_work, pair_rank);
                     memcpy(si, t, dim_work * sizeof(CTYPE));
                     si += dim_work;
                 } else {
-                    m->get_tag();  // dummy to count up tag
+                    m.get_tag();  // dummy to count up tag
                 }
             }
         }  // (target_qubit_index < inner_qc)
@@ -321,10 +320,10 @@ void CNOT_gate_mpi(UINT control_qubit_index, UINT target_qubit_index,
 // CNOT_gate_mpi, control_qubit_index is inner, target_qubit_index is outer.
 void CNOT_gate_single_unroll_cin_tout(
     UINT control_qubit_index, UINT pair_rank, CTYPE* state, ITYPE dim) {
-    const MPIutil m = get_mpiutil();
+    MPIutil& m = MPIutil::get_inst();
     ITYPE dim_work = dim;
     ITYPE num_work = 0;
-    CTYPE* t = m->get_workarea(&dim_work, &num_work);
+    CTYPE* t = m.get_workarea(&dim_work, &num_work);
     assert(num_work > 0);
     assert(dim_work > 0);
 
@@ -350,7 +349,7 @@ void CNOT_gate_single_unroll_cin_tout(
             }
 
             // sendrecv
-            m->m_DC_sendrecv(t_send, t_recv, dim_work, pair_rank);
+            m.m_DC_sendrecv(t_send, t_recv, dim_work, pair_rank);
 
             // scatter
             si = t_recv;
@@ -369,7 +368,7 @@ void CNOT_gate_single_unroll_cin_tout(
         CTYPE* si = state + control_isone_offset;
         for (ITYPE i = 0; i < num_control_block; ++i) {
             for (ITYPE j = 0; j < num_work_block; ++j) {
-                m->m_DC_sendrecv(si, t, dim_work, pair_rank);
+                m.m_DC_sendrecv(si, t, dim_work, pair_rank);
                 memcpy(si, t, dim_work * sizeof(CTYPE));
                 si += dim_work;
             }
