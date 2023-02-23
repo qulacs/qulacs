@@ -14,8 +14,8 @@ DllExport double measurement_distribution_entropy(
 DllExport CTYPE state_inner_product(
     const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim);
 #ifdef _USE_MPI
-DllExport CTYPE state_inner_product_mpi(
-    const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim);
+DllExport CTYPE state_inner_product_mpi(const CTYPE* state_bra,
+    const CTYPE* state_ket, ITYPE dim_bra, ITYPE dim_ket);
 #endif
 
 DllExport void state_tensor_product(const CTYPE* state_left, ITYPE dim_left,

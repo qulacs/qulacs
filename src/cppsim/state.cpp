@@ -13,9 +13,20 @@ CPPCTYPE inner_product(
             "Error: inner_product(const QuantumState*, const "
             "QuantumState*): invalid qubit count");
     }
-
-    return state_inner_product(
-        state_bra->data_c(), state_ket->data_c(), state_bra->dim);
+    CTYPE result;
+#ifdef _USE_MPI
+    if ((state_bra->outer_qc == 0) and (state_ket->outer_qc == 0))
+#endif
+    {
+        result = state_inner_product(
+            state_bra->data_c(), state_ket->data_c(), state_bra->dim);
+    }
+#ifdef _USE_MPI
+    else
+        result = state_inner_product_mpi(state_bra->data_c(),
+            state_ket->data_c(), state_bra->dim, state_ket->dim);
+#endif
+    return result;
 }
 QuantumState* tensor_product(
     const QuantumState* state_left, const QuantumState* state_right) {

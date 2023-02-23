@@ -88,25 +88,32 @@ state_inner_product(const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
 #ifdef _USE_MPI
 // calculate inner product of two state vector for mpi
 CTYPE
-state_inner_product_mpi(
-    const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
+state_inner_product_mpi(const CTYPE* state_bra, const CTYPE* state_ket,
+    ITYPE dim_bra, ITYPE dim_ket) {
     double real_sum = 0.;
     double imag_sum = 0.;
     ITYPE index;
-
+    if (dim_bra == dim_ket) {
 #ifdef _OPENMP
-    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
+        OMPutil::get_inst().set_qulacs_num_threads(dim_bra, 10);
 #pragma omp parallel for reduction(+ : real_sum, imag_sum)
 #endif
-    for (index = 0; index < dim; ++index) {
-        CTYPE value;
-        value += conj(state_bra[index]) * state_ket[index];
-        real_sum += _creal(value);
-        imag_sum += _cimag(value);
-    }
+        for (index = 0; index < dim_bra; ++index) {
+            CTYPE value;
+            value += conj(state_bra[index]) * state_ket[index];
+            real_sum += _creal(value);
+            imag_sum += _cimag(value);
+        }
 #ifdef _OPENMP
-    OMPutil::get_inst().reset_qulacs_num_threads();
+        OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
+    } else {
+        // TODO: to support Support for inner product calculations for
+        // distributed and non-distributed vectors.
+        throw NotImplementedException(
+            "Error: inner_product(const QuantumState*, const "
+            "QuantumState*): different device type is not implemented yet");
+    }
 
     MPIutil::get_inst().s_D_allreduce(&real_sum);
     MPIutil::get_inst().s_D_allreduce(&imag_sum);

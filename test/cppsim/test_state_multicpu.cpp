@@ -146,4 +146,22 @@ TEST(StateTest_multicpu, SamplingSuperpositionState) {
         ASSERT_GT(cnt[i + 1], cnt[i]);
     }
 }
+
+TEST(StateTest_multicpu, InnerProductSimple) {
+    const UINT n = 10;
+    QuantumState ref_state_bra(n);
+    QuantumState ref_state_ket(n);
+    QuantumState state_bra(n, true);
+    QuantumState state_ket(n, true);
+    ref_state_bra.set_Haar_random_state(2000);
+    ref_state_ket.set_Haar_random_state(2001);
+    state_bra.load(&ref_state_bra);
+    state_ket.load(&ref_state_ket);
+
+    double result_ref =
+        std::abs(state::inner_product(&ref_state_bra, &ref_state_ket));
+    double result = std::abs(state::inner_product(&state_bra, &state_ket));
+
+    ASSERT_NEAR(result_ref, result, eps);
+}
 #endif
