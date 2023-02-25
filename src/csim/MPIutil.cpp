@@ -155,6 +155,12 @@ void MPIutil::s_D_allreduce(void *buf) {
     if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
 }
 
+void MPIutil::s_DC_allreduce(void *buf) {
+    UINT ret = MPI_Allreduce(
+        MPI_IN_PLACE, buf, 1, MPI_CXX_DOUBLE_COMPLEX, MPI_SUM, mpicomm);
+    if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
+}
+
 void MPIutil::s_u_bcast(UINT *a) {
     UINT ret = MPI_Bcast(a, 1, MPI_INT, 0, mpicomm);
     if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);

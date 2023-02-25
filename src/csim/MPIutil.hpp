@@ -13,7 +13,6 @@
 #include "cppsim/exception.hpp"
 #include "type.hpp"
 
-#if true
 #define _NQUBIT_WORK 22  // 4 Mi x 16 Byte(CTYPE)
 #define _MAX_REQUESTS 4  // 2 (isend/irecv) * 2 (double buffering)
 
@@ -65,35 +64,8 @@ public:
     void m_I_allreduce(void *buf, UINT count);
     void s_D_allgather(double a, void *recvbuf);
     void s_D_allreduce(void *buf);
+    void s_DC_allreduce(void *buf);
     void s_u_bcast(UINT *a);
     void s_D_bcast(double *a);
 };
-
-#else
-typedef struct {
-    int (*get_rank)();
-    int (*get_size)();
-    int (*get_tag)();
-    CTYPE *(*get_workarea)(ITYPE *dim_work, ITYPE *num_work);
-    void (*release_workarea)();
-    void (*barrier)();
-    void (*mpi_wait)(UINT count);
-    void (*m_DC_allgather)(void *sendbuf, void *recvbuf, int count);
-    void (*m_DC_send)(void *sendbuf, int count, int pair_rank);
-    void (*m_DC_recv)(void *recvbuf, int count, int pair_rank);
-    void (*m_DC_sendrecv)(
-        void *sendbuf, void *recvbuf, int count, int pair_rank);
-    void (*m_DC_sendrecv_replace)(void *buf, int count, int pair_rank);
-    void (*m_DC_isendrecv)(
-        void *sendbuf, void *recvbuf, int count, int pair_rank);
-    void (*m_I_allreduce)(void *buf, UINT count);
-    void (*s_D_allgather)(double a, void *recvbuf);
-    void (*s_D_allreduce)(void *buf);
-    void (*s_u_bcast)(UINT *a);
-    void (*s_D_bcast)(double *a);
-} MPIutil_;
-typedef MPIutil_ *MPIutil;
-
-MPIutil get_mpiutil(void);
-#endif
 #endif
