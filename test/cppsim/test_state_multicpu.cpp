@@ -149,19 +149,26 @@ TEST(StateTest_multicpu, SamplingSuperpositionState) {
 
 TEST(StateTest_multicpu, InnerProductSimple) {
     const UINT n = 10;
-    QuantumState ref_state_bra(n);
-    QuantumState ref_state_ket(n);
-    QuantumState state_bra(n, true);
-    QuantumState state_ket(n, true);
-    ref_state_bra.set_Haar_random_state(2000);
-    ref_state_ket.set_Haar_random_state(2001);
-    state_bra.load(&ref_state_bra);
-    state_ket.load(&ref_state_ket);
+    QuantumState state_bra_s(n);
+    QuantumState state_ket_s(n);
+    QuantumState state_bra_d(n, true);
+    QuantumState state_ket_d(n, true);
+    state_bra_s.set_Haar_random_state(2000);
+    state_ket_d.set_Haar_random_state(2001);
+    state_bra_d.load(&state_bra_s);
+    state_ket_s.load(&state_ket_d);
 
-    double result_ref =
-        std::abs(state::inner_product(&ref_state_bra, &ref_state_ket));
-    double result = std::abs(state::inner_product(&state_bra, &state_ket));
+    double result_s_s =
+        std::abs(state::inner_product(&state_bra_s, &state_ket_s));
+    double result_s_d =
+        std::abs(state::inner_product(&state_bra_s, &state_ket_d));
+    double result_d_s =
+        std::abs(state::inner_product(&state_bra_d, &state_ket_s));
+    double result_d_d =
+        std::abs(state::inner_product(&state_bra_d, &state_ket_d));
 
-    ASSERT_NEAR(result_ref, result, eps);
+    ASSERT_NEAR(result_s_s, result_s_d, eps);
+    ASSERT_NEAR(result_s_s, result_d_s, eps);
+    ASSERT_NEAR(result_s_s, result_d_d, eps);
 }
 #endif

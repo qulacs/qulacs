@@ -90,34 +90,21 @@ state_inner_product(const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
 CTYPE
 state_inner_product_mpi(const CTYPE* state_bra, const CTYPE* state_ket,
     ITYPE dim_bra, ITYPE dim_ket) {
-    double real_sum = 0.;
-    double imag_sum = 0.;
+    CTYPE sum = 0.;
     ITYPE index;
-    if (dim_bra == dim_ket) {
-#ifdef _OPENMP
-        OMPutil::get_inst().set_qulacs_num_threads(dim_bra, 10);
-#pragma omp parallel for reduction(+ : real_sum, imag_sum)
-#endif
-        for (index = 0; index < dim_bra; ++index) {
-            CTYPE value;
-            value += conj(state_bra[index]) * state_ket[index];
-            real_sum += _creal(value);
-            imag_sum += _cimag(value);
-        }
-#ifdef _OPENMP
-        OMPutil::get_inst().reset_qulacs_num_threads();
-#endif
-    } else {
-        // TODO: to support Support for inner product calculations for
-        // distributed and non-distributed vectors.
-        throw NotImplementedException(
-            "Error: inner_product(const QuantumState*, const "
-            "QuantumState*): different device type is not implemented yet");
-    }
+    ITYPE dim = std::min(dim_bra, dim_ket);
+    MPIutil& m = MPIutil::get_inst();
+    const CTYPE* new_bra = state_bra;
+    const CTYPE* new_ket = state_ket;
+    ITYPE offs = m.get_rank() * dim;
+    if (dim_bra < dim_ket)
+        new_ket += offs;
+    else if (dim_bra > dim_ket)
+        new_bra += offs;
 
-    MPIutil::get_inst().s_D_allreduce(&real_sum);
-    MPIutil::get_inst().s_D_allreduce(&imag_sum);
-    return real_sum + 1.i * imag_sum;
+    sum = state_inner_product(new_bra, new_ket, dim);
+    m.s_DC_allreduce(&sum);
+    return sum;
 }
 #endif
 
