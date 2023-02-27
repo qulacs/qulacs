@@ -416,7 +416,7 @@ public:
         os << " * Density matrix : \n" << eigen_state << std::endl;
         return os.str();
     }
-    virtual boost::property_tree::ptree to_ptree() const {
+    virtual boost::property_tree::ptree to_ptree() const override {
         boost::property_tree::ptree pt;
         pt.put("name", "DensityMatrix");
         pt.put("qubit_count", _qubit_count);

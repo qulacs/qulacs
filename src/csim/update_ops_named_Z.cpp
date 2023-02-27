@@ -22,6 +22,8 @@ void Z_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
 
 #ifdef _USE_SIMD
     Z_gate_parallel_simd(target_qubit_index, state, dim);
+#elif defined(_USE_SVE)
+    Z_gate_parallel_sve(target_qubit_index, state, dim);
 #else
     Z_gate_parallel_unroll(target_qubit_index, state, dim);
 #endif
@@ -88,14 +90,45 @@ void Z_gate_parallel_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
 }
 #endif
 
+#ifdef _USE_SVE
+void Z_gate_parallel_sve(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
+    const ITYPE loop_dim = dim / 2;
+    const ITYPE mask = (1ULL << target_qubit_index);
+    const ITYPE mask_low = mask - 1;
+    const ITYPE mask_high = ~mask_low;
+    ITYPE state_index = 0;
+
+    // # of complex128 numbers in an SVE register
+    ITYPE VL = svcntd() / 2;
+
+    if (target_qubit_index < VL) {
+#pragma omp parallel for
+        for (state_index = 0; state_index < loop_dim; state_index++) {
+            ITYPE basis_index = (state_index & mask_low) +
+                                ((state_index & mask_high) << 1) + mask;
+            state[basis_index] *= -1;
+        }
+    } else {
+#pragma omp parallel for
+        for (state_index = 0; state_index < loop_dim; state_index += VL) {
+            ITYPE basis_index = (state_index & mask_low) +
+                                ((state_index & mask_high) << 1) + mask;
+            svfloat64_t sv_data =
+                svld1(svptrue_b64(), (double*)&state[basis_index]);
+            sv_data = svneg_z(svptrue_b64(), sv_data);
+            svst1(svptrue_b64(), (double*)&state[basis_index], sv_data);
+        }
+    }
+}
+#endif
+
 #ifdef _USE_MPI
 void Z_gate_mpi(
     UINT target_qubit_index, CTYPE* state, ITYPE dim, UINT inner_qc) {
     if (target_qubit_index < inner_qc) {
         Z_gate(target_qubit_index, state, dim);
     } else {
-        const MPIutil m = get_mpiutil();
-        const int rank = m->get_rank();
+        const int rank = MPIutil::get_inst().get_rank();
         const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
         if (rank & pair_rank_bit) {
             state_multiply(-1., state, dim);

@@ -182,14 +182,13 @@ TEST(ObservableTest_multicpu, MinimumEigenvalueByPowerMethod) {
     UINT pass_count = 0;
     Random random;
     random.set_seed(2022); // seed must be set in multicpu test
-    MPIutil m = get_mpiutil();
 
     for (UINT i = 0; i < test_count; i++) {
         const UINT operator_count =
             random.int32() % 10 + 2;  // 2 <= operator_count <= 11
         auto observable = Observable(qubit_count);
         observable.add_random_operator(operator_count, random.int32()); // seed must be set in multicpu test
-        std::cout << "# " << m->get_rank() << ":" << i << ":" << observable.to_string() << ", " << operator_count << std::endl;
+        std::cout << "# " << MPIutil::get_inst().get_rank() << ":" << i << ":" << observable.to_string() << ", " << operator_count << std::endl;
         std::string err_message = test_eigenvalue_multicpu(
             observable, 500, in_eps, CalculationMethod_multicpu::PowerMethod);
         if (err_message == "")

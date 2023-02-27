@@ -33,6 +33,9 @@ jobs:
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
+      # TODO: In Windows, ccache is not used because its behavior is not stable.
+      # mozilla/sccache is one candidate for this situation.
+
       - name: Setup Python
         uses: actions/setup-python@v4
         with:

@@ -58,9 +58,9 @@ TEST(GateTest_multicpu, ApplySingleQubitGate) {
     funclist.push_back(std::make_pair(gate::P0, P0));
     funclist.push_back(std::make_pair(gate::P1, P1));
 
-    MPIutil m = get_mpiutil();
+    MPIutil& m = MPIutil::get_inst();
     const ITYPE inner_dim = dim >> state.outer_qc;
-    const ITYPE offs = inner_dim * m->get_rank();
+    const ITYPE offs = inner_dim * m.get_rank();
     Eigen::VectorXcd test_state1 = Eigen::VectorXcd::Zero(dim);
     Eigen::VectorXcd test_state2 = Eigen::VectorXcd::Zero(dim);
     for (UINT repeat = 0; repeat < 10; ++repeat) {
@@ -121,9 +121,9 @@ TEST(GateTest_multicpu, ApplySingleQubitRotationGate) {
     funclist.push_back(std::make_pair(gate::RY, Y));
     funclist.push_back(std::make_pair(gate::RZ, Z));
 
-    MPIutil m = get_mpiutil();
+    MPIutil& m = MPIutil::get_inst();
     const ITYPE inner_dim = dim >> state.outer_qc;
-    const ITYPE offs = inner_dim * m->get_rank();
+    const ITYPE offs = inner_dim * m.get_rank();
     Eigen::VectorXcd test_state1 = Eigen::VectorXcd::Zero(dim);
     Eigen::VectorXcd test_state2 = Eigen::VectorXcd::Zero(dim);
     for (UINT target = 0; target < n; ++target) {
@@ -177,9 +177,9 @@ TEST(GateTest_multicpu, SingleQubitUnitaryGate) {
     QuantumState state_ref(n);
     QuantumState state(n, 1);
 
-    MPIutil m = get_mpiutil();
+    MPIutil& m = MPIutil::get_inst();
     const ITYPE inner_dim = dim >> state.outer_qc;
-    const ITYPE offs = inner_dim * m->get_rank();
+    const ITYPE offs = inner_dim * m.get_rank();
 
     Random random;
     random.set_seed(2022);
@@ -249,9 +249,9 @@ TEST(GateTest_multicpu, MeasurementGate) {
     QuantumState state_ref(n);
     QuantumState state(n, 1);
 
-    MPIutil m = get_mpiutil();
+    MPIutil& m = MPIutil::get_inst();
     const ITYPE inner_dim = dim >> state.outer_qc;
-    const ITYPE offs = inner_dim * m->get_rank();
+    const ITYPE offs = inner_dim * m.get_rank();
 
     for (UINT target = 0; target < n; ++target) {
         for (UINT classical = 0; classical < n; ++classical) {
@@ -263,11 +263,11 @@ TEST(GateTest_multicpu, MeasurementGate) {
             for (ITYPE i = 0; i < inner_dim; ++i) {
                 ASSERT_NEAR(real(state.data_cpp()[i]),
                     real(state_ref.data_cpp()[(i + offs) % dim]), eps)
-                    << "rank: " << m->get_rank() << ", " << target << ", "
+                    << "rank: " << m.get_rank() << ", " << target << ", "
                     << classical;
                 ASSERT_NEAR(imag(state.data_cpp()[i]),
                     imag(state_ref.data_cpp()[(i + offs) % dim]), eps)
-                    << "rank: " << m->get_rank() << ", " << target << ", "
+                    << "rank: " << m.get_rank() << ", " << target << ", "
                     << classical;
             }
 
@@ -279,11 +279,11 @@ TEST(GateTest_multicpu, MeasurementGate) {
             for (ITYPE i = 0; i < inner_dim; ++i) {
                 ASSERT_NEAR(real(state.data_cpp()[i]),
                     real(state_ref.data_cpp()[(i + offs) % dim]), eps)
-                    << "rank: " << m->get_rank() << ", " << target << ", "
+                    << "rank: " << m.get_rank() << ", " << target << ", "
                     << classical;
                 ASSERT_NEAR(imag(state.data_cpp()[i]),
                     imag(state_ref.data_cpp()[(i + offs) % dim]), eps)
-                    << "rank: " << m->get_rank() << ", " << target << ", "
+                    << "rank: " << m.get_rank() << ", " << target << ", "
                     << classical;
             }
         }
@@ -361,9 +361,9 @@ void _ApplyTwoQubitGate(UINT n, UINT control, UINT target,
     QuantumState state_ref(n);
     QuantumState state(n, 1), test_state(n, 1);
 
-    MPIutil m = get_mpiutil();
+    MPIutil& m = MPIutil::get_inst();
     const ITYPE inner_dim = dim >> state.outer_qc;
-    const ITYPE offs = inner_dim * m->get_rank();
+    const ITYPE offs = inner_dim * m.get_rank();
     Eigen::VectorXcd test_state1 = Eigen::VectorXcd::Zero(dim);
     {
         if (target == control) target = (target + 1) % n;
@@ -417,9 +417,9 @@ TEST(GateTest_multicpu, ApplyMultiControl) {
     QuantumState state(n, 1);
     QuantumState state_ref(n);
 
-    MPIutil m = get_mpiutil();
+    MPIutil& m = MPIutil::get_inst();
     const ITYPE inner_dim = dim >> state.outer_qc;
-    const ITYPE offs = inner_dim * m->get_rank();
+    const ITYPE offs = inner_dim * m.get_rank();
 
     for (UINT i = 0; i < 10; ++i) {
         state.set_Haar_random_state(2022);
@@ -442,7 +442,7 @@ TEST(GateTest_multicpu, ApplyMultiControl) {
             gate_added_c->add_control_qubit(control, random.int32() % 2);
         }
 
-        // if (m->get_rank() == 0) std::cout << "# gate" << gate_added_c <<
+        // if (m.get_rank() == 0) std::cout << "# gate" << gate_added_c <<
         // std::endl;
         gate_added_c->update_quantum_state(&state);
         gate_added_c->update_quantum_state(&state_ref);
@@ -465,9 +465,9 @@ void _ApplyFusedSWAPGate_multicpu(
     QuantumState state_ref(n);
     QuantumState state(n, 1);
 
-    MPIutil m = get_mpiutil();
+    MPIutil& m = MPIutil::get_inst();
     const ITYPE inner_dim = dim >> state.outer_qc;
-    const ITYPE offs = inner_dim * m->get_rank();
+    const ITYPE offs = inner_dim * m.get_rank();
 
     {
         state_ref.set_Haar_random_state(2022);
@@ -489,7 +489,7 @@ void _ApplyFusedSWAPGate_multicpu(
             ASSERT_NEAR(abs(state.data_cpp()[i] -
                             state_ref.data_cpp()[(i + offs) % dim]),
                 0, eps)
-                << "[rank:" << m->get_rank() << "] FusedSWAP(" << target0 << ","
+                << "[rank:" << m.get_rank() << "] FusedSWAP(" << target0 << ","
                 << target1 << "," << block_size << ") diff at " << i;
     }
 }
@@ -519,9 +519,9 @@ TEST(GateTest_multicpu, ApplyMultiQubitGate) {
         std::function<Eigen::MatrixXcd(UINT, UINT, UINT)>>>
         funclist;
 
-    MPIutil m = get_mpiutil();
+    MPIutil& m = MPIutil::get_inst();
     const ITYPE inner_dim = dim >> state.outer_qc;
-    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m->get_rank();
+    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m.get_rank();
 
     // gate::DenseMatrix
     // gate::Pauli
@@ -615,9 +615,9 @@ TEST(GateTest_multicpu, MergeTensorProduct) {
     state_ref.load(&state);
     test_state.load(&state);
 
-    MPIutil m = get_mpiutil();
+    MPIutil& m = MPIutil::get_inst();
     const ITYPE inner_dim = dim >> state.outer_qc;
-    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m->get_rank();
+    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m.get_rank();
 
     xy01->update_quantum_state(&state_ref);
     xy01->update_quantum_state(&state);
@@ -653,9 +653,9 @@ TEST(GateTest_multicpu, MergeMultiply) {
     state_ref.load(&state);
     test_state.load(&state);
 
-    MPIutil m = get_mpiutil();
+    MPIutil& m = MPIutil::get_inst();
     const ITYPE inner_dim = dim >> state.outer_qc;
-    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m->get_rank();
+    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m.get_rank();
 
     xy00->update_quantum_state(&state_ref);
     xy00->update_quantum_state(&state);
@@ -693,9 +693,9 @@ TEST(GateTest_multicpu, MergeTensorProductAndMultiply) {
     state_ref.load(&state);
     test_state.load(&state);
 
-    MPIutil m = get_mpiutil();
+    MPIutil& m = MPIutil::get_inst();
     const ITYPE inner_dim = dim >> state.outer_qc;
-    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m->get_rank();
+    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m.get_rank();
 
     iy01->update_quantum_state(&state);
     iy01->update_quantum_state(&state_ref);
@@ -715,8 +715,8 @@ TEST(GateTest_multicpu, MergeTensorProductAndMultiply) {
 }
 
 TEST(GateTest_multicpu, RandomPauliMerge) {
-    MPIutil m = get_mpiutil();
-    const UINT num_global_qubit = (UINT)std::log2(m->get_size());
+    MPIutil& m = MPIutil::get_inst();
+    const UINT num_global_qubit = (UINT)std::log2(m.get_size());
     UINT n = 10 + num_global_qubit;
     ITYPE dim = 1ULL << n;
 
@@ -733,7 +733,7 @@ TEST(GateTest_multicpu, RandomPauliMerge) {
     QuantumState state(n, 1), test_state(n, 1);
 
     const ITYPE inner_dim = dim >> state.outer_qc;
-    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m->get_rank();
+    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m.get_rank();
 
     for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
         // pick random state and copy to test
@@ -760,7 +760,7 @@ TEST(GateTest_multicpu, RandomPauliMerge) {
             // pick random pauli
             UINT new_pauli_id = random.int32() % 4;
             UINT target = random.int32() % n;
-            // std::cout << "#add_gate " << m->get_rank() << ", " << repeat <<
+            // std::cout << "#add_gate " << m.get_rank() << ", " << repeat <<
             // ", "
             //           << gate_index << ", " << new_pauli_id << ", " << target
             //           << std::endl;
@@ -825,7 +825,7 @@ TEST(GateTest_multicpu, RandomPauliRotationMerge) {
     Eigen::VectorXcd test_state_eigen(dim);
 
     const ITYPE inner_dim = dim >> state.outer_qc;
-    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m->get_rank();
+    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m.get_rank();
 
     for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
         // pick random state and copy to test
@@ -923,9 +923,9 @@ TEST(GateTest_multicpu, RandomPauliRotationMerge) {
 }
 
 TEST(GateTest_multicpu, RandomUnitaryMerge) {
-    MPIutil m = get_mpiutil();
-    const UINT num_global_qubit = (UINT)std::log2(m->get_size());
-    UINT n = 6 + num_global_qubit;
+    MPIutil& m = MPIutil::get_inst();
+    const UINT num_global_qubit = (UINT)std::log2(m.get_size());
+    UINT n = 5 + num_global_qubit;
     ITYPE dim = 1ULL << n;
 
     UINT gate_count = 5;
@@ -942,7 +942,7 @@ TEST(GateTest_multicpu, RandomUnitaryMerge) {
     Eigen::VectorXcd test_state_eigen(dim);
 
     const ITYPE inner_dim = dim >> state.outer_qc;
-    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m->get_rank();
+    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m.get_rank();
 
     for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
         // pick random state and copy to test
@@ -1041,8 +1041,8 @@ TEST(GateTest_multicpu, RandomUnitaryMerge) {
 }
 
 TEST(GateTest_multicpu, RandomUnitaryMergeLarge) {
-    MPIutil m = get_mpiutil();
-    const UINT num_global_qubit = (UINT)std::log2(m->get_size());
+    MPIutil& m = MPIutil::get_inst();
+    const UINT num_global_qubit = (UINT)std::log2(m.get_size());
     UINT n = 10 + num_global_qubit;
     ITYPE dim = 1ULL << n;
 
@@ -1060,7 +1060,7 @@ TEST(GateTest_multicpu, RandomUnitaryMergeLarge) {
     Eigen::VectorXcd test_state_eigen(dim);
 
     const ITYPE inner_dim = dim >> state.outer_qc;
-    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m->get_rank();
+    const ITYPE offs = (state.outer_qc != 0) * inner_dim * m.get_rank();
 
     for (UINT repeat = 0; repeat < max_repeat; ++repeat) {
         // pick random state and copy to test
@@ -1163,8 +1163,8 @@ TEST(GateTest_multicpu, RandomUnitaryMergeLarge) {
 }
 
 TEST(GateTest_multicpu, RandomControlMerge) {
-    MPIutil m = get_mpiutil();
-    const UINT num_global_qubit = (UINT)std::log2(m->get_size());
+    MPIutil& m = MPIutil::get_inst();
+    const UINT num_global_qubit = (UINT)std::log2(m.get_size());
     UINT n = 10 + num_global_qubit;
     ITYPE dim = 1ULL << n;
 
@@ -1175,7 +1175,7 @@ TEST(GateTest_multicpu, RandomControlMerge) {
 
     QuantumState dum_state(n, 1);
     const ITYPE inner_dim = dim >> dum_state.outer_qc;
-    const ITYPE offs = (dum_state.outer_qc != 0) * inner_dim * m->get_rank();
+    const ITYPE offs = (dum_state.outer_qc != 0) * inner_dim * m.get_rank();
 
     for (gate_count = 1; gate_count < n * 2; ++gate_count) {
         std::vector<UINT> arr;
@@ -1210,7 +1210,7 @@ TEST(GateTest_multicpu, RandomControlMerge) {
             ASSERT_NEAR(
                 abs(ref_state.data_cpp()[i + offs] - test_state.data_cpp()[i]),
                 0, eps)
-                << m->get_rank() << ", " << i << ", " << offs;
+                << m.get_rank() << ", " << i << ", " << offs;
             //    << ref_state << "\n\n"
             //    << test_state << "\n";
             ASSERT_NEAR(
@@ -1222,9 +1222,9 @@ TEST(GateTest_multicpu, RandomControlMerge) {
 }
 
 TEST(GateTest_multicpu, RandomUnitaryMergeWithControl) {
-    MPIutil m = get_mpiutil();
-    const ITYPE mpisize = m->get_size();
-    const UINT num_global_qubit = (UINT)std::log2(m->get_size());
+    MPIutil& m = MPIutil::get_inst();
+    const ITYPE mpisize = m.get_size();
+    const UINT num_global_qubit = (UINT)std::log2(m.get_size());
     UINT n = 10 + num_global_qubit;
     ITYPE dim = 1ULL << n;
 
@@ -1234,7 +1234,7 @@ TEST(GateTest_multicpu, RandomUnitaryMergeWithControl) {
 
     QuantumState dum_state(n, 1);
     const ITYPE inner_dim = dim >> dum_state.outer_qc;
-    const ITYPE offs = (dum_state.outer_qc != 0) * inner_dim * m->get_rank();
+    const ITYPE offs = (dum_state.outer_qc != 0) * inner_dim * m.get_rank();
 
     for (UINT gate_count = 1; gate_count < n * 2; ++gate_count) {
         // max 5 qubit dense-matrix-gate
@@ -1268,17 +1268,17 @@ TEST(GateTest_multicpu, RandomUnitaryMergeWithControl) {
             // state.data_cpp()[i]), 0, eps)
             ASSERT_NEAR(real(ref_state.data_cpp()[i + offs]),
                 real(state.data_cpp()[i]), eps)
-                << m->get_rank() << ", " << i << ", " << offs;
+                << m.get_rank() << ", " << i << ", " << offs;
             ASSERT_NEAR(imag(ref_state.data_cpp()[i + offs]),
                 imag(state.data_cpp()[i]), eps)
-                << m->get_rank() << ", " << i << ", " << offs;
+                << m.get_rank() << ", " << i << ", " << offs;
         }
     }
 }
 
 TEST(GateTest_multicpu, RandomUnitaryMergeWithTwoControl) {
-    MPIutil m = get_mpiutil();
-    const UINT num_global_qubit = (UINT)std::log2(m->get_size());
+    MPIutil& m = MPIutil::get_inst();
+    const UINT num_global_qubit = (UINT)std::log2(m.get_size());
     UINT n = 10 + num_global_qubit;
     ITYPE dim = 1ULL << n;
 
@@ -1288,7 +1288,7 @@ TEST(GateTest_multicpu, RandomUnitaryMergeWithTwoControl) {
 
     QuantumState dum_state(n, 1);
     const ITYPE inner_dim = dim >> dum_state.outer_qc;
-    const ITYPE offs = (dum_state.outer_qc != 0) * inner_dim * m->get_rank();
+    const ITYPE offs = (dum_state.outer_qc != 0) * inner_dim * m.get_rank();
 
     for (UINT gate_count = 1; gate_count < n * 2; ++gate_count) {
         // max 5 qubit dense-matrix-gate
@@ -1324,10 +1324,10 @@ TEST(GateTest_multicpu, RandomUnitaryMergeWithTwoControl) {
             // state.data_cpp()[i]), 0, eps)
             ASSERT_NEAR(real(ref_state.data_cpp()[i + offs]),
                 real(state.data_cpp()[i]), eps)
-                << m->get_rank() << ", " << i << ", " << offs;
+                << m.get_rank() << ", " << i << ", " << offs;
             ASSERT_NEAR(imag(ref_state.data_cpp()[i + offs]),
                 imag(state.data_cpp()[i]), eps)
-                << m->get_rank() << ", " << i << ", " << offs;
+                << m.get_rank() << ", " << i << ", " << offs;
         }
     }
 }

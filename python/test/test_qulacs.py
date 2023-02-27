@@ -1000,9 +1000,6 @@ class TestJSON(unittest.TestCase):
         pass
 
     def test_operator(self):
-        from qulacs import (PauliOperator, GeneralQuantumOperator,
-                            Observable, QuantumState, quantum_operator, observable)
-        import random
         import json
         import random
 
@@ -1065,17 +1062,17 @@ class TestJSON(unittest.TestCase):
             observable.from_json(non_hermitian_operator.to_json())
 
     def test_gate(self):
-        from qulacs import QuantumState, gate
-        from qulacs.gate import (CNOT, CZ, FREDKIN, P0, P1, RX, RY, RZ,
-                                 SWAP, TOFFOLI, U1, U2, U3, H, Identity,
-                                 Pauli, PauliRotation, S, Sdag,
-                                 StateReflection,
-                                 T, Tdag, X, Y, Z, add,
-                                 merge, sqrtX, sqrtXdag, sqrtY, sqrtYdag,
-                                 to_matrix_gate)
-        from scipy.sparse import lil_matrix
         import json
         import random
+
+        from scipy.sparse import lil_matrix
+
+        from qulacs import QuantumState, gate
+        from qulacs.gate import (CNOT, CZ, FREDKIN, P0, P1, RX, RY, RZ, SWAP,
+                                 TOFFOLI, U1, U2, U3, H, Identity, Pauli,
+                                 PauliRotation, S, Sdag, StateReflection, T,
+                                 Tdag, X, Y, Z, add, merge, sqrtX, sqrtXdag,
+                                 sqrtY, sqrtYdag, to_matrix_gate)
 
         n = 3
 
@@ -1119,11 +1116,12 @@ class TestJSON(unittest.TestCase):
             execute_test_gate()
 
     def test_parametric_gate(self):
-        from qulacs import QuantumState, gate
-        from qulacs.gate import (
-            ParametricRX, ParametricRY, ParametricRZ, ParametricPauliRotation)
-        import random
         import json
+        import random
+
+        from qulacs import QuantumState, gate
+        from qulacs.gate import (ParametricPauliRotation, ParametricRX,
+                                 ParametricRY, ParametricRZ)
 
         n = 3
         qs = QuantumState(n)
@@ -1146,13 +1144,13 @@ class TestJSON(unittest.TestCase):
                     i), qs_json.get_zero_probability(i))
 
     def test_matrix_gate(self):
-        from qulacs import QuantumState, gate
-        from qulacs.gate import (
-            DenseMatrix,
-            SparseMatrix)
-        from scipy.sparse import csc_matrix
         import json
         import random
+
+        from scipy.sparse import csc_matrix
+
+        from qulacs import QuantumState, gate
+        from qulacs.gate import DenseMatrix, SparseMatrix
 
         n = 3
 
@@ -1194,13 +1192,14 @@ class TestJSON(unittest.TestCase):
             execute_test_matrix_gate()
 
     def test_probabilistic_gate(self):
-        from qulacs import gate
-        from qulacs.gate import (X, Y, BitFlipNoise,
-                                 DephasingNoise, Probabilistic,
-                                 DepolarizingNoise, IndependentXZNoise,
-                                 TwoQubitDepolarizingNoise)
         import json
         import random
+
+        from qulacs import gate
+        from qulacs.gate import (BitFlipNoise, DephasingNoise,
+                                 DepolarizingNoise, IndependentXZNoise,
+                                 Probabilistic, TwoQubitDepolarizingNoise, X,
+                                 Y)
 
         r = random.random()
         gates = [
@@ -1225,9 +1224,11 @@ class TestJSON(unittest.TestCase):
                 self.assertAlmostEqual(ds[i], ds_json[i])
 
     def test_cptp_gate(self):
-        from qulacs import QuantumState, gate
-        from qulacs.gate import P0, P1, CPTP, AmplitudeDampingNoise, Instrument, Measurement, Adaptive
         import random
+
+        from qulacs import QuantumState, gate
+        from qulacs.gate import (CPTP, P0, P1, Adaptive, AmplitudeDampingNoise,
+                                 Instrument, Measurement)
 
         n = 2
         gates = [
@@ -1257,9 +1258,12 @@ class TestJSON(unittest.TestCase):
                         i), qs_json.get_zero_probability(i))
 
     def test_noisy_evolution_gate(self):
-        from qulacs import QuantumState, GeneralQuantumOperator, Observable, gate
-        from qulacs.gate import NoisyEvolution, NoisyEvolution_fast, PauliRotation, H
         import json
+
+        from qulacs import (GeneralQuantumOperator, Observable, QuantumState,
+                            gate)
+        from qulacs.gate import (H, NoisyEvolution, NoisyEvolution_fast,
+                                 PauliRotation)
 
         n = 2
 
@@ -1306,9 +1310,10 @@ class TestJSON(unittest.TestCase):
             execute_test_gate(True)
 
     def test_circuit(self):
-        from qulacs import QuantumState, QuantumCircuit, circuit
-        from qulacs.gate import RandomUnitary
         import json
+
+        from qulacs import QuantumCircuit, QuantumState, circuit
+        from qulacs.gate import RandomUnitary
 
         n = 3
 
@@ -1333,18 +1338,22 @@ class TestJSON(unittest.TestCase):
                 i), qs_json.get_zero_probability(i))
 
     def test_parametric_circuit(self):
-        from qulacs import QuantumState, ParametricQuantumCircuit, circuit
-        from qulacs.gate import ParametricPauliRotation
         import json
         import random
+
+        from qulacs import ParametricQuantumCircuit, QuantumState, circuit
+        from qulacs.gate import ParametricPauliRotation
 
         n = 2
 
         circ = ParametricQuantumCircuit(n)
 
-        for _ in range(3):
-            g = ParametricPauliRotation([0, 1], [1, 1], random.random())
-            circ.add_gate(g)
+        circ.add_parametric_RX_gate(0, random.random())
+        circ.add_H_gate(1)
+        circ.add_parametric_multi_Pauli_rotation_gate([0, 1], [1, 1], random.random())
+        circ.add_CNOT_gate(0, 1)
+        circ.add_parametric_RY_gate(1, random.random())
+        circ.add_parametric_RZ_gate(0, random.random())
 
         json_string = circ.to_json()
         json.loads(json_string)
@@ -1362,5 +1371,98 @@ class TestJSON(unittest.TestCase):
                 i), qs_json.get_zero_probability(i))
 
 
+class TestPickle(unittest.TestCase):
+    def setUp(self):
+        pass
+
+    def tearDown(self):
+        pass
+
+    def test_state_vector(self):
+        import pickle
+
+        import numpy
+
+        from qulacs import QuantumState
+        state = QuantumState(10)
+        state.set_Haar_random_state()
+        data = pickle.dumps(state)
+        state2 = pickle.loads(data)
+        assert isinstance(state2, QuantumState)
+        assert numpy.allclose(state.get_vector(), state2.get_vector())
+        
+    def test_density_matrix(self):
+        import pickle
+
+        import numpy
+
+        from qulacs import DensityMatrix
+        state = DensityMatrix(5)
+        state.set_Haar_random_state()
+        data = pickle.dumps(state)
+        state2 = pickle.loads(data)
+        assert isinstance(state2, DensityMatrix)
+        assert numpy.allclose(state.get_matrix(), state2.get_matrix())
+        
+    def test_quantum_circuit(self):
+        import pickle
+
+        import numpy as np
+
+        from qulacs import QuantumCircuit
+        from qulacs.gate import (CNOT, CZ, FREDKIN, RX, RY, RZ, SWAP, TOFFOLI,
+                                 U1, U2, U3, DenseMatrix, H, Identity,
+                                 RandomUnitary, S, Sdag, T, Tdag, X, Y, Z, add,
+                                 merge, sqrtX, sqrtXdag, to_matrix_gate)
+        gates = [
+            Identity(0), X(0), Y(0), Z(0), H(0), S(0), Sdag(0), T(
+                0), Tdag(0), sqrtX(0), sqrtXdag(0),
+            CNOT(0, 1), CZ(0, 1), SWAP(0, 1), TOFFOLI(0, 1, 2), FREDKIN(
+                0, 1, 2),
+            DenseMatrix(0, np.eye(2)), DenseMatrix(
+                [0, 1], np.eye(4)), RandomUnitary(
+                [0, 1]), merge(
+                X(0), Y(1)), add(X(0), Y(1)), to_matrix_gate(X(0)),
+            U1(0, 0.), U2(0, 0., 0.), U3(
+                0, 0., 0., 0.), RX(0, 0.), RY(0, 0.), RZ(0, 0.),
+        ]
+        circuit = QuantumCircuit(5)
+        for x in gates:
+            circuit.add_gate(x)
+        data = pickle.dumps(circuit)
+        del circuit
+        circuit = pickle.loads(data)
+        assert isinstance(circuit, QuantumCircuit)
+        for x in range(circuit.get_gate_count()):
+            assert np.allclose(circuit.get_gate(x).get_matrix(),
+                               gates[x].get_matrix())
+
+    def test_parametric_quantum_circuit(self):
+        import pickle
+        import random
+
+        import numpy as np
+
+        from qulacs import ParametricQuantumCircuit
+        from qulacs.gate import ParametricPauliRotation
+
+        gates = []
+        circuit = ParametricQuantumCircuit(2)
+
+        for _ in range(3):
+            g = ParametricPauliRotation([0, 1], [1, 1], random.random())
+            circuit.add_gate(g)
+            gates.append(g)
+            
+        data = pickle.dumps(circuit)
+        del circuit
+        circuit = pickle.loads(data)
+        assert isinstance(circuit, ParametricQuantumCircuit)
+        for x in range(circuit.get_gate_count()):
+            assert np.allclose(circuit.get_gate(x).get_matrix(),
+                               gates[x].get_matrix())
+
+
 if __name__ == "__main__":
     unittest.main()
+

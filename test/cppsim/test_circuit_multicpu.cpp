@@ -32,9 +32,9 @@ TEST(CircuitTest_multicpu, CircuitBasic) {
 
     const UINT n = 4;
     UINT dim = 1ULL << n;
-    MPIutil mpiutil = get_mpiutil();
-    UINT mpirank = mpiutil->get_rank();
-    UINT mpisize = mpiutil->get_size();
+    MPIutil& mpiutil = MPIutil::get_inst();
+    UINT mpirank = mpiutil.get_rank();
+    UINT mpisize = mpiutil.get_size();
     ITYPE inner_dim = dim / mpisize;
     ITYPE offs = inner_dim * mpirank;
 
@@ -193,9 +193,9 @@ TEST(CircuitTest_multicpu, CircuitBasic) {
 TEST(CircuitTest_multicpu, CircuitRev) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;
-    MPIutil mpiutil = get_mpiutil();
-    UINT mpirank = mpiutil->get_rank();
-    UINT mpisize = mpiutil->get_size();
+    MPIutil& mpiutil = MPIutil::get_inst();
+    UINT mpirank = mpiutil.get_rank();
+    UINT mpisize = mpiutil.get_size();
     ITYPE inner_dim = dim / mpisize;
     ITYPE offs = inner_dim * mpirank;
 
@@ -771,9 +771,9 @@ TEST(CircuitTest_multicpu, RandomCircuitOptimize3) {
     const UINT depth = 10 * n;
     Random random;
     random.set_seed(2022);
-    MPIutil mpiutil = get_mpiutil();
-    UINT mpirank = mpiutil->get_rank();
-    UINT mpisize = mpiutil->get_size();
+    MPIutil& mpiutil = MPIutil::get_inst();
+    UINT mpirank = mpiutil.get_rank();
+    UINT mpisize = mpiutil.get_size();
 
     UINT max_repeat = 3;
     // UINT max_block_size = n;

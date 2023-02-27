@@ -14,9 +14,9 @@ TEST(StateTest_multicpu, GenerateAndRelease) {
 
     QuantumState state_multicpu(n, true);
     if (state_multicpu.get_device_name() == "multi-cpu") {
-        MPIutil mpiutil = get_mpiutil();
-        mpirank = mpiutil->get_rank();
-        mpisize = mpiutil->get_size();
+        MPIutil &mpiutil = MPIutil::get_inst();
+        mpirank = mpiutil.get_rank();
+        mpisize = mpiutil.get_size();
         global_qubit = std::log2(mpisize);
         local_qubit = n - global_qubit;
         part_dim = (1ULL << n) / mpisize;
@@ -64,9 +64,9 @@ TEST(StateTest_multicpu, setHaarRandomState) {
     QuantumState state_singlecpu(n, false);
 
     if (state_multicpu.get_device_name() == "multi-cpu") {
-        MPIutil mpiutil = get_mpiutil();
-        mpirank = mpiutil->get_rank();
-        mpisize = mpiutil->get_size();
+        MPIutil &mpiutil = MPIutil::get_inst();
+        mpirank = mpiutil.get_rank();
+        mpisize = mpiutil.get_size();
         global_qubit = std::log2(mpisize);
         local_qubit = n - global_qubit;
         part_dim = (1ULL << n) / mpisize;
@@ -145,5 +145,30 @@ TEST(StateTest_multicpu, SamplingSuperpositionState) {
     for (UINT i = 0; i < 4; i++) {
         ASSERT_GT(cnt[i + 1], cnt[i]);
     }
+}
+
+TEST(StateTest_multicpu, InnerProductSimple) {
+    const UINT n = 10;
+    QuantumState state_bra_s(n);
+    QuantumState state_ket_s(n);
+    QuantumState state_bra_d(n, true);
+    QuantumState state_ket_d(n, true);
+    state_bra_s.set_Haar_random_state(2000);
+    state_ket_d.set_Haar_random_state(2001);
+    state_bra_d.load(&state_bra_s);
+    state_ket_s.load(&state_ket_d);
+
+    double result_s_s =
+        std::abs(state::inner_product(&state_bra_s, &state_ket_s));
+    double result_s_d =
+        std::abs(state::inner_product(&state_bra_s, &state_ket_d));
+    double result_d_s =
+        std::abs(state::inner_product(&state_bra_d, &state_ket_s));
+    double result_d_d =
+        std::abs(state::inner_product(&state_bra_d, &state_ket_d));
+
+    ASSERT_NEAR(result_s_s, result_s_d, eps);
+    ASSERT_NEAR(result_s_s, result_d_s, eps);
+    ASSERT_NEAR(result_s_s, result_d_d, eps);
 }
 #endif

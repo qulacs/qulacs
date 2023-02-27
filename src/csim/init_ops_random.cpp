@@ -96,8 +96,8 @@ void initialize_Haar_random_state_with_seed_parallel(
     }
 #ifdef _USE_MPI
     if (outer_qc > 0) {
-        MPIutil m = get_mpiutil();
-        m->s_D_allreduce(&normalizer);
+        MPIutil& m = MPIutil::get_inst();
+        m.s_D_allreduce(&normalizer);
     }
 #endif
     normalizer = 1. / sqrt(normalizer);

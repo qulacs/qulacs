@@ -168,7 +168,7 @@ void multi_qubit_control_multi_qubit_dense_matrix_gate_mpi(
 
     if ((mask_control_global_0 + mask_control_global_1) > 0) {
         // update state (some control qubits are in global)
-        const UINT rank = get_mpiutil()->get_rank();
+        const UINT rank = MPIutil::get_inst().get_rank();
         if ((rank & mask_control_global_0) |
             ((~rank) & mask_control_global_1)) {  // do nothing
         } else {

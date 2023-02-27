@@ -328,7 +328,7 @@ public:
         this->_matrix_element << 0, 0, 0, 1;
     }
 
-    virtual boost::property_tree::ptree to_ptree() const {
+    virtual boost::property_tree::ptree to_ptree() const override {
         boost::property_tree::ptree pt;
         pt.add("name", _name + "Gate");
         pt.add("target_qubit", _target_qubit_list[0].index());
@@ -455,7 +455,7 @@ public:
             cos(_angle / 2) - 1.i * sin(_angle / 2);
     }
 
-    virtual boost::property_tree::ptree to_ptree() const {
+    virtual boost::property_tree::ptree to_ptree() const override {
         boost::property_tree::ptree pt;
         pt.add("name", _name + "Gate");
         pt.add("target_qubit", _target_qubit_list[0].index());

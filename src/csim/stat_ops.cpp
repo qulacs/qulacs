@@ -55,8 +55,7 @@ double state_norm_squared_mpi(const CTYPE* state, ITYPE dim) {
     OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
 
-    MPIutil mpiutil = get_mpiutil();
-    mpiutil->s_D_allreduce(&norm);
+    MPIutil::get_inst().s_D_allreduce(&norm);
 
     return norm;
 }
@@ -89,30 +88,23 @@ state_inner_product(const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
 #ifdef _USE_MPI
 // calculate inner product of two state vector for mpi
 CTYPE
-state_inner_product_mpi(
-    const CTYPE* state_bra, const CTYPE* state_ket, ITYPE dim) {
-    double real_sum = 0.;
-    double imag_sum = 0.;
+state_inner_product_mpi(const CTYPE* state_bra, const CTYPE* state_ket,
+    ITYPE dim_bra, ITYPE dim_ket) {
+    CTYPE sum = 0.;
     ITYPE index;
+    ITYPE dim = std::min(dim_bra, dim_ket);
+    MPIutil& m = MPIutil::get_inst();
+    const CTYPE* new_bra = state_bra;
+    const CTYPE* new_ket = state_ket;
+    ITYPE offs = m.get_rank() * dim;
+    if (dim_bra < dim_ket)
+        new_ket += offs;
+    else if (dim_bra > dim_ket)
+        new_bra += offs;
 
-#ifdef _OPENMP
-    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
-#pragma omp parallel for reduction(+ : real_sum, imag_sum)
-#endif
-    for (index = 0; index < dim; ++index) {
-        CTYPE value;
-        value += conj(state_bra[index]) * state_ket[index];
-        real_sum += _creal(value);
-        imag_sum += _cimag(value);
-    }
-#ifdef _OPENMP
-    OMPutil::get_inst().reset_qulacs_num_threads();
-#endif
-
-    MPIutil mpiutil = get_mpiutil();
-    mpiutil->s_D_allreduce(&real_sum);
-    mpiutil->s_D_allreduce(&imag_sum);
-    return real_sum + 1.i * imag_sum;
+    sum = state_inner_product(new_bra, new_ket, dim);
+    m.s_DC_allreduce(&sum);
+    return sum;
 }
 #endif
 

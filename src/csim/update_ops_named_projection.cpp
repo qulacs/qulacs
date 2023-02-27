@@ -75,8 +75,7 @@ void P0_gate_mpi(
     if (target_qubit_index < inner_qc) {
         P0_gate(target_qubit_index, state, dim);
     } else {
-        const MPIutil m = get_mpiutil();
-        const int rank = m->get_rank();
+        const int rank = MPIutil::get_inst().get_rank();
         const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
         if ((rank & pair_rank_bit) != 0) {
 #ifdef _OPENMP
@@ -98,8 +97,7 @@ void P1_gate_mpi(
     if (target_qubit_index < inner_qc) {
         P1_gate(target_qubit_index, state, dim);
     } else {
-        const MPIutil m = get_mpiutil();
-        const int rank = m->get_rank();
+        const int rank = MPIutil::get_inst().get_rank();
         const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
         if ((rank & pair_rank_bit) == 0) {
 #ifdef _OPENMP

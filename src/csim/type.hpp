@@ -46,3 +46,9 @@ using ITYPE = unsigned long long;
 #else
 #define DllExport __attribute__((visibility("default")))
 #endif
+
+//! ACLE
+#ifdef _USE_SVE
+#include "arm_acle.h"
+#include "arm_sve.h"
+#endif  // #ifdef _USE_SVE

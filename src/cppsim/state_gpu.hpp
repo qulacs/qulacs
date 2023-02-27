@@ -384,7 +384,7 @@ public:
         return os.str();
     }
 
-    virtual boost::property_tree::ptree to_ptree() const {
+    virtual boost::property_tree::ptree to_ptree() const override {
         throw NotImplementedException(
             "to_ptree for QuantumStateGpu is not implemented "
             "yet");

@@ -297,8 +297,7 @@ void multi_qubit_control_single_qubit_dense_matrix_gate_mpi(
     const UINT* control_index_list, const UINT* control_value_list,
     UINT control_count, UINT target_index, const CTYPE matrix[4], CTYPE* state,
     ITYPE dim, UINT inner_qc) {
-    const MPIutil m = get_mpiutil();
-    const UINT rank = m->get_rank();
+    const UINT rank = MPIutil::get_inst().get_rank();
 
     UINT control_count_local = 0;
     UINT mask_control_global_0 = 0;

@@ -95,4 +95,7 @@ TEST(UpdateTest, TwoQubitDenseMatrixTest) {
 #ifdef _USE_SIMD
     test_double_dense_matrix_gate(double_qubit_dense_matrix_gate_simd);
 #endif
+#ifdef _USE_SVE
+    test_double_dense_matrix_gate(double_qubit_dense_matrix_gate_sve);
+#endif
 }
