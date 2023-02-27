@@ -281,3 +281,26 @@ TEST(CircuitTest, RandomCircuitOptimizeLight3) {
         delete copy_circuit;
     }
 }
+
+TEST(CircuitTest, FusedSWAPregression1) {
+    const UINT n = 4;
+    const UINT dim = 1ULL << n;
+
+    QuantumState opt_state(n), ref_state(n);
+    opt_state.set_Haar_random_state();
+    ref_state.load(&opt_state);
+    QuantumCircuit circuit(n);
+
+    circuit.add_H_gate(1);
+    circuit.add_FusedSWAP_gate(0, 2, 2);
+    circuit.add_H_gate(1);
+
+    QuantumCircuit* opt_circuit = circuit.copy();
+    QuantumCircuitOptimizer qco;
+    qco.optimize_light(opt_circuit);
+    circuit.update_quantum_state(&ref_state);
+    opt_circuit->update_quantum_state(&opt_state);
+
+    ASSERT_STATE_NEAR(ref_state, opt_state, eps);
+    delete opt_circuit;
+}

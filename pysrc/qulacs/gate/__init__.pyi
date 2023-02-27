@@ -19,6 +19,7 @@ __all__ = [
     "DepolarizingNoise",
     "DiagonalMatrix",
     "FREDKIN",
+    "FusedSWAP",
     "H",
     "Identity",
     "IndependentXZNoise",
@@ -128,6 +129,10 @@ def DiagonalMatrix(index_list: typing.List[int], diagonal_element: numpy.ndarray
 def FREDKIN(control: int, target1: int, target2: int) -> qulacs_core.QuantumGateMatrix:
     """
     Create FREDKIN gate
+    """
+def FusedSWAP(target1: int, target2: int, block_size: int) -> ClsNpairQubitGate:
+    """
+    Create FusedSWAP gate
     """
 def H(index: int) -> qulacs_core.ClsOneQubitGate:
     """

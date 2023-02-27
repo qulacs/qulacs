@@ -354,6 +354,10 @@ void QuantumCircuit::add_CZ_gate(UINT control_index, UINT target_index) {
 void QuantumCircuit::add_SWAP_gate(UINT target_index1, UINT target_index2) {
     this->add_gate(gate::SWAP(target_index1, target_index2));
 }
+void QuantumCircuit::add_FusedSWAP_gate(
+    UINT target_index1, UINT target_index2, UINT block_size) {
+    this->add_gate(gate::FusedSWAP(target_index1, target_index2, block_size));
+}
 void QuantumCircuit::add_RX_gate(UINT target_index, double angle) {
     this->add_gate(gate::RX(target_index, angle));
 }
