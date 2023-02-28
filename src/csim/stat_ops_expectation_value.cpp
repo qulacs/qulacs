@@ -243,11 +243,71 @@ double expectation_value_multi_qubit_Pauli_operator_Z_mask(
     OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #endif
 
+#ifdef _USE_SVE
+    // # of complex128 numbers in an SVE registers
+    ITYPE VL = svcntd() / 2;
+    if (loop_dim > VL) {
+#pragma omp parallel reduction(+ : sum)
+        {
+            svbool_t pall = svptrue_b64();
+            svfloat64_t sv_sum = svdup_f64(0.0);
+            svuint64_t sv_offset = svindex_u64(0, 1);
+            svuint64_t sv_phase_flip_mask = svdup_u64(phase_flip_mask);
+
+#pragma omp for
+            for (state_index = 0; state_index < loop_dim;
+                 state_index += (VL << 1)) {
+                ITYPE global_index = state_index;
+
+                svuint64_t svidx =
+                    svadd_z(pall, svdup_u64(global_index), sv_offset);
+                svuint64_t sv_bit_parity =
+                    svand_z(pall, svidx, sv_phase_flip_mask);
+                sv_bit_parity = svcnt_z(pall, sv_bit_parity);
+                sv_bit_parity = svand_z(pall, sv_bit_parity, svdup_u64(1));
+
+                svbool_t psign = svcmpeq(pall, sv_bit_parity, svdup_u64(1));
+
+                svfloat64_t sv_val0 = svld1(pall, (double*)&state[state_index]);
+                svfloat64_t sv_val1 =
+                    svld1(pall, (double*)&state[state_index + VL]);
+
+                sv_val0 = svmul_z(pall, sv_val0, sv_val0);
+                sv_val1 = svmul_z(pall, sv_val1, sv_val1);
+
+                sv_val0 = svadd_z(pall, sv_val0, svext(sv_val0, sv_val0, 1));
+                sv_val1 = svadd_z(pall, sv_val1, svext(sv_val1, sv_val1, 1));
+
+                sv_val0 = svuzp1(sv_val0, sv_val1);
+                sv_val0 = svneg_m(sv_val0, psign, sv_val0);
+
+                sv_sum = svadd_z(pall, sv_sum, sv_val0);
+            }
+
+            if (VL >= 16)
+                sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 16));
+            if (VL >= 8)
+                sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 8));
+            if (VL >= 4)
+                sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 4));
+            if (VL >= 2)
+                sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 2));
+            if (VL >= 1)
+                sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 1));
+
+            sum += svlastb(svptrue_pat_b64(SV_VL1), sv_sum);
+        }
+    } else
+#endif
+    {
+
 #pragma omp parallel for reduction(+ : sum)
-    for (state_index = 0; state_index < loop_dim; ++state_index) {
-        int bit_parity = count_population(state_index & phase_flip_mask) % 2;
-        int sign = 1 - 2 * bit_parity;
-        sum += pow(_cabs(state[state_index]), 2) * sign;
+        for (state_index = 0; state_index < loop_dim; ++state_index) {
+            int bit_parity =
+                count_population(state_index & phase_flip_mask) % 2;
+            int sign = 1 - 2 * bit_parity;
+            sum += pow(_cabs(state[state_index]), 2) * sign;
+        }
     }
 #ifdef _OPENMP
     OMPutil::get_inst().reset_qulacs_num_threads();
