@@ -78,8 +78,8 @@ void FusedSWAP_gate_global(UINT target_qubit_index_0, UINT target_qubit_index_1,
     assert(target_qubit_index_1 > nqubits);
     assert(std::abs(target_qubit_index_0 - target_qubit_index_1) >= block_size);
 
-    const MPIutil m = get_mpiutil();
-    const int rank = m->get_rank();
+    MPIutil& m = MPIutil::get_inst();
+    const int rank = m.get_rank();
 
     const int blk0_idx = target_qubit_index_0 - nqubits;
     const int blk1_idx = target_qubit_index_1 - nqubits;
@@ -96,17 +96,17 @@ void FusedSWAP_gate_global(UINT target_qubit_index_0, UINT target_qubit_index_1,
 
     ITYPE dim_work = dim;
     ITYPE num_work = 0;
-    CTYPE* t = m->get_workarea(&dim_work, &num_work);
+    CTYPE* t = m.get_workarea(&dim_work, &num_work);
     assert(num_work > 0);
 
     CTYPE* si = state;
     for (ITYPE i = 0; i < num_work; ++i) {
         if (flag_exchange) {
-            m->m_DC_sendrecv(si, t, dim_work, pair_rank);
+            m.m_DC_sendrecv(si, t, dim_work, pair_rank);
             memcpy(si, t, dim_work * sizeof(CTYPE));
             si += dim_work;
         } else {
-            m->get_tag();  // dummy to count up tag
+            m.get_tag();  // dummy to count up tag
         }
     }
 #endif
@@ -191,11 +191,11 @@ void FusedSWAP_gate_mpi(UINT target_qubit_index_0, UINT target_qubit_index_1,
     /*  FusedSWAP main */
     /* All remained swaps are pairs of inner and outer */
 
-    const MPIutil m = get_mpiutil();
-    const UINT rank = m->get_rank();
+    MPIutil& m = MPIutil::get_inst();
+    const UINT rank = m.get_rank();
     ITYPE dim_work = dim;
     ITYPE num_work = 0;
-    CTYPE* t = m->get_workarea(&dim_work, &num_work);
+    CTYPE* t = m.get_workarea(&dim_work, &num_work);
     const ITYPE rtgt_blk_dim = 1 << lower_index;
     const UINT num_pair = 1 << act_bs;
     const UINT tgt_outer_rank_gap = upper_index - inner_qc;
@@ -226,7 +226,7 @@ void FusedSWAP_gate_mpi(UINT target_qubit_index_0, UINT target_qubit_index_1,
                 ((rank >> tgt_outer_rank_gap) ^ step) & offset_mask;
             _gather(send_buf[buf_idx], state, i, num_elem_block,
                 rtgt_offset_index, rtgt_blk_dim, act_bs);
-            m->m_DC_isendrecv(
+            m.m_DC_isendrecv(
                 send_buf[buf_idx], recv_buf[buf_idx], dim_work, pair_rank);
         }
         for (UINT step = 1; step < num_pair; ++step) {
@@ -246,13 +246,13 @@ void FusedSWAP_gate_mpi(UINT target_qubit_index_0, UINT target_qubit_index_1,
                     _gather(send_buf[buf_idx ^ 1], state, i_next,
                         num_elem_block, rtgt_offset_index, rtgt_blk_dim,
                         act_bs);
-                    m->m_DC_isendrecv(send_buf[buf_idx ^ 1],
+                    m.m_DC_isendrecv(send_buf[buf_idx ^ 1],
                         recv_buf[buf_idx ^ 1], dim_work, pair_rank);
                 }
 
                 const UINT rtgt_offset_index =
                     ((rank >> tgt_outer_rank_gap) ^ step) & offset_mask;
-                m->mpi_wait(2);
+                m.mpi_wait(2);
                 _scatter(state, recv_buf[buf_idx], i, num_elem_block,
                     rtgt_offset_index, rtgt_blk_dim, act_bs);
                 buf_idx ^= 1;
@@ -281,7 +281,7 @@ void FusedSWAP_gate_mpi(UINT target_qubit_index_0, UINT target_qubit_index_1,
                 ((rank >> tgt_outer_rank_gap) ^ step) & offset_mask;
             CTYPE* si =
                 state + (rtgt_offset_index ^ (j << act_bs)) * rtgt_blk_dim;
-            m->m_DC_isendrecv(
+            m.m_DC_isendrecv(
                 si + dim_work * k, buf[buf_idx], dim_work, pair_rank);
         }
         for (UINT step = 1; step < num_pair; ++step) {  // pair communication
@@ -309,7 +309,7 @@ void FusedSWAP_gate_mpi(UINT target_qubit_index_0, UINT target_qubit_index_1,
                             (rtgt_offset_index ^ (j_next << act_bs)) *
                                 rtgt_blk_dim +
                             dim_work * k_next;
-                        m->m_DC_isendrecv(
+                        m.m_DC_isendrecv(
                             si_next, buf[buf_idx ^ 1], dim_work, pair_rank);
                     }
 
@@ -319,7 +319,7 @@ void FusedSWAP_gate_mpi(UINT target_qubit_index_0, UINT target_qubit_index_1,
                         state +
                         (rtgt_offset_index ^ (j << act_bs)) * rtgt_blk_dim +
                         dim_work * k;
-                    m->mpi_wait(2);  // wait 2 async comm
+                    m.mpi_wait(2);  // wait 2 async comm
                     memcpy(si, buf[buf_idx], dim_work * sizeof(CTYPE));
                     buf_idx ^= 1;
                     sjk++;

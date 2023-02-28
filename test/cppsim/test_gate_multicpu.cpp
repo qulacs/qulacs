@@ -806,8 +806,8 @@ TEST(GateTest_multicpu, RandomPauliMerge) {
 }
 
 TEST(GateTest_multicpu, RandomPauliRotationMerge) {
-    MPIutil m = get_mpiutil();
-    const UINT num_global_qubit = (UINT)std::log2(m->get_size());
+    MPIutil& m = MPIutil::get_inst();
+    const UINT num_global_qubit = (UINT)std::log2(m.get_size());
     UINT n = 6 + num_global_qubit;
     ITYPE dim = 1ULL << n;
 
