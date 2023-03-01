@@ -11,6 +11,10 @@ double expectation_value_X_Pauli_operator(
     UINT target_qubit_index, const CTYPE* state, ITYPE dim);
 double expectation_value_Y_Pauli_operator(
     UINT target_qubit_index, const CTYPE* state, ITYPE dim);
+#ifdef _USE_SVE
+double expectation_value_Z_Pauli_operator_sve(
+    UINT target_qubit_index, const CTYPE* state, ITYPE dim);
+#endif
 double expectation_value_Z_Pauli_operator(
     UINT target_qubit_index, const CTYPE* state, ITYPE dim);
 #ifdef _USE_SVE
@@ -77,6 +81,54 @@ double expectation_value_Y_Pauli_operator(
 }
 
 // calculate expectation value of Z on target qubit
+#ifdef _USE_SVE
+double expectation_value_Z_Pauli_operator_sve(
+    UINT target_qubit_index, const CTYPE* state, ITYPE dim) {
+    const ITYPE loop_dim = dim;
+    ITYPE state_index;
+    double sum = 0.;
+#ifdef _OPENMP
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
+#endif
+
+    // # of complex128 numbers in an SVE registers
+    ITYPE VL = svcntd() / 2;
+#pragma omp parallel reduction(+ : sum)
+    {
+        svbool_t pall = svptrue_b64();
+        svuint64_t sv_offset = svindex_u64(0, 1);
+        sv_offset = svlsr_z(pall, sv_offset, 1);
+
+        svfloat64_t sv_sum = svdup_f64(0.0);
+
+#pragma omp for
+        for (state_index = 0; state_index < loop_dim; state_index += VL) {
+            svuint64_t sv_sign =
+                svadd_z(pall, svdup_u64(state_index), sv_offset);
+            sv_sign = svlsr_z(pall, sv_sign, target_qubit_index);
+            sv_sign = svand_z(pall, sv_sign, svdup_u64(1));
+            svbool_t psign = svcmpeq(pall, sv_sign, svdup_u64(1));
+
+            svfloat64_t sv_val = svld1(pall, (double*)&state[state_index]);
+            sv_val = svmul_z(pall, sv_val, sv_val);
+            sv_val = svneg_m(sv_val, psign, sv_val);
+            sv_sum = svadd_z(pall, sv_sum, sv_val);
+        }
+        if (VL >= 16) sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 16));
+        if (VL >= 8) sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 8));
+        if (VL >= 4) sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 4));
+        if (VL >= 2) sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 2));
+        if (VL >= 1) sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 1));
+
+        sum += svlastb(svptrue_pat_b64(SV_VL1), sv_sum);
+    }
+#ifdef _OPENMP
+    OMPutil::get_inst().reset_qulacs_num_threads();
+#endif
+    return sum;
+}
+#endif
+
 double expectation_value_Z_Pauli_operator(
     UINT target_qubit_index, const CTYPE* state, ITYPE dim) {
     const ITYPE loop_dim = dim;
@@ -100,6 +152,11 @@ double expectation_value_Z_Pauli_operator(
 // calculate expectation value for single-qubit pauli operator
 double expectation_value_single_qubit_Pauli_operator(UINT target_qubit_index,
     UINT Pauli_operator_type, const CTYPE* state, ITYPE dim) {
+#ifdef _USE_SVE
+    // # of complex128 numbers in an SVE register
+    ITYPE VL = svcntd() / 2;
+#endif
+
     if (Pauli_operator_type == 0) {
         return state_norm_squared(state, dim);
     } else if (Pauli_operator_type == 1) {
@@ -109,8 +166,16 @@ double expectation_value_single_qubit_Pauli_operator(UINT target_qubit_index,
         return expectation_value_Y_Pauli_operator(
             target_qubit_index, state, dim);
     } else if (Pauli_operator_type == 3) {
-        return expectation_value_Z_Pauli_operator(
-            target_qubit_index, state, dim);
+#ifdef _USE_SVE
+        if (dim > VL) {
+            return expectation_value_Z_Pauli_operator_sve(
+                target_qubit_index, state, dim);
+        } else
+#endif
+        {
+            return expectation_value_Z_Pauli_operator(
+                target_qubit_index, state, dim);
+        }
     } else {
         fprintf(
             stderr, "invalid expectation value of pauli operator is called");
@@ -273,10 +338,7 @@ double expectation_value_multi_qubit_Pauli_operator_Z_mask_sve(
 #pragma omp for
         for (state_index = 0; state_index < loop_dim;
              state_index += (VL << 1)) {
-            ITYPE global_index = state_index;
-
-            svuint64_t svidx =
-                svadd_z(pall, svdup_u64(global_index), sv_offset);
+            svuint64_t svidx = svadd_z(pall, svdup_u64(state_index), sv_offset);
             svuint64_t sv_bit_parity = svand_z(pall, svidx, sv_phase_flip_mask);
             sv_bit_parity = svcnt_z(pall, sv_bit_parity);
             sv_bit_parity = svand_z(pall, sv_bit_parity, svdup_u64(1));
@@ -557,9 +619,7 @@ double expectation_value_multi_qubit_Pauli_operator_Z_mask_single_thread_sve(
     svuint64_t sv_phase_flip_mask = svdup_u64(phase_flip_mask);
 
     for (state_index = 0; state_index < loop_dim; state_index += (VL << 1)) {
-        ITYPE global_index = state_index;
-
-        svuint64_t svidx = svadd_z(pall, svdup_u64(global_index), sv_offset);
+        svuint64_t svidx = svadd_z(pall, svdup_u64(state_index), sv_offset);
         svuint64_t sv_bit_parity = svand_z(pall, svidx, sv_phase_flip_mask);
         sv_bit_parity = svcnt_z(pall, sv_bit_parity);
         sv_bit_parity = svand_z(pall, sv_bit_parity, svdup_u64(1));
