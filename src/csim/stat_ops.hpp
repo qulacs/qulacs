@@ -56,6 +56,11 @@ expectation_value_multi_qubit_Pauli_operator_XZ_mask_single_thread_sve(
 DllExport double
 expectation_value_multi_qubit_Pauli_operator_Z_mask_single_thread(
     ITYPE phase_flip_mask, const CTYPE* state, ITYPE dim);
+#ifdef _USE_SVE
+DllExport double
+expectation_value_multi_qubit_Pauli_operator_Z_mask_single_thread_sve(
+    ITYPE phase_flip_mask, const CTYPE* state, ITYPE dim);
+#endif
 DllExport double
 expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
     const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,

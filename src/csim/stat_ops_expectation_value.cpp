@@ -542,6 +542,56 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_single_thread(
     return sum;
 }
 
+#ifdef _USE_SVE
+double expectation_value_multi_qubit_Pauli_operator_Z_mask_single_thread_sve(
+    ITYPE phase_flip_mask, const CTYPE* state, ITYPE dim) {
+    const ITYPE loop_dim = dim;
+    ITYPE state_index;
+    double sum = 0.;
+
+    // # of complex128 numbers in an SVE registers
+    ITYPE VL = svcntd() / 2;
+    svbool_t pall = svptrue_b64();
+    svfloat64_t sv_sum = svdup_f64(0.0);
+    svuint64_t sv_offset = svindex_u64(0, 1);
+    svuint64_t sv_phase_flip_mask = svdup_u64(phase_flip_mask);
+
+    for (state_index = 0; state_index < loop_dim; state_index += (VL << 1)) {
+        ITYPE global_index = state_index;
+
+        svuint64_t svidx = svadd_z(pall, svdup_u64(global_index), sv_offset);
+        svuint64_t sv_bit_parity = svand_z(pall, svidx, sv_phase_flip_mask);
+        sv_bit_parity = svcnt_z(pall, sv_bit_parity);
+        sv_bit_parity = svand_z(pall, sv_bit_parity, svdup_u64(1));
+
+        svbool_t psign = svcmpeq(pall, sv_bit_parity, svdup_u64(1));
+
+        svfloat64_t sv_val0 = svld1(pall, (double*)&state[state_index]);
+        svfloat64_t sv_val1 = svld1(pall, (double*)&state[state_index + VL]);
+
+        sv_val0 = svmul_z(pall, sv_val0, sv_val0);
+        sv_val1 = svmul_z(pall, sv_val1, sv_val1);
+
+        sv_val0 = svadd_z(pall, sv_val0, svext(sv_val0, sv_val0, 1));
+        sv_val1 = svadd_z(pall, sv_val1, svext(sv_val1, sv_val1, 1));
+
+        sv_val0 = svuzp1(sv_val0, sv_val1);
+        sv_val0 = svneg_m(sv_val0, psign, sv_val0);
+
+        sv_sum = svadd_z(pall, sv_sum, sv_val0);
+    }
+
+    if (VL >= 16) sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 16));
+    if (VL >= 8) sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 8));
+    if (VL >= 4) sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 4));
+    if (VL >= 2) sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 2));
+    if (VL >= 1) sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 1));
+
+    sum += svlastb(svptrue_pat_b64(SV_VL1), sv_sum);
+    return sum;
+}
+#endif
+
 double expectation_value_multi_qubit_Pauli_operator_Z_mask_single_thread(
     ITYPE phase_flip_mask, const CTYPE* state, ITYPE dim) {
     const ITYPE loop_dim = dim;
@@ -574,9 +624,18 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
 #endif
 
     if (bit_flip_mask == 0) {
-        result =
-            expectation_value_multi_qubit_Pauli_operator_Z_mask_single_thread(
-                phase_flip_mask, state, dim);
+#ifdef _USE_SVE
+        if (dim > VL) {
+            result =
+                expectation_value_multi_qubit_Pauli_operator_Z_mask_single_thread_sve(
+                    phase_flip_mask, state, dim);
+        } else
+#endif
+        {
+            result =
+                expectation_value_multi_qubit_Pauli_operator_Z_mask_single_thread(
+                    phase_flip_mask, state, dim);
+        }
     } else {
 #ifdef _USE_SVE
         if ((dim >> 1) > VL) {
