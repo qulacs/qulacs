@@ -8,7 +8,6 @@ locale_dirs = ['locale/']
 # The `extensions` list should already be in here from `sphinx-quickstart`
 extensions = [
     # there may be others here already, e.g. 'sphinx.ext.mathjax'
-    # there may be others here already, e.g. 'sphinx.ext.mathjax'
     'breathe',
     'exhale',
     'myst_parser',
