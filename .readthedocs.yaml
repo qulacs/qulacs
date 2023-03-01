@@ -6,6 +6,7 @@ build:
     python: "3.11"
   apt_packages:
     - cmake
+    - libboost-dev
 
 python:
   install:
