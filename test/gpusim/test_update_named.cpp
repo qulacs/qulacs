@@ -22,6 +22,8 @@ void test_single_qubit_named_gate(UINT n, std::string name,
         std::vector<UINT> indices;
         for (UINT i = 0; i < n; ++i) indices.push_back(i);
 
+        std::random_device seed_gen;
+        std::mt19937 engine(seed_gen());
         for (UINT rep = 0; rep < max_repeat; ++rep) {
             for (UINT i = 0; i < n; ++i) {
                 UINT target = indices[i];
@@ -223,6 +225,8 @@ void test_two_qubit_named_gate(UINT n, std::string name,
     const UINT max_repeat = 2;
 
     int ngpus = get_num_device();
+    std::random_device seed_gen;
+    std::mt19937 engine(seed_gen());
     for (int idx = 0; idx < ngpus; ++idx) {
         set_device(idx);
         auto stream_ptr = allocate_cuda_stream_host(1, idx);
