@@ -22,6 +22,20 @@ public:
 };
 
 /**
+ * \~japanese-en StateVectorとDensityMatrixが混ざっていて処理不能な例外
+ */
+class InoperatableQuantumStateTypeException : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    InoperatableQuantumStateTypeException(const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
  * \~japanese-en QuantumStateCpuとQuantumStateGpuを同じ演算中で用いている例外
  */
 class QuantumStateProcessorException : public std::logic_error {
