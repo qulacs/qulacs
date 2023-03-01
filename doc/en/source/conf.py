@@ -18,7 +18,7 @@ extensions = [
     "sphinx.ext.autodoc",
     "sphinx.ext.graphviz",
     "sphinx.ext.inheritance_diagram",
-    'autoapi.extension',
+    "autoapi.extension",
 ]
 
 exclude_patterns = ["_build", "**.ipynb_checkpoints"]
