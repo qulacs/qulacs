@@ -13,6 +13,11 @@ double expectation_value_Y_Pauli_operator(
     UINT target_qubit_index, const CTYPE* state, ITYPE dim);
 double expectation_value_Z_Pauli_operator(
     UINT target_qubit_index, const CTYPE* state, ITYPE dim);
+#ifdef _USE_SVE
+double expectation_value_multi_qubit_Pauli_operator_XZ_mask_sve(
+    ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count,
+    UINT pivot_qubit_index, const CTYPE* state, ITYPE dim);
+#endif
 double expectation_value_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
     ITYPE phase_flip_mask, UINT global_phase_90rot_count,
     UINT pivot_qubit_index, const CTYPE* state, ITYPE dim);
@@ -116,6 +121,102 @@ double expectation_value_single_qubit_Pauli_operator(UINT target_qubit_index,
 // assume bit-flip mask is nonzero, namely, there is at least one X or Y
 // operator. the pivot qubit is any qubit index which has X or Y To generate
 // bit-flip mask and phase-flip mask, see get_masks_*_list at utility.h
+#ifdef _USE_SVE
+double expectation_value_multi_qubit_Pauli_operator_XZ_mask_sve(
+    ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count,
+    UINT pivot_qubit_index, const CTYPE* state, ITYPE dim) {
+    const ITYPE loop_dim = dim / 2;
+    const ITYPE pivot_mask = 1ULL << pivot_qubit_index;
+    ITYPE state_index;
+    double sum = 0.;
+#ifdef _OPENMP
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
+#endif
+
+    // # of complex128 numbers in an SVE register
+    ITYPE VL = svcntd() / 2;
+
+#pragma omp parallel reduction(+ : sum)
+    {
+        int img_flag = global_phase_90rot_count & 1;
+
+        svbool_t pall = svptrue_b64();
+        svbool_t pg_conj_neg;
+        svuint64_t sv_idx_ofs = svindex_u64(0, 1);
+        svuint64_t sv_img_ofs = sv_idx_ofs;
+
+        sv_idx_ofs = svlsr_x(pall, sv_idx_ofs, 1);
+        sv_img_ofs = svand_x(pall, sv_img_ofs, svdup_u64(1));
+        pg_conj_neg = svcmpeq(pall, sv_img_ofs, svdup_u64(0));
+
+        svfloat64_t sv_sum = svdup_f64(0.0);
+        svfloat64_t sv_sign_base;
+        if (global_phase_90rot_count & 2)
+            sv_sign_base = svdup_f64(-1.0);
+        else
+            sv_sign_base = svdup_f64(1.0);
+
+#pragma omp for
+        for (state_index = 0; state_index < loop_dim; state_index += VL) {
+            svuint64_t sv_basis =
+                svadd_x(pall, svdup_u64(state_index), sv_idx_ofs);
+            svuint64_t sv_basis0 = svlsr_x(pall, sv_basis, pivot_qubit_index);
+            sv_basis0 = svlsl_x(pall, sv_basis0, pivot_qubit_index + 1);
+            sv_basis0 = svadd_x(pall, sv_basis0,
+                svand_x(pall, sv_basis, svdup_u64(pivot_mask - 1)));
+
+            svuint64_t sv_basis1 =
+                sveor_x(pall, sv_basis0, svdup_u64(bit_flip_mask));
+
+            svuint64_t sv_popc =
+                svand_x(pall, sv_basis0, svdup_u64(phase_flip_mask));
+            sv_popc = svcnt_z(pall, sv_popc);
+            sv_popc = svand_x(pall, sv_popc, svdup_u64(1));
+            svfloat64_t sv_sign = svneg_m(sv_sign_base,
+                svcmpeq(pall, sv_popc, svdup_u64(1)), sv_sign_base);
+            sv_sign = svmul_x(pall, sv_sign, svdup_f64(2.0));
+
+            sv_basis0 = svmad_x(pall, sv_basis0, svdup_u64(2), sv_img_ofs);
+            sv_basis1 = svmad_x(pall, sv_basis1, svdup_u64(2), sv_img_ofs);
+            svfloat64_t sv_input0 =
+                svld1_gather_index(pall, (double*)state, sv_basis0);
+            svfloat64_t sv_input1 =
+                svld1_gather_index(pall, (double*)state, sv_basis1);
+
+            if (img_flag) {  // calc imag. parts
+
+                svfloat64_t sv_real = svtrn1(sv_input0, sv_input1);
+                svfloat64_t sv_imag = svtrn2(sv_input1, sv_input0);
+                sv_imag = svneg_m(sv_imag, pg_conj_neg, sv_imag);
+
+                svfloat64_t sv_result = svmul_x(pall, sv_real, sv_imag);
+                sv_result = svmul_x(pall, sv_result, sv_sign);
+                sv_sum = svsub_x(pall, sv_sum, sv_result);
+
+            } else {  // calc real parts
+
+                svfloat64_t sv_result = svmul_x(pall, sv_input0, sv_input1);
+                sv_result = svmul_x(pall, sv_result, sv_sign);
+                sv_sum = svadd_x(pall, sv_sum, sv_result);
+            }
+        }
+
+        // reduction
+        if (VL >= 16) sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 16));
+        if (VL >= 8) sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 8));
+        if (VL >= 4) sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 4));
+        if (VL >= 2) sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 2));
+        if (VL >= 1) sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 1));
+
+        sum += svlastb(svptrue_pat_b64(SV_VL1), sv_sum);
+    }
+#ifdef _OPENMP
+    OMPutil::get_inst().reset_qulacs_num_threads();
+#endif
+    return sum;
+}
+#endif
+
 double expectation_value_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
     ITYPE phase_flip_mask, UINT global_phase_90rot_count,
     UINT pivot_qubit_index, const CTYPE* state, ITYPE dim) {
@@ -127,95 +228,7 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
     OMPutil::get_inst().set_qulacs_num_threads(dim, 10);
 #endif
 
-#ifdef _USE_SVE
-    // # of complex128 numbers in an SVE register
-    ITYPE VL = svcntd() / 2;
-
-    if (loop_dim > VL) {
-#pragma omp parallel reduction(+ : sum)
-        {
-            int img_flag = global_phase_90rot_count & 1;
-
-            svbool_t pall = svptrue_b64();
-            svbool_t pg_conj_neg;
-            svuint64_t sv_idx_ofs = svindex_u64(0, 1);
-            svuint64_t sv_img_ofs = sv_idx_ofs;
-
-            sv_idx_ofs = svlsr_x(pall, sv_idx_ofs, 1);
-            sv_img_ofs = svand_x(pall, sv_img_ofs, svdup_u64(1));
-            pg_conj_neg = svcmpeq(pall, sv_img_ofs, svdup_u64(0));
-
-            svfloat64_t sv_sum = svdup_f64(0.0);
-            svfloat64_t sv_sign_base;
-            if (global_phase_90rot_count & 2)
-                sv_sign_base = svdup_f64(-1.0);
-            else
-                sv_sign_base = svdup_f64(1.0);
-
-#pragma omp for
-            for (state_index = 0; state_index < loop_dim; state_index += VL) {
-                svuint64_t sv_basis =
-                    svadd_x(pall, svdup_u64(state_index), sv_idx_ofs);
-                svuint64_t sv_basis0 =
-                    svlsr_x(pall, sv_basis, pivot_qubit_index);
-                sv_basis0 = svlsl_x(pall, sv_basis0, pivot_qubit_index + 1);
-                sv_basis0 = svadd_x(pall, sv_basis0,
-                    svand_x(pall, sv_basis, svdup_u64(pivot_mask - 1)));
-
-                svuint64_t sv_basis1 =
-                    sveor_x(pall, sv_basis0, svdup_u64(bit_flip_mask));
-
-                svuint64_t sv_popc =
-                    svand_x(pall, sv_basis0, svdup_u64(phase_flip_mask));
-                sv_popc = svcnt_z(pall, sv_popc);
-                sv_popc = svand_x(pall, sv_popc, svdup_u64(1));
-                svfloat64_t sv_sign = svneg_m(sv_sign_base,
-                    svcmpeq(pall, sv_popc, svdup_u64(1)), sv_sign_base);
-                sv_sign = svmul_x(pall, sv_sign, svdup_f64(2.0));
-
-                sv_basis0 = svmad_x(pall, sv_basis0, svdup_u64(2), sv_img_ofs);
-                sv_basis1 = svmad_x(pall, sv_basis1, svdup_u64(2), sv_img_ofs);
-                svfloat64_t sv_input0 =
-                    svld1_gather_index(pall, (double*)state, sv_basis0);
-                svfloat64_t sv_input1 =
-                    svld1_gather_index(pall, (double*)state, sv_basis1);
-
-                if (img_flag) {  // calc imag. parts
-
-                    svfloat64_t sv_real = svtrn1(sv_input0, sv_input1);
-                    svfloat64_t sv_imag = svtrn2(sv_input1, sv_input0);
-                    sv_imag = svneg_m(sv_imag, pg_conj_neg, sv_imag);
-
-                    svfloat64_t sv_result = svmul_x(pall, sv_real, sv_imag);
-                    sv_result = svmul_x(pall, sv_result, sv_sign);
-                    sv_sum = svsub_x(pall, sv_sum, sv_result);
-
-                } else {  // calc real parts
-
-                    svfloat64_t sv_result = svmul_x(pall, sv_input0, sv_input1);
-                    sv_result = svmul_x(pall, sv_result, sv_sign);
-                    sv_sum = svadd_x(pall, sv_sum, sv_result);
-                }
-            }
-
-            // reduction
-            if (VL >= 16)
-                sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 16));
-            if (VL >= 8)
-                sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 8));
-            if (VL >= 4)
-                sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 4));
-            if (VL >= 2)
-                sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 2));
-            if (VL >= 1)
-                sv_sum = svadd_z(pall, sv_sum, svext(sv_sum, sv_sum, 1));
-
-            sum += svlastb(svptrue_pat_b64(SV_VL1), sv_sum);
-        }
-    } else
-#endif
     {
-
 #pragma omp parallel for reduction(+ : sum)
         for (state_index = 0; state_index < loop_dim; ++state_index) {
             ITYPE basis_0 = insert_zero_to_basis_index(
@@ -330,9 +343,21 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list(
         result = expectation_value_multi_qubit_Pauli_operator_Z_mask(
             phase_flip_mask, state, dim);
     } else {
-        result = expectation_value_multi_qubit_Pauli_operator_XZ_mask(
-            bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
-            pivot_qubit_index, state, dim);
+#ifdef _USE_SVE
+        // # of complex128 numbers in an SVE register
+        ITYPE VL = svcntd() / 2;
+        if ((dim >> 1) > VL) {
+            printf("pass here\n");
+            result = expectation_value_multi_qubit_Pauli_operator_XZ_mask(
+                bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
+                pivot_qubit_index, state, dim);
+        } else
+#endif
+        {
+            result = expectation_value_multi_qubit_Pauli_operator_XZ_mask(
+                bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
+                pivot_qubit_index, state, dim);
+        }
     }
     return result;
 }
@@ -352,9 +377,20 @@ double expectation_value_multi_qubit_Pauli_operator_whole_list(
         result = expectation_value_multi_qubit_Pauli_operator_Z_mask(
             phase_flip_mask, state, dim);
     } else {
-        result = expectation_value_multi_qubit_Pauli_operator_XZ_mask(
-            bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
-            pivot_qubit_index, state, dim);
+#ifdef _USE_SVE
+        // # of complex128 numbers in an SVE register
+        ITYPE VL = svcntd() / 2;
+        if ((dim >> 1) > VL) {
+            result = expectation_value_multi_qubit_Pauli_operator_XZ_mask_sve(
+                bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
+                pivot_qubit_index, state, dim);
+        } else
+#endif
+        {
+            result = expectation_value_multi_qubit_Pauli_operator_XZ_mask(
+                bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
+                pivot_qubit_index, state, dim);
+        }
     }
     return result;
 }
