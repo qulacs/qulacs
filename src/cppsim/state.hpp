@@ -532,6 +532,11 @@ public:
                 "Error: QuantumStateCpu::load(const QuantumStateBase*): "
                 "invalid qubit count");
         }
+        if (!_state->is_state_vector()) {
+            throw InoperatableQuantumStateTypeException(
+                "Error: QuantumStateCpu::load(const QuantumStateBase*): "
+                "cannot load DensityMatrix to StateVector");
+        }
 
         this->_classical_register = _state->classical_register;
         if (_state->get_device_name() == "gpu") {
@@ -607,6 +612,11 @@ public:
      * \~japanese-en 量子状態を足しこむ
      */
     virtual void add_state(const QuantumStateBase* state) override {
+        if (!state->is_state_vector()) {
+            throw InoperatableQuantumStateTypeException(
+                "Error: QuantumStateCpu::add_state(const QuantumStateBase*): "
+                "cannot add DensityMatrix to StateVector");
+        }
         if (state->get_device_name() == "gpu") {
             throw QuantumStateProcessorException(
                 "State vector on GPU cannot be added to that on CPU");
@@ -619,6 +629,12 @@ public:
      */
     virtual void add_state_with_coef(
         CPPCTYPE coef, const QuantumStateBase* state) override {
+        if (!state->is_state_vector()) {
+            throw InoperatableQuantumStateTypeException(
+                "Error: QuantumStateCpu::add_state_with_coef(const "
+                "QuantumStateBase*): "
+                "cannot add DensityMatrix to StateVector");
+        }
         if (state->get_device_name() == "gpu") {
             std::cerr << "State vector on GPU cannot be added to that on CPU"
                       << std::endl;
@@ -632,6 +648,13 @@ public:
      */
     virtual void add_state_with_coef_single_thread(
         CPPCTYPE coef, const QuantumStateBase* state) override {
+        if (!state->is_state_vector()) {
+            throw InoperatableQuantumStateTypeException(
+                "Error: "
+                "QuantumStateCpu::add_state_with_coef_single_thread(const "
+                "QuantumStateBase*): "
+                "cannot add DensityMatrix to StateVector");
+        }
         if (state->get_device_name() == "gpu") {
             std::cerr << "State vector on GPU cannot be added to that on CPU"
                       << std::endl;
