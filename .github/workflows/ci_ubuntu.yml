@@ -157,6 +157,9 @@ jobs:
       - name: Install qulacs Python module
         run: USE_GPU=Yes pip install .[test]
 
+      - name: Build test
+        run: make -C build buildtest -j $(nproc)
+
       # Testing is removed because GPU is not available for GitHub-Hosted Runner.
 
   gcc11-sve-build:
