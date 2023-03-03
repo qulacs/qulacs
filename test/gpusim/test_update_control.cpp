@@ -100,6 +100,8 @@ TEST(UpdateTest, SingleQubitControlTwoQubitDenseMatrixTest) {
 
         Eigen::MatrixXcd whole_I = Eigen::MatrixXcd::Identity(dim, dim);
 
+        std::random_device seed_gen;
+        std::mt19937 engine(seed_gen());
         for (UINT rep = 0; rep < max_repeat; ++rep) {
             // single qubit 1-controlled qubit dense matrix gate
             U = get_eigen_matrix_random_single_qubit_unitary();
@@ -157,6 +159,8 @@ TEST(UpdateTest, TwoQubitControlTwoQubitDenseMatrixTest) {
 
         Eigen::MatrixXcd whole_I = Eigen::MatrixXcd::Identity(dim, dim);
 
+        std::random_device seed_gen;
+        std::mt19937 engine(seed_gen());
         for (UINT rep = 0; rep < max_repeat; ++rep) {
             // two qubit control-11 two qubit gate
             U = get_eigen_matrix_random_single_qubit_unitary();

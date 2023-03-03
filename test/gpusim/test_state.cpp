@@ -431,6 +431,8 @@ TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
             Z << 1, 0, 0, -1;
             Y << 0, -1.i, 1.i, 0;
 
+            std::random_device seed_gen;
+            std::mt19937 engine(seed_gen());
             for (UINT target = 0; target < n; ++target) {
                 // multi qubit expectation partial list value check
                 Eigen::MatrixXcd mat = Eigen::MatrixXcd::Identity(1, 1);
@@ -504,6 +506,8 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopPartialTest) {
             Z << 1, 0, 0, -1;
             Y << 0, -1.i, 1.i, 0;
 
+            std::random_device seed_gen;
+            std::mt19937 engine(seed_gen());
             for (UINT target = 0; target < n; ++target) {
                 // multi qubit expectation partial list value check
                 Eigen::MatrixXcd mat = Eigen::MatrixXcd::Identity(1, 1);
@@ -749,6 +753,8 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudePartialTest) {
             for (ITYPE i = 0; i < dim; ++i) test_state_ket[i] = state_ket[i];
             for (ITYPE i = 0; i < dim; ++i) test_state_bra[i] = state_bra[i];
 
+            std::random_device seed_gen;
+            std::mt19937 engine(seed_gen());
             for (UINT target = 0; target < n; ++target) {
                 // multi qubit expectation partial list value check
                 Eigen::MatrixXcd mat = Eigen::MatrixXcd::Identity(1, 1);
@@ -842,6 +848,8 @@ TEST(StatOperationTest, MultiQubitTransitionAmplitudeZopPartialTest) {
             for (ITYPE i = 0; i < dim; ++i) test_state_ket[i] = state_ket[i];
             for (ITYPE i = 0; i < dim; ++i) test_state_bra[i] = state_bra[i];
 
+            std::random_device seed_gen;
+            std::mt19937 engine(seed_gen());
             for (UINT target = 0; target < n; ++target) {
                 // multi qubit expectation partial list value check
                 Eigen::MatrixXcd mat = Eigen::MatrixXcd::Identity(1, 1);
