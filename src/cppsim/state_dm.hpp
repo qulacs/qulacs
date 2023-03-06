@@ -202,6 +202,11 @@ public:
                 "Error: DensityMatrixCpu::load(const QuantumStateBase*): "
                 "invalid qubit count");
         }
+        if (_state->outer_qc > 0) {
+            throw NotImplementedException(
+                "Error: DensityMatrixCpu::load(const QuantumStateBase*) "
+                "using multi-cpu is not implemented");
+        }
         if (_state->is_state_vector()) {
             if (_state->get_device_name() == "gpu") {
                 auto ptr = _state->duplicate_data_c();
