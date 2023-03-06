@@ -139,7 +139,7 @@ void MPIutil::m_DC_isendrecv(
 
 void MPIutil::m_I_allreduce(void *buf, UINT count) {
     UINT ret = MPI_Allreduce(
-        MPI_IN_PLACE, buf, count, MPI_LONG_LONG_INT, MPI_SUM, mpicomm);
+        MPI_IN_PLACE, buf, count, MPI_UNSIGNED_LONG_LONG, MPI_SUM, mpicomm);
     if (ret != MPI_SUCCESS) MPI_Abort(mpicomm, -1);
 }
 
