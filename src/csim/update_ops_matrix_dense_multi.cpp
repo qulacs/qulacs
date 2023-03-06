@@ -138,7 +138,7 @@ void multi_qubit_dense_matrix_gate_mpi(const UINT* target_qubit_index_list,
     if (num_outer_target == 0) {
         multi_qubit_dense_matrix_gate(target_qubit_index_list,
             target_qubit_index_count, matrix, state, dim);
-    } else {
+    } else {  // num_outer_target > 0
         if (target_qubit_index_count > inner_qc) {
             throw NotImplementedException(
                 "Dense Matrix multi-target gate for MPI with " +

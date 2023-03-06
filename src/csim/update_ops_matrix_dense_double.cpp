@@ -1709,10 +1709,11 @@ void double_qubit_dense_matrix_gate_mpi(UINT target_qubit_index1,
     UINT inner_qc) {
     UINT target1_is_outer = (target_qubit_index1 >= inner_qc) ? 1 : 0;
     UINT target2_is_outer = (target_qubit_index2 >= inner_qc) ? 1 : 0;
-    UINT outer_targets = target1_is_outer + target2_is_outer;
+    UINT num_outer_targets = target1_is_outer + target2_is_outer;
+    assert(num_outer_targets > 0);
 
     ITYPE local_dim = 1ULL << inner_qc;
-    if (outer_targets == 2) {
+    if (num_outer_targets == 2) {
         if (inner_qc < 2)
             throw NotImplementedException(
                 "Dense matrix gate with less than two-local qubit");
@@ -1732,7 +1733,7 @@ void double_qubit_dense_matrix_gate_mpi(UINT target_qubit_index1,
         SWAP_gate_mpi(
             act_target_qubit_index2, target_qubit_index2, state, dim, inner_qc);
 
-    } else {
+    } else {  // num_outer_targets == 1
         if (target1_is_outer) {
             // Add a swap gate before and after a dense-gate operation
             UINT act_target_qubit_index1 =
