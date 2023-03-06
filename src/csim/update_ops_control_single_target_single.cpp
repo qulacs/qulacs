@@ -266,28 +266,31 @@ void single_qubit_control_single_qubit_dense_matrix_gate_mpi(
     const CTYPE matrix[4], CTYPE* state, ITYPE dim, UINT inner_qc) {
     MPIutil& m = MPIutil::get_inst();
     const UINT rank = m.get_rank();
-    const UINT control_rank_bit = 1 << (control_qubit_index - inner_qc);
     ITYPE dim_work = dim;
     ITYPE num_work = 0;
     CTYPE* t = m.get_workarea(&dim_work, &num_work);
     assert(num_work > 0);
-    const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
-    const int pair_rank = rank ^ pair_rank_bit;
     CTYPE* si = state;
 
-#ifdef _OPENMP
-    OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
-#endif
-
-    if (control_qubit_index < inner_qc) {
-        if (target_qubit_index < inner_qc) {  // control, target: inner, inner
-
+    if (target_qubit_index < inner_qc) {  // control, target: inner, inner
+        if (control_qubit_index < inner_qc) {
             single_qubit_control_single_qubit_dense_matrix_gate(
                 control_qubit_index, control_value, target_qubit_index, matrix,
                 state, dim);
-
-        } else {  // control, target: inner, outer
-
+        } else {  // control, target: outer, inner
+            const UINT control_rank_bit = 1 << (control_qubit_index - inner_qc);
+            if (((rank & control_rank_bit) && (control_value == 1)) ||
+                (!(rank & control_rank_bit) && (control_value == 0)))
+                single_qubit_dense_matrix_gate(
+                    target_qubit_index, matrix, state, dim);
+        }
+    } else {  // control, target: inner, outer
+        const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
+        const int pair_rank = rank ^ pair_rank_bit;
+#ifdef _OPENMP
+        OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
+#endif
+        if (control_qubit_index < inner_qc) {
             for (ITYPE iter = 0; iter < num_work; ++iter) {
                 m.m_DC_sendrecv(si, t, dim_work, pair_rank);
 
@@ -298,14 +301,8 @@ void single_qubit_control_single_qubit_dense_matrix_gate_mpi(
 
                 si += dim_work;
             }
-        }
-    } else {
-        if (target_qubit_index < inner_qc) {  // control, target: outer, inner
-            if (((rank & control_rank_bit) && (control_value == 1)) ||
-                (!(rank & control_rank_bit) && (control_value == 0)))
-                single_qubit_dense_matrix_gate(
-                    target_qubit_index, matrix, state, dim);
         } else {  // control, target: outer, outer
+            const UINT control_rank_bit = 1 << (control_qubit_index - inner_qc);
             ITYPE dummy_flag =
                 !(((rank & control_rank_bit) && (control_value == 1)) ||
                     (!(rank & control_rank_bit) && (control_value == 0)));
@@ -322,11 +319,10 @@ void single_qubit_control_single_qubit_dense_matrix_gate_mpi(
                 }
             }
         }
-    }
-
 #ifdef _OPENMP
-    OMPutil::get_inst().reset_qulacs_num_threads();
+        OMPutil::get_inst().reset_qulacs_num_threads();
 #endif
+    }
 }
 
 void single_qubit_control_single_qubit_dense_matrix_gate_mpi_OI(
