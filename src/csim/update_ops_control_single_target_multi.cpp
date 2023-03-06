@@ -88,7 +88,15 @@ void single_qubit_control_multi_qubit_dense_matrix_gate_mpi(
     std::vector<UINT> inner_avail_qubit(inner_qc);
     std::vector<UINT> outer_target_index;
     UINT new_control_index = control_qubit_index;
-    if (num_outer_target > 0) {
+    if (target_qubit_index_count > 0) {
+        if (target_qubit_index_count > inner_qc) {
+            throw NotImplementedException(
+                "Dense Matrix single-control-multi-target gate for MPI with " +
+                std::to_string(target_qubit_index_count) +
+                " target-qubits and " + std::to_string(inner_qc) +
+                " local-qubits is not Implemented");
+        }
+
         std::vector<UINT> swapped_i;
 
         // set act_target_index
