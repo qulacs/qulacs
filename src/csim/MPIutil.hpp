@@ -27,11 +27,19 @@ private:
     MPI_Request mpireq[_MAX_REQUESTS];
     UINT mpireq_idx = 0;
     UINT mpireq_cnt = 0;
+
+    static void MPIFunctionError(
+        const std::string &func, UINT ret, const std::string &file, UINT line);
+
     MPIutil() {
         mpicomm = MPI_COMM_WORLD;
-        // printf("# MPI_COMM_WORLD %p\n", mpicomm);
-        MPI_Comm_rank(mpicomm, &mpirank);
-        MPI_Comm_size(mpicomm, &mpisize);
+        UINT ret;
+        ret = MPI_Comm_rank(mpicomm, &mpirank);
+        if (ret != MPI_SUCCESS)
+            MPIFunctionError("MPI_Comm_rank", ret, __FILE__, __LINE__);
+        ret = MPI_Comm_size(mpicomm, &mpisize);
+        if (ret != MPI_SUCCESS)
+            MPIFunctionError("MPI_Comm_size", ret, __FILE__, __LINE__);
         mpitag = 0;
     }
     ~MPIutil() = default;
