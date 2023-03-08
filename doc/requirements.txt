@@ -9,3 +9,4 @@ ipykernel
 cmake
 qulacs
 scipy
+sphinx-autoapi
