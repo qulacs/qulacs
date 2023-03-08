@@ -415,6 +415,12 @@ if(USE_TEST)
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/gpusim_test
 			COMMAND ${CMAKE_CURRENT_SOURCE_DIR}/bin/vqcsim_test
 		)
+		add_custom_target(buildtest
+			DEPENDS csim_test
+			DEPENDS cppsim_test
+			DEPENDS gpusim_test
+			DEPENDS vqcsim_test
+		)
 	else()
 		add_custom_target(test
 			DEPENDS csim_test

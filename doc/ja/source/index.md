@@ -76,6 +76,6 @@ intro/4.2_cpp_tutorial
 :caption: API リファレンス
 :hidden:
 
-pyRef/modules
+pyRef/index
 api/cpp_library_root
 ```

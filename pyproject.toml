@@ -63,7 +63,8 @@ doc = [
     "nbsphinx == 0.8.*",
     "myst-parser == 0.18.*",
     "sphinx-copybutton == 0.5.*",
-    "ipykernel == 6.17.1",
+    "ipykernel == 6.17.*",
+    "sphinx-autoapi == 2.0.*"
 ]
 
 [tool.setuptools]

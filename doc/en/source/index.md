@@ -94,7 +94,7 @@ apply/0_overview
 :caption: API reference
 :hidden:
 
-pyRef/modules
+pyRef/index
 api/cpp_library_root
 ```
 
