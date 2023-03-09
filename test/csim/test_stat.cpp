@@ -351,6 +351,11 @@ TEST(StatOperationTest, MultiQubitExpectationValuePartialTest) {
                     pauli_index.data(), pauli_partial.data(),
                     (UINT)pauli_index.size(), state, dim);
             ASSERT_NEAR(expectation, test_expectation, eps);
+            double expectation_st =
+                expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
+                    pauli_index.data(), pauli_partial.data(),
+                    (UINT)pauli_index.size(), state, dim);
+            ASSERT_NEAR(expectation_st, test_expectation, eps);
         }
     }
     release_quantum_state(state);
@@ -412,6 +417,11 @@ TEST(StatOperationTest, MultiQubitExpectationValueZopPartialTest) {
                     pauli_index.data(), pauli_partial.data(),
                     (UINT)pauli_index.size(), state, dim);
             ASSERT_NEAR(expectation, test_expectation, eps);
+            double expectation_st =
+                expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
+                    pauli_index.data(), pauli_partial.data(),
+                    (UINT)pauli_index.size(), state, dim);
+            ASSERT_NEAR(expectation_st, test_expectation, eps);
         }
     }
     release_quantum_state(state);
