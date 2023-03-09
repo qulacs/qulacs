@@ -631,8 +631,8 @@ public:
         CPPCTYPE coef, const QuantumStateBase* state) override {
         if (!state->is_state_vector()) {
             throw InoperatableQuantumStateTypeException(
-                "Error: QuantumStateCpu::add_state_with_coef(const "
-                "QuantumStateBase*): "
+                "Error: QuantumStateCpu::add_state_with_coef(CPPCTYPE, "
+                "const QuantumStateBase*): "
                 "cannot add DensityMatrix to StateVector");
         }
         if (state->get_device_name() == "gpu") {
@@ -651,8 +651,8 @@ public:
         if (!state->is_state_vector()) {
             throw InoperatableQuantumStateTypeException(
                 "Error: "
-                "QuantumStateCpu::add_state_with_coef_single_thread(const "
-                "QuantumStateBase*): "
+                "QuantumStateCpu::add_state_with_coef_single_thread(CPPCTYPE, "
+                "const QuantumStateBase*): "
                 "cannot add DensityMatrix to StateVector");
         }
         if (state->get_device_name() == "gpu") {
