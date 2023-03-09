@@ -208,6 +208,11 @@ public:
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
     virtual void load(const QuantumStateBase* _state) override {
+        if (!_state->is_state_vector()) {
+            throw InoperatableQuantumStateTypeException(
+                "Error: QuantumStateGpu::load(const QuantumStateBase*): "
+                "cannot load DensityMatrix to StateVector");
+        }
         if (_state->get_device_name() == "gpu") {
             copy_quantum_state_from_device_to_device(
                 this->data(), _state->data(), dim, _cuda_stream, device_number);
@@ -289,6 +294,11 @@ public:
      * \~japanese-en 量子状態を足しこむ
      */
     virtual void add_state(const QuantumStateBase* state) override {
+        if (!state->is_state_vector()) {
+            throw InoperatableQuantumStateTypeException(
+                "Error: QuantumStateGpu::add_state(const QuantumStateBase*): "
+                "cannot add DensityMatrix to StateVector");
+        }
         state_add_host(state->data(), this->data(), this->dim, _cuda_stream,
             device_number);
     }
@@ -298,6 +308,12 @@ public:
      */
     virtual void add_state_with_coef(
         CPPCTYPE coef, const QuantumStateBase* state) override {
+        if (!state->is_state_vector()) {
+            throw InoperatableQuantumStateTypeException(
+                "Error: QuantumStateGpu::add_state_with_coef(CPPCTYPE, " c
+                "const QuantumStateBase*): "
+                "cannot add DensityMatrix to StateVector");
+        }
         state_multiply_host(
             coef, this->data(), this->dim, _cuda_stream, device_number);
         state_add_host(state->data(), this->data(), this->dim, _cuda_stream,
@@ -311,6 +327,13 @@ public:
      */
     virtual void add_state_with_coef_single_thread(
         CPPCTYPE coef, const QuantumStateBase* state) override {
+        if (!state->is_state_vector()) {
+            throw InoperatableQuantumStateTypeException(
+                "Error: "
+                "QuantumStateGpu::add_state_with_coef_single_thread(CPPCTYPE, "
+                "const QuantumStateBase*): "
+                "cannot add DensityMatrix to StateVector");
+        }
         state_multiply_host(CPPCTYPE(1) / coef, this->data(), this->dim,
             _cuda_stream, device_number);
         state_add_host(state->data(), this->data(), this->dim, _cuda_stream,
