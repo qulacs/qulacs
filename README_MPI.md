@@ -36,7 +36,7 @@
          *** Quantum State ***
          * Qubit Count : 10
          * Local Qubit Count : 9
-         * Local Qubit Count : 1       // MPI-size=2
+         * Global Qubit Count : 1      // MPI-size=2
          * Dimension   : 1024
           (1.0 ,0)                     // c0000000000
           (0, 0)                       // c0000000001
