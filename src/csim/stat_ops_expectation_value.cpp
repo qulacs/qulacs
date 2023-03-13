@@ -667,30 +667,26 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
     if (bit_flip_mask == 0) {
 #ifdef _USE_SVE
         if (dim > VL) {
-            result =
-                expectation_value_multi_qubit_Pauli_operator_Z_mask_sve(
-                    phase_flip_mask, state, dim);
+            result = expectation_value_multi_qubit_Pauli_operator_Z_mask_sve(
+                phase_flip_mask, state, dim);
         } else
 #endif
         {
-            result =
-                expectation_value_multi_qubit_Pauli_operator_Z_mask(
-                    phase_flip_mask, state, dim);
+            result = expectation_value_multi_qubit_Pauli_operator_Z_mask(
+                phase_flip_mask, state, dim);
         }
     } else {
 #ifdef _USE_SVE
         if ((dim >> 1) > VL) {
-            result =
-                expectation_value_multi_qubit_Pauli_operator_XZ_mask_sve(
-                    bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
-                    pivot_qubit_index, state, dim);
+            result = expectation_value_multi_qubit_Pauli_operator_XZ_mask_sve(
+                bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
+                pivot_qubit_index, state, dim);
         } else
 #endif
         {
-            result =
-                expectation_value_multi_qubit_Pauli_operator_XZ_mask(
-                    bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
-                    pivot_qubit_index, state, dim);
+            result = expectation_value_multi_qubit_Pauli_operator_XZ_mask(
+                bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
+                pivot_qubit_index, state, dim);
         }
     }
 #ifdef _OPENMP
@@ -721,7 +717,7 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list_mpi(
         result = expectation_value_multi_qubit_Pauli_operator_XZ_mask_mpi(
             bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
             pivot_qubit_index, state, dim, inner_qc);
-	}
+    }
 
     if (outer_qc > 0) MPIutil::get_inst().s_D_allreduce(&result);
     return result;
@@ -735,6 +731,7 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_mpi(
     double sum = 0.;
 
     int comm_flag = bit_flip_mask >> inner_qc;
+    assert(comm_flag != 0);
 
     MPIutil& m = MPIutil::get_inst();
     int mpirank = m.get_rank();
@@ -751,9 +748,12 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_mpi(
         state_index = 0;
 
         for (i = 0; i < num_work; ++i) {
-            const CTYPE* sendptr = state + dim_work * i;
-            if (mpirank < pair_rank) {
-                // recv
+            if (mpirank > pair_rank) {
+                // sender
+                const CTYPE* sendptr = state + dim_work * i;
+                m.m_DC_send((void*)sendptr, dim_work, pair_rank);
+            } else {
+                // receiver
                 m.m_DC_recv(recvptr, dim_work, pair_rank);
 
 #ifdef _OPENMP
@@ -767,16 +767,12 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_mpi(
 
                     sum += _creal(
                         state[basis_0 & inner_mask] *
-                        conj(recvptr[basis_1 & (dim_work - 1)]) *
+                        conj(recvptr[basis_1 & inner_mask]) *
                         PHASE_90ROT[(global_phase_90rot_count + sign_0 * 2) %
                                     4] *
                         2.0);
                 }
-
                 state_index += dim_work;
-            } else {
-                // send
-                m.m_DC_send((void*)sendptr, dim_work, pair_rank);
             }
         }
     } else {
