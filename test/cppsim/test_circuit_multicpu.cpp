@@ -305,7 +305,9 @@ TEST(CircuitTest_multicpu, CircuitRev) {
 }
 
 TEST(CircuitTest_multicpu, CircuitOptimize) {
-    const UINT n = 4;
+    MPIutil& m = MPIutil::get_inst();
+    const UINT num_global_qubit = (UINT)std::log2(m.get_size());
+    UINT n = 4 + num_global_qubit;
     const UINT dim = 1ULL << n;
 
     {
@@ -588,7 +590,6 @@ TEST(CircuitTest_multicpu, CircuitOptimize) {
         delete copy_circuit;
     }
 
-#if 0
     {
         // CNOT, target commute with X
         QuantumState state(n, true), test_state(n, true);
@@ -658,7 +659,6 @@ TEST(CircuitTest_multicpu, CircuitOptimize) {
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
-#endif
 }
 
 TEST(CircuitTest_multicpu, RandomCircuitOptimize) {

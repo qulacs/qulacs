@@ -282,6 +282,7 @@ TEST(CircuitTest, RandomCircuitOptimizeLight3) {
     }
 }
 
+// see https://github.com/qulacs/qulacs/pull/514 for details.
 TEST(CircuitTest, FusedSWAPregression1) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;
