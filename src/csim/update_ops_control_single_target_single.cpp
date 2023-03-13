@@ -397,8 +397,8 @@ void single_qubit_control_single_qubit_dense_matrix_gate_mpi(
     assert(num_work > 0);
     CTYPE* si = state;
 
-    if (target_qubit_index < inner_qc) {  // control, target: inner, inner
-        if (control_qubit_index < inner_qc) {
+    if (target_qubit_index < inner_qc) {
+        if (control_qubit_index < inner_qc) {  // control, target: inner, inner
             single_qubit_control_single_qubit_dense_matrix_gate(
                 control_qubit_index, control_value, target_qubit_index, matrix,
                 state, dim);
@@ -409,13 +409,13 @@ void single_qubit_control_single_qubit_dense_matrix_gate_mpi(
                 single_qubit_dense_matrix_gate(
                     target_qubit_index, matrix, state, dim);
         }
-    } else {  // control, target: inner, outer
+    } else {
         const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
         const int pair_rank = rank ^ pair_rank_bit;
 #ifdef _OPENMP
         OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
 #endif
-        if (control_qubit_index < inner_qc) {
+        if (control_qubit_index < inner_qc) {  // control, target: inner, outer
             for (ITYPE iter = 0; iter < num_work; ++iter) {
                 m.m_DC_sendrecv(si, t, dim_work, pair_rank);
 
