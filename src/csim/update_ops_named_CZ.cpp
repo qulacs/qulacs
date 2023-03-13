@@ -150,13 +150,8 @@ void CZ_gate_parallel_sve(UINT control_qubit_index, UINT target_qubit_index,
     ITYPE VL = svcntd() / 2;
 
     if (min_qubit_mask < VL) {
-#pragma omp parallel for
-        for (state_index = 0; state_index < loop_dim; ++state_index) {
-            ITYPE basis_index = (state_index & low_mask) +
-                                ((state_index & mid_mask) << 1) +
-                                ((state_index & high_mask) << 2) + mask;
-            state[basis_index] *= -1;
-        }
+        CZ_gate_parallel_unroll(
+            control_qubit_index, target_qubit_index, state, dim);
     } else {
 #pragma omp parallel for
         for (state_index = 0; state_index < loop_dim; state_index += VL) {

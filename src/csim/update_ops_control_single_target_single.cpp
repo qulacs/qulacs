@@ -65,9 +65,7 @@ void single_qubit_control_single_qubit_dense_matrix_gate_unroll(
 
     ITYPE state_index;
     if (target_qubit_index == 0) {
-#ifdef _OPENMP
 #pragma omp parallel for
-#endif
         for (state_index = 0; state_index < loop_dim; ++state_index) {
             ITYPE basis_index =
                 (state_index & low_mask) + ((state_index & mid_mask) << 1) +
@@ -82,9 +80,7 @@ void single_qubit_control_single_qubit_dense_matrix_gate_unroll(
             state[basis_index + 1] = matrix[2] * cval0 + matrix[3] * cval1;
         }
     } else if (control_qubit_index == 0) {
-#ifdef _OPENMP
 #pragma omp parallel for
-#endif
         for (state_index = 0; state_index < loop_dim; ++state_index) {
             ITYPE basis_index_0 =
                 (state_index & low_mask) + ((state_index & mid_mask) << 1) +
@@ -100,9 +96,7 @@ void single_qubit_control_single_qubit_dense_matrix_gate_unroll(
             state[basis_index_1] = matrix[2] * cval0 + matrix[3] * cval1;
         }
     } else {
-#ifdef _OPENMP
 #pragma omp parallel for
-#endif
         for (state_index = 0; state_index < loop_dim; state_index += 2) {
             ITYPE basis_index_0 =
                 (state_index & low_mask) + ((state_index & mid_mask) << 1) +
@@ -153,9 +147,7 @@ void single_qubit_control_single_qubit_dense_matrix_gate_simd(
             -_cimag(matrix[2]), _creal(matrix[2]));
         __m256d mv21 = _mm256_set_pd(_creal(matrix[3]), _cimag(matrix[3]),
             _creal(matrix[2]), _cimag(matrix[2]));
-#ifdef _OPENMP
 #pragma omp parallel for
-#endif
         for (state_index = 0; state_index < loop_dim; ++state_index) {
             ITYPE basis =
                 (state_index & low_mask) + ((state_index & mid_mask) << 1) +
@@ -182,9 +174,7 @@ void single_qubit_control_single_qubit_dense_matrix_gate_simd(
             _mm256_storeu_pd(ptr, data_r);
         }
     } else if (control_qubit_index == 0) {
-#ifdef _OPENMP
 #pragma omp parallel for
-#endif
         for (state_index = 0; state_index < loop_dim; ++state_index) {
             ITYPE basis_index_0 =
                 (state_index & low_mask) + ((state_index & mid_mask) << 1) +
@@ -216,9 +206,7 @@ void single_qubit_control_single_qubit_dense_matrix_gate_simd(
             -_cimag(matrix[3]), _creal(matrix[3]));
         __m256d mv31 = _mm256_set_pd(_creal(matrix[3]), _cimag(matrix[3]),
             _creal(matrix[3]), _cimag(matrix[3]));
-#ifdef _OPENMP
 #pragma omp parallel for
-#endif
         for (state_index = 0; state_index < loop_dim; state_index += 2) {
             ITYPE basis_0 =
                 (state_index & low_mask) + ((state_index & mid_mask) << 1) +
@@ -257,7 +245,6 @@ void single_qubit_control_single_qubit_dense_matrix_gate_simd(
 #endif
 
 #ifdef _USE_SVE
-
 static inline void MatrixVectorProduct2x2(svbool_t pg, svfloat64_t in00r,
     svfloat64_t in00i, svfloat64_t in11r, svfloat64_t in11i, svfloat64_t mat02r,
     svfloat64_t mat02i, svfloat64_t mat13r, svfloat64_t mat13i,
@@ -358,21 +345,9 @@ void single_qubit_control_single_qubit_dense_matrix_gate_sve512(
             }
         }
     } else {
-#pragma omp parallel for
-        for (state_index = 0; state_index < loop_dim; ++state_index) {
-            ITYPE basis_0 =
-                (state_index & low_mask) + ((state_index & mid_mask) << 1) +
-                ((state_index & high_mask) << 2) + control_mask * control_value;
-            ITYPE basis_1 = basis_0 + target_mask;
-
-            // fetch values
-            CTYPE cval_0 = state[basis_0];
-            CTYPE cval_1 = state[basis_1];
-
-            // set values
-            state[basis_0] = matrix[0] * cval_0 + matrix[1] * cval_1;
-            state[basis_1] = matrix[2] * cval_0 + matrix[3] * cval_1;
-        }
+        single_qubit_control_single_qubit_dense_matrix_gate_unroll(
+            control_qubit_index, control_value, target_qubit_index, matrix,
+            state, dim);
     }
 }
 #endif  // ifdef _USE_SVE
