@@ -310,7 +310,7 @@ public:
         CPPCTYPE coef, const QuantumStateBase* state) override {
         if (!state->is_state_vector()) {
             throw InoperatableQuantumStateTypeException(
-                "Error: QuantumStateGpu::add_state_with_coef(CPPCTYPE, " c
+                "Error: QuantumStateGpu::add_state_with_coef(CPPCTYPE, "
                 "const QuantumStateBase*): "
                 "cannot add DensityMatrix to StateVector");
         }
