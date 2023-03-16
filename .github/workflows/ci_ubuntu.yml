@@ -169,7 +169,6 @@ jobs:
       CXX_COMPILER: "aarch64-linux-gnu-g++-11"
       QULACS_OPT_FLAGS: "-march=armv8.2-a+sve"
       QEMU_LD_PREFIX: "/usr/aarch64-linux-gnu"
-      QEMU_CPU: "max,sve512=on"
     steps:
       - uses: actions/checkout@v3
 
@@ -196,11 +195,14 @@ jobs:
           cd ./build
           make buildtest -j $(nproc)
           file ../bin/csim_test
-          qemu-aarch64 ../bin/csim_test
+          QEMU_CPU="max,sve512=on" qemu-aarch64 ../bin/csim_test
+          QEMU_CPU="max,sve256=on" qemu-aarch64 ../bin/csim_test
           file ../bin/cppsim_test
-          qemu-aarch64 ../bin/cppsim_test
+          QEMU_CPU="max,sve512=on" qemu-aarch64 ../bin/cppsim_test
+          QEMU_CPU="max,sve256=on" qemu-aarch64 ../bin/cppsim_test
           file ../bin/vqcsim_test
-          qemu-aarch64 ../bin/vqcsim_test
+          QEMU_CPU="max,sve512=on" qemu-aarch64 ../bin/vqcsim_test
+          QEMU_CPU="max,sve256=on" qemu-aarch64 ../bin/vqcsim_test
 
   format:
     name: Format with clang-format
