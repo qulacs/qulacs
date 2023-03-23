@@ -271,6 +271,11 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 	if(NOT MINGW)
 		# set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fext-numeric-literals")
 	endif()
+	
+	# Disable assertion of Eigen
+	if(NOT USE_TEST)
+		add_compile_options("-D EIGEN_NO_DEBUG")
+	endif()
 
 	# Enable openmp
 	if(USE_OMP)
@@ -328,6 +333,11 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
 	SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
 
+	# Disable assertion of Eigen
+	if(NOT USE_TEST)
+		add_compile_options("/D EIGEN_NO_DEBUG")
+	endif()
+
 elseif(MSVC)
 	# Compile csim with cpp compiler since VC does not completely support C99 complex values
 	# SET(CMAKE_C_COMPILER ${CMAKE_CXX_COMPILER})
@@ -338,6 +348,11 @@ elseif(MSVC)
 	add_compile_options(/wd4251)
 	## ignore warning on non-Unicode files
 	add_compile_options(/wd4819)
+
+	# Disable assertion of Eigen
+	if(NOT USE_TEST)
+		add_compile_options("/D EIGEN_NO_DEBUG")
+	endif()
 
 	# Enable simd
 	## Check if AVX2 is supported
