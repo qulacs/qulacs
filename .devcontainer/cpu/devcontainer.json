@@ -1,7 +1,7 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
 // https://github.com/microsoft/vscode-dev-containers/tree/v0.209.6/containers/cpp
 {
-	"name": "C++",
+	"name": "CPU Environment",
 	"build": {
 		"dockerfile": "Dockerfile",
 		"cacheFrom": "ghcr.io/qulacs/qulacs-devcontainer:latest"
@@ -12,32 +12,37 @@
 		"seccomp=unconfined"
 	],
 	// Set *default* container specific settings.json values on container create.
-	"settings": {
-		"python.linting.enabled": true,
-		"python.linting.pylintEnabled": false,
-		"python.linting.flake8Enabled": true,
-		"python.formatting.provider": "black",
-		"editor.formatOnSave": true,
-		"editor.codeActionsOnSave": {
-			"source.organizeImports": true
-		},
-		"editor.defaultFormatter": "xaver.clang-format",
-		"python.linting.mypyEnabled": true,
-		"python.terminal.activateEnvironment": false,
-		// CAVEAT: you need to restart after building qulacs to take effect.
-		"C_Cpp.default.includePath": [
-			"include",
-			"/usr/local/include/python3.9"
-		]
+	"customizations": {
+		"vscode": {
+			"settings": {
+				"python.linting.enabled": true,
+				"python.linting.pylintEnabled": false,
+				"python.linting.flake8Enabled": true,
+				"python.formatting.provider": "black",
+				"editor.formatOnSave": true,
+				"editor.codeActionsOnSave": {
+					"source.organizeImports": true
+				},
+				"editor.defaultFormatter": "xaver.clang-format",
+				"python.linting.mypyEnabled": true,
+				"python.terminal.activateEnvironment": false,
+				// CAVEAT: you need to restart after building qulacs to take effect.
+				"C_Cpp.default.includePath": [
+					"include",
+					"/usr/local/include/python3.9"
+				]
+			},
+			// Add the IDs of extensions you want installed when the container is created.
+			"extensions": [
+				"ms-vscode.cpptools",
+				"ms-vscode.cmake-tools",
+				"ms-python.python",
+				"ms-python.vscode-pylance",
+				"xaver.clang-format"
+			]
+		}
 	},
-	// Add the IDs of extensions you want installed when the container is created.
-	"extensions": [
-		"ms-vscode.cpptools",
-		"ms-vscode.cmake-tools",
-		"ms-python.python",
-		"ms-python.vscode-pylance",
-		"xaver.clang-format"
-	],
+
 	// Required by `mounts`.
 	// c.f. https://code.visualstudio.com/remote/advancedcontainers/improve-performance#_use-a-targeted-named-volume
 	"workspaceMount": "source=${localWorkspaceFolder},target=/workspaces/qulacs,type=bind,consistency=cached",
