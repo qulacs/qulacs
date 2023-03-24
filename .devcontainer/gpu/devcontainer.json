@@ -32,7 +32,9 @@
 				"C_Cpp.default.includePath": [
 					"include",
 					"/usr/local/include/python3.9"
-				]
+				],
+				// To highlight GPU code in VSCode.
+				"C_Cpp.default.defines": ["_USE_GPU"]
 			},
 			// Add the IDs of extensions you want installed when the container is created.
 			"extensions": [
