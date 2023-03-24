@@ -4,7 +4,6 @@
 	"name": "CPU Environment",
 	"build": {
 		"dockerfile": "Dockerfile",
-		"cacheFrom": "ghcr.io/qulacs/qulacs-devcontainer:latest"
 	},
 	"runArgs": [
 		"--cap-add=SYS_PTRACE",

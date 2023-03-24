@@ -13,6 +13,8 @@ ENV PYTHONPATH="${PWD}/build:${PYTHONPATH}"
 # The base image is not created for devcontainer inherently, so we need to handle non-root user by ourselves here.
 
 RUN apt-get update \
+    # Remove imagemagick due to https://security-tracker.debian.org/tracker/CVE-2019-10131, which is done in Microsoft's devcontainer image.
+    && apt-get purge -y imagemagick imagemagick-6-common \
     && apt-get install -y --no-install-recommends \
     ca-certificates \
     clang-format \
