@@ -1,8 +1,10 @@
 #pragma once
 
 #include <cmath>
+#include <csim/stat_ops.hpp>
 #include <csim/update_ops.hpp>
 #include <csim/update_ops_dm.hpp>
+#include <csim/utility.hpp>
 
 #include "gate.hpp"
 #include "state.hpp"
@@ -39,20 +41,86 @@ public:
         if (state->is_state_vector()) {
 #ifdef _USE_GPU
             if (state->get_device_name() == "gpu") {
-                _update_func_gpu(this->target_qubit_list[0].index(),
-                    state->data(), state->dim, state->get_cuda_stream(),
-                    state->device_number);
-            } else {
-                _update_func(this->_target_qubit_list[0].index(),
-                    state->data_c(), state->dim);
-            }
-#else
-            _update_func(this->_target_qubit_list[0].index(), state->data_c(),
-                state->dim);
+                if (this->_control_qubit_list.size() == 0) {
+                    _update_func_gpu(this->target_qubit_list[0].index(),
+                        state->data(), state->dim, state->get_cuda_stream(),
+                        state->device_number);
+                } else if (this->_control_qubit_list.size() == 1) {
+                    single_qubit_control_single_qubit_dense_matrix_gate_host(
+                        this->_control_qubit_list[0].index(),
+                        this->_control_qubit_list[0].control_value(),
+                        this->_target_qubit_list[0].index(),
+                        this->_matrix_element.data(), state->data(), state->dim,
+                        state->get_cuda_stream(), state->device_number);
+                } else {
+                    std::vector<UINT> target_index;
+                    std::vector<UINT> control_index;
+                    std::vector<UINT> control_value;
+                    std::transform(this->_target_qubit_list.cbegin(),
+                        this->_target_qubit_list.cend(),
+                        std::back_inserter(target_index),
+                        [](const TargetQubitInfo& value) {
+                            return value.index();
+                        });
+                    for (auto val : this->_control_qubit_list) {
+                        control_index.push_back(val.index());
+                        control_value.push_back(val.control_value());
+                    }
+                    multi_qubit_control_multi_qubit_dense_matrix_gate_host(
+                        control_index.data(), control_value.data(),
+                        (UINT)(control_index.size()), target_index.data(),
+                        (UINT)(target_index.size()),
+                        this->_matrix_element.data(), state->data(), state->dim,
+                        state->get_cuda_stream(), state->device_number);
+                }
+            } else
 #endif
+            {
+                if (this->_control_qubit_list.size() == 0) {
+                    _update_func(this->_target_qubit_list[0].index(),
+                        state->data_c(), state->dim);
+                } else {
+                    UINT num_control_qubits = this->_control_qubit_list.size();
+                    ITYPE partial_dim = state->dim >> num_control_qubits;
+                    CTYPE* partial_state =
+                        (CTYPE*)allocate_quantum_state(partial_dim);
+                    std::vector<UINT> control_index;
+                    std::vector<UINT> control_value;
+                    for (auto val : this->_control_qubit_list) {
+                        control_index.push_back(val.index());
+                        control_value.push_back(val.control_value());
+                    }
+                    state_drop_qubits(control_index.data(),
+                        control_value.data(), num_control_qubits,
+                        state->data_c(), partial_state, state->dim);
+                    UINT converted_target_index = convert_dropped_qubit_index(
+                        control_index.data(), num_control_qubits,
+                        this->_target_qubit_list[0].index());
+                    _update_func(
+                        converted_target_index, partial_state, partial_dim);
+                    state_update_partial_qubits(control_index.data(),
+                        control_value.data(), num_control_qubits,
+                        state->data_c(), partial_state, state->dim);
+                    free(partial_state);
+                }
+            }
         } else {
-            _update_func_dm(this->_target_qubit_list[0].index(),
-                state->data_c(), state->dim);
+            if (this->_control_qubit_list.size() == 0) {
+                _update_func_dm(this->_target_qubit_list[0].index(),
+                    state->data_c(), state->dim);
+            } else {
+                std::vector<UINT> control_index;
+                std::vector<UINT> control_value;
+                for (auto val : this->_control_qubit_list) {
+                    control_index.push_back(val.index());
+                    control_value.push_back(val.control_value());
+                }
+                dm_multi_qubit_control_single_qubit_dense_matrix_gate(
+                    control_index.data(), control_value.data(),
+                    (UINT)control_index.size(),
+                    this->_target_qubit_list[0].index(),
+                    this->_matrix_element.data(), state->data_c(), state->dim);
+            }
         }
     };
     /**
