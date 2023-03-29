@@ -92,6 +92,42 @@ static Eigen::MatrixXcd get_expanded_eigen_matrix_with_identity(
         kronecker_product(right_identity, one_qubit_matrix), left_identity);
 }
 
+static Eigen::MatrixXcd get_expanded_eigen_matrix_with_single_control_qubit(
+    UINT target_qubit_index, const Eigen::MatrixXcd& one_qubit_matrix,
+    UINT control_qubit_index, UINT control_value, UINT qubit_count) {
+    ITYPE dim = 1ULL << qubit_count;
+    Eigen::MatrixXcd result = Eigen::MatrixXcd::Identity(dim, dim);
+    ITYPE controlled_base = control_value << control_qubit_index;
+    for (ITYPE i = 0; i < 2; i++) {
+        for (ITYPE j = 0; j < 2; j++) {
+            ITYPE col_idx = controlled_base ^ i << target_qubit_index;
+            ITYPE row_idx = controlled_base ^ j << target_qubit_index;
+            result(col_idx, row_idx) = one_qubit_matrix(i, j);
+        }
+    }
+    return result;
+}
+
+static Eigen::MatrixXcd get_expanded_eigen_matrix_with_multi_control_qubit(
+    UINT target_qubit_index, const Eigen::MatrixXcd& one_qubit_matrix,
+    const std::vector<UINT>& control_qubit_index,
+    const std::vector<UINT>& control_value, UINT qubit_count) {
+    ITYPE dim = 1ULL << qubit_count;
+    Eigen::MatrixXcd result = Eigen::MatrixXcd::Identity(dim, dim);
+    ITYPE controlled_base = 0ULL;
+    for (UINT i = 0; i < control_qubit_index.size(); i++) {
+        controlled_base ^= control_value[i] << control_qubit_index[i];
+    }
+    for (ITYPE i = 0; i < 2; i++) {
+        for (ITYPE j = 0; j < 2; j++) {
+            ITYPE col_idx = controlled_base ^ i << target_qubit_index;
+            ITYPE row_idx = controlled_base ^ j << target_qubit_index;
+            result(col_idx, row_idx) = one_qubit_matrix(i, j);
+        }
+    }
+    return result;
+}
+
 // get expanded matrix
 
 static Eigen::MatrixXcd get_eigen_matrix_full_qubit_pauli(
