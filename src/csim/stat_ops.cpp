@@ -105,3 +105,26 @@ void state_drop_qubits(const UINT* target, const UINT* projection,
     }
     free(sorted_target);
 }
+
+void state_update_partial_qubits(const UINT* target, const UINT* projection,
+    UINT target_count, CTYPE* state_src, CTYPE* state_dst, ITYPE dim) {
+    ITYPE src_dim = dim >> target_count;
+    UINT* sorted_target = create_sorted_ui_list(target, target_count);
+    ITYPE projection_mask = 0;
+    for (UINT target_index = 0; target_index < target_count; ++target_index) {
+        projection_mask ^= (projection[target_index] << target[target_index]);
+    }
+
+    for (ITYPE index = 0; index < src_dim; ++index) {
+        ITYPE dst_index = index;
+        for (UINT target_index = 0; target_index < target_count;
+             ++target_index) {
+            UINT insert_index = sorted_target[target_index];
+            dst_index = insert_zero_to_basis_index(
+                dst_index, 1ULL << insert_index, insert_index);
+        }
+        dst_index ^= projection_mask;
+        state_dst[dst_index] = state_src[index];
+    }
+    free(sorted_target);
+}

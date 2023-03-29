@@ -130,6 +130,30 @@ UINT* create_sorted_ui_list_list(
     return new_array;
 }
 
+UINT convert_dropped_qubit_index(
+    const UINT* target, UINT target_count, UINT qubit_index) {
+    UINT result = qubit_index;
+    for (UINT target_index = 0; target_index < target_count; ++target_index) {
+        if (target[target_index] < qubit_index) --result;
+    }
+    return result;
+}
+
+UINT* create_converted_dropped_qubit_indices(const UINT* target,
+    UINT target_count, const UINT* qubit_indices, UINT qubit_indices_count) {
+    UINT* result = (UINT*)calloc(qubit_indices_count, sizeof(UINT));
+    for (UINT qubit_indices_index = 0;
+         qubit_indices_index < qubit_indices_count; ++qubit_indices_index) {
+        result[qubit_indices_index] = qubit_indices[qubit_indices_index];
+        for (UINT target_index = 0; target_index < target_count;
+             ++target_index) {
+            if (target[target_index] < qubit_indices[qubit_indices_index])
+                --result[qubit_indices_index];
+        }
+    }
+    return result;
+}
+
 #ifdef _OPENMP
 void OMPutil::set_qulacs_num_threads(ITYPE dim, UINT para_threshold) {
     UINT threshold = para_threshold;

@@ -112,6 +112,18 @@ void get_Pauli_masks_whole_list(const UINT* Pauli_operator_type_list,
     UINT target_qubit_index_count, ITYPE* bit_flip_mask, ITYPE* phase_flip_mask,
     UINT* global_phase_90rot_count, UINT* pivot_qubit_index);
 
+/*
+ * drop qubits listed in target and return converted qubit_index
+ */
+UINT convert_dropped_qubit_index(
+    const UINT* target, UINT target_count, UINT qubit_index);
+
+/*
+ * drop qubits listed in target and return converted list of qubit_index
+ */
+UINT* create_converted_dropped_qubit_indices(const UINT* target,
+    UINT target_count, const UINT* qubit_indices, UINT qubit_indices_count);
+
 /**
  * OpenMP threads control utility
  */

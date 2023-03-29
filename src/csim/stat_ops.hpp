@@ -54,3 +54,7 @@ DllExport double
 expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
     const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
     UINT target_qubit_index_count, const CTYPE* state, ITYPE dim);
+
+DllExport void state_update_partial_qubits(const UINT* target,
+    const UINT* projection, UINT target_count, CTYPE* state_src,
+    CTYPE* state_dst, ITYPE dim);
