@@ -152,6 +152,21 @@ public:
     }
 
     /**
+     * \~japanese-en コントロールの量子ビットを追加する
+     *
+     * <code>qubit_index</code>はゲートのターゲットやコントロールの値に含まれてはいけない。
+     * @param[in] qubit_index コントロールの量子ビットの添え字
+     * @param[in] control_value
+     * 基底の<code>qubit_index</code>が<code>control_value</code>である場合にのみゲートが作用する。
+     */
+    void add_control_qubit(UINT qubit_index, UINT control_value) {
+        this->_control_qubit_list.push_back(
+            ControlQubitInfo(qubit_index, control_value));
+        this->_gate_property &= (~FLAG_PAULI);
+        this->_gate_property &= (~FLAG_GAUSSIAN);
+    }
+
+    /**
      * \~japanese-en 量子状態を更新する
      *
      * @param state 更新する量子状態

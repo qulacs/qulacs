@@ -271,14 +271,6 @@ void QuantumGateMatrix::update_quantum_state(QuantumStateBase* state) {
     }
 }
 
-void QuantumGateMatrix::add_control_qubit(
-    UINT qubit_index, UINT control_value) {
-    this->_control_qubit_list.push_back(
-        ControlQubitInfo(qubit_index, control_value));
-    this->_gate_property &= (~FLAG_PAULI);
-    this->_gate_property &= (~FLAG_GAUSSIAN);
-}
-
 std::string QuantumGateMatrix::to_string() const {
     std::stringstream os;
     os << QuantumGateBase::to_string();

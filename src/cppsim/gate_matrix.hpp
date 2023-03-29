@@ -72,16 +72,6 @@ public:
     virtual ~QuantumGateMatrix(){};
 
     /**
-     * \~japanese-en コントロールの量子ビットを追加する
-     *
-     * <code>qubit_index</code>はゲートのターゲットやコントロールの値に含まれてはいけない。
-     * @param[in] qubit_index コントロールの量子ビットの添え字
-     * @param[in] control_value
-     * 基底の<code>qubit_index</code>が<code>control_value</code>である場合にのみゲートが作用する。
-     */
-    virtual void add_control_qubit(UINT qubit_index, UINT control_value);
-
-    /**
      * \~japanese-en ゲート行列にスカラー値をかける
      *
      * @param[in] value かける値
