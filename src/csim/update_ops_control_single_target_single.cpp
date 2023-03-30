@@ -245,10 +245,6 @@ void single_qubit_control_single_qubit_dense_matrix_gate_simd(
 #endif
 
 #ifdef _USE_SVE
-static inline void MatrixVectorProduct2x2(svbool_t pg, svfloat64_t in00r,
-    svfloat64_t in00i, svfloat64_t in11r, svfloat64_t in11i, svfloat64_t mat02r,
-    svfloat64_t mat02i, svfloat64_t mat13r, svfloat64_t mat13i,
-    svfloat64_t* out01r, svfloat64_t* out01i);
 
 static inline void MatrixVectorProduct2x2(svbool_t pg, svfloat64_t in00r,
     svfloat64_t in00i, svfloat64_t in11r, svfloat64_t in11i, svfloat64_t mat02r,
