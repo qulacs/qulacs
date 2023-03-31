@@ -2,13 +2,11 @@ FROM nvidia/cuda:11.4.2-devel-ubuntu20.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-ENV PWD="/workspaces/qulacs"
-ENV QULACS_PACKAGE="qulacs"
-ENV USE_TEST="Yes"
+ENV PROJECT_DIR="/workspaces/qulacs"
 # Add build artifact to PYTHONPATH and python can find qulacs.
 # Egg file name might vary depending on qulacs and python version.
-ENV PYTHONPATH="${PWD}/dist:${PYTHONPATH}"
-ENV PYTHONPATH="${PWD}/build:${PYTHONPATH}"
+ENV PYTHONPATH="${PROJECT_DIR}/dist:${PYTHONPATH}"
+ENV PYTHONPATH="${PROJECT_DIR}/build:${PYTHONPATH}"
 
 RUN apt-get update \
     # Remove imagemagick due to https://security-tracker.debian.org/tracker/CVE-2019-10131, which is done in Microsoft's devcontainer image.

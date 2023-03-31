@@ -7,13 +7,11 @@ FROM mcr.microsoft.com/vscode/devcontainers/python:0-3.9-bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-ENV PWD="/workspaces/qulacs"
-ENV QULACS_PACKAGE="qulacs"
-ENV USE_TEST="Yes"
+ENV PROJECT_DIR="/workspaces/qulacs"
 # Add build artifact to PYTHONPATH and python can find qulacs.
 # Egg file name might vary depending on qulacs and python version.
-ENV PYTHONPATH="${PWD}/dist:${PYTHONPATH}"
-ENV PYTHONPATH="${PWD}/build:${PYTHONPATH}"
+ENV PYTHONPATH="${PROJECT_DIR}/dist:${PYTHONPATH}"
+ENV PYTHONPATH="${PROJECT_DIR}/build:${PYTHONPATH}"
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
