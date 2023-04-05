@@ -59,7 +59,7 @@ __host__ void* allocate_quantum_state_host(
     int current_device = get_current_device();
     if (device_number != current_device) cudaSetDevice(device_number);
     GTYPE* state_gpu;
-    checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(GTYPE)));
+    checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(GTYPE)), __FILE__, __LINE__);
     void* psi_gpu = reinterpret_cast<void*>(state_gpu);
     return psi_gpu;
 }
@@ -77,8 +77,6 @@ __host__ void initialize_quantum_state_host(
 
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
-    state = reinterpret_cast<void*>(state_gpu);
-    // stream = reinterpret_cast<void*>(cuda_stream);
 }
 
 __host__ void release_quantum_state_host(
@@ -138,7 +136,7 @@ __host__ void initialize_Haar_random_state_with_seed_host(void* state,
     double norm = 0.;
 
     curandState* rnd_state;
-    checkCudaErrors(cudaMalloc((void**)&rnd_state, dim * sizeof(curandState)),
+    checkCudaErrors(cudaMalloc((void**)&rnd_state, dim * sizeof(curandState), __FILE__, __LINE__),
         __FILE__, __LINE__);
 
     // CURAND_RNG_PSEUDO_XORWOW
