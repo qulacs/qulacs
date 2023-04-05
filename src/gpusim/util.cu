@@ -170,8 +170,9 @@ void print_quantum_state_host(
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     CPPCTYPE* state_cpu = (CPPCTYPE*)malloc(sizeof(CPPCTYPE) * dim);
     checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
-    checkCudaErrors(cudaMemcpy(
-        state_cpu, state_gpu, dim * sizeof(CPPCTYPE), cudaMemcpyDeviceToHost), __FILE__, __LINE__);
+    checkCudaErrors(cudaMemcpy(state_cpu, state_gpu, dim * sizeof(CPPCTYPE),
+                        cudaMemcpyDeviceToHost),
+        __FILE__, __LINE__);
     for (int i = 0; i < dim; ++i) {
         std::cout << i << " : " << state_cpu[i].real() << "+i"
                   << state_cpu[i].imag() << '\n';
