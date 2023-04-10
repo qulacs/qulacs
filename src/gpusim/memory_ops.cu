@@ -137,7 +137,7 @@ __host__ void initialize_Haar_random_state_with_seed_host(void* state,
     double norm = 0.;
 
     curandState* rnd_state;
-    checkCudaErrors(cudaMalloc((void**)&rnd_state, dim * sizeof(curandState),
+    checkCudaErrors(cudaMalloc((void**)&rnd_state, dim * sizeof(curandState)),
                         __FILE__, __LINE__),
         __FILE__, __LINE__);
 
