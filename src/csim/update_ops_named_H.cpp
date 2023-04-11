@@ -204,16 +204,7 @@ void H_gate_parallel_sve(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
             }
         }
     } else {
-#pragma omp parallel for
-        for (state_index = 0; state_index < loop_dim; state_index++) {
-            ITYPE basis_index_0 =
-                (state_index & mask_low) + ((state_index & mask_high) << 1);
-            ITYPE basis_index_1 = basis_index_0 + mask;
-            CTYPE temp_a0 = state[basis_index_0];
-            CTYPE temp_a1 = state[basis_index_1];
-            state[basis_index_0] = (temp_a0 + temp_a1) * sqrt2inv;
-            state[basis_index_1] = (temp_a0 - temp_a1) * sqrt2inv;
-        }
+        H_gate_parallel_unroll(target_qubit_index, state, dim);
     }
 }
 #endif  // #ifdef _USE_SVE

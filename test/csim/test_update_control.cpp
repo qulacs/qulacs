@@ -74,6 +74,10 @@ TEST(UpdateTest, SingleQubitControlSingleQubitDenseMatrixTest) {
     test_single_control_single_target(
         single_qubit_control_single_qubit_dense_matrix_gate_simd);
 #endif
+#ifdef _USE_SVE
+    test_single_control_single_target(
+        single_qubit_control_single_qubit_dense_matrix_gate_sve512);
+#endif
 }
 
 void test_two_control_single_target(std::function<void(
