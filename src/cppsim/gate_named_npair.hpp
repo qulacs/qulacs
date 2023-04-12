@@ -94,10 +94,10 @@ public:
         // target_qubit_index1+(num_qubits-1),
         //  target_qubit_index2, target_qubit_index2+1, ...,
         //  target_qubit_index2+(num_qubits-1)]
-        for (int i = 0; i < block_size; ++i)
+        for (UINT i = 0; i < block_size; ++i)
             this->_target_qubit_list.push_back(
                 TargetQubitInfo(target_qubit_index1 + i, 0));
-        for (int i = 0; i < block_size; ++i)
+        for (UINT i = 0; i < block_size; ++i)
             this->_target_qubit_list.push_back(
                 TargetQubitInfo(target_qubit_index2 + i, 0));
         this->_block_size = block_size;
