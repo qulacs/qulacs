@@ -39,6 +39,7 @@ __all__ = [
     "QuantumStateBase",
     "SimulationResult",
     "StateVector",
+    "check_build_for_mpi",
     "circuit",
     "gate",
     "observable",
@@ -378,6 +379,10 @@ class QuantumCircuit():
     def add_CZ_gate(self, control: int, target: int) -> None: 
         """
         Add CNOT gate
+        """
+    def add_FusedSWAP_gate(self, target1: int, target2: int, block_size: int) -> None: 
+        """
+        Add FusedSWAP gate
         """
     def add_H_gate(self, index: int) -> None: 
         """
@@ -824,10 +829,13 @@ class QuantumGate_SingleParameter(QuantumGateBase):
     pass
 class QuantumState(QuantumStateBase):
     def __getstate__(self) -> str: ...
+    @typing.overload
     def __init__(self, qubit_count: int) -> None: 
         """
         Constructor
         """
+    @typing.overload
+    def __init__(self, qubit_count: int, use_multi_cpu: bool) -> None: ...
     def __setstate__(self, arg0: str) -> None: ...
     def __str__(self) -> str: 
         """
@@ -1060,5 +1068,7 @@ def StateVector(arg0: int) -> QuantumState:
     """
     StateVector
     """
+def check_build_for_mpi() -> bool:
+    pass
 def to_general_quantum_operator(gate: QuantumGateBase, qubits: int, tol: float) -> GeneralQuantumOperator:
     pass

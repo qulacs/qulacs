@@ -1,10 +1,7 @@
 
-#include "constant.hpp"
+#include "MPIutil.hpp"
 #include "update_ops.hpp"
 #include "utility.hpp"
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 
 #ifdef _USE_SIMD
 #ifdef _MSC_VER
@@ -208,3 +205,58 @@ void H_gate_parallel_sve(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
     }
 }
 #endif  // #ifdef _USE_SVE
+
+#ifdef _USE_MPI
+void H_gate_mpi(
+    UINT target_qubit_index, CTYPE *state, ITYPE dim, UINT inner_qc) {
+    if (target_qubit_index < inner_qc) {
+        H_gate(target_qubit_index, state, dim);
+    } else {
+        MPIutil &m = MPIutil::get_inst();
+        const int rank = m.get_rank();
+        ITYPE dim_work = dim;
+        ITYPE num_work = 0;
+        CTYPE *t = m.get_workarea(&dim_work, &num_work);
+        assert(num_work > 0);
+        const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
+        const int pair_rank = rank ^ pair_rank_bit;
+
+#ifdef _OPENMP
+        OMPutil::get_inst().set_qulacs_num_threads(dim_work, 13);
+#endif
+
+        CTYPE *si = state;
+        for (UINT i = 0; i < (UINT)num_work; ++i) {
+            m.m_DC_sendrecv(si, t, dim_work, pair_rank);
+
+            _H_gate_mpi(t, si, dim_work, rank & pair_rank_bit);
+
+            si += dim_work;
+        }
+#ifdef _OPENMP
+        OMPutil::get_inst().reset_qulacs_num_threads();
+#endif
+    }
+}
+
+void _H_gate_mpi(CTYPE *t, CTYPE *si, ITYPE dim, int flag) {
+    const double sqrt2inv = 1. / sqrt(2.);
+    ITYPE state_index = 0;
+
+#pragma omp parallel for
+    for (state_index = 0; state_index < dim; state_index += 2) {
+        // flag: My qubit(target in outer_qubit) value.
+        if (flag) {
+            // state-value=0, t-value=1
+            si[state_index] = (t[state_index] - si[state_index]) * sqrt2inv;
+            si[state_index + 1] =
+                (t[state_index + 1] - si[state_index + 1]) * sqrt2inv;
+        } else {
+            // state-value=1, t-value=0
+            si[state_index] = (si[state_index] + t[state_index]) * sqrt2inv;
+            si[state_index + 1] =
+                (si[state_index + 1] + t[state_index + 1]) * sqrt2inv;
+        }
+    }
+}
+#endif  // #ifdef _USE_MPI

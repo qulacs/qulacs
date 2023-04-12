@@ -31,8 +31,13 @@ DensityMatrixCpu* partial_trace(
     const QuantumStateCpu* state, std::vector<UINT> target_traceout) {
     if (state->qubit_count <= target_traceout.size()) {
         throw InvalidQubitCountException(
-            "Error: drop_qubit(const QuantumState*, "
+            "Error: partial_trace(const QuantumState*, "
             "std::vector<UINT>): invalid qubit count");
+    }
+    if (state->outer_qc > 0) {
+        throw NotImplementedException(
+            "Error: partial_trace(const QuantumState*, "
+            "std::vector<UINT>) using multi-cpu is not implemented");
     }
     UINT qubit_count = state->qubit_count - (UINT)target_traceout.size();
     DensityMatrixCpu* qs = new DensityMatrixCpu(qubit_count);
@@ -45,7 +50,7 @@ DensityMatrixCpu* partial_trace(
     const DensityMatrixCpu* state, std::vector<UINT> target_traceout) {
     if (state->qubit_count <= target_traceout.size()) {
         throw InvalidQubitCountException(
-            "Error: drop_qubit(const QuantumState*, "
+            "Error: partial_trace(const QuantumState*, "
             "std::vector<UINT>): invalid qubit count");
     }
     UINT qubit_count = state->qubit_count - (UINT)target_traceout.size();
@@ -61,6 +66,12 @@ DensityMatrixCpu* make_mixture(CPPCTYPE prob1, const QuantumStateBase* state1,
         throw InvalidQubitCountException(
             "Error: make_mixture(CPPCTYPE, const QuantumStateBase*, "
             "CPPCTYPE, const QuantumStateBase*): invalid qubit count");
+    }
+    if ((state1->outer_qc > 0) || (state2->outer_qc > 0)) {
+        throw NotImplementedException(
+            "Error: make_mixture(CPPCTYPE, const QuantumStateBase*, "
+            "CPPCTYPE, const QuantumStateBase*): invalid qubit count "
+            "using multi-cpu is not implemented");
     }
     UINT qubit_count = state1->qubit_count;
     DensityMatrixCpu* dm1 = new DensityMatrixCpu(qubit_count);

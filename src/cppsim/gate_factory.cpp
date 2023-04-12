@@ -18,6 +18,7 @@
 #include "gate_matrix_diagonal.hpp"
 #include "gate_matrix_sparse.hpp"
 #include "gate_merge.hpp"
+#include "gate_named_npair.hpp"
 #include "gate_named_one.hpp"
 #include "gate_named_pauli.hpp"
 #include "gate_named_two.hpp"
@@ -234,6 +235,20 @@ ClsTwoQubitGate* SWAP(UINT qubit_index1, UINT qubit_index2) {
     }
     auto ptr = new ClsTwoQubitGate();
     ptr->SWAPGateinit(qubit_index1, qubit_index2);
+    return ptr;
+}
+ClsNpairQubitGate* FusedSWAP(
+    UINT qubit_index1, UINT qubit_index2, UINT block_size) {
+    if (std::min(qubit_index1, qubit_index2) + block_size >
+        std::max(qubit_index1, qubit_index2)) {
+        throw DuplicatedQubitIndexException(
+            "Error: gate::FusedSWAP(UINT, UINT, UINT): two specified blocks "
+            "are overlapping."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
+    }
+    auto ptr = new ClsNpairQubitGate();
+    ptr->FusedSWAPGateinit(qubit_index1, qubit_index2, block_size);
     return ptr;
 }
 

@@ -238,3 +238,76 @@ jobs:
           echo -n "$diff"
           # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
           test $(echo -n "$diff" | wc -l) -eq 0
+
+  mpicc-build:
+    name: MPICC build
+    strategy:
+      matrix:
+        python-version: ["3.7.5"]
+    runs-on: "ubuntu-20.04"
+    env:
+      CXX_COMPILER: "mpic++"
+      C_COMPILER: "mpicc"
+      QULACS_OPT_FLAGS: "-mtune=haswell -march=haswell -mfpmath=both"
+      PYTHON: ${{ matrix.python-version }}
+      COVERAGE: "ON"
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Install mpi-bin
+        run: sudo apt install openmpi-bin
+
+      - name: Install boost
+        run: sudo apt install libboost-dev
+
+      - name: Install LCOV
+        run: |
+          git clone -b v1.15 --depth 1 https://github.com/linux-test-project/lcov.git
+          cd lcov
+          sudo make install
+
+      - name: Install qulacs for Ubuntu
+        run: USE_TEST=Yes ./script/build_mpicc.sh
+
+      - name: Install qulacs Python module
+        run: USE_MPI=Yes pip install .[ci]
+
+      - name: Install MPI Python module
+        run: pip install mpi4py
+
+      - name: Check stubs
+        run: |
+          ./script/update_stubs.sh
+          diff=$(git diff)
+          echo -n "$diff"
+          # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
+          test $(echo -n "$diff" | wc -l) -eq 0
+
+      - name: Test if stub is working
+        run: |
+          python python/stub-test/generate_mypy_tester.py qulacs
+          mypy python/stub-test/names_qulacs.py
+
+      - name: Test in Ubuntu
+        run: |
+          cd ./build
+          make coverage
+          make pythontest
+
+      - name: Test in Ubuntu
+        run: |
+          pip install pytest
+          mpirun -n 2 bin/cppsim_test --gtest_filter="*multicpu*"
+          mpirun -n 2 pytest python/test/test_qulacs_multicpu.py
+
+      - name: Upload coverage to codecov
+        uses: codecov/codecov-action@v3

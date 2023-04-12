@@ -12,6 +12,7 @@
 #include "gate_general.hpp"
 #include "gate_matrix_diagonal.hpp"
 #include "gate_matrix_sparse.hpp"
+#include "gate_named_npair.hpp"
 #include "gate_named_one.hpp"
 #include "gate_named_two.hpp"
 #include "gate_noisy_evolution.hpp"
@@ -36,6 +37,7 @@ namespace gate {
  * CNOT,CX      :   CNOT \<control\> \<target\>, or CX \<control\> \<target\>
  * CZ           :   CZ \<control\> \<target\>
  * SWAP         :   SWAP \<target1\> \<target2\>
+ * FusedSWAP    :   FusedSWAP \<target1\> \<target2\> \<blocksize\>
  * U1           :   U1 \<index\> \<angle1\>
  * U2           :   U2 \<index\> \<angle1\> \<angle2\>
  * U3           :   U3 \<index\> \<angle1\> \<angle2\> \<angle3\>
@@ -273,6 +275,17 @@ DllExport ClsOneControlOneTargetGate* CZ(
  * @return 作成されたゲートのインスタンス
  */
 DllExport ClsTwoQubitGate* SWAP(UINT qubit_index1, UINT qubit_index2);
+
+/**
+ * \~japanese-en FusedSWAPゲートを作成する
+ *
+ * @param[in] qubit_index1 ターゲットとなる量子ビットの添え字
+ * @param[in] qubit_index2 ターゲットとなる量子ビットの添え字
+ * @param[in] block_size ターゲットとなる量子ブロックサイズ
+ * @return 作成されたゲートのインスタンス
+ */
+DllExport ClsNpairQubitGate* FusedSWAP(
+    UINT qubit_index1, UINT qubit_index2, UINT block_size);
 
 /**
  * \f$n\f$-qubit パウリ演算子のゲートを作成する

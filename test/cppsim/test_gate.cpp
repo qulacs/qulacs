@@ -373,6 +373,49 @@ TEST(GateTest, ApplyMultiPauliQubitGate) {
     }
 }
 
+void _ApplyFusedSWAPGate(UINT n, UINT target0, UINT target1, UINT block_size) {
+    const ITYPE dim = 1ULL << n;
+
+    QuantumState state_ref(n);
+    QuantumState state(n);
+
+    {
+        state_ref.set_Haar_random_state(2022);
+        state.load(&state_ref);
+
+        // update "state_ref" using SWAP gate
+        for (UINT i = 0; i < block_size; ++i) {
+            auto swap_gate = gate::SWAP(target0 + i, target1 + i);
+            swap_gate->update_quantum_state(&state_ref);
+            delete swap_gate;
+        }
+
+        // update "state" using FusedSWAP gate
+        auto bswap_gate = gate::FusedSWAP(target0, target1, block_size);
+        bswap_gate->update_quantum_state(&state);
+        delete bswap_gate;
+
+        for (ITYPE i = 0; i < dim; ++i)
+            ASSERT_NEAR(
+                abs(state.data_cpp()[i] - state_ref.data_cpp()[(i) % dim]), 0,
+                eps);
+    }
+}
+
+TEST(GateTest, ApplyFusedSWAPGate_10qubit_all) {
+    UINT n = 10;
+    for (UINT t0 = 0; t0 < n; ++t0) {
+        for (UINT t1 = 0; t1 < n; ++t1) {
+            if (t0 == t1) continue;
+            UINT max_bs = std::min(
+                (t0 < t1) ? (t1 - t0) : (t0 - t1), std::min(n - t0, n - t1));
+            for (UINT bs = 1; bs <= max_bs; ++bs) {
+                _ApplyFusedSWAPGate(n, t0, t1, bs);
+            }
+        }
+    }
+}
+
 TEST(GateTest, MergeTensorProduct) {
     UINT n = 2;
     ITYPE dim = 1ULL << n;

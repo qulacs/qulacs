@@ -38,6 +38,8 @@ def convert_qulacs_circuit_to_QASM(cir: QuantumCircuit) -> typing.List[str]:
             out_strs.append(f"cz q[{clis[0]}],q[{tlis[0]}];")
         elif it.get_name() == "SWAP":
             out_strs.append(f"swap q[{tlis[0]}],q[{tlis[1]}];")
+        elif it.get_name() == "FusedSWAP":
+            print("# FusedSWAP is not supported yet")
         elif it.get_name() == "Identity" or it.get_name() == "I":
             out_strs.append(f"id q[{tlis[0]}];")
         elif it.get_name() == "X":

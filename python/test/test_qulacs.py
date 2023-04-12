@@ -7,6 +7,11 @@ import warnings
 import numpy as np
 
 import qulacs
+if qulacs.check_build_for_mpi():
+    from mpi4py import MPI
+    mpicomm = MPI.COMM_WORLD
+    if mpicomm.Get_rank() == 0:
+        print("Test with MPI. size=", mpicomm.Get_size())
 
 for ind in range(1, len(sys.argv)):
     sys.path.append(sys.argv[ind])

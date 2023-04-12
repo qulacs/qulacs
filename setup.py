@@ -56,6 +56,9 @@ class CMakeBuild(build_ext):
         if os.getenv("USE_OMP"):
             cmake_args += ["-DUSE_OMP:STR=" + os.getenv("USE_OMP")]
 
+        if os.getenv("USE_MPI"):
+            cmake_args += ["-DUSE_MPI:STR=" + os.getenv("USE_MPI")]
+
         env = os.environ.copy()
         env["CXXFLAGS"] = '{} -DVERSION_INFO=\\"{}\\"'.format(
             env.get("CXXFLAGS", ""), self.distribution.get_version()
@@ -116,6 +119,9 @@ class CMakeBuild(build_ext):
             cmake_args += ["-DCMAKE_C_COMPILER=" + gcc]
             cmake_args += ["-DCMAKE_CXX_COMPILER=" + gxx]
             cmake_args += ["-DCMAKE_BUILD_TYPE=" + cfg]
+
+            if gcc == "mpicc":
+                cmake_args += ["-DUSE_MPI:STR=Yes"]
 
             if platform.system() == "Darwin":
                 # This is for building Python package on GitHub Actions, whose architecture is x86_64.

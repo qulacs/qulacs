@@ -1,4 +1,7 @@
 
+#include <cstring>
+
+#include "MPIutil.hpp"
 #include "constant.hpp"
 #include "update_ops.hpp"
 #include "utility.hpp"
@@ -123,6 +126,30 @@ void X_gate_parallel_sve(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
                 svld1(svptrue_b64(), (double*)&state[basis_index_1]);
             svst1(svptrue_b64(), (double*)&state[basis_index_0], sv_data1);
             svst1(svptrue_b64(), (double*)&state[basis_index_1], sv_data0);
+        }
+    }
+}
+#endif
+
+#ifdef _USE_MPI
+void X_gate_mpi(
+    UINT target_qubit_index, CTYPE* state, ITYPE dim, UINT inner_qc) {
+    if (target_qubit_index < inner_qc) {
+        X_gate(target_qubit_index, state, dim);
+    } else {
+        MPIutil& m = MPIutil::get_inst();
+        const int rank = m.get_rank();
+        ITYPE dim_work = dim;
+        ITYPE num_work = 0;
+        CTYPE* t = m.get_workarea(&dim_work, &num_work);
+        assert(num_work > 0);
+        const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
+        const int pair_rank = rank ^ pair_rank_bit;
+        CTYPE* si = state;
+        for (ITYPE i = 0; i < num_work; ++i) {
+            m.m_DC_sendrecv(si, t, dim_work, pair_rank);
+            memcpy(si, t, dim_work * sizeof(CTYPE));
+            si += dim_work;
         }
     }
 }

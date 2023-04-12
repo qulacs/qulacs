@@ -1,4 +1,5 @@
 
+#include "MPIutil.hpp"
 #include "constant.hpp"
 #include "update_ops.hpp"
 #include "utility.hpp"
@@ -111,6 +112,21 @@ void Z_gate_parallel_sve(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
                 svld1(svptrue_b64(), (double*)&state[basis_index]);
             sv_data = svneg_z(svptrue_b64(), sv_data);
             svst1(svptrue_b64(), (double*)&state[basis_index], sv_data);
+        }
+    }
+}
+#endif
+
+#ifdef _USE_MPI
+void Z_gate_mpi(
+    UINT target_qubit_index, CTYPE* state, ITYPE dim, UINT inner_qc) {
+    if (target_qubit_index < inner_qc) {
+        Z_gate(target_qubit_index, state, dim);
+    } else {
+        const int rank = MPIutil::get_inst().get_rank();
+        const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
+        if (rank & pair_rank_bit) {
+            state_multiply(-1., state, dim);
         }
     }
 }

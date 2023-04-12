@@ -4,7 +4,12 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <algorithm>
+#include <numeric>
+#include <vector>
+
 #include "constant.hpp"
+#include "cppsim/exception.hpp"
 #include "update_ops.hpp"
 #include "utility.hpp"
 #ifdef _OPENMP
@@ -121,3 +126,70 @@ void multi_qubit_dense_matrix_gate_parallel(const UINT* target_qubit_index_list,
     free(buffer_list);
     free((ITYPE*)matrix_mask_list);
 }
+
+#ifdef _USE_MPI
+void multi_qubit_dense_matrix_gate_mpi(const UINT* target_qubit_index_list,
+    UINT target_qubit_index_count, const CTYPE* matrix, CTYPE* state, ITYPE dim,
+    UINT inner_qc) {
+    UINT num_outer_target = 0;
+    for (UINT i = 0; i < target_qubit_index_count; ++i)
+        if (target_qubit_index_list[i] >= inner_qc) ++num_outer_target;
+
+    if (num_outer_target == 0) {
+        multi_qubit_dense_matrix_gate(target_qubit_index_list,
+            target_qubit_index_count, matrix, state, dim);
+    } else {  // num_outer_target > 0
+        if (target_qubit_index_count > inner_qc) {
+            throw NotImplementedException(
+                "Dense Matrix multi-target gate for MPI with " +
+                std::to_string(target_qubit_index_count) +
+                " target-qubits and " + std::to_string(inner_qc) +
+                " local-qubits is not Implemented");
+        }
+
+        if (target_qubit_index_count == 1) {
+            single_qubit_dense_matrix_gate_mpi(
+                target_qubit_index_list[0], matrix, state, dim, inner_qc);
+        } else if (target_qubit_index_count == 2) {
+            double_qubit_dense_matrix_gate_mpi(target_qubit_index_list[0],
+                target_qubit_index_list[1], matrix, state, dim, inner_qc);
+        } else {
+            // (target qubits in outer_qc) > 2
+            std::vector<UINT> outer_target_index;
+            std::vector<UINT> inner_avail_qubit(inner_qc);
+            std::vector<UINT> new_target_index(target_qubit_index_count);
+            std::vector<UINT> swapped_i;
+
+            // set act_target_index
+            std::iota(inner_avail_qubit.begin(), inner_avail_qubit.end(), 0);
+            std::reverse(inner_avail_qubit.begin(), inner_avail_qubit.end());
+            for (UINT i = 0; i < target_qubit_index_count; ++i) {
+                new_target_index[i] = target_qubit_index_list[i];
+                if (target_qubit_index_list[i] >= inner_qc) {
+                    outer_target_index.push_back(target_qubit_index_list[i]);
+                    swapped_i.push_back(i);
+                } else {
+                    std::remove(inner_avail_qubit.begin(),
+                        inner_avail_qubit.end(), target_qubit_index_list[i]);
+                }
+            }
+            for (UINT i = 0; i < num_outer_target; ++i)
+                new_target_index[swapped_i[i]] = inner_avail_qubit[i];
+
+            // swap all outer qubits
+            for (UINT i = 0; i < num_outer_target; ++i) {
+                SWAP_gate_mpi(outer_target_index[i], inner_avail_qubit[i],
+                    state, dim, inner_qc);
+            }
+            // exec update func.
+            multi_qubit_dense_matrix_gate(new_target_index.data(),
+                target_qubit_index_count, matrix, state, dim);
+            // revert all outer qubits
+            for (UINT i = 0; i < num_outer_target; ++i) {
+                SWAP_gate_mpi(outer_target_index[i], inner_avail_qubit[i],
+                    state, dim, inner_qc);
+            }
+        }
+    }
+}
+#endif

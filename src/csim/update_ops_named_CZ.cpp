@@ -1,10 +1,7 @@
 
-#include "constant.hpp"
+#include "MPIutil.hpp"
 #include "update_ops.hpp"
 #include "utility.hpp"
-#ifdef _OPENMP
-#include <omp.h>
-#endif
 
 #ifdef _USE_SIMD
 #ifdef _MSC_VER
@@ -166,5 +163,35 @@ void CZ_gate_parallel_sve(UINT control_qubit_index, UINT target_qubit_index,
         }
     }
 }
+#endif
 
+#ifdef _USE_MPI
+void CZ_gate_mpi(UINT control_qubit_index, UINT target_qubit_index,
+    CTYPE* state, ITYPE dim, UINT inner_qc) {
+    UINT left_qubit, right_qubit;
+    if (control_qubit_index > target_qubit_index) {
+        left_qubit = control_qubit_index;
+        right_qubit = target_qubit_index;
+    } else {
+        left_qubit = target_qubit_index;
+        right_qubit = control_qubit_index;
+    }
+
+    if (left_qubit < inner_qc) {
+        CZ_gate(control_qubit_index, target_qubit_index, state, dim);
+    } else if (right_qubit < inner_qc) {  // one quibit is outer
+        const UINT rank = MPIutil::get_inst().get_rank();
+        const UINT tgt_rank_bit = 1 << (left_qubit - inner_qc);
+        if (rank & tgt_rank_bit) {
+            Z_gate(right_qubit, state, dim);
+        }     // if else, nothing to do.
+    } else {  // both qubits are outer;
+        const UINT rank = MPIutil::get_inst().get_rank();
+        const UINT tgt0_rank_bit = 1 << (left_qubit - inner_qc);
+        const UINT tgt1_rank_bit = 1 << (right_qubit - inner_qc);
+        if (rank & tgt0_rank_bit && rank & tgt1_rank_bit) {
+            state_multiply(-1., state, dim);
+        }  // if else, nothing to do.
+    }
+}
 #endif

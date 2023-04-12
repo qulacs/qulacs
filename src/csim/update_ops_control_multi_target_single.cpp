@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include "MPIutil.hpp"
 #include "constant.hpp"
 #include "update_ops.hpp"
 #include "utility.hpp"
@@ -288,5 +289,63 @@ void multi_qubit_control_single_qubit_dense_matrix_gate_simd(
             _mm256_storeu_pd(ptr1, data_r1);
         }
     }
+}
+#endif
+
+#ifdef _USE_MPI
+void multi_qubit_control_single_qubit_dense_matrix_gate_mpi(
+    const UINT* control_index_list, const UINT* control_value_list,
+    UINT control_count, UINT target_index, const CTYPE matrix[4], CTYPE* state,
+    ITYPE dim, UINT inner_qc) {
+    const UINT rank = MPIutil::get_inst().get_rank();
+
+    UINT control_count_local = 0;
+    UINT mask_control_global_0 = 0;
+    UINT mask_control_global_1 = 0;
+    UINT* index_list_buf =
+        (UINT*)malloc((size_t)(sizeof(UINT) * control_count * 2));
+
+    if (target_index < inner_qc) {  // target qubit is local
+        UINT* new_control_index_list = index_list_buf;
+        UINT* new_control_value_list = index_list_buf + control_count;
+        for (UINT i = 0; i < control_count; ++i)
+            if (control_index_list[i] < inner_qc) {
+                new_control_index_list[control_count_local] =
+                    control_index_list[i];
+                new_control_value_list[control_count_local] =
+                    control_value_list[i];
+                control_count_local++;
+            } else {
+                if (control_value_list[i] == 0)
+                    mask_control_global_0 |=
+                        1 << (control_index_list[i] - inner_qc);
+                else
+                    mask_control_global_1 |=
+                        1 << (control_index_list[i] - inner_qc);
+            }
+
+        if ((rank & mask_control_global_0) |
+            ((~rank) & mask_control_global_1)) {  // do nothing
+        } else {
+            multi_qubit_control_single_qubit_dense_matrix_gate(
+                new_control_index_list, new_control_value_list,
+                control_count_local, target_index, matrix, state, dim);
+        }
+    } else {  // target is outer
+        UINT* control_index_list_swapped = index_list_buf;
+        for (UINT i = 0; i < control_count; ++i)
+            if (control_index_list[i] == inner_qc - 1) {
+                control_index_list_swapped[i] = target_index;
+            } else {
+                control_index_list_swapped[i] = control_index_list[i];
+            }
+        SWAP_gate_mpi(target_index, inner_qc - 1, state, dim, inner_qc);
+        multi_qubit_control_single_qubit_dense_matrix_gate_mpi(
+            control_index_list_swapped, control_value_list, control_count,
+            inner_qc - 1, matrix, state, dim, inner_qc);
+        SWAP_gate_mpi(inner_qc - 1, target_index, state, dim, inner_qc);
+    }
+    free(index_list_buf);
+    return;
 }
 #endif
