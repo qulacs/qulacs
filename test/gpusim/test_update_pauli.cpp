@@ -96,6 +96,8 @@ TEST(UpdateTest, MultiQubitPauliTest) {
         Eigen::VectorXcd test_state =
             copy_cpu_from_gpu(state, dim, stream_ptr, idx);
 
+        std::random_device seed_gen;
+        std::mt19937 engine(seed_gen());
         for (UINT rep = 0; rep < max_repeat; ++rep) {
             // multi pauli whole
             std::vector<UINT> pauli_whole, pauli_partial, pauli_partial_index;
@@ -162,6 +164,8 @@ TEST(UpdateTest, MultiQubitPauliRotationTest) {
 
         Eigen::MatrixXcd whole_I = Eigen::MatrixXcd::Identity(dim, dim);
 
+        std::random_device seed_gen;
+        std::mt19937 engine(seed_gen());
         for (UINT rep = 0; rep < max_repeat; ++rep) {
             std::vector<UINT> pauli_whole, pauli_partial, pauli_partial_index;
             std::vector<std::pair<UINT, UINT>> pauli_partial_pair;

@@ -43,18 +43,14 @@ void X_gate_parallel_unroll(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
     ITYPE state_index = 0;
     if (target_qubit_index == 0) {
         ITYPE basis_index = 0;
-#ifdef _OPENMP
 #pragma omp parallel for
-#endif
         for (basis_index = 0; basis_index < dim; basis_index += 2) {
             CTYPE temp = state[basis_index];
             state[basis_index] = state[basis_index + 1];
             state[basis_index + 1] = temp;
         }
     } else {
-#ifdef _OPENMP
 #pragma omp parallel for
-#endif
         for (state_index = 0; state_index < loop_dim; state_index += 2) {
             ITYPE basis_index_0 =
                 (state_index & mask_low) + ((state_index & mask_high) << 1);
@@ -79,9 +75,7 @@ void X_gate_parallel_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
     // double* cast_state = (double*)state;
     if (target_qubit_index == 0) {
         ITYPE basis_index = 0;
-#ifdef _OPENMP
 #pragma omp parallel for
-#endif
         for (basis_index = 0; basis_index < dim; basis_index += 2) {
             double* ptr = (double*)(state + basis_index);
             __m256d data = _mm256_loadu_pd(ptr);
@@ -90,9 +84,7 @@ void X_gate_parallel_simd(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
             _mm256_storeu_pd(ptr, data);
         }
     } else {
-#ifdef _OPENMP
 #pragma omp parallel for
-#endif
         for (state_index = 0; state_index < loop_dim; state_index += 2) {
             ITYPE basis_index_0 =
                 (state_index & mask_low) + ((state_index & mask_high) << 1);
@@ -120,15 +112,7 @@ void X_gate_parallel_sve(UINT target_qubit_index, CTYPE* state, ITYPE dim) {
     ITYPE VL = svcntd() / 2;
 
     if (mask < VL) {
-#pragma omp parallel for
-        for (state_index = 0; state_index < loop_dim; state_index++) {
-            ITYPE basis_index_0 =
-                (state_index & mask_low) + ((state_index & mask_high) << 1);
-            ITYPE basis_index_1 = basis_index_0 + mask;
-            CTYPE temp = state[basis_index_0];
-            state[basis_index_0] = state[basis_index_1];
-            state[basis_index_1] = temp;
-        }
+        X_gate_parallel_unroll(target_qubit_index, state, dim);
     } else {
 #pragma omp parallel for
         for (state_index = 0; state_index < loop_dim; state_index += VL) {

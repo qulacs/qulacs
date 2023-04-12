@@ -554,7 +554,7 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list(
 
     if (bit_flip_mask == 0) {
 #ifdef _USE_SVE
-        if (dim >= VL) {
+        if (dim > VL) {
             result = expectation_value_multi_qubit_Pauli_operator_Z_mask_sve(
                 phase_flip_mask, state, dim);
         } else
@@ -605,7 +605,7 @@ double expectation_value_multi_qubit_Pauli_operator_whole_list(
 
     if (bit_flip_mask == 0) {
 #ifdef _USE_SVE
-        if (dim >= VL) {
+        if (dim > VL) {
             result = expectation_value_multi_qubit_Pauli_operator_Z_mask_sve(
                 phase_flip_mask, state, dim);
         } else
@@ -677,7 +677,7 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
         }
     } else {
 #ifdef _USE_SVE
-        if ((dim >> 1) > VL) {
+        if (dim > VL) {
             result = expectation_value_multi_qubit_Pauli_operator_XZ_mask_sve(
                 bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
                 pivot_qubit_index, state, dim);

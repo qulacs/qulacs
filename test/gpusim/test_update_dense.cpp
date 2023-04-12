@@ -73,6 +73,8 @@ void test_double_dense_matrix_gate(
 
         Eigen::MatrixXcd whole_I = Eigen::MatrixXcd::Identity(dim, dim);
 
+        std::random_device seed_gen;
+        std::mt19937 engine(seed_gen());
         for (UINT rep = 0; rep < max_repeat; ++rep) {
             // two qubit dense matrix gate
             U = get_eigen_matrix_random_single_qubit_unitary();
@@ -132,6 +134,8 @@ void test_three_dense_matrix_gate(std::function<void(
 
         Eigen::Matrix<std::complex<double>, 8, 8, Eigen::RowMajor> Umerge;
 
+        std::random_device seed_gen;
+        std::mt19937 engine(seed_gen());
         for (UINT rep = 0; rep < max_repeat; ++rep) {
             // two qubit dense matrix gate
             U1 = get_eigen_matrix_random_single_qubit_unitary();
@@ -191,6 +195,8 @@ void test_quad_dense_matrix_gate(
 
         Eigen::Matrix<std::complex<double>, 16, 16, Eigen::RowMajor> Umerge;
 
+        std::random_device seed_gen;
+        std::mt19937 engine(seed_gen());
         for (UINT rep = 0; rep < max_repeat; ++rep) {
             // two qubit dense matrix gate
             U1 = get_eigen_matrix_random_single_qubit_unitary();
@@ -254,6 +260,8 @@ void test_penta_dense_matrix_gate(
 
         Eigen::Matrix<std::complex<double>, 32, 32, Eigen::RowMajor> Umerge;
 
+        std::random_device seed_gen;
+        std::mt19937 engine(seed_gen());
         for (UINT rep = 0; rep < max_repeat; ++rep) {
             // two qubit dense matrix gate
             U1 = get_eigen_matrix_random_single_qubit_unitary();
@@ -322,6 +330,8 @@ void test_general_dense_matrix_gate(std::function<void(
 
         Eigen::Matrix<std::complex<double>, 64, 64, Eigen::RowMajor> Umerge;
 
+        std::random_device seed_gen;
+        std::mt19937 engine(seed_gen());
         for (UINT rep = 0; rep < max_repeat; ++rep) {
             // two qubit dense matrix gate
             U1 = get_eigen_matrix_random_single_qubit_unitary();

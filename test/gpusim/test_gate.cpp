@@ -809,8 +809,8 @@ TEST(GateTest, RandomUnitaryMergeLarge) {
             assert_eigen_eq_gpu(test_state_eigen, state, dim, eps);
             assert_gpu_eq_gpu(test_state, state, dim, eps);
 
-            auto merged_gate1 = gate::Identity(0);
-            auto merged_gate2 = gate::Identity(0);
+            QuantumGateBase* merged_gate1 = gate::Identity(0);
+            QuantumGateBase* merged_gate2 = gate::Identity(0);
             QuantumGateMatrix* next_merged_gate = NULL;
             QuantumGateBase* new_gate = NULL;
             for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
@@ -1088,6 +1088,8 @@ TEST(GateTest, RandomControlMergeSmall) {
             QuantumGateBase* merge_gate1 = gate::Identity(0);
             QuantumGateBase* merge_gate2 = gate::Identity(0);
 
+            std::random_device seed_gen;
+            std::mt19937 engine(seed_gen());
             for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
                 std::shuffle(arr.begin(), arr.end(), engine);
                 UINT target = arr[0];
@@ -1132,6 +1134,8 @@ TEST(GateTest, RandomControlMergeLarge) {
             QuantumGateBase* merge_gate1 = gate::Identity(0);
             QuantumGateBase* merge_gate2 = gate::Identity(0);
 
+            std::random_device seed_gen;
+            std::mt19937 engine(seed_gen());
             for (UINT gate_index = 0; gate_index < gate_count; ++gate_index) {
                 std::shuffle(arr.begin(), arr.end(), engine);
                 UINT target = arr[0];
