@@ -12,6 +12,10 @@ from qulacs.gate import DenseMatrix, Identity
 logger = getLogger(__name__)
 logger.addHandler(NullHandler())
 
+FIXED_POINT_PATTERN = r"[+-]?\d+(?:\.\d*)?|\.\d+"
+FLOATING_POINT_PATTERN = r"[+-]?[eE][-+]?\d+"
+GENERAL_NUMBER_PATTERN = rf"(?:{FIXED_POINT_PATTERN})(?:{FLOATING_POINT_PATTERN})?" # noqa
+
 
 def convert_qulacs_circuit_to_QASM(cir: QuantumCircuit) -> typing.List[str]:
     # convert qulacs Quantum Circuit to QASM List[str].
@@ -192,43 +196,43 @@ def convert_QASM_to_qulacs_circuit(
             cir.add_Tdag_gate(mapping[int(ary[0])])
         elif instr[0:2] == "rx":
             matchobj = re.match(
-                r"rx\((\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?\)q\[(\d+)\];", instr
+                rf"rx\(({GENERAL_NUMBER_PATTERN})\)q\[(\d+)\];", instr
             )
             assert matchobj is not None
             ary = matchobj.groups()
             cir.add_RX_gate(mapping[int(ary[1])], -float(ary[0]))
         elif instr[0:2] == "ry":
             matchobj = re.match(
-                r"ry\((\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?\)q\[(\d+)\];", instr
+                rf"ry\(({GENERAL_NUMBER_PATTERN})\)q\[(\d+)\];", instr
             )
             assert matchobj is not None
             ary = matchobj.groups()
             cir.add_RY_gate(mapping[int(ary[1])], -float(ary[0]))
         elif instr[0:2] == "rz":
             matchobj = re.match(
-                r"rz\((\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?\)q\[(\d+)\];", instr
+                rf"rz\(({GENERAL_NUMBER_PATTERN})\)q\[(\d+)\];", instr
             )
             assert matchobj is not None
             ary = matchobj.groups()
             cir.add_RZ_gate(mapping[int(ary[1])], -float(ary[0]))
         elif instr[0:1] == "p":
             matchobj = re.match(
-                r"p\((\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?\)q\[(\d+)\];", instr
+                rf"p\({GENERAL_NUMBER_PATTERN}\)q\[(\d+)\];", instr
             )
             assert matchobj is not None
             ary = matchobj.groups()
             cir.add_U1_gate(mapping[int(ary[1])], float(ary[0]))
         elif instr[0:2] == "u1":
             matchobj = re.match(
-                r"u1\((\d+(\.\d*)?|\.\d+)([eE][-+]?\d+\)?)q[(\d+)];", instr
+                rf"u1\(({GENERAL_NUMBER_PATTERN})\)q[(\d+)];", instr
             )
             assert matchobj is not None
             ary = matchobj.groups()
             cir.add_U1_gate(mapping[int(ary[1])], float(ary[0]))
         elif instr[0:2] == "u2":
             matchobj = re.match(
-                r"u2\((\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?,"
-                + r"(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?\)q\[(\d+)\];",
+                rf"u2\({GENERAL_NUMBER_PATTERN}),"
+                + rf"({GENERAL_NUMBER_PATTERN}\)q\[(\d+)\];",
                 instr,
             )
             assert matchobj is not None
@@ -236,9 +240,9 @@ def convert_QASM_to_qulacs_circuit(
             cir.add_U2_gate(mapping[int(ary[2])], float(ary[0]), float(ary[1]))
         elif instr[0:2] == "u3":
             matchobj = re.match(
-                r"u3\((\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?,"
-                + r"(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?,"
-                + r"(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?\)q\[(\d+)\];",
+                rf"u3\(({GENERAL_NUMBER_PATTERN}),"
+                + rf"({GENERAL_NUMBER_PATTERN}),"
+                + rf"({GENERAL_NUMBER_PATTERN})\)q\[(\d+)\];",
                 instr,
             )
             assert matchobj is not None
@@ -248,9 +252,9 @@ def convert_QASM_to_qulacs_circuit(
             )
         elif instr[0:1] == "u":
             matchobj = re.match(
-                r"u\((\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?,"
-                + r"(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?,"
-                + r"(\d+(\.\d*)?|\.\d+)([eE][-+]?\d+)?\)q\[(\d+)\];",
+                rf"u\(({GENERAL_NUMBER_PATTERN}),"
+                + rf"({GENERAL_NUMBER_PATTERN}),"
+                + rf"({GENERAL_NUMBER_PATTERN})\)q\[(\d+)\];",
                 instr,
             )
             assert matchobj is not None
@@ -269,6 +273,7 @@ def convert_QASM_to_qulacs_circuit(
             ary = matchobj.groups()
             cir.add_sqrtXdag_gate(mapping[int(ary[0])])
         elif instr[0:11] == "densematrix":
+            # Matches all matrix elements and qubit indexes
             deary = re.findall(r"[+-]?\d+(?:\.\d+)?(?:[eE][+-]?\d+)?", instr)
             target_qubit_count = int(deary[0])
             control_qubit_count = int(deary[1])
