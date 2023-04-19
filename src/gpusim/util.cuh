@@ -28,13 +28,6 @@ inline void checkCudaErrors(
     }
 }
 
-inline void checkCudaErrors(const cudaError error) {
-    if (error != cudaSuccess) {
-        printf("Error: %s:%d, ", __FILE__, __LINE__);
-        printf("code: %d, reason: %s\n", error, cudaGetErrorString(error));
-        exit(1);
-    }
-}
 /*
 //inline void memcpy_quantum_state_HostToDevice(CPPCTYPE* state_cpu, GTYPE*
 state_gpu, ITYPE dim){ inline void memcpy_quantum_state_HostToDevice(CPPCTYPE*
@@ -43,8 +36,8 @@ state_cpu, GTYPE* state_gpu, ITYPE dim, void* stream, UINT device_number){
         int current_device = get_current_device();
         if (device_number != current_device) cudaSetDevice(device_number);
 
-        checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(CPPCTYPE)));
-        checkCudaErrors(cudaMemcpyAsync(state_gpu, state_cpu, dim *
+        checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(CPPCTYPE)),
+__FILE__, __LINE__); checkCudaErrors(cudaMemcpyAsync(state_gpu, state_cpu, dim *
 sizeof(CPPCTYPE), cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
 }
 
@@ -54,8 +47,8 @@ cuda_stream = reinterpret_cast<cudaStream_t*>(stream); int current_device =
 get_current_device(); if (device_number != current_device)
 cudaSetDevice(device_number);
 
-        checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(CPPCTYPE)));
-        checkCudaErrors(cudaMemcpyAsync(state_gpu, state_cpu, dim *
+        checkCudaErrors(cudaMalloc((void**)&state_gpu, dim * sizeof(CPPCTYPE)),
+__FILE__, __LINE__); checkCudaErrors(cudaMemcpyAsync(state_gpu, state_cpu, dim *
 sizeof(CPPCTYPE), cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
 }
 */
