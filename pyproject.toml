@@ -40,9 +40,10 @@ homepage = "http://www.qulacs.org"
 dev = [
     "black",
     "flake8",
-    "openfermion",
+    "isort",
     "mypy",
-    "pybind11-stubgen"
+    "pybind11-stubgen",
+    "openfermion"
 ]
 
 test = [
