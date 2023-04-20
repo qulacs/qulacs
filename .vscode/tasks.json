@@ -49,6 +49,11 @@
             "command": "find ./src ./test ./benchmark ./python -regex '.*\\.\\(cu\\|cuh\\|cpp\\|h\\|hpp\\)' -exec clang-format -style=file -i {} \\;"
         },
         {
+            "label": "python format",
+            "type": "shell",
+            "command": "black . && isort ."
+        },
+        {
             "label": "update stub",
             "type": "shell",
             "command": "script/update_stubs.sh",
