@@ -13,7 +13,7 @@ logger = getLogger(__name__)
 logger.addHandler(NullHandler())
 
 FIXED_POINT_PATTERN = r"[+-]?\d+(?:\.\d*)?|\.\d+"
-FLOATING_POINT_PATTERN = r"[+-]?[eE][-+]?\d+"
+FLOATING_POINT_PATTERN = r"[eE][-+]?\d+"
 GENERAL_NUMBER_PATTERN = rf"(?:{FIXED_POINT_PATTERN})(?:{FLOATING_POINT_PATTERN})?" # noqa
 
 
