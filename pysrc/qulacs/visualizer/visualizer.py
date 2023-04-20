@@ -1,8 +1,6 @@
 """回路のグラフ化をできます。量子状態の棒グラフ、縮約した後の玉表示"""
-import matplotlib.colors
 import matplotlib.pyplot as plt
 import numpy as np
-from mpl_toolkits.mplot3d import Axes3D
 
 from qulacs import Observable, QuantumState
 

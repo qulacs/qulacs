@@ -307,7 +307,6 @@ class TestPointerHandling(unittest.TestCase):
             gate = None
 
         gates = None
-        parametric_gates = None
 
     def test_circuit_add_parametric_gate(self):
         from scipy.sparse import lil_matrix
@@ -475,7 +474,6 @@ class TestPointerHandling(unittest.TestCase):
             DephasingNoise,
             DepolarizingNoise,
             Probabilistic,
-            X,
         )
 
         state = QuantumState(1)
@@ -519,7 +517,7 @@ class TestPointerHandling(unittest.TestCase):
         gate = X(0)
         circuit.add_gate(gate)
         del gate
-        s = circuit.to_string()
+        s = circuit.to_string() # noqa
         del circuit
 
     def test_add_gate_in_parametric_circuit(self):
@@ -530,7 +528,7 @@ class TestPointerHandling(unittest.TestCase):
         gate = X(0)
         circuit.add_gate(gate)
         del gate
-        s = circuit.to_string()
+        s = circuit.to_string() # noqa
         del circuit
 
     def test_state_reflection(self):
@@ -609,7 +607,7 @@ class TestPointerHandling(unittest.TestCase):
         del qs
 
     def test_parametric_gate_position(self):
-        from qulacs import ParametricQuantumCircuit, QuantumState
+        from qulacs import ParametricQuantumCircuit
         from qulacs.gate import ParametricRX
 
         def check(pqc, idlist):
@@ -1159,14 +1157,16 @@ class TestNoiseSimulator(unittest.TestCase):
         ) = get_heavy_output_probability(7, 100, 0.01)
         if low_noise_prob < 2 / 3:
             print(
-                f"[ERROR] On low noise environment Heavy Output percentage should be > 0.666, but was {low_noise_prob}"
+                "[ERROR] On low noise environment Heavy Output percentage should be > 0.666,"
+                f"but was {low_noise_prob}"
             )
             print("Telemetry Information:")
             print(f"Sampling Result: {low_noise_result}")
             print(f"Heavy Output: {low_noise_heavy_output}")
         if high_noise_prob > 2 / 3:
             print(
-                f"[ERROR] On high noise environment Heavy Output percentage should be < 0.666, but was {high_noise_prob}"
+                "[ERROR] On high noise environment Heavy Output percentage should be < 0.666, "
+                f"but was {high_noise_prob}"
             )
             print("Telemetry Information:")
             print(f"Sampling Result: {high_noise_result}")
@@ -1572,7 +1572,6 @@ class TestJSON(unittest.TestCase):
             CPTP,
             P0,
             P1,
-            Adaptive,
             AmplitudeDampingNoise,
             Instrument,
             Measurement,
@@ -1701,7 +1700,6 @@ class TestJSON(unittest.TestCase):
         import random
 
         from qulacs import ParametricQuantumCircuit, QuantumState, circuit
-        from qulacs.gate import ParametricPauliRotation
 
         n = 2
 

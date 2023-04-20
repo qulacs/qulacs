@@ -1,5 +1,4 @@
 import numpy as np
-from qulacs_core.observable import *
 from scipy.sparse import csr_matrix, kron
 
 sigmaz = csr_matrix([[1, 0], [0, -1]])

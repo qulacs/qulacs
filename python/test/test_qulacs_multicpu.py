@@ -1,7 +1,6 @@
 # set library dir
 import sys
 import unittest
-import warnings
 
 import numpy as np
 
@@ -16,7 +15,8 @@ if qulacs.check_build_for_mpi():
         if mpicomm.Get_rank() == 0:
             print("Test with MPI. size=", mpicomm.Get_size())
         multicpu = True
-    except:
+    except Exception as e:
+        print(e)
         print("To use multi-cpu, the mpi4py library is required.")
         exit()
 
@@ -147,7 +147,7 @@ class TestObservable(unittest.TestCase):
         )
         self.assertLessEqual(np.linalg.norm(
             ans-obs.get_matrix().todense()), 1e-6)
-        
+
 
 
 class TestPointerHandling(unittest.TestCase):
@@ -730,7 +730,7 @@ class TestDensityMatrixHandling(unittest.TestCase):
         svv = np.atleast_2d(sv.get_vector()).T
         mat = np.dot(svv, svv.T.conj())
         self.assertTrue(np.allclose(dm.get_matrix(), mat), msg="check pure matrix to density matrix")
-        
+
 
     def test_tensor_product_sv(self):
         num_qubit = 4
@@ -783,7 +783,7 @@ class TestDensityMatrixHandling(unittest.TestCase):
         del dm1
         del dm2
         del dm3
-        
+
     def test_permutate_qubit_sv(self):
         num_qubit = 8
         sv = qulacs.StateVector(num_qubit)
@@ -849,7 +849,7 @@ class TestDensityMatrixHandling(unittest.TestCase):
             ofs = num_qubit - cnt
             dmt = np.trace(dmt, axis1=val-cnt, axis2=ofs+val-cnt)
         dmt = dmt.reshape([2**(num_qubit-num_traceout),2**(num_qubit-num_traceout)])
-        
+
         pdm = qulacs.state.partial_trace(dm, target)
         self.assertTrue(np.allclose(pdm.get_matrix(), dmt), msg="check density matrix partial trace")
         del dm,pdm
@@ -873,7 +873,7 @@ class TestDensityMatrixHandling(unittest.TestCase):
             ofs = num_qubit - cnt
             dmt = np.trace(dmt, axis1=val-cnt, axis2=ofs+val-cnt)
         dmt = dmt.reshape([2**(num_qubit-num_traceout),2**(num_qubit-num_traceout)])
-        
+
         pdm = qulacs.state.partial_trace(sv, target)
         self.assertTrue(np.allclose(pdm.get_matrix(), dmt), msg="check pure state partial trace")
 
@@ -884,7 +884,7 @@ class TestNoiseSimulator(unittest.TestCase):
 
     def tearDown(self):
         pass
-    
+
     def test_noise_simulator(self):
         def get_heavy_output_probability(n, depth, error_prob, shots=1000):
             one_qubit_noise = ["Depolarizing", "BitFlip", "Dephasing", "IndependentXZ", "AmplitudeDamping"]
@@ -897,23 +897,33 @@ class TestNoiseSimulator(unittest.TestCase):
                 for i in range(n):
                     r = np.random.randint(0, 5)
                     if r == 0:
-                        circuit_with_noise.add_noise_gate(sqrtX(i), one_qubit_noise[np.random.randint(0, 5)], error_prob)
+                        circuit_with_noise.add_noise_gate(
+                            sqrtX(i), one_qubit_noise[np.random.randint(0, 5)], error_prob
+                        )
                         circuit_without_noise.add_sqrtX_gate(i)
                     elif r == 1:
-                        circuit_with_noise.add_noise_gate(sqrtY(i), one_qubit_noise[np.random.randint(0, 5)], error_prob)
+                        circuit_with_noise.add_noise_gate(
+                            sqrtY(i), one_qubit_noise[np.random.randint(0, 5)], error_prob
+                        )
                         circuit_without_noise.add_sqrtY_gate(i)
                     elif r == 2:
                         circuit_with_noise.add_noise_gate(T(i), one_qubit_noise[np.random.randint(0, 5)], error_prob)
                         circuit_without_noise.add_T_gate(i)
                     elif r == 3:
                         if i + 1 < n:
-                            circuit_with_noise.add_noise_gate(CNOT(i, i + 1), two_qubit_noise[np.random.randint(0, 1)], error_prob)
+                            circuit_with_noise.add_noise_gate(
+                                CNOT(i, i + 1), two_qubit_noise[np.random.randint(0, 1)], error_prob
+                            )
                             circuit_without_noise.add_CNOT_gate(i, i + 1)
                     elif r == 4:
                         if i + 1 < n:
-                            circuit_with_noise.add_noise_gate(CZ(i, i + 1), two_qubit_noise[np.random.randint(0, 1)], error_prob)
+                            circuit_with_noise.add_noise_gate(
+                                CZ(i, i + 1),
+                                two_qubit_noise[np.random.randint(0, 1)],
+                                error_prob
+                            )
                             circuit_without_noise.add_CZ_gate(i, i + 1)
-            
+
             ideal_state = qulacs.QuantumState(n)
             circuit_without_noise.update_quantum_state(ideal_state)
             prob_dist = [abs(x)**2 for x in ideal_state.get_vector()]
@@ -922,7 +932,7 @@ class TestNoiseSimulator(unittest.TestCase):
             for i in range(2**n):
                 if prob_dist[i] > p_median:
                     heavy_output.add(i)
-            
+
             sim = NoiseSimulator(circuit_with_noise,QuantumState(n))
             noisy_sample = sim.execute(shots)
             num_heavy_output = 0
@@ -934,16 +944,21 @@ class TestNoiseSimulator(unittest.TestCase):
         low_noise_prob, low_noise_heavy_output,low_noise_result = get_heavy_output_probability(7, 100, 1e-5)
         high_noise_prob, high_noise_heavy_output,high_noise_result = get_heavy_output_probability(7, 100, 0.01)
         if low_noise_prob < 2/3:
-            print(f"[ERROR] On low noise environment Heavy Output percentage should be > 0.666, but was {low_noise_prob}")
+            print(
+                "[ERROR] On low noise environment Heavy Output percentage should be > 0.666, "
+                f"but was {low_noise_prob}"
+            )
             print("Telemetry Information:")
             print(f"Sampling Result: {low_noise_result}")
             print(f"Heavy Output: {low_noise_heavy_output}")
         if high_noise_prob > 2/3:
-            print(f"[ERROR] On high noise environment Heavy Output percentage should be < 0.666, but was {high_noise_prob}")
+            print(
+                "[ERROR] On high noise environment Heavy Output percentage should be < 0.666, "
+                f"but was {high_noise_prob}")
             print("Telemetry Information:")
             print(f"Sampling Result: {high_noise_result}")
             print(f"Heavy Output: {high_noise_heavy_output}")
-        
+
         self.assertGreater(low_noise_prob, 2 / 3)
         self.assertLess(high_noise_prob, 2 / 3)
 
@@ -968,7 +983,7 @@ class TestQASM(unittest.TestCase):
             Identity(0), X(0), Y(0), Z(0), H(0), S(0), Sdag(0), T(
                 0), Tdag(0), sqrtX(0), sqrtXdag(0),
             CNOT(0, 1), CZ(0, 1), SWAP(0, 1), TOFFOLI(0, 1, 2), FREDKIN(
-                0, 1, 2),  
+                0, 1, 2),
             DenseMatrix(0, np.eye(2)), DenseMatrix(
                 [0, 1], np.eye(4)), RandomUnitary(
                 [0, 1]), merge(
