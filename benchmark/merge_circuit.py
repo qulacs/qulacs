@@ -1,6 +1,7 @@
 import qulacs
-from qulacs import QuantumCircuit,QuantumState
+from qulacs import QuantumCircuit, QuantumState
 from qulacs.gate import X
+
 circuit = QuantumCircuit(5)
 circuit2 = QuantumCircuit(5)
 state = QuantumState(5)

@@ -1,15 +1,17 @@
-
 # set library dir
 import sys
 import unittest
 import warnings
 
 import numpy as np
+
 import qulacs
+
 multicpu = False
 if qulacs.check_build_for_mpi():
     try:
         from mpi4py import MPI
+
         mpicomm = MPI.COMM_WORLD
         if mpicomm.Get_rank() == 0:
             print("Test with MPI. size=", mpicomm.Get_size())
@@ -21,6 +23,7 @@ if qulacs.check_build_for_mpi():
 for ind in range(1, len(sys.argv)):
     sys.path.append(sys.argv[ind])
 sys.argv = sys.argv[:1]
+
 
 class TestQuantumState(unittest.TestCase):
     def setUp(self):
@@ -51,19 +54,25 @@ class TestQuantumState(unittest.TestCase):
         vector = self.state_multi.get_vector()
         vector_ans = np.zeros(self.dim)
         if self.state_multi.get_device_name() == "cpu" or self.mpirank == 0:
-            vector_ans[0] = 1.
-        self.assertTrue(((vector - vector_ans) < 1e-10).all(),
-                        msg="check set_zero_state")
+            vector_ans[0] = 1.0
+        self.assertTrue(
+            ((vector - vector_ans) < 1e-10).all(), msg="check set_zero_state"
+        )
 
     def test_comp_basis(self):
         pos = 0b010100
         self.state_multi.set_computational_basis(pos)
         vector = self.state_multi.get_vector()
         vector_ans = np.zeros(self.dim)
-        if self.state_multi.get_device_name() == "cpu" or self.mpirank == pos // self.dim:
-            vector_ans[pos%self.dim] = 1.
-        self.assertTrue(((vector - vector_ans) < 1e-10).all(),
-                        msg="check set_computational_basis")
+        if (
+            self.state_multi.get_device_name() == "cpu"
+            or self.mpirank == pos // self.dim
+        ):
+            vector_ans[pos % self.dim] = 1.0
+        self.assertTrue(
+            ((vector - vector_ans) < 1e-10).all(), msg="check set_computational_basis"
+        )
+
 
 """
 class TestQuantumCircuit(unittest.TestCase):

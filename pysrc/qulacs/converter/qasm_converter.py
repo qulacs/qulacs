@@ -6,6 +6,7 @@ from typing import List
 
 import numpy as np
 import qulacs_core
+
 from qulacs import QuantumCircuit
 from qulacs.gate import DenseMatrix, Identity
 
