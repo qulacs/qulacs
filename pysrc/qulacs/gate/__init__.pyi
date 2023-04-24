@@ -4,7 +4,6 @@ import typing
 import numpy
 import qulacs_core
 import scipy.sparse
-_Shape = typing.Tuple[int, ...]
 
 __all__ = [
     "Adaptive",
@@ -107,12 +106,12 @@ def CZ(control: int, target: int) -> qulacs_core.ClsOneControlOneTargetGate:
     Create CZ gate
     """
 @typing.overload
-def DenseMatrix(index: int, matrix: numpy.ndarray[numpy.complex128, _Shape[m, n]]) -> qulacs_core.QuantumGateMatrix:
+def DenseMatrix(index: int, matrix: numpy.ndarray) -> qulacs_core.QuantumGateMatrix:
     """
     Create dense matrix gate
     """
 @typing.overload
-def DenseMatrix(index_list: typing.List[int], matrix: numpy.ndarray[numpy.complex128, _Shape[m, n]]) -> qulacs_core.QuantumGateMatrix:
+def DenseMatrix(index_list: typing.List[int], matrix: numpy.ndarray) -> qulacs_core.QuantumGateMatrix:
     pass
 def DephasingNoise(index: int, prob: float) -> qulacs_core.QuantumGate_Probabilistic:
     """
@@ -122,7 +121,7 @@ def DepolarizingNoise(index: int, prob: float) -> qulacs_core.QuantumGate_Probab
     """
     Create depolarizing noise
     """
-def DiagonalMatrix(index_list: typing.List[int], diagonal_element: numpy.ndarray[numpy.complex128, _Shape[m, 1]]) -> qulacs_core.QuantumGateDiagonalMatrix:
+def DiagonalMatrix(index_list: typing.List[int], diagonal_element: numpy.ndarray) -> qulacs_core.QuantumGateDiagonalMatrix:
     """
     Create diagonal matrix gate
     """

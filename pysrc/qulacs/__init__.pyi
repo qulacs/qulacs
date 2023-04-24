@@ -3,7 +3,6 @@ from __future__ import annotations
 import qulacs_core
 import typing
 import numpy
-_Shape = typing.Tuple[int, ...]
 
 __all__ = [
     "CausalConeSimulator",
@@ -97,7 +96,7 @@ class QuantumGateBase():
         """
         get inverse gate
         """
-    def get_matrix(self) -> numpy.ndarray[numpy.complex128, _Shape[m, n]]: 
+    def get_matrix(self) -> numpy.ndarray: 
         """
         Get gate matrix
         """
@@ -477,12 +476,12 @@ class QuantumCircuit():
         Add Pauli-Z gate
         """
     @typing.overload
-    def add_dense_matrix_gate(self, index: int, matrix: numpy.ndarray[numpy.complex128, _Shape[m, n]]) -> None: 
+    def add_dense_matrix_gate(self, index: int, matrix: numpy.ndarray) -> None: 
         """
         Add dense matrix gate
         """
     @typing.overload
-    def add_dense_matrix_gate(self, index_list: typing.List[int], matrix: numpy.ndarray[numpy.complex128, _Shape[m, n]]) -> None: ...
+    def add_dense_matrix_gate(self, index_list: typing.List[int], matrix: numpy.ndarray) -> None: ...
     def add_diagonal_observable_rotation_gate(self, observable: Observable, angle: float) -> None: 
         """
         Add diagonal observable rotation gate
@@ -881,7 +880,7 @@ class QuantumState(QuantumStateBase):
         """
         Get squared norm
         """
-    def get_vector(self) -> numpy.ndarray[numpy.complex128, _Shape[m, 1]]: 
+    def get_vector(self) -> numpy.ndarray: 
         """
         Get state vector
         """
@@ -982,7 +981,7 @@ class DensityMatrix(QuantumStateBase):
         """
         Get merginal probability for measured values
         """
-    def get_matrix(self) -> numpy.ndarray[numpy.complex128, _Shape[m, n]]: 
+    def get_matrix(self) -> numpy.ndarray: 
         """
         Get density matrix
         """
@@ -1004,7 +1003,7 @@ class DensityMatrix(QuantumStateBase):
         Load quantum state vector or density matrix
         """
     @typing.overload
-    def load(self, state: numpy.ndarray[numpy.complex128, _Shape[m, n]]) -> None: ...
+    def load(self, state: numpy.ndarray) -> None: ...
     @typing.overload
     def load(self, state: typing.List[complex]) -> None: ...
     def multiply_coef(self, coef: complex) -> None: 
