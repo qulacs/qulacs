@@ -1022,6 +1022,25 @@ class TestQASM(unittest.TestCase):
             assert np.allclose(transpiled_circuit.get_gate(x).get_matrix(),
                                gates[x].get_matrix())
 
+    def test_qasm_converter_from_qasm_str(self):
+        import textwrap
+        from qulacs.converter import (
+            convert_QASM_to_qulacs_circuit,
+            convert_qulacs_circuit_to_QASM
+        )
+
+        # equals RX(0, np.pi / 4.0)
+        qasm = textwrap.dedent("""
+            OPENQASM 2.0;
+            include "qelib1.inc";
+            qreg q[4];
+            rx(-0.7853981633974484) q[1];
+            """).strip()
+
+        circuit = convert_QASM_to_qulacs_circuit(qasm.splitlines())
+        recoverd = convert_qulacs_circuit_to_QASM(circuit)
+        assert qasm == "\n".join(recoverd)
+
 
 class TestJSON(unittest.TestCase):
     def setUp(self):
