@@ -998,12 +998,20 @@ class TestQASM(unittest.TestCase):
         from qulacs.gate import (RX, RY, RZ, U1, U2, U3)
         angle = np.pi / 4.0
         gates = [
+            # backward rotation
             U1(0, angle),
             U2(0, angle, angle),
             U3(0, angle, angle, angle),
             RX(0, angle),
             RY(0, angle),
             RZ(0, angle),
+            # forward rotation
+            U1(0, -angle),
+            U2(0, -angle, -angle),
+            U3(0, -angle, -angle, -angle),
+            RX(0, -angle),
+            RY(0, -angle),
+            RZ(0, -angle),
         ]
         circuit = QuantumCircuit(5)
         for x in gates:
