@@ -8,3 +8,7 @@ stubgen -p qulacs -o typings
 pybind11-stubgen qulacs --no-setup-py --root-module-suffix='' --ignore-invalid=all --bare-numpy-ndarray --output-dir='./typings'
 cp -R typings/qulacs_core/* pysrc/qulacs/
 find pysrc/ -name __init__.pyi | sed -e 's/__init__.pyi/py.typed/' | xargs touch
+
+# format
+black .
+isort .
