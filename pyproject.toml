@@ -51,9 +51,12 @@ test = [
 ]
 
 ci = [
-    "openfermion",
+    "black",
+    "flake8",
+    "isort",
     "mypy",
-    "pybind11-stubgen"
+    "pybind11-stubgen",
+    "openfermion"
 ]
 
 doc = [
