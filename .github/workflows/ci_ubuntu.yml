@@ -59,7 +59,7 @@ jobs:
 
       - name: Install qulacs Python module
         run: pip install .[ci]
-      
+
       - name: Check stubs
         run: |
           ./script/update_stubs.sh
@@ -238,6 +238,30 @@ jobs:
           echo -n "$diff"
           # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
           test $(echo -n "$diff" | wc -l) -eq 0
+
+  python-format:
+    name: Format with Python formatters
+    runs-on: "ubuntu-20.04"
+    strategy:
+      matrix:
+        python-version: ["3.10"]
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Install formatters
+        run: pip install black isort
+
+      - name: Check format
+        run: |
+          black . --check --diff
+          isort . --check --diff
 
   mpicc-build:
     name: MPICC build
