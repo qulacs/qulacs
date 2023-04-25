@@ -1,5 +1,5 @@
-from qulacs.gate import CNOT, RY, H, X, Z
 from qulacs import QuantumState
+from qulacs.gate import CNOT, RY, H, X, Z
 from qulacs.visualizer import (
     show_amplitude,
     show_blochsphere,

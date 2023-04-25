@@ -517,7 +517,7 @@ class TestPointerHandling(unittest.TestCase):
         gate = X(0)
         circuit.add_gate(gate)
         del gate
-        s = circuit.to_string() # noqa
+        s = circuit.to_string()  # noqa
         del circuit
 
     def test_add_gate_in_parametric_circuit(self):
@@ -528,7 +528,7 @@ class TestPointerHandling(unittest.TestCase):
         gate = X(0)
         circuit.add_gate(gate)
         del gate
-        s = circuit.to_string() # noqa
+        s = circuit.to_string()  # noqa
         del circuit
 
     def test_state_reflection(self):
