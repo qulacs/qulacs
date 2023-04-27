@@ -21,6 +21,7 @@
 #include <cppsim/state.hpp>
 #include <cppsim/state_dm.hpp>
 #include <cppsim/utility.hpp>
+#include <cppsim/matrix_decomposition.hpp>
 #include <csim/memory_ops.hpp>
 #include <csim/stat_ops.hpp>
 #include <csim/update_ops.hpp>
@@ -1477,4 +1478,17 @@ PYBIND11_MODULE(qulacs_core, m) {
             py::return_value_policy::take_ownership)
         .def("execute_and_get_result", &NoiseSimulator::execute_and_get_result,
             "Simulate & Return ressult [array of (state, frequency)]");
+
+    py::class_<KAK_data>(m, "KAK_data")
+        .def(py::init<>())
+        .def("single_qubit_operations_before", &KAK_data::get_before)
+        .def("interaction_coefficients", &KAK_data::get_coefficients)
+        .def("single_qubit_operations_after", &KAK_data::get_after);
+    m.def("KAK_decomposition", &KAK_decomposition);
+
 }
+
+// py::class_<MyClass>(m, "MyClass")
+//       .def(py::init<>())
+//       .def_readwrite("x", &MyClass::x)
+//       .def_readwrite("s", &MyClass::s);

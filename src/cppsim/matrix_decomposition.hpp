@@ -18,6 +18,9 @@ public:
     QuantumGateMatrix* single_qubit_operations_before[2];
     double interaction_coefficients[3];
     QuantumGateMatrix* single_qubit_operations_after[2];
+    QuantumGateMatrix* get_before() { return *this->single_qubit_operations_before; }
+    double get_coefficients() { return *this->interaction_coefficients; }
+    QuantumGateMatrix* get_after() { return *this->single_qubit_operations_after; }
 };
 
 // clang-format off
