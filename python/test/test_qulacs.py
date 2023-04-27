@@ -1029,7 +1029,7 @@ class TestQASM(unittest.TestCase):
             convert_qulacs_circuit_to_QASM
         )
 
-        # equals RX(0, np.pi / 4.0)
+        # equals RX(1, np.pi / 4.0)
         qasm = textwrap.dedent("""
             OPENQASM 2.0;
             include "qelib1.inc";
