@@ -43,7 +43,8 @@ dev = [
     "isort",
     "mypy",
     "pybind11-stubgen",
-    "openfermion"
+    "openfermion",
+    "pytest"
 ]
 
 test = [
@@ -56,7 +57,8 @@ ci = [
     "isort",
     "mypy",
     "pybind11-stubgen",
-    "openfermion"
+    "openfermion",
+    "pytest"
 ]
 
 doc = [
