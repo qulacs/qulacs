@@ -1034,7 +1034,7 @@ class TestQASM(unittest.TestCase):
             OPENQASM 2.0;
             include "qelib1.inc";
             qreg q[4];
-            rx(-0.7853981633974484) q[1];
+            rx(-0.785398163397448) q[1];
             """).strip()
 
         circuit = convert_QASM_to_qulacs_circuit(qasm.splitlines())
