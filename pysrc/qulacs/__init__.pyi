@@ -4,6 +4,7 @@ from __future__ import annotations
 import typing
 
 import numpy
+import qulacs_core
 
 __all__ = [
     "CausalConeSimulator",
