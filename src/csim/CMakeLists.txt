@@ -19,8 +19,6 @@ add_library(csim_shared SHARED ${CSIM_SRC})
 #target_link_libraries(csim_shared eigen)
 add_dependencies(csim_static eigen)
 add_dependencies(csim_shared eigen)
-add_dependencies(csim_static Cereal)
-add_dependencies(csim_shared Cereal)
 
 if (MSVC)
     set_target_properties(csim_static PROPERTIES LINKER_LANGUAGE CXX)
