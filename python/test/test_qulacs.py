@@ -991,6 +991,56 @@ class TestQASM(unittest.TestCase):
             assert np.allclose(transpiled_circuit.get_gate(x).get_matrix(),
                                gates[x].get_matrix())
 
+    def test_qasm_converter_with_signed_params(self):
+        from qulacs import QuantumCircuit
+        from qulacs.converter import (convert_QASM_to_qulacs_circuit,
+                                      convert_qulacs_circuit_to_QASM)
+        from qulacs.gate import (RX, RY, RZ, U1, U2, U3)
+        angle = np.pi / 4.0
+        gates = [
+            # backward rotation
+            U1(0, angle),
+            U2(0, angle, angle),
+            U3(0, angle, angle, angle),
+            RX(0, angle),
+            RY(0, angle),
+            RZ(0, angle),
+            # forward rotation
+            U1(0, -angle),
+            U2(0, -angle, -angle),
+            U3(0, -angle, -angle, -angle),
+            RX(0, -angle),
+            RY(0, -angle),
+            RZ(0, -angle),
+        ]
+        circuit = QuantumCircuit(5)
+        for x in gates:
+            circuit.add_gate(x)
+        QASM_strs = convert_qulacs_circuit_to_QASM(circuit)
+        transpiled_circuit = convert_QASM_to_qulacs_circuit(QASM_strs)
+        for x in range(transpiled_circuit.get_gate_count()):
+            assert np.allclose(transpiled_circuit.get_gate(x).get_matrix(),
+                               gates[x].get_matrix())
+
+    def test_qasm_converter_from_qasm_str(self):
+        import textwrap
+        from qulacs.converter import (
+            convert_QASM_to_qulacs_circuit,
+            convert_qulacs_circuit_to_QASM
+        )
+
+        # equals RX(1, np.pi / 4.0)
+        qasm = textwrap.dedent("""
+            OPENQASM 2.0;
+            include "qelib1.inc";
+            qreg q[4];
+            rx(-0.785398163397448) q[1];
+            """).strip()
+
+        circuit = convert_QASM_to_qulacs_circuit(qasm.splitlines())
+        recoverd = convert_qulacs_circuit_to_QASM(circuit)
+        assert qasm == "\n".join(recoverd)
+
 
 class TestJSON(unittest.TestCase):
     def setUp(self):
