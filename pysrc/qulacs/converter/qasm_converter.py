@@ -15,7 +15,9 @@ logger.addHandler(NullHandler())
 
 FIXED_POINT_PATTERN = r"[+-]?\d+(?:\.\d*)?|\.\d+"
 FLOATING_POINT_PATTERN = r"[eE][-+]?\d+"
-GENERAL_NUMBER_PATTERN = rf"(?:{FIXED_POINT_PATTERN})(?:{FLOATING_POINT_PATTERN})?" # noqa
+GENERAL_NUMBER_PATTERN = (
+    rf"(?:{FIXED_POINT_PATTERN})(?:{FLOATING_POINT_PATTERN})?"  # noqa
+)
 
 
 def convert_qulacs_circuit_to_QASM(cir: QuantumCircuit) -> typing.List[str]:
@@ -196,37 +198,27 @@ def convert_QASM_to_qulacs_circuit(
             ary = matchobj.groups()
             cir.add_Tdag_gate(mapping[int(ary[0])])
         elif instr[0:2] == "rx":
-            matchobj = re.match(
-                rf"rx\(({GENERAL_NUMBER_PATTERN})\)q\[(\d+)\];", instr
-            )
+            matchobj = re.match(rf"rx\(({GENERAL_NUMBER_PATTERN})\)q\[(\d+)\];", instr)
             assert matchobj is not None
             ary = matchobj.groups()
             cir.add_RX_gate(mapping[int(ary[1])], -float(ary[0]))
         elif instr[0:2] == "ry":
-            matchobj = re.match(
-                rf"ry\(({GENERAL_NUMBER_PATTERN})\)q\[(\d+)\];", instr
-            )
+            matchobj = re.match(rf"ry\(({GENERAL_NUMBER_PATTERN})\)q\[(\d+)\];", instr)
             assert matchobj is not None
             ary = matchobj.groups()
             cir.add_RY_gate(mapping[int(ary[1])], -float(ary[0]))
         elif instr[0:2] == "rz":
-            matchobj = re.match(
-                rf"rz\(({GENERAL_NUMBER_PATTERN})\)q\[(\d+)\];", instr
-            )
+            matchobj = re.match(rf"rz\(({GENERAL_NUMBER_PATTERN})\)q\[(\d+)\];", instr)
             assert matchobj is not None
             ary = matchobj.groups()
             cir.add_RZ_gate(mapping[int(ary[1])], -float(ary[0]))
         elif instr[0:1] == "p":
-            matchobj = re.match(
-                rf"p\({GENERAL_NUMBER_PATTERN}\)q\[(\d+)\];", instr
-            )
+            matchobj = re.match(rf"p\({GENERAL_NUMBER_PATTERN}\)q\[(\d+)\];", instr)
             assert matchobj is not None
             ary = matchobj.groups()
             cir.add_U1_gate(mapping[int(ary[1])], float(ary[0]))
         elif instr[0:2] == "u1":
-            matchobj = re.match(
-                rf"u1\(({GENERAL_NUMBER_PATTERN})\)q[(\d+)];", instr
-            )
+            matchobj = re.match(rf"u1\(({GENERAL_NUMBER_PATTERN})\)q[(\d+)];", instr)
             assert matchobj is not None
             ary = matchobj.groups()
             cir.add_U1_gate(mapping[int(ary[1])], float(ary[0]))
