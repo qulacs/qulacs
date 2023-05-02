@@ -1,6 +1,5 @@
-
-from qulacs_core import GeneralQuantumOperator
 import numpy as np
+from qulacs_core import GeneralQuantumOperator
 
 
 def convert_openfermion_op(openfermion_op, n_qubits=None):
@@ -19,10 +18,10 @@ def convert_openfermion_op(openfermion_op, n_qubits=None):
     res = GeneralQuantumOperator(_n_qubits)
     for pauli_product in openfermion_op.terms:
         coef = float(np.real(openfermion_op.terms[pauli_product]))
-        pauli_string = ''
+        pauli_string = ""
         for pauli_operator in pauli_product:
-            pauli_string += pauli_operator[1] + ' ' + str(pauli_operator[0])
-            pauli_string += ' '
+            pauli_string += pauli_operator[1] + " " + str(pauli_operator[0])
+            pauli_string += " "
         res.add_operator(coef, pauli_string[:-1])
     return res
 
@@ -40,4 +39,4 @@ def _count_qubit_in_qubit_operator(op):
         for pauli_operator in pauli_product:
             if n_qubits < pauli_operator[0]:
                 n_qubits = pauli_operator[0]
-    return n_qubits+1
+    return n_qubits + 1

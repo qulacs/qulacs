@@ -1,37 +1,41 @@
 """回路のグラフ化をできます。量子状態の棒グラフ、縮約した後の玉表示"""
-import numpy as np
 import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
+import numpy as np
+
 from qulacs import Observable, QuantumState
 
-import matplotlib.colors
-
 # bar(x, y, color=["red", "blue", "green", "pink", "orange"], width=0.5)
+
 
 def cmp_to_color(z):
     """複素数を受け取って、色を返す"""
     arg_rad = np.angle(z)
 
-    color=(np.cos(arg_rad)*0.5+0.5,np.cos(arg_rad+np.pi*0.667)*0.5+0.5,np.cos(arg_rad+np.pi*1.333)*0.5+0.5 )
+    color = (
+        np.cos(arg_rad) * 0.5 + 0.5,
+        np.cos(arg_rad + np.pi * 0.667) * 0.5 + 0.5,
+        np.cos(arg_rad + np.pi * 1.333) * 0.5 + 0.5,
+    )
     return color
+
 
 def show_amplitude(state):
     """純粋状態量子状態を受け取って、棒グラフを表示する"""
     n_qubit = state.get_qubit_count()
-    aaa=state.get_vector()
-    bits=[]
-    ys=[]
-    colors=[]
+    aaa = state.get_vector()
+    bits = []
+    ys = []
+    colors = []
     for i in range(2**n_qubit):
         print(aaa[i])
-        moziretu='{:b}'.format(i)
-        while len(moziretu)<n_qubit:
-            moziretu="0"+moziretu
+        moziretu = "{:b}".format(i)
+        while len(moziretu) < n_qubit:
+            moziretu = "0" + moziretu
         bits.append(moziretu)
 
         ys.append(abs(aaa[i]))
-        colors.append(cmp_to_color(aaa[i]))    
-    plt.bar(bits,ys,color=colors)
+        colors.append(cmp_to_color(aaa[i]))
+    plt.bar(bits, ys, color=colors)
     plt.show()
 
 
@@ -70,23 +74,22 @@ def show_blochsphere(state, bit):
 def show_probability(state):
     """量子状態を受け取って、　出現確率の棒グラフを表示します。"""
     n_qubit = state.get_qubit_count()
-    bits=[]
-    ys=np.zeros(2**n_qubit)
+    bits = []
+    ys = np.zeros(2**n_qubit)
     for i in range(2**n_qubit):
-        moziretu='{:b}'.format(i)
-        while len(moziretu)<n_qubit:
-            moziretu="0"+moziretu
+        moziretu = "{:b}".format(i)
+        while len(moziretu) < n_qubit:
+            moziretu = "0" + moziretu
         bits.append(moziretu)
 
-    if isinstance(state,QuantumState):
-        aaa=state.get_vector()
+    if isinstance(state, QuantumState):
+        aaa = state.get_vector()
         for i in range(2**n_qubit):
-            ys[i]+=abs(aaa[i])**2
+            ys[i] += abs(aaa[i]) ** 2
     else:
-        aaa=state.get_matrix()
+        aaa = state.get_matrix()
         for h in range(len(aaa)):
             for i in range(2**n_qubit):
-                ys[i]+=abs(aaa[h][i])**2
-    plt.bar(bits,ys)
+                ys[i] += abs(aaa[h][i]) ** 2
+    plt.bar(bits, ys)
     plt.show()
-

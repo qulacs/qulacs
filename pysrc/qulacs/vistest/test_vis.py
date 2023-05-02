@@ -1,16 +1,17 @@
-import numpy as np
-from qulacs import Observable, QuantumState
-from qulacs.gate import to_matrix_gate, X,Y,Z, CNOT, H, RX, RY
-from qulacs.visualizer import show_blochsphere,show_amplitude,show_probability
-
-
+from qulacs import QuantumState
+from qulacs.gate import CNOT, RY, H, X, Z
+from qulacs.visualizer import (
+    show_amplitude,
+    show_blochsphere,
+    show_probability,
+)
 
 
 def test_amp_pro():
     """適当な量子状態をつくって、棒グラフを表示するテスト用関数。"""
     n = 3
     state = QuantumState(n)
-    #state.set_Haar_random_state()
+    # state.set_Haar_random_state()
     show_amplitude(state)
     show_probability(state)
     X(0).update_quantum_state(state)

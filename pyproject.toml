@@ -40,9 +40,10 @@ homepage = "http://www.qulacs.org"
 dev = [
     "black",
     "flake8",
-    "openfermion",
+    "isort",
     "mypy",
-    "pybind11-stubgen"
+    "pybind11-stubgen",
+    "openfermion"
 ]
 
 test = [
@@ -50,9 +51,12 @@ test = [
 ]
 
 ci = [
-    "openfermion",
+    "black",
+    "flake8",
+    "isort",
     "mypy",
-    "pybind11-stubgen"
+    "pybind11-stubgen",
+    "openfermion"
 ]
 
 doc = [
@@ -97,3 +101,12 @@ brew link boost && rm -rf {project}/build\
 """
 archs = ["x86_64", "arm64"]
 repair-wheel-command = "delocate-listdeps {wheel} && script/fix_wheel_osx.sh {wheel} {dest_dir} && delocate-listdeps {wheel}"
+
+[tool.isort]
+default_section = "THIRDPARTY"
+ensure_newline_before_comments = true
+force_grid_wrap = 0
+force_single_line = false
+include_trailing_comma = true
+multi_line_output = 3
+use_parentheses = true
