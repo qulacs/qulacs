@@ -144,22 +144,6 @@ ExternalProject_Add(
 )
 include_directories(SYSTEM ${EIGEN_INCLUDE_DIR})
 
-# Cereal
-set(CEREAL_BUILD_DIR   ${CMAKE_BINARY_DIR}/cereal)
-set(CEREAL_INSTALL_DIR ${CMAKE_SOURCE_DIR}/include)
-set(CEREAL_INCLUDE_DIR ${CEREAL_INSTALL_DIR})
-ExternalProject_Add(
-    Cereal
-    URL https://github.com/USCiLab/cereal/archive/v1.3.0.tar.gz
-    PREFIX ${CEREAL_BUILD_DIR}
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND
-      ${CMAKE_COMMAND} -E copy_directory ${CEREAL_BUILD_DIR}/src/Cereal/include ${CEREAL_INCLUDE_DIR}
-    TEST_COMMAND ""
-)
-include_directories(SYSTEM ${CEREAL_INCLUDE_DIR})
-
 # Google test
 if(USE_TEST)
 	FetchContent_Declare(
@@ -526,5 +510,4 @@ if(USE_PYTHON)
 endif()
 
 #dependency setting for ExternalProject
-add_dependencies(qulacs_core Cereal)
 add_dependencies(qulacs_core eigen)
