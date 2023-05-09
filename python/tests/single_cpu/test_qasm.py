@@ -1,53 +1,45 @@
-import unittest
+import textwrap
 
 import numpy as np
 
+from qulacs import QuantumCircuit
+from qulacs.converter import (
+    convert_QASM_to_qulacs_circuit,
+    convert_qulacs_circuit_to_QASM,
+)
+from qulacs.gate import (
+    CNOT,
+    CZ,
+    FREDKIN,
+    RX,
+    RY,
+    RZ,
+    SWAP,
+    TOFFOLI,
+    U1,
+    U2,
+    U3,
+    DenseMatrix,
+    H,
+    Identity,
+    RandomUnitary,
+    S,
+    Sdag,
+    T,
+    Tdag,
+    X,
+    Y,
+    Z,
+    add,
+    merge,
+    sqrtX,
+    sqrtXdag,
+    to_matrix_gate,
+)
 
-class TestQASM(unittest.TestCase):
-    def setUp(self):
-        pass
 
-    def tearDown(self):
-        pass
-
-    def test_qasm_converter(self):
-        import numpy as np
-
-        from qulacs import QuantumCircuit
-        from qulacs.converter import (
-            convert_QASM_to_qulacs_circuit,
-            convert_qulacs_circuit_to_QASM,
-        )
-        from qulacs.gate import (
-            CNOT,
-            CZ,
-            FREDKIN,
-            RX,
-            RY,
-            RZ,
-            SWAP,
-            TOFFOLI,
-            U1,
-            U2,
-            U3,
-            DenseMatrix,
-            H,
-            Identity,
-            RandomUnitary,
-            S,
-            Sdag,
-            T,
-            Tdag,
-            X,
-            Y,
-            Z,
-            add,
-            merge,
-            sqrtX,
-            sqrtXdag,
-            to_matrix_gate,
-        )
-
+class TestQASM:
+    def test_qasm_converter(self) -> None:
         gates = [
             Identity(0),
             X(0),
@@ -88,14 +80,7 @@ class TestQASM(unittest.TestCase):
                 transpiled_circuit.get_gate(x).get_matrix(), gates[x].get_matrix()
             )
 
-    def test_qasm_converter_with_signed_params(self):
-        from qulacs import QuantumCircuit
-        from qulacs.converter import (
-            convert_QASM_to_qulacs_circuit,
-            convert_qulacs_circuit_to_QASM,
-        )
-        from qulacs.gate import RX, RY, RZ, U1, U2, U3
-
+    def test_qasm_converter_with_signed_params(self) -> None:
         angle = np.pi / 4.0
         gates = [
             # backward rotation
@@ -123,14 +108,7 @@ class TestQASM(unittest.TestCase):
                 transpiled_circuit.get_gate(x).get_matrix(), gates[x].get_matrix()
             )
 
-    def test_qasm_converter_from_qasm_str(self):
-        import textwrap
-
-        from qulacs.converter import (
-            convert_QASM_to_qulacs_circuit,
-            convert_qulacs_circuit_to_QASM,
-        )
-
+    def test_qasm_converter_from_qasm_str(self) -> None:
         # equals RX(1, np.pi / 4.0)
         qasm = textwrap.dedent(
             """

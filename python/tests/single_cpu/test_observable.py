@@ -1,18 +1,10 @@
-import unittest
+import numpy as np
+
+from qulacs import GeneralQuantumOperator, Observable
 
 
-class TestObservable(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_get_matrix(self):
-        import numpy as np
-
-        from qulacs import Observable
-
+class TestObservable:
+    def test_get_matrix_from_observable(self) -> None:
         n_qubits = 3
         obs = Observable(n_qubits)
         obs.add_operator(0.5, "Z 2")
@@ -31,9 +23,10 @@ class TestObservable(unittest.TestCase):
             ],
             dtype=np.complex128,
         )
-        self.assertLessEqual(np.linalg.norm(ans - obs.get_matrix().todense()), 1e-6)
-        from qulacs import GeneralQuantumOperator
+        assert np.linalg.norm(ans - obs.get_matrix().todense()) <= 1e-6  # type: ignore
 
+    def test_get_matrix_from_general_quantum_operator(self) -> None:
+        n_qubits = 3
         obs = GeneralQuantumOperator(n_qubits)
         obs.add_operator(0.5j, "Z 2")
         obs.add_operator(1.0, "X 0 X 1 X 2")
@@ -51,4 +44,4 @@ class TestObservable(unittest.TestCase):
             ],
             dtype=np.complex128,
         )
-        self.assertLessEqual(np.linalg.norm(ans - obs.get_matrix().todense()), 1e-6)
+        assert np.linalg.norm(ans - obs.get_matrix().todense()) <= 1e-6  # type: ignore

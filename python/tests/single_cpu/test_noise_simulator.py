@@ -1,19 +1,16 @@
-import unittest
+from typing import List, Set, Tuple
 
 import numpy as np
 
-import qulacs
+from qulacs import NoiseSimulator, QuantumCircuit, QuantumState
+from qulacs.gate import CNOT, CZ, T, sqrtX, sqrtY
 
 
-class TestNoiseSimulator(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_noise_simulator(self):
-        def get_heavy_output_probability(n, depth, error_prob, shots=1000):
+class TestNoiseSimulator:
+    def test_noise_simulator(self) -> None:
+        def get_heavy_output_probability(
+            n, depth, error_prob, shots=1000
+        ) -> Tuple[float, Set[int], List[int]]:
             one_qubit_noise = [
                 "Depolarizing",
                 "BitFlip",
@@ -22,11 +19,9 @@ class TestNoiseSimulator(unittest.TestCase):
                 "AmplitudeDamping",
             ]
             two_qubit_noise = ["Depolarizing"]
-            from qulacs import NoiseSimulator, QuantumState
-            from qulacs.gate import CNOT, CZ, T, sqrtX, sqrtY
 
-            circuit_with_noise = qulacs.QuantumCircuit(n)
-            circuit_without_noise = qulacs.QuantumCircuit(n)
+            circuit_with_noise = QuantumCircuit(n)
+            circuit_without_noise = QuantumCircuit(n)
             for d in range(depth):
                 for i in range(n):
                     r = np.random.randint(0, 5)
@@ -66,7 +61,7 @@ class TestNoiseSimulator(unittest.TestCase):
                             )
                             circuit_without_noise.add_CZ_gate(i, i + 1)
 
-            ideal_state = qulacs.QuantumState(n)
+            ideal_state = QuantumState(n)
             circuit_without_noise.update_quantum_state(ideal_state)
             prob_dist = [abs(x) ** 2 for x in ideal_state.get_vector()]
             p_median = np.sort(prob_dist)[2 ** (n - 1) - 1]
@@ -110,5 +105,5 @@ class TestNoiseSimulator(unittest.TestCase):
             print(f"Sampling Result: {high_noise_result}")
             print(f"Heavy Output: {high_noise_heavy_output}")
 
-        self.assertGreater(low_noise_prob, 2 / 3)
-        self.assertLess(high_noise_prob, 2 / 3)
+        assert low_noise_prob > 2 / 3
+        assert high_noise_prob < 2 / 3

@@ -1,38 +1,36 @@
-import unittest
+from typing import Generator
 
 import numpy as np
+import pytest
 
-import qulacs
+from qulacs import QuantumState
 
 
-class TestQuantumState(unittest.TestCase):
-    def setUp(self):
+class TestQuantumState:
+    @pytest.fixture
+    def init_state(self) -> Generator[None, None, None]:
         self.n = 4
         self.dim = 2**self.n
-        self.state = qulacs.QuantumState(self.n)
+        self.state = QuantumState(self.n)
 
-    def tearDown(self):
+        yield
         del self.state
 
-    def test_state_dim(self):
+    def test_state_dim(self, init_state) -> None:
         vector = self.state.get_vector()
-        self.assertEqual(len(vector), self.dim, msg="check vector size")
+        assert len(vector) == self.dim, "check vector size"
 
-    def test_zero_state(self):
+    def test_zero_state(self, init_state) -> None:
         self.state.set_zero_state()
         vector = self.state.get_vector()
         vector_ans = np.zeros(self.dim)
         vector_ans[0] = 1.0
-        self.assertTrue(
-            ((vector - vector_ans) < 1e-10).all(), msg="check set_zero_state"
-        )
+        assert ((vector - vector_ans) < 1e-10).all(), "check set_zero_state"
 
-    def test_comp_basis(self):
+    def test_comp_basis(self, init_state) -> None:
         pos = 0b0101
         self.state.set_computational_basis(pos)
         vector = self.state.get_vector()
         vector_ans = np.zeros(self.dim)
         vector_ans[pos] = 1.0
-        self.assertTrue(
-            ((vector - vector_ans) < 1e-10).all(), msg="check set_computational_basis"
-        )
+        assert ((vector - vector_ans) < 1e-10).all(), "check set_computational_basis"

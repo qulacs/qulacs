@@ -1,20 +1,44 @@
-import unittest
+import pickle
+import random
+
+import numpy
+import numpy as np
+
+from qulacs import DensityMatrix, ParametricQuantumCircuit, QuantumCircuit, QuantumState
+from qulacs.gate import (
+    CNOT,
+    CZ,
+    FREDKIN,
+    RX,
+    RY,
+    RZ,
+    SWAP,
+    TOFFOLI,
+    U1,
+    U2,
+    U3,
+    DenseMatrix,
+    H,
+    Identity,
+    ParametricPauliRotation,
+    RandomUnitary,
+    S,
+    Sdag,
+    T,
+    Tdag,
+    X,
+    Y,
+    Z,
+    add,
+    merge,
+    sqrtX,
+    sqrtXdag,
+    to_matrix_gate,
+)
 
 
-class TestPickle(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_state_vector(self):
-        import pickle
-
-        import numpy
-
-        from qulacs import QuantumState
-
+class TestPickle:
+    def test_state_vector(self) -> None:
         state = QuantumState(10)
         state.set_Haar_random_state()
         data = pickle.dumps(state)
@@ -22,13 +46,7 @@ class TestPickle(unittest.TestCase):
         assert isinstance(state2, QuantumState)
         assert numpy.allclose(state.get_vector(), state2.get_vector())
 
-    def test_density_matrix(self):
-        import pickle
-
-        import numpy
-
-        from qulacs import DensityMatrix
-
+    def test_density_matrix(self) -> None:
         state = DensityMatrix(5)
         state.set_Haar_random_state()
         data = pickle.dumps(state)
@@ -36,42 +54,7 @@ class TestPickle(unittest.TestCase):
         assert isinstance(state2, DensityMatrix)
         assert numpy.allclose(state.get_matrix(), state2.get_matrix())
 
-    def test_quantum_circuit(self):
-        import pickle
-
-        import numpy as np
-
-        from qulacs import QuantumCircuit
-        from qulacs.gate import (
-            CNOT,
-            CZ,
-            FREDKIN,
-            RX,
-            RY,
-            RZ,
-            SWAP,
-            TOFFOLI,
-            U1,
-            U2,
-            U3,
-            DenseMatrix,
-            H,
-            Identity,
-            RandomUnitary,
-            S,
-            Sdag,
-            T,
-            Tdag,
-            X,
-            Y,
-            Z,
-            add,
-            merge,
-            sqrtX,
-            sqrtXdag,
-            to_matrix_gate,
-        )
-
+    def test_quantum_circuit(self) -> None:
         gates = [
             Identity(0),
             X(0),
@@ -112,15 +95,7 @@ class TestPickle(unittest.TestCase):
         for x in range(circuit.get_gate_count()):
             assert np.allclose(circuit.get_gate(x).get_matrix(), gates[x].get_matrix())
 
-    def test_parametric_quantum_circuit(self):
-        import pickle
-        import random
-
-        import numpy as np
-
-        from qulacs import ParametricQuantumCircuit
-        from qulacs.gate import ParametricPauliRotation
-
+    def test_parametric_quantum_circuit(self) -> None:
         gates = []
         circuit = ParametricQuantumCircuit(2)
 

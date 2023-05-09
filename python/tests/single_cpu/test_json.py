@@ -1,31 +1,82 @@
-import unittest
+import json
+import random
 
 import numpy as np
+import pytest
+from scipy.sparse import csc_matrix, lil_matrix
+
+from qulacs import (
+    GeneralQuantumOperator,
+    Observable,
+    ParametricQuantumCircuit,
+    PauliOperator,
+    QuantumCircuit,
+    QuantumState,
+    circuit,
+    gate,
+    observable,
+    quantum_operator,
+)
+from qulacs.gate import (
+    CNOT,
+    CPTP,
+    CZ,
+    FREDKIN,
+    P0,
+    P1,
+    RX,
+    RY,
+    RZ,
+    SWAP,
+    TOFFOLI,
+    U1,
+    U2,
+    U3,
+    AmplitudeDampingNoise,
+    BitFlipNoise,
+    DenseMatrix,
+    DephasingNoise,
+    DepolarizingNoise,
+    H,
+    Identity,
+    IndependentXZNoise,
+    Instrument,
+    Measurement,
+    NoisyEvolution,
+    NoisyEvolution_fast,
+    ParametricPauliRotation,
+    ParametricRX,
+    ParametricRY,
+    ParametricRZ,
+    Pauli,
+    PauliRotation,
+    Probabilistic,
+    RandomUnitary,
+    S,
+    Sdag,
+    SparseMatrix,
+    StateReflection,
+    T,
+    Tdag,
+    TwoQubitDepolarizingNoise,
+    X,
+    Y,
+    Z,
+    add,
+    merge,
+    sqrtX,
+    sqrtXdag,
+    sqrtY,
+    sqrtYdag,
+    to_matrix_gate,
+)
 
 
-class TestJSON(unittest.TestCase):
-    def setUp(self):
-        pass
-
-    def tearDown(self):
-        pass
-
-    def test_operator(self):
-        import json
-        import random
-
-        from qulacs import (
-            GeneralQuantumOperator,
-            Observable,
-            PauliOperator,
-            QuantumState,
-            observable,
-            quantum_operator,
-        )
-
+class TestJSON:
+    def test_operator(self) -> None:
         n = 5
 
-        def random_pauli_operator():
+        def random_pauli_operator() -> PauliOperator:
             op = PauliOperator(
                 (random.random() * 2 - 1) + (random.random() * 2 - 1) * 1j
             )
@@ -33,93 +84,50 @@ class TestJSON(unittest.TestCase):
                 op.add_single_Pauli(random.randint(0, n - 1), random.randint(0, 3))
             return op
 
-        def random_hermitian_pauli_operator():
+        def random_hermitian_pauli_operator() -> PauliOperator:
             op = PauliOperator(random.random() * 2 - 1)
             for _ in range(random.randint(1, 5)):
                 op.add_single_Pauli(random.randint(0, n - 1), random.randint(0, 3))
             return op
 
-        oridinal_operator = GeneralQuantumOperator(5)
+        original_operator = GeneralQuantumOperator(5)
         for _ in range(5):
-            oridinal_operator.add_operator(random_pauli_operator())
+            original_operator.add_operator(random_pauli_operator())
 
-        json_string = oridinal_operator.to_json()
+        json_string = original_operator.to_json()
         json.loads(json_string)
         restored_operator = quantum_operator.from_json(json_string)
 
         for _ in range(3):
             state = QuantumState(n)
-            self.assertAlmostEqual(
-                oridinal_operator.get_expectation_value(state),
-                restored_operator.get_expectation_value(state),
+            assert original_operator.get_expectation_value(state) == pytest.approx(
+                restored_operator.get_expectation_value(state)
             )
 
-        oridinal_observable = Observable(n)
+        original_observable = Observable(n)
         for _ in range(5):
-            oridinal_observable.add_operator(random_hermitian_pauli_operator())
+            original_observable.add_operator(random_hermitian_pauli_operator())
 
-        json_string = oridinal_observable.to_json()
+        json_string = original_observable.to_json()
         json.loads(json_string)
         restored_observable = observable.from_json(json_string)
 
         for _ in range(3):
             state = QuantumState(n)
             state.set_Haar_random_state()
-            self.assertAlmostEqual(
-                oridinal_observable.get_expectation_value(state),
-                restored_observable.get_expectation_value(state),
+            assert original_observable.get_expectation_value(state) == pytest.approx(
+                restored_observable.get_expectation_value(state)
             )
 
         non_hermitian_operator = GeneralQuantumOperator(1)
         non_hermitian_operator.add_operator(1j, "X 0")
-        with self.assertRaises(RuntimeError):
+        with pytest.raises(RuntimeError):
             observable.from_json(non_hermitian_operator.to_json())
 
-    def test_gate(self):
-        import json
-        import random
-
-        from scipy.sparse import lil_matrix
-
-        from qulacs import QuantumState, gate
-        from qulacs.gate import (
-            CNOT,
-            CZ,
-            FREDKIN,
-            P0,
-            P1,
-            RX,
-            RY,
-            RZ,
-            SWAP,
-            TOFFOLI,
-            U1,
-            U2,
-            U3,
-            H,
-            Identity,
-            Pauli,
-            PauliRotation,
-            S,
-            Sdag,
-            StateReflection,
-            T,
-            Tdag,
-            X,
-            Y,
-            Z,
-            add,
-            merge,
-            sqrtX,
-            sqrtXdag,
-            sqrtY,
-            sqrtYdag,
-            to_matrix_gate,
-        )
-
+    def test_gate(self) -> None:
         n = 3
 
-        def execute_test_gate():
+        def execute_test_gate() -> None:
             qs = QuantumState(n)
             sparse_mat = lil_matrix((4, 4))
             sparse_mat[0, 0] = 1
@@ -174,25 +182,14 @@ class TestJSON(unittest.TestCase):
                 g_json = gate.from_json(json_string)
                 g_json.update_quantum_state(qs_json)
                 for i in range(n):
-                    self.assertAlmostEqual(
-                        qs.get_zero_probability(i), qs_json.get_zero_probability(i)
+                    assert qs.get_zero_probability(i) == pytest.approx(
+                        qs_json.get_zero_probability(i)
                     )
 
         for _ in range(10):
             execute_test_gate()
 
-    def test_parametric_gate(self):
-        import json
-        import random
-
-        from qulacs import QuantumState, gate
-        from qulacs.gate import (
-            ParametricPauliRotation,
-            ParametricRX,
-            ParametricRY,
-            ParametricRZ,
-        )
-
+    def test_parametric_gate(self) -> None:
         n = 3
         qs = QuantumState(n)
 
@@ -212,22 +209,14 @@ class TestJSON(unittest.TestCase):
             g_json = gate.from_json(json_string)
             g_json.update_quantum_state(qs_json)
             for i in range(n):
-                self.assertAlmostEqual(
-                    qs.get_zero_probability(i), qs_json.get_zero_probability(i)
+                assert qs.get_zero_probability(i) == pytest.approx(
+                    qs_json.get_zero_probability(i)
                 )
 
-    def test_matrix_gate(self):
-        import json
-        import random
-
-        from scipy.sparse import csc_matrix
-
-        from qulacs import QuantumState, gate
-        from qulacs.gate import DenseMatrix, SparseMatrix
-
+    def test_matrix_gate(self) -> None:
         n = 3
 
-        def execute_test_matrix_gate():
+        def execute_test_matrix_gate() -> None:
             qs = QuantumState(n)
 
             # DenseMatrix
@@ -243,8 +232,8 @@ class TestJSON(unittest.TestCase):
             g_json = gate.from_json(json_string)
             g_json.update_quantum_state(qs_json)
             for i in range(n):
-                self.assertAlmostEqual(
-                    qs.get_zero_probability(i), qs_json.get_zero_probability(i)
+                assert qs.get_zero_probability(i) == pytest.approx(
+                    qs_json.get_zero_probability(i)
                 )
 
             # SparseMatrix
@@ -261,29 +250,14 @@ class TestJSON(unittest.TestCase):
             g_json = gate.from_json(json_string)
             g_json.update_quantum_state(qs_json)
             for i in range(n):
-                self.assertAlmostEqual(
-                    qs.get_zero_probability(i), qs_json.get_zero_probability(i)
+                assert qs.get_zero_probability(i) == pytest.approx(
+                    qs_json.get_zero_probability(i)
                 )
 
         for _ in range(10):
             execute_test_matrix_gate()
 
-    def test_probabilistic_gate(self):
-        import json
-        import random
-
-        from qulacs import gate
-        from qulacs.gate import (
-            BitFlipNoise,
-            DephasingNoise,
-            DepolarizingNoise,
-            IndependentXZNoise,
-            Probabilistic,
-            TwoQubitDepolarizingNoise,
-            X,
-            Y,
-        )
-
+    def test_probabilistic_gate(self) -> None:
         r = random.random()
         gates = [
             Probabilistic([r, 1.0 - r], [X(0), Y(0)]),
@@ -303,21 +277,9 @@ class TestJSON(unittest.TestCase):
             ds_json = g_json.get_distribution()
 
             for i in range(len(ds)):
-                self.assertAlmostEqual(ds[i], ds_json[i])
+                assert ds[i] == pytest.approx(ds_json[i])
 
-    def test_cptp_gate(self):
-        import random
-
-        from qulacs import QuantumState, gate
-        from qulacs.gate import (
-            CPTP,
-            P0,
-            P1,
-            AmplitudeDampingNoise,
-            Instrument,
-            Measurement,
-        )
-
+    def test_cptp_gate(self) -> None:
         n = 2
         gates = [
             AmplitudeDampingNoise(0, random.random()),
@@ -337,25 +299,20 @@ class TestJSON(unittest.TestCase):
             for i in range(len(g_list)):
                 gg = g_list[i]
                 gg_json = g_json_list[i]
-                self.assertEqual(gg.get_name(), gg_json.get_name())
+                assert gg.get_name() == gg_json.get_name()
                 qs.set_Haar_random_state()
                 qs_json = qs.copy()
                 gg.update_quantum_state(qs)
                 gg_json.update_quantum_state(qs_json)
                 for i in range(n):
-                    self.assertAlmostEqual(
-                        qs.get_zero_probability(i), qs_json.get_zero_probability(i)
+                    assert qs.get_zero_probability(i) == pytest.approx(
+                        qs_json.get_zero_probability(i)
                     )
 
-    def test_noisy_evolution_gate(self):
-        import json
-
-        from qulacs import GeneralQuantumOperator, Observable, QuantumState, gate
-        from qulacs.gate import H, NoisyEvolution, NoisyEvolution_fast, PauliRotation
-
+    def test_noisy_evolution_gate(self) -> None:
         n = 2
 
-        def execute_test_gate(is_fast):
+        def execute_test_gate(is_fast) -> None:
             observable = Observable(n)
             observable.add_operator(1.0, "X 0")
 
@@ -391,18 +348,13 @@ class TestJSON(unittest.TestCase):
                 g_ref.update_quantum_state(state_ref)
                 exp = observable.get_expectation_value(state)
                 exp_ref = observable.get_expectation_value(state_ref)
-                self.assertAlmostEqual(exp.real, exp_ref.real)
+                assert exp.real == pytest.approx(exp_ref.real)
 
         for _ in range(10):
             execute_test_gate(False)
             execute_test_gate(True)
 
-    def test_circuit(self):
-        import json
-
-        from qulacs import QuantumCircuit, QuantumState, circuit
-        from qulacs.gate import RandomUnitary
-
+    def test_circuit(self) -> None:
         n = 3
 
         circ = QuantumCircuit(n)
@@ -422,16 +374,11 @@ class TestJSON(unittest.TestCase):
         circ_json.update_quantum_state(qs_json)
 
         for i in range(n):
-            self.assertAlmostEqual(
-                qs.get_zero_probability(i), qs_json.get_zero_probability(i)
+            assert qs.get_zero_probability(i) == pytest.approx(
+                qs_json.get_zero_probability(i)
             )
 
-    def test_parametric_circuit(self):
-        import json
-        import random
-
-        from qulacs import ParametricQuantumCircuit, QuantumState, circuit
-
+    def test_parametric_circuit(self) -> None:
         n = 2
 
         circ = ParametricQuantumCircuit(n)
@@ -455,6 +402,6 @@ class TestJSON(unittest.TestCase):
         circ_json.update_quantum_state(qs_json)
 
         for i in range(n):
-            self.assertAlmostEqual(
-                qs.get_zero_probability(i), qs_json.get_zero_probability(i)
+            assert qs.get_zero_probability(i) == pytest.approx(
+                qs_json.get_zero_probability(i)
             )
