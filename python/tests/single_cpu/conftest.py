@@ -1,8 +1,14 @@
+import pytest
+
 import qulacs
 
-if qulacs.check_build_for_mpi():
-    from mpi4py import MPI
 
-    mpicomm = MPI.COMM_WORLD
-    if mpicomm.Get_rank() == 0:
-        print("Test with MPI. size=", mpicomm.Get_size())
+@pytest.fixture(scope="session", autouse=True)
+def init_mpi() -> None:
+    if qulacs.check_build_for_mpi():
+        from mpi4py import MPI
+
+        mpicomm = MPI.COMM_WORLD
+        if mpicomm.Get_rank() == 0:
+            print()
+            print("Test with MPI. size=", mpicomm.Get_size())
