@@ -505,7 +505,7 @@ if(USE_PYTHON)
 	)
 	add_custom_target(pythontest
 		DEPENDS qulacs_core
-		COMMAND python ${CMAKE_CURRENT_SOURCE_DIR}/python/test/test_qulacs.py
+		COMMAND pytest -v -s ${CMAKE_CURRENT_SOURCE_DIR}/python/tests
 	)
 endif()
 
