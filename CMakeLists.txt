@@ -478,6 +478,8 @@ if(CLANG_FORMAT)
         ${CMAKE_CURRENT_SOURCE_DIR}/src/*.[ch]
         ${CMAKE_CURRENT_SOURCE_DIR}/test/*.[ch]pp
         ${CMAKE_CURRENT_SOURCE_DIR}/test/*.[ch]
+        ${CMAKE_CURRENT_SOURCE_DIR}/python/*.[ch]pp
+        ${CMAKE_CURRENT_SOURCE_DIR}/python/*.[ch]
     )
     add_custom_target(
         format
