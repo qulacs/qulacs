@@ -331,7 +331,7 @@ jobs:
         run: |
           pip install pytest
           mpirun -n 2 bin/cppsim_test --gtest_filter="*multicpu*"
-          mpirun -n 2 pytest python/test/test_qulacs_multicpu.py
+          mpirun -n 2 pytest python/tests/multi_cpu
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v3
