@@ -57,4 +57,3 @@ class TestQuantumState:
         ):
             vector_ans[pos % self.dim] = 1.0
         assert ((vector - vector_ans) < 1e-10).all(), "check set_computational_basis"
-

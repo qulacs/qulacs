@@ -4,7 +4,12 @@ import random
 import numpy
 import numpy as np
 
-from qulacs import DensityMatrix, ParametricQuantumCircuit, QuantumCircuit, QuantumState
+from qulacs import (
+    DensityMatrix,
+    ParametricQuantumCircuit,
+    QuantumCircuit,
+    QuantumState,
+)
 from qulacs.gate import (
     CNOT,
     CZ,
