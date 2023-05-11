@@ -5,6 +5,10 @@ import pytest
 import qulacs
 
 
+# Run once before all tests in the multi_cpu directory.
+# All tests in the multi_cpu directory get a flag indicating if the multicpu is enabled
+# and an instance of mpi from the init_mpi fixture.
+# Note that all tests share the same mpi instance.
 @pytest.fixture(scope="session")
 def init_mpi() -> Tuple[bool, Any]:
     multicpu = False

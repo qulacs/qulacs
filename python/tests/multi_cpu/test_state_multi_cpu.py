@@ -4,6 +4,8 @@ from pyparsing import Generator
 
 import qulacs
 
+# `pytestmark` is a variable name determined by pytest.
+# If `pytestmark` is defined as skip mark, all tests in this file will be skipped.
 pytestmark = pytest.mark.skipif(
     not qulacs.check_build_for_mpi(),
     reason="To use multi-cpu, qulacs built for mpi is required.",
