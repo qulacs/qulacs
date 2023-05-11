@@ -36,11 +36,11 @@ class TestQuantumState:
         del self.state
         del self.state_multi
 
-    def test_state_dim(self) -> None:
+    def test_state_dim(self, init_state) -> None:
         vector = self.state_multi.get_vector()
         assert len(vector) == self.dim, "check vector size"
 
-    def test_zero_state(self) -> None:
+    def test_zero_state(self, init_state) -> None:
         self.state_multi.set_zero_state()
         vector = self.state_multi.get_vector()
         vector_ans = np.zeros(self.dim)
@@ -48,7 +48,7 @@ class TestQuantumState:
             vector_ans[0] = 1.0
         assert ((vector - vector_ans) < 1e-10).all(), "check set_zero_state"
 
-    def test_comp_basis(self) -> None:
+    def test_comp_basis(self, init_state) -> None:
         pos = 0b010100
         self.state_multi.set_computational_basis(pos)
         vector = self.state_multi.get_vector()
