@@ -229,7 +229,9 @@ jobs:
           git clone -b "${GITHUB_REF#refs/*/}" https://github.com/${GITHUB_REPOSITORY}
 
       - name: format
-        run: qulacs_format
+        run: |
+          cd /qulacs
+          script/format.sh
 
       - name: Compare diff
         run: |
