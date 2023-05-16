@@ -79,8 +79,8 @@ zip-safe = false
 
 [tool.cibuildwheel]
 build-verbosity = "1"
-test-command = "python {project}/python/test/test_qulacs.py"
-test-requires = "numpy scipy openfermion"
+test-command = "pytest -v -s {project}/python/test"
+test-requires = "pytest numpy scipy openfermion"
 
 [tool.cibuildwheel.linux]
 environment = { QULACS_OPT_FLAGS = "-mtune=haswell -mfpmath=both" }
