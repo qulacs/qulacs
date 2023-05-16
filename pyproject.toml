@@ -79,7 +79,7 @@ zip-safe = false
 
 [tool.cibuildwheel]
 build-verbosity = "1"
-test-command = "pytest -v -s {project}/python/test"
+test-command = "pytest -v -s {project}/python/tests"
 test-requires = "pytest numpy scipy openfermion"
 
 [tool.cibuildwheel.linux]
