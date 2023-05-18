@@ -1,4 +1,5 @@
 import numpy as np
+from qulacs_core.observable import *
 from scipy.sparse import csr_matrix, kron
 
 sigmaz = csr_matrix([[1, 0], [0, -1]])
@@ -21,7 +22,7 @@ def _kron_n(*ops):
         return kron(_kron_n(*ops[:-1]), ops[-1])
 
 
-def _get_matrix(obs):
+def _old_get_matrix(obs):
     """
     returns matrix of an observable
     Args:
@@ -39,5 +40,5 @@ def _get_matrix(obs):
         pauli_string = [sigmai for q in range(n_qubits)]
         for j, target in enumerate(pauli_target_list):
             pauli_string[target] = sigma_list[pauli_id_list[j]]
-        result += pauli.get_coef() * _kron_n(*(pauli_string[::-1]))
+        result += pauli.get_coef() * _kron_n(*pauli_string)
     return result

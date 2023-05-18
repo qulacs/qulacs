@@ -12,6 +12,8 @@ using ComplexVector = Eigen::VectorXcd;
 using ComplexMatrix =
     Eigen::Matrix<CPPCTYPE, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
 using SparseComplexMatrix = Eigen::SparseMatrix<CPPCTYPE>;
+using SparseComplexMatrixRowMajor =
+    Eigen::SparseMatrix<CPPCTYPE, Eigen::RowMajor>;
 
 #ifdef __GNUC__
 

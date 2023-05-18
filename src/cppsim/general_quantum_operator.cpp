@@ -8,6 +8,7 @@
 #include <cstring>
 #include <fstream>
 #include <numeric>
+#include <unsupported/Eigen/KroneckerProduct>
 
 #include "exception.hpp"
 #include "gate_factory.hpp"
@@ -447,6 +448,65 @@ GeneralQuantumOperator* GeneralQuantumOperator::copy() const {
         quantum_operator->add_operator_copy(pauli);
     }
     return quantum_operator;
+}
+
+SparseComplexMatrixRowMajor _tensor_product(
+    const std::vector<SparseComplexMatrixRowMajor>& _obs) {
+    std::vector<SparseComplexMatrixRowMajor> obs(_obs);
+    int sz = obs.size();
+    while (sz != 1) {
+        if (sz % 2 == 0) {
+            for (int i = 0; i < sz; i += 2) {
+                obs[i >> 1] =
+                    Eigen::kroneckerProduct(obs[i], obs[i + 1]).eval();
+            }
+            sz >>= 1;
+        } else {
+            obs[sz - 2] =
+                Eigen::kroneckerProduct(obs[sz - 2], obs[sz - 1]).eval();
+            sz--;
+        }
+    }
+    return obs[0];
+}
+
+SparseComplexMatrixRowMajor GeneralQuantumOperator::get_matrix() const {
+    SparseComplexMatrixRowMajor sigma_x(2, 2), sigma_y(2, 2), sigma_z(2, 2),
+        sigma_i(2, 2);
+    sigma_x.insert(0, 1) = 1.0, sigma_x.insert(1, 0) = 1.0;
+    sigma_y.insert(0, 1) = -1.0i, sigma_y.insert(1, 0) = 1.0i;
+    sigma_z.insert(0, 0) = 1.0, sigma_z.insert(1, 1) = -1.0;
+    sigma_i.insert(0, 0) = 1.0, sigma_i.insert(1, 1) = 1.0;
+    std::vector<SparseComplexMatrixRowMajor> pauli_matrix_list = {
+        sigma_i, sigma_x, sigma_y, sigma_z};
+
+    int n_terms = this->get_term_count();
+    int n_qubits = this->get_qubit_count();
+    SparseComplexMatrixRowMajor hamiltonian_matrix(
+        1 << n_qubits, 1 << n_qubits);
+    hamiltonian_matrix.setZero();
+#ifdef _OPENMP
+#pragma omp declare reduction(+ : SparseComplexMatrixRowMajor : omp_out += \
+                                      omp_in) initializer(omp_priv = omp_orig)
+#pragma omp parallel for reduction(+ : hamiltonian_matrix)
+#endif
+    for (int i = 0; i < n_terms; i++) {
+        auto const pauli = this->get_term(i);
+        auto const pauli_id_list = pauli->get_pauli_id_list();
+        auto const pauli_target_list = pauli->get_index_list();
+
+        std::vector<SparseComplexMatrixRowMajor>
+            init_hamiltonian_pauli_matrix_list(
+                n_qubits, sigma_i);  // initialize matrix_list I
+        for (int j = 0; j < (int)pauli_target_list.size(); j++) {
+            init_hamiltonian_pauli_matrix_list[pauli_target_list[j]] =
+                pauli_matrix_list[pauli_id_list[j]];  // ex) [X,X,I,I]
+        }
+        hamiltonian_matrix +=
+            pauli->get_coef() *
+            _tensor_product(init_hamiltonian_pauli_matrix_list);
+    }
+    return hamiltonian_matrix;
 }
 
 GeneralQuantumOperator* GeneralQuantumOperator::get_dagger() const {
