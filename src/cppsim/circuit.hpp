@@ -138,12 +138,7 @@ public:
      *
      * @param[in] circuit マージする量子回路
      */
-    void merge_circuit(const QuantumCircuit* circuit) {
-        for (auto gate : circuit->gate_list) {
-            this->add_gate_copy(gate);
-        }
-        return;
-    }
+    void merge_circuit(const QuantumCircuit* circuit);
     /////////////////////////////// UPDATE QUANTUM STATE
 
     /**

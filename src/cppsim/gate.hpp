@@ -88,24 +88,15 @@ protected:
     std::string _name = "Generic gate";
 
     // prohibit constructor, destructor, copy constructor, and insertion
-    QuantumGateBase()
-        : target_qubit_list(_target_qubit_list),
-          control_qubit_list(_control_qubit_list){};
-    QuantumGateBase(const QuantumGateBase& obj)
-        : target_qubit_list(_target_qubit_list),
-          control_qubit_list(_control_qubit_list) {
-        _gate_property = obj._gate_property;
-        _name = obj._name;
-        _target_qubit_list = obj.target_qubit_list;
-        _control_qubit_list = obj.control_qubit_list;
-    };
+    QuantumGateBase();
+    QuantumGateBase(const QuantumGateBase& obj);
     QuantumGateBase& operator=(const QuantumGateBase& rhs) = delete;
 
 public:
     /**
      * \~japanese-en デストラクタ
      */
-    virtual ~QuantumGateBase(){};
+    virtual ~QuantumGateBase();
 
     // jupiro変更: setのためにconstを消す
     std::vector<TargetQubitInfo>&
@@ -118,38 +109,17 @@ public:
      *
      * @return 量子ビットの添え字のリスト
      */
-    std::vector<UINT> get_target_index_list() const {
-        std::vector<UINT> res(target_qubit_list.size());
-        for (UINT i = 0; i < target_qubit_list.size(); ++i)
-            res[i] = target_qubit_list[i].index();
-        return res;
-    }
+    std::vector<UINT> get_target_index_list() const;
     /**
      * \~japanese-en コントロール量子ビットの添え字のリストを取得する
      *
      * @return 量子ビットの添え字のリスト
      */
-    std::vector<UINT> get_control_index_list() const {
-        std::vector<UINT> res(control_qubit_list.size());
-        for (UINT i = 0; i < control_qubit_list.size(); ++i)
-            res[i] = control_qubit_list[i].index();
-        return res;
-    }
+    std::vector<UINT> get_control_index_list() const;
 
-    std::vector<UINT> get_control_value_list() const {
-        std::vector<UINT> res(control_qubit_list.size());
-        for (UINT i = 0; i < control_qubit_list.size(); ++i)
-            res[i] = control_qubit_list[i].control_value();
-        return res;
-    }
+    std::vector<UINT> get_control_value_list() const;
 
-    std::vector<std::pair<UINT, UINT>> get_control_index_value_list() const {
-        std::vector<std::pair<UINT, UINT>> res(control_qubit_list.size());
-        for (UINT i = 0; i < control_qubit_list.size(); ++i)
-            res[i] = std::make_pair(control_qubit_list[i].index(),
-                control_qubit_list[i].control_value());
-        return res;
-    }
+    std::vector<std::pair<UINT, UINT>> get_control_index_value_list() const;
 
     /**
      * \~japanese-en 量子状態を更新する
@@ -271,39 +241,13 @@ public:
      */
     [[noreturn]] virtual boost::property_tree::ptree to_ptree() const;
 
-    virtual bool is_noise() { return false; }
-    virtual void set_seed(int) { return; };
+    virtual bool is_noise();
+    virtual void set_seed(int);
 
     // ここから勝手にjupiroがつくったやつ
-    void set_target_index_list(const std::vector<UINT>& target_index_list) {
-        if (target_qubit_list.size() < target_index_list.size()) {
-            target_qubit_list.resize(target_index_list.size());
-        }
-        for (UINT i = 0; i < target_qubit_list.size(); ++i) {
-            target_qubit_list[i].set_index(target_index_list[i]);
-        }
-        if (target_qubit_list.size() < target_index_list.size()) {
-            _target_qubit_list.resize(target_index_list.size());
-        }
-        for (UINT i = 0; i < target_qubit_list.size(); ++i) {
-            _target_qubit_list[i].set_index(target_index_list[i]);
-        }
-    }
+    void set_target_index_list(const std::vector<UINT>& target_index_list);
 
-    void set_control_index_list(const std::vector<UINT>& control_index_list) {
-        if (control_qubit_list.size() < control_index_list.size()) {
-            control_qubit_list.resize(control_index_list.size());
-        }
-        for (UINT i = 0; i < control_qubit_list.size(); ++i) {
-            control_qubit_list[i].set_index(control_index_list[i]);
-        }
-        if (control_qubit_list.size() < control_index_list.size()) {
-            _control_qubit_list.resize(control_index_list.size());
-        }
-        for (UINT i = 0; i < control_qubit_list.size(); ++i) {
-            _control_qubit_list[i].set_index(control_index_list[i]);
-        }
-    }
+    void set_control_index_list(const std::vector<UINT>& control_index_list);
 
     [[noreturn]] virtual QuantumGateBase* get_inverse(void) const;
 };

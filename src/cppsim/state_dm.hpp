@@ -18,65 +18,42 @@ public:
      *
      * @param qubit_count_ 量子ビット数
      */
-    explicit DensityMatrixCpu(UINT qubit_count_)
-        : QuantumStateBase(qubit_count_, false) {
-        this->_density_matrix =
-            reinterpret_cast<CPPCTYPE*>(dm_allocate_quantum_state(this->_dim));
-        dm_initialize_quantum_state(this->data_c(), _dim);
-    }
+    explicit DensityMatrixCpu(UINT qubit_count_);
+
     /**
      * \~japanese-en デストラクタ
      */
-    virtual ~DensityMatrixCpu() { dm_release_quantum_state(this->data_c()); }
+    virtual ~DensityMatrixCpu();
+
     /**
      * \~japanese-en 量子状態を計算基底の0状態に初期化する
      */
-    virtual void set_zero_state() override {
-        dm_initialize_quantum_state(this->data_c(), _dim);
-    }
+    virtual void set_zero_state() override;
 
     /**
      * \~japanese-en ノルム0の状態 (すべての要素が0の行列にする)
      */
-    virtual void set_zero_norm_state() override {
-        set_zero_state();
-        _density_matrix[0] = 0.;
-    }
+    virtual void set_zero_norm_state() override;
 
     /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
      *
      * @param comp_basis 初期化する基底を表す整数
      */
-    virtual void set_computational_basis(ITYPE comp_basis) override {
-        if (comp_basis >= (ITYPE)(1ULL << this->qubit_count)) {
-            throw MatrixIndexOutOfRangeException(
-                "Error: DensityMatrixCpu::set_computational_basis(ITYPE): "
-                "index "
-                "of computational basis must be smaller than 2^qubit_count");
-        }
-        set_zero_state();
-        _density_matrix[0] = 0.;
-        _density_matrix[comp_basis * dim + comp_basis] = 1.;
-    }
+    virtual void set_computational_basis(ITYPE comp_basis) override;
+
     /**
      * \~japanese-en 量子状態をHaar
      * randomにサンプリングされた量子状態に初期化する
      */
-    virtual void set_Haar_random_state() override {
-        this->set_Haar_random_state(random.int32());
-    }
+    virtual void set_Haar_random_state() override;
+
     /**
      * \~japanese-en 量子状態をシードを用いてHaar
      * randomにサンプリングされた量子状態に初期化する
      */
-    virtual void set_Haar_random_state(UINT seed) override {
-        QuantumStateCpu* pure_state = new QuantumStateCpu(qubit_count);
-        pure_state->set_Haar_random_state(seed);
-        dm_initialize_with_pure_state(
-            this->data_c(), pure_state->data_c(), _dim);
-        delete pure_state;
-    }
+    virtual void set_Haar_random_state(UINT seed) override;
+
     /**
      * \~japanese-en
      * <code>target_qubit_index</code>の添え字の量子ビットを測定した時、0が観測される確率を計算する。
@@ -86,14 +63,8 @@ public:
      * @return double
      */
     virtual double get_zero_probability(
-        UINT target_qubit_index) const override {
-        if (target_qubit_index >= this->qubit_count) {
-            throw QubitIndexOutOfRangeException(
-                "Error: DensityMatrixCpu::get_zero_probability(UINT): index "
-                "of target qubit must be smaller than qubit_count");
-        }
-        return dm_M0_prob(target_qubit_index, this->data_c(), _dim);
-    }
+        UINT target_qubit_index) const override;
+
     /**
      * \~japanese-en 複数の量子ビットを測定した時の周辺確率を計算する
      *
@@ -102,26 +73,7 @@ public:
      * @return 計算された周辺確率
      */
     virtual double get_marginal_probability(
-        std::vector<UINT> measured_values) const override {
-        if (measured_values.size() != this->qubit_count) {
-            throw InvalidQubitCountException(
-                "Error: "
-                "DensityMatrixCpu::get_marginal_probability(vector<UINT>): "
-                "the length of measured_values must be equal to qubit_count");
-        }
-
-        std::vector<UINT> target_index;
-        std::vector<UINT> target_value;
-        for (UINT i = 0; i < measured_values.size(); ++i) {
-            UINT measured_value = measured_values[i];
-            if (measured_value == 0 || measured_value == 1) {
-                target_index.push_back(i);
-                target_value.push_back(measured_value);
-            }
-        }
-        return dm_marginal_prob(target_index.data(), target_value.data(),
-            (UINT)target_index.size(), this->data_c(), _dim);
-    }
+        std::vector<UINT> measured_values) const override;
 
     /**
      * \~japanese-en
@@ -129,9 +81,7 @@ public:
      *
      * @return エントロピー
      */
-    virtual double get_entropy() const override {
-        return dm_measurement_distribution_entropy(this->data_c(), _dim);
-    }
+    virtual double get_entropy() const override;
 
     /**
      * \~japanese-en 量子状態のノルムを計算する
@@ -139,9 +89,7 @@ public:
      * 量子状態のノルムは非ユニタリなゲートを作用した時に小さくなる。
      * @return ノルム
      */
-    virtual double get_squared_norm() const override {
-        return dm_state_norm_squared(this->data_c(), _dim);
-    }
+    virtual double get_squared_norm() const override;
 
     /**
      * \~japanese-en 量子状態のノルムを計算する
@@ -149,230 +97,110 @@ public:
      * 量子状態のノルムは非ユニタリなゲートを作用した時に小さくなる。
      * @return ノルム
      */
-    virtual double get_squared_norm_single_thread() const override {
-        return dm_state_norm_squared(this->data_c(), _dim);
-    }
+    virtual double get_squared_norm_single_thread() const override;
 
     /**
      * \~japanese-en 量子状態を正規化する
      *
      * @param norm 自身のノルム
      */
-    virtual void normalize(double squared_norm) override {
-        dm_normalize(squared_norm, this->data_c(), _dim);
-    }
+    virtual void normalize(double squared_norm) override;
 
     /**
      * \~japanese-en 量子状態を正規化する
      *
      * @param norm 自身のノルム
      */
-    virtual void normalize_single_thread(double squared_norm) override {
-        dm_normalize(squared_norm, this->data_c(), _dim);
-    }
+    virtual void normalize_single_thread(double squared_norm) override;
 
     /**
      * \~japanese-en バッファとして同じサイズの量子状態を作成する。
      *
      * @return 生成された量子状態
      */
-    virtual DensityMatrixCpu* allocate_buffer() const override {
-        DensityMatrixCpu* new_state = new DensityMatrixCpu(this->_qubit_count);
-        return new_state;
-    }
+    virtual DensityMatrixCpu* allocate_buffer() const override;
+
     /**
      * \~japanese-en 自身の状態のディープコピーを生成する
      *
      * @return 自身のディープコピー
      */
-    virtual DensityMatrixCpu* copy() const override {
-        DensityMatrixCpu* new_state = new DensityMatrixCpu(this->_qubit_count);
-        memcpy(new_state->data_cpp(), _density_matrix,
-            (size_t)(sizeof(CPPCTYPE) * _dim * _dim));
-        for (UINT i = 0; i < _classical_register.size(); ++i)
-            new_state->set_classical_value(i, _classical_register[i]);
-        return new_state;
-    }
-    /**
-     * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
-     */
-    virtual void load(const QuantumStateBase* _state) override {
-        if (_state->qubit_count != this->qubit_count) {
-            throw InvalidQubitCountException(
-                "Error: DensityMatrixCpu::load(const QuantumStateBase*): "
-                "invalid qubit count");
-        }
-        if (_state->outer_qc > 0) {
-            throw NotImplementedException(
-                "Error: DensityMatrixCpu::load(const QuantumStateBase*) "
-                "using multi-cpu is not implemented");
-        }
-        if (_state->is_state_vector()) {
-            if (_state->get_device_name() == "gpu") {
-                auto ptr = _state->duplicate_data_c();
-                dm_initialize_with_pure_state(this->data_c(), ptr, dim);
-                free(ptr);
-            } else {
-                dm_initialize_with_pure_state(
-                    this->data_c(), _state->data_c(), dim);
-            }
-        } else {
-            memcpy(this->data_cpp(), _state->data_cpp(),
-                (size_t)(sizeof(CPPCTYPE) * _dim * _dim));
-        }
-        this->_classical_register = _state->classical_register;
-    }
-    /**
-     * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
-     */
-    virtual void load(const std::vector<CPPCTYPE>& _state) override {
-        if (_state.size() != _dim && _state.size() != _dim * _dim) {
-            throw InvalidStateVectorSizeException(
-                "Error: DensityMatrixCpu::load(vector<Complex>&): invalid "
-                "length of state");
-        }
-        if (_state.size() == _dim) {
-            dm_initialize_with_pure_state(
-                this->data_c(), (const CTYPE*)_state.data(), dim);
-        } else {
-            memcpy(this->data_cpp(), _state.data(),
-                (size_t)(sizeof(CPPCTYPE) * _dim * _dim));
-        }
-    }
-
-    virtual void load(const Eigen::VectorXcd& _state) {
-        ITYPE arg_dim = _state.size();
-        if (arg_dim != _dim && arg_dim != _dim * _dim) {
-            throw InvalidStateVectorSizeException(
-                "Error: DensityMatrixCpu::load(vector<Complex>&): invalid "
-                "length of state");
-        }
-        if (arg_dim == _dim) {
-            dm_initialize_with_pure_state(
-                this->data_c(), (const CTYPE*)_state.data(), dim);
-        } else {
-            memcpy(this->data_cpp(), _state.data(),
-                (size_t)(sizeof(CPPCTYPE) * _dim * _dim));
-        }
-    }
-
-    virtual void load(const ComplexMatrix& _state) {
-        ITYPE arg_cols = _state.cols();
-        ITYPE arg_rows = _state.rows();
-        if (arg_cols != _dim && arg_rows != _dim * _dim) {
-            throw InvalidStateVectorSizeException(
-                "Error: DensityMatrixCpu::load(ComplexMatrix&): invalid "
-                "length of state");
-        }
-        memcpy(this->data_cpp(), _state.data(),
-            (size_t)(sizeof(CPPCTYPE) * _dim * _dim));
-    }
+    virtual DensityMatrixCpu* copy() const override;
 
     /**
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
-    virtual void load(const CPPCTYPE* _state) override {
-        memcpy(
-            this->data_cpp(), _state, (size_t)(sizeof(CPPCTYPE) * _dim * _dim));
-    }
+    virtual void load(const QuantumStateBase* _state) override;
+
+    /**
+     * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
+     */
+    virtual void load(const std::vector<CPPCTYPE>& _state) override;
+
+    virtual void load(const Eigen::VectorXcd& _state);
+
+    virtual void load(const ComplexMatrix& _state);
+
+    /**
+     * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
+     */
+    virtual void load(const CPPCTYPE* _state) override;
 
     /**
      * \~japanese-en
      * 量子状態が配置されているメモリを保持するデバイス名を取得する。
      */
-    virtual const std::string get_device_name() const override { return "cpu"; }
+    virtual const std::string get_device_name() const override;
 
     /**
      * \~japanese-en 量子状態のポインタをvoid*型として返す
      */
-    virtual void* data() const override {
-        return reinterpret_cast<void*>(this->_density_matrix);
-    }
+    virtual void* data() const override;
+
     /**
      * \~japanese-en
      * 量子状態をC++の<code>std::complex\<double\></code>の配列として取得する
      *
      * @return 複素ベクトルのポインタ
      */
-    virtual CPPCTYPE* data_cpp() const override {
-        return this->_density_matrix;
-    }
+    virtual CPPCTYPE* data_cpp() const override;
+
     /**
      * \~japanese-en 量子状態をcsimのComplex型の配列として取得する
      *
      * @return 複素ベクトルのポインタ
      */
-    virtual CTYPE* data_c() const override {
-        return reinterpret_cast<CTYPE*>(this->_density_matrix);
-    }
+    virtual CTYPE* data_c() const override;
 
-    virtual CTYPE* duplicate_data_c() const override {
-        CTYPE* new_data = (CTYPE*)malloc(sizeof(CTYPE) * _dim * _dim);
-        memcpy(new_data, this->data(), (size_t)(sizeof(CTYPE) * _dim * _dim));
-        return new_data;
-    }
+    virtual CTYPE* duplicate_data_c() const override;
 
-    virtual CPPCTYPE* duplicate_data_cpp() const override {
-        CPPCTYPE* new_data = (CPPCTYPE*)malloc(sizeof(CPPCTYPE) * _dim * _dim);
-        memcpy(
-            new_data, this->data(), (size_t)(sizeof(CPPCTYPE) * _dim * _dim));
-        return new_data;
-    }
+    virtual CPPCTYPE* duplicate_data_cpp() const override;
 
     /**
      * \~japanese-en 量子状態を足しこむ
      */
-    virtual void add_state(const QuantumStateBase* state) override {
-        if (state->is_state_vector()) {
-            throw NotImplementedException(
-                "add state between density matrix and state vector is not "
-                "implemented");
-        }
-        dm_state_add(state->data_c(), this->data_c(), this->dim);
-    }
+    virtual void add_state(const QuantumStateBase* state) override;
 
     /**
      * \~japanese-en 量子状態を足しこむ
      */
     virtual void add_state_with_coef(
-        CPPCTYPE coef, const QuantumStateBase* state) override {
-        if (state->is_state_vector()) {
-            throw NotImplementedException(
-                "add state between density matrix and state vector is not "
-                "implemented");
-        }
-        dm_state_add_with_coef(
-            coef, state->data_c(), this->data_c(), this->dim);
-    }
+        CPPCTYPE coef, const QuantumStateBase* state) override;
 
     /**
      * \~japanese-en 量子状態を足しこむ
      * TODO: implement this in single_thread
      */
     virtual void add_state_with_coef_single_thread(
-        CPPCTYPE coef, const QuantumStateBase* state) override {
-        if (state->is_state_vector()) {
-            throw NotImplementedException(
-                "add state between density matrix and state vector is not "
-                "implemented");
-        }
-        dm_state_add_with_coef(
-            coef, state->data_c(), this->data_c(), this->dim);
-    }
+        CPPCTYPE coef, const QuantumStateBase* state) override;
 
     /**
      * \~japanese-en 複素数をかける
      */
-    virtual void multiply_coef(CPPCTYPE coef) override {
-        dm_state_multiply(coef, this->data_c(), this->dim);
-    }
+    virtual void multiply_coef(CPPCTYPE coef) override;
 
     virtual void multiply_elementwise_function(
-        const std::function<CPPCTYPE(ITYPE)>&) override {
-        throw NotImplementedException(
-            "multiply_elementwise_function for density matrix is not "
-            "implemented");
-    }
+        const std::function<CPPCTYPE(ITYPE)>&) override;
 
     /**
      * \~japanese-en 量子状態を測定した際の計算基底のサンプリングを行う
@@ -380,58 +208,14 @@ public:
      * @param[in] sampling_count サンプリングを行う回数
      * @return サンプルされた値のリスト
      */
-    virtual std::vector<ITYPE> sampling(UINT sampling_count) override {
-        std::vector<double> stacked_prob;
-        std::vector<ITYPE> result;
-        double sum = 0.;
-        auto ptr = this->data_cpp();
-        stacked_prob.push_back(0.);
-        for (UINT i = 0; i < this->dim; ++i) {
-            sum += abs(ptr[i * dim + i]);
-            stacked_prob.push_back(sum);
-        }
-
-        for (UINT count = 0; count < sampling_count; ++count) {
-            double r = random.uniform();
-            auto ite =
-                std::lower_bound(stacked_prob.begin(), stacked_prob.end(), r);
-            auto index = std::distance(stacked_prob.begin(), ite) - 1;
-            result.push_back(index);
-        }
-        return result;
-    }
+    virtual std::vector<ITYPE> sampling(UINT sampling_count) override;
 
     virtual std::vector<ITYPE> sampling(
-        UINT sampling_count, UINT random_seed) override {
-        random.set_seed(random_seed);
-        return this->sampling(sampling_count);
-    }
-    virtual std::string to_string() const override {
-        std::stringstream os;
-        ComplexMatrix eigen_state(this->dim, this->dim);
-        auto data = this->data_cpp();
-        for (UINT i = 0; i < this->dim; ++i) {
-            for (UINT j = 0; j < this->dim; ++j) {
-                eigen_state(i, j) = data[i * dim + j];
-            }
-        }
-        os << " *** Density Matrix ***" << std::endl;
-        os << " * Qubit Count : " << this->qubit_count << std::endl;
-        os << " * Dimension   : " << this->dim << std::endl;
-        os << " * Density matrix : \n" << eigen_state << std::endl;
-        return os.str();
-    }
-    virtual boost::property_tree::ptree to_ptree() const override {
-        boost::property_tree::ptree pt;
-        pt.put("name", "DensityMatrix");
-        pt.put("qubit_count", _qubit_count);
-        pt.put_child(
-            "classical_register", ptree::to_ptree(_classical_register));
-        pt.put_child("density_matrix",
-            ptree::to_ptree(std::vector<CPPCTYPE>(
-                _density_matrix, _density_matrix + _dim * _dim)));
-        return pt;
-    }
+        UINT sampling_count, UINT random_seed) override;
+
+    virtual std::string to_string() const override;
+
+    virtual boost::property_tree::ptree to_ptree() const override;
 };
 
 using DensityMatrix = DensityMatrixCpu;

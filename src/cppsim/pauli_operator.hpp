@@ -40,14 +40,7 @@ public:
      * パウリ演算子を表す整数。(I,X,Y,Z)が(0,1,2,3)に対応する。
      * @return 新しいインスタンス
      */
-    SinglePauliOperator(UINT index_, UINT pauli_id_)
-        : _index(index_), _pauli_id(pauli_id_) {
-        if (pauli_id_ > 3) {
-            throw InvalidPauliIdentifierException(
-                "Error: SinglePauliOperator(UINT, UINT): index must be "
-                "either of 0,1,2,3");
-        }
-    };
+    SinglePauliOperator(UINT index_, UINT pauli_id_);
 
     /**
      * \~japanese-en
@@ -55,7 +48,7 @@ public:
      *
      * @return 自身が作用する添字
      */
-    UINT index() const { return _index; }
+    UINT index() const;
 
     /**
      * \~japanese-en
@@ -64,7 +57,7 @@ public:
      * @return
      * 自身のもつパウリ演算子を表す整数。(I,X,Y,Z)が(0,1,2,3)に対応する。
      */
-    UINT pauli_id() const { return _pauli_id; }
+    UINT pauli_id() const;
 
     /**
      * \~japanese-en
@@ -72,13 +65,7 @@ public:
      *
      * @return ptree
      */
-    boost::property_tree::ptree to_ptree() const {
-        boost::property_tree::ptree pt;
-        pt.put("name", "SinglePauliOperator");
-        pt.put("index", _index);
-        pt.put("pauli_id", _pauli_id);
-        return pt;
-    }
+    boost::property_tree::ptree to_ptree() const;
 };
 
 /**
@@ -95,53 +82,6 @@ private:
     boost::dynamic_bitset<> _x;
 
 public:
-    /**
-     * \~japanese-en
-     * 自身の保持するパウリ演算子が作用する添字のリストを返す
-     *
-     * それぞれの添字に作用する演算子は
-     * PauliOperator::get_pauli_id_listで得られる添字のリストの対応する場所から得られる。
-     *
-     * @return 自身の保持するパウリ演算子が作用する添字のリスト。
-     */
-    std::vector<UINT> get_index_list() const {
-        std::vector<UINT> index_list;
-        std::transform(_pauli_list.cbegin(), _pauli_list.cend(),
-            std::back_inserter(index_list),
-            [](const SinglePauliOperator& val) { return val.index(); });
-        return index_list;
-    }
-
-    /**
-     * \~japanese-en
-     * 自身の保持するパウリ演算子が添え字のうち、最大の添え字を返す
-     *
-     * @return 自身の保持するパウリ演算子が作用する添字のうち最大の整数
-     */
-    UINT get_qubit_count() const {
-        std::vector<UINT> index_list = get_index_list();
-        if (index_list.size() == 0) return 0;
-        return *std::max_element(index_list.begin(), index_list.end()) + 1;
-    }
-
-    /**
-     * \~japanese-en
-     * 自身が保持するパウリ演算子を返す。
-     *
-     * それぞれが作用するqubitは
-     * PauliOperator::get_index_listで得られる添字のリストの対応する場所から得られる。
-     *
-     * @return
-     * 自身の保持するパウリ演算子のリスト。(I,X,Y,Z)が(0,1,2,3)に対応する。
-     */
-    std::vector<UINT> get_pauli_id_list() const {
-        std::vector<UINT> pauli_id_list;
-        std::transform(_pauli_list.cbegin(), _pauli_list.cend(),
-            std::back_inserter(pauli_id_list),
-            [](const SinglePauliOperator& val) { return val.pauli_id(); });
-        return pauli_id_list;
-    }
-
     /**
      * \~japanese-en
      * コンストラクタ
@@ -301,6 +241,37 @@ public:
      * パウリ演算子に対応する文字列を返す
      */
     virtual std::string get_pauli_string() const;
+
+    /**
+     * \~japanese-en
+     * 自身の保持するパウリ演算子が作用する添字のリストを返す
+     *
+     * それぞれの添字に作用する演算子は
+     * PauliOperator::get_pauli_id_listで得られる添字のリストの対応する場所から得られる。
+     *
+     * @return 自身の保持するパウリ演算子が作用する添字のリスト。
+     */
+    std::vector<UINT> get_index_list() const;
+
+    /**
+     * \~japanese-en
+     * 自身の保持するパウリ演算子が添え字のうち、最大の添え字を返す
+     *
+     * @return 自身の保持するパウリ演算子が作用する添字のうち最大の整数
+     */
+    UINT get_qubit_count() const;
+
+    /**
+     * \~japanese-en
+     * 自身が保持するパウリ演算子を返す。
+     *
+     * それぞれが作用するqubitは
+     * PauliOperator::get_index_listで得られる添字のリストの対応する場所から得られる。
+     *
+     * @return
+     * 自身の保持するパウリ演算子のリスト。(I,X,Y,Z)が(0,1,2,3)に対応する。
+     */
+    std::vector<UINT> get_pauli_id_list() const;
 
     /**
      * \~japanese-en

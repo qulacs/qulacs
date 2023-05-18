@@ -221,6 +221,13 @@ void QuantumCircuit::remove_gate(UINT index) {
     this->_gate_list.erase(this->_gate_list.begin() + index);
 }
 
+void QuantumCircuit::merge_circuit(const QuantumCircuit* circuit) {
+    for (auto gate : circuit->gate_list) {
+        this->add_gate_copy(gate);
+    }
+    return;
+}
+
 QuantumCircuit::~QuantumCircuit() {
     for (auto& gate : this->_gate_list) {
         delete gate;

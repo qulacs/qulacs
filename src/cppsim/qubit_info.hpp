@@ -18,24 +18,24 @@ class DllExport QubitInfo {
 protected:
     UINT _index; /**< \~japanese-en 量子ビットの添え字 */
 public:
-    virtual ~QubitInfo() {}
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param index_ 量子ビットの添え字
+     */
+    explicit QubitInfo(UINT index_);
+
+    virtual ~QubitInfo();
 
     /**
      * \~japanese-en 量子ビットの添え字を返す
      *
      * @return この量子ビットの添え字
      */
-    UINT index() const { return _index; }
+    UINT index() const;
 
     // jupiroが勝手に作成
-    void set_index(int idx) { _index = idx; }
-
-    /**
-     * \~japanese-en コンストラクタ
-     *
-     * @param index_ 量子ビットの添え字
-     */
-    explicit QubitInfo(UINT index_) : _index(index_){};
+    void set_index(int idx);
 };
 
 class TargetQubitInfo;
@@ -52,32 +52,24 @@ private:
 
 public:
     /**
-     * \~japanese-en コントロール値を取得する
-     *
-     * @return コントロール値
-     */
-    UINT control_value() const { return _control_value; }
-    /**
      * \~japanese-en コンストラクタ
      *
      * 初期化に必要、万が一使われたとき落ちるためにinvalid_qubitにしてある
      */
-    ControlQubitInfo(void) : QubitInfo(invalid_qubit), _control_value(1){};
+    ControlQubitInfo(void);
     /**
      * \~japanese-en コンストラクタ
      *
      * @param index_ この量子ビットの添え字
      */
-    explicit ControlQubitInfo(UINT index_)
-        : QubitInfo(index_), _control_value(1){};
+    explicit ControlQubitInfo(UINT index_);
     /**
      * \~japanese-en コンストラクタ
      *
      * @param index_ この量子ビットの添え字
      * @param control_value_ この量子ビットのコントロール値
      */
-    ControlQubitInfo(UINT index_, UINT control_value_)
-        : QubitInfo(index_), _control_value(control_value_){};
+    ControlQubitInfo(UINT index_, UINT control_value_);
 
     /**
      * \~japanese-en
@@ -97,6 +89,13 @@ public:
      * @return false 可換ではない
      */
     virtual bool is_commute_with(const ControlQubitInfo& info) const;
+
+    /**
+     * \~japanese-en コントロール値を取得する
+     *
+     * @return コントロール値
+     */
+    UINT control_value() const;
 };
 
 /**
@@ -112,51 +111,42 @@ public:
      * \~japanese-en コンストラクタ
      * 初期化に必要、　万が一使われたとき落ちるように、invalid_qubitにしてある
      */
-    TargetQubitInfo(void)
-        : QubitInfo(invalid_qubit), _commutation_property(0){};
+    TargetQubitInfo(void);
 
     /**
      * \~japanese-en コンストラクタ
      *
      * @param index_ この量子ビットの添え字
      */
-    explicit TargetQubitInfo(UINT index_)
-        : QubitInfo(index_), _commutation_property(0){};
+    explicit TargetQubitInfo(UINT index_);
     /**
      * \~japanese-en コンストラクタ
      *
      * @param index_ この量子ビットの添え字
      * @param commutation_property_ この量子ビットのパウリとの交換関係
      */
-    TargetQubitInfo(UINT index_, UINT commutation_property_)
-        : QubitInfo(index_), _commutation_property(commutation_property_){};
+    TargetQubitInfo(UINT index_, UINT commutation_property_);
     /**
      * \~japanese-en Xパウリと可換かを調べる
      *
      * @return true 可換である
      * @return false 非可換である
      */
-    bool is_commute_X() const {
-        return (_commutation_property & FLAG_X_COMMUTE) != 0;
-    }
+    bool is_commute_X() const;
     /**
      * \~japanese-en Yパウリと可換かを調べる
      *
      * @return true 可換である
      * @return false 非可換である
      */
-    bool is_commute_Y() const {
-        return (_commutation_property & FLAG_Y_COMMUTE) != 0;
-    }
+    bool is_commute_Y() const;
     /**
      * \~japanese-en Zパウリと可換かを調べる
      *
      * @return true 可換である
      * @return false 非可換である
      */
-    bool is_commute_Z() const {
-        return (_commutation_property & FLAG_Z_COMMUTE) != 0;
-    }
+    bool is_commute_Z() const;
     /**
      * \~japanese-en
      * ターゲット量子ビットの情報<code>info</code>と可換かどうかを調べる
@@ -183,9 +173,7 @@ public:
      * @param property マージするプロパティ値
      * @return マージされたプロパティ値
      */
-    virtual UINT get_merged_property(UINT property) const {
-        return _commutation_property & property;
-    }
+    virtual UINT get_merged_property(UINT property) const;
     /**
      * \~japanese-en
      * 与えられた<code>target</code>の量子ビットの情報のパウリとの交換関係と自身をマージした時、得られるパウリ演算子との可換関係のプロパティ値を返す。
@@ -193,9 +181,7 @@ public:
      * @param target マージする量子ビット情報
      * @return マージされたプロパティ値
      */
-    virtual UINT get_merged_property(const TargetQubitInfo& target) const {
-        return _commutation_property & target._commutation_property;
-    }
+    virtual UINT get_merged_property(const TargetQubitInfo& target) const;
     /**
      * \~japanese-en
      * 与えられた<code>control</code>の量子ビットの情報のパウリとの交換関係と自身をマージした時、得られるパウリ演算子との可換関係のプロパティ値を返す。
@@ -203,8 +189,5 @@ public:
      * @param control マージする量子ビット情報
      * @return マージされたプロパティ値
      */
-    virtual UINT get_merged_property(const ControlQubitInfo& control) const {
-        (void)control;
-        return _commutation_property & FLAG_Z_COMMUTE;
-    }
+    virtual UINT get_merged_property(const ControlQubitInfo& control) const;
 };

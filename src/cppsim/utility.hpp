@@ -61,44 +61,41 @@ public:
     /**
      * \~japanese-en コンストラクタ
      */
-    Random() : uniform_dist(0, 1), normal_dist(0, 1) {
-        std::random_device rd;
-        mt.seed(rd());
-    }
+    Random();
 
     /**
      * \~japanese-en シードを設定する
      *
      * @param seed シード値
      */
-    void set_seed(uint64_t seed) { mt.seed(seed); }
+    void set_seed(uint64_t seed);
     /**
      * \~japanese-en \f$[0,1)\f$の一様分布から乱数を生成する
      *
      * @return 生成された乱数
      */
-    double uniform() { return uniform_dist(mt); }
+    double uniform();
 
     /**
      * \~japanese-en 期待値0、分散1の正規分から乱数を生成する
      *
      * @return double 生成された乱数
      */
-    double normal() { return normal_dist(mt); }
+    double normal();
 
     /**
      * \~japanese-en 64bit整数の乱数を生成する
      *
      * @return 生成された乱数
      */
-    unsigned long long int64() { return mt(); }
+    unsigned long long int64();
 
     /**
      * \~japanese-en 32bit整数の乱数を生成する
      *
      * @return 生成された乱数
      */
-    unsigned long int32() { return mt() % ULONG_MAX; }
+    unsigned long int32();
 };
 
 /**
@@ -116,20 +113,14 @@ public:
     /**
      * \~japanese-en コンストラクタ
      */
-    Timer() {
-        reset();
-        is_stop = false;
-    }
+    Timer();
 
     /**
      * \~japanese-en 時間計測をリセットする
      *
      * 蓄積された時間を0にし、測定の起点となる時間を0にする。
      */
-    void reset() {
-        stock = 0;
-        last = std::chrono::system_clock::now();
-    }
+    void reset();
 
     /**
      * \~japanese-en 現在の経過時間を取得する
@@ -137,45 +128,21 @@ public:
      * 経過時間を取得する。単位は秒で返される。一時停止を用いて時間を積算している場合は、積算している時間も併せた値が帰る。
      * @return 経過時間 単位は秒
      */
-    double elapsed() {
-        if (is_stop)
-            return stock * 1e-6;
-        else {
-            auto duration = std::chrono::system_clock::now() - last;
-            return (stock +
-                       std::chrono::duration_cast<std::chrono::microseconds>(
-                           duration)
-                           .count()) *
-                   1e-6;
-        }
-    }
+    double elapsed();
 
     /**
      * \~japanese-en タイマーを一時停止する
      *
      * タイマーを一時停止し、現在までの経過時間を蓄積中の時間に加える。
      */
-    void temporal_stop() {
-        if (!is_stop) {
-            auto duration = std::chrono::system_clock::now() - last;
-            stock +=
-                std::chrono::duration_cast<std::chrono::microseconds>(duration)
-                    .count();
-            is_stop = true;
-        }
-    }
+    void temporal_stop();
 
     /**
      * \~japanese-en タイマーを再開する
      *
      * タイマーを再開し、新たな時間計測のための起点を設定する。
      */
-    void temporal_resume() {
-        if (is_stop) {
-            last = std::chrono::system_clock::now();
-            is_stop = false;
-        }
-    }
+    void temporal_resume();
 };
 
 /**

@@ -9,6 +9,50 @@
 #include "gate_matrix.hpp"
 #include "gate_merge.hpp"
 
+QuantumGateBase::QuantumGateBase()
+    : target_qubit_list(_target_qubit_list),
+      control_qubit_list(_control_qubit_list){};
+
+QuantumGateBase::QuantumGateBase(const QuantumGateBase& obj)
+    : target_qubit_list(_target_qubit_list),
+      control_qubit_list(_control_qubit_list) {
+    _gate_property = obj._gate_property;
+    _name = obj._name;
+    _target_qubit_list = obj.target_qubit_list;
+    _control_qubit_list = obj.control_qubit_list;
+};
+QuantumGateBase::~QuantumGateBase(){};
+
+std::vector<UINT> QuantumGateBase::get_target_index_list() const {
+    std::vector<UINT> res(target_qubit_list.size());
+    for (UINT i = 0; i < target_qubit_list.size(); ++i)
+        res[i] = target_qubit_list[i].index();
+    return res;
+}
+
+std::vector<UINT> QuantumGateBase::get_control_index_list() const {
+    std::vector<UINT> res(control_qubit_list.size());
+    for (UINT i = 0; i < control_qubit_list.size(); ++i)
+        res[i] = control_qubit_list[i].index();
+    return res;
+}
+
+std::vector<UINT> QuantumGateBase::get_control_value_list() const {
+    std::vector<UINT> res(control_qubit_list.size());
+    for (UINT i = 0; i < control_qubit_list.size(); ++i)
+        res[i] = control_qubit_list[i].control_value();
+    return res;
+}
+
+std::vector<std::pair<UINT, UINT>>
+QuantumGateBase::get_control_index_value_list() const {
+    std::vector<std::pair<UINT, UINT>> res(control_qubit_list.size());
+    for (UINT i = 0; i < control_qubit_list.size(); ++i)
+        res[i] = std::make_pair(control_qubit_list[i].index(),
+            control_qubit_list[i].control_value());
+    return res;
+}
+
 bool QuantumGateBase::is_commute(const QuantumGateBase* gate) const {
     for (auto val1 : this->_target_qubit_list) {
         for (auto val2 : gate->_target_qubit_list) {
@@ -126,9 +170,6 @@ std::string QuantumGateBase::to_string() const {
            << std::endl;
     return stream.str();
 }
-QuantumGateBase* QuantumGateBase::get_inverse(void) const {
-    throw NotImplementedException("this gate don't have get_inverse function");
-}
 
 std::string QuantumGateBase::get_name() const { return this->_name; }
 
@@ -143,4 +184,41 @@ std::ostream& operator<<(std::ostream& stream, const QuantumGateBase* gate) {
 
 boost::property_tree::ptree QuantumGateBase::to_ptree() const {
     throw NotImplementedException("ptree for this gate is not implemented");
+}
+
+bool QuantumGateBase::is_noise() { return false; }
+void QuantumGateBase::set_seed(int) { return; }
+
+void QuantumGateBase::set_target_index_list(const std::vector<UINT>& target_index_list) {
+    if (target_qubit_list.size() < target_index_list.size()) {
+        target_qubit_list.resize(target_index_list.size());
+    }
+    for (UINT i = 0; i < target_qubit_list.size(); ++i) {
+        target_qubit_list[i].set_index(target_index_list[i]);
+    }
+    if (target_qubit_list.size() < target_index_list.size()) {
+        _target_qubit_list.resize(target_index_list.size());
+    }
+    for (UINT i = 0; i < target_qubit_list.size(); ++i) {
+        _target_qubit_list[i].set_index(target_index_list[i]);
+    }
+}
+
+void QuantumGateBase::set_control_index_list(const std::vector<UINT>& control_index_list) {
+    if (control_qubit_list.size() < control_index_list.size()) {
+        control_qubit_list.resize(control_index_list.size());
+    }
+    for (UINT i = 0; i < control_qubit_list.size(); ++i) {
+        control_qubit_list[i].set_index(control_index_list[i]);
+    }
+    if (control_qubit_list.size() < control_index_list.size()) {
+        _control_qubit_list.resize(control_index_list.size());
+    }
+    for (UINT i = 0; i < control_qubit_list.size(); ++i) {
+        _control_qubit_list[i].set_index(control_index_list[i]);
+    }
+}
+
+QuantumGateBase* QuantumGateBase::get_inverse(void) const {
+    throw NotImplementedException("this gate don't have get_inverse function");
 }

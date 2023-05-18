@@ -14,6 +14,27 @@
 #include "pauli_operator.hpp"
 #include "state.hpp"
 
+SinglePauliOperator::SinglePauliOperator(UINT index_, UINT pauli_id_)
+    : _index(index_), _pauli_id(pauli_id_) {
+    if (pauli_id_ > 3) {
+        throw InvalidPauliIdentifierException(
+            "Error: SinglePauliOperator(UINT, UINT): index must be "
+            "either of 0,1,2,3");
+    }
+}
+
+UINT SinglePauliOperator::index() const { return _index; }
+
+UINT SinglePauliOperator::pauli_id() const { return _pauli_id; }
+
+boost::property_tree::ptree SinglePauliOperator::to_ptree() const {
+    boost::property_tree::ptree pt;
+    pt.put("name", "SinglePauliOperator");
+    pt.put("index", _index);
+    pt.put("pauli_id", _pauli_id);
+    return pt;
+}
+
 PauliOperator::PauliOperator(std::string strings, CPPCTYPE coef) : _coef(coef) {
     std::string trimmed_string = rtrim(strings);
     if (trimmed_string.length() == 0) return;
@@ -283,6 +304,28 @@ std::string PauliOperator::get_pauli_string() const {
     }
     res.pop_back();
     return res;
+}
+
+std::vector<UINT> PauliOperator::get_index_list() const {
+    std::vector<UINT> index_list;
+    std::transform(_pauli_list.cbegin(), _pauli_list.cend(),
+        std::back_inserter(index_list),
+        [](const SinglePauliOperator& val) { return val.index(); });
+    return index_list;
+}
+
+UINT PauliOperator::get_qubit_count() const {
+    std::vector<UINT> index_list = get_index_list();
+    if (index_list.size() == 0) return 0;
+    return *std::max_element(index_list.begin(), index_list.end()) + 1;
+}
+
+std::vector<UINT> PauliOperator::get_pauli_id_list() const {
+    std::vector<UINT> pauli_id_list;
+    std::transform(_pauli_list.cbegin(), _pauli_list.cend(),
+        std::back_inserter(pauli_id_list),
+        [](const SinglePauliOperator& val) { return val.pauli_id(); });
+    return pauli_id_list;
 }
 
 void PauliOperator::change_coef(CPPCTYPE new_coef) { _coef = new_coef; }

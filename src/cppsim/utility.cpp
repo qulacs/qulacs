@@ -33,6 +33,59 @@ void get_Pauli_matrix(
     }
 }
 
+Random::Random() : uniform_dist(0, 1), normal_dist(0, 1) {
+    std::random_device rd;
+    mt.seed(rd());
+}
+
+void Random::set_seed(uint64_t seed) { mt.seed(seed); }
+
+double Random::uniform() { return uniform_dist(mt); }
+
+double Random::normal() { return normal_dist(mt); }
+
+unsigned long long Random::int64() { return mt(); }
+
+unsigned long Random::int32() { return mt() % ULONG_MAX; }
+
+Timer::Timer() {
+    reset();
+    is_stop = false;
+}
+
+void Timer::reset() {
+    stock = 0;
+    last = std::chrono::system_clock::now();
+}
+
+double Timer::elapsed() {
+    if (is_stop)
+        return stock * 1e-6;
+    else {
+        auto duration = std::chrono::system_clock::now() - last;
+        return (stock + std::chrono::duration_cast<std::chrono::microseconds>(
+                            duration)
+                            .count()) *
+               1e-6;
+    }
+}
+
+void Timer::temporal_stop() {
+    if (!is_stop) {
+        auto duration = std::chrono::system_clock::now() - last;
+        stock += std::chrono::duration_cast<std::chrono::microseconds>(duration)
+                     .count();
+        is_stop = true;
+    }
+}
+
+void Timer::temporal_resume() {
+    if (is_stop) {
+        last = std::chrono::system_clock::now();
+        is_stop = false;
+    }
+}
+
 std::vector<std::string> split(const std::string& s, const std::string& delim) {
     std::vector<std::string> elements;
 
