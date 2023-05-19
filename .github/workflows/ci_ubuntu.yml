@@ -214,8 +214,7 @@ jobs:
 
       - name: format
         run: |
-          cd /qulacs
-          script/format.sh
+          ./script/format.sh
 
       - name: Compare diff
         run: |
