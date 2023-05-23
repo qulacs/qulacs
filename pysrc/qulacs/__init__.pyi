@@ -5,6 +5,7 @@ import typing
 
 import numpy
 import qulacs_core
+import scipy.sparse
 
 __all__ = [
     "CausalConeSimulator",
@@ -363,6 +364,10 @@ class Observable(GeneralQuantumOperator):
     def get_expectation_value_single_thread(self, state: QuantumStateBase) -> float:
         """
         Get expectation value
+        """
+    def get_matrix(self) -> scipy.sparse.csr_matrix[numpy.complex128]:
+        """
+        Get the Hermitian matrix representation of the observable
         """
     def get_qubit_count(self) -> int:
         """

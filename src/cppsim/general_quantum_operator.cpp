@@ -502,6 +502,8 @@ SparseComplexMatrixRowMajor GeneralQuantumOperator::get_matrix() const {
             init_hamiltonian_pauli_matrix_list[pauli_target_list[j]] =
                 pauli_matrix_list[pauli_id_list[j]];  // ex) [X,X,I,I]
         }
+        std::reverse(init_hamiltonian_pauli_matrix_list.begin(),
+            init_hamiltonian_pauli_matrix_list.end());
         hamiltonian_matrix +=
             pauli->get_coef() *
             _tensor_product(init_hamiltonian_pauli_matrix_list);
