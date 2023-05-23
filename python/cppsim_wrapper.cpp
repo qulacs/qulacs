@@ -103,6 +103,8 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Get state dimension")
         .def("get_term_count", &GeneralQuantumOperator::get_term_count,
             "Get count of Pauli terms")
+        .def("get_matrix", &GeneralQuantumOperator::get_matrix,
+            "Get the Hermitian matrix representation of the observable")
         .def("apply_to_state",
             py::overload_cast<QuantumStateBase*, const QuantumStateBase&,
                 QuantumStateBase*>(
@@ -248,8 +250,6 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Get state dimension")
         .def("get_term_count", &HermitianQuantumOperator::get_term_count,
             "Get count of Pauli terms")
-        .def("get_matrix", &GeneralQuantumOperator::get_matrix,
-            "Get the Hermitian matrix representation of the observable")
         .def(
             "get_term",
             [](const HermitianQuantumOperator& quantum_operator,
