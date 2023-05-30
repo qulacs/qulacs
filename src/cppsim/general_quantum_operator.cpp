@@ -508,6 +508,7 @@ SparseComplexMatrixRowMajor GeneralQuantumOperator::get_matrix() const {
             pauli->get_coef() *
             _tensor_product(init_hamiltonian_pauli_matrix_list);
     }
+    hamiltonian_matrix.prune(CPPCTYPE(0, 0));
     return hamiltonian_matrix;
 }
 
