@@ -211,12 +211,12 @@ class GeneralQuantumOperator:
     @typing.overload
     def __sub__(self, arg0: PauliOperator) -> GeneralQuantumOperator: ...
     @typing.overload
-    def add_operator(self, coef: complex, pauli_string: str) -> None:
+    def add_operator(self, pauli_operator: PauliOperator) -> None:
         """
         Add Pauli operator
         """
     @typing.overload
-    def add_operator(self, pauli_operator: PauliOperator) -> None: ...
+    def add_operator(self, coef: complex, pauli_string: str) -> None: ...
     def add_operator_copy(self, pauli_operator: PauliOperator) -> None:
         """
         Add Pauli operator
@@ -227,17 +227,17 @@ class GeneralQuantumOperator:
         """
     @typing.overload
     def apply_to_state(
-        self, state_to_be_multiplied: QuantumStateBase, dst_state: QuantumStateBase
+        self,
+        work_state: QuantumStateBase,
+        state_to_be_multiplied: QuantumStateBase,
+        dst_state: QuantumStateBase,
     ) -> None:
         """
         Apply observable to `state_to_be_multiplied`. The result is stored into `dst_state`.
         """
     @typing.overload
     def apply_to_state(
-        self,
-        work_state: QuantumStateBase,
-        state_to_be_multiplied: QuantumStateBase,
-        dst_state: QuantumStateBase,
+        self, state_to_be_multiplied: QuantumStateBase, dst_state: QuantumStateBase
     ) -> None: ...
     def copy(self) -> GeneralQuantumOperator:
         """
@@ -326,12 +326,12 @@ class Observable(GeneralQuantumOperator):
         to string
         """
     @typing.overload
-    def add_operator(self, coef: complex, string: str) -> None:
+    def add_operator(self, pauli_operator: PauliOperator) -> None:
         """
         Add Pauli operator
         """
     @typing.overload
-    def add_operator(self, pauli_operator: PauliOperator) -> None: ...
+    def add_operator(self, coef: complex, string: str) -> None: ...
     def add_operator_copy(self, pauli_operator: PauliOperator) -> None:
         """
         Add Pauli operator
@@ -1089,9 +1089,9 @@ class DensityMatrix(QuantumStateBase):
         Load quantum state vector or density matrix
         """
     @typing.overload
-    def load(self, state: numpy.ndarray) -> None: ...
-    @typing.overload
     def load(self, state: typing.List[complex]) -> None: ...
+    @typing.overload
+    def load(self, state: numpy.ndarray) -> None: ...
     def multiply_coef(self, coef: complex) -> None:
         """
         Multiply coefficient to this state
