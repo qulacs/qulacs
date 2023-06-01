@@ -59,7 +59,7 @@ def make_superposition(
 
 @typing.overload
 def partial_trace(
-    state: qulacs_core.DensityMatrix, target_traceout: typing.List[int]
+    state: qulacs_core.QuantumState, target_traceout: typing.List[int]
 ) -> qulacs_core.DensityMatrix:
     """
     Take partial trace
@@ -67,34 +67,34 @@ def partial_trace(
 
 @typing.overload
 def partial_trace(
-    state: qulacs_core.QuantumState, target_traceout: typing.List[int]
+    state: qulacs_core.DensityMatrix, target_traceout: typing.List[int]
 ) -> qulacs_core.DensityMatrix:
     pass
 
 @typing.overload
 def permutate_qubit(
-    state: qulacs_core.DensityMatrix, qubit_order: typing.List[int]
-) -> qulacs_core.DensityMatrix:
+    state: qulacs_core.QuantumState, qubit_order: typing.List[int]
+) -> qulacs_core.QuantumState:
     """
     Permutate qubits from state
     """
 
 @typing.overload
 def permutate_qubit(
-    state: qulacs_core.QuantumState, qubit_order: typing.List[int]
-) -> qulacs_core.QuantumState:
+    state: qulacs_core.DensityMatrix, qubit_order: typing.List[int]
+) -> qulacs_core.DensityMatrix:
     pass
 
 @typing.overload
 def tensor_product(
-    state_left: qulacs_core.DensityMatrix, state_right: qulacs_core.DensityMatrix
-) -> qulacs_core.DensityMatrix:
+    state_left: qulacs_core.QuantumState, state_right: qulacs_core.QuantumState
+) -> qulacs_core.QuantumState:
     """
     Get tensor product of states
     """
 
 @typing.overload
 def tensor_product(
-    state_left: qulacs_core.QuantumState, state_right: qulacs_core.QuantumState
-) -> qulacs_core.QuantumState:
+    state_left: qulacs_core.DensityMatrix, state_right: qulacs_core.DensityMatrix
+) -> qulacs_core.DensityMatrix:
     pass
