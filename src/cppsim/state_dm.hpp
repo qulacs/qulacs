@@ -199,7 +199,7 @@ public:
      */
     virtual void multiply_coef(CPPCTYPE coef) override;
 
-    virtual void multiply_elementwise_function(
+    [[noreturn]] virtual void multiply_elementwise_function(
         const std::function<CPPCTYPE(ITYPE)>&) override;
 
     /**
