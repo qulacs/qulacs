@@ -21,7 +21,7 @@ public:
 };
 
 // clang-format off
-Eigen::Matrix4cd KAK_MAGIC = (Eigen::Matrix4cd() <<
+const Eigen::Matrix4cd KAK_MAGIC = (Eigen::Matrix4cd() <<
                                 1,  0,  0, 1i,
                                 0, 1i,  1,  0,
                                 0, 1i, -1,  0,
@@ -29,14 +29,14 @@ Eigen::Matrix4cd KAK_MAGIC = (Eigen::Matrix4cd() <<
                             .finished() *sqrt(0.5);
 
 
-Eigen::Matrix4cd KAK_MAGIC_DAG = (Eigen::Matrix4cd() <<
+const Eigen::Matrix4cd KAK_MAGIC_DAG = (Eigen::Matrix4cd() <<
                                 1,  0,  0,  1,
                                 0,-1i,-1i,  0,
                                 0,  1, -1,  0,
                                 -1i,0,  0, 1i)
                             .finished() *sqrt(0.5);
 
-Eigen::Matrix4cd KAK_GAMMA = (Eigen::Matrix4cd() <<
+const Eigen::Matrix4cd KAK_GAMMA = (Eigen::Matrix4cd() <<
                                 1,  1,  1,  1,
                                 1,  1, -1, -1,
                                -1,  1, -1,  1,
