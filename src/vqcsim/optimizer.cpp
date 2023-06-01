@@ -1,16 +1,15 @@
 #include "optimizer.hpp"
 
 AdamOptimizer::AdamOptimizer(UINT trainable_parameter_count,
-    double learning_rate, double beta1, double beta2,
-    double epsilon)
+    double learning_rate, double beta1, double beta2, double epsilon)
     : GradientBasedOptimizer(trainable_parameter_count),
-      _m(trainable_parameter_count, 0),
-      _v(trainable_parameter_count, 0),
       _learning_rate(learning_rate),
       _beta1(beta1),
       _beta2(beta2),
       _epsilon(epsilon),
-      _t(1) {}
+      _t(1),
+      _m(trainable_parameter_count, 0),
+      _v(trainable_parameter_count, 0) {}
 
 AdamOptimizer::~AdamOptimizer() {}
 
