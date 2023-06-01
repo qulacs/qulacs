@@ -3,7 +3,7 @@
 QuantumCircuitEnergyMinimizationSolver::QuantumCircuitEnergyMinimizationSolver(
     const std::function<ParametricQuantumCircuit*(UINT, UINT)>*
         circuit_generator,
-    UINT param_count = 0) {
+    UINT param_count) {
     _circuit_construction = circuit_generator;
     _param_count = param_count;
     _circuit = NULL;
@@ -18,9 +18,9 @@ QuantumCircuitEnergyMinimizationSolver::
 }
 
 void QuantumCircuitEnergyMinimizationSolver::solve(
-    EnergyMinimizationProblem* instance, UINT max_iteration = 100,
-    std::string optimizer_name = "GD",
-    std::string differentiation_method = "HalfPi") {
+    EnergyMinimizationProblem* instance, UINT max_iteration,
+    std::string optimizer_name,
+    std::string differentiation_method) {
     if (_circuit != NULL) {
         delete _circuit;
         _circuit = NULL;

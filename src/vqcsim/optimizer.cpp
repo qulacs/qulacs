@@ -1,8 +1,8 @@
 #include "optimizer.hpp"
 
 AdamOptimizer::AdamOptimizer(UINT trainable_parameter_count,
-    double learning_rate = 0.001, double beta1 = 0.9, double beta2 = 0.999,
-    double epsilon = 1e-8)
+    double learning_rate, double beta1, double beta2,
+    double epsilon)
     : GradientBasedOptimizer(trainable_parameter_count),
       _m(trainable_parameter_count, 0),
       _v(trainable_parameter_count, 0),
@@ -25,7 +25,7 @@ void AdamOptimizer::apply_gradient(
 }
 
 GradientDecentOptimizer::GradientDecentOptimizer(
-    UINT trainable_parameter_count, double learning_rate = 0.01)
+    UINT trainable_parameter_count, double learning_rate)
     : GradientBasedOptimizer(trainable_parameter_count),
       _learning_rate(learning_rate) {}
 
