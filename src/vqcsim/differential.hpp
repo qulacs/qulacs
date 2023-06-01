@@ -14,6 +14,8 @@ public:
         const EnergyMinimizationProblem* instance,
         const std::vector<double>& parameter,
         std::vector<double>* gradient) = 0;
+
+    virtual ~QuantumCircuitGradientDifferentiation();
 };
 
 class DllExport GradientByHalfPi

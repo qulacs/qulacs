@@ -1,6 +1,9 @@
 
 #include "differential.hpp"
 
+QuantumCircuitGradientDifferentiation::
+    ~QuantumCircuitGradientDifferentiation() {}
+
 double GradientByHalfPi::compute_gradient(
     ParametricQuantumCircuitSimulator* sim,
     const EnergyMinimizationProblem* instance,
