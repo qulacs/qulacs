@@ -6,7 +6,14 @@
 // loss functions
 namespace loss_function {
 template <typename T>
-double L2_distance(const std::vector<T>& s1, const std::vector<T>& s2);
+double L2_distance(const std::vector<T>& s1, const std::vector<T>& s2) {
+    double sum = 0;
+    for (UINT i = 0; i < s1.size(); ++i) {
+        sum += pow(abs(s1[i] - s2[i]), 2.);
+    }
+    return sum;
+}
+
 double cross_entropy(const std::vector<double>& prediction,
     const std::vector<double>& correct_label);
 double softmax_cross_entropy(const std::vector<double>& prediction,
