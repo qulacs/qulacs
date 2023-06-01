@@ -183,7 +183,7 @@ KAK_data KAK_decomposition(
 }
 
 void CSD_internal(ComplexMatrix mat, std::vector<UINT> now_control_qubits,
-    std::vector<UINT> all_control_qubits, int ban,
+    std::vector<UINT> all_control_qubits, UINT ban,
     std::vector<QuantumGateBase*>& CSD_gate_list) {
     UINT siz = mat.cols(), hsiz = siz / 2;
     if (siz == 4) {

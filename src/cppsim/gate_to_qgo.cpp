@@ -11,11 +11,11 @@ GeneralQuantumOperator* to_general_quantum_operator(
     UINT n = gate->get_target_index_list().size();
     for (UINT h = 0; h < n; h++) {
         UINT b = (1 << h);
-        for (UINT i = 0; i < (1 << n); i++) {
+        for (UINT i = 0; i < UINT(1 << n); i++) {
             if (i & b) {
                 continue;
             }
-            for (UINT j = 0; j < (1 << n); j++) {
+            for (UINT j = 0; j < UINT(1 << n); j++) {
                 if (j & b) {
                     continue;
                 }
@@ -32,8 +32,8 @@ GeneralQuantumOperator* to_general_quantum_operator(
     }
     auto ans = new GeneralQuantumOperator(GQO_qubits);
     double waru = (1 << n);
-    for (UINT i = 0; i < (1 << n); i++) {
-        for (UINT j = 0; j < (1 << n); j++) {
+    for (UINT i = 0; i < UINT(1 << n); i++) {
+        for (UINT j = 0; j < UINT(1 << n); j++) {
             if (abs(mat(i, j)) <= tol) {
                 continue;
             }
