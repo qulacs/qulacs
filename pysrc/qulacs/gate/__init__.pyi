@@ -77,8 +77,7 @@ __all__ = [
 @typing.overload
 def Adaptive(
     gate: qulacs_core.QuantumGateBase,
-    condition: typing.Callable[[typing.List[int], int], bool],
-    id: int,
+    condition: typing.Callable[[typing.List[int]], bool],
 ) -> qulacs_core.QuantumGateBase:
     """
     Create adaptive gate
@@ -87,7 +86,8 @@ def Adaptive(
 @typing.overload
 def Adaptive(
     gate: qulacs_core.QuantumGateBase,
-    condition: typing.Callable[[typing.List[int]], bool],
+    condition: typing.Callable[[typing.List[int], int], bool],
+    id: int,
 ) -> qulacs_core.QuantumGateBase:
     pass
 
