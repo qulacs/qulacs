@@ -565,8 +565,8 @@ std::vector<ITYPE> QuantumStateCpu::sampling(
 
         for (UINT count = 0; count < sampling_count; ++count) {
             double r = random.uniform();
-            auto ite = std::lower_bound(
-                stacked_prob.begin(), stacked_prob.end(), r);
+            auto ite =
+                std::lower_bound(stacked_prob.begin(), stacked_prob.end(), r);
             auto index = std::distance(stacked_prob.begin(), ite) - 1;
             result[count] = index;
         }
@@ -592,10 +592,9 @@ boost::property_tree::ptree QuantumStateCpu::to_ptree() const {
     boost::property_tree::ptree pt;
     pt.put("name", "QuantumState");
     pt.put("qubit_count", _qubit_count);
-    pt.put_child(
-        "classical_register", ptree::to_ptree(_classical_register));
+    pt.put_child("classical_register", ptree::to_ptree(_classical_register));
     pt.put_child("state_vector", ptree::to_ptree(std::vector<CPPCTYPE>(
-                                        _state_vector, _state_vector + _dim)));
+                                     _state_vector, _state_vector + _dim)));
     return pt;
 }
 

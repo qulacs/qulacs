@@ -19,8 +19,7 @@ QuantumCircuitEnergyMinimizationSolver::
 
 void QuantumCircuitEnergyMinimizationSolver::solve(
     EnergyMinimizationProblem* instance, UINT max_iteration,
-    std::string optimizer_name,
-    std::string differentiation_method) {
+    std::string optimizer_name, std::string differentiation_method) {
     if (_circuit != NULL) {
         delete _circuit;
         _circuit = NULL;

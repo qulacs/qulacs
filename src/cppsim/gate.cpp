@@ -189,7 +189,8 @@ boost::property_tree::ptree QuantumGateBase::to_ptree() const {
 bool QuantumGateBase::is_noise() { return false; }
 void QuantumGateBase::set_seed(int) { return; }
 
-void QuantumGateBase::set_target_index_list(const std::vector<UINT>& target_index_list) {
+void QuantumGateBase::set_target_index_list(
+    const std::vector<UINT>& target_index_list) {
     if (target_qubit_list.size() < target_index_list.size()) {
         target_qubit_list.resize(target_index_list.size());
     }
@@ -204,7 +205,8 @@ void QuantumGateBase::set_target_index_list(const std::vector<UINT>& target_inde
     }
 }
 
-void QuantumGateBase::set_control_index_list(const std::vector<UINT>& control_index_list) {
+void QuantumGateBase::set_control_index_list(
+    const std::vector<UINT>& control_index_list) {
     if (control_qubit_list.size() < control_index_list.size()) {
         control_qubit_list.resize(control_index_list.size());
     }

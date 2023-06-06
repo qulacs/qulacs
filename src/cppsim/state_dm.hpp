@@ -62,8 +62,7 @@ public:
      * @param target_qubit_index
      * @return double
      */
-    virtual double get_zero_probability(
-        UINT target_qubit_index) const override;
+    virtual double get_zero_probability(UINT target_qubit_index) const override;
 
     /**
      * \~japanese-en 複数の量子ビットを測定した時の周辺確率を計算する
