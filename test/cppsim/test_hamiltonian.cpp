@@ -178,6 +178,65 @@ TEST(ObservableTest, CheckParsedObservableFromOpenFermionText) {
     delete observable;
 }
 
+TEST(ObservableTest, CheckGetMatrix) {
+    const std::string text =
+        "(-0.8126100000000005+0j) [] +\n"
+        "(0.04532175+0j) [X0 Z1 X2] +\n"
+        "(0.04532175+0j) [X0 Z1 X2 Z3] +\n"
+        "(0.04532175+0j) [Y0 Z1 Y2] +\n"
+        "(0.04532175+0j) [Y0 Z1 Y2 Z3] +\n"
+        "(0.17120100000000002+0j) [Z0] +\n"
+        "(0.17120100000000002+0j) [Z0 Z1] +\n"
+        "(0.165868+0j) [Z0 Z1 Z2] +\n"
+        "(0.165868+0j) [Z0 Z1 Z2 Z3] +\n"
+        "(0.12054625+0j) [Z0 Z2] +\n"
+        "(0.12054625+0j) [Z0 Z2 Z3] +\n"
+        "(0.16862325+0j) [Z1] +\n"
+        "(-0.22279649999999998+0j) [Z1 Z2 Z3] +\n"
+        "(0.17434925+0j) [Z1 Z3] +\n"
+        "(-0.22279649999999998+0j) [Z2]";
+
+    Observable* observable;
+    observable = observable::create_observable_from_openfermion_text(text);
+    ASSERT_NE(observable, (Observable*)NULL);
+    UINT qubit_count = observable->get_qubit_count();
+
+    SparseComplexMatrixRowMajor result = observable->get_matrix(),
+                                expected(16, 16);
+
+    expected.insert(0, 0) = CPPCTYPE(-4.163336342344337e-16, 0.0);
+    expected.insert(1, 1) = CPPCTYPE(-1.8304610000000006, 0.0);
+    expected.insert(1, 4) = CPPCTYPE(0.181287, 0.0);
+    expected.insert(2, 2) = CPPCTYPE(-1.2462260000000005, 0.0);
+    expected.insert(3, 3) = CPPCTYPE(-1.0649390000000005, 0.0);
+    expected.insert(3, 6) = CPPCTYPE(-0.181287, 0.0);
+    expected.insert(4, 1) = CPPCTYPE(0.181287, 0.0);
+    expected.insert(4, 4) = CPPCTYPE(-0.25447100000000045, 0.0);
+    expected.insert(5, 5) = CPPCTYPE(0.20638199999999932, 0.0);
+    expected.insert(6, 3) = CPPCTYPE(-0.181287, 0.0);
+    expected.insert(6, 6) = CPPCTYPE(-1.0649390000000005, 0.0);
+    expected.insert(7, 7) = CPPCTYPE(-1.2462260000000005, 0.0);
+    expected.insert(8, 8) = CPPCTYPE(-0.4759340000000004, 0.0);
+    expected.insert(9, 9) = CPPCTYPE(-1.1607380000000005, 0.0);
+    expected.insert(10, 10) = CPPCTYPE(-1.2524770000000005, 0.0);
+    expected.insert(11, 11) = CPPCTYPE(-1.2524770000000005, 0.0);
+    expected.insert(12, 12) = CPPCTYPE(-0.4759340000000005, 0.0);
+    expected.insert(13, 13) = CPPCTYPE(-1.1607380000000007, 0.0);
+    expected.insert(14, 14) = CPPCTYPE(-0.3612910000000006, 0.0);
+    expected.insert(15, 15) = CPPCTYPE(-0.3612910000000006, 0.0);
+
+    for (int i = 0; i < result.rows(); ++i) {
+        for (int j = 0; j < result.cols(); ++j) {
+            ASSERT_NEAR(result.coeffRef(i, j).real(),
+                expected.coeffRef(i, j).real(), eps);
+            ASSERT_NEAR(result.coeffRef(i, j).imag(),
+                expected.coeffRef(i, j).imag(), eps);
+        }
+    }
+
+    delete observable;
+}
+
 /*
 
 TEST(ObservableTest, CheckParsedObservableFromOpenFermionFile) {

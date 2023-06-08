@@ -271,6 +271,8 @@ public:
 
     virtual GeneralQuantumOperator* copy() const;
 
+    SparseComplexMatrixRowMajor get_matrix() const;
+
     /**
      * \~japanese-en
      * ptreeに変換する
@@ -383,3 +385,6 @@ DllExport GeneralQuantumOperator* from_ptree(
 
 bool check_Pauli_operator(const GeneralQuantumOperator* quantum_operator,
     const PauliOperator* pauli_operator);
+
+SparseComplexMatrixRowMajor _tensor_product(
+    const std::vector<SparseComplexMatrixRowMajor>& _obs);
