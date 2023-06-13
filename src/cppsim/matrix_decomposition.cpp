@@ -39,7 +39,7 @@ bidiagonalize_real_matrix_pair_with_symmetric_products(
     Eigen::JacobiSVD<Eigen::Matrix4d> svd(
         matA, Eigen::ComputeFullU | Eigen::ComputeFullV);
 
-    if (abs(svd.singularValues()(3)) < 1e-11) {
+    if (std::abs(svd.singularValues()(3)) < 1e-11) {
         throw std::runtime_error(
             "The above KAK decomposition partially omit the implementation, "
             "and the function somtimes outputs invalid values. To address this "

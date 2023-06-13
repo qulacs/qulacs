@@ -5,6 +5,7 @@ This KAK decomposition implementation is based on cirq implementation.
 https://quantumai.google/reference/python/cirq/kak_decomposition
 */
 #include <Eigen/Eigen>
+#include <cmath>
 
 #include "gate.hpp"
 #include "gate_factory.hpp"
