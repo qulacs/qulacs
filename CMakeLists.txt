@@ -456,7 +456,9 @@ if(USE_TEST)
 		add_custom_target(coverage
 			DEPENDS test
 			COMMAND mkdir -p "${CMAKE_CURRENT_SOURCE_DIR}/coverage"
-			COMMAND lcov -d "${CMAKE_CURRENT_SOURCE_DIR}/build/src/csim/CMakeFiles/csim_static.dir" -d "${CMAKE_CURRENT_SOURCE_DIR}/build/src/cppsim/CMakeFiles/cppsim_static.dir" -d "${CMAKE_CURRENT_SOURCE_DIR}/build/src/vqcsim/CMakeFiles/vqcsim_static.dir" -c -o "${CMAKE_CURRENT_SOURCE_DIR}/coverage/coverage.info"
+			# See Issue #555
+			# TODO: Missing coverage can be obtained, but this also collects coverage of the test program itself.
+			COMMAND lcov -d "${CMAKE_CURRENT_SOURCE_DIR}/build/src/" -d "${CMAKE_CURRENT_SOURCE_DIR}/build/test/" -c -o "${CMAKE_CURRENT_SOURCE_DIR}/coverage/coverage.info"
 			COMMAND lcov -r "${CMAKE_CURRENT_SOURCE_DIR}/coverage/coverage.info" "*/include/*" -o "${CMAKE_CURRENT_SOURCE_DIR}/coverage/coverageFiltered.info"
 			COMMAND genhtml -o "${CMAKE_CURRENT_SOURCE_DIR}/coverage/html" --num-spaces 4 -s --legend "${CMAKE_CURRENT_SOURCE_DIR}/coverage/coverageFiltered.info"
 		)
