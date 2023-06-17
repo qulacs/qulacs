@@ -93,6 +93,57 @@ TEST(Backprop, BackpropCircuitInpro) {
     }
 }
 
+TEST(Backprop_multicpu, BackpropCircuitInpro) {
+    ParametricQuantumCircuit kairo(3);
+    kairo.add_parametric_RX_gate(0, 2.2);
+    kairo.add_parametric_RY_gate(1, 0);
+    kairo.add_gate(gate::CNOT(0, 2));
+    kairo.add_parametric_RZ_gate(2, 1.4);
+    kairo.add_gate(gate::H(1));
+    kairo.add_parametric_RY_gate(0, 1);
+    kairo.add_gate(gate::CNOT(1, 0));
+    kairo.add_gate(gate::H(1));
+    kairo.add_parametric_RZ_gate(1, -1);
+    kairo.add_gate(gate::H(0));
+    kairo.add_gate(gate::CNOT(2, 0));
+    kairo.add_parametric_RX_gate(2, 1);
+    kairo.add_gate(gate::CNOT(1, 0));
+    kairo.add_parametric_RZ_gate(0, 1);
+    kairo.add_gate(gate::CNOT(0, 1));
+    kairo.add_gate(gate::H(1));
+    kairo.add_parametric_RX_gate(1, -1);
+    kairo.add_parametric_RY_gate(2, 1);
+    // 回路に適当にゲートを加える
+
+    std::vector<CPPCTYPE> state_hai = {
+        1.0, 0.5, 3.0, -0.2, -2.0, 1.0, 0.7, 3.0};
+
+    // backprop_inner_product() with multicpu is not supported
+    // QuantumState state_soku(3, true);
+    QuantumState state_soku(3);
+    state_soku.load(state_hai);
+
+    QuantumState Astate(3, true);
+
+    auto bk = kairo.backprop_inner_product(&state_soku);
+    state_soku.load(state_hai);
+    vector<double> kaku = {2.2, 0, 1.4, 1, -1, 1, 1, -1, 1};
+
+    Astate.set_zero_state();
+    kairo.update_quantum_state(&Astate);
+    CPPCTYPE mto_sco = state::inner_product(&state_soku, &Astate);
+    for (int h = 0; h < 9; h++) {
+        kairo.set_parameter(h, kaku[h] + 0.0001);
+        Astate.set_zero_state();
+        kairo.update_quantum_state(&Astate);
+        CPPCTYPE gen_sco = state::inner_product(&state_soku, &Astate);
+
+        ASSERT_NEAR(((gen_sco - mto_sco) * 10000.0).real(), bk[h], 1e-2);
+
+        kairo.set_parameter(h, kaku[h]);
+    }
+}
+
 // PauliRotationのBackpropTest
 TEST(Backprop, BackpropPauliRotationCircuit) {
     ParametricQuantumCircuit kairo(2);
