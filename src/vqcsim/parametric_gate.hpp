@@ -51,12 +51,26 @@ public:
                     throw UndefinedUpdateFuncException(
                         "Error: "
                         "QuantumGate_SingleParameterOneQubitRotation::update_"
-                        "quantum_state(QuantumStateBase) : update function is "
-                        "undefined");
+                        "quantum_state(QuantumStateBase) : update function "
+                        "for GPU is undefined");
                 }
                 _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
                     state->data(), state->dim, state->get_cuda_stream(),
                     state->device_number);
+                return;
+            }
+#endif
+#ifdef _USE_MPI
+            if (state->outer_qc > 0) {
+                if (_update_func_mpi == NULL) {
+                    throw UndefinedUpdateFuncException(
+                        "Error: "
+                        "QuantumGate_SingleParameterOneQubitRotation::update_"
+                        "quantum_state(QuantumStateBase) : update function "
+                        "for multi-cpu is undefined");
+                }
+                _update_func_mpi(this->_target_qubit_list[0].index(), _angle,
+                    state->data_c(), state->dim, state->inner_qc);
                 return;
             }
 #endif
@@ -67,12 +81,6 @@ public:
                     "quantum_state(QuantumStateBase) : update function is "
                     "undefined");
             }
-#ifdef _USE_MPI
-            if (state->outer_qc > 0) {
-                _update_func_mpi(this->_target_qubit_list[0].index(), _angle,
-                    state->data_c(), state->dim, state->inner_qc);
-            } else
-#endif
             {
                 _update_func(this->_target_qubit_list[0].index(), _angle,
                     state->data_c(), state->dim);
