@@ -87,6 +87,54 @@ TEST(GateTest, ApplySingleQubitGate) {
     }
 }
 
+TEST(GateTest, IBMQGates) {
+    // https://qiskit.org/documentation/stubs/qiskit.circuit.library.U1Gate.html
+    // https://qiskit.org/documentation/stubs/qiskit.circuit.library.U2Gate.html
+    // https://qiskit.org/documentation/stubs/qiskit.circuit.library.U3Gate.html
+    const ITYPE dim = 2;
+
+    std::vector<std::pair<QuantumGateBase*, QuantumGateBase*>> gate_lists;
+
+    Random random;
+    double angle = random.uniform() * 3.14159;
+
+    gate_lists.push_back(
+        std::make_pair(gate::Identity(0), gate::U3(0, 0, 0, 0)));
+    gate_lists.push_back(std::make_pair(
+        gate::RX(0, -angle), gate::U3(0, angle, -M_PI / 2, M_PI / 2)));
+    gate_lists.push_back(
+        std::make_pair(gate::RY(0, -angle), gate::U3(0, angle, 0, 0)));
+    ComplexMatrix rz_gate_matrix(2, 2);
+    gate::RZ(0, -angle)->set_matrix(rz_gate_matrix);
+    gate_lists.push_back(std::make_pair(
+        gate::DenseMatrix(
+            0, rz_gate_matrix * exp(CPPCTYPE(0, 1) * angle / CPPCTYPE(2, 0))),
+        gate::U3(0, 0, 0, angle)));
+
+    gate_lists.push_back(std::make_pair(gate::Z(0), gate::U1(0, M_PI)));
+    gate_lists.push_back(std::make_pair(gate::S(0), gate::U1(0, M_PI / 2)));
+    gate_lists.push_back(std::make_pair(gate::T(0), gate::U1(0, M_PI / 4)));
+
+    gate_lists.push_back(std::make_pair(gate::H(0), gate::U2(0, 0, M_PI)));
+
+    for (auto gate_pair : gate_lists) {
+        auto expected_gate = gate_pair.first;
+        auto target_gate = gate_pair.second;
+
+        ComplexMatrix expected(2, 2);
+        ComplexMatrix target(2, 2);
+
+        expected_gate->set_matrix(expected);
+        target_gate->set_matrix(target);
+
+        for (ITYPE i = 0; i < dim; i++) {
+            for (ITYPE j = 0; j < dim; j++) {
+                ASSERT_NEAR(abs(expected(i, j) - target(i, j)), 0, eps);
+            }
+        }
+    }
+}
+
 TEST(GateTest, ApplySingleQubitRotationGate) {
     const auto Identity = make_Identity();
     const auto X = make_X();
