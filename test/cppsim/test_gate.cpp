@@ -107,7 +107,8 @@ TEST(GateTest, IBMQGates) {
     // U1 gate is equivalent to RZ up to a phase factor.
     // U1(\lambda) = \exp^{i \lambda / 2} RZ(\lambda)
     ComplexMatrix rz_gate_matrix(2, 2);
-    gate::RZ(0, -angle)->set_matrix(rz_gate_matrix);
+    auto rz_gate = gate::RZ(0, -angle);
+    rz_gate->set_matrix(rz_gate_matrix);
     gate_lists.push_back(std::make_pair(
         gate::DenseMatrix(
             0, rz_gate_matrix * exp(CPPCTYPE(0, 1) * angle / CPPCTYPE(2, 0))),
@@ -134,7 +135,12 @@ TEST(GateTest, IBMQGates) {
                 ASSERT_NEAR(abs(expected(i, j) - target(i, j)), 0, eps);
             }
         }
+
+        delete expected_gate;
+        delete target_gate;
     }
+
+    delete rz_gate;
 }
 
 TEST(GateTest, ApplySingleQubitRotationGate) {
