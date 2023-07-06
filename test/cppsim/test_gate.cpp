@@ -104,6 +104,8 @@ TEST(GateTest, IBMQGates) {
         gate::RX(0, -angle), gate::U3(0, angle, -M_PI / 2, M_PI / 2)));
     gate_lists.push_back(
         std::make_pair(gate::RY(0, -angle), gate::U3(0, angle, 0, 0)));
+    // U1 gate is equivalent to RZ up to a phase factor.
+    // U1(\lambda) = \exp^{i \lambda / 2} RZ(\lambda)
     ComplexMatrix rz_gate_matrix(2, 2);
     gate::RZ(0, -angle)->set_matrix(rz_gate_matrix);
     gate_lists.push_back(std::make_pair(
