@@ -125,10 +125,9 @@ TEST(CircuitTest, CircuitBasic) {
 
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
-    circuit.add_RX_gate(target, angle * 2);
-    circuit.add_RotInvX_gate(target, angle + 0.5);
-    circuit.add_RotX_gate(target, angle * 2 + 0.5);
-    // RX +RotInvX - RotX = angle
+    circuit.add_RX_gate(target, angle);
+    circuit.add_RotInvX_gate(target, angle);
+    circuit.add_RotX_gate(target, angle);
     state_eigen =
         get_expanded_eigen_matrix_with_identity(target,
             cos(angle / 2) * Identity + imag_unit * sin(angle / 2) * X, n) *
