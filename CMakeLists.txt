@@ -512,7 +512,7 @@ if(USE_PYTHON)
 		DEPENDS qulacs_core
 		COMMAND pytest -v -s ${CMAKE_CURRENT_SOURCE_DIR}/python/tests
 	)
-endif()
 
 #dependency setting for ExternalProject
 add_dependencies(qulacs_core eigen)
+endif()
