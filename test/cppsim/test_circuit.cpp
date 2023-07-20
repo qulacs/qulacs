@@ -190,6 +190,14 @@ TEST(CircuitTest, CircuitBasic) {
             cos(angle / 2) * Identity + imag_unit * sin(angle / 2) * Y, n) *
         state_eigen;
 
+    std::vector<UINT> target_index_list{0, 1, 2, 3};
+    std::vector<UINT> pauli_id_list{0, 1, 2, 3};
+    circuit.add_multi_Pauli_gate(target_index_list, pauli_id_list);
+
+    // add same gate == cancel above pauli gate
+    PauliOperator pauli = PauliOperator("I 0 X 1 Y 2 Z 3");
+    circuit.add_multi_Pauli_gate(pauli);
+
     circuit.update_quantum_state(&state);
     for (ITYPE i = 0; i < dim; ++i)
         ASSERT_NEAR(abs(state_eigen[i] - state.data_cpp()[i]), 0, eps);
