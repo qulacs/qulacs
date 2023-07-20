@@ -174,6 +174,22 @@ TEST(CircuitTest, CircuitBasic) {
     state_eigen =
         get_eigen_matrix_full_qubit_SWAP(target, target_sub, n) * state_eigen;
 
+    target = random.int32() % n;
+    circuit.add_U1_gate(target, M_PI);
+    state_eigen = get_expanded_eigen_matrix_with_identity(target, Z, n) * state_eigen;
+
+    target = random.int32() % n;
+    circuit.add_U2_gate(target, 0, M_PI);
+    state_eigen = get_expanded_eigen_matrix_with_identity(target, H, n) * state_eigen;
+
+    target = random.int32() % n;
+    angle = random.uniform() * 3.14159;
+    circuit.add_U3_gate(target, -angle, 0, 0);
+    state_eigen =
+        get_expanded_eigen_matrix_with_identity(target,
+            cos(angle / 2) * Identity + imag_unit * sin(angle / 2) * Y, n) *
+        state_eigen;
+
     circuit.update_quantum_state(&state);
     for (ITYPE i = 0; i < dim; ++i)
         ASSERT_NEAR(abs(state_eigen[i] - state.data_cpp()[i]), 0, eps);
