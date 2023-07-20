@@ -317,10 +317,6 @@ TEST(CircuitTest, CircuitRev) {
     delete revcircuit;
 }
 
-TEST(CircuitTest, IBMQGates) {
-
-}
-
 TEST(CircuitTest, CircuitOptimize) {
     const UINT n = 4;
     const UINT dim = 1ULL << n;
