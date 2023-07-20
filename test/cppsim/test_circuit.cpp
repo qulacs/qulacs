@@ -198,6 +198,15 @@ TEST(CircuitTest, CircuitBasic) {
     PauliOperator pauli = PauliOperator("I 0 X 1 Y 2 Z 3");
     circuit.add_multi_Pauli_gate(pauli);
 
+    ComplexMatrix mat_x(2, 2);
+    target = random.int32() % n;
+    mat_x << 0, 1, 1, 0;
+    circuit.add_dense_matrix_gate(target, mat_x);
+
+    state_eigen = get_expanded_eigen_matrix_with_identity(
+                      target, get_eigen_matrix_single_Pauli(1), n) *
+                  state_eigen;
+
     circuit.update_quantum_state(&state);
     for (ITYPE i = 0; i < dim; ++i)
         ASSERT_NEAR(abs(state_eigen[i] - state.data_cpp()[i]), 0, eps);
