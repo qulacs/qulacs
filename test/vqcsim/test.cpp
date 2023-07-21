@@ -346,7 +346,7 @@ TEST(ParametricQuantumCircuitSimulator_multicpu, Basic) {
     UINT n = 3;
     Observable observable(n);
     observable.add_operator(1., "Z 0");
-    QuantumState state(n, true), test_state(n);
+    QuantumState state(n, true), test_state(n, true);
     ParametricQuantumCircuit circuit(n);
     for (UINT i = 0; i < n; ++i) {
         circuit.add_parametric_RX_gate(i, 1.0);
@@ -356,8 +356,8 @@ TEST(ParametricQuantumCircuitSimulator_multicpu, Basic) {
     sim.simulate();
     // Circuitに適用した量子状態の期待値とSimulatorの期待値が同じであること
     circuit.update_quantum_state(&test_state);
-    ASSERT_EQ(sim.get_expectation_value(&observable),
-        observable.get_expectation_value(&test_state));
+    ASSERT_NEAR(std::real(sim.get_expectation_value(&observable)),
+        std::real(observable.get_expectation_value(&test_state)), 1e-12);
 }
 
 TEST(GradCalculator, BasicCheck) {

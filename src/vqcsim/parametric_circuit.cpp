@@ -182,7 +182,11 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
     // circuitを実行した状態とbistateの、inner_productを取った結果を「値」として、それを逆誤差伝搬します
     // bistateはノルムが1のやつでなくてもよい
     int n = this->qubit_count;
+#ifdef _USE_MPI
+    QuantumState* state = new QuantumState(n, 1);
+#else
     QuantumState* state = new QuantumState(n);
+#endif
     // これは、ゲートを前から適用したときの状態を示す
     state->set_zero_state();
     this->update_quantum_state(state);  // 一度最後までする
@@ -215,7 +219,11 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
     ユニタリ性より、転置して共役な行列 = 逆行列
     なので、両社にadjoint_gateを掛けている
     */
+#ifdef _USE_MPI
+    QuantumState* Astate = new QuantumState(n, 1);  // 一時的なやつ
+#else
     QuantumState* Astate = new QuantumState(n);  // 一時的なやつ
+#endif
     for (int i = num_gates - 1; i >= 0; i--) {
         QuantumGateBase* gate_now = this->gate_list[i];  // sono gate
         if (inverse_parametric_gate_position[i] != -1) {
@@ -264,11 +272,22 @@ std::vector<double> ParametricQuantumCircuit::backprop(
     // 最終的な変動量になるようにする。
 
     int n = this->qubit_count;
+#ifdef _USE_MPI
+    // apply_to_state is not supported for multi-cpu
+    QuantumState* state = new QuantumState(n, 0);
+#else
     QuantumState* state = new QuantumState(n);
+#endif
     state->set_zero_state();
     this->update_quantum_state(state);  // 一度最後までする
+#ifdef _USE_MPI
+    // apply_to_state is not supported for multi-cpu
+    QuantumState* bistate = new QuantumState(n, 0);
+    QuantumState* Astate = new QuantumState(n, 0);
+#else
     QuantumState* bistate = new QuantumState(n);
     QuantumState* Astate = new QuantumState(n);  // 一時的なやつ
+#endif
 
     obs->apply_to_state(Astate, *state, bistate);
     bistate->multiply_coef(2);

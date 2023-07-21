@@ -118,10 +118,10 @@ TEST(Backprop_multicpu, BackpropCircuitInpro) {
     std::vector<CPPCTYPE> state_hai = {
         1.0, 0.5, 3.0, -0.2, -2.0, 1.0, 0.7, 3.0};
 
-    // backprop_inner_product() with multicpu is not supported
-    // QuantumState state_soku(3, true);
-    QuantumState state_soku(3);
-    state_soku.load(state_hai);
+    QuantumState state_soku_cpu(3, 0);
+    QuantumState state_soku(3, 1);
+    state_soku_cpu.load(state_hai);
+    state_soku.load(&state_soku_cpu);
 
     QuantumState Astate(3, true);
 
