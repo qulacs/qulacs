@@ -120,13 +120,16 @@ TEST(Backprop_multicpu, BackpropCircuitInpro) {
 
     QuantumState state_soku_cpu(3, 0);
     QuantumState state_soku(3, 1);
+    // Loading from full-size-vector into a distributed-SV is not supported.
+    // Loading from undistributed-SV into a distributed-SV is supported.
     state_soku_cpu.load(state_hai);
     state_soku.load(&state_soku_cpu);
 
     QuantumState Astate(3, true);
 
     auto bk = kairo.backprop_inner_product(&state_soku);
-    state_soku.load(state_hai);
+    state_soku_cpu.load(state_hai);
+    state_soku.load(&state_soku_cpu);
     vector<double> kaku = {2.2, 0, 1.4, 1, -1, 1, 1, -1, 1};
 
     Astate.set_zero_state();
