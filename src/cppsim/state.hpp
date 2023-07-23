@@ -754,23 +754,13 @@ public:
      * \~japanese-en <code>state</code>の量子状態を自身へコピーする。
      */
     virtual void load(const std::vector<CPPCTYPE>& _state) override {
-        ITYPE offset_state = 0;
-#ifdef _USE_MPI
-        MPIutil& mpiutil = MPIutil::get_inst();
-        UINT mpisize = mpiutil.get_size();
-        UINT mpirank = mpiutil.get_rank();
-        if ((this->outer_qc > 0) && (_state.size() / mpisize == _dim)) {
-            // this SV is multi-cpu and _state is full state
-            offset_state = _dim * mpirank;
-        } else
-#endif
-            if (_state.size() != _dim) {
+        if (_state.size() != _dim) {
             throw InvalidStateVectorSizeException(
                 "Error: QuantumStateCpu::load(vector<Complex>&): invalid "
                 "length of state");
         }
-        memcpy(this->data_cpp(), _state.data() + offset_state,
-            (size_t)(sizeof(CPPCTYPE) * _dim));
+        memcpy(
+            this->data_cpp(), _state.data(), (size_t)(sizeof(CPPCTYPE) * _dim));
     }
 
     /**
