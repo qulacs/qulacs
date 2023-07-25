@@ -182,7 +182,7 @@ TEST(CircuitTest_multicpu, CircuitBasic) {
     state_eigen =
         get_eigen_matrix_full_qubit_SWAP(target, target_sub, n) * state_eigen;
 
-   target = random.int32() % n;
+    target = random.int32() % n;
     circuit.add_U1_gate(target, M_PI);
     state_eigen =
         get_expanded_eigen_matrix_with_identity(target, Z, n) * state_eigen;
