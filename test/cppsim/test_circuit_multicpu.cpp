@@ -133,10 +133,9 @@ TEST(CircuitTest_multicpu, CircuitBasic) {
 
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
-    circuit.add_RX_gate(target, angle * 2);
-    circuit.add_RotInvX_gate(target, angle + 0.5);
-    circuit.add_RotX_gate(target, angle * 2 + 0.5);
-    // RX +RotInvX - RotX = angle
+    circuit.add_RX_gate(target, angle);
+    circuit.add_RotInvX_gate(target, angle);
+    circuit.add_RotX_gate(target, angle);
     state_eigen =
         get_expanded_eigen_matrix_with_identity(target,
             cos(angle / 2) * Identity + imag_unit * sin(angle / 2) * X, n) *
@@ -144,7 +143,9 @@ TEST(CircuitTest_multicpu, CircuitBasic) {
 
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
+    circuit.add_RY_gate(target, angle);
     circuit.add_RotInvY_gate(target, angle);
+    circuit.add_RotY_gate(target, angle);
     state_eigen =
         get_expanded_eigen_matrix_with_identity(target,
             cos(angle / 2) * Identity + imag_unit * sin(angle / 2) * Y, n) *
@@ -153,6 +154,8 @@ TEST(CircuitTest_multicpu, CircuitBasic) {
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
     circuit.add_RZ_gate(target, angle);
+    circuit.add_RotInvZ_gate(target, angle);
+    circuit.add_RotZ_gate(target, angle);
     state_eigen =
         get_expanded_eigen_matrix_with_identity(target,
             cos(angle / 2) * Identity + imag_unit * sin(angle / 2) * Z, n) *
@@ -178,6 +181,41 @@ TEST(CircuitTest_multicpu, CircuitBasic) {
     circuit.add_SWAP_gate(target, target_sub);
     state_eigen =
         get_eigen_matrix_full_qubit_SWAP(target, target_sub, n) * state_eigen;
+
+   target = random.int32() % n;
+    circuit.add_U1_gate(target, M_PI);
+    state_eigen =
+        get_expanded_eigen_matrix_with_identity(target, Z, n) * state_eigen;
+
+    target = random.int32() % n;
+    circuit.add_U2_gate(target, 0, M_PI);
+    state_eigen =
+        get_expanded_eigen_matrix_with_identity(target, H, n) * state_eigen;
+
+    target = random.int32() % n;
+    angle = random.uniform() * 3.14159;
+    circuit.add_U3_gate(target, -angle, 0, 0);
+    state_eigen =
+        get_expanded_eigen_matrix_with_identity(target,
+            cos(angle / 2) * Identity + imag_unit * sin(angle / 2) * Y, n) *
+        state_eigen;
+
+    std::vector<UINT> target_index_list{0, 1, 2, 3};
+    std::vector<UINT> pauli_id_list{0, 1, 2, 3};
+    circuit.add_multi_Pauli_gate(target_index_list, pauli_id_list);
+
+    // add same gate == cancel above pauli gate
+    PauliOperator pauli = PauliOperator("I 0 X 1 Y 2 Z 3");
+    circuit.add_multi_Pauli_gate(pauli);
+
+    ComplexMatrix mat_x(2, 2);
+    target = random.int32() % n;
+    mat_x << 0, 1, 1, 0;
+    circuit.add_dense_matrix_gate(target, mat_x);
+
+    state_eigen = get_expanded_eigen_matrix_with_identity(
+                      target, get_eigen_matrix_single_Pauli(1), n) *
+                  state_eigen;
 
     circuit.update_quantum_state(&state);
 
@@ -252,16 +290,20 @@ TEST(CircuitTest_multicpu, CircuitRev) {
 
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
-    circuit.add_RX_gate(target, angle * 2);
-    circuit.add_RotInvX_gate(target, angle + 0.5);
-    circuit.add_RotX_gate(target, angle * 2 + 0.5);
+    circuit.add_RX_gate(target, angle);
+    circuit.add_RotInvX_gate(target, angle);
+    circuit.add_RotX_gate(target, angle);
 
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
+    circuit.add_RY_gate(target, angle);
+    circuit.add_RotInvY_gate(target, angle);
     circuit.add_RotInvY_gate(target, angle);
 
     target = random.int32() % n;
     angle = random.uniform() * 3.14159;
+    circuit.add_RZ_gate(target, angle);
+    circuit.add_RotInvZ_gate(target, angle);
     circuit.add_RotZ_gate(target, -angle);
 
     target = random.int32() % n;
