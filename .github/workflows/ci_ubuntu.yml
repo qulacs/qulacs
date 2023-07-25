@@ -151,8 +151,6 @@ jobs:
         with:
           cuda: "11.4.2"
           method: "network"
-          sub-packages: '["nvcc"]'
-          non-cuda-sub-packages: '["libcublas", "libcurand"]'
 
       - name: Install qulacs for Ubuntu
         run: ./script/build_gcc_with_gpu.sh
