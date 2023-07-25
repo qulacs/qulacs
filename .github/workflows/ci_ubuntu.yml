@@ -147,7 +147,7 @@ jobs:
         run: sudo apt install libboost-dev
 
       - name: Install CUDA toolkit
-        uses: Jimver/cuda-toolkit@v0.2.5
+        uses: Jimver/cuda-toolkit@v0.2.11
         id: cuda-toolkit
 
       - name: Install qulacs for Ubuntu
