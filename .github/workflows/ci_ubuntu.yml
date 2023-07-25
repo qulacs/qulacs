@@ -148,7 +148,9 @@ jobs:
 
       - name: Install CUDA toolkit
         uses: Jimver/cuda-toolkit@v0.2.11
-        id: cuda-toolkit
+        with:
+          method: "network"
+          sub-packages: '["nvcc"]'
 
       - name: Install qulacs for Ubuntu
         run: ./script/build_gcc_with_gpu.sh
