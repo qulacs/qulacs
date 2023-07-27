@@ -1239,7 +1239,7 @@ PYBIND11_MODULE(qulacs_core, m) {
                     R_Y(\\theta) = \exp(i\\frac{\\theta}{2} Y) =
                         \\begin{pmatrix}
                         \cos(\\frac{\\theta}{2})  & \sin(\\frac{\\theta}{2}) \\\\
-                        \sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
+                        -\sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
                         \end{pmatrix}
             )",
             py::arg("index"), py::arg("angle"))
@@ -1254,7 +1254,7 @@ PYBIND11_MODULE(qulacs_core, m) {
                     R_Z(\\theta) = \exp(i\\frac{\\theta}{2} Z) =
                         \\begin{pmatrix}
                         e^{i\\frac{\\theta}{2}} & 0 \\\\
-                        0 & e^{i\\frac{\\theta}{2}}
+                        0 & e^{-i\\frac{\\theta}{2}}
                         \end{pmatrix}
             )",
             py::arg("index"), py::arg("angle"))
@@ -1284,7 +1284,7 @@ PYBIND11_MODULE(qulacs_core, m) {
                     R_Y(\\theta) = \exp(i\\frac{\\theta}{2} Y) =
                         \\begin{pmatrix}
                         \cos(\\frac{\\theta}{2})  & \sin(\\frac{\\theta}{2}) \\\\
-                        \sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
+                        -\sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
                         \end{pmatrix}
             )",
             py::arg("index"), py::arg("angle"))
@@ -1299,7 +1299,7 @@ PYBIND11_MODULE(qulacs_core, m) {
                     R_Z(\\theta) = \exp(i\\frac{\\theta}{2} Z) =
                         \\begin{pmatrix}
                         e^{i\\frac{\\theta}{2}} & 0 \\\\
-                        0 & e^{i\\frac{\\theta}{2}}
+                        0 & e^{-i\\frac{\\theta}{2}}
                         \end{pmatrix}
             )",
             py::arg("index"), py::arg("angle"))
