@@ -19,6 +19,7 @@ set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)
 set(DEFAULT_USE_TEST No)
 set(DEFAULT_COVERAGE No)
+
 if(("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "aarch64") OR
 		("${CMAKE_C_COMPILER}" MATCHES "/usr/bin/aarch64-linux-gnu-gcc*")) # for cross-compile
 	message(STATUS "SIMD SUPPORT: Yes")
@@ -56,7 +57,6 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
 		message(FATAL_ERROR "MSVC >= 2015 is required.")
 	endif()
 elseif ((${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang") OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang"))
-	set(DEFAULT_USE_OMP No)
 	if(${COVERAGE})
 		message(FATAL_ERROR "Coverage is not supported for clang. Do not set COVERAGE=Yes on this environment.")
 	endif()
