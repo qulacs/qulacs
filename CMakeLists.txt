@@ -269,8 +269,15 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 	# Enable openmp
 	if(USE_OMP)
 		if (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang")
-			set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include -L/opt/homebrew/opt/libomp/lib -lomp")
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include -L/opt/homebrew/opt/libomp/lib -lomp")
+			# Get the path of libomp; Bash output cannot be embedded in CMake variables directly.
+			execute_process(
+				COMMAND bash -c "brew --prefix libomp"
+				OUTPUT_VARIABLE LIBOMP_DIR
+				OUTPUT_STRIP_TRAILING_WHITESPACE
+			)
+			set(LIBOMP_OPTS "-Xpreprocessor -fopenmp -I${LIBOMP_DIR}/include -L${LIBOMP_DIR}/lib -lomp")
+			set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} ${LIBOMP_OPTS}")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LIBOMP_OPTS}")
 		else()
 			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
 			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
