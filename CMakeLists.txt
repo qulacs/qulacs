@@ -268,9 +268,13 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 
 	# Enable openmp
 	if(USE_OMP)
- 		find_package(OpenMP QUIET REQUIRED)
-   		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-     		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+		if (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang")
+			set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} -Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include -L/opt/homebrew/opt/libomp/lib -lomp")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Xpreprocessor -fopenmp -I/opt/homebrew/opt/libomp/include -L/opt/homebrew/opt/libomp/lib -lomp")
+		else()
+			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+		endif()
 	endif()
 
 	# Enable openmpi
