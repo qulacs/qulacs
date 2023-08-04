@@ -4,6 +4,9 @@
 #include "gate_merge.hpp"
 #include "state.hpp"
 #include "utility.hpp"
+
+#include <memory>
+
 /**
  * ここら辺のtarget listの仕様について
  * ゲートをマージしたときのtargetやcontrolの挙動は
@@ -74,8 +77,8 @@ public:
             std::vector<ControlQubitInfo> new_control_list;
             gate::get_new_qubit_list(
                 this, _gate_list[i], new_target_list, new_control_list);
-            this->_target_qubit_list = move(new_target_list);
-            this->_control_qubit_list = move(new_control_list);
+            this->_target_qubit_list = std::move(new_target_list);
+            this->_control_qubit_list = std::move(new_control_list);
         }
         std::sort(this->_target_qubit_list.begin(),
             this->_target_qubit_list.end(),
@@ -263,8 +266,8 @@ public:
             std::vector<ControlQubitInfo> new_control_list;
             gate::get_new_qubit_list(
                 this, _gate_list[i], new_target_list, new_control_list);
-            this->_target_qubit_list = move(new_target_list);
-            this->_control_qubit_list = move(new_control_list);
+            this->_target_qubit_list = std::move(new_target_list);
+            this->_control_qubit_list = std::move(new_control_list);
         }
         std::sort(this->_target_qubit_list.begin(),
             this->_target_qubit_list.end(),
@@ -427,8 +430,8 @@ public:
             std::vector<ControlQubitInfo> new_control_list;
             gate::get_new_qubit_list(
                 this, _gate_list[i], new_target_list, new_control_list);
-            this->_target_qubit_list = move(new_target_list);
-            this->_control_qubit_list = move(new_control_list);
+            this->_target_qubit_list = std::move(new_target_list);
+            this->_control_qubit_list = std::move(new_control_list);
         }
         std::sort(this->_target_qubit_list.begin(),
             this->_target_qubit_list.end(),
@@ -578,8 +581,8 @@ public:
         std::vector<ControlQubitInfo> new_control_list;
         gate::get_new_qubit_list(
             this, _gate, new_target_list, new_control_list);
-        this->_target_qubit_list = move(new_target_list);
-        this->_control_qubit_list = move(new_control_list);
+        this->_target_qubit_list = std::move(new_target_list);
+        this->_control_qubit_list = std::move(new_control_list);
         std::sort(this->_target_qubit_list.begin(),
             this->_target_qubit_list.end(),
             [](const TargetQubitInfo& a, const TargetQubitInfo& b) {
@@ -604,8 +607,8 @@ public:
         std::vector<ControlQubitInfo> new_control_list;
         gate::get_new_qubit_list(
             this, _gate, new_target_list, new_control_list);
-        this->_target_qubit_list = move(new_target_list);
-        this->_control_qubit_list = move(new_control_list);
+        this->_target_qubit_list = std::move(new_target_list);
+        this->_control_qubit_list = std::move(new_control_list);
         std::sort(this->_target_qubit_list.begin(),
             this->_target_qubit_list.end(),
             [](const TargetQubitInfo& a, const TargetQubitInfo& b) {
