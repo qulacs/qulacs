@@ -1,11 +1,11 @@
 #pragma once
 
+#include <memory>
+
 #include "gate.hpp"
 #include "gate_merge.hpp"
 #include "state.hpp"
 #include "utility.hpp"
-
-#include <memory>
 
 /**
  * ここら辺のtarget listの仕様について
