@@ -113,7 +113,7 @@ include_directories(${CMAKE_CURRENT_SOURCE_DIR}/src)
 
 ##### set external projects #####
 include(ExternalProject)
-include(${CMAKE_SOURCE_DIR}/cmake_script/FetchContent.cmake)
+include(${PROJECT_SOURCE_DIR}/cmake_script/FetchContent.cmake)
 
 # Boost
 set(Boost_USE_STATIC_LIBS    ON)
@@ -128,8 +128,8 @@ endif()
 message(STATUS "Boost found at ${Boost_INCLUDE_DIRS}")
 
 # Eigen
-set(EIGEN_BUILD_DIR   ${CMAKE_BINARY_DIR}/eigen)
-set(EIGEN_INSTALL_DIR ${CMAKE_SOURCE_DIR}/include)
+set(EIGEN_BUILD_DIR   ${PROJECT_BINARY_DIR}/eigen)
+set(EIGEN_INSTALL_DIR ${PROJECT_SOURCE_DIR}/include)
 set(EIGEN_INCLUDE_DIR ${EIGEN_INSTALL_DIR})
 ExternalProject_Add(
     eigen
@@ -164,8 +164,8 @@ endif()
 # Pybind11
 if(USE_PYTHON)
 	if(MSYS OR MINGW OR CYGWIN)
-		set(PYBIND11_BUILD_DIR   ${CMAKE_BINARY_DIR}/pybind11)
-		set(PYBIND11_INSTALL_DIR ${CMAKE_SOURCE_DIR}/python/pybind11)
+		set(PYBIND11_BUILD_DIR   ${PROJECT_BINARY_DIR}/pybind11)
+		set(PYBIND11_INSTALL_DIR ${PROJECT_SOURCE_DIR}/python/pybind11)
 		set(PYBIND11_INCLUDE_DIR ${PYBIND11_INSTALL_DIR}/include)
 		ExternalProject_Add(
 			pybind11_pop
@@ -232,12 +232,12 @@ endif()
 # PYTHON_SETUP_FLAG is set if you have run setup.py previously.
 if(NOT DEFINED PYTHON_SETUP_FLAG)
 	message(STATUS "Install from cmakebuild")
-	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../lib)
-	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/../bin)
+	set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../lib)
+	set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR}/../bin)
 
 	if(MSVC)
-		set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/../lib)
-		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${CMAKE_BINARY_DIR}/../bin)
+		set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE ${PROJECT_BINARY_DIR}/../lib)
+		set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_RELEASE ${PROJECT_BINARY_DIR}/../bin)
 	endif()
 else()
 	message(STATUS "Install from pip")
@@ -268,8 +268,9 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 
 	# Enable openmp
 	if(USE_OMP)
-		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
-		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
+ 		find_package(OpenMP QUIET REQUIRED)
+   		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+     		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
 	endif()
 
 	# Enable openmpi
@@ -291,7 +292,7 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 	# Enable simd
 	if("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "aarch64")
 		## Check if SVE is supported
-		include(${CMAKE_SOURCE_DIR}/cmake_script/FindSVE.cmake)
+		include(${PROJECT_SOURCE_DIR}/cmake_script/FindSVE.cmake)
 		CHECK_SVE_LINUX()
 		message(STATUS "SVE_FOUND = ${SVE_FOUND}")
 		if(USE_SIMD AND SVE_FOUND)
@@ -306,7 +307,7 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 	elseif(("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "^x86.*") OR
 			("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "AMD64"))
 		## Check if AVX2 is supported
-		include(${CMAKE_SOURCE_DIR}/cmake_script/FindAVX2.cmake)
+		include(${PROJECT_SOURCE_DIR}/cmake_script/FindAVX2.cmake)
 		CHECK_AVX2_LINUX()
 		message(STATUS "AVX2_FOUND = ${AVX2_FOUND}")
 		if(USE_SIMD AND AVX2_FOUND)
@@ -354,7 +355,7 @@ elseif(MSVC)
 
 	# Enable simd
 	## Check if AVX2 is supported
-	include(${CMAKE_SOURCE_DIR}/cmake_script/FindAVX2.cmake)
+	include(${PROJECT_SOURCE_DIR}/cmake_script/FindAVX2.cmake)
 	CHECK_AVX2_WINDOWS()
 	message(STATUS "AVX2_FOUND = ${AVX2_FOUND}")
 	if(USE_SIMD AND AVX2_FOUND)
@@ -512,6 +513,3 @@ if(USE_PYTHON)
 		COMMAND pytest -v -s ${CMAKE_CURRENT_SOURCE_DIR}/python/tests
 	)
 endif()
-
-#dependency setting for ExternalProject
-add_dependencies(qulacs_core eigen)

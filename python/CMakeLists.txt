@@ -57,3 +57,6 @@ else()
 	pybind11_add_module(qulacs_core SHARED EXCLUDE_FROM_ALL cppsim_wrapper.cpp)
 	target_link_libraries(qulacs_core PUBLIC vqcsim_static)
 endif()
+
+#dependency setting for ExternalProject
+add_dependencies(qulacs_core eigen)
