@@ -23,8 +23,8 @@ jobs:
         compiler: ["gcc", "clang"]
         include:
           - compiler: "gcc"
-            c_compiler: "/usr/local/opt/ccache/libexec/gcc-11"
-            cxx_compiler: "/usr/local/opt/ccache/libexec/g++-11"
+            c_compiler: "/usr/local/opt/ccache/libexec/gcc-12"
+            cxx_compiler: "/usr/local/opt/ccache/libexec/g++-12"
           - compiler: "clang"
             c_compiler: "/usr/local/opt/ccache/libexec/clang"
             cxx_compiler: "/usr/local/opt/ccache/libexec/clang++"
