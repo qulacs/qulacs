@@ -242,7 +242,7 @@ DllExport ClsOneQubitRotationGate* RX(UINT qubit_index, double angle);
  * R_Y(\theta) = \exp(i\frac{\theta}{2} Y) =
  *     \begin{pmatrix}
  *     \cos(\frac{\theta}{2})  & \sin(\frac{\theta}{2}) \\
- *     \sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
+ *     -\sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
  *     \end{pmatrix}
  * @f]
  *
@@ -261,7 +261,7 @@ DllExport ClsOneQubitRotationGate* RY(UINT qubit_index, double angle);
  * R_Z(\theta) = \exp(i\frac{\theta}{2} Z) =
  *     \begin{pmatrix}
  *     e^{i\frac{\theta}{2}} & 0 \\
- *     0 & e^{i\frac{\theta}{2}}
+ *     0 & e^{-i\frac{\theta}{2}}
  *     \end{pmatrix}
  * @f]
  *
