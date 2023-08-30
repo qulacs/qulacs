@@ -28,7 +28,7 @@ jobs:
           - compiler: "clang"
             c_compiler: "/usr/local/opt/ccache/libexec/clang"
             cxx_compiler: "/usr/local/opt/ccache/libexec/clang++"
-    runs-on: "macos-11"
+    runs-on: "macos-12"
     env:
       C_COMPILER: ${{ matrix.c_compiler }}
       CXX_COMPILER: ${{ matrix.cxx_compiler }}
@@ -44,7 +44,7 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           # Include compiler to distinguish cache for each compiler.
-          key: ${{ github.job }}-macos-11-${{ matrix.compiler }}
+          key: ${{ github.job }}-macos-12-${{ matrix.compiler }}
           verbose: 2
 
       - name: Setup Python
