@@ -39,9 +39,9 @@ jobs:
           - os-arch: "win_amd64"
             os: "windows-2019"
           - os-arch: "macosx_x86_64"
-            os: "macos-11"
+            os: "macos-12"
           - os-arch: "macosx_arm64"
-            os: "macos-11"
+            os: "macos-12"
     runs-on: ${{ matrix.os }}
     env:
       CIBW_BUILD: ${{ matrix.cibw-python }}-${{ matrix.os-arch }}
