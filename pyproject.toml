@@ -56,7 +56,7 @@ ci = [
     "flake8",
     "isort",
     "mypy",
-    "pybind11-stubgen == 0.16.2",
+    "pybind11-stubgen",
     "openfermion",
     "pytest"
 ]
