@@ -147,8 +147,10 @@ jobs:
         run: sudo apt install libboost-dev
 
       - name: Install CUDA toolkit
-        uses: Jimver/cuda-toolkit@v0.2.5
-        id: cuda-toolkit
+        uses: Jimver/cuda-toolkit@v0.2.11
+        with:
+          cuda: "11.4.2"
+          method: "network"
 
       - name: Install qulacs for Ubuntu
         run: ./script/build_gcc_with_gpu.sh
@@ -315,6 +317,7 @@ jobs:
         run: |
           pip install pytest
           mpirun -n 2 bin/cppsim_test --gtest_filter="*multicpu*"
+          mpirun -n 2 bin/vqcsim_test --gtest_filter="*multicpu*"
           mpirun -n 2 pytest python/tests/multi_cpu
 
       - name: Upload coverage to codecov

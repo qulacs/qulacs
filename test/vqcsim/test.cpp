@@ -33,6 +33,13 @@ TEST(ParametricGate, NullUpdateFunc) {
         gate.update_quantum_state(&state), UndefinedUpdateFuncException);
 }
 
+TEST(ParametricGate_multicpu, NullUpdateFunc) {
+    ClsParametricNullUpdateGate gate(0, 0.);
+    QuantumState state(3, true);
+    ASSERT_THROW(
+        gate.update_quantum_state(&state), UndefinedUpdateFuncException);
+}
+
 TEST(ParametricCircuit, GateApply) {
     const UINT n = 3;
     const UINT depth = 10;
@@ -57,6 +64,36 @@ TEST(ParametricCircuit, GateApply) {
     }
 
     QuantumState state(n);
+    circuit->update_quantum_state(&state);
+    // std::cout << state << std::endl;
+    // std::cout << circuit << std::endl;
+    delete circuit;
+}
+
+TEST(ParametricCircuit_multicpu, GateApply) {
+    const UINT n = 3;
+    const UINT depth = 10;
+    ParametricQuantumCircuit* circuit = new ParametricQuantumCircuit(n);
+    Random random;
+    for (UINT d = 0; d < depth; ++d) {
+        for (UINT i = 0; i < n; ++i) {
+            circuit->add_parametric_RX_gate(i, random.uniform());
+            circuit->add_parametric_RY_gate(i, random.uniform());
+            circuit->add_parametric_RZ_gate(i, random.uniform());
+        }
+        for (UINT i = d % 2; i + 1 < n; i += 2) {
+            circuit->add_parametric_multi_Pauli_rotation_gate(
+                {i, i + 1}, {3, 3}, random.uniform());
+        }
+    }
+
+    UINT param_count = circuit->get_parameter_count();
+    for (UINT p = 0; p < param_count; ++p) {
+        double current_angle = circuit->get_parameter(p);
+        circuit->set_parameter(p, current_angle + random.uniform());
+    }
+
+    QuantumState state(n, true);
     circuit->update_quantum_state(&state);
     // std::cout << state << std::endl;
     // std::cout << circuit << std::endl;
@@ -303,6 +340,24 @@ TEST(ParametricQuantumCircuitSimulator, Basic) {
     circuit.update_quantum_state(&test_state);
     ASSERT_EQ(sim.get_expectation_value(&observable),
         observable.get_expectation_value(&test_state));
+}
+
+TEST(ParametricQuantumCircuitSimulator_multicpu, Basic) {
+    UINT n = 3;
+    Observable observable(n);
+    observable.add_operator(1., "Z 0");
+    QuantumState state(n, true), test_state(n, true);
+    ParametricQuantumCircuit circuit(n);
+    for (UINT i = 0; i < n; ++i) {
+        circuit.add_parametric_RX_gate(i, 1.0);
+        circuit.add_parametric_RY_gate(i, 1.0);
+    }
+    ParametricQuantumCircuitSimulator sim(&circuit, &state);
+    sim.simulate();
+    // Circuitに適用した量子状態の期待値とSimulatorの期待値が同じであること
+    circuit.update_quantum_state(&test_state);
+    ASSERT_NEAR(std::real(sim.get_expectation_value(&observable)),
+        std::real(observable.get_expectation_value(&test_state)), 1e-12);
 }
 
 TEST(GradCalculator, BasicCheck) {

@@ -33,9 +33,11 @@ class QuantumGate_SingleParameterOneQubitRotation
 protected:
     using UpdateFunc = void (*)(UINT, double, CTYPE*, ITYPE);
     using UpdateFuncGpu = void (*)(UINT, double, void*, ITYPE, void*, UINT);
+    using UpdateFuncMpi = void (*)(UINT, double, CTYPE*, ITYPE, UINT);
     UpdateFunc _update_func = nullptr;
     UpdateFunc _update_func_dm = nullptr;
     UpdateFuncGpu _update_func_gpu = nullptr;
+    UpdateFuncMpi _update_func_mpi = nullptr;
 
     QuantumGate_SingleParameterOneQubitRotation(double angle)
         : QuantumGate_SingleParameter(angle) {}
@@ -49,12 +51,26 @@ public:
                     throw UndefinedUpdateFuncException(
                         "Error: "
                         "QuantumGate_SingleParameterOneQubitRotation::update_"
-                        "quantum_state(QuantumStateBase) : update function is "
-                        "undefined");
+                        "quantum_state(QuantumStateBase) : update function "
+                        "for GPU is undefined");
                 }
                 _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
                     state->data(), state->dim, state->get_cuda_stream(),
                     state->device_number);
+                return;
+            }
+#endif
+#ifdef _USE_MPI
+            if (state->outer_qc > 0) {
+                if (_update_func_mpi == NULL) {
+                    throw UndefinedUpdateFuncException(
+                        "Error: "
+                        "QuantumGate_SingleParameterOneQubitRotation::update_"
+                        "quantum_state(QuantumStateBase) : update function "
+                        "for multi-cpu is undefined");
+                }
+                _update_func_mpi(this->_target_qubit_list[0].index(), _angle,
+                    state->data_c(), state->dim, state->inner_qc);
                 return;
             }
 #endif
@@ -65,8 +81,10 @@ public:
                     "quantum_state(QuantumStateBase) : update function is "
                     "undefined");
             }
-            _update_func(this->_target_qubit_list[0].index(), _angle,
-                state->data_c(), state->dim);
+            {
+                _update_func(this->_target_qubit_list[0].index(), _angle,
+                    state->data_c(), state->dim);
+            }
         } else {
             if (_update_func_dm == NULL) {
                 throw UndefinedUpdateFuncException(
@@ -90,6 +108,9 @@ public:
         this->_update_func_dm = dm_RX_gate;
 #ifdef _USE_GPU
         this->_update_func_gpu = RX_gate_host;
+#endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = RX_gate_mpi;
 #endif
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_X_COMMUTE));
@@ -125,6 +146,9 @@ public:
 #ifdef _USE_GPU
         this->_update_func_gpu = RY_gate_host;
 #endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = RY_gate_mpi;
+#endif
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_Y_COMMUTE));
     }
@@ -158,6 +182,9 @@ public:
         this->_update_func_dm = dm_RZ_gate;
 #ifdef _USE_GPU
         this->_update_func_gpu = RZ_gate_host;
+#endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = RZ_gate_mpi;
 #endif
         this->_target_qubit_list.push_back(
             TargetQubitInfo(target_qubit_index, FLAG_Z_COMMUTE));
