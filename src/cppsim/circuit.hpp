@@ -476,7 +476,7 @@ public:
      * ゲートの表記は
      *
      * @f[
-     * R_X(-\theta) = \exp(-i\frac{\theta}{2} X) =
+     * RotX(\theta) = \exp(-i\frac{\theta}{2} X) =
      *     \begin{pmatrix}
      *     \cos(\frac{\theta}{2})  & -i\sin(\frac{\theta}{2}) \\
      *     -i\sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
@@ -496,7 +496,7 @@ public:
      * ゲートの表記は
      *
      * @f[
-     * R_Y(-\theta) = \exp(-i\frac{\theta}{2} Y) =
+     * RotY(\theta) = \exp(-i\frac{\theta}{2} Y) =
      *     \begin{pmatrix}
      *     \cos(\frac{\theta}{2})  & -\sin(\frac{\theta}{2}) \\
      *     \sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
@@ -516,7 +516,7 @@ public:
      * ゲートの表記は
      *
      * @f[
-     * R_Z(-\theta) = \exp(-i\frac{\theta}{2} Z) =
+     * RotZ(\theta) = \exp(-i\frac{\theta}{2} Z) =
      *     \begin{pmatrix}
      *     e^{-i\frac{\theta}{2}} & 0 \\
      *     0 & e^{i\frac{\theta}{2}}
