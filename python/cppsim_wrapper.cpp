@@ -1224,27 +1224,6 @@ PYBIND11_MODULE(qulacs_core, m) {
             "Add FusedSWAP gate", py::arg("target1"), py::arg("target2"),
             py::arg("block_size"))
 
-<<<<<<< Updated upstream
-        .def("add_RX_gate", &QuantumCircuit::add_RX_gate,
-            "Add Pauli-X rotation gate", py::arg("index"), py::arg("angle"))
-        .def("add_RY_gate", &QuantumCircuit::add_RY_gate,
-            "Add Pauli-Y rotation gate", py::arg("index"), py::arg("angle"))
-        .def("add_RZ_gate", &QuantumCircuit::add_RZ_gate,
-            "Add Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
-        .def("add_RotInvX_gate", &QuantumCircuit::add_RotInvX_gate,
-            "Add Pauli-X rotation gate", py::arg("index"), py::arg("angle"))
-        .def("add_RotInvY_gate", &QuantumCircuit::add_RotInvY_gate,
-            "Add Pauli-Y rotation gate", py::arg("index"), py::arg("angle"))
-        .def("add_RotInvZ_gate", &QuantumCircuit::add_RotInvZ_gate,
-            "Add Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
-        .def("add_RotX_gate", &QuantumCircuit::add_RotX_gate,
-            "Add Pauli-X rotation gate", py::arg("index"), py::arg("angle"))
-        .def("add_RotY_gate", &QuantumCircuit::add_RotY_gate,
-            "Add Pauli-Y rotation gate", py::arg("index"), py::arg("angle"))
-        .def("add_RotZ_gate", &QuantumCircuit::add_RotZ_gate,
-            "Add Pauli-Z rotation gate", py::arg("index"), py::arg("angle"))
-
-=======
         .def("add_RX_gate", &QuantumCircuit::add_RX_gate, R"(
 Add Pauli-X rotation gate
 
@@ -1380,7 +1359,6 @@ Matrix Representation
         \end{pmatrix}
 )",
             py::arg("index"), py::arg("angle"))
->>>>>>> Stashed changes
         .def("add_U1_gate", &QuantumCircuit::add_U1_gate, "Add QASM U1 gate",
             py::arg("index"), py::arg("lambda_"))
         .def("add_U2_gate", &QuantumCircuit::add_U2_gate, "Add QASM U2 gate",
