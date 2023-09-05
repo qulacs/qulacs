@@ -36,7 +36,7 @@ jobs:
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: "${{ github.job }}-${{ runner.os }}"
+          key: "${{ github.job }}-ubuntu-20.04"
           verbose: 2
 
       - name: Setup Python
