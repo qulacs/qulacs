@@ -44,7 +44,7 @@ jobs:
         uses: hendrikmuhs/ccache-action@v1.2
         with:
           # Include compiler to distinguish cache for each compiler.
-          key: ${{ github.job }}-macos-12-${{ matrix.compiler }}
+          key: ${{ github.job }}-${{ runner.os }}-${{ matrix.compiler }}
           verbose: 2
 
       - name: Setup Python
