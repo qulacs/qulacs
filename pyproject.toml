@@ -34,7 +34,7 @@ version = {attr = "qulacs._version.__version__"}
 write_to = "pysrc/qulacs/_version.py"
 
 [project.urls]
-homepage = "http://www.qulacs.org"
+homepage = "http://docs.qulacs.org"
 
 [project.optional-dependencies]
 dev = [
