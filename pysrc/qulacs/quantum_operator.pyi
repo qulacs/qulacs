@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import typing
-
 import qulacs_core
 
 __all__ = [
@@ -19,9 +17,7 @@ def create_quantum_operator_from_openfermion_text(
 ) -> qulacs_core.GeneralQuantumOperator: ...
 def create_split_quantum_operator(
     arg0: str,
-) -> typing.Tuple[
-    qulacs_core.GeneralQuantumOperator, qulacs_core.GeneralQuantumOperator
-]: ...
+) -> tuple[qulacs_core.GeneralQuantumOperator, qulacs_core.GeneralQuantumOperator]: ...
 def from_json(json: str) -> qulacs_core.GeneralQuantumOperator:
     """
     from json string
