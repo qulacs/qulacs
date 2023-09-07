@@ -107,7 +107,7 @@ def CNOT(control: int, target: int) -> qulacs_core.ClsOneControlOneTargetGate:
     """
 
 def CP(
-    kraus_list: typing.List[qulacs_core.QuantumGateBase],
+    kraus_list: list[qulacs_core.QuantumGateBase],
     state_normalize: bool,
     probability_normalize: bool,
     assign_zero_if_not_matched: bool,
@@ -116,9 +116,7 @@ def CP(
     Create completely-positive map
     """
 
-def CPTP(
-    kraus_list: typing.List[qulacs_core.QuantumGateBase],
-) -> qulacs_core.QuantumGateBase:
+def CPTP(kraus_list: list[qulacs_core.QuantumGateBase]) -> qulacs_core.QuantumGateBase:
     """
     Create completely-positive trace preserving map
     """
@@ -136,7 +134,7 @@ def DenseMatrix(index: int, matrix: numpy.ndarray) -> qulacs_core.QuantumGateMat
 
 @typing.overload
 def DenseMatrix(
-    index_list: typing.List[int], matrix: numpy.ndarray
+    index_list: list[int], matrix: numpy.ndarray
 ) -> qulacs_core.QuantumGateMatrix:
     """
     Create dense matrix gate
@@ -153,7 +151,7 @@ def DepolarizingNoise(index: int, prob: float) -> qulacs_core.QuantumGate_Probab
     """
 
 def DiagonalMatrix(
-    index_list: typing.List[int], diagonal_element: numpy.ndarray
+    index_list: list[int], diagonal_element: numpy.ndarray
 ) -> qulacs_core.QuantumGateDiagonalMatrix:
     """
     Create diagonal matrix gate
@@ -189,7 +187,7 @@ def IndependentXZNoise(
     """
 
 def Instrument(
-    kraus_list: typing.List[qulacs_core.QuantumGateBase], register: int
+    kraus_list: list[qulacs_core.QuantumGateBase], register: int
 ) -> qulacs_core.QuantumGateBase:
     """
     Create instruments
@@ -202,7 +200,7 @@ def Measurement(index: int, register: int) -> qulacs_core.QuantumGate_CPTP:
 
 def NoisyEvolution(
     hamiltonian: qulacs_core.Observable,
-    c_ops: typing.List[qulacs_core.GeneralQuantumOperator],
+    c_ops: list[qulacs_core.GeneralQuantumOperator],
     time: float,
     dt: float,
 ) -> qulacs_core.ClsNoisyEvolution:
@@ -212,7 +210,7 @@ def NoisyEvolution(
 
 def NoisyEvolution_fast(
     hamiltonian: qulacs_core.Observable,
-    c_ops: typing.List[qulacs_core.GeneralQuantumOperator],
+    c_ops: list[qulacs_core.GeneralQuantumOperator],
     time: float,
 ) -> qulacs_core.ClsNoisyEvolution_fast:
     """
@@ -230,7 +228,7 @@ def P1(index: int) -> qulacs_core.ClsOneQubitGate:
     """
 
 def ParametricPauliRotation(
-    index_list: typing.List[int], pauli_ids: typing.List[int], angle: float
+    index_list: list[int], pauli_ids: list[int], angle: float
 ) -> qulacs_core.QuantumGate_SingleParameter:
     """
     Create parametric multi-qubit Pauli rotation gate
@@ -251,31 +249,27 @@ def ParametricRZ(index: int, angle: float) -> qulacs_core.QuantumGate_SinglePara
     Create parametric Pauli-Z rotation gate
     """
 
-def Pauli(
-    index_list: typing.List[int], pauli_ids: typing.List[int]
-) -> qulacs_core.ClsPauliGate:
+def Pauli(index_list: list[int], pauli_ids: list[int]) -> qulacs_core.ClsPauliGate:
     """
     Create multi-qubit Pauli gate
     """
 
 def PauliRotation(
-    index_list: typing.List[int], pauli_ids: typing.List[int], angle: float
+    index_list: list[int], pauli_ids: list[int], angle: float
 ) -> qulacs_core.ClsPauliRotationGate:
     """
     Create multi-qubit Pauli rotation
     """
 
 def Probabilistic(
-    prob_list: typing.List[float], gate_list: typing.List[qulacs_core.QuantumGateBase]
+    prob_list: list[float], gate_list: list[qulacs_core.QuantumGateBase]
 ) -> qulacs_core.QuantumGateBase:
     """
     Create probabilistic gate
     """
 
 def ProbabilisticInstrument(
-    prob_list: typing.List[float],
-    gate_list: typing.List[qulacs_core.QuantumGateBase],
-    register: int,
+    prob_list: list[float], gate_list: list[qulacs_core.QuantumGateBase], register: int
 ) -> qulacs_core.QuantumGateBase:
     """
     Create probabilistic instrument gate
@@ -297,21 +291,19 @@ def RZ(index: int, angle: float) -> qulacs_core.ClsOneQubitRotationGate:
     """
 
 @typing.overload
-def RandomUnitary(index_list: typing.List[int]) -> qulacs_core.QuantumGateMatrix:
+def RandomUnitary(index_list: list[int]) -> qulacs_core.QuantumGateMatrix:
     """
     Create random unitary gate
     """
 
 @typing.overload
-def RandomUnitary(
-    index_list: typing.List[int], seed: int
-) -> qulacs_core.QuantumGateMatrix:
+def RandomUnitary(index_list: list[int], seed: int) -> qulacs_core.QuantumGateMatrix:
     """
     Create random unitary gate
     """
 
 def ReversibleBoolean(
-    index_list: typing.List[int], func: typing.Callable[[int, int], int]
+    index_list: list[int], func: typing.Callable[[int, int], int]
 ) -> qulacs_core.ClsReversibleBooleanGate:
     """
     Create reversible boolean gate
@@ -363,7 +355,7 @@ def Sdag(index: int) -> qulacs_core.ClsOneQubitGate:
     """
 
 def SparseMatrix(
-    index_list: typing.List[int], matrix: scipy.sparse.csc_matrix[numpy.complex128]
+    index_list: list[int], matrix: scipy.sparse.csc_matrix[numpy.complex128]
 ) -> qulacs_core.QuantumGateSparseMatrix:
     """
     Create sparse matrix gate
@@ -439,9 +431,7 @@ def add(
     """
 
 @typing.overload
-def add(
-    gate_list: typing.List[qulacs_core.QuantumGateBase],
-) -> qulacs_core.QuantumGateMatrix:
+def add(gate_list: list[qulacs_core.QuantumGateBase]) -> qulacs_core.QuantumGateMatrix:
     """
     Add quantum gate matrices
     """
@@ -461,7 +451,7 @@ def merge(
 
 @typing.overload
 def merge(
-    gate_list: typing.List[qulacs_core.QuantumGateBase],
+    gate_list: list[qulacs_core.QuantumGateBase],
 ) -> qulacs_core.QuantumGateMatrix:
     """
     Merge quantum gate list

@@ -16,9 +16,7 @@ __all__ = [
 ]
 
 def drop_qubit(
-    state: qulacs_core.QuantumState,
-    target: typing.List[int],
-    projection: typing.List[int],
+    state: qulacs_core.QuantumState, target: list[int], projection: list[int]
 ) -> qulacs_core.QuantumState:
     """
     Drop qubits from state
@@ -58,7 +56,7 @@ def make_superposition(
 
 @typing.overload
 def partial_trace(
-    state: qulacs_core.QuantumState, target_traceout: typing.List[int]
+    state: qulacs_core.QuantumState, target_traceout: list[int]
 ) -> qulacs_core.DensityMatrix:
     """
     Take partial trace
@@ -66,7 +64,7 @@ def partial_trace(
 
 @typing.overload
 def partial_trace(
-    state: qulacs_core.DensityMatrix, target_traceout: typing.List[int]
+    state: qulacs_core.DensityMatrix, target_traceout: list[int]
 ) -> qulacs_core.DensityMatrix:
     """
     Take partial trace
@@ -74,7 +72,7 @@ def partial_trace(
 
 @typing.overload
 def permutate_qubit(
-    state: qulacs_core.QuantumState, qubit_order: typing.List[int]
+    state: qulacs_core.QuantumState, qubit_order: list[int]
 ) -> qulacs_core.QuantumState:
     """
     Permutate qubits from state
@@ -82,7 +80,7 @@ def permutate_qubit(
 
 @typing.overload
 def permutate_qubit(
-    state: qulacs_core.DensityMatrix, qubit_order: typing.List[int]
+    state: qulacs_core.DensityMatrix, qubit_order: list[int]
 ) -> qulacs_core.DensityMatrix:
     """
     Permutate qubits from state
