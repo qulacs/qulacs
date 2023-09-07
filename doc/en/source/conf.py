@@ -1,5 +1,7 @@
 import os
+
 import sphinx_rtd_theme
+
 import qulacs
 
 project = "Qulacs"
