@@ -63,11 +63,11 @@ class CausalConeSimulator:
         """
         Build
         """
-    def get_circuit_list(self) -> typing.List[typing.List[ParametricQuantumCircuit]]:
+    def get_circuit_list(self) -> list[list[ParametricQuantumCircuit]]:
         """
         Return circuit_list
         """
-    def get_coef_list(self) -> typing.List[complex]:
+    def get_coef_list(self) -> list[complex]:
         """
         Return coef_list
         """
@@ -75,7 +75,7 @@ class CausalConeSimulator:
         """
         Return expectation_value
         """
-    def get_pauli_operator_list(self) -> typing.List[typing.List[PauliOperator]]:
+    def get_pauli_operator_list(self) -> list[list[PauliOperator]]:
         """
         Return pauli_operator_list
         """
@@ -148,7 +148,7 @@ class DensityMatrix(QuantumStateBase):
         """
         Get entropy
         """
-    def get_marginal_probability(self, measured_values: typing.List[int]) -> float:
+    def get_marginal_probability(self, measured_values: list[int]) -> float:
         """
         Get merginal probability for measured values
         """
@@ -174,7 +174,7 @@ class DensityMatrix(QuantumStateBase):
         Load quantum state vector
         """
     @typing.overload
-    def load(self, state: typing.List[complex]) -> None:
+    def load(self, state: list[complex]) -> None:
         """
         Load quantum state represented as a list
         """
@@ -192,12 +192,12 @@ class DensityMatrix(QuantumStateBase):
         Normalize quantum state
         """
     @typing.overload
-    def sampling(self, sampling_count: int) -> typing.List[int]:
+    def sampling(self, sampling_count: int) -> list[int]:
         """
         Sampling measurement results
         """
     @typing.overload
-    def sampling(self, sampling_count: int, random_seed: int) -> typing.List[int]:
+    def sampling(self, sampling_count: int, random_seed: int) -> list[int]:
         """
         Sampling measurement results
         """
@@ -351,7 +351,7 @@ class GradCalculator:
     @typing.overload
     def calculate_grad(
         self, parametric_circuit: ParametricQuantumCircuit, observable: Observable
-    ) -> typing.List[complex]:
+    ) -> list[complex]:
         """
         Calculate Grad
         """
@@ -360,8 +360,8 @@ class GradCalculator:
         self,
         parametric_circuit: ParametricQuantumCircuit,
         observable: Observable,
-        angles_of_gates: typing.List[float],
-    ) -> typing.List[complex]:
+        angles_of_gates: list[float],
+    ) -> list[complex]:
         """
         Calculate Grad
         """
@@ -371,7 +371,7 @@ class NoiseSimulator:
         """
         Constructor
         """
-    def execute(self, arg0: int) -> typing.List[int]:
+    def execute(self, arg0: int) -> list[int]:
         """
         Sampling & Return result [array]
         """
@@ -521,16 +521,16 @@ class ParametricQuantumCircuit(QuantumCircuit):
         Add parametric gate
         """
     def add_parametric_multi_Pauli_rotation_gate(
-        self, index_list: typing.List[int], pauli_ids: typing.List[int], angle: float
+        self, index_list: list[int], pauli_ids: list[int], angle: float
     ) -> None:
         """
         Add parametric multi-qubit Pauli rotation gate
         """
-    def backprop(self, obs: GeneralQuantumOperator) -> typing.List[float]:
+    def backprop(self, obs: GeneralQuantumOperator) -> list[float]:
         """
         Do backprop
         """
-    def backprop_inner_product(self, state: QuantumState) -> typing.List[float]:
+    def backprop_inner_product(self, state: QuantumState) -> list[float]:
         """
         Do backprop with innder product
         """
@@ -604,11 +604,11 @@ class PauliOperator:
         """
         Get expectation value
         """
-    def get_index_list(self) -> typing.List[int]:
+    def get_index_list(self) -> list[int]:
         """
         Get list of target qubit indices
         """
-    def get_pauli_id_list(self) -> typing.List[int]:
+    def get_pauli_id_list(self) -> list[int]:
         """
         Get list of Pauli IDs (I,X,Y,Z) = (0,1,2,3)
         """
@@ -844,7 +844,7 @@ class QuantumCircuit:
         """
     @typing.overload
     def add_dense_matrix_gate(
-        self, index_list: typing.List[int], matrix: numpy.ndarray
+        self, index_list: list[int], matrix: numpy.ndarray
     ) -> None:
         """
         Add dense matrix gate
@@ -866,9 +866,7 @@ class QuantumCircuit:
         Add gate with copy
         """
     @typing.overload
-    def add_multi_Pauli_gate(
-        self, index_list: typing.List[int], pauli_ids: typing.List[int]
-    ) -> None:
+    def add_multi_Pauli_gate(self, index_list: list[int], pauli_ids: list[int]) -> None:
         """
         Add multi-qubit Pauli gate
         """
@@ -879,7 +877,7 @@ class QuantumCircuit:
         """
     @typing.overload
     def add_multi_Pauli_rotation_gate(
-        self, index_list: typing.List[int], pauli_ids: typing.List[int], angle: float
+        self, index_list: list[int], pauli_ids: list[int], angle: float
     ) -> None:
         """
         Add multi-qubit Pauli rotation gate
@@ -902,12 +900,12 @@ class QuantumCircuit:
         Add observable rotation gate
         """
     @typing.overload
-    def add_random_unitary_gate(self, index_list: typing.List[int]) -> None:
+    def add_random_unitary_gate(self, index_list: list[int]) -> None:
         """
         Add random unitary gate
         """
     @typing.overload
-    def add_random_unitary_gate(self, index_list: typing.List[int], seed: int) -> None:
+    def add_random_unitary_gate(self, index_list: list[int], seed: int) -> None:
         """
         Add random unitary gate
         """
@@ -1028,15 +1026,15 @@ class QuantumGateBase:
         """
         Create copied instance
         """
-    def get_control_index_list(self) -> typing.List[int]:
+    def get_control_index_list(self) -> list[int]:
         """
         Get control qubit index list
         """
-    def get_control_index_value_list(self) -> typing.List[typing.Tuple[int, int]]:
+    def get_control_index_value_list(self) -> list[tuple[int, int]]:
         """
         Get control qubit pair index value list
         """
-    def get_control_value_list(self) -> typing.List[int]:
+    def get_control_value_list(self) -> list[int]:
         """
         Get control qubit value list
         """
@@ -1052,7 +1050,7 @@ class QuantumGateBase:
         """
         Get gate name
         """
-    def get_target_index_list(self) -> typing.List[int]:
+    def get_target_index_list(self) -> list[int]:
         """
         Get target qubit index list
         """
@@ -1113,7 +1111,7 @@ class QuantumGate_Adaptive(QuantumGateBase):
     pass
 
 class QuantumGate_CP(QuantumGateBase):
-    def get_gate_list(self) -> typing.List[QuantumGateBase]:
+    def get_gate_list(self) -> list[QuantumGateBase]:
         """
         get_gate_list
         """
@@ -1123,7 +1121,7 @@ class QuantumGate_CPTP(QuantumGateBase):
     QuantumGate_Instrument
     """
 
-    def get_gate_list(self) -> typing.List[QuantumGateBase]:
+    def get_gate_list(self) -> list[QuantumGateBase]:
         """
         get_gate_list
         """
@@ -1133,15 +1131,15 @@ class QuantumGate_Probabilistic(QuantumGateBase):
     QuantumGate_ProbabilisticInstrument
     """
 
-    def get_cumulative_distribution(self) -> typing.List[float]:
+    def get_cumulative_distribution(self) -> list[float]:
         """
         get_cumulative_distribution
         """
-    def get_distribution(self) -> typing.List[float]:
+    def get_distribution(self) -> list[float]:
         """
         get_distribution
         """
-    def get_gate_list(self) -> typing.List[QuantumGateBase]:
+    def get_gate_list(self) -> list[QuantumGateBase]:
         """
         get_gate_list
         """
@@ -1209,7 +1207,7 @@ class QuantumState(QuantumStateBase):
         """
         Get entropy
         """
-    def get_marginal_probability(self, measured_values: typing.List[int]) -> float:
+    def get_marginal_probability(self, measured_values: list[int]) -> float:
         """
         Get merginal probability for measured values
         """
@@ -1235,7 +1233,7 @@ class QuantumState(QuantumStateBase):
         Load quantum state vector
         """
     @typing.overload
-    def load(self, state: typing.List[complex]) -> None:
+    def load(self, state: list[complex]) -> None:
         """
         Load quantum state vector
         """
@@ -1254,12 +1252,12 @@ class QuantumState(QuantumStateBase):
         Normalize quantum state
         """
     @typing.overload
-    def sampling(self, sampling_count: int) -> typing.List[int]:
+    def sampling(self, sampling_count: int) -> list[int]:
         """
         Sampling measurement results
         """
     @typing.overload
-    def sampling(self, sampling_count: int, random_seed: int) -> typing.List[int]:
+    def sampling(self, sampling_count: int, random_seed: int) -> list[int]:
         """
         Sampling measurement results
         """
