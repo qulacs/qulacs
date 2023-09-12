@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import typing
-
 import qulacs_core
 
 __all__ = [
@@ -23,7 +21,7 @@ def create_observable_from_openfermion_text(text: str) -> qulacs_core.Observable
 
 def create_split_observable(
     arg0: str,
-) -> typing.Tuple[qulacs_core.Observable, qulacs_core.Observable]: ...
+) -> tuple[qulacs_core.Observable, qulacs_core.Observable]: ...
 def from_json(json: str) -> qulacs_core.Observable:
     """
     from json string
