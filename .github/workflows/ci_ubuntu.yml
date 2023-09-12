@@ -253,7 +253,7 @@ jobs:
     name: MPICC build
     strategy:
       matrix:
-        python-version: ["3.7.5"]
+        python-version: ["3.10"]
     runs-on: "ubuntu-20.04"
     env:
       CXX_COMPILER: "mpic++"

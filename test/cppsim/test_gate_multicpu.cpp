@@ -241,6 +241,39 @@ TEST(GateTest_multicpu, SingleQubitUnitaryGate) {
     }
 }
 
+TEST(GateTest_multicpu, SingleQubitDiagonalGate) {
+    UINT n = 10;
+    const ITYPE dim = 1ULL << n;
+
+    QuantumState state_ref(n);
+    QuantumState state(n, 1);
+
+    MPIutil& m = MPIutil::get_inst();
+    const ITYPE inner_dim = dim >> state.outer_qc;
+    const ITYPE offs = inner_dim * m.get_rank();
+
+    Random random;
+    random.set_seed(2022);
+    for (UINT target = 0; target < n; ++target) {
+        state_ref.set_Haar_random_state(2022);
+        state.load(&state_ref);
+
+        // update state
+        ComplexVector diag =
+            get_eigen_diagonal_matrix_random_multi_qubit_unitary(1);
+        auto gate = gate::DiagonalMatrix(std::vector<UINT>{target}, diag);
+        gate->update_quantum_state(&state);
+        gate->update_quantum_state(&state_ref);
+
+        for (ITYPE i = 0; i < inner_dim; ++i) {
+            ASSERT_NEAR(real(state.data_cpp()[i]),
+                real(state_ref.data_cpp()[(i + offs) % dim]), eps);
+            ASSERT_NEAR(imag(state.data_cpp()[i]),
+                imag(state_ref.data_cpp()[(i + offs) % dim]), eps);
+        }
+    }
+}
+
 #if 0  // need update_quantum_seed with seed API or singletonize Random Class
 TEST(GateTest_multicpu, MeasurementGate) {
     UINT n = 8;

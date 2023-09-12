@@ -353,7 +353,18 @@ public:
     /**
      * \~japanese-en X-rotation gateを追加する。
      *
-     * ゲートの表記は \f$ R_X(\theta) = \exp(i\theta X) \f$になっている。
+     * ゲートの表記は
+     *
+     * @f[
+     * R_X(\theta) = \exp(i\frac{\theta}{2} X) =
+     *     \begin{pmatrix}
+     *     \cos(\frac{\theta}{2})  & i\sin(\frac{\theta}{2}) \\
+     *     i\sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
+     *     \end{pmatrix}
+     * @f]
+     *
+     * である。
+     *
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] angle 回転角\f$\theta\f$
      */
@@ -362,7 +373,18 @@ public:
     /**
      * \~japanese-en Y-rotation gateを追加する。
      *
-     * ゲートの表記は \f$ R_Y(\theta) = \exp(i\theta Y) \f$になっている。
+     * ゲートの表記は
+     *
+     * @f[
+     * R_Y(\theta) = \exp(i\frac{\theta}{2} Y) =
+     *     \begin{pmatrix}
+     *     \cos(\frac{\theta}{2})  & \sin(\frac{\theta}{2}) \\
+     *     -\sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
+     *     \end{pmatrix}
+     * @f]
+     *
+     * である。
+     *
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] angle 回転角\f$\theta\f$
      */
@@ -371,7 +393,18 @@ public:
     /**
      * \~japanese-en Z-rotation gateを追加する。
      *
-     * ゲートの表記は \f$ R_Z(\theta) = \exp(i\theta Z) \f$になっている。
+     * ゲートの表記は
+     *
+     * @f[
+     * R_Z(\theta) = \exp(i\frac{\theta}{2} Z) =
+     *     \begin{pmatrix}
+     *     e^{i\frac{\theta}{2}} & 0 \\
+     *     0 & e^{-i\frac{\theta}{2}}
+     *     \end{pmatrix}
+     * @f]
+     *
+     * である。
+     *
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] angle 回転角\f$\theta\f$
      */
@@ -380,7 +413,17 @@ public:
     /**
      * \~japanese-en X-rotation gateを追加する。
      *
-     * ゲートの表記は \f$ R_X(\theta) = \exp(i\theta X) \f$になっている。
+     * ゲートの表記は
+     *
+     * @f[
+     * R_X(\theta) = \exp(i\frac{\theta}{2} X) =
+     *     \begin{pmatrix}
+     *     \cos(\frac{\theta}{2})  & i\sin(\frac{\theta}{2}) \\
+     *     i\sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
+     *     \end{pmatrix}
+     * @f]
+     *
+     * である。
      * 一般的な表記に対して逆向き,qulacsのRXと同じ向きである。
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] angle 回転角\f$\theta\f$
@@ -390,7 +433,17 @@ public:
     /**
      * \~japanese-en Y-rotation gateを追加する。
      *
-     * ゲートの表記は \f$ R_Y(\theta) = \exp(i\theta Y) \f$になっている。
+     * ゲートの表記は
+     *
+     * @f[
+     * R_Y(\theta) = \exp(i\frac{\theta}{2} Y) =
+     *     \begin{pmatrix}
+     *     \cos(\frac{\theta}{2})  & \sin(\frac{\theta}{2}) \\
+     *     -\sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
+     *     \end{pmatrix}
+     * @f]
+     *
+     * である。
      * 一般的な表記に対して逆向き,qulacsのRYと同じ向きである。
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] angle 回転角\f$\theta\f$
@@ -400,7 +453,17 @@ public:
     /**
      * \~japanese-en Z-rotation gateを追加する。
      *
-     * ゲートの表記は \f$ R_Z(\theta) = \exp(i\theta Z) \f$になっている。
+     * ゲートの表記は
+     *
+     * @f[
+     * R_Z(\theta) = \exp(i\frac{\theta}{2} Z) =
+     *     \begin{pmatrix}
+     *     e^{i\frac{\theta}{2}} & 0 \\
+     *     0 & e^{-i\frac{\theta}{2}}
+     *     \end{pmatrix}
+     * @f]
+     *
+     * である。
      * 一般的な表記に対して逆向き,qulacsのRZと同じ向きである。
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] angle 回転角\f$\theta\f$
@@ -410,7 +473,17 @@ public:
     /**
      * \~japanese-en X-rotation gateを追加する。
      *
-     * ゲートの表記は \f$ R_X(\theta) = \exp(-i\theta X) \f$になっている。
+     * ゲートの表記は
+     *
+     * @f[
+     * RotX(\theta) = \exp(-i\frac{\theta}{2} X) =
+     *     \begin{pmatrix}
+     *     \cos(\frac{\theta}{2})  & -i\sin(\frac{\theta}{2}) \\
+     *     -i\sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
+     *     \end{pmatrix}
+     * @f]
+     *
+     * である。
      * 一般的な表記と同じ向き,qulacsのRXに対して逆向きである。
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] angle 回転角\f$\theta\f$
@@ -420,7 +493,17 @@ public:
     /**
      * \~japanese-en Y-rotation gateを追加する。
      *
-     * ゲートの表記は \f$ R_Y(\theta) = \exp(-i\theta Y) \f$になっている。
+     * ゲートの表記は
+     *
+     * @f[
+     * RotY(\theta) = \exp(-i\frac{\theta}{2} Y) =
+     *     \begin{pmatrix}
+     *     \cos(\frac{\theta}{2})  & -\sin(\frac{\theta}{2}) \\
+     *     \sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
+     *     \end{pmatrix}
+     * @f]
+     *
+     * である。
      * 一般的な表記と同じ向き,qulacsのRYに対して逆向きである。
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] angle 回転角\f$\theta\f$
@@ -430,7 +513,18 @@ public:
     /**
      * \~japanese-en Z-rotation gateを追加する。
      *
-     * ゲートの表記は \f$ R_Z(\theta) = \exp(-i\theta Z) \f$になっている。
+     * ゲートの表記は
+     *
+     * @f[
+     * RotZ(\theta) = \exp(-i\frac{\theta}{2} Z) =
+     *     \begin{pmatrix}
+     *     e^{-i\frac{\theta}{2}} & 0 \\
+     *     0 & e^{i\frac{\theta}{2}}
+     *     \end{pmatrix}
+     * @f]
+     *
+     * である。
+     *
      * 一般的な表記と同じ向き,qulacsのRZに対して逆向きである。
      * @param[in] target_index 作用するtarget qubitの添え字
      * @param[in] angle 回転角\f$\theta\f$

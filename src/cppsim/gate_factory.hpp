@@ -217,6 +217,16 @@ DllExport QuantumGateMatrix* U3(
 /**
  * \~japanese-en \f$X\f$回転ゲートを作成する。
  *
+ * @par Matrix Representation
+ *
+ * @f[
+ * R_X(\theta) = \exp(i\frac{\theta}{2} X) =
+ *     \begin{pmatrix}
+ *     \cos(\frac{\theta}{2})  & i\sin(\frac{\theta}{2}) \\
+ *     i\sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
+ *     \end{pmatrix}
+ * @f]
+ *
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @param[in] angle 回転角
  * @return 作成されたゲートのインスタンス
@@ -226,6 +236,16 @@ DllExport ClsOneQubitRotationGate* RX(UINT qubit_index, double angle);
 /**
  * \~japanese-en \f$Y\f$回転ゲートを作成する。
  *
+ * @par Matrix Representation
+ *
+ * @f[
+ * R_Y(\theta) = \exp(i\frac{\theta}{2} Y) =
+ *     \begin{pmatrix}
+ *     \cos(\frac{\theta}{2})  & \sin(\frac{\theta}{2}) \\
+ *     -\sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
+ *     \end{pmatrix}
+ * @f]
+ *
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @param[in] angle 回転角
  * @return 作成されたゲートのインスタンス
@@ -234,6 +254,16 @@ DllExport ClsOneQubitRotationGate* RY(UINT qubit_index, double angle);
 
 /**
  * \~japanese-en \f$Z\f$回転ゲートを作成する。
+ *
+ * @par Matrix Representation
+ *
+ * @f[
+ * R_Z(\theta) = \exp(i\frac{\theta}{2} Z) =
+ *     \begin{pmatrix}
+ *     e^{i\frac{\theta}{2}} & 0 \\
+ *     0 & e^{-i\frac{\theta}{2}}
+ *     \end{pmatrix}
+ * @f]
  *
  * @param[in] qubit_index ターゲットとなる量子ビットの添え字
  * @param[in] angle 回転角
