@@ -84,51 +84,78 @@ void QuantumGateDiagonalMatrix::update_quantum_state(QuantumStateBase* state) {
         control_value.push_back(val.control_value());
     }
 
-    if (state->is_state_vector()) {
+    // diagonal matrix gate for Dense Matrix type simulation
+    if (!state->is_state_vector()) {
+        throw NotImplementedException(
+            "QuantumGateDiagonalMatrix::update_quantum_state for density "
+            "matrix is not implemented");
+        return;
+    }
+
+    // diagonal matrix gate for State Vector type simulation
+    // no control qubit
+    if (control_index.size() == 0) {
+        // single target qubit
+        if (target_index.size() == 1) {
 #ifdef _USE_GPU
-        if (state->get_device_name() == "gpu") {
-            throw NotImplementedException(
-                "Diagonal matrix gate is not supported on GPU");
-        } else {
-            if (control_index.size() == 0) {
-                if (target_index.size() == 1) {
-                    single_qubit_diagonal_matrix_gate(
-                        target_index[0], diagonal_ptr, state->data_c(), dim);
-                } else {
-                    multi_qubit_diagonal_matrix_gate(target_index.data(),
-                        (UINT)(target_index.size()), diagonal_ptr,
-                        state->data_c(), dim);
-                }
-            } else {
-                multi_qubit_control_multi_qubit_diagonal_matrix_gate(
-                    control_index.data(), control_value.data(),
-                    (UINT)(control_index.size()), target_index.data(),
-                    (UINT)(target_index.size()), diagonal_ptr, state->data_c(),
-                    dim);
-            }
-        }
-#else
-        if (control_index.size() == 0) {
-            if (target_index.size() == 1) {
+            if (state->get_device_name() == "gpu") {
+                throw NotImplementedException(
+                    "Diagonal matrix gate is not supported on GPU");
+            } else
+#endif
+#ifdef _USE_MPI
+                if (state->outer_qc > 0) {
+                single_qubit_diagonal_matrix_gate_mpi(target_index[0],
+                    diagonal_ptr, state->data_c(), state->dim, state->inner_qc);
+            } else
+#endif
+            {
                 single_qubit_diagonal_matrix_gate(
                     target_index[0], diagonal_ptr, state->data_c(), dim);
-            } else {
+            }
+        } else {
+            // multiple target qubits
+#ifdef _USE_GPU
+            if (state->get_device_name() == "gpu") {
+                throw NotImplementedException(
+                    "Diagonal matrix gate is not supported on GPU");
+            } else
+#endif
+#ifdef _USE_MPI
+                if (state->outer_qc > 0) {
+                throw NotImplementedException(
+                    "Diagonal matrix gate with multi-target qubits "
+                    "is not implemented for MPI");
+            } else
+#endif
+            {
                 multi_qubit_diagonal_matrix_gate(target_index.data(),
                     (UINT)(target_index.size()), diagonal_ptr, state->data_c(),
                     dim);
             }
-        } else {
+        }
+    } else {
+        // with control qubit
+#ifdef _USE_GPU
+        if (state->get_device_name() == "gpu") {
+            throw NotImplementedException(
+                "Diagonal matrix gate is not supported on GPU");
+        } else
+#endif
+#ifdef _USE_MPI
+            if (state->outer_qc > 0) {
+            throw NotImplementedException(
+                "Diagonal matrix gate with control qubits "
+                "is not implemented for MPI");
+        } else
+#endif
+        {
             multi_qubit_control_multi_qubit_diagonal_matrix_gate(
                 control_index.data(), control_value.data(),
                 (UINT)(control_index.size()), target_index.data(),
                 (UINT)(target_index.size()), diagonal_ptr, state->data_c(),
                 dim);
         }
-#endif
-    } else {
-        throw NotImplementedException(
-            "QuantumGateDiagonalMatrix::update_quantum_state for density "
-            "matrix is not implemented");
     }
 }
 
