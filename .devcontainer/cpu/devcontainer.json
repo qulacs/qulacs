@@ -33,7 +33,7 @@
 				// CAVEAT: you need to restart after building qulacs to take effect.
 				"C_Cpp.default.includePath": [
 					"include",
-					"/usr/local/include/python3.9"
+					"/usr/local/include/python3.11"
 				]
 			},
 			// Add the IDs of extensions you want installed when the container is created.
