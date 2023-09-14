@@ -73,15 +73,6 @@ The number of threads used in Qulacs installed with default options can be contr
 While `OMP_NUM_THREADS` affects the parallelization of other libraries, `QULACS_NUM_THREADS` controls only the parallelization of QULACS.
 Or, if you want to force only Qulacs to use a single thread, You can install single-thread Qulacs with the above command.
 
-On versions of Ubuntu including 22.04 LTS, this installation process might fail due to Python and operating system incompatibilities.
-Assuming your Python 3 interpreter is `python3` command, you can build a wheel compatible with the local system as follows, (for GPU):
-
-```
-USE_GPU=Yes python3 -m build
-```
-
-(You might need to install `build` with `pip`, beforehand.) Install the wheel file produced by this command, with `pip install`.
-
 For development purpose, optional dependencies can be installed as follows.
 ```
 # Install development tools
