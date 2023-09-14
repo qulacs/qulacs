@@ -1,5 +1,5 @@
 [build-system]
-requires = ["wheel", "setuptools", "setuptools_scm[toml]"]
+requires = ["wheel", "setuptools", "setuptools_scm[toml]", "cmake"]
 build-backend = "setuptools.build_meta"
 
 [project]
