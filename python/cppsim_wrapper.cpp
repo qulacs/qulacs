@@ -40,9 +40,13 @@ PYBIND11_MODULE(qulacs_core, m) {
     m.doc() = "cppsim python interface";
 
     py::class_<PauliOperator>(m, "PauliOperator")
-        .def(py::init<std::complex<double>>(), "Constructor", py::arg("coef"))
+        .def(py::init<std::complex<double>>(), "Constructor",
+            py::arg("coef") = 1.)
         .def(py::init<std::string, std::complex<double>>(), "Constructor",
-            py::arg("pauli_string"), py::arg("coef"))
+            py::arg("pauli_string"), py::arg("coef") = 1.)
+        .def(py::init<std::vector<UINT>, std::string, std::complex<double>>(),
+            "Constructor", py::arg("target_qubit_index_list"),
+            py::arg("pauli_operator_type_list"), py::arg("coef") = 1.)
         .def("get_index_list", &PauliOperator::get_index_list,
             "Get list of target qubit indices")
         .def("get_pauli_id_list", &PauliOperator::get_pauli_id_list,
