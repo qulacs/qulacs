@@ -1,3 +1,4 @@
+#define PYBIND11_DETAILED_ERROR_MESSAGES
 #include <pybind11/complex.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -41,12 +42,13 @@ PYBIND11_MODULE(qulacs_core, m) {
 
     py::class_<PauliOperator>(m, "PauliOperator")
         .def(py::init<std::complex<double>>(), "Constructor",
-            py::arg("coef") = 1.)
+            py::arg("coef") = 1. + 0.i)
         .def(py::init<std::string, std::complex<double>>(), "Constructor",
-            py::arg("pauli_string"), py::arg("coef") = 1.)
+            py::arg("pauli_string"),
+            py::arg("coef") = std::complex<double>(1., 0.))
         .def(py::init<std::vector<UINT>, std::string, std::complex<double>>(),
             "Constructor", py::arg("target_qubit_index_list"),
-            py::arg("pauli_operator_type_list"), py::arg("coef") = 1.)
+            py::arg("pauli_operator_type_list"), py::arg("coef") = 1. + 0.i)
         .def("get_index_list", &PauliOperator::get_index_list,
             "Get list of target qubit indices")
         .def("get_pauli_id_list", &PauliOperator::get_pauli_id_list,

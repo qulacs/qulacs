@@ -457,19 +457,19 @@ class Observable(GeneralQuantumOperator):
         Get transition amplitude
         """
     def solve_ground_state_eigenvalue_by_arnoldi_method(
-        self, state: QuantumStateBase, iter_count: int, mu: complex = ...
+        self, state: QuantumStateBase, iter_count: int, mu: complex = 0.0
     ) -> complex:
         """
         Compute ground state eigenvalue by arnoldi method
         """
     def solve_ground_state_eigenvalue_by_lanczos_method(
-        self, state: QuantumStateBase, iter_count: int, mu: complex = ...
+        self, state: QuantumStateBase, iter_count: int, mu: complex = 0.0
     ) -> complex:
         """
         Compute ground state eigenvalue by lanczos method
         """
     def solve_ground_state_eigenvalue_by_power_method(
-        self, state: QuantumStateBase, iter_count: int, mu: complex = ...
+        self, state: QuantumStateBase, iter_count: int, mu: complex = 0.0
     ) -> complex:
         """
         Compute ground state eigenvalue by power method
@@ -567,12 +567,12 @@ class PauliOperator:
     def __IMUL__(self, arg0: complex) -> PauliOperator: ...
     def __imul__(self, arg0: PauliOperator) -> PauliOperator: ...
     @typing.overload
-    def __init__(self, coef: complex = ...) -> None:
+    def __init__(self, coef: complex = (1 + 0j)) -> None:
         """
         Constructor
         """
     @typing.overload
-    def __init__(self, pauli_string: str, coef: complex = ...) -> None:
+    def __init__(self, pauli_string: str, coef: complex = (1 + 0j)) -> None:
         """
         Constructor
         """
@@ -581,7 +581,7 @@ class PauliOperator:
         self,
         target_qubit_index_list: list[int],
         pauli_operator_type_list: str,
-        coef: complex = ...,
+        coef: complex = (1 + 0j),
     ) -> None:
         """
         Constructor
