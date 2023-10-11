@@ -54,6 +54,9 @@ Install with default options (Multi-thread without GPU):
 pip install .
 ```
 
+Your build may fail with python's `cmake` package installed. Adding `--no-build-isolation` option will help.
+
+
 If AVX2 instructions are not supported, SIMD optimization is automatically disabled.
 
 
