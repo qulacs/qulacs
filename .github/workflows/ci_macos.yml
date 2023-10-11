@@ -20,11 +20,8 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10"]
-        compiler: ["gcc", "clang"]
+        compiler: ["clang"]
         include:
-          - compiler: "gcc"
-            c_compiler: "/usr/local/opt/ccache/libexec/gcc-12"
-            cxx_compiler: "/usr/local/opt/ccache/libexec/g++-12"
           - compiler: "clang"
             c_compiler: "/usr/local/opt/ccache/libexec/clang"
             cxx_compiler: "/usr/local/opt/ccache/libexec/clang++"
@@ -60,7 +57,7 @@ jobs:
           brew link boost
 
       - name: Install qulacs for macOS
-        run: USE_TEST=Yes ./script/build_gcc.sh
+        run: USE_TEST=Yes ./script/build_clang.sh
 
       - name: Install qulacs Python module
         run: pip install .[ci]
