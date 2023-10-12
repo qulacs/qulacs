@@ -19,6 +19,7 @@ set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)
 set(DEFAULT_USE_TEST No)
 set(DEFAULT_COVERAGE No)
+
 if(("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "aarch64") OR
 		("${CMAKE_C_COMPILER}" MATCHES "/usr/bin/aarch64-linux-gnu-gcc*")) # for cross-compile
 	message(STATUS "SIMD SUPPORT: Yes")
@@ -56,7 +57,6 @@ elseif (${CMAKE_CXX_COMPILER_ID} STREQUAL "MSVC")
 		message(FATAL_ERROR "MSVC >= 2015 is required.")
 	endif()
 elseif ((${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang") OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang"))
-	set(DEFAULT_USE_OMP No)
 	if(${COVERAGE})
 		message(FATAL_ERROR "Coverage is not supported for clang. Do not set COVERAGE=Yes on this environment.")
 	endif()
@@ -268,9 +268,20 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 
 	# Enable openmp
 	if(USE_OMP)
- 		find_package(OpenMP QUIET REQUIRED)
-   		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
-     		set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+		if (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang")
+			# Get the path of libomp; Bash output cannot be embedded in CMake variables directly.
+			execute_process(
+				COMMAND bash -c "brew --prefix libomp"
+				OUTPUT_VARIABLE LIBOMP_DIR
+				OUTPUT_STRIP_TRAILING_WHITESPACE
+			)
+			set(LIBOMP_OPTS "-Xpreprocessor -fopenmp -I${LIBOMP_DIR}/include -L${LIBOMP_DIR}/lib -lomp")
+			set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} ${LIBOMP_OPTS}")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LIBOMP_OPTS}")
+		else()
+			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
+			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+		endif()
 	endif()
 
 	# Enable openmpi
