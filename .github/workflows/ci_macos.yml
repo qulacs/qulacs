@@ -20,11 +20,8 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10"]
-        compiler: ["gcc", "clang"]
+        compiler: ["clang"]
         include:
-          - compiler: "gcc"
-            c_compiler: "/usr/local/opt/ccache/libexec/gcc-11"
-            cxx_compiler: "/usr/local/opt/ccache/libexec/g++-11"
           - compiler: "clang"
             c_compiler: "/usr/local/opt/ccache/libexec/clang"
             cxx_compiler: "/usr/local/opt/ccache/libexec/clang++"
@@ -53,14 +50,14 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
 
-      - name: Install Boost for macOS
+      - name: Install dependencies for macOS
         run: |
           brew upgrade
-          brew install boost
+          brew install boost libomp
           brew link boost
 
       - name: Install qulacs for macOS
-        run: USE_TEST=Yes ./script/build_gcc.sh
+        run: USE_TEST=Yes ./script/build_clang.sh
 
       - name: Install qulacs Python module
         run: pip install .[ci]
