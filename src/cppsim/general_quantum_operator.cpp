@@ -485,11 +485,11 @@ SparseComplexMatrixRowMajor GeneralQuantumOperator::get_matrix() const {
     SparseComplexMatrixRowMajor hamiltonian_matrix(
         1 << n_qubits, 1 << n_qubits);
     hamiltonian_matrix.setZero();
-#ifdef _OPENMP
-#pragma omp declare reduction(+ : SparseComplexMatrixRowMajor : omp_out += \
-                                      omp_in) initializer(omp_priv = omp_orig)
-#pragma omp parallel for reduction(+ : hamiltonian_matrix)
-#endif
+// #ifdef _OPENMP
+// #pragma omp declare reduction(+ : SparseComplexMatrixRowMajor : omp_out += \
+//                                       omp_in) initializer(omp_priv = omp_orig)
+// #pragma omp parallel for reduction(+ : hamiltonian_matrix)
+// #endif
     for (int i = 0; i < n_terms; i++) {
         auto const pauli = this->get_term(i);
         auto const pauli_id_list = pauli->get_pauli_id_list();
