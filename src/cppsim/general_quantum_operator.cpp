@@ -485,11 +485,9 @@ SparseComplexMatrixRowMajor GeneralQuantumOperator::get_matrix() const {
     SparseComplexMatrixRowMajor hamiltonian_matrix(
         1 << n_qubits, 1 << n_qubits);
     hamiltonian_matrix.setZero();
-// #ifdef _OPENMP
-// #pragma omp declare reduction(+ : SparseComplexMatrixRowMajor : omp_out += \
-//                                       omp_in) initializer(omp_priv = omp_orig)
-// #pragma omp parallel for reduction(+ : hamiltonian_matrix)
-// #endif
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
     for (int i = 0; i < n_terms; i++) {
         auto const pauli = this->get_term(i);
         auto const pauli_id_list = pauli->get_pauli_id_list();
@@ -504,9 +502,15 @@ SparseComplexMatrixRowMajor GeneralQuantumOperator::get_matrix() const {
         }
         std::reverse(init_hamiltonian_pauli_matrix_list.begin(),
             init_hamiltonian_pauli_matrix_list.end());
-        hamiltonian_matrix +=
-            pauli->get_coef() *
-            _tensor_product(init_hamiltonian_pauli_matrix_list);
+        SparseComplexMatrixRowMajor tmp(1 << n_qubits, 1 << n_qubits);
+        tmp = pauli->get_coef() *
+                _tensor_product(init_hamiltonian_pauli_matrix_list);
+#ifdef _OPENMP
+#pragma omp critical
+#endif
+        {
+            hamiltonian_matrix += tmp;
+        }
     }
     hamiltonian_matrix.prune(CPPCTYPE(0, 0));
     return hamiltonian_matrix;
