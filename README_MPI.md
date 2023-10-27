@@ -67,7 +67,7 @@
   - state.get_vector()
     - In the case state vector distributed in multi nodes, returns the elements that each rank has.
 
-  - Automatic FusedSWAP gate insertion of QuantumCircuitOptimizer  // not supported yet
+  - Automatic FusedSWAP gate insertion of QuantumCircuitOptimizer
     - optimize(circuit, block_size, swap_level=0)
       - swap_level = 0
         - No SWAP/FusedSWAP gate insertion
@@ -291,13 +291,13 @@ int main(int argc, char *argv[]) {
   - GeneralQuantumOperator (w/o get_transition_amplitude)
   - Observable (w/o get_transition_amplitude)
   - PauliOperator (w/o get_transition_amplitude)
+  - QuantumCircuitOptimizer
+      - optimize
+      - optimize_light
 
 ## Additional info
 
 - Might be supported in future (T.B.D.)
-  - QuantumCircuitOptimizer
-      - optimize
-      - optimize_light
   - ParametricQuantumCircuit
   - gate
       - Measurement

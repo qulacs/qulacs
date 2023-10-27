@@ -457,19 +457,19 @@ class Observable(GeneralQuantumOperator):
         Get transition amplitude
         """
     def solve_ground_state_eigenvalue_by_arnoldi_method(
-        self, state: QuantumStateBase, iter_count: int, mu: complex = ...
+        self, state: QuantumStateBase, iter_count: int, mu: complex = 0.0
     ) -> complex:
         """
         Compute ground state eigenvalue by arnoldi method
         """
     def solve_ground_state_eigenvalue_by_lanczos_method(
-        self, state: QuantumStateBase, iter_count: int, mu: complex = ...
+        self, state: QuantumStateBase, iter_count: int, mu: complex = 0.0
     ) -> complex:
         """
         Compute ground state eigenvalue by lanczos method
         """
     def solve_ground_state_eigenvalue_by_power_method(
-        self, state: QuantumStateBase, iter_count: int, mu: complex = ...
+        self, state: QuantumStateBase, iter_count: int, mu: complex = 0.0
     ) -> complex:
         """
         Compute ground state eigenvalue by power method

@@ -1525,12 +1525,13 @@ Matrix Representation
         "from json string", py::return_value_policy::take_ownership);
 
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
-        .def(py::init<>(), "Constructor")
+        .def(py::init<UINT>(), "Constructor", py::arg("mpi_size") = 0)
         .def("optimize", &QuantumCircuitOptimizer::optimize,
             "Optimize quantum circuit", py::arg("circuit"),
-            py::arg("block_size"))
+            py::arg("block_size"), py::arg("swap_level") = 0)
         .def("optimize_light", &QuantumCircuitOptimizer::optimize_light,
-            "Optimize quantum circuit with light method", py::arg("circuit"))
+            "Optimize quantum circuit with light method", py::arg("circuit"),
+            py::arg("swap_level") = 0)
         .def("merge_all", &QuantumCircuitOptimizer::merge_all,
             py::return_value_policy::take_ownership, py::arg("circuit"));
 
