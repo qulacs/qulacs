@@ -62,7 +62,7 @@ public:
      *
      * @param[in,out] g 書き換える量子ゲート
      */
-    void rewrite_gate_qubit_indexes(QuantumGateBase* g);
+    void rewrite_gate_qubit_indexes(QuantumGateBase* g) const;
 
     /**
      * \~japanese-en

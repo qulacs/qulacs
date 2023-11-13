@@ -457,7 +457,7 @@ bool QuantumCircuitOptimizer::can_merge_with_swap_insertion(
 }
 
 bool QuantumCircuitOptimizer::needs_communication(
-    const UINT gate_index, QubitTable& qt) {
+    const UINT gate_index, const QubitTable& qt) {
     auto gate = circuit->gate_list[gate_index];
     auto logical_qubits = get_qubits_needing_communication(gate);
     return std::any_of(
@@ -468,8 +468,9 @@ bool QuantumCircuitOptimizer::needs_communication(
 }
 
 UINT QuantumCircuitOptimizer::move_gates_without_communication(
-    const UINT gate_idx, QubitTable& qt,
-    std::multimap<const QuantumGateBase*, const QuantumGateBase*>& dep_map,
+    const UINT gate_idx, const QubitTable& qt,
+    const std::multimap<const QuantumGateBase*, const QuantumGateBase*>&
+        dep_map,
     std::unordered_set<const QuantumGateBase*>& processed_gates) {
     const UINT num_gates = circuit->gate_list.size();
     UINT moved_gates = 0;
@@ -559,7 +560,7 @@ UINT QuantumCircuitOptimizer::move_matching_qubits_to_local_upper(
 }
 
 UINT QuantumCircuitOptimizer::rearrange_qubits(const UINT gate_idx,
-    std::unordered_set<UINT> next_local_qubit, QubitTable& qt) {
+    const std::unordered_set<UINT>& next_local_qubit, QubitTable& qt) {
     UINT num_inserted_gates = 0;
 
     std::unordered_set<UINT> cur_local_qubits(
@@ -614,7 +615,8 @@ UINT QuantumCircuitOptimizer::rearrange_qubits(const UINT gate_idx,
     // TODO: if fast qubit swapping between global qubits is implemented,
     //       global qubits should be rearranged to be contiguous.
     UINT total_swap_width = import_qubits.size();
-    int extra_local_qc = exportable_qubits.size() - import_qubits.size();
+    int extra_local_qc =
+        (int)exportable_qubits.size() - (int)import_qubits.size();
 
     for (UINT i = 0; i < swap_global_idx_list.size(); i++) {
         for (UINT j = i + 1; j < swap_global_idx_list.size();) {

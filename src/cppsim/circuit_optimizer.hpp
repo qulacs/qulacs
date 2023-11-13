@@ -37,15 +37,17 @@ private:
     void set_qubit_count(void);
     bool can_merge_with_swap_insertion(
         UINT gate_idx1, UINT gate_idx2, UINT swap_level);
-    bool needs_communication(const UINT gate_index, QubitTable& qt);
-    UINT move_gates_without_communication(const UINT gate_idx, QubitTable& qt,
-        std::multimap<const QuantumGateBase*, const QuantumGateBase*>& dep_map,
+    bool needs_communication(const UINT gate_index, const QubitTable& qt);
+    UINT move_gates_without_communication(const UINT gate_idx,
+        const QubitTable& qt,
+        const std::multimap<const QuantumGateBase*, const QuantumGateBase*>&
+            dep_map,
         std::unordered_set<const QuantumGateBase*>& processed_gates);
     std::unordered_set<UINT> find_next_local_qubits(const UINT start_gate_idx);
     UINT move_matching_qubits_to_local_upper(UINT lowest_idx, QubitTable& qt,
         std::function<bool(UINT)> fn, UINT gate_insertion_pos);
     UINT rearrange_qubits(const UINT gate_idx,
-        std::unordered_set<UINT> next_local_qubits, QubitTable& qt);
+        const std::unordered_set<UINT>& next_local_qubits, QubitTable& qt);
     void revert_qubit_order(QubitTable& qt);
     void insert_swap_gates(const UINT level);
 
