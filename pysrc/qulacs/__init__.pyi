@@ -311,7 +311,7 @@ class GeneralQuantumOperator:
         """
         Get expectation value
         """
-    def get_matrix(self) -> scipy.sparse.csr_matrix[numpy.complex128]:
+    def get_matrix(self) -> scipy.sparse.csr_matrix:
         """
         Get the Hermitian matrix representation of the observable
         """
