@@ -221,6 +221,25 @@ void QuantumCircuit::remove_gate(UINT index) {
     this->_gate_list.erase(this->_gate_list.begin() + index);
 }
 
+void QuantumCircuit::move_gate(UINT from_index, UINT to_index) {
+    if (from_index >= this->_gate_list.size() ||
+        to_index >= this->_gate_list.size()) {
+        throw GateIndexOutOfRangeException(
+            "Error: QuantumCircuit::move_gate(UINT, UINT) : "
+            "index must be smaller than gate_count");
+    }
+    if (from_index < to_index) {
+        std::rotate(this->_gate_list.begin() + from_index,
+            this->_gate_list.begin() + from_index + 1,
+            this->_gate_list.begin() + to_index + 1);
+    } else {
+        std::rotate(this->_gate_list.rbegin() +
+                        (this->_gate_list.size() - from_index - 1),
+            this->_gate_list.rbegin() + (this->_gate_list.size() - from_index),
+            this->_gate_list.rbegin() + (this->_gate_list.size() - to_index));
+    }
+}
+
 QuantumCircuit::~QuantumCircuit() {
     for (auto& gate : this->_gate_list) {
         delete gate;
