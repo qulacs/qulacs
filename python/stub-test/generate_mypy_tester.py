@@ -20,6 +20,13 @@ if __name__ == "__main__":
             if (
                 name == "qulacs.Observable.get_matrix"
                 or name == "qulacs.GeneralQuantumOperator.get_matrix"
+                or name == "qulacs_core.DensityMatrix.get_matrix"
+                or name == "qulacs_core.DensityMatrix.load"
+                or name == "qulacs_core.gate.DenseMatrix"
+                or name == "qulacs_core.gate.DiagonalMatrix"
+                or name == "qulacs_core.QuantumCircuit.add_dense_matrix_gate"
+                or name == "qulacs_core.QuantumGateBase.get_matrix"
+                or name == "qulacs_core.QuantumState.get_vector"
             ):
                 return
 
