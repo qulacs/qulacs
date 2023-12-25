@@ -366,7 +366,7 @@ public:
         std::stringstream os;
         ComplexVector eigen_state(this->dim);
         auto data = this->data_cpp();
-        for (UINT i = 0; i < this->dim; ++i) eigen_state[i] = data[i];
+        for (ITYPE i = 0; i < this->dim; ++i) eigen_state[i] = data[i];
 
         os << " *** Quantum State ***" << std::endl;
         UINT myrank = 0;
@@ -911,12 +911,12 @@ public:
         double sum = 0.;
         auto ptr = this->data_cpp();
         stacked_prob.push_back(0.);
-        for (UINT i = 0; i < this->dim; ++i) {
+        for (ITYPE i = 0; i < this->dim; ++i) {
             sum += norm(ptr[i]);
             stacked_prob.push_back(sum);
         }
 
-        for (UINT count = 0; count < sampling_count; ++count) {
+        for (ITYPE count = 0; count < sampling_count; ++count) {
             double r = random.uniform();
             auto ite =
                 std::lower_bound(stacked_prob.begin(), stacked_prob.end(), r);
@@ -944,7 +944,7 @@ public:
             result.resize(sampling_count);
 
             stacked_prob[0] = 0.;
-            for (UINT i = 0; i < this->dim; ++i) {
+            for (ITYPE i = 0; i < this->dim; ++i) {
                 sum += norm(ptr[i]);
                 stacked_prob[i + 1] = sum;
             }
