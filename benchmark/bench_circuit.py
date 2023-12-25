@@ -25,8 +25,13 @@ def get_option():
         default=-1,
         help="Enable QuantumCircuitOptimizer: 99 is to use optmize_light(), 0-6 is to use optimize(). (default no-use)",
     )
-    # argparser.add_argument('-f', '--fused', type = int,
-    #        default = -1, help = 'Enable QuantumCircuitOptimizer: 0 is not to use, 1-2 is to use Fused-swap opt')
+    argparser.add_argument(
+        "-f",
+        "--fused",
+        type=int,
+        default=-1,
+        help="Enable QuantumCircuitOptimizer: 0 is not to use, 1-2 is to use Fused-swap opt",
+    )
     argparser.add_argument(
         "-v",
         "--verbose",
@@ -100,8 +105,7 @@ if __name__ == "__main__":
     circuit = get_circuit(
         args.circuit,
         nqubits=args.nqubits,
-        global_nqubits=num_global_qubits,
-        # global_nqubits = 0 if args.fused >= 0 else num_global_qubits,
+        global_nqubits=0 if args.fused >= 0 else num_global_qubits,
         depth=args.depth,
         verbose=(args.verbose and (mpirank == 0)),
         random_gen=rng,
@@ -110,24 +114,22 @@ if __name__ == "__main__":
     if args.check:
         circuit_ref = circuit.copy()
     if args.opt == 99:
-        # if args.fused == -1:
-        QCO().optimize_light(circuit)
-    # else:
-    #    QCO().optimize_light(circuit, args.fused)
+        if args.fused == -1:
+            QCO().optimize_light(circuit)
+        else:
+            QCO().optimize_light(circuit, args.fused)
     elif args.opt >= 0:
-        # if args.fused == -1:
-        QCO().optimize(circuit, args.opt)
-    # else:
-    #    QCO().optimize(circuit, args.opt, args.fused)
+        if args.fused == -1:
+            QCO().optimize(circuit, args.opt)
+        else:
+            QCO().optimize(circuit, args.opt, args.fused)
 
     if mpirank == 0:
         print(
             "# A quantum circuit was created. ",
             args.circuit,
             f"nqubits= {args.nqubits} depth= {args.depth}",
-            #        "optimize =", (args.opt, args.fused), elapsed())
-            "optimize=",
-            args.opt,
+            " optimize= {args.opt, args.fused}",
             elapsed(),
         )
         print(circuit)
