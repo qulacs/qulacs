@@ -85,7 +85,7 @@ jobs:
           path: ./wheels/*.whl
 
       - name: Upload wheel data if the Git tag is set
-        run: python -m twine upload wheels/*.whl
+        run: python -m twine upload wheels/*.whl --verbose
         if: ${{ contains(github.ref, '/tags/') }}
         env:
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS }}
