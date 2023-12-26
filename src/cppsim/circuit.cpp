@@ -33,6 +33,12 @@ void QuantumCircuit::update_quantum_state(QuantumStateBase* state) {
     }
 }
 
+void QuantumCircuit::update_quantum_state(QuantumStateBase* state, UINT seed) {
+    Random random;
+    random.set_seed(seed);
+    this->update_quantum_state(state);
+}
+
 void QuantumCircuit::update_quantum_state(
     QuantumStateBase* state, UINT start, UINT end) {
     if (state->qubit_count != this->qubit_count) {
@@ -56,6 +62,13 @@ void QuantumCircuit::update_quantum_state(
     for (UINT cursor = start; cursor < end; ++cursor) {
         this->_gate_list[cursor]->update_quantum_state(state);
     }
+}
+
+void QuantumCircuit::update_quantum_state(
+    QuantumStateBase* state, UINT start, UINT end, UINT seed) {
+    Random random;
+    random.set_seed(seed);
+    this->update_quantum_state(state, start, end);
 }
 
 QuantumCircuit::QuantumCircuit(const QuantumCircuit& obj)
