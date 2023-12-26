@@ -85,7 +85,7 @@ jobs:
           path: ./wheels/*.whl
 
       - name: Upload wheel data if the Git tag is set
-        run: python -m twine upload wheels/*.whl --verbose
+        run: python -m twine upload wheels/*.whl
         if: ${{ contains(github.ref, '/tags/') }}
         env:
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS }}
@@ -123,7 +123,7 @@ jobs:
         run: python -m build --sdist
 
       - name: Upload sdist data if the Git tag is set
-        run: python -m twine upload dist/*.tar.gz --verbose
+        run: python -m twine upload dist/*.tar.gz
         if: ${{ contains(github.ref, '/tags/') }}
         env:
           TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD_QULACS }}
