@@ -1174,18 +1174,15 @@ PYBIND11_MODULE(qulacs_core, m) {
                 &QuantumCircuit::update_quantum_state),
             "Update quantum state", py::arg("state"), py::arg("start"),
             py::arg("end"))
-#if 0  // not supported yet
         .def("update_quantum_state",
             py::overload_cast<QuantumStateBase*, UINT>(
                 &QuantumCircuit::update_quantum_state),
-            "Update quantum state",
-            py::arg("state"), py::arg("seed"))
+            "Update quantum state", py::arg("state"), py::arg("seed"))
         .def("update_quantum_state",
             py::overload_cast<QuantumStateBase*, UINT, UINT, UINT>(
                 &QuantumCircuit::update_quantum_state),
-            "Update quantum state",
-            py::arg("state"), py::arg("start"), py::arg("end"), py::arg("seed"))
-#endif
+            "Update quantum state", py::arg("state"), py::arg("start"),
+            py::arg("end"), py::arg("seed"))
         .def("calculate_depth", &QuantumCircuit::calculate_depth,
             "Calculate depth of circuit")
         .def("to_string", &QuantumCircuit::to_string,
