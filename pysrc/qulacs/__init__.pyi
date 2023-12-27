@@ -981,6 +981,18 @@ class QuantumCircuit:
         """
         Update quantum state
         """
+    @typing.overload
+    def update_quantum_state(self, state: QuantumStateBase, seed: int) -> None:
+        """
+        Update quantum state
+        """
+    @typing.overload
+    def update_quantum_state(
+        self, state: QuantumStateBase, start: int, end: int, seed: int
+    ) -> None:
+        """
+        Update quantum state
+        """
 
 class QuantumCircuitSimulator:
     def __init__(self, circuit: QuantumCircuit, state: QuantumStateBase) -> None:
