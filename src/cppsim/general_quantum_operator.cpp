@@ -486,8 +486,9 @@ SparseComplexMatrixRowMajor GeneralQuantumOperator::get_matrix() const {
         1 << n_qubits, 1 << n_qubits);
     hamiltonian_matrix.setZero();
 #ifdef _OPENMP
-#pragma omp declare reduction(+ : SparseComplexMatrixRowMajor : omp_out += \
-                                      omp_in) initializer(omp_priv = omp_orig)
+#pragma omp declare reduction(                               \
+        + : SparseComplexMatrixRowMajor : omp_out += omp_in) \
+    initializer(omp_priv = SparseComplexMatrixRowMajor(omp_orig))
 #pragma omp parallel for reduction(+ : hamiltonian_matrix)
 #endif
     for (int i = 0; i < n_terms; i++) {

@@ -671,10 +671,11 @@ class QuantumCircuit:
     def add_RX_gate(self, index: int, angle: float) -> None:
         """
         Add Pauli-X rotation gate
+        
         Notes
         -----
         Matrix Representation
-
+        
         .. math::
             R_X(\\theta) = \exp(i\\frac{\\theta}{2} X) =
                 \\begin{pmatrix}
@@ -685,10 +686,11 @@ class QuantumCircuit:
     def add_RY_gate(self, index: int, angle: float) -> None:
         """
         Add Pauli-Y rotation gate
+        
         Notes
         -----
         Matrix Representation
-
+        
         .. math::
             R_Y(\\theta) = \exp(i\\frac{\\theta}{2} Y) =
                 \\begin{pmatrix}
@@ -699,11 +701,11 @@ class QuantumCircuit:
     def add_RZ_gate(self, index: int, angle: float) -> None:
         """
         Add Pauli-Z rotation gate
-
+        
         Notes
         -----
         Matrix Representation
-
+        
         .. math::
             R_Z(\\theta) = \exp(i\\frac{\\theta}{2} Z) =
                 \\begin{pmatrix}
@@ -714,9 +716,11 @@ class QuantumCircuit:
     def add_RotInvX_gate(self, index: int, angle: float) -> None:
         """
         Add Pauli-X rotation gate
+        
         Notes
         -----
         Matrix Representation
+        
         .. math::
             R_X(\\theta) = \exp(i\\frac{\\theta}{2} X) =
                 \\begin{pmatrix}
@@ -727,9 +731,11 @@ class QuantumCircuit:
     def add_RotInvY_gate(self, index: int, angle: float) -> None:
         """
         Add Pauli-Y rotation gate
+        
         Notes
         -----
         Matrix Representation
+        
         .. math::
             R_Y(\\theta) = \exp(i\\frac{\\theta}{2} Y) =
                 \\begin{pmatrix}
@@ -740,11 +746,11 @@ class QuantumCircuit:
     def add_RotInvZ_gate(self, index: int, angle: float) -> None:
         """
         Add Pauli-Z rotation gate
-
+        
         Notes
         -----
         Matrix Representation
-
+        
         .. math::
             R_Z(\\theta) = \exp(i\\frac{\\theta}{2} Z) =
                 \\begin{pmatrix}
@@ -755,9 +761,11 @@ class QuantumCircuit:
     def add_RotX_gate(self, index: int, angle: float) -> None:
         """
         Add Pauli-X rotation gate
+        
         Notes
         -----
         Matrix Representation
+        
         .. math::
             RotX(\\theta) = \exp(-i\\frac{\\theta}{2} X) =
                 \\begin{pmatrix}
@@ -768,9 +776,11 @@ class QuantumCircuit:
     def add_RotY_gate(self, index: int, angle: float) -> None:
         """
         Add Pauli-Y rotation gate
+        
         Notes
         -----
         Matrix Representation
+        
         .. math::
             RotY(\\theta) = \exp(-i\\frac{\\theta}{2} Y) =
                 \\begin{pmatrix}
@@ -781,9 +791,11 @@ class QuantumCircuit:
     def add_RotZ_gate(self, index: int, angle: float) -> None:
         """
         Add Pauli-Z rotation gate
+        
         Notes
         -----
         Matrix Representation
+        
         .. math::
             RotZ(\\theta) = \exp(-i\\frac{\\theta}{2} Z) =
                 \\begin{pmatrix}
