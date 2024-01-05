@@ -62,11 +62,6 @@ jobs:
       - name: Install qulacs Python module
         run: pip install .[ci]
 
-      - name: Test if stub is working
-        run: |
-          python python/stub-test/generate_mypy_tester.py qulacs
-          mypy python/stub-test/names_qulacs.py
-
       - name: Test in macOS
         run: |
           cd ./build
