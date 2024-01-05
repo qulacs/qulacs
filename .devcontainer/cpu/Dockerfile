@@ -24,4 +24,4 @@ RUN apt-get update \
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
 RUN pip install -U pip \
-    && pip install black flake8 openfermion mypy pybind11-stubgen
+    && pip install black isort flake8 openfermion mypy pybind11-stubgen
