@@ -23,7 +23,7 @@ inline void set_vector_from_gpu(
 inline void assert_vector_eq_gpu(std::vector<std::complex<double>>& v1,
     QuantumStateGpu& v2, ITYPE dim, double eps) {
     auto ptr = v2.duplicate_data_cpp();
-    for (UINT i = 0; i < dim; ++i) {
+    for (ITYPE i = 0; i < dim; ++i) {
         ASSERT_NEAR(ptr[i].real(), v1[i].real(), eps);
         ASSERT_NEAR(ptr[i].imag(), v1[i].imag(), eps);
     }
@@ -948,7 +948,7 @@ TEST(StateTest, SetState) {
         QuantumStateGpu state(n, idx);
         const ITYPE dim = 1ULL << n;
         std::vector<std::complex<double>> state_vector(dim);
-        for (UINT i = 0; i < dim; ++i) {
+        for (ITYPE i = 0; i < dim; ++i) {
             double d = (double)i;
             state_vector[i] = d + std::complex<double>(0, 1) * (d + 0.1);
         }
@@ -973,7 +973,7 @@ TEST(StateTest, CopyState) {
         CPPCTYPE* state_cpu_copy = (CPPCTYPE*)malloc(sizeof(CPPCTYPE) * dim);
         get_quantum_state_host(state_gpu, state_cpu_copy, dim, stream_ptr, idx);
 
-        for (UINT i = 0; i < dim; ++i) {
+        for (ITYPE i = 0; i < dim; ++i) {
             ASSERT_NEAR(
                 state.data_cpp()[i].real(), state_cpu_copy[i].real(), eps);
             ASSERT_NEAR(
@@ -1005,7 +1005,7 @@ TEST(StateTest, CopyStateDevice) {
         get_quantum_state_host(
             state2_gpu, state2_cpu_copy, dim, stream_ptr, idx);
 
-        for (UINT i = 0; i < dim; ++i) {
+        for (ITYPE i = 0; i < dim; ++i) {
             ASSERT_NEAR(
                 state1_cpu_copy[i].real(), state2_cpu_copy[i].real(), eps);
             ASSERT_NEAR(

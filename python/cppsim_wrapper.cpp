@@ -1,3 +1,4 @@
+#define PYBIND11_DETAILED_ERROR_MESSAGES
 #include <pybind11/complex.h>
 #include <pybind11/eigen.h>
 #include <pybind11/functional.h>
@@ -40,9 +41,14 @@ PYBIND11_MODULE(qulacs_core, m) {
     m.doc() = "cppsim python interface";
 
     py::class_<PauliOperator>(m, "PauliOperator")
-        .def(py::init<std::complex<double>>(), "Constructor", py::arg("coef"))
+        .def(py::init<std::complex<double>>(), "Constructor",
+            py::arg("coef") = 1. + 0.i)
         .def(py::init<std::string, std::complex<double>>(), "Constructor",
-            py::arg("pauli_string"), py::arg("coef"))
+            py::arg("pauli_string"),
+            py::arg("coef") = std::complex<double>(1., 0.))
+        .def(py::init<std::vector<UINT>, std::string, std::complex<double>>(),
+            "Constructor", py::arg("target_qubit_index_list"),
+            py::arg("pauli_operator_type_list"), py::arg("coef") = 1. + 0.i)
         .def("get_index_list", &PauliOperator::get_index_list,
             "Get list of target qubit indices")
         .def("get_pauli_id_list", &PauliOperator::get_pauli_id_list,
@@ -1168,18 +1174,15 @@ PYBIND11_MODULE(qulacs_core, m) {
                 &QuantumCircuit::update_quantum_state),
             "Update quantum state", py::arg("state"), py::arg("start"),
             py::arg("end"))
-#if 0  // not supported yet
         .def("update_quantum_state",
             py::overload_cast<QuantumStateBase*, UINT>(
                 &QuantumCircuit::update_quantum_state),
-            "Update quantum state",
-            py::arg("state"), py::arg("seed"))
+            "Update quantum state", py::arg("state"), py::arg("seed"))
         .def("update_quantum_state",
             py::overload_cast<QuantumStateBase*, UINT, UINT, UINT>(
                 &QuantumCircuit::update_quantum_state),
-            "Update quantum state",
-            py::arg("state"), py::arg("start"), py::arg("end"), py::arg("seed"))
-#endif
+            "Update quantum state", py::arg("state"), py::arg("start"),
+            py::arg("end"), py::arg("seed"))
         .def("calculate_depth", &QuantumCircuit::calculate_depth,
             "Calculate depth of circuit")
         .def("to_string", &QuantumCircuit::to_string,
@@ -1525,12 +1528,13 @@ Matrix Representation
         "from json string", py::return_value_policy::take_ownership);
 
     py::class_<QuantumCircuitOptimizer>(mcircuit, "QuantumCircuitOptimizer")
-        .def(py::init<>(), "Constructor")
+        .def(py::init<UINT>(), "Constructor", py::arg("mpi_size") = 0)
         .def("optimize", &QuantumCircuitOptimizer::optimize,
             "Optimize quantum circuit", py::arg("circuit"),
-            py::arg("block_size"))
+            py::arg("block_size"), py::arg("swap_level") = 0)
         .def("optimize_light", &QuantumCircuitOptimizer::optimize_light,
-            "Optimize quantum circuit with light method", py::arg("circuit"))
+            "Optimize quantum circuit with light method", py::arg("circuit"),
+            py::arg("swap_level") = 0)
         .def("merge_all", &QuantumCircuitOptimizer::merge_all,
             py::return_value_policy::take_ownership, py::arg("circuit"));
 

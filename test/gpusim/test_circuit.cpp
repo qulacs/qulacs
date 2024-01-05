@@ -29,7 +29,7 @@ inline void set_eigen_from_gpu(
 inline void assert_eigen_eq_gpu(
     ComplexVector& v1, QuantumStateGpu& v2, ITYPE dim, double eps) {
     auto ptr = v2.duplicate_data_cpp();
-    for (UINT i = 0; i < dim; ++i) {
+    for (ITYPE i = 0; i < dim; ++i) {
         ASSERT_NEAR(ptr[i].real(), v1[i].real(), eps);
         ASSERT_NEAR(ptr[i].imag(), v1[i].imag(), eps);
     }

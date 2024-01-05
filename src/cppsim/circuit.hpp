@@ -129,6 +129,15 @@ public:
      */
     virtual void remove_gate(UINT index);
     /**
+     * \~japanese-en 量子回路内のゲートを移動する。
+     *
+     * 回路内の量子ゲートを移動する。
+     * from_indexとto_indexの間のゲートはfrom_indexの方向にシフトする。
+     * @param[in] from_index 移動元のゲートの位置
+     * @param[in] to_index 移動先のゲートの位置
+     */
+    virtual void move_gate(UINT from_index, UINT to_index);
+    /**
      *  \~japanese-en 量子回路をマージする。
      *
      * 引数で与えた量子回路のゲートを後ろに追加していく。
@@ -164,6 +173,28 @@ public:
      */
     void update_quantum_state(
         QuantumStateBase* state, UINT start_index, UINT end_index);
+
+    /**
+     * \~japanese-en 量子状態を更新する(random seed指定)
+     *
+     * 順番にすべての量子ゲートを作用する。量子状態の初期化などは行わない。
+     * @param[in,out] state 作用する量子状態
+     * @param[in] seed 乱数の種
+     */
+    void update_quantum_state(QuantumStateBase* state, UINT seed);
+
+    /**
+     * \~japanese-en 量子回路の指定範囲のみを用いて量子状態をを更新する(random
+     * seed指定)
+     *
+     * 添え字がstart_indexからend_index-1までの量子ゲートを順番に量子ゲートを作用する。量子状態の初期化などは行わない。
+     * @param[in,out] state 作用する量子状態
+     * @param[in] start_index 開始位置
+     * @param[in] end_index 修了位置
+     * @param[in] seed 乱数の種
+     */
+    void update_quantum_state(
+        QuantumStateBase* state, UINT start_index, UINT end_index, UINT seed);
 
     /////////////////////////////// CHECK PROPERTY OF QUANTUM CIRCUIT
 

@@ -1439,8 +1439,8 @@ TEST(GateTest_multicpu, RandomUnitaryGate) {
         ComplexMatrix cm;
         gate->set_matrix(cm);
         auto eye = cm * cm.adjoint();
-        for (int i = 0; i < dim; ++i) {
-            for (int j = 0; j < dim; ++j) {
+        for (ITYPE i = 0; i < dim; ++i) {
+            for (ITYPE j = 0; j < dim; ++j) {
                 if (i == j) {
                     ASSERT_NEAR(abs(eye(i, j)), 1, eps);
                 } else {

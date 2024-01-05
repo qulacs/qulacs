@@ -420,11 +420,11 @@ void ClsNoisyEvolution_fast::_evolve_one_step(
     QuantumStateBase* state, double t_step) {
     // 対角化したものを持っておき、　ここではそれを使う
     eigenMatrixRevGate->update_quantum_state(state);
-    UINT dim = eigenvalue_mto.size();
+    ITYPE dim = eigenvalue_mto.size();
 
     ComplexVector eigenvalues(dim);
 
-    for (UINT i = 0; i < dim; i++) {
+    for (ITYPE i = 0; i < dim; i++) {
         eigenvalues[i] = std::exp(eigenvalue_mto[i] * t_step);
     }
     // eigenvalues[i] を掛ける必要がある

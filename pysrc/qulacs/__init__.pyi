@@ -567,12 +567,22 @@ class PauliOperator:
     def __IMUL__(self, arg0: complex) -> PauliOperator: ...
     def __imul__(self, arg0: PauliOperator) -> PauliOperator: ...
     @typing.overload
-    def __init__(self, coef: complex) -> None:
+    def __init__(self, coef: complex = (1 + 0j)) -> None:
         """
         Constructor
         """
     @typing.overload
-    def __init__(self, pauli_string: str, coef: complex) -> None:
+    def __init__(self, pauli_string: str, coef: complex = (1 + 0j)) -> None:
+        """
+        Constructor
+        """
+    @typing.overload
+    def __init__(
+        self,
+        target_qubit_index_list: list[int],
+        pauli_operator_type_list: str,
+        coef: complex = (1 + 0j),
+    ) -> None:
         """
         Constructor
         """
@@ -967,6 +977,18 @@ class QuantumCircuit:
     @typing.overload
     def update_quantum_state(
         self, state: QuantumStateBase, start: int, end: int
+    ) -> None:
+        """
+        Update quantum state
+        """
+    @typing.overload
+    def update_quantum_state(self, state: QuantumStateBase, seed: int) -> None:
+        """
+        Update quantum state
+        """
+    @typing.overload
+    def update_quantum_state(
+        self, state: QuantumStateBase, start: int, end: int, seed: int
     ) -> None:
         """
         Update quantum state

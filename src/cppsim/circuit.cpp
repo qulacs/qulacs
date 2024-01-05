@@ -33,6 +33,12 @@ void QuantumCircuit::update_quantum_state(QuantumStateBase* state) {
     }
 }
 
+void QuantumCircuit::update_quantum_state(QuantumStateBase* state, UINT seed) {
+    Random random;
+    random.set_seed(seed);
+    this->update_quantum_state(state);
+}
+
 void QuantumCircuit::update_quantum_state(
     QuantumStateBase* state, UINT start, UINT end) {
     if (state->qubit_count != this->qubit_count) {
@@ -56,6 +62,13 @@ void QuantumCircuit::update_quantum_state(
     for (UINT cursor = start; cursor < end; ++cursor) {
         this->_gate_list[cursor]->update_quantum_state(state);
     }
+}
+
+void QuantumCircuit::update_quantum_state(
+    QuantumStateBase* state, UINT start, UINT end, UINT seed) {
+    Random random;
+    random.set_seed(seed);
+    this->update_quantum_state(state, start, end);
 }
 
 QuantumCircuit::QuantumCircuit(const QuantumCircuit& obj)
@@ -219,6 +232,25 @@ void QuantumCircuit::remove_gate(UINT index) {
     }
     delete this->_gate_list[index];
     this->_gate_list.erase(this->_gate_list.begin() + index);
+}
+
+void QuantumCircuit::move_gate(UINT from_index, UINT to_index) {
+    if (from_index >= this->_gate_list.size() ||
+        to_index >= this->_gate_list.size()) {
+        throw GateIndexOutOfRangeException(
+            "Error: QuantumCircuit::move_gate(UINT, UINT) : "
+            "index must be smaller than gate_count");
+    }
+    if (from_index < to_index) {
+        std::rotate(this->_gate_list.begin() + from_index,
+            this->_gate_list.begin() + from_index + 1,
+            this->_gate_list.begin() + to_index + 1);
+    } else {
+        std::rotate(this->_gate_list.rbegin() +
+                        (this->_gate_list.size() - from_index - 1),
+            this->_gate_list.rbegin() + (this->_gate_list.size() - from_index),
+            this->_gate_list.rbegin() + (this->_gate_list.size() - to_index));
+    }
 }
 
 QuantumCircuit::~QuantumCircuit() {
