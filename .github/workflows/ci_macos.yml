@@ -60,9 +60,7 @@ jobs:
         run: USE_TEST=Yes ./script/build_clang.sh
 
       - name: Install qulacs Python module
-        run: pip install .[ci]
-
-      - uses: mxschmitt/action-tmate@v3
+        run: pip install .[ci] -vvv
 
       - name: Test in macOS
         run: |
