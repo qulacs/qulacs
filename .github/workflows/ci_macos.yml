@@ -62,6 +62,9 @@ jobs:
       - name: Install qulacs Python module
         run: pip install .[ci] -vvv
 
+      - run: |
+          ls -la /Users/runner/hostedtoolcache/Python/3.10.13/x64/lib/python3.10/site-packages
+
       - name: Test in macOS
         run: |
           cd ./build
