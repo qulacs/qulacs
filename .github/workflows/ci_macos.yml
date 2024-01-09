@@ -62,6 +62,8 @@ jobs:
       - name: Install qulacs Python module
         run: pip install .[ci]
 
+      - uses: mxschmitt/action-tmate@v3
+
       - name: Test in macOS
         run: |
           cd ./build
