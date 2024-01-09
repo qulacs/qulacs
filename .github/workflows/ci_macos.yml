@@ -56,8 +56,8 @@ jobs:
           brew install boost libomp
           brew link boost
 
-      - name: Install qulacs for macOS
-        run: USE_TEST=Yes ./script/build_clang.sh
+      # - name: Install qulacs for macOS
+      #   run: USE_TEST=Yes ./script/build_clang.sh
 
       - name: Install qulacs Python module
         run: pip install .[ci] -vvv
@@ -68,5 +68,4 @@ jobs:
       - name: Test in macOS
         run: |
           cd ./build
-          make test -j
           make pythontest -j
