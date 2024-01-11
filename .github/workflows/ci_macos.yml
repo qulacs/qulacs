@@ -60,7 +60,7 @@ jobs:
       #   run: USE_TEST=Yes ./script/build_clang.sh
 
       - name: Install qulacs Python module
-        run: pip install .[ci] -vvv
+        run: USE_TEST=Yes pip install .[ci] -vvv
 
       - run: |
           ls -la /Users/runner/hostedtoolcache/Python/3.10.13/x64/lib/python3.10/site-packages
@@ -68,4 +68,5 @@ jobs:
       - name: Test in macOS
         run: |
           cd ./build
+          make test -j
           make pythontest -j
