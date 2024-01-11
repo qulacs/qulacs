@@ -269,18 +269,23 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 	# Enable openmp
 	if(USE_OMP)
 		if (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang")
-			# Get the path of libomp; Bash output cannot be embedded in CMake variables directly.
-			execute_process(
-				COMMAND bash -c "brew --prefix libomp"
-				OUTPUT_VARIABLE LIBOMP_DIR
-				OUTPUT_STRIP_TRAILING_WHITESPACE
-			)
-			set(LIBOMP_OPTS "-Xpreprocessor -fopenmp -I${LIBOMP_DIR}/include -L${LIBOMP_DIR}/lib -lomp")
-			set(CMAKE_C_FLAGS "${CMAKE_CXX_FLAGS} ${LIBOMP_OPTS}")
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${LIBOMP_OPTS}")
+			# ref. https://github.com/dmlc/xgboost/blob/73b3955dd48c85e41a701c8a9869d27a4d5b1101/CMakeLists.txt#L242
+			find_package(OpenMP)
+			if(NOT OpenMP_FOUND)
+				# Get the path of libomp; Bash output cannot be embedded in CMake variables directly.
+				execute_process(
+					COMMAND bash -c "brew --prefix libomp"
+					OUTPUT_VARIABLE LIBOMP_DIR
+					OUTPUT_STRIP_TRAILING_WHITESPACE
+				)
+				set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp -I${LIBOMP_OPTS}/include")
+				set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp -I${LIBOMP_OPTS}/include")
+				set(OpenMP_C_LIB_NAMES omp)
+				set(OpenMP_CXX_LIB_NAMES omp)
+				set(OpenMP_omp_LIBRARY ${LIBOMP_OPTS}/lib/libomp.dylib)
+			endif()
 		else()
-			set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fopenmp")
-			set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fopenmp")
+			find_package(OpenMP)
 		endif()
 	endif()
 
