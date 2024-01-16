@@ -15,16 +15,53 @@ on:
       - "*.md"
 
 jobs:
-  macos-build:
-    name: Build on macOS
+  macos-cpp-test:
+    name: C++ Test on macOS
+    strategy:
+      matrix:
+        compiler: ["clang"]
+        include:
+          - compiler: "clang"
+            c_compiler: "/usr/local/opt/ccache/libexec/clang"
+            cxx_compiler: "/usr/local/opt/ccache/libexec/clang++"
+    runs-on: "macos-12"
+    env:
+      C_COMPILER: ${{ matrix.c_compiler }}
+      CXX_COMPILER: ${{ matrix.cxx_compiler }}
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup cmake
+        uses: lukka/get-cmake@latest
+
+      - name: Setup ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          # Include compiler to distinguish cache for each compiler.
+          key: ${{ github.job }}-macos-12-${{ matrix.compiler }}
+          verbose: 2
+
+      - name: Install dependencies for macOS
+        run: |
+          brew upgrade
+          brew install boost libomp
+          brew link boost
+
+      - name: Build qulacs for macOS
+        run: USE_TEST=Yes ./script/build_clang.sh
+
+      - name: Test in macOS
+        run: |
+          cd ./build
+          make test -j
+
+  macos-python-test:
+    name: Python Test on macOS
     strategy:
       matrix:
         python-version: ["3.10"]
         compiler: ["clang"]
         include:
-          - compiler: "gcc"
-            c_compiler: "/usr/local/opt/ccache/libexec/gcc-11"
-            cxx_compiler: "/usr/local/opt/ccache/libexec/g++-11"
           - compiler: "clang"
             c_compiler: "/usr/local/opt/ccache/libexec/clang"
             cxx_compiler: "/usr/local/opt/ccache/libexec/clang++"
@@ -33,7 +70,6 @@ jobs:
       C_COMPILER: ${{ matrix.c_compiler }}
       CXX_COMPILER: ${{ matrix.cxx_compiler }}
       PYTHON: ${{ matrix.python-version }}
-      CACHE_NAME: "ccache-qulacs-build-v2"
     steps:
       - uses: actions/checkout@v3
 
@@ -59,19 +95,10 @@ jobs:
           brew install boost libomp
           brew link boost
 
-      - name: Install qulacs for macOS
-        run: USE_TEST=Yes ./script/build_clang.sh
-
       - name: Install qulacs Python module
         run: pip install .[ci] -vvv
-
-      # - name: Test if stub is working
-      #   run: |
-      #     python python/stub-test/generate_mypy_tester.py qulacs
-      #     mypy python/stub-test/names_qulacs.py
 
       - name: Test in macOS
         run: |
           cd ./build
-          make test -j
           make pythontest -j
