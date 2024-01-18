@@ -19,8 +19,11 @@ jobs:
     name: C++ Test on macOS
     strategy:
       matrix:
-        compiler: ["clang"]
+        compiler: ["gcc", "clang"]
         include:
+          - compiler: "gcc"
+            c_compiler: "/usr/local/opt/ccache/libexec/gcc-11"
+            cxx_compiler: "/usr/local/opt/ccache/libexec/g++-11"
           - compiler: "clang"
             c_compiler: "/usr/local/opt/ccache/libexec/clang"
             cxx_compiler: "/usr/local/opt/ccache/libexec/clang++"
@@ -28,6 +31,7 @@ jobs:
     env:
       C_COMPILER: ${{ matrix.c_compiler }}
       CXX_COMPILER: ${{ matrix.cxx_compiler }}
+      USE_TEST: "Yes"
     steps:
       - uses: actions/checkout@v3
 
@@ -48,7 +52,7 @@ jobs:
           brew link boost
 
       - name: Build qulacs for macOS
-        run: USE_TEST=Yes ./script/build_clang.sh
+        run: ./script/build_gcc.sh
 
       - name: Test in macOS
         run: |
@@ -60,8 +64,11 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10"]
-        compiler: ["clang"]
+        compiler: ["gcc", "clang"]
         include:
+          - compiler: "gcc"
+            c_compiler: "/usr/local/opt/ccache/libexec/gcc-11"
+            cxx_compiler: "/usr/local/opt/ccache/libexec/g++-11"
           - compiler: "clang"
             c_compiler: "/usr/local/opt/ccache/libexec/clang"
             cxx_compiler: "/usr/local/opt/ccache/libexec/clang++"
