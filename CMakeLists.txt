@@ -278,15 +278,15 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 					OUTPUT_VARIABLE LIBOMP_DIR
 					OUTPUT_STRIP_TRAILING_WHITESPACE
 				)
-				set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp -I${LIBOMP_OPTS}/include")
-				set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp -I${LIBOMP_OPTS}/include")
+				set(OpenMP_C_FLAGS "-Xpreprocessor -fopenmp -I${LIBOMP_DIR}/include")
+				set(OpenMP_CXX_FLAGS "-Xpreprocessor -fopenmp -I${LIBOMP_DIR}/include")
 				set(OpenMP_C_LIB_NAMES omp)
 				set(OpenMP_CXX_LIB_NAMES omp)
-				set(OpenMP_omp_LIBRARY ${LIBOMP_OPTS}/lib/libomp.dylib)
+				set(OpenMP_omp_LIBRARY ${LIBOMP_DIR}/lib/libomp.dylib)
 			endif()
-		else()
-			find_package(OpenMP)
 		endif()
+
+		find_package(OpenMP REQUIRED)
 	endif()
 
 	# Enable openmpi

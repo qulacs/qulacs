@@ -15,8 +15,10 @@ endif()
 
 add_library(csim_static STATIC ${CSIM_SRC})
 add_library(csim_shared SHARED ${CSIM_SRC})
-#target_link_libraries(csim_static eigen)
-#target_link_libraries(csim_shared eigen)
+if(USE_OMP)
+    target_link_libraries(csim_static OpenMP::OpenMP_CXX)
+    target_link_libraries(csim_shared OpenMP::OpenMP_CXX)
+endif()
 add_dependencies(csim_static eigen)
 add_dependencies(csim_shared eigen)
 
