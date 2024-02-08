@@ -1,8 +1,10 @@
 from __future__ import annotations
+
+import typing
+
 import numpy
 import qulacs_core
 import scipy.sparse
-import typing
 
 __all__ = [
     "Adaptive",

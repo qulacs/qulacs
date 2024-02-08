@@ -2,14 +2,13 @@
 cppsim python interface
 """
 from __future__ import annotations
+
+import typing
+
 import numpy
 import scipy.sparse
-import typing
-from . import circuit
-from . import gate
-from . import observable
-from . import quantum_operator
-from . import state
+
+from . import circuit, gate, observable, quantum_operator, state
 
 __all__ = [
     "CausalConeSimulator",
