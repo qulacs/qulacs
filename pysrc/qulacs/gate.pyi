@@ -73,7 +73,7 @@ __all__ = [
 
 @typing.overload
 def Adaptive(
-    gate: qulacs_core.QuantumGateBase, condition: typing.Callable[[list[int]], bool]
+    gate: qulacs_core.QuantumGateBase, condition: typing.Callable[[List[int]], bool]
 ) -> qulacs_core.QuantumGateBase:
     """
     Create adaptive gate
@@ -82,7 +82,7 @@ def Adaptive(
 @typing.overload
 def Adaptive(
     gate: qulacs_core.QuantumGateBase,
-    condition: typing.Callable[[list[int], int], bool],
+    condition: typing.Callable[[List[int], int], bool],
     id: int,
 ) -> qulacs_core.QuantumGateBase:
     """
@@ -353,7 +353,7 @@ def Sdag(index: int) -> qulacs_core.ClsOneQubitGate:
     """
 
 def SparseMatrix(
-    index_list: list[int], matrix: scipy.sparse.csc_matrix
+    index_list: list[int], matrix: scipy.sparse.csc_matrix[numpy.complex128]
 ) -> qulacs_core.QuantumGateSparseMatrix:
     """
     Create sparse matrix gate

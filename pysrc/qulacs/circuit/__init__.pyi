@@ -12,7 +12,6 @@ class QuantumCircuitOptimizer:
         """
         Constructor
         """
-
     def merge_all(
         self, circuit: qulacs_core.QuantumCircuit
     ) -> qulacs_core.QuantumGateMatrix: ...
@@ -20,7 +19,6 @@ class QuantumCircuitOptimizer:
         """
         Optimize quantum circuit
         """
-
     def optimize_light(self, circuit: qulacs_core.QuantumCircuit) -> None:
         """
         Optimize quantum circuit with light method
