@@ -1,8 +1,6 @@
 from __future__ import annotations
-
-import typing
-
 import qulacs_core
+import typing
 
 __all__ = [
     "drop_qubit",

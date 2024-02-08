@@ -1,5 +1,4 @@
 from __future__ import annotations
-
 import qulacs_core
 
 __all__ = [
