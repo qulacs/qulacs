@@ -244,11 +244,10 @@ jobs:
       - name: Install formatters
         run: pip install black isort
 
-      # FIXME: This step is commented out because it is not working properly.
-      # - name: Check format
-      #   run: |
-      #     black . --check --diff
-      #     isort . --check --diff
+      - name: Check format
+        run: |
+          black . --check --diff
+          isort . --check --diff
 
   mpicc-build:
     name: MPICC build
