@@ -65,6 +65,6 @@ $ cmake --build ./visualstudio --target pythontest --config Release
 
 ### Tips
 
-- We recommend use Python from [pyenv](https://github.com/pyenv/pyenv) and [vertualenv](https://pypi.org/project/virtualenv/) for the local test.
+- We recommend use Python from [pyenv](https://github.com/pyenv/pyenv) and [virtualenv](https://pypi.org/project/virtualenv/) for the local test.
     - Since we run `python setup.py install` at global Python unstable qulacs would be installed unintentionally.
     - And it would be difficult to show dependencies version when we need for debug
