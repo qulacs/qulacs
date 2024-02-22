@@ -153,7 +153,6 @@ def entangler(circuit, nqubits, pairs, global_qc):
 
 def build_circuit(nqubits, global_nqubits, depth=9, verbose=False, random_gen=""):
     use_fusedswap = True if global_nqubits > 0 else False
-    local_nqubits = nqubits - global_nqubits
     if random_gen == "":
         rng = np.random.default_rng()
     else:
@@ -174,7 +173,7 @@ def build_circuit(nqubits, global_nqubits, depth=9, verbose=False, random_gen=""
     # add gates
     first_rotation(circuit, nqubits, global_qc)
     entangler(circuit, nqubits, pairs, global_qc)
-    for k in range(depth):
+    for _ in range(depth):
         mid_rotation(circuit, nqubits, global_qc)
         entangler(circuit, nqubits, pairs, global_qc)
     last_rotation(circuit, nqubits, global_qc)

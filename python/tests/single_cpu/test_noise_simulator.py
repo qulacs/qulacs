@@ -22,7 +22,7 @@ class TestNoiseSimulator:
 
             circuit_with_noise = QuantumCircuit(n)
             circuit_without_noise = QuantumCircuit(n)
-            for d in range(depth):
+            for _ in range(depth):
                 for i in range(n):
                     r = np.random.randint(0, 5)
                     if r == 0:

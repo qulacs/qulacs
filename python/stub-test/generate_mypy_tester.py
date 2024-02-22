@@ -11,9 +11,9 @@ if __name__ == "__main__":
         print("Module not found: " + module_name)
 
     with open("%s/names_%s.py" % (os.path.dirname(__file__), module_name), "w") as f:
-        names = list()
-        submodule_names = list()
-        objects = list()
+        names = []
+        submodule_names = []
+        objects = []
 
         def search_names(obj, name):
             # ref: https://github.com/Qulacs-Osaka/qulacs-osaka/issues/234

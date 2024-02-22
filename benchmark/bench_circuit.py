@@ -6,7 +6,7 @@ import numpy as np
 from circuits import get_circuit
 from mpi4py import MPI
 
-from qulacs import QuantumCircuit, QuantumState
+from qulacs import QuantumState
 from qulacs.circuit import QuantumCircuitOptimizer as QCO
 
 
@@ -85,7 +85,7 @@ if __name__ == "__main__":
             n - num_global_qubits >= num_global_qubits
         ), "ERROR: number of local qubits is too small"
     else:
-        assert False, "ERROR: " + args.circuit + " is not supported"
+        raise AssertionError("ERROR: " + args.circuit + " is not supported")
 
     if args.check:
         st_ref = QuantumState(n)

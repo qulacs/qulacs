@@ -343,7 +343,7 @@ class TestJSON:
             h0 = H(0)
             h0.update_quantum_state(state)
             h0.update_quantum_state(state_ref)
-            for k in range(step):
+            for _ in range(step):
                 g_json.update_quantum_state(state)
                 g_ref.update_quantum_state(state_ref)
                 exp = observable.get_expectation_value(state)

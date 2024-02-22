@@ -275,7 +275,7 @@ class TestPointerHandling:
         qs = None  # type: ignore
         for gate in gates:
             gate = None
-        for pgate in parametric_gates:
+        for _ in parametric_gates:
             gate = None
 
         gates = None  # type: ignore

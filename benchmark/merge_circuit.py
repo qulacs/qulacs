@@ -1,4 +1,3 @@
-import qulacs
 from qulacs import QuantumCircuit, QuantumState
 from qulacs.gate import X
 

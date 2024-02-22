@@ -26,7 +26,6 @@ def block_swap(p, q, bs, done_ug, qubit_table):
 
 
 def build_circuit(nqubits, global_nqubits=0, depth=10, verbose=False, random_gen=""):
-    use_fusedswap = True if global_nqubits > 0 else False
     local_nqubits = nqubits - global_nqubits
     if random_gen == "":
         rng = np.random.default_rng()
@@ -37,7 +36,7 @@ def build_circuit(nqubits, global_nqubits=0, depth=10, verbose=False, random_gen
     perm_0 = list(range(nqubits))
     seed = rng.integers(10000)
 
-    for d in range(depth):
+    for _ in range(depth):
         qubit_table = list(range(nqubits))
         perm = rng.permutation(perm_0)
         pend_pair = []

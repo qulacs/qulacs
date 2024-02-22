@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import typing
-
 import qulacs_core
 import qulacs_core.circuit
 

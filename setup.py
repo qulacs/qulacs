@@ -29,11 +29,11 @@ class CMakeBuild(build_ext):
     def run(self):
         try:
             subprocess.check_output(["cmake", "--version"])
-        except OSError:
+        except OSError as err:
             raise RuntimeError(
                 "CMake must be installed to build the following extensions: "
                 + ", ".join(e.name for e in self.extensions)
-            )
+            ) from err
 
         for ext in self.extensions:
             self.build_extension(ext)
@@ -141,5 +141,5 @@ setup(
     packages=find_packages(exclude=["test*"]) + find_packages("pysrc"),
     package_data={"": ["py.typed", "*.pyi"]},
     ext_modules=[CMakeExtension("qulacs_core")],
-    cmdclass=dict(build_ext=CMakeBuild),
+    cmdclass={build_ext: CMakeBuild},
 )

@@ -2,17 +2,15 @@ import numpy as np
 import pytest
 from scipy.sparse import csr_matrix
 
-from qulacs import QuantumCircuit, QuantumState
+from qulacs import QuantumState
 from qulacs.gate import (
     CNOT,
     TOFFOLI,
     DenseMatrix,
     DiagonalMatrix,
-    H,
     PauliRotation,
     ReversibleBoolean,
     SparseMatrix,
-    T,
     X,
 )
 

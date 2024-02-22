@@ -15,9 +15,7 @@ logger.addHandler(NullHandler())
 
 FIXED_POINT_PATTERN = r"[+-]?\d+(?:\.\d*)?|\.\d+"
 FLOATING_POINT_PATTERN = r"[eE][-+]?\d+"
-GENERAL_NUMBER_PATTERN = (
-    rf"(?:{FIXED_POINT_PATTERN})(?:{FLOATING_POINT_PATTERN})?"  # noqa
-)
+GENERAL_NUMBER_PATTERN = rf"(?:{FIXED_POINT_PATTERN})(?:{FLOATING_POINT_PATTERN})?"  # noqa
 
 
 def convert_qulacs_circuit_to_QASM(cir: QuantumCircuit) -> typing.List[str]:
@@ -280,11 +278,11 @@ def convert_QASM_to_qulacs_circuit(
                     gate_mat[i][j] = float(deary[bas]) + float(deary[bas + 1]) * 1.0j
                     bas += 2
             control_values = []
-            for i in range(control_qubit_count):
+            for _ in range(control_qubit_count):
                 control_values.append(mapping[int(deary[bas])])
                 bas += 1
             terget_indexes = []
-            for i in range(target_qubit_count):
+            for _ in range(target_qubit_count):
                 terget_indexes.append(mapping[int(deary[bas])])
                 bas += 1
 
@@ -298,7 +296,7 @@ def convert_QASM_to_qulacs_circuit(
             matchobj = re.match(r"//q\[(\d+)-->q\[(\d+)\]", instr)
             assert matchobj is not None
             ary = matchobj.groups()
-            if not (ary is None):
+            if ary is not None:
                 mapping[int(ary[0])] = int(ary[1])
         elif remap_remove and instr[0:8] == "//qubits":
             matchobj = re.match(r"//qubits:(\d+)", instr)
