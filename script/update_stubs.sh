@@ -10,5 +10,4 @@ cp -R typings/qulacs_core/* pysrc/qulacs/
 find pysrc/ -name __init__.pyi | sed -e 's/__init__.pyi/py.typed/' | xargs touch
 
 # format
-black pysrc
-isort pysrc
+python -m ruff format ./pysrc/

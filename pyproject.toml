@@ -38,9 +38,7 @@ homepage = "http://docs.qulacs.org"
 
 [project.optional-dependencies]
 dev = [
-    "black",
-    "flake8",
-    "isort",
+    "ruff",
     "mypy",
     "pybind11-stubgen",
     "openfermion",
@@ -49,16 +47,6 @@ dev = [
 
 test = [
     "openfermion"
-]
-
-ci = [
-    "black",
-    "flake8",
-    "isort",
-    "mypy",
-    "pybind11-stubgen",
-    "openfermion",
-    "pytest"
 ]
 
 doc = [

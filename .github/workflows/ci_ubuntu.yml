@@ -58,7 +58,7 @@ jobs:
         run: ./script/build_gcc.sh
 
       - name: Install qulacs Python module
-        run: pip install .[ci]
+        run: pip install .[dev]
 
       - name: Check stubs
         run: |
@@ -242,12 +242,11 @@ jobs:
           architecture: x64
 
       - name: Install formatters
-        run: pip install black isort
+        run: pip install ruff
 
       - name: Check format
         run: |
-          black . --check --diff
-          isort . --check --diff
+          ruff format --check --diff .
 
   mpicc-build:
     name: MPICC build
@@ -289,7 +288,7 @@ jobs:
         run: USE_TEST=Yes ./script/build_mpicc.sh
 
       - name: Install qulacs Python module
-        run: USE_MPI=Yes pip install .[ci]
+        run: USE_MPI=Yes pip install .[dev]
 
       - name: Install MPI Python module
         run: pip install mpi4py
