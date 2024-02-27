@@ -25,7 +25,7 @@ Issue title should be prefixed with `[Feat]`.
 ### Pull Request Process
 PR is always welcome!
 
-Writing to Issue is not necessary (but recommended) to create single PR. Just create PR to the `dev` branch.
+Writing to Issue is not necessary (but recommended) to create single PR. Just create PR to the `main` branch.
 
 However, if you want to make changes that requires multiple PR, please discuss the change you wish to make via Issue.
 ### Size of Pull Request
