@@ -916,7 +916,7 @@ public:
             stacked_prob.push_back(sum);
         }
 
-        for (ITYPE count = 0; count < sampling_count; ++count) {
+        for (UINT count = 0; count < sampling_count; ++count) {
             double r = random.uniform();
             auto ite =
                 std::lower_bound(stacked_prob.begin(), stacked_prob.end(), r);

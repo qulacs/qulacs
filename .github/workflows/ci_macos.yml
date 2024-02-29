@@ -20,11 +20,8 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.10"]
-        compiler: ["gcc", "clang"]
+        compiler: ["clang"]
         include:
-          - compiler: "gcc"
-            c_compiler: "/usr/local/opt/ccache/libexec/gcc-11"
-            cxx_compiler: "/usr/local/opt/ccache/libexec/g++-11"
           - compiler: "clang"
             c_compiler: "/usr/local/opt/ccache/libexec/clang"
             cxx_compiler: "/usr/local/opt/ccache/libexec/clang++"
