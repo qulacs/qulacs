@@ -63,7 +63,7 @@ jobs:
         run: USE_TEST=Yes ./script/build_gcc.sh
 
       - name: Install qulacs Python module
-        run: pip install .[ci]
+        run: pip install .[dev]
 
       # - name: Test if stub is working
       #   run: |

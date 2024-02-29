@@ -58,7 +58,7 @@ jobs:
       - name: Install qulacs Python module
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
-        run: pip install .[ci]
+        run: pip install .[dev]
 
       - name: Test if stub is working
         run: |
