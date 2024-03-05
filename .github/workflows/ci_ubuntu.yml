@@ -28,7 +28,7 @@ jobs:
       COVERAGE: "Yes"
       USE_TEST: "Yes"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
@@ -40,7 +40,7 @@ jobs:
           verbose: 2
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -91,7 +91,7 @@ jobs:
       QULACS_OPT_FLAGS: "-mtune=haswell -march=haswell -mfpmath=both"
       USE_TEST: "Yes"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
@@ -126,7 +126,7 @@ jobs:
       USE_TEST: "Yes"
       USE_GPU: "Yes"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
@@ -138,7 +138,7 @@ jobs:
           verbose: 2
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.7.5"
           architecture: x64
@@ -172,7 +172,7 @@ jobs:
       QULACS_OPT_FLAGS: "-march=armv8.2-a+sve"
       QEMU_LD_PREFIX: "/usr/aarch64-linux-gnu"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup qemu
         run: |
@@ -210,7 +210,7 @@ jobs:
     name: Format with clang-format
     runs-on: "ubuntu-20.04"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - run: sudo apt install clang-format=1:10.0-50~exp1
 
@@ -233,10 +233,10 @@ jobs:
         python-version: ["3.10"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -262,13 +262,13 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
