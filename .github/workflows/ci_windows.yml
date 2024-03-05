@@ -1,14 +1,6 @@
 name: Windows CI
 
 on:
-  push:
-    paths-ignore:
-      - ".devcontainer/**"
-      - ".vscode/**"
-      - "doc/**"
-      - "*.md"
-    branches:
-      - "dev"
   pull_request_review:
     types: [submitted, edited]
   workflow_dispatch:
@@ -17,7 +9,7 @@ jobs:
   gcc8-build:
     name: GCC8 build
     # For jobs triggered by pull_request_review, build task should run only if is in `approved` state.
-    if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
     strategy:
       matrix:
         python-version: ["3.10"]
