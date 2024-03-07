@@ -72,8 +72,8 @@ static Eigen::VectorXcd get_eigen_diagonal_matrix_random_multi_qubit_unitary(
 static Eigen::MatrixXcd kronecker_product(
     const Eigen::MatrixXcd& lhs, const Eigen::MatrixXcd& rhs) {
     Eigen::MatrixXcd result(lhs.rows() * rhs.rows(), lhs.cols() * rhs.cols());
-    for (int i = 0; i < lhs.cols(); i++) {
-        for (int j = 0; j < lhs.rows(); j++) {
+    for (int i = 0; i < lhs.rows(); i++) {
+        for (int j = 0; j < lhs.cols(); j++) {
             result.block(i * rhs.rows(), j * rhs.cols(), rhs.rows(),
                 rhs.cols()) = lhs(i, j) * rhs;
         }
