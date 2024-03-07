@@ -1,8 +1,6 @@
 from __future__ import annotations
-
-import typing
-
 import qulacs_core
+import typing
 
 __all__ = [
     "drop_qubit",
@@ -27,8 +25,17 @@ def from_json(json: str) -> qulacs_core.QuantumStateBase:
     from json string
     """
 
+@typing.overload
 def inner_product(
     state_bra: qulacs_core.QuantumState, state_ket: qulacs_core.QuantumState
+) -> complex:
+    """
+    Get inner product
+    """
+
+@typing.overload
+def inner_product(
+    state_bra: qulacs_core.QuantumStateGpu, state_ket: qulacs_core.QuantumStateGpu
 ) -> complex:
     """
     Get inner product
