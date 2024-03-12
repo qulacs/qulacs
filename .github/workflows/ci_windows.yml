@@ -6,8 +6,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  gcc8-build:
-    name: GCC8 build
+  gcc-build:
+    name: GCC build
     # For jobs triggered by pull_request_review, build task should run only if is in `approved` state.
     if: ${{ github.event_name == 'workflow_dispatch' || github.event.review.state == 'approved' }}
     strategy:

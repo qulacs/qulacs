@@ -786,10 +786,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_X(\\\\theta) = \\exp(i\\\\frac{\\\\theta}{2} X) =
-                \\\\begin{pmatrix}
-                \\cos(\\\\frac{\\\\theta}{2})  & i\\sin(\\\\frac{\\\\theta}{2}) \\\\\\\\
-                i\\sin(\\\\frac{\\\\theta}{2}) & \\cos(\\\\frac{\\\\theta}{2})
+            R_X(\\theta) = \\exp(i\\frac{\\theta}{2} X) =
+                \\begin{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & i\\sin(\\frac{\\theta}{2}) \\\\
+                i\\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
                 \\end{pmatrix}
         """
 
@@ -802,10 +802,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_Y(\\\\theta) = \\exp(i\\\\frac{\\\\theta}{2} Y) =
-                \\\\begin{pmatrix}
-                \\cos(\\\\frac{\\\\theta}{2})  & \\sin(\\\\frac{\\\\theta}{2}) \\\\\\\\
-                -\\sin(\\\\frac{\\\\theta}{2}) & \\cos(\\\\frac{\\\\theta}{2})
+            R_Y(\\theta) = \\exp(i\\frac{\\theta}{2} Y) =
+                \\begin{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & \\sin(\\frac{\\theta}{2}) \\\\
+                -\\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
                 \\end{pmatrix}
         """
 
@@ -818,10 +818,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_Z(\\\\theta) = \\exp(i\\\\frac{\\\\theta}{2} Z) =
-                \\\\begin{pmatrix}
-                e^{i\\\\frac{\\\\theta}{2}} & 0 \\\\\\\\
-                0 & e^{-i\\\\frac{\\\\theta}{2}}
+            R_Z(\\theta) = \\exp(i\\frac{\\theta}{2} Z) =
+                \\begin{pmatrix}
+                e^{i\\frac{\\theta}{2}} & 0 \\\\
+                0 & e^{-i\\frac{\\theta}{2}}
                 \\end{pmatrix}
         """
 
@@ -834,10 +834,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_X(\\\\theta) = \\exp(i\\\\frac{\\\\theta}{2} X) =
-                \\\\begin{pmatrix}
-                \\cos(\\\\frac{\\\\theta}{2})  & i\\sin(\\\\frac{\\\\theta}{2}) \\\\\\\\
-                i\\sin(\\\\frac{\\\\theta}{2}) & \\cos(\\\\frac{\\\\theta}{2})
+            R_X(\\theta) = \\exp(i\\frac{\\theta}{2} X) =
+                \\begin{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & i\\sin(\\frac{\\theta}{2}) \\\\
+                i\\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
                 \\end{pmatrix}
         """
 
@@ -850,10 +850,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_Y(\\\\theta) = \\exp(i\\\\frac{\\\\theta}{2} Y) =
-                \\\\begin{pmatrix}
-                \\cos(\\\\frac{\\\\theta}{2})  & \\sin(\\\\frac{\\\\theta}{2}) \\\\\\\\
-                -\\sin(\\\\frac{\\\\theta}{2}) & \\cos(\\\\frac{\\\\theta}{2})
+            R_Y(\\theta) = \\exp(i\\frac{\\theta}{2} Y) =
+                \\begin{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & \\sin(\\frac{\\theta}{2}) \\\\
+                -\\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
                 \\end{pmatrix}
         """
 
@@ -866,10 +866,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_Z(\\\\theta) = \\exp(i\\\\frac{\\\\theta}{2} Z) =
-                \\\\begin{pmatrix}
-                e^{i\\\\frac{\\\\theta}{2}} & 0 \\\\\\\\
-                0 & e^{-i\\\\frac{\\\\theta}{2}}
+            R_Z(\\theta) = \\exp(i\\frac{\\theta}{2} Z) =
+                \\begin{pmatrix}
+                e^{i\\frac{\\theta}{2}} & 0 \\\\
+                0 & e^{-i\\frac{\\theta}{2}}
                 \\end{pmatrix}
         """
 
@@ -882,10 +882,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            RotX(\\\\theta) = \\exp(-i\\\\frac{\\\\theta}{2} X) =
-                \\\\begin{pmatrix}
-                \\cos(\\\\frac{\\\\theta}{2})  & -i\\sin(\\\\frac{\\\\theta}{2}) \\\\\\\\
-                -i\\sin(\\\\frac{\\\\theta}{2}) & \\cos(\\\\frac{\\\\theta}{2})
+            RotX(\\theta) = \\exp(-i\\frac{\\theta}{2} X) =
+                \\begin{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & -i\\sin(\\frac{\\theta}{2}) \\\\
+                -i\\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
                 \\end{pmatrix}
         """
 
@@ -898,10 +898,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            RotY(\\\\theta) = \\exp(-i\\\\frac{\\\\theta}{2} Y) =
-                \\\\begin{pmatrix}
-                \\cos(\\\\frac{\\\\theta}{2})  & -\\sin(\\\\frac{\\\\theta}{2}) \\\\\\\\
-                \\sin(\\\\frac{\\\\theta}{2}) & \\cos(\\\\frac{\\\\theta}{2})
+            RotY(\\theta) = \\exp(-i\\frac{\\theta}{2} Y) =
+                \\begin{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & -\\sin(\\frac{\\theta}{2}) \\\\
+                \\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
                 \\end{pmatrix}
         """
 
@@ -914,10 +914,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            RotZ(\\\\theta) = \\exp(-i\\\\frac{\\\\theta}{2} Z) =
-                \\\\begin{pmatrix}
-                e^{-i\\\\frac{\\\\theta}{2}} & 0 \\\\\\\\
-                0 & e^{i\\\\frac{\\\\theta}{2}}
+            RotZ(\\theta) = \\exp(-i\\frac{\\theta}{2} Z) =
+                \\begin{pmatrix}
+                e^{-i\\frac{\\theta}{2}} & 0 \\\\
+                0 & e^{i\\frac{\\theta}{2}}
                 \\end{pmatrix}
         """
 
