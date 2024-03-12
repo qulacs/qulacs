@@ -80,7 +80,7 @@ jobs:
           make pythontest -j $(nproc)
 
       - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
 
   gcc10-build-with-address-sanitizer:
     name: GCC10 build with -fsanitizer=address enabled
@@ -321,4 +321,4 @@ jobs:
           mpirun -n 2 pytest python/tests/multi_cpu
 
       - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
