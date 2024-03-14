@@ -786,11 +786,11 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_X(\\theta) = \exp(i\\frac{\\theta}{2} X) =
+            R_X(\\theta) = \\exp(i\\frac{\\theta}{2} X) =
                 \\begin{pmatrix}
-                \cos(\\frac{\\theta}{2})  & i\sin(\\frac{\\theta}{2}) \\\\
-                i\sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
-                \end{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & i\\sin(\\frac{\\theta}{2}) \\\\
+                i\\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
+                \\end{pmatrix}
         """
 
     def add_RY_gate(self, index: int, angle: float) -> None:
@@ -802,11 +802,11 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_Y(\\theta) = \exp(i\\frac{\\theta}{2} Y) =
+            R_Y(\\theta) = \\exp(i\\frac{\\theta}{2} Y) =
                 \\begin{pmatrix}
-                \cos(\\frac{\\theta}{2})  & \sin(\\frac{\\theta}{2}) \\\\
-                -\sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
-                \end{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & \\sin(\\frac{\\theta}{2}) \\\\
+                -\\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
+                \\end{pmatrix}
         """
 
     def add_RZ_gate(self, index: int, angle: float) -> None:
@@ -818,11 +818,11 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_Z(\\theta) = \exp(i\\frac{\\theta}{2} Z) =
+            R_Z(\\theta) = \\exp(i\\frac{\\theta}{2} Z) =
                 \\begin{pmatrix}
                 e^{i\\frac{\\theta}{2}} & 0 \\\\
                 0 & e^{-i\\frac{\\theta}{2}}
-                \end{pmatrix}
+                \\end{pmatrix}
         """
 
     def add_RotInvX_gate(self, index: int, angle: float) -> None:
@@ -834,11 +834,11 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_X(\\theta) = \exp(i\\frac{\\theta}{2} X) =
+            R_X(\\theta) = \\exp(i\\frac{\\theta}{2} X) =
                 \\begin{pmatrix}
-                \cos(\\frac{\\theta}{2})  & i\sin(\\frac{\\theta}{2}) \\\\
-                i\sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
-                \end{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & i\\sin(\\frac{\\theta}{2}) \\\\
+                i\\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
+                \\end{pmatrix}
         """
 
     def add_RotInvY_gate(self, index: int, angle: float) -> None:
@@ -850,11 +850,11 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_Y(\\theta) = \exp(i\\frac{\\theta}{2} Y) =
+            R_Y(\\theta) = \\exp(i\\frac{\\theta}{2} Y) =
                 \\begin{pmatrix}
-                \cos(\\frac{\\theta}{2})  & \sin(\\frac{\\theta}{2}) \\\\
-                -\sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
-                \end{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & \\sin(\\frac{\\theta}{2}) \\\\
+                -\\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
+                \\end{pmatrix}
         """
 
     def add_RotInvZ_gate(self, index: int, angle: float) -> None:
@@ -866,11 +866,11 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_Z(\\theta) = \exp(i\\frac{\\theta}{2} Z) =
+            R_Z(\\theta) = \\exp(i\\frac{\\theta}{2} Z) =
                 \\begin{pmatrix}
                 e^{i\\frac{\\theta}{2}} & 0 \\\\
                 0 & e^{-i\\frac{\\theta}{2}}
-                \end{pmatrix}
+                \\end{pmatrix}
         """
 
     def add_RotX_gate(self, index: int, angle: float) -> None:
@@ -882,11 +882,11 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            RotX(\\theta) = \exp(-i\\frac{\\theta}{2} X) =
+            RotX(\\theta) = \\exp(-i\\frac{\\theta}{2} X) =
                 \\begin{pmatrix}
-                \cos(\\frac{\\theta}{2})  & -i\sin(\\frac{\\theta}{2}) \\\\
-                -i\sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
-                \end{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & -i\\sin(\\frac{\\theta}{2}) \\\\
+                -i\\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
+                \\end{pmatrix}
         """
 
     def add_RotY_gate(self, index: int, angle: float) -> None:
@@ -898,11 +898,11 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            RotY(\\theta) = \exp(-i\\frac{\\theta}{2} Y) =
+            RotY(\\theta) = \\exp(-i\\frac{\\theta}{2} Y) =
                 \\begin{pmatrix}
-                \cos(\\frac{\\theta}{2})  & -\sin(\\frac{\\theta}{2}) \\\\
-                \sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
-                \end{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & -\\sin(\\frac{\\theta}{2}) \\\\
+                \\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
+                \\end{pmatrix}
         """
 
     def add_RotZ_gate(self, index: int, angle: float) -> None:
@@ -914,11 +914,11 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            RotZ(\\theta) = \exp(-i\\frac{\\theta}{2} Z) =
+            RotZ(\\theta) = \\exp(-i\\frac{\\theta}{2} Z) =
                 \\begin{pmatrix}
                 e^{-i\\frac{\\theta}{2}} & 0 \\\\
                 0 & e^{i\\frac{\\theta}{2}}
-                \end{pmatrix}
+                \\end{pmatrix}
         """
 
     def add_SWAP_gate(self, target1: int, target2: int) -> None:
