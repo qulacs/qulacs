@@ -45,10 +45,8 @@ __all__ = [
     "QuantumGate_SingleParameter",
     "QuantumState",
     "QuantumStateBase",
-    "QuantumStateGpu",
     "SimulationResult",
     "StateVector",
-    "StateVectorGpu",
     "check_build_for_mpi",
     "circuit",
     "gate",
@@ -789,10 +787,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_X(\\\\theta) = \\exp(i\\\\frac{\\\\theta}{2} X) =
-                \\\\begin{pmatrix}
-                \\cos(\\\\frac{\\\\theta}{2})  & i\\sin(\\\\frac{\\\\theta}{2}) \\\\\\\\
-                i\\sin(\\\\frac{\\\\theta}{2}) & \\cos(\\\\frac{\\\\theta}{2})
+            R_X(\\theta) = \\exp(i\\frac{\\theta}{2} X) =
+                \\begin{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & i\\sin(\\frac{\\theta}{2}) \\\\
+                i\\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
                 \\end{pmatrix}
         """
 
@@ -805,10 +803,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_Y(\\\\theta) = \\exp(i\\\\frac{\\\\theta}{2} Y) =
-                \\\\begin{pmatrix}
-                \\cos(\\\\frac{\\\\theta}{2})  & \\sin(\\\\frac{\\\\theta}{2}) \\\\\\\\
-                -\\sin(\\\\frac{\\\\theta}{2}) & \\cos(\\\\frac{\\\\theta}{2})
+            R_Y(\\theta) = \\exp(i\\frac{\\theta}{2} Y) =
+                \\begin{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & \\sin(\\frac{\\theta}{2}) \\\\
+                -\\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
                 \\end{pmatrix}
         """
 
@@ -821,10 +819,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_Z(\\\\theta) = \\exp(i\\\\frac{\\\\theta}{2} Z) =
-                \\\\begin{pmatrix}
-                e^{i\\\\frac{\\\\theta}{2}} & 0 \\\\\\\\
-                0 & e^{-i\\\\frac{\\\\theta}{2}}
+            R_Z(\\theta) = \\exp(i\\frac{\\theta}{2} Z) =
+                \\begin{pmatrix}
+                e^{i\\frac{\\theta}{2}} & 0 \\\\
+                0 & e^{-i\\frac{\\theta}{2}}
                 \\end{pmatrix}
         """
 
@@ -837,10 +835,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_X(\\\\theta) = \\exp(i\\\\frac{\\\\theta}{2} X) =
-                \\\\begin{pmatrix}
-                \\cos(\\\\frac{\\\\theta}{2})  & i\\sin(\\\\frac{\\\\theta}{2}) \\\\\\\\
-                i\\sin(\\\\frac{\\\\theta}{2}) & \\cos(\\\\frac{\\\\theta}{2})
+            R_X(\\theta) = \\exp(i\\frac{\\theta}{2} X) =
+                \\begin{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & i\\sin(\\frac{\\theta}{2}) \\\\
+                i\\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
                 \\end{pmatrix}
         """
 
@@ -853,10 +851,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_Y(\\\\theta) = \\exp(i\\\\frac{\\\\theta}{2} Y) =
-                \\\\begin{pmatrix}
-                \\cos(\\\\frac{\\\\theta}{2})  & \\sin(\\\\frac{\\\\theta}{2}) \\\\\\\\
-                -\\sin(\\\\frac{\\\\theta}{2}) & \\cos(\\\\frac{\\\\theta}{2})
+            R_Y(\\theta) = \\exp(i\\frac{\\theta}{2} Y) =
+                \\begin{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & \\sin(\\frac{\\theta}{2}) \\\\
+                -\\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
                 \\end{pmatrix}
         """
 
@@ -869,10 +867,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            R_Z(\\\\theta) = \\exp(i\\\\frac{\\\\theta}{2} Z) =
-                \\\\begin{pmatrix}
-                e^{i\\\\frac{\\\\theta}{2}} & 0 \\\\\\\\
-                0 & e^{-i\\\\frac{\\\\theta}{2}}
+            R_Z(\\theta) = \\exp(i\\frac{\\theta}{2} Z) =
+                \\begin{pmatrix}
+                e^{i\\frac{\\theta}{2}} & 0 \\\\
+                0 & e^{-i\\frac{\\theta}{2}}
                 \\end{pmatrix}
         """
 
@@ -885,10 +883,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            RotX(\\\\theta) = \\exp(-i\\\\frac{\\\\theta}{2} X) =
-                \\\\begin{pmatrix}
-                \\cos(\\\\frac{\\\\theta}{2})  & -i\\sin(\\\\frac{\\\\theta}{2}) \\\\\\\\
-                -i\\sin(\\\\frac{\\\\theta}{2}) & \\cos(\\\\frac{\\\\theta}{2})
+            RotX(\\theta) = \\exp(-i\\frac{\\theta}{2} X) =
+                \\begin{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & -i\\sin(\\frac{\\theta}{2}) \\\\
+                -i\\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
                 \\end{pmatrix}
         """
 
@@ -901,10 +899,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            RotY(\\\\theta) = \\exp(-i\\\\frac{\\\\theta}{2} Y) =
-                \\\\begin{pmatrix}
-                \\cos(\\\\frac{\\\\theta}{2})  & -\\sin(\\\\frac{\\\\theta}{2}) \\\\\\\\
-                \\sin(\\\\frac{\\\\theta}{2}) & \\cos(\\\\frac{\\\\theta}{2})
+            RotY(\\theta) = \\exp(-i\\frac{\\theta}{2} Y) =
+                \\begin{pmatrix}
+                \\cos(\\frac{\\theta}{2})  & -\\sin(\\frac{\\theta}{2}) \\\\
+                \\sin(\\frac{\\theta}{2}) & \\cos(\\frac{\\theta}{2})
                 \\end{pmatrix}
         """
 
@@ -917,10 +915,10 @@ class QuantumCircuit:
         Matrix Representation
         
         .. math::
-            RotZ(\\\\theta) = \\exp(-i\\\\frac{\\\\theta}{2} Z) =
-                \\\\begin{pmatrix}
-                e^{-i\\\\frac{\\\\theta}{2}} & 0 \\\\\\\\
-                0 & e^{i\\\\frac{\\\\theta}{2}}
+            RotZ(\\theta) = \\exp(-i\\frac{\\theta}{2} Z) =
+                \\begin{pmatrix}
+                e^{-i\\frac{\\theta}{2}} & 0 \\\\
+                0 & e^{i\\frac{\\theta}{2}}
                 \\end{pmatrix}
         """
 
@@ -1537,152 +1535,6 @@ class QuantumState(QuantumStateBase):
 class QuantumStateBase:
     pass
 
-class QuantumStateGpu(QuantumStateBase):
-    @typing.overload
-    def __init__(self, qubit_count: int) -> None:
-        """
-        Constructor
-        """
-
-    @typing.overload
-    def __init__(self, qubit_count: int, device_number: int) -> None:
-        """
-        Constructor
-        """
-
-    def __str__(self) -> str:
-        """
-        to string
-        """
-
-    def add_state(self, state: QuantumStateBase) -> None:
-        """
-        Add state vector to this state
-        """
-
-    def allocate_buffer(self) -> QuantumStateBase:
-        """
-        Allocate buffer with the same size
-        """
-
-    def copy(self) -> QuantumStateGpu:
-        """
-        Create copied insntace
-        """
-
-    def get_classical_value(self, index: int) -> int:
-        """
-        Get classical value
-        """
-
-    def get_device_name(self) -> str:
-        """
-        Get allocated device name
-        """
-
-    def get_entropy(self) -> float:
-        """
-        Get entropy
-        """
-
-    def get_marginal_probability(self, measured_values: list[int]) -> float:
-        """
-        Get merginal probability for measured values
-        """
-
-    def get_qubit_count(self) -> int:
-        """
-        Get qubit count
-        """
-
-    def get_squared_norm(self) -> float:
-        """
-        Get squared norm
-        """
-
-    def get_vector(self) -> numpy.ndarray:
-        """
-        Get state vector
-        """
-
-    def get_zero_probability(self, index: int) -> float:
-        """
-        Get probability with which we obtain 0 when we measure a qubit
-        """
-
-    @typing.overload
-    def load(self, state: QuantumStateBase) -> None:
-        """
-        Load quantum state vector
-        """
-
-    @typing.overload
-    def load(self, state: list[complex]) -> None:
-        """
-        Load quantum state vector represented as a list
-        """
-
-    def multiply_coef(self, coef: complex) -> None:
-        """
-        Multiply coefficient to this state
-        """
-
-    def multiply_elementwise_function(
-        self, func: typing.Callable[[int], complex]
-    ) -> None:
-        """
-        Multiply elementwise function
-        """
-
-    def normalize(self, squared_norm: float) -> None:
-        """
-        Normalize quantum state
-        """
-
-    @typing.overload
-    def sampling(self, sampling_count: int) -> list[int]:
-        """
-        Sampling measurement results
-        """
-
-    @typing.overload
-    def sampling(self, sampling_count: int, random_seed: int) -> list[int]:
-        """
-        Sampling measurement results
-        """
-
-    @typing.overload
-    def set_Haar_random_state(self) -> None:
-        """
-        Set Haar random state
-        """
-
-    @typing.overload
-    def set_Haar_random_state(self, seed: int) -> None:
-        """
-        Set Haar random state
-        """
-
-    def set_classical_value(self, index: int, value: int) -> None:
-        """
-        Set classical value
-        """
-
-    def set_computational_basis(self, comp_basis: int) -> None:
-        """
-        Set state to computational basis
-        """
-
-    def set_zero_state(self) -> None:
-        """
-        Set state to |0>
-        """
-
-    def to_string(self) -> str:
-        """
-        to string
-        """
-
 class SimulationResult:
     def get_count(self) -> int:
         """
@@ -1702,11 +1554,6 @@ class SimulationResult:
 def StateVector(arg0: int) -> QuantumState:
     """
     StateVector
-    """
-
-def StateVectorGpu(arg0: int) -> QuantumStateGpu:
-    """
-    StateVectorGpu
     """
 
 def check_build_for_mpi() -> bool: ...
