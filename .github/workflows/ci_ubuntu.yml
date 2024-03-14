@@ -60,19 +60,6 @@ jobs:
       - name: Install qulacs Python module
         run: pip install .[ci]
 
-      - name: Check stubs
-        run: |
-          ./script/update_stubs.sh
-          diff=$(git diff)
-          echo -n "$diff"
-          # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
-          test $(echo -n "$diff" | wc -l) -eq 0
-
-      - name: Test if stub is working
-        run: |
-          python python/stub-test/generate_mypy_tester.py qulacs
-          mypy python/stub-test/names_qulacs.py
-
       - name: Test in Ubuntu
         run: |
           cd ./build
@@ -293,19 +280,6 @@ jobs:
 
       - name: Install MPI Python module
         run: pip install mpi4py
-
-      - name: Check stubs
-        run: |
-          ./script/update_stubs.sh
-          diff=$(git diff)
-          echo -n "$diff"
-          # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
-          test $(echo -n "$diff" | wc -l) -eq 0
-
-      - name: Test if stub is working
-        run: |
-          python python/stub-test/generate_mypy_tester.py qulacs
-          mypy python/stub-test/names_qulacs.py
 
       - name: Test in Ubuntu
         run: |

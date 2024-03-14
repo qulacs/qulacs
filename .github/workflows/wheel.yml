@@ -68,6 +68,12 @@ jobs:
         with:
           boost_version: 1.77.0
 
+      - name: Temporary install qulacs to generate stub
+        run: python -m pip install .[ci]
+
+      - name: Generate stub
+        run: ./script/update_stubs.sh
+
       - name: Run cibuildwheel for Windows
         if: ${{ contains(matrix.os, 'windows') }}
         run: python -m cibuildwheel --output-dir wheels
@@ -117,6 +123,12 @@ jobs:
 
       - name: Install Python dependencies
         run: python -m pip install twine build
+
+      - name: Temporary install qulacs to generate stub
+        run: python -m pip install .[ci]
+
+      - name: Generate stub
+        run: ./script/update_stubs.sh
 
       - name: create sdist
         run: python -m build --sdist
