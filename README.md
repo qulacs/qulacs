@@ -115,6 +115,15 @@ Install single-thread Qulacs:
 USE_OMP=No pip install .
 ```
 
+If you install qulacs manually, it does not have type stubs.
+To include type stubs into the package, you have to run `script/generate_stubs.sh` after the first install and reinstall.
+
+```
+pip install .
+script/update_stubs.sh
+pip install .
+```
+
 The number of threads used in Qulacs installed with default options can be controlled via the environment variable `OMP_NUM_THREADS` or `QULACS_NUM_THREADS`.
 While `OMP_NUM_THREADS` affects the parallelization of other libraries, `QULACS_NUM_THREADS` controls only the parallelization of QULACS.
 Or, if you want to force only Qulacs to use a single thread, You can install single-thread Qulacs with the above command.
