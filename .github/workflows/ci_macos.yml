@@ -19,20 +19,13 @@ jobs:
     name: Build on macOS
     strategy:
       matrix:
-        os: ["macos-12", "macos-14"]
         python-version: ["3.10"]
-        compiler: ["gcc"]
+        compiler: ["clang"]
         include:
-          - os: "macos-12"
-            compiler: "gcc"
-            c_compiler: "/usr/local/opt/ccache/libexec/gcc-11"
-            cxx_compiler: "/usr/local/opt/ccache/libexec/g++-11"
-          - os: "macos-14"
-            compiler: "gcc"
-            c_compiler: "/opt/homebrew/opt/ccache/libexec/gcc-11"
-            cxx_compiler: "/opt/homebrew/opt/ccache/libexec/g++-11"
-      fail-fast: false
-    runs-on: ${{ matrix.os }}
+          - compiler: "clang"
+            c_compiler: "/usr/local/opt/ccache/libexec/clang"
+            cxx_compiler: "/usr/local/opt/ccache/libexec/clang++"
+    runs-on: "macos-12"
     env:
       C_COMPILER: ${{ matrix.c_compiler }}
       CXX_COMPILER: ${{ matrix.cxx_compiler }}
@@ -55,6 +48,7 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
+          architecture: x64
 
       - name: Install Boost for macOS
         run: |
