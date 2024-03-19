@@ -122,8 +122,6 @@ jobs:
         os: ["ubuntu-20.04"]
     runs-on: ${{ matrix.os }}
     env:
-      CXX_COMPILER: "g++-12"
-      C_COMPILER: "gcc-12"
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
       TWINE_USERNAME: "__token__"
@@ -139,8 +137,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
 
-      - name: Install GCC 12 and boost
-        run: sudo apt update && sudo apt install g++-12 libboost-dev
+      - name: Install boost
+        run: sudo apt update && sudo apt install libboost-dev
 
       - name: Install Python dependencies
         run: python -m pip install twine build
