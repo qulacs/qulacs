@@ -97,6 +97,7 @@ jobs:
         run: python -m cibuildwheel --output-dir wheels
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
+          CIBW_BUILD: ""
 
       - name: Run cibuildwheel for Mac, Linux
         if: ${{ !contains(matrix.os, 'windows') }}
