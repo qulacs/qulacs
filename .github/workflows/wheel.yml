@@ -61,6 +61,17 @@ jobs:
       - name: Install Python dependencies
         run: python -m pip install cibuildwheel twine
 
+      - name: Install boost if ubuntu
+        if: ${{ contains(matrix.os, 'ubuntu') }}
+        run: sudo apt install libboost-dev
+
+      - name: Install boost if macos
+        if: ${{ contains(matrix.os, 'macos') }}
+        run: |
+          brew upgrade
+          brew install boost
+          brew link boost
+
       - name: Install boost if windows
         if: ${{ contains(matrix.os, 'windows') }}
         uses: MarkusJx/install-boost@v2.4.0
