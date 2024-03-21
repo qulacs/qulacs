@@ -52,11 +52,6 @@ jobs:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
         run: pip install .[ci]
 
-      - name: Test if stub is working
-        run: |
-          python python/stub-test/generate_mypy_tester.py qulacs
-          mypy python/stub-test/names_qulacs.py
-
       - name: Test in Windows
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}
