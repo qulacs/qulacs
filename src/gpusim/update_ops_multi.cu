@@ -233,8 +233,10 @@ __host__ void quad_qubit_dense_matrix_gate_host(
         __FILE__, __LINE__);
     ITYPE loop_dim = dim >> 4;
 
-    unsigned int block = loop_dim <= 512 ? loop_dim : 512;
-    unsigned int grid = loop_dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(quad_qubit_dense_matrix_gate_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
     unsigned int target0_qubit_index, target1_qubit_index, target2_qubit_index,
         target3_qubit_index;
     target0_qubit_index = target_qubit_index[0];
@@ -335,8 +337,10 @@ __host__ void triple_qubit_dense_matrix_gate_host(
 
     // (not using shared memory)
     ITYPE loop_dim = dim >> 3;
-    unsigned int block = loop_dim <= 512 ? loop_dim : 512;
-    unsigned int grid = loop_dim / block;
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        triple_qubit_dense_matrix_gate_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
 
     unsigned int small, mid, large, tmp;
     small = target0_qubit_index;
@@ -432,8 +436,10 @@ __host__ void double_qubit_dense_matrix_gate_host(
             cudaMemcpyHostToDevice, *cuda_stream),
         __FILE__, __LINE__);
     ITYPE quad_dim = dim >> 2;
-    unsigned int block = quad_dim <= 1024 ? quad_dim : 1024;
-    unsigned int grid = quad_dim / block;
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        double_qubit_dense_matrix_gate_gpu);
+    unsigned int block = quad_dim <= max_block_size ? quad_dim : max_block_size;
+    unsigned int grid = (quad_dim + block - 1) / block;
 
     unsigned int small;
     unsigned int large;
@@ -482,8 +488,10 @@ __host__ void multi_qubit_Pauli_gate_Z_mask_host(ITYPE phase_flip_mask,
     cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     cudaError cudaStatus;
-    unsigned int block = dim <= 1024 ? dim : 1024;
-    unsigned int grid = dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(multi_qubit_Pauli_gate_Z_mask_gpu);
+    unsigned int block = dim <= max_block_size ? dim : max_block_size;
+    unsigned int grid = (dim + block - 1) / block;
 
     multi_qubit_Pauli_gate_Z_mask_gpu<<<grid, block, 0, *cuda_stream>>>(
         phase_flip_mask, state_gpu, dim);
@@ -545,8 +553,11 @@ __host__ void multi_qubit_Pauli_gate_XZ_mask_host(ITYPE bit_flip_mask,
     cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     cudaError cudaStatus;
-    unsigned int block = dim <= 1024 ? dim : 1024;
-    unsigned int grid = dim / block;
+    ITYPE loop_dim = dim >> 1;
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        multi_qubit_Pauli_gate_XZ_mask_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
 
     multi_qubit_Pauli_gate_XZ_mask_gpu<<<grid, block, 0, *cuda_stream>>>(
         bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
@@ -628,8 +639,11 @@ __host__ void multi_qubit_Pauli_rotation_gate_XZ_mask_host(ITYPE bit_flip_mask,
     cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     cudaError cudaStatus;
-    unsigned int block = dim <= 1024 ? dim : 1024;
-    unsigned int grid = dim / block;
+    ITYPE loop_dim = dim >> 1;
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        multi_qubit_Pauli_rotation_gate_XZ_mask_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
 
     multi_qubit_Pauli_rotation_gate_XZ_mask_gpu<<<grid, block, 0,
         *cuda_stream>>>(bit_flip_mask, phase_flip_mask,
@@ -675,8 +689,10 @@ __host__ void multi_qubit_Pauli_rotation_gate_Z_mask_host(ITYPE phase_flip_mask,
     cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     cudaError cudaStatus;
-    unsigned int block = dim <= 1024 ? dim : 1024;
-    unsigned int grid = dim / block;
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        multi_qubit_Pauli_rotation_gate_Z_mask_gpu);
+    unsigned int block = dim <= max_block_size ? dim : max_block_size;
+    unsigned int grid = (dim + block - 1) / block;
 
     multi_qubit_Pauli_rotation_gate_Z_mask_gpu<<<grid, block, 0,
         *cuda_stream>>>(phase_flip_mask, angle, state_gpu, dim);
@@ -1308,19 +1324,14 @@ __host__ void single_qubit_control_multi_qubit_dense_matrix_gate_host(
     // loop varaibles
     const ITYPE loop_dim = dim >> insert_index_count;
 
-    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
-    unsigned int grid = loop_dim / block;
-
     if (target_qubit_index_count <= 10) {
-        if (target_qubit_index_count >= 3) {
-            unsigned int tmp_block = 1ULL << (13 - target_qubit_index_count);
-            block = loop_dim <= tmp_block ? loop_dim : tmp_block;
-        } else {
-            block = loop_dim <= 1024 ? loop_dim : 1024;
-        }
-        grid = loop_dim / block;
-
         if (target_qubit_index_count <= 5) {
+            unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+                static_cast<void (*)(UINT, UINT, UINT, GTYPE*, ITYPE)>(
+                    single_qubit_control_multi_qubit_dense_matrix_gate_const_gpu));
+            unsigned int block =
+                loop_dim <= max_block_size ? loop_dim : max_block_size;
+            unsigned int grid = (loop_dim + block - 1) / block;
             checkCudaErrors(cudaMemcpyToSymbolAsync(matrix_const_gpu, matrix,
                                 sizeof(GTYPE) * matrix_dim * matrix_dim, 0,
                                 cudaMemcpyHostToDevice, *cuda_stream),
@@ -1340,6 +1351,13 @@ __host__ void single_qubit_control_multi_qubit_dense_matrix_gate_host(
                 block, 0, *cuda_stream>>>(control_qubit_index, control_value,
                 target_qubit_index_count, state_gpu, dim);
         } else {
+            unsigned int max_block_size =
+                get_block_size_to_maximize_occupancy(static_cast<void (*)(
+                        UINT, UINT, UINT, const GTYPE*, GTYPE*, ITYPE)>(
+                    single_qubit_control_multi_qubit_dense_matrix_gate_const_gpu));
+            unsigned int block =
+                loop_dim <= max_block_size ? loop_dim : max_block_size;
+            unsigned int grid = (loop_dim + block - 1) / block;
             checkCudaErrors(cudaMalloc(reinterpret_cast<void**>(&d_matrix),
                                 matrix_dim * matrix_dim * sizeof(GTYPE)),
                 __FILE__, __LINE__);
@@ -1504,19 +1522,14 @@ __host__ void multi_qubit_control_multi_qubit_dense_matrix_gate_host(
 
     GTYPE *d_matrix, *d_matrix_mask_list;
 
-    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
-    unsigned int grid = loop_dim / block;
-
     if (target_qubit_index_count <= 10) {
-        if (target_qubit_index_count >= 3) {
-            unsigned int tmp_block = 1ULL << (13 - target_qubit_index_count);
-            block = loop_dim <= tmp_block ? loop_dim : tmp_block;
-        } else {
-            block = loop_dim <= 1024 ? loop_dim : 1024;
-        }
-        grid = loop_dim / block;
-
         if (target_qubit_index_count <= 5) {
+            unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+                static_cast<void (*)(ITYPE, UINT, ITYPE, GTYPE*, ITYPE)>(
+                    multi_qubit_control_multi_qubit_dense_matrix_gate_const_gpu));
+            unsigned int block =
+                loop_dim <= max_block_size ? loop_dim : max_block_size;
+            unsigned int grid = (loop_dim + block - 1) / block;
             checkCudaErrors(cudaMemcpyToSymbolAsync(matrix_const_gpu, matrix,
                                 sizeof(GTYPE) * matrix_dim * matrix_dim, 0,
                                 cudaMemcpyHostToDevice, *cuda_stream),
@@ -1538,6 +1551,13 @@ __host__ void multi_qubit_control_multi_qubit_dense_matrix_gate_host(
                 target_qubit_index_count, control_qubit_index_count, state_gpu,
                 dim);
         } else {
+            unsigned int max_block_size =
+                get_block_size_to_maximize_occupancy(static_cast<void (*)(
+                        ITYPE, UINT, ITYPE, const GTYPE*, GTYPE*, ITYPE)>(
+                    multi_qubit_control_multi_qubit_dense_matrix_gate_const_gpu));
+            unsigned int block =
+                loop_dim <= max_block_size ? loop_dim : max_block_size;
+            unsigned int grid = (loop_dim + block - 1) / block;
             checkCudaErrors(cudaMalloc(reinterpret_cast<void**>(&d_matrix),
                                 matrix_dim * matrix_dim * sizeof(GTYPE)),
                 __FILE__, __LINE__);
@@ -1619,8 +1639,11 @@ __host__ void multi_qubit_diagonal_matrix_gate_with_constant_memory_host(
                         matrix_const_gpu, diagonal_matrix, sizeof(GTYPE) * dim),
         __FILE__, __LINE__);
 
-    unsigned int block = dim <= 1024 ? dim : 1024;
-    unsigned int grid = dim / block;
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        static_cast<void (*)(GTYPE*, ITYPE)>(
+            multi_qubit_diagonal_matrix_gate_gpu));
+    unsigned int block = dim <= max_block_size ? dim : max_block_size;
+    unsigned int grid = (dim + block - 1) / block;
 
     multi_qubit_diagonal_matrix_gate_gpu<<<grid, block, 0, *cuda_stream>>>(
         state_gpu, dim);
@@ -1646,8 +1669,11 @@ __host__ void multi_qubit_diagonal_matrix_gate_with_global_memory_host(
             cudaMemcpyHostToDevice, *cuda_stream),
         __FILE__, __LINE__);
 
-    unsigned int block = dim <= 1024 ? dim : 1024;
-    unsigned int grid = dim / block;
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        static_cast<void (*)(GTYPE*, GTYPE*, ITYPE)>(
+            multi_qubit_diagonal_matrix_gate_gpu));
+    unsigned int block = dim <= max_block_size ? dim : max_block_size;
+    unsigned int grid = (dim + block - 1) / block;
 
     multi_qubit_diagonal_matrix_gate_gpu<<<grid, block, 0, *cuda_stream>>>(
         d_matrix, state_gpu, dim);
