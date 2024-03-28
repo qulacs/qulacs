@@ -28,6 +28,9 @@ inline void checkCudaErrors(
     }
 }
 
+// As a result of the experience, using `cudaOccupancyMaxPotentialBlockSize`
+// does not lose performance. ref:
+// https://github.com/qulacs/qulacs/issues/618#issuecomment-2011658886
 template <typename F>
 inline unsigned int get_block_size_to_maximize_occupancy(F func,
     unsigned int dynamic_s_mem_size = 0, unsigned int block_size_limit = 0) {

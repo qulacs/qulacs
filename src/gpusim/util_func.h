@@ -25,6 +25,8 @@ DllExport void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy,
 DllExport void print_quantum_state_host(
     void* state, ITYPE dim, unsigned int device_number);
 
+ITYPE get_loop_dim_of_reduction_function(ITYPE dim);
+
 ITYPE
 insert_zero_to_basis_index_gsim(ITYPE basis_index, unsigned int qubit_index);
 void get_Pauli_masks_partial_list_gsim(const UINT* target_qubit_index_list,
