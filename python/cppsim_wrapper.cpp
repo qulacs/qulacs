@@ -962,7 +962,7 @@ PYBIND11_MODULE(qulacs_core, m) {
             const ITYPE dim = 1ULL << target_qubit_index_list.size();
             if (diagonal_element.size() != dim)
                 throw std::invalid_argument(
-                    "dim of diagonal elemet is not consistent.");
+                    "dim of diagonal element is not consistent.");
             auto ptr =
                 gate::DiagonalMatrix(target_qubit_index_list, diagonal_element);
             return ptr;
@@ -1235,10 +1235,10 @@ Notes
 Matrix Representation
 
 .. math::
-    R_X(\\theta) = \exp(i\\frac{\\theta}{2} X) =
-        \\begin{pmatrix}
-        \cos(\\frac{\\theta}{2})  & i\sin(\\frac{\\theta}{2}) \\\\
-        i\sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
+    R_X(\theta) = \exp(i\frac{\theta}{2} X) =
+        \begin{pmatrix}
+        \cos(\frac{\theta}{2})  & i\sin(\frac{\theta}{2}) \\
+        i\sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
         \end{pmatrix}
 )",
             py::arg("index"), py::arg("angle"))
@@ -1250,10 +1250,10 @@ Notes
 Matrix Representation
 
 .. math::
-    R_Y(\\theta) = \exp(i\\frac{\\theta}{2} Y) =
-        \\begin{pmatrix}
-        \cos(\\frac{\\theta}{2})  & \sin(\\frac{\\theta}{2}) \\\\
-        -\sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
+    R_Y(\theta) = \exp(i\frac{\theta}{2} Y) =
+        \begin{pmatrix}
+        \cos(\frac{\theta}{2})  & \sin(\frac{\theta}{2}) \\
+        -\sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
         \end{pmatrix}
 )",
             py::arg("index"), py::arg("angle"))
@@ -1265,10 +1265,10 @@ Notes
 Matrix Representation
 
 .. math::
-    R_Z(\\theta) = \exp(i\\frac{\\theta}{2} Z) =
-        \\begin{pmatrix}
-        e^{i\\frac{\\theta}{2}} & 0 \\\\
-        0 & e^{-i\\frac{\\theta}{2}}
+    R_Z(\theta) = \exp(i\frac{\theta}{2} Z) =
+        \begin{pmatrix}
+        e^{i\frac{\theta}{2}} & 0 \\
+        0 & e^{-i\frac{\theta}{2}}
         \end{pmatrix}
 )",
             py::arg("index"), py::arg("angle"))
@@ -1280,10 +1280,10 @@ Notes
 Matrix Representation
 
 .. math::
-    R_X(\\theta) = \exp(i\\frac{\\theta}{2} X) =
-        \\begin{pmatrix}
-        \cos(\\frac{\\theta}{2})  & i\sin(\\frac{\\theta}{2}) \\\\
-        i\sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
+    R_X(\theta) = \exp(i\frac{\theta}{2} X) =
+        \begin{pmatrix}
+        \cos(\frac{\theta}{2})  & i\sin(\frac{\theta}{2}) \\
+        i\sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
         \end{pmatrix}
 )",
             py::arg("index"), py::arg("angle"))
@@ -1295,10 +1295,10 @@ Notes
 Matrix Representation
 
 .. math::
-    R_Y(\\theta) = \exp(i\\frac{\\theta}{2} Y) =
-        \\begin{pmatrix}
-        \cos(\\frac{\\theta}{2})  & \sin(\\frac{\\theta}{2}) \\\\
-        -\sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
+    R_Y(\theta) = \exp(i\frac{\theta}{2} Y) =
+        \begin{pmatrix}
+        \cos(\frac{\theta}{2})  & \sin(\frac{\theta}{2}) \\
+        -\sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
         \end{pmatrix}
 )",
             py::arg("index"), py::arg("angle"))
@@ -1310,10 +1310,10 @@ Notes
 Matrix Representation
 
 .. math::
-    R_Z(\\theta) = \exp(i\\frac{\\theta}{2} Z) =
-        \\begin{pmatrix}
-        e^{i\\frac{\\theta}{2}} & 0 \\\\
-        0 & e^{-i\\frac{\\theta}{2}}
+    R_Z(\theta) = \exp(i\frac{\theta}{2} Z) =
+        \begin{pmatrix}
+        e^{i\frac{\theta}{2}} & 0 \\
+        0 & e^{-i\frac{\theta}{2}}
         \end{pmatrix}
 )",
             py::arg("index"), py::arg("angle"))
@@ -1325,10 +1325,10 @@ Notes
 Matrix Representation
 
 .. math::
-    RotX(\\theta) = \exp(-i\\frac{\\theta}{2} X) =
-        \\begin{pmatrix}
-        \cos(\\frac{\\theta}{2})  & -i\sin(\\frac{\\theta}{2}) \\\\
-        -i\sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
+    RotX(\theta) = \exp(-i\frac{\theta}{2} X) =
+        \begin{pmatrix}
+        \cos(\frac{\theta}{2})  & -i\sin(\frac{\theta}{2}) \\
+        -i\sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
         \end{pmatrix}
 )",
             py::arg("index"), py::arg("angle"))
@@ -1340,10 +1340,10 @@ Notes
 Matrix Representation
 
 .. math::
-    RotY(\\theta) = \exp(-i\\frac{\\theta}{2} Y) =
-        \\begin{pmatrix}
-        \cos(\\frac{\\theta}{2})  & -\sin(\\frac{\\theta}{2}) \\\\
-        \sin(\\frac{\\theta}{2}) & \cos(\\frac{\\theta}{2})
+    RotY(\theta) = \exp(-i\frac{\theta}{2} Y) =
+        \begin{pmatrix}
+        \cos(\frac{\theta}{2})  & -\sin(\frac{\theta}{2}) \\
+        \sin(\frac{\theta}{2}) & \cos(\frac{\theta}{2})
         \end{pmatrix}
 )",
             py::arg("index"), py::arg("angle"))
@@ -1355,10 +1355,10 @@ Notes
 Matrix Representation
 
 .. math::
-    RotZ(\\theta) = \exp(-i\\frac{\\theta}{2} Z) =
-        \\begin{pmatrix}
-        e^{-i\\frac{\\theta}{2}} & 0 \\\\
-        0 & e^{i\\frac{\\theta}{2}}
+    RotZ(\theta) = \exp(-i\frac{\theta}{2} Z) =
+        \begin{pmatrix}
+        e^{-i\frac{\theta}{2}} & 0 \\
+        0 & e^{i\frac{\theta}{2}}
         \end{pmatrix}
 )",
             py::arg("index"), py::arg("angle"))

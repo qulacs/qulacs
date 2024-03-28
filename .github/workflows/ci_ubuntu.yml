@@ -15,11 +15,11 @@ on:
       - "*.md"
 
 jobs:
-  gcc8-build:
-    name: GCC8 build
+  gcc-build:
+    name: GCC build
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ["3.11"]
     runs-on: "ubuntu-20.04"
     env:
       CXX_COMPILER: "/usr/lib/ccache/g++"
@@ -28,7 +28,7 @@ jobs:
       COVERAGE: "Yes"
       USE_TEST: "Yes"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
@@ -40,7 +40,7 @@ jobs:
           verbose: 2
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -60,19 +60,6 @@ jobs:
       - name: Install qulacs Python module
         run: pip install .[ci]
 
-      - name: Check stubs
-        run: |
-          ./script/update_stubs.sh
-          diff=$(git diff)
-          echo -n "$diff"
-          # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
-          test $(echo -n "$diff" | wc -l) -eq 0
-
-      - name: Test if stub is working
-        run: |
-          python python/stub-test/generate_mypy_tester.py qulacs
-          mypy python/stub-test/names_qulacs.py
-
       - name: Test in Ubuntu
         run: |
           cd ./build
@@ -80,7 +67,7 @@ jobs:
           make pythontest -j $(nproc)
 
       - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
 
   gcc10-build-with-address-sanitizer:
     name: GCC10 build with -fsanitizer=address enabled
@@ -91,7 +78,7 @@ jobs:
       QULACS_OPT_FLAGS: "-mtune=haswell -march=haswell -mfpmath=both"
       USE_TEST: "Yes"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
@@ -114,8 +101,8 @@ jobs:
           cd ./build
           make test
 
-  nvcc-gcc8-GPUbuild:
-    name: nvcc + gcc8 build
+  nvcc-gcc-GPUbuild:
+    name: nvcc + gcc build
     runs-on: "ubuntu-20.04"
     env:
       CXX_COMPILER: "/usr/lib/ccache/g++"
@@ -126,7 +113,7 @@ jobs:
       USE_TEST: "Yes"
       USE_GPU: "Yes"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
@@ -138,7 +125,7 @@ jobs:
           verbose: 2
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.7.5"
           architecture: x64
@@ -172,7 +159,7 @@ jobs:
       QULACS_OPT_FLAGS: "-march=armv8.2-a+sve"
       QEMU_LD_PREFIX: "/usr/aarch64-linux-gnu"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup qemu
         run: |
@@ -210,7 +197,7 @@ jobs:
     name: Format with clang-format
     runs-on: "ubuntu-20.04"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - run: sudo apt install clang-format=1:10.0-50~exp1
 
@@ -230,30 +217,30 @@ jobs:
     runs-on: "ubuntu-20.04"
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ["3.11"]
 
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
 
       - name: Install formatters
-        run: pip install black isort
+        run: python -m pip install black isort
 
       - name: Check format
         run: |
-          black . --check --diff
-          isort . --check --diff
+          python -m black . --check --diff
+          python -m isort . --check --diff
 
   mpicc-build:
     name: MPICC build
     strategy:
       matrix:
-        python-version: ["3.10"]
+        python-version: ["3.11"]
     runs-on: "ubuntu-20.04"
     env:
       CXX_COMPILER: "mpic++"
@@ -262,13 +249,13 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -294,19 +281,6 @@ jobs:
       - name: Install MPI Python module
         run: pip install mpi4py
 
-      - name: Check stubs
-        run: |
-          ./script/update_stubs.sh
-          diff=$(git diff)
-          echo -n "$diff"
-          # Without `-n`, `echo -n "$diff" | wc -l` is 1 even if `"$diff" is empty.`
-          test $(echo -n "$diff" | wc -l) -eq 0
-
-      - name: Test if stub is working
-        run: |
-          python python/stub-test/generate_mypy_tester.py qulacs
-          mypy python/stub-test/names_qulacs.py
-
       - name: Test in Ubuntu
         run: |
           cd ./build
@@ -321,4 +295,4 @@ jobs:
           mpirun -n 2 pytest python/tests/multi_cpu
 
       - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4

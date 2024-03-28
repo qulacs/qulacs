@@ -32,7 +32,7 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
       CACHE_NAME: "ccache-qulacs-build-v2"
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
@@ -45,7 +45,7 @@ jobs:
           verbose: 2
 
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -61,11 +61,6 @@ jobs:
 
       - name: Install qulacs Python module
         run: pip install .[ci]
-
-      # - name: Test if stub is working
-      #   run: |
-      #     python python/stub-test/generate_mypy_tester.py qulacs
-      #     mypy python/stub-test/names_qulacs.py
 
       - name: Test in macOS
         run: |
