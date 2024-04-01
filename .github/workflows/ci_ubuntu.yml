@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.11"]
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-22.04"
     env:
       CXX_COMPILER: "/usr/lib/ccache/g++"
       C_COMPILER: "/usr/lib/ccache/gcc"
@@ -36,7 +36,7 @@ jobs:
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: "${{ github.job }}-ubuntu-20.04"
+          key: "${{ github.job }}-ubuntu-22.04"
           verbose: 2
 
       - name: Setup Python
@@ -71,7 +71,7 @@ jobs:
 
   gcc10-build-with-address-sanitizer:
     name: GCC10 build with -fsanitizer=address enabled
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-22.04"
     env:
       CXX_COMPILER: "/usr/lib/ccache/g++"
       C_COMPILER: "/usr/lib/ccache/gcc"
@@ -86,7 +86,7 @@ jobs:
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: "${{ github.job }}-ubuntu-20.04"
+          key: "${{ github.job }}-ubuntu-22.04"
           verbose: 2
 
       - name: Install boost
@@ -103,7 +103,7 @@ jobs:
 
   nvcc-gcc-GPUbuild:
     name: nvcc + gcc build
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-22.04"
     env:
       CXX_COMPILER: "/usr/lib/ccache/g++"
       C_COMPILER: "/usr/lib/ccache/gcc"
@@ -121,7 +121,7 @@ jobs:
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: "${{ github.job }}-ubuntu-20.04"
+          key: "${{ github.job }}-ubuntu-22.04"
           verbose: 2
 
       - name: Setup Python
@@ -195,7 +195,7 @@ jobs:
 
   format:
     name: Format with clang-format
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-22.04"
     steps:
       - uses: actions/checkout@v4
 
@@ -214,7 +214,7 @@ jobs:
 
   python-format:
     name: Format with Python formatters
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-22.04"
     strategy:
       matrix:
         python-version: ["3.11"]
@@ -241,7 +241,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.11"]
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-22.04"
     env:
       CXX_COMPILER: "mpic++"
       C_COMPILER: "mpicc"
