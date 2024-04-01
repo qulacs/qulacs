@@ -108,7 +108,6 @@ jobs:
       CXX_COMPILER: "/usr/lib/ccache/g++"
       C_COMPILER: "/usr/lib/ccache/gcc"
       QULACS_OPT_FLAGS: "-mtune=haswell -march=haswell -mfpmath=both"
-      PYTHON: "3.7.5"
       COVERAGE: "ON"
       USE_TEST: "Yes"
       USE_GPU: "Yes"
@@ -127,7 +126,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.7.5"
+          python-version: "3.11"
           architecture: x64
 
       - name: Install boost
@@ -199,11 +198,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: sudo apt install clang-format=1:10.0-50~exp1
+      - run: sudo apt install clang-format=1:14.0-55~exp2
 
-      - name: format
-        run: |
-          ./script/format.sh
+      - run: ./script/format.sh
 
       - name: Compare diff
         run: |
@@ -246,7 +243,6 @@ jobs:
       CXX_COMPILER: "mpic++"
       C_COMPILER: "mpicc"
       QULACS_OPT_FLAGS: "-mtune=haswell -march=haswell -mfpmath=both"
-      PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
     steps:
       - uses: actions/checkout@v4
