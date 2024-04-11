@@ -7,6 +7,9 @@ build:
   apt_packages:
     - cmake
     - libboost-dev
+  jobs:
+    pre_build:
+      - ./script/update_stubs.sh
 
 python:
   install:
