@@ -62,10 +62,11 @@ ci = [
 ]
 
 doc = [
+    "mypy",
+    "pybind11-stubgen",
     "sphinx==7.*",
     "sphinx-rtd-theme",
     "breathe",
-    #"exhale@git+https://github.com/svenevs/exhale.git@fix/packaging-requirements", # workaround until https://github.com/svenevs/exhale/pull/205 is merged
     "exhale",
     "nbsphinx",
     "myst-parser",
