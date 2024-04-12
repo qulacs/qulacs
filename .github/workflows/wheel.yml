@@ -116,7 +116,7 @@ jobs:
         run: echo ./wheels/*.whl
 
       - name: Upload wheel to GitHub
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           path: ./wheels/*.whl
 
