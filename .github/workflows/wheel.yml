@@ -112,6 +112,9 @@ jobs:
         if: ${{ !contains(matrix.os, 'windows') }}
         run: python -m cibuildwheel --output-dir wheels
 
+      - name: Debug: list wheels
+        run: echo ./wheels/*.whl
+
       - name: Upload wheel to GitHub
         uses: actions/upload-artifact@v4
         with:
