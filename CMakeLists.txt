@@ -32,6 +32,7 @@ else()
 	set(DEFAULT_USE_SIMD No)
 endif()
 
+set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 ##### Check compiler Version #####
 message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")

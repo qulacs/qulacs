@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.0)
+project(qulacs LANGUAGES HIP)
 
 file(GLOB GPUSIM_SRC
     "*.cu"
@@ -20,22 +21,20 @@ find_package(hip REQUIRED)
 find_package(hipblas REQUIRED)
 find_package(rocrand REQUIRED)
 
-#file(GLOB GPUSIM_FILES
-#    "*.cpp"
-#    "*.cuh"
-#    "*.h")
-#message("-- ROCm --")
-#message("Version: " ${HIP_VERSION})
-
 set(CMAKE_CXX_COMPILER ${HIP_HIPCC_EXECUTABLE})
-set(CMAKE_CXX_LINKER   ${HIP_HIPCC_EXECUTABLE})
-set(CMAKE_BUILD_TYPE Release)
+set(CMAKE_CXX_LINKER ${HIP_HIPCC_EXECUTABLE})
+set(CMAKE_BUILD_TYPE Debug)
 
-add_library(gpusim_static STATIC ${GPUSIM_FILES})
+message(STATUS "C++ Compiler: ${CMAKE_CXX_COMPILER}")
+message(STATUS "C++ Linker: ${CMAKE_CXX_LINKER}")
+
+file(GLOB CUDA_FILES "*.cu")
+
+add_library(gpusim_static STATIC ${GPUSIM_SRC})
+set_target_properties(gpusim_static PROPERTIES LINKER_LANGUAGE CXX)
+set_target_properties(gpusim_static PROPERTIES HIP_ARCHITECTURES "gfx90a;gfx942")
 target_link_libraries(gpusim_static hip::host roc::hipblas roc::rocrand)
-
-message("Flag: " ${HIP_HIPCC_FLAGS})
-message(FATAL_ERROR "Not Ready yet")
+set_source_files_properties(${CUDA_FILES} PROPERTIES LANGUAGE HIP)
 
 elseif(USE_GPU)
 # CUDA for NVIDIA GPU
