@@ -14,7 +14,7 @@ if (NOT DEFINED ROCM_PATH )
 endif ()
 
 # Search for rocm in common locations
-list(APPEND CMAKE_PREFIX_PATH ${ROCM_PATH}/hip ${ROCM_PATH})
+list(APPEND CMAKE_PREFIX_PATH ${ROCM_PATH}/lib/cmake ${ROCM_PATH})
 
 # Find hip
 find_package(hip REQUIRED)
