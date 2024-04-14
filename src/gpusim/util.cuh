@@ -9,10 +9,15 @@
 #include <iostream>
 #include <string>
 
+#ifdef __HIP_PLATFORM_AMD__
+#include "hip/hip_runtime.h"
+#include <hip/hip_complex.h>
+#else
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 //#include <sys/time.h>
 #include <cuComplex.h>
+#endif
 
 #include "util_type.h"
 #include "util_type_internal.h"
@@ -20,10 +25,17 @@
 //#include "util_type.h"
 
 inline void checkCudaErrors(
+#ifdef __HIP_PLATFORM_AMD__
+    const hipError_t error, std::string filename, int line) {
+    if (error != hipSuccess) {
+        printf("Error: %s:%d, ", filename.c_str(), line);
+        printf("code: %d, reason: %s\n", error, hipGetErrorString(error));
+#else
     const cudaError error, std::string filename, int line) {
     if (error != cudaSuccess) {
         printf("Error: %s:%d, ", filename.c_str(), line);
         printf("code: %d, reason: %s\n", error, cudaGetErrorString(error));
+#endif
         exit(1);
     }
 }
@@ -52,11 +64,21 @@ __FILE__, __LINE__); checkCudaErrors(cudaMemcpyAsync(state_gpu, state_cpu, dim *
 sizeof(CPPCTYPE), cudaMemcpyHostToDevice, *cuda_stream), __FILE__, __LINE__);
 }
 */
+#ifdef __HIP_PLATFORM_AMD__
+inline void __cudaSafeCall(hipError_t err, const char* file, const int line) {
+#else
 inline void __cudaSafeCall(cudaError err, const char* file, const int line) {
+#endif
 #ifdef CUDA_ERROR_CHECK
+#ifdef __HIP_PLATFORM_AMD__
+    if (hipSuccess != err) {
+        fprintf(stderr, "cudaSafeCall() failed at %s:%i : %s\n", file, line,
+            hipGetErrorString(err));
+#else
     if (cudaSuccess != err) {
         fprintf(stderr, "cudaSafeCall() failed at %s:%i : %s\n", file, line,
             cudaGetErrorString(err));
+#endif
         exit(-1);
     }
 #endif
