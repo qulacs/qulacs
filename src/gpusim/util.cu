@@ -1,3 +1,12 @@
+#ifdef __HIP_PLATFORM_AMD__
+
+#include <hip/hip_runtime.h>
+#include <assert.h>
+#include <hip/hip_complex.h>
+#include <hipblas/hipblas.h>
+
+#else
+
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
 //#include "cuda.h"
@@ -5,6 +14,8 @@
 #include <assert.h>
 #include <cuComplex.h>
 #include <cublas_v2.h>
+
+#endif
 
 #include <algorithm>
 #include <cmath>
@@ -20,28 +31,51 @@
 
 int get_num_device() {
     int n_gpu;
+#ifdef __HIP_PLATFORM_AMD__
+    hipGetDeviceCount(&n_gpu);
+#else
     cudaGetDeviceCount(&n_gpu);
+#endif
     return n_gpu;
 }
 
+#ifdef __HIP_PLATFORM_AMD__
+void set_device(unsigned int device_num) { hipSetDevice(device_num); }
+#else
 void set_device(unsigned int device_num) { cudaSetDevice(device_num); }
+#endif
 
 int get_current_device() {
     int curr_dev_num;
+#ifdef __HIP_PLATFORM_AMD__
+    hipGetDevice(&curr_dev_num);
+#else
     cudaGetDevice(&curr_dev_num);
+#endif
     return curr_dev_num;
 }
 inline __device__ double __shfl_down_double(
+#ifdef __HIP_PLATFORM_AMD__
+    double var, unsigned int srcLane, int width = 64) {
+    int2 a = *reinterpret_cast<int2*>(&var);
+    a.x = __shfl_down(a.x, srcLane, width);
+    a.y = __shfl_down(a.y, srcLane, width);
+#else
     double var, unsigned int srcLane, int width = 32) {
     int2 a = *reinterpret_cast<int2*>(&var);
     a.x = __shfl_down_sync(a.x, srcLane, width);
     a.y = __shfl_down_sync(a.y, srcLane, width);
+#endif
     return *reinterpret_cast<double*>(&a);
 }
 
 inline __device__ int warpReduceSum(int val) {
     for (int offset = warpSize / 2; offset > 0; offset /= 2)
+#ifdef __HIP_PLATFORM_AMD__
+        val += __shfl_down(val, offset);
+#else
         val += __shfl_down_sync(0xffffffff, val, offset);
+#endif
     // val += __shfl_down(val, offset);
     return val;
 }
@@ -65,28 +99,49 @@ __global__ void deviceReduceWarpAtomicKernel(int* in, int* out, ITYPE N) {
 __global__ void set_computational_basis_gpu(
     ITYPE comp_basis, GTYPE* state, ITYPE dim) {
     ITYPE idx = blockIdx.x * blockDim.x + threadIdx.x;
+#ifdef __HIP_PLATFORM_AMD__
+    if (idx < dim) {
+        state[idx] = make_hipDoubleComplex(0.0, 0.0);
+    }
+    if (idx == comp_basis) state[comp_basis] = make_hipDoubleComplex(1.0, 0.0);
+#else
     if (idx < dim) {
         state[idx] = make_cuDoubleComplex(0.0, 0.0);
     }
     if (idx == comp_basis) state[comp_basis] = make_cuDoubleComplex(1.0, 0.0);
+#endif
 }
 
 __host__ void set_computational_basis_host(ITYPE comp_basis, void* state,
     ITYPE dim, void* stream, unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice(device_number);
+
+    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+#else
     if (device_number != current_device) cudaSetDevice(device_number);
 
     cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
+#endif
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 
     unsigned int block = dim <= 1024 ? dim : 1024;
     unsigned int grid = dim / block;
 
+#ifdef __HIP_PLATFORM_AMD__
+    set_computational_basis_gpu<<<grid, block, 0, *hip_stream>>>(
+        comp_basis, state_gpu, dim);
+
+    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
+    checkCudaErrors(hipGetLastError(), __FILE__, __LINE__);
+#else
     set_computational_basis_gpu<<<grid, block, 0, *cuda_stream>>>(
         comp_basis, state_gpu, dim);
 
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
+#endif
 
     state = reinterpret_cast<void*>(state_gpu);
 }
@@ -96,6 +151,17 @@ void copy_quantum_state_from_device_to_device(void* state_gpu_copy,
     const void* state_gpu, ITYPE dim, void* stream,
     unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice(device_number);
+
+    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    const GTYPE* psi_gpu = reinterpret_cast<const GTYPE*>(state_gpu);
+    GTYPE* psi_gpu_copy = reinterpret_cast<GTYPE*>(state_gpu_copy);
+    checkCudaErrors(hipMemcpyAsync(psi_gpu_copy, psi_gpu, dim * sizeof(GTYPE),
+                        hipMemcpyDeviceToDevice, *hip_stream),
+        __FILE__, __LINE__);
+    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
+#else
     if (device_number != current_device) cudaSetDevice(device_number);
 
     cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
@@ -105,6 +171,7 @@ void copy_quantum_state_from_device_to_device(void* state_gpu_copy,
                         cudaMemcpyDeviceToDevice, *cuda_stream),
         __FILE__, __LINE__);
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
+#endif
     state_gpu = reinterpret_cast<const void*>(psi_gpu);
     state_gpu_copy = reinterpret_cast<void*>(psi_gpu_copy);
 }
@@ -113,6 +180,16 @@ void copy_quantum_state_from_device_to_device(void* state_gpu_copy,
 void copy_quantum_state_from_host_to_device(void* state_gpu_copy,
     const void* state, ITYPE dim, void* stream, unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice(device_number);
+
+    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    GTYPE* psi_gpu_copy = reinterpret_cast<GTYPE*>(state_gpu_copy);
+    checkCudaErrors(hipMemcpyAsync(psi_gpu_copy, state, dim * sizeof(GTYPE),
+                        hipMemcpyHostToDevice, *hip_stream),
+        __FILE__, __LINE__);
+    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
+#else
     if (device_number != current_device) cudaSetDevice(device_number);
 
     cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
@@ -121,6 +198,7 @@ void copy_quantum_state_from_host_to_device(void* state_gpu_copy,
                         cudaMemcpyHostToDevice, *cuda_stream),
         __FILE__, __LINE__);
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
+#endif
     state_gpu_copy = reinterpret_cast<void*>(psi_gpu_copy);
 }
 
@@ -135,6 +213,17 @@ void copy_quantum_state_from_device_to_host(void* state_cpu_copy,
     const void* state_gpu_original, ITYPE dim, void* stream,
     unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice(device_number);
+
+    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    const GTYPE* psi_gpu = reinterpret_cast<const GTYPE*>(state_gpu_original);
+    checkCudaErrors(
+        hipMemcpyAsync(state_cpu_copy, psi_gpu, dim * sizeof(GTYPE),
+            hipMemcpyDeviceToHost, *hip_stream),
+        __FILE__, __LINE__);
+    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
+#else
     if (device_number != current_device) cudaSetDevice(device_number);
 
     cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
@@ -144,6 +233,7 @@ void copy_quantum_state_from_device_to_host(void* state_cpu_copy,
             cudaMemcpyDeviceToHost, *cuda_stream),
         __FILE__, __LINE__);
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
+#endif
     state_gpu_original = reinterpret_cast<const void*>(psi_gpu);
 }
 
@@ -152,6 +242,16 @@ void copy_quantum_state_from_device_to_host(void* state_cpu_copy,
 void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim,
     void* stream, unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice(device_number);
+    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    GTYPE* psi_gpu = reinterpret_cast<GTYPE*>(state_gpu);
+    psi_cpu_copy = reinterpret_cast<CPPCTYPE*>(psi_cpu_copy);
+    checkCudaErrors(
+        hipMemcpyAsync(psi_cpu_copy, psi_gpu, dim * sizeof(CPPCTYPE),
+            hipMemcpyDeviceToHost, *hip_stream),
+        __FILE__, __LINE__);
+#else
     if (device_number != current_device) cudaSetDevice(device_number);
     cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     GTYPE* psi_gpu = reinterpret_cast<GTYPE*>(state_gpu);
@@ -160,12 +260,22 @@ void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim,
         cudaMemcpyAsync(psi_cpu_copy, psi_gpu, dim * sizeof(CPPCTYPE),
             cudaMemcpyDeviceToHost, *cuda_stream),
         __FILE__, __LINE__);
+#endif
     state_gpu = reinterpret_cast<void*>(psi_gpu);
 }
 
 void print_quantum_state_host(
     void* state, ITYPE dim, unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice(device_number);
+    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+    CPPCTYPE* state_cpu = (CPPCTYPE*)malloc(sizeof(CPPCTYPE) * dim);
+    checkCudaErrors(hipDeviceSynchronize(), __FILE__, __LINE__);
+    checkCudaErrors(hipMemcpy(state_cpu, state_gpu, dim * sizeof(CPPCTYPE),
+                        hipMemcpyDeviceToHost),
+        __FILE__, __LINE__);
+#else
     if (device_number != current_device) cudaSetDevice(device_number);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     CPPCTYPE* state_cpu = (CPPCTYPE*)malloc(sizeof(CPPCTYPE) * dim);
@@ -173,6 +283,7 @@ void print_quantum_state_host(
     checkCudaErrors(cudaMemcpy(state_cpu, state_gpu, dim * sizeof(CPPCTYPE),
                         cudaMemcpyDeviceToHost),
         __FILE__, __LINE__);
+#endif
     for (int i = 0; i < dim; ++i) {
         std::cout << i << " : " << state_cpu[i].real() << "+i"
                   << state_cpu[i].imag() << '\n';
@@ -311,24 +422,62 @@ UINT* create_sorted_ui_list_list_gsim(
 int cublas_zgemm_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
     const CPPCTYPE* h_B, CPPCTYPE beta, CPPCTYPE* h_C) {
     ITYPE n2 = n * n;
+#ifdef __HIP_PLATFORM_AMD__
+    hipblasStatus_t status;
+    hipblasHandle_t handle;
+#else
     cublasStatus_t status;
     cublasHandle_t handle;
+#endif
     GTYPE* d_A;  // = make_cuDoubleComplex(0.0,0.0);
     GTYPE* d_B;  // = make_cuDoubleComplex(0,0);
     GTYPE* d_C;  // = make_cuDoubleComplex(0,0);
+#ifdef __HIP_PLATFORM_AMD__
+    GTYPE d_alpha = make_hipDoubleComplex(alpha.real(), alpha.imag());
+    GTYPE d_beta = make_hipDoubleComplex(beta.real(), beta.imag());
+#else
     GTYPE d_alpha = make_cuDoubleComplex(alpha.real(), alpha.imag());
     GTYPE d_beta = make_cuDoubleComplex(beta.real(), beta.imag());
+#endif
     // int dev = 0; //findCudaDevice(argc, (const char **)argv);
 
     /* Initialize CUBLAS */
+#ifdef __HIP_PLATFORM_AMD__
+    status = hipblasCreate(&handle);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! HIPBLAS initialization error\n");
+        return EXIT_FAILURE;
+    }
+#else
     status = cublasCreate(&handle);
 
     if (status != CUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! CUBLAS initialization error\n");
         return EXIT_FAILURE;
     }
+#endif
 
     /* Allocate device memory for the matrices */
+#ifdef __HIP_PLATFORM_AMD__
+    if (hipMalloc(reinterpret_cast<void**>(&d_A), n2 * sizeof(d_A[0])) !=
+        hipSuccess) {
+        fprintf(stderr, "!!!! device memory allocation error (allocate A)\n");
+        return EXIT_FAILURE;
+    }
+
+    if (hipMalloc(reinterpret_cast<void**>(&d_B), n2 * sizeof(d_B[0])) !=
+        hipSuccess) {
+        fprintf(stderr, "!!!! device memory allocation error (allocate B)\n");
+        return EXIT_FAILURE;
+    }
+
+    if (hipMalloc(reinterpret_cast<void**>(&d_C), n2 * sizeof(d_C[0])) !=
+        hipSuccess) {
+        fprintf(stderr, "!!!! device memory allocation error (allocate C)\n");
+        return EXIT_FAILURE;
+    }
+#else
     if (cudaMalloc(reinterpret_cast<void**>(&d_A), n2 * sizeof(d_A[0])) !=
         cudaSuccess) {
         fprintf(stderr, "!!!! device memory allocation error (allocate A)\n");
@@ -346,9 +495,41 @@ int cublas_zgemm_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
         fprintf(stderr, "!!!! device memory allocation error (allocate C)\n");
         return EXIT_FAILURE;
     }
+#endif
 
     /* Initialize the device matrices with the host matrices */
     // status = cublasSetVector(n2, sizeof(h_A[0]), h_A, 1, d_A, 1);
+#ifdef __HIP_PLATFORM_AMD__
+    status = hipblasSetMatrix(n, n, sizeof(h_A[0]), h_A, n, d_A, n);
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! device access error (write A)\n");
+        return EXIT_FAILURE;
+    }
+
+    status = hipblasSetMatrix(n, n, sizeof(h_B[0]), h_B, n, d_B, n);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! device access error (write B)\n");
+        return EXIT_FAILURE;
+    }
+
+    status = hipblasSetMatrix(n, n, sizeof(h_C[0]), h_C, n, d_C, n);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! device access error (write C)\n");
+        return EXIT_FAILURE;
+    }
+    /* Performs operation using cublas */
+    status = hipblasZgemm(handle, HIPBLAS_OP_T, HIPBLAS_OP_T, n, n, n,
+        (hipblasDoubleComplex*)&d_alpha, (hipblasDoubleComplex*)d_A, n,
+        (hipblasDoubleComplex*)d_B, n, (hipblasDoubleComplex*)&d_beta,
+        (hipblasDoubleComplex*)d_C, n);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! kernel execution error.\n");
+        return EXIT_FAILURE;
+    }
+#else
     status = cublasSetMatrix(n, n, sizeof(h_A[0]), h_A, n, d_A, n);
     if (status != CUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! device access error (write A)\n");
@@ -380,6 +561,7 @@ int cublas_zgemm_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
         fprintf(stderr, "!!!! kernel execution error.\n");
         return EXIT_FAILURE;
     }
+#endif
 
     /* Allocate host memory for reading back the result from device memory */
     CPPCTYPE* tmp_h_C =
@@ -391,6 +573,37 @@ int cublas_zgemm_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
     }
 
     /* Read the result back */
+#ifdef __HIP_PLATFORM_AMD__
+    status = hipblasGetMatrix(n, n, sizeof(GTYPE), d_C, n, tmp_h_C, n);
+    memcpy(h_C, tmp_h_C, sizeof(h_C[0]) * n2);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! device access error (read C)\n");
+        return EXIT_FAILURE;
+    }
+    if (hipFree(d_A) != hipSuccess) {
+        fprintf(stderr, "!!!! memory free error (A)\n");
+        return EXIT_FAILURE;
+    }
+
+    if (hipFree(d_B) != hipSuccess) {
+        fprintf(stderr, "!!!! memory free error (B)\n");
+        return EXIT_FAILURE;
+    }
+
+    if (hipFree(d_C) != hipSuccess) {
+        fprintf(stderr, "!!!! memory free error (C)\n");
+        return EXIT_FAILURE;
+    }
+
+    /* Shutdown */
+    status = hipblasDestroy(handle);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! shutdown error (A)\n");
+        return EXIT_FAILURE;
+    }
+#else
     status = cublasGetMatrix(n, n, sizeof(GTYPE), d_C, n, tmp_h_C, n);
     memcpy(h_C, tmp_h_C, sizeof(h_C[0]) * n2);
 
@@ -420,6 +633,7 @@ int cublas_zgemm_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
         fprintf(stderr, "!!!! shutdown error (A)\n");
         return EXIT_FAILURE;
     }
+#endif
     return 0;
 }
 
@@ -428,16 +642,54 @@ int cublas_zgemm_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
 int cublas_zgemv_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
     const CPPCTYPE* h_x, CPPCTYPE beta, CPPCTYPE* h_y) {
     ITYPE n2 = n * n;
+#ifdef __HIP_PLATFORM_AMD__
+    hipblasStatus_t status;
+    hipblasHandle_t handle;
+#else
     cublasStatus_t status;
     cublasHandle_t handle;
+#endif
     GTYPE* d_A;
     GTYPE* d_x;
     GTYPE* d_y;
+#ifdef __HIP_PLATFORM_AMD__
+    GTYPE d_alpha = make_hipDoubleComplex(alpha.real(), alpha.imag());
+    GTYPE d_beta = make_hipDoubleComplex(beta.real(), beta.imag());
+#else
     GTYPE d_alpha = make_cuDoubleComplex(alpha.real(), alpha.imag());
     GTYPE d_beta = make_cuDoubleComplex(beta.real(), beta.imag());
+#endif
     // int dev = 0; //findCudaDevice(argc, (const char **)argv);
 
     /* Initialize CUBLAS */
+#ifdef __HIP_PLATFORM_AMD__
+    printf("simpleCUBLAS test running..\n");
+    status = hipblasCreate(&handle);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! CUBLAS initialization error\n");
+        return EXIT_FAILURE;
+    }
+
+    /* Allocate device memory for the matrices */
+    if (hipMalloc(reinterpret_cast<void**>(&d_A), n2 * sizeof(d_A[0])) !=
+        hipSuccess) {
+        fprintf(stderr, "!!!! device memory allocation error (allocate A)\n");
+        return EXIT_FAILURE;
+    }
+
+    if (hipMalloc(reinterpret_cast<void**>(&d_x), n * sizeof(d_x[0])) !=
+        hipSuccess) {
+        fprintf(stderr, "!!!! device memory allocation error (allocate x)\n");
+        return EXIT_FAILURE;
+    }
+
+    if (hipMalloc(reinterpret_cast<void**>(&d_y), n * sizeof(d_y[0])) !=
+        hipSuccess) {
+        fprintf(stderr, "!!!! device memory allocation error (allocate y)\n");
+        return EXIT_FAILURE;
+    }
+#else
     printf("simpleCUBLAS test running..\n");
     status = cublasCreate(&handle);
 
@@ -464,9 +716,41 @@ int cublas_zgemv_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
         fprintf(stderr, "!!!! device memory allocation error (allocate y)\n");
         return EXIT_FAILURE;
     }
+#endif
 
     /* Initialize the device matrices with the host matrices */
     // status = cublasSetVector(n2, sizeof(h_A[0]), h_A, 1, d_A, 1);
+#ifdef __HIP_PLATFORM_AMD__
+    status = hipblasSetMatrix(n, n, sizeof(h_A[0]), h_A, n, d_A, n);
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! device access error (write A)\n");
+        return EXIT_FAILURE;
+    }
+
+    status = hipblasSetVector(n, sizeof(h_x[0]), h_x, 1, d_x, 1);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! device access error (write x)\n");
+        return EXIT_FAILURE;
+    }
+
+    status = hipblasSetVector(n, sizeof(h_y[0]), h_y, 1, d_y, 1);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! device access error (write C)\n");
+        return EXIT_FAILURE;
+    }
+    /* Performs operation using cublas */
+    status = hipblasZgemv(
+        handle, HIPBLAS_OP_T, n, n, (hipblasDoubleComplex*)&d_alpha,
+        (hipblasDoubleComplex*)d_A, n, (hipblasDoubleComplex*)d_x, 1,
+        (hipblasDoubleComplex*)&d_beta, (hipblasDoubleComplex*)d_y, 1);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! kernel execution error.\n");
+        return EXIT_FAILURE;
+    }
+#else
     status = cublasSetMatrix(n, n, sizeof(h_A[0]), h_A, n, d_A, n);
     if (status != CUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! device access error (write A)\n");
@@ -506,6 +790,7 @@ int cublas_zgemv_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
         fprintf(stderr, "!!!! kernel execution error.\n");
         return EXIT_FAILURE;
     }
+#endif
 
     /* Allocate host memory for reading back the result from device memory */
     CPPCTYPE* tmp_h_y = reinterpret_cast<CPPCTYPE*>(malloc(n * sizeof(h_y[0])));
@@ -516,6 +801,37 @@ int cublas_zgemv_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
     }
 
     /* Read the result back */
+#ifdef __HIP_PLATFORM_AMD__
+    status = hipblasGetVector(n, sizeof(GTYPE), d_y, 1, tmp_h_y, 1);
+    memcpy(h_y, tmp_h_y, sizeof(h_y[0]) * n);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! device access error (read C)\n");
+        return EXIT_FAILURE;
+    }
+    if (hipFree(d_A) != hipSuccess) {
+        fprintf(stderr, "!!!! memory free error (A)\n");
+        return EXIT_FAILURE;
+    }
+
+    if (hipFree(d_x) != hipSuccess) {
+        fprintf(stderr, "!!!! memory free error (x)\n");
+        return EXIT_FAILURE;
+    }
+
+    if (hipFree(d_y) != hipSuccess) {
+        fprintf(stderr, "!!!! memory free error (y)\n");
+        return EXIT_FAILURE;
+    }
+
+    /* Shutdown */
+    status = hipblasDestroy(handle);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! shutdown error (A)\n");
+        return EXIT_FAILURE;
+    }
+#else
     status = cublasGetVector(n, sizeof(GTYPE), d_y, 1, tmp_h_y, 1);
     /*
     cublasStatus_t cublasGetVector(int n, int elemSize, const void *x, int incx,
@@ -549,21 +865,53 @@ int cublas_zgemv_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
         fprintf(stderr, "!!!! shutdown error (A)\n");
         return EXIT_FAILURE;
     }
+#endif
     return 0;
 }
 
 // we assume state has already allocated at device
 int cublas_zgemv_wrapper(ITYPE n, const CPPCTYPE* h_matrix, GTYPE* d_state) {
     ITYPE n2 = n * n;
+#ifdef __HIP_PLATFORM_AMD__
+    hipblasStatus_t status;
+    hipblasHandle_t handle;
+#else
     cublasStatus_t status;
     cublasHandle_t handle;
+#endif
     GTYPE* d_matrix;
     GTYPE* d_y;  // this will include the answer of the state.
+#ifdef __HIP_PLATFORM_AMD__
+    GTYPE d_alpha = make_hipDoubleComplex(1.0, 0.0);
+    GTYPE d_beta = make_hipDoubleComplex(0.0, 0.0);
+#else
     GTYPE d_alpha = make_cuDoubleComplex(1.0, 0.0);
     GTYPE d_beta = make_cuDoubleComplex(0.0, 0.0);
+#endif
     // int dev = 0;
 
     /* Initialize CUBLAS */
+#ifdef __HIP_PLATFORM_AMD__
+    status = hipblasCreate(&handle);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! CUBLAS initialization error\n");
+        return EXIT_FAILURE;
+    }
+
+    /* Allocate device memory for the matrices */
+    if (hipMalloc(reinterpret_cast<void**>(&d_matrix),
+            n2 * sizeof(d_matrix[0])) != hipSuccess) {
+        fprintf(stderr, "!!!! device memory allocation error (allocate A)\n");
+        return EXIT_FAILURE;
+    }
+
+    if (hipMalloc(reinterpret_cast<void**>(&d_y), n * sizeof(d_y[0])) !=
+        hipSuccess) {
+        fprintf(stderr, "!!!! device memory allocation error (allocate y)\n");
+        return EXIT_FAILURE;
+    }
+#else
     status = cublasCreate(&handle);
 
     if (status != CUBLAS_STATUS_SUCCESS) {
@@ -583,8 +931,51 @@ int cublas_zgemv_wrapper(ITYPE n, const CPPCTYPE* h_matrix, GTYPE* d_state) {
         fprintf(stderr, "!!!! device memory allocation error (allocate y)\n");
         return EXIT_FAILURE;
     }
+#endif
     // cudaMemset(&d_y, 0, sizeof(d_y[0])*n);
     /* Initialize the device matrices with the host matrices */
+#ifdef __HIP_PLATFORM_AMD__
+    status =
+        hipblasSetMatrix(n, n, sizeof(h_matrix[0]), h_matrix, n, d_matrix, n);
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! device access error (write A)\n");
+        return EXIT_FAILURE;
+    }
+
+    /* Performs operation using cublas */
+    status = hipblasZgemv(handle, HIPBLAS_OP_T, n, n, (hipblasDoubleComplex*)&d_alpha,
+        (hipblasDoubleComplex*)d_matrix, n, (hipblasDoubleComplex*)d_state, 1,
+        (hipblasDoubleComplex*)&d_beta, (hipblasDoubleComplex*)d_y, 1);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! kernel execution error.\n");
+        return EXIT_FAILURE;
+    }
+
+    hipMemcpy(d_state, d_y, n * sizeof(GTYPE), hipMemcpyDeviceToDevice);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! device access error (read C)\n");
+        return EXIT_FAILURE;
+    }
+    if (hipFree(d_matrix) != hipSuccess) {
+        fprintf(stderr, "!!!! memory free error (A)\n");
+        return EXIT_FAILURE;
+    }
+
+    if (hipFree(d_y) != hipSuccess) {
+        fprintf(stderr, "!!!! memory free error (y)\n");
+        return EXIT_FAILURE;
+    }
+
+    /* Shutdown */
+    status = hipblasDestroy(handle);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! shutdown error (A)\n");
+        return EXIT_FAILURE;
+    }
+#else
     status =
         cublasSetMatrix(n, n, sizeof(h_matrix[0]), h_matrix, n, d_matrix, n);
     if (status != CUBLAS_STATUS_SUCCESS) {
@@ -624,20 +1015,73 @@ int cublas_zgemv_wrapper(ITYPE n, const CPPCTYPE* h_matrix, GTYPE* d_state) {
         fprintf(stderr, "!!!! shutdown error (A)\n");
         return EXIT_FAILURE;
     }
+#endif
     return 0;
 }
 
 // we assume state and matrix has already allocated at device
 int cublas_zgemv_wrapper(ITYPE n, const GTYPE* d_matrix, GTYPE* d_state) {
     // ITYPE n2 = n*n;
+#ifdef __HIP_PLATFORM_AMD__
+    hipblasStatus_t status;
+    hipblasHandle_t handle;
+    GTYPE* d_y;  // this will include the answer of the state.
+    GTYPE d_alpha = make_hipDoubleComplex(1.0, 0.0);
+    GTYPE d_beta = make_hipDoubleComplex(0.0, 0.0);
+#else
     cublasStatus_t status;
     cublasHandle_t handle;
     GTYPE* d_y;  // this will include the answer of the state.
     GTYPE d_alpha = make_cuDoubleComplex(1.0, 0.0);
     GTYPE d_beta = make_cuDoubleComplex(0.0, 0.0);
+#endif
     // int dev = 0;
 
     /* Initialize CUBLAS */
+#ifdef __HIP_PLATFORM_AMD__
+    status = hipblasCreate(&handle);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! CUBLAS initialization error\n");
+        return EXIT_FAILURE;
+    }
+
+    if (hipMalloc(reinterpret_cast<void**>(&d_y), n * sizeof(d_y[0])) !=
+        hipSuccess) {
+        fprintf(stderr, "!!!! device memory allocation error (allocate y)\n");
+        return EXIT_FAILURE;
+    }
+
+    /* Performs operation using cublas */
+    status = hipblasZgemv(handle, HIPBLAS_OP_T, n, n, (hipblasDoubleComplex*)&d_alpha,
+        (hipblasDoubleComplex*)d_matrix, n, (hipblasDoubleComplex*)d_state, 1,
+        (hipblasDoubleComplex*)&d_beta, (hipblasDoubleComplex*)d_y, 1);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! kernel execution error.\n");
+        return EXIT_FAILURE;
+    }
+
+    hipMemcpy(d_state, d_y, n * sizeof(GTYPE), hipMemcpyDeviceToDevice);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! device access error (read C)\n");
+        return EXIT_FAILURE;
+    }
+
+    if (hipFree(d_y) != hipSuccess) {
+        fprintf(stderr, "!!!! memory free error (y)\n");
+        return EXIT_FAILURE;
+    }
+
+    /* Shutdown */
+    status = hipblasDestroy(handle);
+
+    if (status != HIPBLAS_STATUS_SUCCESS) {
+        fprintf(stderr, "!!!! shutdown error (A)\n");
+        return EXIT_FAILURE;
+    }
+#else
     status = cublasCreate(&handle);
 
     if (status != CUBLAS_STATUS_SUCCESS) {
@@ -680,5 +1124,6 @@ int cublas_zgemv_wrapper(ITYPE n, const GTYPE* d_matrix, GTYPE* d_state) {
         fprintf(stderr, "!!!! shutdown error (A)\n");
         return EXIT_FAILURE;
     }
+#endif
     return 0;
 }
