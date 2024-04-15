@@ -1,7 +1,17 @@
+#ifdef __HIP_PLATFORM_AMD__
+
+#include <hip/hip_runtime.h>
+#include <hip/hip_complex.h>
+
+#else
+
 #include <cuComplex.h>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
+
+#endif
+
 //#include "util.h"
 #include "update_ops_cuda.h"
 #include "update_ops_cuda_device_functions.h"
@@ -26,6 +36,16 @@ __global__ void H_gate_gpu(
         basis1 = basis0 ^ (1ULL << target_qubit_index);
 
         tmp = state_gpu[basis0];
+#ifdef __HIP_PLATFORM_AMD__
+        state_gpu[basis0] = hipCadd(tmp, state_gpu[basis1]);
+        state_gpu[basis1] =
+            hipCadd(tmp, make_hipDoubleComplex(-1 * state_gpu[basis1].x,
+                            -1 * state_gpu[basis1].y));
+        state_gpu[basis0] = make_hipDoubleComplex(
+            state_gpu[basis0].x * inv_sqrt, state_gpu[basis0].y * inv_sqrt);
+        state_gpu[basis1] = make_hipDoubleComplex(
+            state_gpu[basis1].x * inv_sqrt, state_gpu[basis1].y * inv_sqrt);
+#else
         state_gpu[basis0] = cuCadd(tmp, state_gpu[basis1]);
         state_gpu[basis1] =
             cuCadd(tmp, make_cuDoubleComplex(-1 * state_gpu[basis1].x,
@@ -34,12 +54,29 @@ __global__ void H_gate_gpu(
             state_gpu[basis0].x * inv_sqrt, state_gpu[basis0].y * inv_sqrt);
         state_gpu[basis1] = make_cuDoubleComplex(
             state_gpu[basis1].x * inv_sqrt, state_gpu[basis1].y * inv_sqrt);
+#endif
     }
 }
 
 __host__ void H_gate_host(unsigned int target_qubit_index, void* state,
     ITYPE dim, void* stream, unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice((int)device_number);
+
+    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    hipError_t cudaStatus;
+    ITYPE half_dim = dim >> 1;
+    unsigned int block = half_dim <= 1024 ? half_dim : 1024;
+    unsigned int grid = half_dim / block;
+
+    H_gate_gpu<<<grid, block, 0, *hip_stream>>>(
+        target_qubit_index, state_gpu, dim);
+
+    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
+    cudaStatus = hipGetLastError();
+#else
     if (device_number != current_device) cudaSetDevice((int)device_number);
 
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
@@ -54,6 +91,7 @@ __host__ void H_gate_host(unsigned int target_qubit_index, void* state,
 
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     cudaStatus = cudaGetLastError();
+#endif
     checkCudaErrors(cudaStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
@@ -81,6 +119,22 @@ __global__ void X_gate_gpu(
 __host__ void X_gate_host(unsigned int target_qubit_index, void* state,
     ITYPE dim, void* stream, unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice(device_number);
+
+    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    hipError_t cudaStatus;
+    ITYPE half_dim = dim >> 1;
+    unsigned int block = half_dim <= 1024 ? half_dim : 1024;
+    unsigned int grid = half_dim / block;
+
+    X_gate_gpu<<<grid, block, 0, *hip_stream>>>(
+        target_qubit_index, state_gpu, dim);
+
+    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
+    cudaStatus = hipGetLastError();
+#else
     if (device_number != current_device) cudaSetDevice(device_number);
 
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
@@ -95,6 +149,7 @@ __host__ void X_gate_host(unsigned int target_qubit_index, void* state,
 
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     cudaStatus = cudaGetLastError();
+#endif
     checkCudaErrors(cudaStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
@@ -112,15 +167,37 @@ __global__ void Y_gate_gpu(
         basis1 = basis0 ^ (1ULL << target_qubit_index);
 
         tmp = state_gpu[basis0];
+#ifdef __HIP_PLATFORM_AMD__
+        state_gpu[basis0] = make_hipDoubleComplex(
+            hipCimag(state_gpu[basis1]), -hipCreal(state_gpu[basis1]));
+        state_gpu[basis1] = make_hipDoubleComplex(-hipCimag(tmp), hipCreal(tmp));
+#else
         state_gpu[basis0] = make_cuDoubleComplex(
             cuCimag(state_gpu[basis1]), -cuCreal(state_gpu[basis1]));
         state_gpu[basis1] = make_cuDoubleComplex(-cuCimag(tmp), cuCreal(tmp));
+#endif
     }
 }
 
 __host__ void Y_gate_host(unsigned int target_qubit_index, void* state,
     ITYPE dim, void* stream, unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice(device_number);
+
+    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    hipError_t cudaStatus;
+    ITYPE half_dim = dim >> 1;
+    unsigned int block = half_dim <= 1024 ? half_dim : 1024;
+    unsigned int grid = half_dim / block;
+
+    Y_gate_gpu<<<grid, block, 0, *hip_stream>>>(
+        target_qubit_index, state_gpu, dim);
+
+    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
+    cudaStatus = hipGetLastError();
+#else
     if (device_number != current_device) cudaSetDevice(device_number);
 
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
@@ -135,6 +212,7 @@ __host__ void Y_gate_host(unsigned int target_qubit_index, void* state,
 
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     cudaStatus = cudaGetLastError();
+#endif
     checkCudaErrors(cudaStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
@@ -146,14 +224,35 @@ __global__ void Z_gate_gpu(
     if (j < (DIM >> 1)) {
         basis0 = insert_zero_to_basis_index_device(j, target_qubit_index);
         basis1 = basis0 ^ (1ULL << target_qubit_index);
+#ifdef __HIP_PLATFORM_AMD__
+        state_gpu[basis1] = make_hipDoubleComplex(
+            -hipCreal(state_gpu[basis1]), -hipCimag(state_gpu[basis1]));
+#else
         state_gpu[basis1] = make_cuDoubleComplex(
             -cuCreal(state_gpu[basis1]), -cuCimag(state_gpu[basis1]));
+#endif
     }
 }
 
 __host__ void Z_gate_host(unsigned int target_qubit_index, void* state,
     ITYPE dim, void* stream, unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice(device_number);
+
+    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    hipError_t cudaStatus;
+    ITYPE half_dim = dim >> 1;
+    unsigned int block = half_dim <= 1024 ? half_dim : 1024;
+    unsigned int grid = half_dim / block;
+
+    Z_gate_gpu<<<grid, block, 0, *hip_stream>>>(
+        target_qubit_index, state_gpu, dim);
+
+    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
+    cudaStatus = hipGetLastError();
+#else
     if (device_number != current_device) cudaSetDevice(device_number);
 
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
@@ -168,6 +267,7 @@ __host__ void Z_gate_host(unsigned int target_qubit_index, void* state,
 
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     cudaStatus = cudaGetLastError();
+#endif
     checkCudaErrors(cudaStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
@@ -188,8 +288,13 @@ __global__ void CZ_gate_gpu(unsigned int large_index, unsigned int small_index,
         basis11 = (head << (large_index + 1)) + (body << (small_index + 1)) +
                   (1ULL << large_index) + (1ULL << small_index) + tail;
 
+#ifdef __HIP_PLATFORM_AMD__
+        state_gpu[basis11] = make_hipDoubleComplex(
+            -hipCreal(state_gpu[basis11]), -hipCimag(state_gpu[basis11]));
+#else
         state_gpu[basis11] = make_cuDoubleComplex(
             -cuCreal(state_gpu[basis11]), -cuCimag(state_gpu[basis11]));
+#endif
     }
 }
 
@@ -197,11 +302,19 @@ __host__ void CZ_gate_host(unsigned int control_qubit_index,
     unsigned int target_qubit_index, void* state, ITYPE dim, void* stream,
     unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice(device_number);
+
+    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    hipError_t cudaStatus;
+#else
     if (device_number != current_device) cudaSetDevice(device_number);
 
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     cudaError cudaStatus;
+#endif
     ITYPE quad_dim = dim >> 2;
     ITYPE large_index, small_index;
 
@@ -216,11 +329,19 @@ __host__ void CZ_gate_host(unsigned int control_qubit_index,
     unsigned int block = quad_dim <= 1024 ? quad_dim : 1024;
     unsigned int grid = quad_dim / block;
 
+#ifdef __HIP_PLATFORM_AMD__
+    CZ_gate_gpu<<<grid, block, 0, *hip_stream>>>(
+        large_index, small_index, state_gpu, dim);
+
+    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
+    cudaStatus = hipGetLastError();
+#else
     CZ_gate_gpu<<<grid, block, 0, *cuda_stream>>>(
         large_index, small_index, state_gpu, dim);
 
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     cudaStatus = cudaGetLastError();
+#endif
     checkCudaErrors(cudaStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
@@ -265,6 +386,22 @@ __host__ void CNOT_gate_host(unsigned int control_qubit_index,
     unsigned int target_qubit_index, void* state, ITYPE dim, void* stream,
     unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice(device_number);
+
+    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    hipError_t cudaStatus;
+    ITYPE quad_dim = dim >> 2;
+    unsigned int block = quad_dim <= 1024 ? quad_dim : 1024;
+    unsigned int grid = quad_dim / block;
+
+    CNOT_gate_gpu<<<grid, block, 0, *hip_stream>>>(
+        control_qubit_index, target_qubit_index, state_gpu, dim);
+
+    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
+    cudaStatus = hipGetLastError();
+#else
     if (device_number != current_device) cudaSetDevice(device_number);
 
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
@@ -279,6 +416,7 @@ __host__ void CNOT_gate_host(unsigned int control_qubit_index,
 
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     cudaStatus = cudaGetLastError();
+#endif
     checkCudaErrors(cudaStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
@@ -314,11 +452,19 @@ __host__ void SWAP_gate_host(unsigned int target_qubit_index0,
     unsigned int target_qubit_index1, void* state, ITYPE dim, void* stream,
     unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice(device_number);
+
+    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    hipError_t cudaStatus;
+#else
     if (device_number != current_device) cudaSetDevice(device_number);
 
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
     cudaError cudaStatus;
+#endif
     unsigned int large_index, small_index;
     ITYPE quad_dim = dim >> 2;
     unsigned int block = quad_dim <= 1024 ? quad_dim : 1024;
@@ -332,11 +478,19 @@ __host__ void SWAP_gate_host(unsigned int target_qubit_index0,
         small_index = target_qubit_index1;
     }
 
+#ifdef __HIP_PLATFORM_AMD__
+    SWAP_gate_gpu<<<grid, block, 0, *hip_stream>>>(
+        small_index, large_index, state_gpu, dim);
+
+    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
+    cudaStatus = hipGetLastError();
+#else
     SWAP_gate_gpu<<<grid, block, 0, *cuda_stream>>>(
         small_index, large_index, state_gpu, dim);
 
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     cudaStatus = cudaGetLastError();
+#endif
     checkCudaErrors(cudaStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
@@ -351,13 +505,34 @@ __global__ void P0_gate_gpu(
         ITYPE tmp_index =
             insert_zero_to_basis_index_device(state_index, target_qubit_index) ^
             mask;
+#ifdef __HIP_PLATFORM_AMD__
+        state_gpu[tmp_index] = make_hipDoubleComplex(0.0, 0.0);
+#else
         state_gpu[tmp_index] = make_cuDoubleComplex(0.0, 0.0);
+#endif
     }
 }
 
 __host__ void P0_gate_host(UINT target_qubit_index, void* state, ITYPE dim,
     void* stream, unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice(device_number);
+
+    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    hipError_t cudaStatus;
+    const ITYPE loop_dim = dim >> 1;
+
+    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
+    unsigned int grid = loop_dim / block;
+
+    P0_gate_gpu<<<grid, block, 0, *hip_stream>>>(
+        target_qubit_index, state_gpu, dim);
+
+    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
+    cudaStatus = hipGetLastError();
+#else
     if (device_number != current_device) cudaSetDevice(device_number);
 
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
@@ -373,6 +548,7 @@ __host__ void P0_gate_host(UINT target_qubit_index, void* state, ITYPE dim,
 
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     cudaStatus = cudaGetLastError();
+#endif
     checkCudaErrors(cudaStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
@@ -385,13 +561,34 @@ __global__ void P1_gate_gpu(
     if (state_index < loop_dim) {
         ITYPE tmp_index =
             insert_zero_to_basis_index_device(state_index, target_qubit_index);
+#ifdef __HIP_PLATFORM_AMD__
+        state_gpu[tmp_index] = make_hipDoubleComplex(0.0, 0.0);
+#else
         state_gpu[tmp_index] = make_cuDoubleComplex(0.0, 0.0);
+#endif
     }
 }
 
 __host__ void P1_gate_host(UINT target_qubit_index, void* state, ITYPE dim,
     void* stream, unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice(device_number);
+
+    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    hipError_t cudaStatus;
+    const ITYPE loop_dim = dim >> 1;
+
+    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
+    unsigned int grid = loop_dim / block;
+
+    P1_gate_gpu<<<grid, block, 0, *hip_stream>>>(
+        target_qubit_index, state_gpu, dim);
+
+    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
+    cudaStatus = hipGetLastError();
+#else
     if (device_number != current_device) cudaSetDevice(device_number);
 
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
@@ -407,6 +604,7 @@ __host__ void P1_gate_host(UINT target_qubit_index, void* state, ITYPE dim,
 
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     cudaStatus = cudaGetLastError();
+#endif
     checkCudaErrors(cudaStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
@@ -417,15 +615,40 @@ __global__ void normalize_gpu(
     const ITYPE loop_dim = dim;
 
     if (state_index < loop_dim) {
+#ifdef __HIP_PLATFORM_AMD__
+        state_gpu[state_index] = make_hipDoubleComplex(
+            normalize_factor * hipCreal(state_gpu[state_index]),
+            normalize_factor * hipCimag(state_gpu[state_index]));
+#else
         state_gpu[state_index] = make_cuDoubleComplex(
             normalize_factor * cuCreal(state_gpu[state_index]),
             normalize_factor * cuCimag(state_gpu[state_index]));
+#endif
     }
 }
 
 __host__ void normalize_host(double squared_norm, void* state, ITYPE dim,
     void* stream, unsigned int device_number) {
     int current_device = get_current_device();
+#ifdef __HIP_PLATFORM_AMD__
+    if (device_number != current_device) hipSetDevice(device_number);
+
+    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    hipError_t cudaStatus;
+    const ITYPE loop_dim = dim;
+    const double normalize_factor = sqrt(1. / squared_norm);
+    // const double normalize_factor = 1. / norm;
+
+    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
+    unsigned int grid = loop_dim / block;
+
+    normalize_gpu<<<grid, block, 0, *hip_stream>>>(
+        normalize_factor, state_gpu, dim);
+
+    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
+    cudaStatus = hipGetLastError();
+#else
     if (device_number != current_device) cudaSetDevice(device_number);
 
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
@@ -443,6 +666,7 @@ __host__ void normalize_host(double squared_norm, void* state, ITYPE dim,
 
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
     cudaStatus = cudaGetLastError();
+#endif
     checkCudaErrors(cudaStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
