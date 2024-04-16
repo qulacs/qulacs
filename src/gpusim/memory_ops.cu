@@ -12,7 +12,7 @@
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-//#include <cuda.h>
+// #include <cuda.h>
 #include <assert.h>
 #include <cuComplex.h>
 #include <curand.h>
@@ -249,7 +249,7 @@ __host__ void initialize_Haar_random_state_with_seed_host(void* state,
     // CURAND_RNG_PSEUDO_MT19937 offset cannot be used and need sm_35 or higher.
 
     unsigned int block = dim <= 512 ? dim : 512;
-    unsigned int grid = min((int)(dim / block), 512);
+    unsigned int grid = dim / block;
 
 #ifdef __HIP_PLATFORM_AMD__
     init_rnd<<<grid, block, 0, *hip_stream>>>(rnd_state, seed);
