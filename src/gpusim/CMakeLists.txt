@@ -19,7 +19,7 @@ list(APPEND CMAKE_PREFIX_PATH ${ROCM_PATH}/lib/cmake ${ROCM_PATH})
 # Find hip
 find_package(hip REQUIRED)
 find_package(hipblas REQUIRED)
-find_package(rocrand REQUIRED)
+find_package(hiprand REQUIRED)
 
 set(CMAKE_CXX_COMPILER ${HIP_HIPCC_EXECUTABLE})
 set(CMAKE_CXX_LINKER ${HIP_HIPCC_EXECUTABLE})
@@ -33,7 +33,7 @@ file(GLOB CUDA_FILES "*.cu")
 add_library(gpusim_static STATIC ${GPUSIM_SRC})
 set_target_properties(gpusim_static PROPERTIES LINKER_LANGUAGE CXX)
 set_target_properties(gpusim_static PROPERTIES HIP_ARCHITECTURES "gfx90a;gfx942")
-target_link_libraries(gpusim_static hip::host roc::hipblas roc::rocrand)
+target_link_libraries(gpusim_static hip::host roc::hipblas hip::hiprand)
 set_source_files_properties(${CUDA_FILES} PROPERTIES LANGUAGE HIP)
 
 elseif(USE_GPU)
