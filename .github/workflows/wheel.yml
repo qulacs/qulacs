@@ -115,6 +115,7 @@ jobs:
       - name: Upload wheel to GitHub
         uses: actions/upload-artifact@v4
         with:
+          name: ${{ matrix.cibw-python }}-${{ matrix.os-arch }}
           path: ./wheels/*.whl
 
       - name: Upload wheel data if the Git tag is set
