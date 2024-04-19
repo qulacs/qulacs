@@ -15,7 +15,6 @@ on:
     types: [submitted, edited]
   workflow_dispatch:
 
-
 jobs:
   wheel-build:
     name: Python wheel build
@@ -23,7 +22,8 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os-arch: ["manylinux_x86_64", "win_amd64", "macosx_x86_64", "macosx_arm64"]
+        os-arch:
+          ["manylinux_x86_64", "win_amd64", "macosx_x86_64", "macosx_arm64"]
         cibw-python: ["cp38", "cp39", "cp310", "cp311", "cp312"]
         # Documentation for `include`: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategymatrixinclude
         include:
@@ -32,9 +32,9 @@ jobs:
           - os-arch: "win_amd64"
             os: "windows-2019"
           - os-arch: "macosx_x86_64"
-            os: "macos-12"
+            os: "macos-13"
           - os-arch: "macosx_arm64"
-            os: "macos-12"
+            os: "macos-14"
           - cibw-python: "cp38"
             python-version: "3.8"
           - cibw-python: "cp39"
@@ -45,6 +45,11 @@ jobs:
             python-version: "3.11"
           - cibw-python: "cp312"
             python-version: "3.12"
+        exclude:
+          - os-arch: "macosx_arm64"
+            cibw-python: "cp38"
+          - os-arch: "macosx_arm64"
+            cibw-python: "cp39"
 
     runs-on: ${{ matrix.os }}
     env:
@@ -61,7 +66,6 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-          architecture: x64
 
       - name: Install Python dependencies
         run: python -m pip install cibuildwheel twine
@@ -109,8 +113,9 @@ jobs:
         run: python -m cibuildwheel --output-dir wheels
 
       - name: Upload wheel to GitHub
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
+          name: ${{ matrix.cibw-python }}-${{ matrix.os-arch }}
           path: ./wheels/*.whl
 
       - name: Upload wheel data if the Git tag is set
