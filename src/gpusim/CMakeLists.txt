@@ -23,7 +23,7 @@ find_package(hiprand REQUIRED)
 
 set(CMAKE_CXX_COMPILER ${HIP_HIPCC_EXECUTABLE})
 set(CMAKE_CXX_LINKER ${HIP_HIPCC_EXECUTABLE})
-set(CMAKE_BUILD_TYPE Debug)
+set(CMAKE_BUILD_TYPE Release)
 
 message(STATUS "C++ Compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "C++ Linker: ${CMAKE_CXX_LINKER}")
