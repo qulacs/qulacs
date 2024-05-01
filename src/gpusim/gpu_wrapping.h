@@ -2,6 +2,7 @@
 #define _GPU_WRAPPING_H_ 
 
 #ifdef __HIP_PLATFORM_AMD__
+
 #include <hip/hip_runtime.h>
 #include <hip/hip_complex.h>
 #include <hiprand/hiprand.h>
