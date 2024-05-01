@@ -10,6 +10,7 @@
 #include <hipblas/hipblas.h>
 
 using gpuStream_t = hipStream_t;
+using gpuError_t = hipError_t;
 using gpurandState = hiprandState;
 using gpublasStatus_t = hipblasStatus_t;
 using gpublasHandle_t = hipblasHandle_t;
@@ -23,9 +24,11 @@ using gpublasDoubleComplex = hipblasDoubleComplex;
 #define gpuMalloc hipMalloc
 #define gpuMemcpy hipMemcpy
 #define gpuMemcpyAsync hipMemcpyAsync
+#define gpuMemcpyToSymbolAsync hipMemcpyToSymbolAsync
 #define gpuMemcpyDeviceToDevice hipMemcpyDeviceToDevice
 #define gpuMemcpyHostToDevice hipMemcpyHostToDevice
 #define gpuMemcpyDeviceToHost hipMemcpyDeviceToHost
+#define gpuMemsetAsync hipMemsetAsync
 #define gpuDeviceSynchronize hipDeviceSynchronize
 #define gpuFree hipFree
 #define gpuSuccess hipSuccess
@@ -36,13 +39,23 @@ using gpublasDoubleComplex = hipblasDoubleComplex;
 #define gpublasCreate hipblasCreate
 #define gpublasSetVector hipblasSetVector
 #define gpublasSetMatrix hipblasSetMatrix
+#define gpublasSetStream hipblasSetStream
 #define gpublasZgemv hipblasZgemv
 #define gpublasZgemm hipblasZgemm
+#define gpublasDznrm2 hipblasDznrm2
+#define gpublasZdotc hipblasZdotc
 #define gpublasGetVector hipblasGetVector
 #define gpublasGetMatrix hipblasGetMatrix
 #define gpublasDestroy hipblasDestroy
+#define gpuCabs hipCabs
+#define gpuCadd hipCadd
+#define gpuCmul hipCmul
+#define gpuConj hipConj
+#define gpuCreal hipCreal
+#define gpuCimag hipCimag
 #define GPUBLAS_OP_T HIPBLAS_OP_T
 #define GPUBLAS_STATUS_SUCCESS HIPBLAS_STATUS_SUCCESS
+#define GPU_SYMBOL HIP_SYMBOL
 
 #else
 
@@ -54,6 +67,7 @@ using gpublasDoubleComplex = hipblasDoubleComplex;
 #include <cublas_v2.h>
 
 using gpuStream_t = cudaStream_t;
+using gpuError_t = cudaError_t;
 using gpurandState = curandState;
 using gpublasStatus_t = cublasStatus_t;
 using gpublasHandle_t = cublasHandle_t;
@@ -67,9 +81,11 @@ using gpublasDoubleComplex = cuDoubleComplex;
 #define gpuMalloc cudaMalloc
 #define gpuMemcpy cudaMemcpy
 #define gpuMemcpyAsync cudaMemcpyAsync
+#define gpuMemcpyToSymbolAsync cudaMemcpyToSymbolAsync
 #define gpuMemcpyDeviceToDevice cudaMemcpyDeviceToDevice
 #define gpuMemcpyHostToDevice cudaMemcpyHostToDevice
 #define gpuMemcpyDeviceToHost cudaMemcpyDeviceToHost
+#define gpuMemsetAsync cudaMemsetAsync
 #define gpuDeviceSynchronize cudaDeviceSynchronize
 #define gpuFree cudaFree
 #define gpuSuccess cudaSuccess
@@ -82,11 +98,21 @@ using gpublasDoubleComplex = cuDoubleComplex;
 #define gpublasSetMatrix cublasSetMatrix
 #define gpublasZgemv cublasZgemv
 #define gpublasZgemm cublasZgemm
+#define gpublasDznrm2 cublasDznrm2
+#define gpublasZdotc cublasZdotc
 #define gpublasGetVector cublasGetVector
 #define gpublasGetMatrix cublasGetMatrix
+#define gpublasSetStream cublasSetStream
 #define gpublasDestroy cublasDestroy
+#define gpuCabs cuCabs
+#define gpuCadd cuCadd
+#define gpuCmul cuCmul
+#define gpuConj cuConj
+#define gpuCreal cuCreal
+#define gpuCimag cuCimag
 #define GPUBLAS_OP_T CUBLAS_OP_T
 #define GPUBLAS_STATUS_SUCCESS CUBLAS_STATUS_SUCCESS
+#define GPU_SYMBOL
 
 #endif
 
