@@ -36,26 +36,18 @@
 #include "util_type.h"
 #include "util_type_internal.h"
 
+#include "gpu_wrapping.h"
+
 __host__ void* allocate_cuda_stream_host(
     unsigned int max_cuda_stream, unsigned int device_number) {
     int current_device = get_current_device();
-#ifdef __HIP_PLATFORM_AMD__
-    if (device_number != current_device) hipSetDevice(device_number);
-    hipStream_t* stream =
-        (hipStream_t*)malloc(max_cuda_stream * sizeof(hipStream_t));
+    if (device_number != current_device) gpuSetDevice(device_number);
+    gpuStream_t* stream =
+        (gpuStream_t*)malloc(max_cuda_stream * sizeof(gpuStream_t));
     for (unsigned int i = 0; i < max_cuda_stream; ++i)
-        hipStreamCreate(&stream[i]);
-    void* hip_stream = reinterpret_cast<void*>(stream);
-    return hip_stream;
-#else
-    if (device_number != current_device) cudaSetDevice(device_number);
-    cudaStream_t* stream =
-        (cudaStream_t*)malloc(max_cuda_stream * sizeof(cudaStream_t));
-    for (unsigned int i = 0; i < max_cuda_stream; ++i)
-        cudaStreamCreate(&stream[i]);
-    void* cuda_stream = reinterpret_cast<void*>(stream);
-    return cuda_stream;
-#endif
+        gpuStreamCreate(&stream[i]);
+    void* gpu_stream = reinterpret_cast<void*>(stream);
+    return gpu_stream;
 }
 
 #ifdef __HIP_PLATFORM_AMD__
