@@ -7,19 +7,42 @@
 #include <hip/hip_complex.h>
 #include <hiprand/hiprand.h>
 #include <hiprand/hiprand_kernel.h>
+#include <hipblas/hipblas.h>
 
 using gpuStream_t = hipStream_t;
 using gpurandState = hiprandState;
+using gpublasStatus_t = hipblasStatus_t;
+using gpublasHandle_t = hipblasHandle_t;
+using gpublasDoubleComplex = hipblasDoubleComplex;
 #define gpuSetDevice hipSetDevice
+#define gpuGetDevice hipGetDevice
+#define gpuGetDeviceCount hipGetDeviceCount
 #define gpuStreamCreate hipStreamCreate
 #define gpuStreamDestroy hipStreamDestroy
-#define make_gpuDoubleComplex make_hipDoubleComplex
-#define gpuMalloc hipMalloc
 #define gpuStreamSynchronize hipStreamSynchronize
-#define gpuGetLastError hipGetLastError
+#define gpuMalloc hipMalloc
+#define gpuMemcpy hipMemcpy
+#define gpuMemcpyAsync hipMemcpyAsync
+#define gpuMemcpyDeviceToDevice hipMemcpyDeviceToDevice
+#define gpuMemcpyHostToDevice hipMemcpyHostToDevice
+#define gpuMemcpyDeviceToHost hipMemcpyDeviceToHost
+#define gpuDeviceSynchronize hipDeviceSynchronize
 #define gpuFree hipFree
+#define gpuSuccess hipSuccess
+#define gpuGetLastError hipGetLastError
+#define make_gpuDoubleComplex make_hipDoubleComplex
 #define gpurand_init hiprand_init
 #define gpurand_uniform_double hiprand_uniform_double
+#define gpublasCreate hipblasCreate
+#define gpublasSetVector hipblasSetVector
+#define gpublasSetMatrix hipblasSetMatrix
+#define gpublasZgemv hipblasZgemv
+#define gpublasZgemm hipblasZgemm
+#define gpublasGetVector hipblasGetVector
+#define gpublasGetMatrix hipblasGetMatrix
+#define gpublasDestroy hipblasDestroy
+#define GPUBLAS_OP_T HIPBLAS_OP_T
+#define GPUBLAS_STATUS_SUCCESS HIPBLAS_STATUS_SUCCESS
 
 #else
 
@@ -28,19 +51,42 @@ using gpurandState = hiprandState;
 #include <cuComplex.h>
 #include <curand.h>
 #include <curand_kernel.h>
+#include <cublas_v2.h>
 
 using gpuStream_t = cudaStream_t;
 using gpurandState = curandState;
+using gpublasStatus_t = cublasStatus_t;
+using gpublasHandle_t = cublasHandle_t;
+using gpublasDoubleComplex = cuDoubleComplex;
 #define gpuSetDevice cudaSetDevice
+#define gpuGetDevice cudaGetDevice
+#define gpuGetDeviceCount cudaGetDeviceCount
 #define gpuStreamCreate cudaStreamCreate
 #define gpuStreamDestroy cudaStreamDestroy
-#define make_gpuDoubleComplex make_cuDoubleComplex
-#define gpuMalloc cudaMalloc
 #define gpuStreamSynchronize cudaStreamSynchronize
-#define gpuGetLastError cudaGetLastError
+#define gpuMalloc cudaMalloc
+#define gpuMemcpy cudaMemcpy
+#define gpuMemcpyAsync cudaMemcpyAsync
+#define gpuMemcpyDeviceToDevice cudaMemcpyDeviceToDevice
+#define gpuMemcpyHostToDevice cudaMemcpyHostToDevice
+#define gpuMemcpyDeviceToHost cudaMemcpyDeviceToHost
+#define gpuDeviceSynchronize cudaDeviceSynchronize
 #define gpuFree cudaFree
+#define gpuSuccess cudaSuccess
+#define gpuGetLastError cudaGetLastError
+#define make_gpuDoubleComplex make_cuDoubleComplex
 #define gpurand_init curand_init
 #define gpurand_uniform_double curand_uniform_double
+#define gpublasCreate cublasCreate
+#define gpublasSetVector cublasSetVector
+#define gpublasSetMatrix cublasSetMatrix
+#define gpublasZgemv cublasZgemv
+#define gpublasZgemm cublasZgemm
+#define gpublasGetVector cublasGetVector
+#define gpublasGetMatrix cublasGetMatrix
+#define gpublasDestroy cublasDestroy
+#define GPUBLAS_OP_T CUBLAS_OP_T
+#define GPUBLAS_STATUS_SUCCESS CUBLAS_STATUS_SUCCESS
 
 #endif
 
