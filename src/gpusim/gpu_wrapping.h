@@ -24,6 +24,7 @@ using gpublasDoubleComplex = hipblasDoubleComplex;
 #define gpuMalloc hipMalloc
 #define gpuMemcpy hipMemcpy
 #define gpuMemcpyAsync hipMemcpyAsync
+#define gpuMemcpyToSymbol hipMemcpyToSymbol
 #define gpuMemcpyToSymbolAsync hipMemcpyToSymbolAsync
 #define gpuMemcpyDeviceToDevice hipMemcpyDeviceToDevice
 #define gpuMemcpyHostToDevice hipMemcpyHostToDevice
@@ -81,6 +82,7 @@ using gpublasDoubleComplex = cuDoubleComplex;
 #define gpuMalloc cudaMalloc
 #define gpuMemcpy cudaMemcpy
 #define gpuMemcpyAsync cudaMemcpyAsync
+#define gpuMemcpyToSymbol cudaMemcpyToSymbol
 #define gpuMemcpyToSymbolAsync cudaMemcpyToSymbolAsync
 #define gpuMemcpyDeviceToDevice cudaMemcpyDeviceToDevice
 #define gpuMemcpyHostToDevice cudaMemcpyHostToDevice
