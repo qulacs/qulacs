@@ -1,21 +1,6 @@
-#ifdef __HIP_PLATFORM_AMD__
+#include "gpu_wrapping.h"
 
-#include <hip/hip_runtime.h>
 #include <assert.h>
-#include <hip/hip_complex.h>
-#include <hipblas/hipblas.h>
-
-#else
-
-#include "cuda_runtime.h"
-#include "device_launch_parameters.h"
-//#include "cuda.h"
-// for using cublas
-#include <assert.h>
-#include <cuComplex.h>
-#include <cublas_v2.h>
-
-#endif
 
 #include <algorithm>
 #include <cmath>
@@ -31,27 +16,15 @@
 
 int get_num_device() {
     int n_gpu;
-#ifdef __HIP_PLATFORM_AMD__
-    hipGetDeviceCount(&n_gpu);
-#else
-    cudaGetDeviceCount(&n_gpu);
-#endif
+    gpuGetDeviceCount(&n_gpu);
     return n_gpu;
 }
 
-#ifdef __HIP_PLATFORM_AMD__
-void set_device(unsigned int device_num) { hipSetDevice(device_num); }
-#else
-void set_device(unsigned int device_num) { cudaSetDevice(device_num); }
-#endif
+void set_device(unsigned int device_num) { gpuSetDevice(device_num); }
 
 int get_current_device() {
     int curr_dev_num;
-#ifdef __HIP_PLATFORM_AMD__
-    hipGetDevice(&curr_dev_num);
-#else
-    cudaGetDevice(&curr_dev_num);
-#endif
+    gpuGetDevice(&curr_dev_num);
     return curr_dev_num;
 }
 inline __device__ double __shfl_down_double(
@@ -99,49 +72,28 @@ __global__ void deviceReduceWarpAtomicKernel(int* in, int* out, ITYPE N) {
 __global__ void set_computational_basis_gpu(
     ITYPE comp_basis, GTYPE* state, ITYPE dim) {
     ITYPE idx = blockIdx.x * blockDim.x + threadIdx.x;
-#ifdef __HIP_PLATFORM_AMD__
     if (idx < dim) {
-        state[idx] = make_hipDoubleComplex(0.0, 0.0);
+        state[idx] = make_gpuDoubleComplex(0.0, 0.0);
     }
-    if (idx == comp_basis) state[comp_basis] = make_hipDoubleComplex(1.0, 0.0);
-#else
-    if (idx < dim) {
-        state[idx] = make_cuDoubleComplex(0.0, 0.0);
-    }
-    if (idx == comp_basis) state[comp_basis] = make_cuDoubleComplex(1.0, 0.0);
-#endif
+    if (idx == comp_basis) state[comp_basis] = make_gpuDoubleComplex(1.0, 0.0);
 }
 
 __host__ void set_computational_basis_host(ITYPE comp_basis, void* state,
     ITYPE dim, void* stream, unsigned int device_number) {
     int current_device = get_current_device();
-#ifdef __HIP_PLATFORM_AMD__
-    if (device_number != current_device) hipSetDevice(device_number);
+    if (device_number != current_device) gpuSetDevice(device_number);
 
-    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
-#else
-    if (device_number != current_device) cudaSetDevice(device_number);
-
-    cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
-#endif
+    gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
 
     unsigned int block = dim <= 1024 ? dim : 1024;
     unsigned int grid = dim / block;
 
-#ifdef __HIP_PLATFORM_AMD__
-    set_computational_basis_gpu<<<grid, block, 0, *hip_stream>>>(
+    set_computational_basis_gpu<<<grid, block, 0, *gpu_stream>>>(
         comp_basis, state_gpu, dim);
 
-    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
-    checkCudaErrors(hipGetLastError(), __FILE__, __LINE__);
-#else
-    set_computational_basis_gpu<<<grid, block, 0, *cuda_stream>>>(
-        comp_basis, state_gpu, dim);
-
-    checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
-    checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
-#endif
+    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkCudaErrors(gpuGetLastError(), __FILE__, __LINE__);
 
     state = reinterpret_cast<void*>(state_gpu);
 }
@@ -151,27 +103,15 @@ void copy_quantum_state_from_device_to_device(void* state_gpu_copy,
     const void* state_gpu, ITYPE dim, void* stream,
     unsigned int device_number) {
     int current_device = get_current_device();
-#ifdef __HIP_PLATFORM_AMD__
-    if (device_number != current_device) hipSetDevice(device_number);
+    if (device_number != current_device) gpuSetDevice(device_number);
 
-    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     const GTYPE* psi_gpu = reinterpret_cast<const GTYPE*>(state_gpu);
     GTYPE* psi_gpu_copy = reinterpret_cast<GTYPE*>(state_gpu_copy);
-    checkCudaErrors(hipMemcpyAsync(psi_gpu_copy, psi_gpu, dim * sizeof(GTYPE),
-                        hipMemcpyDeviceToDevice, *hip_stream),
+    checkCudaErrors(gpuMemcpyAsync(psi_gpu_copy, psi_gpu, dim * sizeof(GTYPE),
+                        gpuMemcpyDeviceToDevice, *gpu_stream),
         __FILE__, __LINE__);
-    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
-#else
-    if (device_number != current_device) cudaSetDevice(device_number);
-
-    cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
-    const GTYPE* psi_gpu = reinterpret_cast<const GTYPE*>(state_gpu);
-    GTYPE* psi_gpu_copy = reinterpret_cast<GTYPE*>(state_gpu_copy);
-    checkCudaErrors(cudaMemcpyAsync(psi_gpu_copy, psi_gpu, dim * sizeof(GTYPE),
-                        cudaMemcpyDeviceToDevice, *cuda_stream),
-        __FILE__, __LINE__);
-    checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
-#endif
+    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     state_gpu = reinterpret_cast<const void*>(psi_gpu);
     state_gpu_copy = reinterpret_cast<void*>(psi_gpu_copy);
 }
@@ -180,25 +120,14 @@ void copy_quantum_state_from_device_to_device(void* state_gpu_copy,
 void copy_quantum_state_from_host_to_device(void* state_gpu_copy,
     const void* state, ITYPE dim, void* stream, unsigned int device_number) {
     int current_device = get_current_device();
-#ifdef __HIP_PLATFORM_AMD__
-    if (device_number != current_device) hipSetDevice(device_number);
+    if (device_number != current_device) gpuSetDevice(device_number);
 
-    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     GTYPE* psi_gpu_copy = reinterpret_cast<GTYPE*>(state_gpu_copy);
-    checkCudaErrors(hipMemcpyAsync(psi_gpu_copy, state, dim * sizeof(GTYPE),
-                        hipMemcpyHostToDevice, *hip_stream),
+    checkCudaErrors(gpuMemcpyAsync(psi_gpu_copy, state, dim * sizeof(GTYPE),
+                        gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
-    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
-#else
-    if (device_number != current_device) cudaSetDevice(device_number);
-
-    cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
-    GTYPE* psi_gpu_copy = reinterpret_cast<GTYPE*>(state_gpu_copy);
-    checkCudaErrors(cudaMemcpyAsync(psi_gpu_copy, state, dim * sizeof(GTYPE),
-                        cudaMemcpyHostToDevice, *cuda_stream),
-        __FILE__, __LINE__);
-    checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
-#endif
+    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     state_gpu_copy = reinterpret_cast<void*>(psi_gpu_copy);
 }
 
@@ -213,27 +142,15 @@ void copy_quantum_state_from_device_to_host(void* state_cpu_copy,
     const void* state_gpu_original, ITYPE dim, void* stream,
     unsigned int device_number) {
     int current_device = get_current_device();
-#ifdef __HIP_PLATFORM_AMD__
-    if (device_number != current_device) hipSetDevice(device_number);
+    if (device_number != current_device) gpuSetDevice(device_number);
 
-    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     const GTYPE* psi_gpu = reinterpret_cast<const GTYPE*>(state_gpu_original);
     checkCudaErrors(
-        hipMemcpyAsync(state_cpu_copy, psi_gpu, dim * sizeof(GTYPE),
-            hipMemcpyDeviceToHost, *hip_stream),
+        gpuMemcpyAsync(state_cpu_copy, psi_gpu, dim * sizeof(GTYPE),
+            gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
-    checkCudaErrors(hipStreamSynchronize(*hip_stream), __FILE__, __LINE__);
-#else
-    if (device_number != current_device) cudaSetDevice(device_number);
-
-    cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
-    const GTYPE* psi_gpu = reinterpret_cast<const GTYPE*>(state_gpu_original);
-    checkCudaErrors(
-        cudaMemcpyAsync(state_cpu_copy, psi_gpu, dim * sizeof(GTYPE),
-            cudaMemcpyDeviceToHost, *cuda_stream),
-        __FILE__, __LINE__);
-    checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
-#endif
+    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     state_gpu_original = reinterpret_cast<const void*>(psi_gpu);
 }
 
@@ -242,48 +159,27 @@ void copy_quantum_state_from_device_to_host(void* state_cpu_copy,
 void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim,
     void* stream, unsigned int device_number) {
     int current_device = get_current_device();
-#ifdef __HIP_PLATFORM_AMD__
-    if (device_number != current_device) hipSetDevice(device_number);
-    hipStream_t* hip_stream = reinterpret_cast<hipStream_t*>(stream);
+    if (device_number != current_device) gpuSetDevice(device_number);
+    gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     GTYPE* psi_gpu = reinterpret_cast<GTYPE*>(state_gpu);
     psi_cpu_copy = reinterpret_cast<CPPCTYPE*>(psi_cpu_copy);
     checkCudaErrors(
-        hipMemcpyAsync(psi_cpu_copy, psi_gpu, dim * sizeof(CPPCTYPE),
-            hipMemcpyDeviceToHost, *hip_stream),
+        gpuMemcpyAsync(psi_cpu_copy, psi_gpu, dim * sizeof(CPPCTYPE),
+            gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
-#else
-    if (device_number != current_device) cudaSetDevice(device_number);
-    cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
-    GTYPE* psi_gpu = reinterpret_cast<GTYPE*>(state_gpu);
-    psi_cpu_copy = reinterpret_cast<CPPCTYPE*>(psi_cpu_copy);
-    checkCudaErrors(
-        cudaMemcpyAsync(psi_cpu_copy, psi_gpu, dim * sizeof(CPPCTYPE),
-            cudaMemcpyDeviceToHost, *cuda_stream),
-        __FILE__, __LINE__);
-#endif
     state_gpu = reinterpret_cast<void*>(psi_gpu);
 }
 
 void print_quantum_state_host(
     void* state, ITYPE dim, unsigned int device_number) {
     int current_device = get_current_device();
-#ifdef __HIP_PLATFORM_AMD__
-    if (device_number != current_device) hipSetDevice(device_number);
+    if (device_number != current_device) gpuSetDevice(device_number);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     CPPCTYPE* state_cpu = (CPPCTYPE*)malloc(sizeof(CPPCTYPE) * dim);
-    checkCudaErrors(hipDeviceSynchronize(), __FILE__, __LINE__);
-    checkCudaErrors(hipMemcpy(state_cpu, state_gpu, dim * sizeof(CPPCTYPE),
-                        hipMemcpyDeviceToHost),
+    checkCudaErrors(gpuDeviceSynchronize(), __FILE__, __LINE__);
+    checkCudaErrors(gpuMemcpy(state_cpu, state_gpu, dim * sizeof(CPPCTYPE),
+                        gpuMemcpyDeviceToHost),
         __FILE__, __LINE__);
-#else
-    if (device_number != current_device) cudaSetDevice(device_number);
-    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-    CPPCTYPE* state_cpu = (CPPCTYPE*)malloc(sizeof(CPPCTYPE) * dim);
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
-    checkCudaErrors(cudaMemcpy(state_cpu, state_gpu, dim * sizeof(CPPCTYPE),
-                        cudaMemcpyDeviceToHost),
-        __FILE__, __LINE__);
-#endif
     for (int i = 0; i < dim; ++i) {
         std::cout << i << " : " << state_cpu[i].real() << "+i"
                   << state_cpu[i].imag() << '\n';
@@ -422,146 +318,73 @@ UINT* create_sorted_ui_list_list_gsim(
 int cublas_zgemm_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
     const CPPCTYPE* h_B, CPPCTYPE beta, CPPCTYPE* h_C) {
     ITYPE n2 = n * n;
-#ifdef __HIP_PLATFORM_AMD__
-    hipblasStatus_t status;
-    hipblasHandle_t handle;
-#else
-    cublasStatus_t status;
-    cublasHandle_t handle;
-#endif
+    gpublasStatus_t status;
+    gpublasHandle_t handle;
     GTYPE* d_A;  // = make_cuDoubleComplex(0.0,0.0);
     GTYPE* d_B;  // = make_cuDoubleComplex(0,0);
     GTYPE* d_C;  // = make_cuDoubleComplex(0,0);
-#ifdef __HIP_PLATFORM_AMD__
-    GTYPE d_alpha = make_hipDoubleComplex(alpha.real(), alpha.imag());
-    GTYPE d_beta = make_hipDoubleComplex(beta.real(), beta.imag());
-#else
-    GTYPE d_alpha = make_cuDoubleComplex(alpha.real(), alpha.imag());
-    GTYPE d_beta = make_cuDoubleComplex(beta.real(), beta.imag());
-#endif
+    GTYPE d_alpha = make_gpuDoubleComplex(alpha.real(), alpha.imag());
+    GTYPE d_beta = make_gpuDoubleComplex(beta.real(), beta.imag());
     // int dev = 0; //findCudaDevice(argc, (const char **)argv);
 
     /* Initialize CUBLAS */
-#ifdef __HIP_PLATFORM_AMD__
-    status = hipblasCreate(&handle);
+    status = gpublasCreate(&handle);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! HIPBLAS initialization error\n");
-        return EXIT_FAILURE;
-    }
-#else
-    status = cublasCreate(&handle);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! CUBLAS initialization error\n");
         return EXIT_FAILURE;
     }
-#endif
 
     /* Allocate device memory for the matrices */
-#ifdef __HIP_PLATFORM_AMD__
-    if (hipMalloc(reinterpret_cast<void**>(&d_A), n2 * sizeof(d_A[0])) !=
-        hipSuccess) {
+    if (gpuMalloc(reinterpret_cast<void**>(&d_A), n2 * sizeof(d_A[0])) !=
+        gpuSuccess) {
         fprintf(stderr, "!!!! device memory allocation error (allocate A)\n");
         return EXIT_FAILURE;
     }
 
-    if (hipMalloc(reinterpret_cast<void**>(&d_B), n2 * sizeof(d_B[0])) !=
-        hipSuccess) {
+    if (gpuMalloc(reinterpret_cast<void**>(&d_B), n2 * sizeof(d_B[0])) !=
+        gpuSuccess) {
         fprintf(stderr, "!!!! device memory allocation error (allocate B)\n");
         return EXIT_FAILURE;
     }
 
-    if (hipMalloc(reinterpret_cast<void**>(&d_C), n2 * sizeof(d_C[0])) !=
-        hipSuccess) {
+    if (gpuMalloc(reinterpret_cast<void**>(&d_C), n2 * sizeof(d_C[0])) !=
+        gpuSuccess) {
         fprintf(stderr, "!!!! device memory allocation error (allocate C)\n");
         return EXIT_FAILURE;
     }
-#else
-    if (cudaMalloc(reinterpret_cast<void**>(&d_A), n2 * sizeof(d_A[0])) !=
-        cudaSuccess) {
-        fprintf(stderr, "!!!! device memory allocation error (allocate A)\n");
-        return EXIT_FAILURE;
-    }
-
-    if (cudaMalloc(reinterpret_cast<void**>(&d_B), n2 * sizeof(d_B[0])) !=
-        cudaSuccess) {
-        fprintf(stderr, "!!!! device memory allocation error (allocate B)\n");
-        return EXIT_FAILURE;
-    }
-
-    if (cudaMalloc(reinterpret_cast<void**>(&d_C), n2 * sizeof(d_C[0])) !=
-        cudaSuccess) {
-        fprintf(stderr, "!!!! device memory allocation error (allocate C)\n");
-        return EXIT_FAILURE;
-    }
-#endif
 
     /* Initialize the device matrices with the host matrices */
     // status = cublasSetVector(n2, sizeof(h_A[0]), h_A, 1, d_A, 1);
-#ifdef __HIP_PLATFORM_AMD__
-    status = hipblasSetMatrix(n, n, sizeof(h_A[0]), h_A, n, d_A, n);
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    status = gpublasSetMatrix(n, n, sizeof(h_A[0]), h_A, n, d_A, n);
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! device access error (write A)\n");
         return EXIT_FAILURE;
     }
 
-    status = hipblasSetMatrix(n, n, sizeof(h_B[0]), h_B, n, d_B, n);
+    status = gpublasSetMatrix(n, n, sizeof(h_B[0]), h_B, n, d_B, n);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! device access error (write B)\n");
         return EXIT_FAILURE;
     }
 
-    status = hipblasSetMatrix(n, n, sizeof(h_C[0]), h_C, n, d_C, n);
+    status = gpublasSetMatrix(n, n, sizeof(h_C[0]), h_C, n, d_C, n);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! device access error (write C)\n");
         return EXIT_FAILURE;
     }
     /* Performs operation using cublas */
-    status = hipblasZgemm(handle, HIPBLAS_OP_T, HIPBLAS_OP_T, n, n, n,
-        (hipblasDoubleComplex*)&d_alpha, (hipblasDoubleComplex*)d_A, n,
-        (hipblasDoubleComplex*)d_B, n, (hipblasDoubleComplex*)&d_beta,
-        (hipblasDoubleComplex*)d_C, n);
+    status = gpublasZgemm(handle, GPUBLAS_OP_T, GPUBLAS_OP_T, n, n, n,
+        (gpublasDoubleComplex*)&d_alpha, (gpublasDoubleComplex*)d_A, n,
+        (gpublasDoubleComplex*)d_B, n, (gpublasDoubleComplex*)&d_beta,
+        (gpublasDoubleComplex*)d_C, n);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! kernel execution error.\n");
         return EXIT_FAILURE;
     }
-#else
-    status = cublasSetMatrix(n, n, sizeof(h_A[0]), h_A, n, d_A, n);
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! device access error (write A)\n");
-        return EXIT_FAILURE;
-    }
-
-    // status = cublasSetVector(n2, sizeof(h_B[0]), h_B, 1, d_B, 1);
-    status = cublasSetMatrix(n, n, sizeof(h_B[0]), h_B, n, d_B, n);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! device access error (write B)\n");
-        return EXIT_FAILURE;
-    }
-
-    // status = cublasSetVector(n2, sizeof(h_C[0]), h_C, 1, d_C, 1);
-    status = cublasSetMatrix(n, n, sizeof(h_C[0]), h_C, n, d_C, n);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! device access error (write C)\n");
-        return EXIT_FAILURE;
-    }
-    /* Performs operation using cublas */
-    status = cublasZgemm(handle, CUBLAS_OP_T, CUBLAS_OP_T, n, n, n, &d_alpha,
-        d_A, n, d_B, n, &d_beta, d_C, n);
-
-    // status=cublasZgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, N, N, &alpha,
-    // d_A, N, d_B, N, &beta, d_C, N);
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! kernel execution error.\n");
-        return EXIT_FAILURE;
-    }
-#endif
 
     /* Allocate host memory for reading back the result from device memory */
     CPPCTYPE* tmp_h_C =
@@ -573,67 +396,35 @@ int cublas_zgemm_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
     }
 
     /* Read the result back */
-#ifdef __HIP_PLATFORM_AMD__
-    status = hipblasGetMatrix(n, n, sizeof(GTYPE), d_C, n, tmp_h_C, n);
+    status = gpublasGetMatrix(n, n, sizeof(GTYPE), d_C, n, tmp_h_C, n);
     memcpy(h_C, tmp_h_C, sizeof(h_C[0]) * n2);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! device access error (read C)\n");
         return EXIT_FAILURE;
     }
-    if (hipFree(d_A) != hipSuccess) {
+    if (gpuFree(d_A) != gpuSuccess) {
         fprintf(stderr, "!!!! memory free error (A)\n");
         return EXIT_FAILURE;
     }
 
-    if (hipFree(d_B) != hipSuccess) {
+    if (gpuFree(d_B) != gpuSuccess) {
         fprintf(stderr, "!!!! memory free error (B)\n");
         return EXIT_FAILURE;
     }
 
-    if (hipFree(d_C) != hipSuccess) {
+    if (gpuFree(d_C) != gpuSuccess) {
         fprintf(stderr, "!!!! memory free error (C)\n");
         return EXIT_FAILURE;
     }
 
     /* Shutdown */
-    status = hipblasDestroy(handle);
+    status = gpublasDestroy(handle);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! shutdown error (A)\n");
         return EXIT_FAILURE;
     }
-#else
-    status = cublasGetMatrix(n, n, sizeof(GTYPE), d_C, n, tmp_h_C, n);
-    memcpy(h_C, tmp_h_C, sizeof(h_C[0]) * n2);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! device access error (read C)\n");
-        return EXIT_FAILURE;
-    }
-    if (cudaFree(d_A) != cudaSuccess) {
-        fprintf(stderr, "!!!! memory free error (A)\n");
-        return EXIT_FAILURE;
-    }
-
-    if (cudaFree(d_B) != cudaSuccess) {
-        fprintf(stderr, "!!!! memory free error (B)\n");
-        return EXIT_FAILURE;
-    }
-
-    if (cudaFree(d_C) != cudaSuccess) {
-        fprintf(stderr, "!!!! memory free error (C)\n");
-        return EXIT_FAILURE;
-    }
-
-    /* Shutdown */
-    status = cublasDestroy(handle);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! shutdown error (A)\n");
-        return EXIT_FAILURE;
-    }
-#endif
     return 0;
 }
 
@@ -642,155 +433,74 @@ int cublas_zgemm_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
 int cublas_zgemv_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
     const CPPCTYPE* h_x, CPPCTYPE beta, CPPCTYPE* h_y) {
     ITYPE n2 = n * n;
-#ifdef __HIP_PLATFORM_AMD__
-    hipblasStatus_t status;
-    hipblasHandle_t handle;
-#else
-    cublasStatus_t status;
-    cublasHandle_t handle;
-#endif
+    gpublasStatus_t status;
+    gpublasHandle_t handle;
     GTYPE* d_A;
     GTYPE* d_x;
     GTYPE* d_y;
-#ifdef __HIP_PLATFORM_AMD__
-    GTYPE d_alpha = make_hipDoubleComplex(alpha.real(), alpha.imag());
-    GTYPE d_beta = make_hipDoubleComplex(beta.real(), beta.imag());
-#else
-    GTYPE d_alpha = make_cuDoubleComplex(alpha.real(), alpha.imag());
-    GTYPE d_beta = make_cuDoubleComplex(beta.real(), beta.imag());
-#endif
+    GTYPE d_alpha = make_gpuDoubleComplex(alpha.real(), alpha.imag());
+    GTYPE d_beta = make_gpuDoubleComplex(beta.real(), beta.imag());
     // int dev = 0; //findCudaDevice(argc, (const char **)argv);
 
     /* Initialize CUBLAS */
-#ifdef __HIP_PLATFORM_AMD__
     printf("simpleCUBLAS test running..\n");
-    status = hipblasCreate(&handle);
+    status = gpublasCreate(&handle);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! CUBLAS initialization error\n");
         return EXIT_FAILURE;
     }
 
     /* Allocate device memory for the matrices */
-    if (hipMalloc(reinterpret_cast<void**>(&d_A), n2 * sizeof(d_A[0])) !=
-        hipSuccess) {
+    if (gpuMalloc(reinterpret_cast<void**>(&d_A), n2 * sizeof(d_A[0])) !=
+        gpuSuccess) {
         fprintf(stderr, "!!!! device memory allocation error (allocate A)\n");
         return EXIT_FAILURE;
     }
 
-    if (hipMalloc(reinterpret_cast<void**>(&d_x), n * sizeof(d_x[0])) !=
-        hipSuccess) {
+    if (gpuMalloc(reinterpret_cast<void**>(&d_x), n * sizeof(d_x[0])) !=
+        gpuSuccess) {
         fprintf(stderr, "!!!! device memory allocation error (allocate x)\n");
         return EXIT_FAILURE;
     }
 
-    if (hipMalloc(reinterpret_cast<void**>(&d_y), n * sizeof(d_y[0])) !=
-        hipSuccess) {
+    if (gpuMalloc(reinterpret_cast<void**>(&d_y), n * sizeof(d_y[0])) !=
+        gpuSuccess) {
         fprintf(stderr, "!!!! device memory allocation error (allocate y)\n");
         return EXIT_FAILURE;
     }
-#else
-    printf("simpleCUBLAS test running..\n");
-    status = cublasCreate(&handle);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! CUBLAS initialization error\n");
-        return EXIT_FAILURE;
-    }
-
-    /* Allocate device memory for the matrices */
-    if (cudaMalloc(reinterpret_cast<void**>(&d_A), n2 * sizeof(d_A[0])) !=
-        cudaSuccess) {
-        fprintf(stderr, "!!!! device memory allocation error (allocate A)\n");
-        return EXIT_FAILURE;
-    }
-
-    if (cudaMalloc(reinterpret_cast<void**>(&d_x), n * sizeof(d_x[0])) !=
-        cudaSuccess) {
-        fprintf(stderr, "!!!! device memory allocation error (allocate x)\n");
-        return EXIT_FAILURE;
-    }
-
-    if (cudaMalloc(reinterpret_cast<void**>(&d_y), n * sizeof(d_y[0])) !=
-        cudaSuccess) {
-        fprintf(stderr, "!!!! device memory allocation error (allocate y)\n");
-        return EXIT_FAILURE;
-    }
-#endif
 
     /* Initialize the device matrices with the host matrices */
     // status = cublasSetVector(n2, sizeof(h_A[0]), h_A, 1, d_A, 1);
-#ifdef __HIP_PLATFORM_AMD__
-    status = hipblasSetMatrix(n, n, sizeof(h_A[0]), h_A, n, d_A, n);
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    status = gpublasSetMatrix(n, n, sizeof(h_A[0]), h_A, n, d_A, n);
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! device access error (write A)\n");
         return EXIT_FAILURE;
     }
 
-    status = hipblasSetVector(n, sizeof(h_x[0]), h_x, 1, d_x, 1);
+    status = gpublasSetVector(n, sizeof(h_x[0]), h_x, 1, d_x, 1);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! device access error (write x)\n");
         return EXIT_FAILURE;
     }
 
-    status = hipblasSetVector(n, sizeof(h_y[0]), h_y, 1, d_y, 1);
+    status = gpublasSetVector(n, sizeof(h_y[0]), h_y, 1, d_y, 1);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! device access error (write C)\n");
         return EXIT_FAILURE;
     }
     /* Performs operation using cublas */
-    status = hipblasZgemv(
-        handle, HIPBLAS_OP_T, n, n, (hipblasDoubleComplex*)&d_alpha,
-        (hipblasDoubleComplex*)d_A, n, (hipblasDoubleComplex*)d_x, 1,
-        (hipblasDoubleComplex*)&d_beta, (hipblasDoubleComplex*)d_y, 1);
+    status = gpublasZgemv(
+        handle, GPUBLAS_OP_T, n, n, (gpublasDoubleComplex*)&d_alpha,
+        (gpublasDoubleComplex*)d_A, n, (gpublasDoubleComplex*)d_x, 1,
+        (gpublasDoubleComplex*)&d_beta, (gpublasDoubleComplex*)d_y, 1);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! kernel execution error.\n");
         return EXIT_FAILURE;
     }
-#else
-    status = cublasSetMatrix(n, n, sizeof(h_A[0]), h_A, n, d_A, n);
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! device access error (write A)\n");
-        return EXIT_FAILURE;
-    }
-
-    status = cublasSetVector(n, sizeof(h_x[0]), h_x, 1, d_x, 1);
-    // status = cublasSetMatrix(n, n, sizeof(h_B[0]), h_B, n, d_B, n);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! device access error (write x)\n");
-        return EXIT_FAILURE;
-    }
-
-    status = cublasSetVector(n, sizeof(h_y[0]), h_y, 1, d_y, 1);
-    // status = cublasSetMatrix(n, n, sizeof(h_C[0]), h_C, n, d_C, n);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! device access error (write C)\n");
-        return EXIT_FAILURE;
-    }
-    /* Performs operation using cublas */
-    status = cublasZgemv(
-        handle, CUBLAS_OP_T, n, n, &d_alpha, d_A, n, d_x, 1, &d_beta, d_y, 1);
-    /*
-    cublasStatus_t cublasZgemv(cublasHandle_t handle, cublasOperation_t trans,
-                               int m, int n,
-                               const cuDoubleComplex *alpha,
-                               const cuDoubleComplex *A, int lda,
-                               const cuDoubleComplex *x, int incx,
-                               const cuDoubleComplex *beta,
-                               cuDoubleComplex *y, int incy)
-    */
-    // status=cublasZgemm(handle, CUBLAS_OP_N, CUBLAS_OP_N, N, N, N, &alpha,
-    // d_A, N, d_B, N, &beta, d_C, N);
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! kernel execution error.\n");
-        return EXIT_FAILURE;
-    }
-#endif
 
     /* Allocate host memory for reading back the result from device memory */
     CPPCTYPE* tmp_h_y = reinterpret_cast<CPPCTYPE*>(malloc(n * sizeof(h_y[0])));
@@ -801,329 +511,166 @@ int cublas_zgemv_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
     }
 
     /* Read the result back */
-#ifdef __HIP_PLATFORM_AMD__
-    status = hipblasGetVector(n, sizeof(GTYPE), d_y, 1, tmp_h_y, 1);
+    status = gpublasGetVector(n, sizeof(GTYPE), d_y, 1, tmp_h_y, 1);
     memcpy(h_y, tmp_h_y, sizeof(h_y[0]) * n);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! device access error (read C)\n");
         return EXIT_FAILURE;
     }
-    if (hipFree(d_A) != hipSuccess) {
+    if (gpuFree(d_A) != gpuSuccess) {
         fprintf(stderr, "!!!! memory free error (A)\n");
         return EXIT_FAILURE;
     }
 
-    if (hipFree(d_x) != hipSuccess) {
+    if (gpuFree(d_x) != gpuSuccess) {
         fprintf(stderr, "!!!! memory free error (x)\n");
         return EXIT_FAILURE;
     }
 
-    if (hipFree(d_y) != hipSuccess) {
+    if (gpuFree(d_y) != gpuSuccess) {
         fprintf(stderr, "!!!! memory free error (y)\n");
         return EXIT_FAILURE;
     }
 
     /* Shutdown */
-    status = hipblasDestroy(handle);
+    status = gpublasDestroy(handle);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! shutdown error (A)\n");
         return EXIT_FAILURE;
     }
-#else
-    status = cublasGetVector(n, sizeof(GTYPE), d_y, 1, tmp_h_y, 1);
-    /*
-    cublasStatus_t cublasGetVector(int n, int elemSize, const void *x, int incx,
-    void *y, int incy)
-    */
-    memcpy(h_y, tmp_h_y, sizeof(h_y[0]) * n);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! device access error (read C)\n");
-        return EXIT_FAILURE;
-    }
-    if (cudaFree(d_A) != cudaSuccess) {
-        fprintf(stderr, "!!!! memory free error (A)\n");
-        return EXIT_FAILURE;
-    }
-
-    if (cudaFree(d_x) != cudaSuccess) {
-        fprintf(stderr, "!!!! memory free error (x)\n");
-        return EXIT_FAILURE;
-    }
-
-    if (cudaFree(d_y) != cudaSuccess) {
-        fprintf(stderr, "!!!! memory free error (y)\n");
-        return EXIT_FAILURE;
-    }
-
-    /* Shutdown */
-    status = cublasDestroy(handle);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! shutdown error (A)\n");
-        return EXIT_FAILURE;
-    }
-#endif
     return 0;
 }
 
 // we assume state has already allocated at device
 int cublas_zgemv_wrapper(ITYPE n, const CPPCTYPE* h_matrix, GTYPE* d_state) {
     ITYPE n2 = n * n;
-#ifdef __HIP_PLATFORM_AMD__
-    hipblasStatus_t status;
-    hipblasHandle_t handle;
-#else
-    cublasStatus_t status;
-    cublasHandle_t handle;
-#endif
+    gpublasStatus_t status;
+    gpublasHandle_t handle;
     GTYPE* d_matrix;
     GTYPE* d_y;  // this will include the answer of the state.
-#ifdef __HIP_PLATFORM_AMD__
-    GTYPE d_alpha = make_hipDoubleComplex(1.0, 0.0);
-    GTYPE d_beta = make_hipDoubleComplex(0.0, 0.0);
-#else
-    GTYPE d_alpha = make_cuDoubleComplex(1.0, 0.0);
-    GTYPE d_beta = make_cuDoubleComplex(0.0, 0.0);
-#endif
+    GTYPE d_alpha = make_gpuDoubleComplex(1.0, 0.0);
+    GTYPE d_beta = make_gpuDoubleComplex(0.0, 0.0);
     // int dev = 0;
 
     /* Initialize CUBLAS */
-#ifdef __HIP_PLATFORM_AMD__
-    status = hipblasCreate(&handle);
+    status = gpublasCreate(&handle);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! CUBLAS initialization error\n");
         return EXIT_FAILURE;
     }
 
     /* Allocate device memory for the matrices */
-    if (hipMalloc(reinterpret_cast<void**>(&d_matrix),
-            n2 * sizeof(d_matrix[0])) != hipSuccess) {
+    if (gpuMalloc(reinterpret_cast<void**>(&d_matrix),
+            n2 * sizeof(d_matrix[0])) != gpuSuccess) {
         fprintf(stderr, "!!!! device memory allocation error (allocate A)\n");
         return EXIT_FAILURE;
     }
 
-    if (hipMalloc(reinterpret_cast<void**>(&d_y), n * sizeof(d_y[0])) !=
-        hipSuccess) {
+    if (gpuMalloc(reinterpret_cast<void**>(&d_y), n * sizeof(d_y[0])) !=
+        gpuSuccess) {
         fprintf(stderr, "!!!! device memory allocation error (allocate y)\n");
         return EXIT_FAILURE;
     }
-#else
-    status = cublasCreate(&handle);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! CUBLAS initialization error\n");
-        return EXIT_FAILURE;
-    }
-
-    /* Allocate device memory for the matrices */
-    if (cudaMalloc(reinterpret_cast<void**>(&d_matrix),
-            n2 * sizeof(d_matrix[0])) != cudaSuccess) {
-        fprintf(stderr, "!!!! device memory allocation error (allocate A)\n");
-        return EXIT_FAILURE;
-    }
-
-    if (cudaMalloc(reinterpret_cast<void**>(&d_y), n * sizeof(d_y[0])) !=
-        cudaSuccess) {
-        fprintf(stderr, "!!!! device memory allocation error (allocate y)\n");
-        return EXIT_FAILURE;
-    }
-#endif
     // cudaMemset(&d_y, 0, sizeof(d_y[0])*n);
     /* Initialize the device matrices with the host matrices */
-#ifdef __HIP_PLATFORM_AMD__
     status =
-        hipblasSetMatrix(n, n, sizeof(h_matrix[0]), h_matrix, n, d_matrix, n);
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+        gpublasSetMatrix(n, n, sizeof(h_matrix[0]), h_matrix, n, d_matrix, n);
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! device access error (write A)\n");
         return EXIT_FAILURE;
     }
 
     /* Performs operation using cublas */
-    status = hipblasZgemv(handle, HIPBLAS_OP_T, n, n, (hipblasDoubleComplex*)&d_alpha,
-        (hipblasDoubleComplex*)d_matrix, n, (hipblasDoubleComplex*)d_state, 1,
-        (hipblasDoubleComplex*)&d_beta, (hipblasDoubleComplex*)d_y, 1);
+    status = gpublasZgemv(handle, GPUBLAS_OP_T, n, n, (gpublasDoubleComplex*)&d_alpha,
+        (gpublasDoubleComplex*)d_matrix, n, (gpublasDoubleComplex*)d_state, 1,
+        (gpublasDoubleComplex*)&d_beta, (gpublasDoubleComplex*)d_y, 1);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! kernel execution error.\n");
         return EXIT_FAILURE;
     }
 
-    hipMemcpy(d_state, d_y, n * sizeof(GTYPE), hipMemcpyDeviceToDevice);
+    gpuMemcpy(d_state, d_y, n * sizeof(GTYPE), gpuMemcpyDeviceToDevice);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! device access error (read C)\n");
         return EXIT_FAILURE;
     }
-    if (hipFree(d_matrix) != hipSuccess) {
+    if (gpuFree(d_matrix) != gpuSuccess) {
         fprintf(stderr, "!!!! memory free error (A)\n");
         return EXIT_FAILURE;
     }
 
-    if (hipFree(d_y) != hipSuccess) {
+    if (gpuFree(d_y) != gpuSuccess) {
         fprintf(stderr, "!!!! memory free error (y)\n");
         return EXIT_FAILURE;
     }
 
     /* Shutdown */
-    status = hipblasDestroy(handle);
+    status = gpublasDestroy(handle);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! shutdown error (A)\n");
         return EXIT_FAILURE;
     }
-#else
-    status =
-        cublasSetMatrix(n, n, sizeof(h_matrix[0]), h_matrix, n, d_matrix, n);
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! device access error (write A)\n");
-        return EXIT_FAILURE;
-    }
-
-    /* Performs operation using cublas */
-    status = cublasZgemv(handle, CUBLAS_OP_T, n, n, &d_alpha, d_matrix, n,
-        d_state, 1, &d_beta, d_y, 1);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! kernel execution error.\n");
-        return EXIT_FAILURE;
-    }
-
-    cudaMemcpy(d_state, d_y, n * sizeof(GTYPE), cudaMemcpyDeviceToDevice);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! device access error (read C)\n");
-        return EXIT_FAILURE;
-    }
-    if (cudaFree(d_matrix) != cudaSuccess) {
-        fprintf(stderr, "!!!! memory free error (A)\n");
-        return EXIT_FAILURE;
-    }
-
-    if (cudaFree(d_y) != cudaSuccess) {
-        fprintf(stderr, "!!!! memory free error (y)\n");
-        return EXIT_FAILURE;
-    }
-
-    /* Shutdown */
-    status = cublasDestroy(handle);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! shutdown error (A)\n");
-        return EXIT_FAILURE;
-    }
-#endif
     return 0;
 }
 
 // we assume state and matrix has already allocated at device
 int cublas_zgemv_wrapper(ITYPE n, const GTYPE* d_matrix, GTYPE* d_state) {
     // ITYPE n2 = n*n;
-#ifdef __HIP_PLATFORM_AMD__
-    hipblasStatus_t status;
-    hipblasHandle_t handle;
+    gpublasStatus_t status;
+    gpublasHandle_t handle;
     GTYPE* d_y;  // this will include the answer of the state.
-    GTYPE d_alpha = make_hipDoubleComplex(1.0, 0.0);
-    GTYPE d_beta = make_hipDoubleComplex(0.0, 0.0);
-#else
-    cublasStatus_t status;
-    cublasHandle_t handle;
-    GTYPE* d_y;  // this will include the answer of the state.
-    GTYPE d_alpha = make_cuDoubleComplex(1.0, 0.0);
-    GTYPE d_beta = make_cuDoubleComplex(0.0, 0.0);
-#endif
+    GTYPE d_alpha = make_gpuDoubleComplex(1.0, 0.0);
+    GTYPE d_beta = make_gpuDoubleComplex(0.0, 0.0);
     // int dev = 0;
 
     /* Initialize CUBLAS */
-#ifdef __HIP_PLATFORM_AMD__
-    status = hipblasCreate(&handle);
+    status = gpublasCreate(&handle);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! CUBLAS initialization error\n");
         return EXIT_FAILURE;
     }
 
-    if (hipMalloc(reinterpret_cast<void**>(&d_y), n * sizeof(d_y[0])) !=
-        hipSuccess) {
+    if (gpuMalloc(reinterpret_cast<void**>(&d_y), n * sizeof(d_y[0])) !=
+        gpuSuccess) {
         fprintf(stderr, "!!!! device memory allocation error (allocate y)\n");
         return EXIT_FAILURE;
     }
 
     /* Performs operation using cublas */
-    status = hipblasZgemv(handle, HIPBLAS_OP_T, n, n, (hipblasDoubleComplex*)&d_alpha,
-        (hipblasDoubleComplex*)d_matrix, n, (hipblasDoubleComplex*)d_state, 1,
-        (hipblasDoubleComplex*)&d_beta, (hipblasDoubleComplex*)d_y, 1);
+    status = gpublasZgemv(handle, GPUBLAS_OP_T, n, n, (gpublasDoubleComplex*)&d_alpha,
+        (gpublasDoubleComplex*)d_matrix, n, (gpublasDoubleComplex*)d_state, 1,
+        (gpublasDoubleComplex*)&d_beta, (gpublasDoubleComplex*)d_y, 1);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! kernel execution error.\n");
         return EXIT_FAILURE;
     }
 
-    hipMemcpy(d_state, d_y, n * sizeof(GTYPE), hipMemcpyDeviceToDevice);
+    gpuMemcpy(d_state, d_y, n * sizeof(GTYPE), gpuMemcpyDeviceToDevice);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! device access error (read C)\n");
         return EXIT_FAILURE;
     }
 
-    if (hipFree(d_y) != hipSuccess) {
+    if (gpuFree(d_y) != gpuSuccess) {
         fprintf(stderr, "!!!! memory free error (y)\n");
         return EXIT_FAILURE;
     }
 
     /* Shutdown */
-    status = hipblasDestroy(handle);
+    status = gpublasDestroy(handle);
 
-    if (status != HIPBLAS_STATUS_SUCCESS) {
+    if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! shutdown error (A)\n");
         return EXIT_FAILURE;
     }
-#else
-    status = cublasCreate(&handle);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! CUBLAS initialization error\n");
-        return EXIT_FAILURE;
-    }
-
-    if (cudaMalloc(reinterpret_cast<void**>(&d_y), n * sizeof(d_y[0])) !=
-        cudaSuccess) {
-        fprintf(stderr, "!!!! device memory allocation error (allocate y)\n");
-        return EXIT_FAILURE;
-    }
-    // cudaMemset(&d_y, 0, sizeof(d_y[0])*n);
-
-    /* Performs operation using cublas */
-    status = cublasZgemv(handle, CUBLAS_OP_T, n, n, &d_alpha, d_matrix, n,
-        d_state, 1, &d_beta, d_y, 1);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! kernel execution error.\n");
-        return EXIT_FAILURE;
-    }
-
-    cudaMemcpy(d_state, d_y, n * sizeof(GTYPE), cudaMemcpyDeviceToDevice);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! device access error (read C)\n");
-        return EXIT_FAILURE;
-    }
-
-    if (cudaFree(d_y) != cudaSuccess) {
-        fprintf(stderr, "!!!! memory free error (y)\n");
-        return EXIT_FAILURE;
-    }
-
-    /* Shutdown */
-    status = cublasDestroy(handle);
-
-    if (status != CUBLAS_STATUS_SUCCESS) {
-        fprintf(stderr, "!!!! shutdown error (A)\n");
-        return EXIT_FAILURE;
-    }
-#endif
     return 0;
 }
