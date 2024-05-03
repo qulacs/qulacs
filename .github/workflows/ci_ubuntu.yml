@@ -67,6 +67,8 @@ jobs:
 
       - name: Upload coverage to codecov
         uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
 
   gcc10-build-with-address-sanitizer:
     name: GCC10 build with -fsanitizer=address enabled

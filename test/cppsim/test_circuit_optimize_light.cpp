@@ -13,6 +13,7 @@
 #include <csim/constant.hpp>
 #include <unsupported/Eigen/MatrixFunctions>
 #include <utility>
+#include <vqcsim/parametric_circuit.hpp>
 
 #include "../util/util.hpp"
 
@@ -142,6 +143,36 @@ TEST(CircuitTest, CircuitOptimizeLight) {
         ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
         delete copy_circuit;
     }
+}
+
+// Regression test for #634.
+// This test checks if the optimizer leaves parametric gates as is.
+TEST(CircuitTest, CircuitOptimizeLightParameterUnchanged) {
+    const UINT n = 2;
+    const UINT dim = 1ULL << n;
+
+    QuantumState state(n), test_state(n);
+    state.set_Haar_random_state();
+    test_state.load(&state);
+    ParametricQuantumCircuit circuit(n);
+
+    circuit.add_X_gate(0);
+    circuit.add_parametric_RX_gate(0, 0.1);
+    circuit.add_parametric_RY_gate(0, 0.1);
+    UINT expected_depth = 3;
+    UINT expected_gate_count = 3;
+
+    ParametricQuantumCircuit* copy_circuit = circuit.copy();
+    QuantumCircuitOptimizer qco;
+    qco.optimize_light(copy_circuit);
+    circuit.update_quantum_state(&test_state);
+    copy_circuit->update_quantum_state(&state);
+
+    ASSERT_STATE_NEAR(state, test_state, eps);
+    ASSERT_EQ(copy_circuit->calculate_depth(), expected_depth);
+    ASSERT_EQ(copy_circuit->gate_list.size(), expected_gate_count);
+    ASSERT_EQ(copy_circuit->get_parameter_count(), 2);
+    delete copy_circuit;
 }
 
 TEST(CircuitTest, RandomCircuitOptimizeLight) {

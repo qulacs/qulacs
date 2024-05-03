@@ -201,18 +201,16 @@ void QuantumCircuitOptimizer::optimize_light(
                 target_qubits.begin(), target_qubits.end())) {
             // we merge gates only when it does not interfere swap insertion
             if (can_merge_with_swap_insertion(pos, ind1, swap_level)) {
+                // parametric gate cannot be merged
+                if (circuit->gate_list[pos]->is_parametric() ||
+                    gate->is_parametric())
+                    continue;
                 auto merged_gate = gate::merge(circuit->gate_list[pos], gate);
                 circuit->remove_gate(ind1);
                 circuit->add_gate(merged_gate, pos + 1);
                 circuit->remove_gate(pos);
                 ind1--;
             }
-
-            // std::cout << "merge ";
-            // for (auto val : target_qubits) std::cout << val << " ";
-            // std::cout << " into ";
-            // for (auto val : parent_qubits) std::cout << val << " ";
-            // std::cout << std::endl;
         } else {
             for (auto target_qubit : target_qubits) {
                 current_step[target_qubit] = make_pair(ind1, target_qubits);
