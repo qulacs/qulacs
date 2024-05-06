@@ -52,7 +52,7 @@ __host__ void* allocate_quantum_state_host(
     int current_device = get_current_device();
     if (device_number != current_device) gpuSetDevice(device_number);
     GTYPE* state_gpu;
-    checkCudaErrors(gpuMalloc((void**)&state_gpu, dim * sizeof(GTYPE)),
+    checkGpuErrors(gpuMalloc((void**)&state_gpu, dim * sizeof(GTYPE)),
         __FILE__, __LINE__);
     void* psi_gpu = reinterpret_cast<void*>(state_gpu);
     return psi_gpu;
@@ -69,8 +69,8 @@ __host__ void initialize_quantum_state_host(
     unsigned int grid = dim / block;
     init_qstate<<<grid, block, 0, *gpu_stream>>>(state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
-    checkCudaErrors(gpuGetLastError(), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
 }
 
 __host__ void release_quantum_state_host(
@@ -78,7 +78,7 @@ __host__ void release_quantum_state_host(
     int current_device = get_current_device();
     if (device_number != current_device) gpuSetDevice(device_number);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-    checkCudaErrors(gpuFree(state_gpu), __FILE__, __LINE__);
+    checkGpuErrors(gpuFree(state_gpu), __FILE__, __LINE__);
 }
 
 __global__ void init_rnd(
@@ -130,7 +130,7 @@ __host__ void initialize_Haar_random_state_with_seed_host(void* state,
     double norm = 0.;
 
     gpurandState* rnd_state;
-    checkCudaErrors(gpuMalloc((void**)&rnd_state, dim * sizeof(gpurandState)),
+    checkGpuErrors(gpuMalloc((void**)&rnd_state, dim * sizeof(gpurandState)),
         __FILE__, __LINE__);
 
     // CURAND_RNG_PSEUDO_XORWOW
@@ -140,14 +140,14 @@ __host__ void initialize_Haar_random_state_with_seed_host(void* state,
     unsigned int grid = dim / block;
 
     init_rnd<<<grid, block, 0, *gpu_stream>>>(rnd_state, seed);
-    checkCudaErrors(gpuGetLastError(), __FILE__, __LINE__);
+    checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
 
     rand_normal_xorwow<<<grid, block, 0, *gpu_stream>>>(
         rnd_state, state_gpu, dim);
-    checkCudaErrors(gpuGetLastError(), __FILE__, __LINE__);
+    checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
-    checkCudaErrors(gpuFree(rnd_state), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuFree(rnd_state), __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 
     norm = state_norm_squared_host(state, dim, gpu_stream, device_number);

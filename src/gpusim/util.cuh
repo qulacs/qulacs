@@ -24,7 +24,7 @@
 
 //#include "util_type.h"
 
-inline void checkCudaErrors(
+inline void checkGpuErrors(
 #ifdef __HIP_PLATFORM_AMD__
     const hipError_t error, std::string filename, int line) {
     if (error != hipSuccess) {

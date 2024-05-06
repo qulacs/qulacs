@@ -84,7 +84,7 @@ __host__ void penta_qubit_dense_matrix_gate_host(
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     gpuError_t gpuStatus;
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_const_gpu), matrix, sizeof(GTYPE) * 1024,
             0, gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
@@ -96,7 +96,7 @@ __host__ void penta_qubit_dense_matrix_gate_host(
     block.x = loop_dim <= 32 ? loop_dim : 32;
     unsigned int grid = loop_dim / block.x;
 
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMemcpyToSymbolAsync(GPU_SYMBOL(target_index_list_gpu), target_qubit_index,
             sizeof(UINT) * 5, 0, gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
@@ -104,7 +104,7 @@ __host__ void penta_qubit_dense_matrix_gate_host(
     unsigned int sort_list[5];
     memcpy(sort_list, target_qubit_index, sizeof(unsigned int) * 5);
     std::sort(sort_list, sort_list + 5);
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMemcpyToSymbolAsync(GPU_SYMBOL(sorted_insert_index_list_gpu), sort_list,
             sizeof(UINT) * 5, 0, gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
@@ -112,9 +112,9 @@ __host__ void penta_qubit_dense_matrix_gate_host(
     penta_qubit_dense_matrix_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -224,7 +224,7 @@ __host__ void quad_qubit_dense_matrix_gate_host(
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     gpuError_t gpuStatus;
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_const_gpu), matrix, sizeof(GTYPE) * 256,
             0, gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
@@ -248,9 +248,9 @@ __host__ void quad_qubit_dense_matrix_gate_host(
         target3_qubit_index, sort_list[0], sort_list[1], sort_list[2],
         sort_list[3], state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 
     /*
@@ -259,14 +259,14 @@ __host__ void quad_qubit_dense_matrix_gate_host(
     block.x = loop_dim <= 64 ? loop_dim : 64;
         unsigned int grid = loop_dim / block.x;
 
-        checkCudaErrors(cudaMemcpyToSymbol(sorted_insert_index_list_gpu,
+        checkGpuErrors(cudaMemcpyToSymbol(sorted_insert_index_list_gpu,
     target_qubit_index, sizeof(UINT)*4), __FILE__, __LINE__);
     quad_qubit_dense_matrix_gate_shared_gpu << <grid, block >> >(state_gpu,
     dim);
 
-    checkCudaErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
+    checkGpuErrors(cudaDeviceSynchronize(), __FILE__, __LINE__);
         cudaStatus = cudaGetLastError();
-        checkCudaErrors(cudaStatus, __FILE__, __LINE__);
+        checkGpuErrors(cudaStatus, __FILE__, __LINE__);
         state = reinterpret_cast<void*>(state_gpu);
     */
 }
@@ -325,7 +325,7 @@ __host__ void triple_qubit_dense_matrix_gate_host(
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     gpuError_t gpuStatus;
 
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_const_gpu), matrix, sizeof(GTYPE) * 64, 0,
             gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
@@ -359,9 +359,9 @@ __host__ void triple_qubit_dense_matrix_gate_host(
         target0_qubit_index, target1_qubit_index, target2_qubit_index, small,
         mid, large, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -424,7 +424,7 @@ __host__ void double_qubit_dense_matrix_gate_host(
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     gpuError_t gpuStatus;
 
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_const_gpu), matrix, sizeof(GTYPE) * 16, 0,
             gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
@@ -442,9 +442,9 @@ __host__ void double_qubit_dense_matrix_gate_host(
     double_qubit_dense_matrix_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target0_qubit_index, target1_qubit_index, small, large, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -484,9 +484,9 @@ __host__ void multi_qubit_Pauli_gate_Z_mask_host(ITYPE phase_flip_mask,
 
     multi_qubit_Pauli_gate_Z_mask_gpu<<<grid, block, 0, *gpu_stream>>>(
         phase_flip_mask, state_gpu, dim);
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -549,9 +549,9 @@ __host__ void multi_qubit_Pauli_gate_XZ_mask_host(ITYPE bit_flip_mask,
         bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
         pivot_qubit_index, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -632,9 +632,9 @@ __host__ void multi_qubit_Pauli_rotation_gate_XZ_mask_host(ITYPE bit_flip_mask,
         *gpu_stream>>>(bit_flip_mask, phase_flip_mask,
         global_phase_90rot_count, pivot_qubit_index, angle, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -678,9 +678,9 @@ __host__ void multi_qubit_Pauli_rotation_gate_Z_mask_host(ITYPE phase_flip_mask,
     multi_qubit_Pauli_rotation_gate_Z_mask_gpu<<<grid, block, 0,
         *gpu_stream>>>(phase_flip_mask, angle, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -981,16 +981,16 @@ __host__ void multi_qubit_dense_matrix_gate_small_qubit_host(
     unsigned int grid = loop_dim / block.x;
 
     if (target_qubit_index_count <= 5) {
-        checkCudaErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_const_gpu), matrix,
+        checkGpuErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_const_gpu), matrix,
                             sizeof(GTYPE) * matrix_dim * matrix_dim, 0,
                             gpuMemcpyHostToDevice, *gpu_stream),
             __FILE__, __LINE__);
-        checkCudaErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(target_index_list_gpu),
+        checkGpuErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(target_index_list_gpu),
                             target_qubit_index_list,
                             sizeof(UINT) * target_qubit_index_count, 0,
                             gpuMemcpyHostToDevice, *gpu_stream),
             __FILE__, __LINE__);
-        checkCudaErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(sorted_insert_index_list_gpu),
+        checkGpuErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(sorted_insert_index_list_gpu),
                             h_sorted_insert_index_list,
                             sizeof(UINT) * target_qubit_index_count, 0,
                             gpuMemcpyHostToDevice, *gpu_stream),
@@ -999,19 +999,19 @@ __host__ void multi_qubit_dense_matrix_gate_small_qubit_host(
         multi_qubit_dense_matrix_gate_shared_gpu<<<grid, block, 0,
             *gpu_stream>>>(target_qubit_index_count, state_gpu, dim);
     } else if (target_qubit_index_count <= 10) {
-        checkCudaErrors(gpuMalloc(reinterpret_cast<void**>(&matrix_gpu),
+        checkGpuErrors(gpuMalloc(reinterpret_cast<void**>(&matrix_gpu),
                             matrix_dim * matrix_dim * sizeof(GTYPE)),
             __FILE__, __LINE__);
-        checkCudaErrors(gpuMemcpyAsync(matrix_gpu, matrix,
+        checkGpuErrors(gpuMemcpyAsync(matrix_gpu, matrix,
                             matrix_dim * matrix_dim * sizeof(GTYPE),
                             gpuMemcpyHostToDevice, *gpu_stream),
             __FILE__, __LINE__);
-        checkCudaErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(target_index_list_gpu),
+        checkGpuErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(target_index_list_gpu),
                             target_qubit_index_list,
                             sizeof(UINT) * target_qubit_index_count, 0,
                             gpuMemcpyHostToDevice, *gpu_stream),
             __FILE__, __LINE__);
-        checkCudaErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(sorted_insert_index_list_gpu),
+        checkGpuErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(sorted_insert_index_list_gpu),
                             h_sorted_insert_index_list,
                             sizeof(UINT) * target_qubit_index_count, 0,
                             gpuMemcpyHostToDevice, *gpu_stream),
@@ -1021,11 +1021,11 @@ __host__ void multi_qubit_dense_matrix_gate_small_qubit_host(
             *gpu_stream>>>(
             target_qubit_index_count, matrix_gpu, state_gpu, dim);
     }
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
 
     // Check for any errors launching the kernel
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
 
     if (target_qubit_index_count > 5) gpuFree(matrix_gpu);
     free((UINT*)h_sorted_insert_index_list);
@@ -1060,19 +1060,19 @@ __host__ void multi_qubit_dense_matrix_gate_11qubit_host(
     block.x = dim / block.y <= max_block_size ? dim / block.y : max_block_size;
     unsigned int grid = dim / block.x / block.y;
 
-    checkCudaErrors(gpuMalloc(reinterpret_cast<void**>(&matrix_gpu),
+    checkGpuErrors(gpuMalloc(reinterpret_cast<void**>(&matrix_gpu),
                         matrix_dim * matrix_dim * sizeof(GTYPE)),
         __FILE__, __LINE__);
-    checkCudaErrors(gpuMemcpyAsync(matrix_gpu, matrix,
+    checkGpuErrors(gpuMemcpyAsync(matrix_gpu, matrix,
                         matrix_dim * matrix_dim * sizeof(GTYPE),
                         gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMemcpyToSymbolAsync(GPU_SYMBOL(target_index_list_gpu), target_qubit_index_list,
             sizeof(UINT) * target_qubit_index_count, 0, gpuMemcpyHostToDevice,
             *gpu_stream),
         __FILE__, __LINE__);
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMemcpyToSymbolAsync(GPU_SYMBOL(sorted_insert_index_list_gpu),
             h_sorted_insert_index_list, sizeof(UINT) * target_qubit_index_count,
             0, gpuMemcpyHostToDevice, *gpu_stream),
@@ -1081,9 +1081,9 @@ __host__ void multi_qubit_dense_matrix_gate_11qubit_host(
     multi_qubit_dense_matrix_gate_half_shared_gpu<<<grid, block, 0,
         *gpu_stream>>>(target_qubit_index_count, matrix_gpu, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
-    checkCudaErrors(gpuGetLastError(), __FILE__, __LINE__);
-    checkCudaErrors(gpuFree(matrix_gpu), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
+    checkGpuErrors(gpuFree(matrix_gpu), __FILE__, __LINE__);
 
     free((UINT*)h_sorted_insert_index_list);
     state = reinterpret_cast<void*>(state_gpu);
@@ -1119,39 +1119,39 @@ __host__ void multi_qubit_dense_matrix_gate_more_than_11qubit_host(
         grid.x = (1ULL << ((target_qubit_index_count - 10) << 1)) * loop_dim;
 
     GTYPE* state_gpu_copy;
-    checkCudaErrors(gpuMalloc(reinterpret_cast<void**>(&matrix_gpu),
+    checkGpuErrors(gpuMalloc(reinterpret_cast<void**>(&matrix_gpu),
                         matrix_dim * matrix_dim * sizeof(GTYPE)),
         __FILE__, __LINE__);
-    checkCudaErrors(gpuMemcpyAsync(matrix_gpu, matrix,
+    checkGpuErrors(gpuMemcpyAsync(matrix_gpu, matrix,
                         matrix_dim * matrix_dim * sizeof(GTYPE),
                         gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMemcpyToSymbolAsync(GPU_SYMBOL(target_index_list_gpu), target_qubit_index_list,
             sizeof(UINT) * target_qubit_index_count, 0, gpuMemcpyHostToDevice,
             *gpu_stream),
         __FILE__, __LINE__);
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMemcpyToSymbolAsync(GPU_SYMBOL(sorted_insert_index_list_gpu),
             h_sorted_insert_index_list, sizeof(UINT) * target_qubit_index_count,
             0, gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
-    checkCudaErrors(gpuMalloc(reinterpret_cast<void**>(&state_gpu_copy),
+    checkGpuErrors(gpuMalloc(reinterpret_cast<void**>(&state_gpu_copy),
                         dim * sizeof(GTYPE)),
         __FILE__, __LINE__);
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMemcpyAsync(state_gpu_copy, state_gpu, dim * sizeof(GTYPE),
             gpuMemcpyDeviceToDevice, *gpu_stream),
         __FILE__, __LINE__);
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMemsetAsync(state_gpu, 0, dim * sizeof(GTYPE), *gpu_stream),
         __FILE__, __LINE__);
 
     multi_qubit_dense_matrix_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target_qubit_index_count, matrix_gpu, state_gpu, state_gpu_copy, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
-    checkCudaErrors(gpuGetLastError(), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
 
     gpuFree(state_gpu_copy);
     gpuFree(matrix_gpu);
@@ -1318,15 +1318,15 @@ __host__ void single_qubit_control_multi_qubit_dense_matrix_gate_host(
         grid = loop_dim / block;
 
         if (target_qubit_index_count <= 5) {
-            checkCudaErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_const_gpu), matrix,
+            checkGpuErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_const_gpu), matrix,
                                 sizeof(GTYPE) * matrix_dim * matrix_dim, 0,
                                 gpuMemcpyHostToDevice, *gpu_stream),
                 __FILE__, __LINE__);
-            checkCudaErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_mask_list_gpu),
+            checkGpuErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_mask_list_gpu),
                                 matrix_mask_list, sizeof(ITYPE) * matrix_dim, 0,
                                 gpuMemcpyHostToDevice, *gpu_stream),
                 __FILE__, __LINE__);
-            checkCudaErrors(
+            checkGpuErrors(
                 gpuMemcpyToSymbolAsync(GPU_SYMBOL(sorted_insert_index_list_gpu),
                     sorted_insert_index_list,
                     sizeof(UINT) * (target_qubit_index_count + 1), 0,
@@ -1337,22 +1337,22 @@ __host__ void single_qubit_control_multi_qubit_dense_matrix_gate_host(
                 block, 0, *gpu_stream>>>(control_qubit_index, control_value,
                 target_qubit_index_count, state_gpu, dim);
         } else {
-            checkCudaErrors(gpuMalloc(reinterpret_cast<void**>(&d_matrix),
+            checkGpuErrors(gpuMalloc(reinterpret_cast<void**>(&d_matrix),
                                 matrix_dim * matrix_dim * sizeof(GTYPE)),
                 __FILE__, __LINE__);
-            checkCudaErrors(gpuMemcpyAsync(d_matrix, matrix,
+            checkGpuErrors(gpuMemcpyAsync(d_matrix, matrix,
                                 matrix_dim * matrix_dim * sizeof(GTYPE),
                                 gpuMemcpyHostToDevice, *gpu_stream),
                 __FILE__, __LINE__);
-            checkCudaErrors(
+            checkGpuErrors(
                 gpuMalloc(reinterpret_cast<void**>(&d_matrix_mask_list),
                     matrix_dim * matrix_dim * sizeof(GTYPE)),
                 __FILE__, __LINE__);
-            checkCudaErrors(gpuMemcpyAsync(d_matrix_mask_list,
+            checkGpuErrors(gpuMemcpyAsync(d_matrix_mask_list,
                                 matrix_mask_list, sizeof(ITYPE) * matrix_dim,
                                 gpuMemcpyHostToDevice, *gpu_stream),
                 __FILE__, __LINE__);
-            checkCudaErrors(
+            checkGpuErrors(
                 gpuMemcpyToSymbolAsync(GPU_SYMBOL(sorted_insert_index_list_gpu),
                     sorted_insert_index_list,
                     sizeof(UINT) * (target_qubit_index_count + 1), 0,
@@ -1368,11 +1368,11 @@ __host__ void single_qubit_control_multi_qubit_dense_matrix_gate_host(
         assert(0);
     }
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
 
     // Check for any errors launching the kernel
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
 
     if (target_qubit_index_count > 5) {
         gpuFree(d_matrix);
@@ -1514,15 +1514,15 @@ __host__ void multi_qubit_control_multi_qubit_dense_matrix_gate_host(
         grid = loop_dim / block;
 
         if (target_qubit_index_count <= 5) {
-            checkCudaErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_const_gpu), matrix,
+            checkGpuErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_const_gpu), matrix,
                                 sizeof(GTYPE) * matrix_dim * matrix_dim, 0,
                                 gpuMemcpyHostToDevice, *gpu_stream),
                 __FILE__, __LINE__);
-            checkCudaErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_mask_list_gpu),
+            checkGpuErrors(gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_mask_list_gpu),
                                 matrix_mask_list, sizeof(ITYPE) * matrix_dim, 0,
                                 gpuMemcpyHostToDevice, *gpu_stream),
                 __FILE__, __LINE__);
-            checkCudaErrors(
+            checkGpuErrors(
                 gpuMemcpyToSymbolAsync(GPU_SYMBOL(sorted_insert_index_list_gpu),
                     sorted_insert_index_list,
                     sizeof(UINT) *
@@ -1535,22 +1535,22 @@ __host__ void multi_qubit_control_multi_qubit_dense_matrix_gate_host(
                 target_qubit_index_count, control_qubit_index_count, state_gpu,
                 dim);
         } else {
-            checkCudaErrors(gpuMalloc(reinterpret_cast<void**>(&d_matrix),
+            checkGpuErrors(gpuMalloc(reinterpret_cast<void**>(&d_matrix),
                                 matrix_dim * matrix_dim * sizeof(GTYPE)),
                 __FILE__, __LINE__);
-            checkCudaErrors(gpuMemcpyAsync(d_matrix, matrix,
+            checkGpuErrors(gpuMemcpyAsync(d_matrix, matrix,
                                 matrix_dim * matrix_dim * sizeof(GTYPE),
                                 gpuMemcpyHostToDevice, *gpu_stream),
                 __FILE__, __LINE__);
-            checkCudaErrors(
+            checkGpuErrors(
                 gpuMalloc(reinterpret_cast<void**>(&d_matrix_mask_list),
                     matrix_dim * matrix_dim * sizeof(GTYPE)),
                 __FILE__, __LINE__);
-            checkCudaErrors(gpuMemcpyAsync(d_matrix_mask_list,
+            checkGpuErrors(gpuMemcpyAsync(d_matrix_mask_list,
                                 matrix_mask_list, sizeof(ITYPE) * matrix_dim,
                                 gpuMemcpyHostToDevice, *gpu_stream),
                 __FILE__, __LINE__);
-            checkCudaErrors(
+            checkGpuErrors(
                 gpuMemcpyToSymbolAsync(GPU_SYMBOL(sorted_insert_index_list_gpu),
                     sorted_insert_index_list,
                     sizeof(UINT) *
@@ -1568,11 +1568,11 @@ __host__ void multi_qubit_control_multi_qubit_dense_matrix_gate_host(
         assert(0);
     }
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
 
     // Check for any errors launching the kernel
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
 
     if (target_qubit_index_count > 5) {
         gpuFree(d_matrix);
@@ -1612,7 +1612,7 @@ __host__ void multi_qubit_diagonal_matrix_gate_with_constant_memory_host(
 
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
-    checkCudaErrors(gpuMemcpyToSymbol(
+    checkGpuErrors(gpuMemcpyToSymbol(
                         GPU_SYMBOL(matrix_const_gpu), diagonal_matrix, sizeof(GTYPE) * dim),
         __FILE__, __LINE__);
 
@@ -1622,8 +1622,8 @@ __host__ void multi_qubit_diagonal_matrix_gate_with_constant_memory_host(
     multi_qubit_diagonal_matrix_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
-    checkCudaErrors(gpuGetLastError(), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -1636,9 +1636,9 @@ __host__ void multi_qubit_diagonal_matrix_gate_with_global_memory_host(
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     GTYPE* d_matrix;
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMalloc((void**)&d_matrix, sizeof(GTYPE) * dim), __FILE__, __LINE__);
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMemcpyAsync(d_matrix, diagonal_matrix, sizeof(GTYPE) * dim,
             gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
@@ -1649,8 +1649,8 @@ __host__ void multi_qubit_diagonal_matrix_gate_with_global_memory_host(
     multi_qubit_diagonal_matrix_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         d_matrix, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
-    checkCudaErrors(gpuGetLastError(), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
     gpuFree(d_matrix);
     state = reinterpret_cast<void*>(state_gpu);
 }

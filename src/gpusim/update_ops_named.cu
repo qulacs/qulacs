@@ -50,9 +50,9 @@ __host__ void H_gate_host(unsigned int target_qubit_index, void* state,
     H_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target_qubit_index, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -91,9 +91,9 @@ __host__ void X_gate_host(unsigned int target_qubit_index, void* state,
     X_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target_qubit_index, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -131,9 +131,9 @@ __host__ void Y_gate_host(unsigned int target_qubit_index, void* state,
     Y_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target_qubit_index, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -164,9 +164,9 @@ __host__ void Z_gate_host(unsigned int target_qubit_index, void* state,
     Z_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target_qubit_index, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -217,9 +217,9 @@ __host__ void CZ_gate_host(unsigned int control_qubit_index,
     CZ_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         large_index, small_index, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -275,9 +275,9 @@ __host__ void CNOT_gate_host(unsigned int control_qubit_index,
     CNOT_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         control_qubit_index, target_qubit_index, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -333,9 +333,9 @@ __host__ void SWAP_gate_host(unsigned int target_qubit_index0,
     SWAP_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         small_index, large_index, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -369,9 +369,9 @@ __host__ void P0_gate_host(UINT target_qubit_index, void* state, ITYPE dim,
     P0_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target_qubit_index, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -403,9 +403,9 @@ __host__ void P1_gate_host(UINT target_qubit_index, void* state, ITYPE dim,
     P1_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target_qubit_index, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 
@@ -439,9 +439,9 @@ __host__ void normalize_host(double squared_norm, void* state, ITYPE dim,
     normalize_gpu<<<grid, block, 0, *gpu_stream>>>(
         normalize_factor, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
-    checkCudaErrors(gpuStatus, __FILE__, __LINE__);
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
 }
 

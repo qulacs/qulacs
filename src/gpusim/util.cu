@@ -92,8 +92,8 @@ __host__ void set_computational_basis_host(ITYPE comp_basis, void* state,
     set_computational_basis_gpu<<<grid, block, 0, *gpu_stream>>>(
         comp_basis, state_gpu, dim);
 
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
-    checkCudaErrors(gpuGetLastError(), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
 
     state = reinterpret_cast<void*>(state_gpu);
 }
@@ -108,10 +108,10 @@ void copy_quantum_state_from_device_to_device(void* state_gpu_copy,
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     const GTYPE* psi_gpu = reinterpret_cast<const GTYPE*>(state_gpu);
     GTYPE* psi_gpu_copy = reinterpret_cast<GTYPE*>(state_gpu_copy);
-    checkCudaErrors(gpuMemcpyAsync(psi_gpu_copy, psi_gpu, dim * sizeof(GTYPE),
+    checkGpuErrors(gpuMemcpyAsync(psi_gpu_copy, psi_gpu, dim * sizeof(GTYPE),
                         gpuMemcpyDeviceToDevice, *gpu_stream),
         __FILE__, __LINE__);
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     state_gpu = reinterpret_cast<const void*>(psi_gpu);
     state_gpu_copy = reinterpret_cast<void*>(psi_gpu_copy);
 }
@@ -124,10 +124,10 @@ void copy_quantum_state_from_host_to_device(void* state_gpu_copy,
 
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     GTYPE* psi_gpu_copy = reinterpret_cast<GTYPE*>(state_gpu_copy);
-    checkCudaErrors(gpuMemcpyAsync(psi_gpu_copy, state, dim * sizeof(GTYPE),
+    checkGpuErrors(gpuMemcpyAsync(psi_gpu_copy, state, dim * sizeof(GTYPE),
                         gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     state_gpu_copy = reinterpret_cast<void*>(psi_gpu_copy);
 }
 
@@ -146,11 +146,11 @@ void copy_quantum_state_from_device_to_host(void* state_cpu_copy,
 
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     const GTYPE* psi_gpu = reinterpret_cast<const GTYPE*>(state_gpu_original);
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMemcpyAsync(state_cpu_copy, psi_gpu, dim * sizeof(GTYPE),
             gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
-    checkCudaErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     state_gpu_original = reinterpret_cast<const void*>(psi_gpu);
 }
 
@@ -163,7 +163,7 @@ void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim,
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     GTYPE* psi_gpu = reinterpret_cast<GTYPE*>(state_gpu);
     psi_cpu_copy = reinterpret_cast<CPPCTYPE*>(psi_cpu_copy);
-    checkCudaErrors(
+    checkGpuErrors(
         gpuMemcpyAsync(psi_cpu_copy, psi_gpu, dim * sizeof(CPPCTYPE),
             gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
@@ -176,8 +176,8 @@ void print_quantum_state_host(
     if (device_number != current_device) gpuSetDevice(device_number);
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     CPPCTYPE* state_cpu = (CPPCTYPE*)malloc(sizeof(CPPCTYPE) * dim);
-    checkCudaErrors(gpuDeviceSynchronize(), __FILE__, __LINE__);
-    checkCudaErrors(gpuMemcpy(state_cpu, state_gpu, dim * sizeof(CPPCTYPE),
+    checkGpuErrors(gpuDeviceSynchronize(), __FILE__, __LINE__);
+    checkGpuErrors(gpuMemcpy(state_cpu, state_gpu, dim * sizeof(CPPCTYPE),
                         gpuMemcpyDeviceToHost),
         __FILE__, __LINE__);
     for (int i = 0; i < dim; ++i) {
