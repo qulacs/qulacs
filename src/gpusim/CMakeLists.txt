@@ -1,5 +1,4 @@
 cmake_minimum_required(VERSION 3.0)
-project(qulacs LANGUAGES HIP)
 
 file(GLOB GPUSIM_SRC
     "*.cu"
@@ -8,6 +7,7 @@ file(GLOB GPUSIM_SRC
 
 if (USE_GPU AND USE_HIP)
 # ROCm HIP for AMD Instinct Accelerator
+project(qulacs LANGUAGES HIP)
 
 if (NOT DEFINED ROCM_PATH )
      set ( ROCM_PATH "/opt/rocm"  CACHE STRING "Default ROCM installation directory." )
