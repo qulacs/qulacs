@@ -72,8 +72,10 @@ __host__ void initialize_quantum_state_host(
     GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
     cudaStream_t* cuda_stream = reinterpret_cast<cudaStream_t*>(stream);
 
-    unsigned int block = dim <= 1024 ? dim : 1024;
-    unsigned int grid = dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(init_qstate);
+    unsigned int block = dim <= max_block_size ? dim : max_block_size;
+    unsigned int grid = (dim + block - 1) / block;
     init_qstate<<<grid, block, 0, *cuda_stream>>>(state_gpu, dim);
 
     checkCudaErrors(cudaStreamSynchronize(*cuda_stream), __FILE__, __LINE__);
@@ -89,9 +91,11 @@ __host__ void release_quantum_state_host(
 }
 
 __global__ void init_rnd(
-    curandState* const rnd_state, const unsigned int seed) {
+    curandState* const rnd_state, const unsigned int seed, ITYPE dim) {
     unsigned int tid = blockIdx.x * blockDim.x + threadIdx.x;
-    curand_init(seed, tid, 0, &rnd_state[tid]);
+    if (tid < dim) {
+        curand_init(seed, tid, 0, &rnd_state[tid]);
+    }
 }
 
 /*
@@ -143,10 +147,12 @@ __host__ void initialize_Haar_random_state_with_seed_host(void* state,
     // CURAND_RNG_PSEUDO_XORWOW
     // CURAND_RNG_PSEUDO_MT19937 offset cannot be used and need sm_35 or higher.
 
-    unsigned int block = dim <= 512 ? dim : 512;
-    unsigned int grid = dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(init_rnd);
+    unsigned int block = dim <= max_block_size ? dim : max_block_size;
+    unsigned int grid = (dim + block - 1) / block;
 
-    init_rnd<<<grid, block, 0, *cuda_stream>>>(rnd_state, seed);
+    init_rnd<<<grid, block, 0, *cuda_stream>>>(rnd_state, seed, dim);
     checkCudaErrors(cudaGetLastError(), __FILE__, __LINE__);
 
     rand_normal_xorwow<<<grid, block, 0, *cuda_stream>>>(

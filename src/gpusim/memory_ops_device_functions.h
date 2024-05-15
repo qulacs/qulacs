@@ -12,7 +12,8 @@
 #include "util_type_internal.h"
 
 __global__ void init_qstate(GTYPE* state_gpu, ITYPE dim);
-__global__ void init_rnd(curandState* const rnd_state, const unsigned int seed);
+__global__ void init_rnd(
+    curandState* const rnd_state, const unsigned int seed, ITYPE dim);
 __global__ void rand_normal_xorwow(
     curandState* rnd_state, GTYPE* state, ITYPE dim);
 

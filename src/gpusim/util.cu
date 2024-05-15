@@ -1,7 +1,7 @@
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-//#include "cuda.h"
-// for using cublas
+// #include "cuda.h"
+//  for using cublas
 #include <assert.h>
 #include <cuComplex.h>
 #include <cublas_v2.h>
@@ -180,6 +180,28 @@ void print_quantum_state_host(
     std::cout << '\n';
     free(state_cpu);
     state = reinterpret_cast<void*>(state);
+}
+
+// As a result of experience, loop_dim = dim >> (n_qubits/2-2) always performs
+// almost the best. ref:
+// https://github.com/qulacs/qulacs/issues/618#issuecomment-2024279795
+ITYPE get_loop_dim_of_reduction_function(ITYPE dim) {
+    if (dim <= 1ULL << 4) return dim;
+    if (dim <= 1ULL << 6) return 1ULL << 5;
+    if (dim <= 1ULL << 8) return 1ULL << 6;
+    if (dim <= 1ULL << 10) return 1ULL << 7;
+    if (dim <= 1ULL << 12) return 1ULL << 8;
+    if (dim <= 1ULL << 14) return 1ULL << 9;
+    if (dim <= 1ULL << 16) return 1ULL << 10;
+    if (dim <= 1ULL << 18) return 1ULL << 11;
+    if (dim <= 1ULL << 20) return 1ULL << 12;
+    if (dim <= 1ULL << 22) return 1ULL << 13;
+    if (dim <= 1ULL << 24) return 1ULL << 14;
+    if (dim <= 1ULL << 26) return 1ULL << 15;
+    if (dim <= 1ULL << 28) return 1ULL << 16;
+    if (dim <= 1ULL << 30) return 1ULL << 17;
+    if (dim <= 1ULL << 32) return 1ULL << 18;
+    return 1ULL << 18;
 }
 
 ITYPE
