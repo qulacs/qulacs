@@ -15,14 +15,14 @@
 #else
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
-//#include <sys/time.h>
+// #include <sys/time.h>
 #include <cuComplex.h>
 #endif
 
 #include "util_type.h"
 #include "util_type_internal.h"
 
-//#include "util_type.h"
+// #include "util_type.h"
 
 inline void checkGpuErrors(
 #ifdef __HIP_PLATFORM_AMD__
@@ -38,6 +38,23 @@ inline void checkGpuErrors(
 #endif
         exit(1);
     }
+}
+
+// As a result of the experience, using `cudaOccupancyMaxPotentialBlockSize`
+// does not lose performance. ref:
+// https://github.com/qulacs/qulacs/issues/618#issuecomment-2011658886
+template <typename F>
+inline unsigned int get_block_size_to_maximize_occupancy(F func,
+    unsigned int dynamic_s_mem_size = 0, unsigned int block_size_limit = 0) {
+    int block_size, min_grid_size;
+#ifdef __HIP_PLATFORM_AMD__
+    hipOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, func,
+        dynamic_s_mem_size, block_size_limit);
+#else
+    cudaOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, func,
+        dynamic_s_mem_size, block_size_limit);
+#endif
+    return block_size;
 }
 
 /*

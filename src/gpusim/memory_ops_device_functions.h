@@ -24,11 +24,11 @@
 
 __global__ void init_qstate(GTYPE* state_gpu, ITYPE dim);
 #ifdef __HIP_PLATFORM_AMD__
-__global__ void init_rnd(hiprandState* const rnd_state, const unsigned int seed);
+__global__ void init_rnd(hiprandState* const rnd_state, const unsigned int seed, ITYPE dim);
 __global__ void rand_normal_xorwow(
     hiprandState* rnd_state, GTYPE* state, ITYPE dim);
 #else
-__global__ void init_rnd(curandState* const rnd_state, const unsigned int seed);
+__global__ void init_rnd(curandState* const rnd_state, const unsigned int seed, ITYPE dim);
 __global__ void rand_normal_xorwow(
     curandState* rnd_state, GTYPE* state, ITYPE dim);
 #endif

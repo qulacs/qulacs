@@ -44,8 +44,10 @@ __host__ void H_gate_host(unsigned int target_qubit_index, void* state,
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     gpuError_t gpuStatus;
     ITYPE half_dim = dim >> 1;
-    unsigned int block = half_dim <= 1024 ? half_dim : 1024;
-    unsigned int grid = half_dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(H_gate_gpu);
+    unsigned int block = half_dim <= max_block_size ? half_dim : max_block_size;
+    unsigned int grid = (half_dim + block - 1) / block;
 
     H_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target_qubit_index, state_gpu, dim);
@@ -85,8 +87,10 @@ __host__ void X_gate_host(unsigned int target_qubit_index, void* state,
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     gpuError_t gpuStatus;
     ITYPE half_dim = dim >> 1;
-    unsigned int block = half_dim <= 1024 ? half_dim : 1024;
-    unsigned int grid = half_dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(X_gate_gpu);
+    unsigned int block = half_dim <= max_block_size ? half_dim : max_block_size;
+    unsigned int grid = (half_dim + block - 1) / block;
 
     X_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target_qubit_index, state_gpu, dim);
@@ -125,8 +129,10 @@ __host__ void Y_gate_host(unsigned int target_qubit_index, void* state,
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     gpuError_t gpuStatus;
     ITYPE half_dim = dim >> 1;
-    unsigned int block = half_dim <= 1024 ? half_dim : 1024;
-    unsigned int grid = half_dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(Y_gate_gpu);
+    unsigned int block = half_dim <= max_block_size ? half_dim : max_block_size;
+    unsigned int grid = (half_dim + block - 1) / block;
 
     Y_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target_qubit_index, state_gpu, dim);
@@ -158,8 +164,10 @@ __host__ void Z_gate_host(unsigned int target_qubit_index, void* state,
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     gpuError_t gpuStatus;
     ITYPE half_dim = dim >> 1;
-    unsigned int block = half_dim <= 1024 ? half_dim : 1024;
-    unsigned int grid = half_dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(Z_gate_gpu);
+    unsigned int block = half_dim <= max_block_size ? half_dim : max_block_size;
+    unsigned int grid = (half_dim + block - 1) / block;
 
     Z_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target_qubit_index, state_gpu, dim);
@@ -211,8 +219,10 @@ __host__ void CZ_gate_host(unsigned int control_qubit_index,
         small_index = control_qubit_index;
     }
 
-    unsigned int block = quad_dim <= 1024 ? quad_dim : 1024;
-    unsigned int grid = quad_dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(CZ_gate_gpu);
+    unsigned int block = quad_dim <= max_block_size ? quad_dim : max_block_size;
+    unsigned int grid = (quad_dim + block - 1) / block;
 
     CZ_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         large_index, small_index, state_gpu, dim);
@@ -269,8 +279,10 @@ __host__ void CNOT_gate_host(unsigned int control_qubit_index,
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     gpuError_t gpuStatus;
     ITYPE quad_dim = dim >> 2;
-    unsigned int block = quad_dim <= 1024 ? quad_dim : 1024;
-    unsigned int grid = quad_dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(CNOT_gate_gpu);
+    unsigned int block = quad_dim <= max_block_size ? quad_dim : max_block_size;
+    unsigned int grid = (quad_dim + block - 1) / block;
 
     CNOT_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         control_qubit_index, target_qubit_index, state_gpu, dim);
@@ -319,8 +331,10 @@ __host__ void SWAP_gate_host(unsigned int target_qubit_index0,
     gpuError_t gpuStatus;
     unsigned int large_index, small_index;
     ITYPE quad_dim = dim >> 2;
-    unsigned int block = quad_dim <= 1024 ? quad_dim : 1024;
-    unsigned int grid = quad_dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(SWAP_gate_gpu);
+    unsigned int block = quad_dim <= max_block_size ? quad_dim : max_block_size;
+    unsigned int grid = (quad_dim + block - 1) / block;
 
     if (target_qubit_index1 > target_qubit_index0) {
         large_index = target_qubit_index1;
@@ -362,9 +376,10 @@ __host__ void P0_gate_host(UINT target_qubit_index, void* state, ITYPE dim,
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     gpuError_t gpuStatus;
     const ITYPE loop_dim = dim >> 1;
-
-    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
-    unsigned int grid = loop_dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(P0_gate_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
 
     P0_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target_qubit_index, state_gpu, dim);
@@ -397,8 +412,10 @@ __host__ void P1_gate_host(UINT target_qubit_index, void* state, ITYPE dim,
     gpuError_t gpuStatus;
     const ITYPE loop_dim = dim >> 1;
 
-    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
-    unsigned int grid = loop_dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(P1_gate_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
 
     P1_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target_qubit_index, state_gpu, dim);
@@ -433,8 +450,10 @@ __host__ void normalize_host(double squared_norm, void* state, ITYPE dim,
     const double normalize_factor = sqrt(1. / squared_norm);
     // const double normalize_factor = 1. / norm;
 
-    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
-    unsigned int grid = loop_dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(normalize_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
 
     normalize_gpu<<<grid, block, 0, *gpu_stream>>>(
         normalize_factor, state_gpu, dim);

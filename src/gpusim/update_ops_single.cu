@@ -116,8 +116,10 @@ __host__ void single_qubit_dense_matrix_gate_host(
     gpuError_t gpuStatus;
 
     ITYPE loop_dim = dim >> 1;
-    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
-    unsigned int grid = loop_dim / block;
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        single_qubit_dense_matrix_gate_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
     GTYPE mat[4];
     for (int i = 0; i < 4; ++i)
         mat[i] = make_gpuDoubleComplex(matrix[i].real(), matrix[i].imag());
@@ -161,8 +163,10 @@ __host__ void single_qubit_diagonal_matrix_gate_host(
             sizeof(GTYPE) * 2, 0, gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
 
-    unsigned int block = dim <= 1024 ? dim : 1024;
-    unsigned int grid = dim / block;
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        single_qubit_diagonal_matrix_gate_gpu);
+    unsigned int block = dim <= max_block_size ? dim : max_block_size;
+    unsigned int grid = (dim + block - 1) / block;
 
     single_qubit_diagonal_matrix_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target_qubit_index, state_gpu, dim);
@@ -236,8 +240,10 @@ __host__ void single_qubit_control_single_qubit_dense_matrix_gate_host(
         __FILE__, __LINE__);
 
     ITYPE quad_dim = dim >> 2;
-    unsigned int block = quad_dim <= 1024 ? quad_dim : 1024;
-    unsigned int grid = quad_dim / block;
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        single_qubit_control_single_qubit_dense_matrix_gate_gpu);
+    unsigned int block = quad_dim <= max_block_size ? quad_dim : max_block_size;
+    unsigned int grid = (quad_dim + block - 1) / block;
 
     single_qubit_control_single_qubit_dense_matrix_gate_gpu<<<grid, block, 0,
         *gpu_stream>>>(
@@ -287,8 +293,10 @@ __host__ void single_qubit_phase_gate_host(unsigned int target_qubit_index,
 
     phase_gtype = make_gpuDoubleComplex(phase.real(), phase.imag());
     ITYPE half_dim = dim >> 1;
-    unsigned int block = half_dim <= 1024 ? half_dim : 1024;
-    unsigned int grid = half_dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(single_qubit_phase_gate_gpu);
+    unsigned int block = half_dim <= max_block_size ? half_dim : max_block_size;
+    unsigned int grid = (half_dim + block - 1) / block;
 
     single_qubit_phase_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         target_qubit_index, phase_gtype, state_gpu, dim);
@@ -362,8 +370,10 @@ __host__ void multi_qubit_control_single_qubit_dense_matrix_gate_host(
     // loop varaibles
     const ITYPE loop_dim = dim >> insert_index_list_count;
 
-    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
-    unsigned int grid = loop_dim / block;
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        multi_qubit_control_single_qubit_dense_matrix_gate);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
 
     checkGpuErrors(
         gpuMemcpyToSymbol(GPU_SYMBOL(matrix_const_gpu), matrix, sizeof(GTYPE) * 4),

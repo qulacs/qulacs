@@ -5,7 +5,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
-//#include <sys/time.h>
+// #include <sys/time.h>
 
 #include <limits.h>
 
@@ -152,16 +152,11 @@ __host__ double state_norm_squared_host(
     checkGpuErrors(gpuMemsetAsync(norm_gpu, 0, sizeof(double), *gpu_stream),
         __FILE__, __LINE__);
 
-    ITYPE loop_dim;
-    if (dim <= 32)
-        loop_dim = dim;
-    else if (dim <= 4096)
-        loop_dim = dim >> 2;
-    else
-        loop_dim = dim >> 5;
-
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
-    unsigned int grid = loop_dim / block;
+    ITYPE loop_dim = get_loop_dim_of_reduction_function(dim);
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(state_norm_squared_gpu);
+    unsigned int block = dim <= max_block_size ? dim : max_block_size;
+    unsigned int grid = (dim + block - 1) / block;
 
     state_norm_squared_gpu<<<grid, block, 0, *gpu_stream>>>(
         norm_gpu, state_gpu, dim);
@@ -217,16 +212,11 @@ __host__ double measurement_distribution_entropy_host(
     checkGpuErrors(gpuMemsetAsync(ent_gpu, 0, sizeof(double), *gpu_stream),
         __FILE__, __LINE__);
 
-    ITYPE loop_dim;
-    if (dim <= 32)
-        loop_dim = dim;
-    else if (dim <= 4096)
-        loop_dim = dim >> 2;
-    else
-        loop_dim = dim >> 5;
-
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
-    unsigned int grid = loop_dim / block;
+    ITYPE loop_dim = get_loop_dim_of_reduction_function(dim);
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        measurement_distribution_entropy_gpu);
+    unsigned int block = dim <= max_block_size ? dim : max_block_size;
+    unsigned int grid = (dim + block - 1) / block;
 
     measurement_distribution_entropy_gpu<<<grid, block, 0, *gpu_stream>>>(
         ent_gpu, state_gpu, dim);
@@ -269,8 +259,10 @@ __host__ void state_add_host(void* state_added, void* state, ITYPE dim,
 
     ITYPE loop_dim = dim;
 
-    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
-    unsigned int grid = loop_dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(state_add_gpu);
+    unsigned int block = dim <= max_block_size ? dim : max_block_size;
+    unsigned int grid = (dim + block - 1) / block;
 
     state_add_gpu<<<grid, block, 0, *gpu_stream>>>(
         state_added_gpu, state_gpu, dim);
@@ -301,8 +293,10 @@ __host__ void state_multiply_host(CPPCTYPE coef, void* state, ITYPE dim,
     ITYPE loop_dim = dim;
 
     GTYPE coef_gpu = make_gpuDoubleComplex(coef.real(), coef.imag());
-    unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
-    unsigned int grid = loop_dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(state_multiply_gpu);
+    unsigned int block = dim <= max_block_size ? dim : max_block_size;
+    unsigned int grid = (dim + block - 1) / block;
 
     state_multiply_gpu<<<grid, block, 0, *gpu_stream>>>(
         coef_gpu, state_gpu, dim);
@@ -428,16 +422,11 @@ __host__ CPPCTYPE inner_product_original_host(const void* bra_state,
                         gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
 
-    ITYPE loop_dim;
-    if (dim <= 32)
-        loop_dim = dim;
-    else if (dim <= 4096)
-        loop_dim = dim >> 2;
-    else
-        loop_dim = dim >> 5;
-
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
-    unsigned int grid = loop_dim / block;
+    ITYPE loop_dim = get_loop_dim_of_reduction_function(dim);
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(inner_product_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
 
     inner_product_gpu<<<grid, block, 0, *gpu_stream>>>(
         ret_gpu, bra_state_gpu, ket_state_gpu, dim);
@@ -561,34 +550,45 @@ __host__ double expectation_value_single_qubit_Pauli_operator_host(
     double h_ret = 0.0;
     double* d_ret;
 
-    // this loop_dim is not the same as that of the gpu function
-    // and the function uses grid stride loops
-    ITYPE loop_dim;
-    if (dim <= 64)
-        loop_dim = dim >> 1;
-    else if (dim <= (1ULL << 11))
-        loop_dim = dim >> 2;
-    else
-        loop_dim = dim >> 5;
-
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
-    unsigned int grid = loop_dim / block;
-
     checkGpuErrors(
         gpuMalloc((void**)&d_ret, sizeof(double)), __FILE__, __LINE__);
     checkGpuErrors(gpuMemsetAsync(d_ret, 0, sizeof(double), *gpu_stream),
         __FILE__, __LINE__);
 
     if (operator_index == 1) {
+        ITYPE loop_dim = get_loop_dim_of_reduction_function(dim >> 1);
+        unsigned int max_block_size =
+            get_block_size_to_maximize_occupancy(expectation_value_PauliX_gpu);
+        unsigned int block =
+            loop_dim <= max_block_size ? loop_dim : max_block_size;
+        unsigned int grid = (loop_dim + block - 1) / block;
         expectation_value_PauliX_gpu<<<grid, block, 0, *gpu_stream>>>(
             d_ret, state_gpu, target_qubit_index, dim);
     } else if (operator_index == 2) {
+        ITYPE loop_dim = get_loop_dim_of_reduction_function(dim >> 1);
+        unsigned int max_block_size =
+            get_block_size_to_maximize_occupancy(expectation_value_PauliY_gpu);
+        unsigned int block =
+            loop_dim <= max_block_size ? loop_dim : max_block_size;
+        unsigned int grid = (loop_dim + block - 1) / block;
         expectation_value_PauliY_gpu<<<grid, block, 0, *gpu_stream>>>(
             d_ret, state_gpu, target_qubit_index, dim);
     } else if (operator_index == 3) {
+        ITYPE loop_dim = get_loop_dim_of_reduction_function(dim >> 1);
+        unsigned int max_block_size =
+            get_block_size_to_maximize_occupancy(expectation_value_PauliZ_gpu);
+        unsigned int block =
+            loop_dim <= max_block_size ? loop_dim : max_block_size;
+        unsigned int grid = (loop_dim + block - 1) / block;
         expectation_value_PauliZ_gpu<<<grid, block, 0, *gpu_stream>>>(
             d_ret, state_gpu, target_qubit_index, dim);
     } else if (operator_index == 0) {
+        ITYPE loop_dim = get_loop_dim_of_reduction_function(dim);
+        unsigned int max_block_size =
+            get_block_size_to_maximize_occupancy(expectation_value_PauliI_gpu);
+        unsigned int block =
+            loop_dim <= max_block_size ? loop_dim : max_block_size;
+        unsigned int grid = (loop_dim + block - 1) / block;
         expectation_value_PauliI_gpu<<<grid, block, 0, *gpu_stream>>>(
             d_ret, state_gpu, target_qubit_index, dim);
     } else {
@@ -632,8 +632,10 @@ __host__ void multi_Z_gate_host(int* gates, void* state, ITYPE dim,
         if (gates[i] == 3) bit_mask ^= (1ULL << i);
     }
     gpuError_t gpuStatus;
-    unsigned int block = dim <= 1024 ? dim : 1024;
-    unsigned int grid = dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(multi_Z_gate_gpu);
+    unsigned int block = dim <= max_block_size ? dim : max_block_size;
+    unsigned int grid = (dim + block - 1) / block;
     multi_Z_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         bit_mask, dim, state_gpu);
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
@@ -749,16 +751,7 @@ __host__ double multipauli_get_expectation_value_host(unsigned int* gates,
     checkGpuErrors(gpuMemsetAsync(ret_gpu, 0, sizeof(double), *gpu_stream),
         __FILE__, __LINE__);
 
-    ITYPE loop_dim;
-    if (dim <= 32)
-        loop_dim = dim >> 1;
-    else if (dim <= (1ULL << 11))
-        loop_dim = dim >> 2;
-    else
-        loop_dim = dim >> 5;
-
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
-    unsigned int grid = loop_dim / block;
+    ITYPE loop_dim = get_loop_dim_of_reduction_function(dim);
 
     unsigned int num_pauli_op[4] = {0, 0, 0, 0};
     for (int i = 0; i < n_qubits; ++i) ++num_pauli_op[gates[i]];
@@ -767,6 +760,11 @@ __host__ double multipauli_get_expectation_value_host(unsigned int* gates,
         bit_mask[gates[i]] ^= (1ULL << i);
     }
     if (num_pauli_op[1] == 0 && num_pauli_op[2] == 0) {
+        unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+            multi_Z_get_expectation_value_gpu);
+        unsigned int block =
+            loop_dim <= max_block_size ? loop_dim : max_block_size;
+        unsigned int grid = (loop_dim + block - 1) / block;
         multi_Z_get_expectation_value_gpu<<<grid, block, 0, *gpu_stream>>>(
             ret_gpu, bit_mask[3], dim, state_gpu);
         checkGpuErrors(
@@ -780,6 +778,10 @@ __host__ double multipauli_get_expectation_value_host(unsigned int* gates,
         return ret[0].real();
     }
 
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        multipauli_get_expectation_value_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
     checkGpuErrors(
         gpuMemcpyToSymbolAsync(GPU_SYMBOL(num_pauli_op_gpu), num_pauli_op,
             sizeof(unsigned int) * 4, 0, gpuMemcpyHostToDevice, *gpu_stream),
@@ -838,17 +840,12 @@ __host__ double M0_prob_host(UINT target_qubit_index, void* state, ITYPE dim,
     checkGpuErrors(gpuMemsetAsync(ret_gpu, 0, sizeof(double), *gpu_stream),
         __FILE__, __LINE__);
 
-    ITYPE loop_dim;
+    ITYPE loop_dim = get_loop_dim_of_reduction_function(dim >> 1);
 
-    if (dim <= 64)
-        loop_dim = dim >> 1;
-    else if (dim <= (1ULL << 11))
-        loop_dim = dim >> 2;
-    else
-        loop_dim = dim >> 5;
-
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
-    unsigned int grid = loop_dim / block;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(M0_prob_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
 
     M0_prob_gpu<<<grid, block, 0, *gpu_stream>>>(
         ret_gpu, target_qubit_index, state_gpu, dim);
@@ -900,17 +897,11 @@ __host__ double M1_prob_host(UINT target_qubit_index, void* state, ITYPE dim,
     checkGpuErrors(gpuMemsetAsync(ret_gpu, 0, sizeof(double), *gpu_stream),
         __FILE__, __LINE__);
 
-    ITYPE loop_dim;
-
-    if (dim <= 64)
-        loop_dim = dim >> 1;
-    else if (dim <= (1ULL << 11))
-        loop_dim = dim >> 2;
-    else
-        loop_dim = dim >> 5;
-
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
-    unsigned int grid = loop_dim / block;
+    ITYPE loop_dim = get_loop_dim_of_reduction_function(dim >> 1);
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(M1_prob_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
 
     M1_prob_gpu<<<grid, block, 0, *gpu_stream>>>(
         ret_gpu, target_qubit_index, state_gpu, dim);
@@ -988,8 +979,12 @@ __host__ double marginal_prob_host(UINT* sorted_target_qubit_index_list,
             *gpu_stream),
         __FILE__, __LINE__);
 
-    unsigned int block = dim <= 1024 ? dim : 1024;
-    unsigned int grid = dim / block;
+    ITYPE loop_dim =
+        get_loop_dim_of_reduction_function(dim >> target_qubit_index_count);
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(marginal_prob_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
 
     marginal_prob_gpu<<<grid, block, 0, *gpu_stream>>>(ret_gpu,
         sorted_target_qubit_index_list_gpu, measured_value_list_gpu,
@@ -1059,17 +1054,11 @@ __host__ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_host(
             0, gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
 
-    ITYPE loop_dim;
-
-    if (dim <= 64)
-        loop_dim = dim >> 1;
-    else if (dim <= (1ULL << 11))
-        loop_dim = dim >> 2;
-    else
-        loop_dim = dim >> 5;
-
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
-    unsigned int grid = loop_dim / block;
+    ITYPE loop_dim = get_loop_dim_of_reduction_function(dim >> 1);
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        expectation_value_multi_qubit_Pauli_operator_XZ_mask_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
 
     expectation_value_multi_qubit_Pauli_operator_XZ_mask_gpu<<<grid, block, 0,
         *gpu_stream>>>(ret_gpu, bit_flip_mask, phase_flip_mask,
@@ -1123,22 +1112,11 @@ __host__ double expectation_value_multi_qubit_Pauli_operator_Z_mask_host(
     checkGpuErrors(gpuMemsetAsync(ret_gpu, 0, sizeof(double), *gpu_stream),
         __FILE__, __LINE__);
 
-    // this loop_dim is not the same as that of the gpu function
-    // and the function uses grid stride loops
-    ITYPE loop_dim;
-
-    if (dim <= 64)
-        loop_dim = dim >> 1;
-    else if (dim <= (1ULL << 11))
-        loop_dim = dim >> 2;
-    else
-        loop_dim = dim >> 5;
-
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
-    unsigned int grid = loop_dim / block;
-
-    // unsigned int block = loop_dim <= 1024 ? loop_dim : 1024;
-    // unsigned int grid = loop_dim / block;
+    ITYPE loop_dim = get_loop_dim_of_reduction_function(dim);
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        expectation_value_multi_qubit_Pauli_operator_Z_mask_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
 
     expectation_value_multi_qubit_Pauli_operator_Z_mask_gpu<<<grid, block, 0,
         *gpu_stream>>>(ret_gpu, phase_flip_mask, state_gpu, dim);
@@ -1251,16 +1229,11 @@ __host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_host(
     checkGpuErrors(gpuMemsetAsync(ret_gpu, 0, sizeof(GTYPE), *gpu_stream),
         __FILE__, __LINE__);
 
-    ITYPE loop_dim;
-    if (dim <= 32)
-        loop_dim = dim >> 1;
-    else if (dim <= 4096)
-        loop_dim = dim >> 2;
-    else
-        loop_dim = dim >> 5;
-
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
-    unsigned int grid = loop_dim / block;
+    ITYPE loop_dim = get_loop_dim_of_reduction_function(dim >> 1);
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
 
     transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_gpu<<<grid, block,
         0, *gpu_stream>>>(ret_gpu, bit_flip_mask, phase_flip_mask,
@@ -1320,16 +1293,11 @@ __host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_Z_mask_host(
     checkGpuErrors(gpuMemsetAsync(ret_gpu, 0, sizeof(GTYPE), *gpu_stream),
         __FILE__, __LINE__);
 
-    ITYPE loop_dim;
-    if (dim <= 32)
-        loop_dim = dim >> 1;
-    else if (dim <= 4096)
-        loop_dim = dim >> 2;
-    else
-        loop_dim = dim >> 5;
-
-    unsigned int block = loop_dim <= 256 ? loop_dim : 256;
-    unsigned int grid = loop_dim / block;
+    ITYPE loop_dim = get_loop_dim_of_reduction_function(dim);
+    unsigned int max_block_size = get_block_size_to_maximize_occupancy(
+        transition_amplitude_multi_qubit_Pauli_operator_Z_mask_gpu);
+    unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
+    unsigned int grid = (loop_dim + block - 1) / block;
 
     transition_amplitude_multi_qubit_Pauli_operator_Z_mask_gpu<<<grid, block, 0,
         *gpu_stream>>>(
