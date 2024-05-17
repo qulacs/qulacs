@@ -52,7 +52,7 @@ jobs:
       - name: Install Boost for macOS
         run: |
           brew update
-          brew upgrade
+          brew upgrade boost
           brew install boost
           brew link boost
 
