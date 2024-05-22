@@ -43,19 +43,22 @@ inline void checkGpuErrors(
 // As a result of the experience, using `cudaOccupancyMaxPotentialBlockSize`
 // does not lose performance. ref:
 // https://github.com/qulacs/qulacs/issues/618#issuecomment-2011658886
+#ifdef __HIP_PLATFORM_AMD__
+#define get_block_size_to_maximize_occupancy(x) ({ \
+    int min_grid_size, block_size; \
+    hipOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, (x), 0, 0); \
+    min_grid_size; \
+})
+#else
 template <typename F>
 inline unsigned int get_block_size_to_maximize_occupancy(F func,
     unsigned int dynamic_s_mem_size = 0, unsigned int block_size_limit = 0) {
     int block_size, min_grid_size;
-#ifdef __HIP_PLATFORM_AMD__
-    hipOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, func,
-        dynamic_s_mem_size, block_size_limit);
-#else
     cudaOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, func,
         dynamic_s_mem_size, block_size_limit);
-#endif
     return block_size;
 }
+#endif
 
 /*
 //inline void memcpy_quantum_state_HostToDevice(CPPCTYPE* state_cpu, GTYPE*
