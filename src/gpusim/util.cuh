@@ -47,7 +47,7 @@ inline void checkGpuErrors(
 #define get_block_size_to_maximize_occupancy(x) ({ \
     int min_grid_size, block_size; \
     hipOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, (x), 0, 0); \
-    min_grid_size; \
+    block_size; \
 })
 #else
 template <typename F>
