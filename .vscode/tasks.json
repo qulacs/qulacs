@@ -54,17 +54,6 @@
             "command": "black . && isort ."
         },
         {
-            "label": "update stub",
-            "type": "shell",
-            "command": "script/update_stubs.sh",
-            "dependsOn": [
-                "install"
-            ],
-            "problemMatcher": [
-                "$gcc"
-            ]
-        },
-        {
             "label": "clean",
             "type": "shell",
             "command": "script/clean.sh",
