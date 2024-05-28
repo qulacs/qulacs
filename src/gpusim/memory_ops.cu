@@ -1,6 +1,5 @@
-#include "gpu_wrapping.h"
-
 #include <assert.h>
+
 #include <algorithm>
 #include <cmath>
 #include <complex>
@@ -8,6 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "gpu_wrapping.h"
 #include "memory_ops.h"
 #include "memory_ops_device_functions.h"
 #include "stat_ops.h"
@@ -52,8 +52,8 @@ __host__ void* allocate_quantum_state_host(
     int current_device = get_current_device();
     if (device_number != current_device) gpuSetDevice(device_number);
     GTYPE* state_gpu;
-    checkGpuErrors(gpuMalloc((void**)&state_gpu, dim * sizeof(GTYPE)),
-        __FILE__, __LINE__);
+    checkGpuErrors(
+        gpuMalloc((void**)&state_gpu, dim * sizeof(GTYPE)), __FILE__, __LINE__);
     void* psi_gpu = reinterpret_cast<void*>(state_gpu);
     return psi_gpu;
 }

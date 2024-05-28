@@ -235,8 +235,8 @@ __host__ void single_qubit_control_single_qubit_dense_matrix_gate_host(
 
     gpuError_t gpuStatus;
     checkGpuErrors(
-        gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_const_gpu), matrix, sizeof(GTYPE) * 4, 0,
-            gpuMemcpyHostToDevice, *gpu_stream),
+        gpuMemcpyToSymbolAsync(GPU_SYMBOL(matrix_const_gpu), matrix,
+            sizeof(GTYPE) * 4, 0, gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
 
     ITYPE quad_dim = dim >> 2;
@@ -375,11 +375,12 @@ __host__ void multi_qubit_control_single_qubit_dense_matrix_gate_host(
     unsigned int block = loop_dim <= max_block_size ? loop_dim : max_block_size;
     unsigned int grid = (loop_dim + block - 1) / block;
 
-    checkGpuErrors(
-        gpuMemcpyToSymbol(GPU_SYMBOL(matrix_const_gpu), matrix, sizeof(GTYPE) * 4),
+    checkGpuErrors(gpuMemcpyToSymbol(
+                       GPU_SYMBOL(matrix_const_gpu), matrix, sizeof(GTYPE) * 4),
         __FILE__, __LINE__);
-    checkGpuErrors(gpuMemcpyToSymbol(GPU_SYMBOL(insert_index_list_gpu), insert_index_list,
-                        sizeof(UINT) * insert_index_list_count),
+    checkGpuErrors(
+        gpuMemcpyToSymbol(GPU_SYMBOL(insert_index_list_gpu), insert_index_list,
+            sizeof(UINT) * insert_index_list_count),
         __FILE__, __LINE__);
 
     multi_qubit_control_single_qubit_dense_matrix_gate<<<grid, block, 0,

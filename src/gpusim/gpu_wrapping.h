@@ -1,13 +1,13 @@
 #ifndef _GPU_WRAPPING_H_
-#define _GPU_WRAPPING_H_ 
+#define _GPU_WRAPPING_H_
 
 #ifdef __HIP_PLATFORM_AMD__
 
-#include <hip/hip_runtime.h>
 #include <hip/hip_complex.h>
+#include <hip/hip_runtime.h>
+#include <hipblas/hipblas.h>
 #include <hiprand/hiprand.h>
 #include <hiprand/hiprand_kernel.h>
-#include <hipblas/hipblas.h>
 
 using gpuStream_t = hipStream_t;
 using gpuError_t = hipError_t;
@@ -60,12 +60,13 @@ using gpublasDoubleComplex = hipblasDoubleComplex;
 
 #else
 
-#include <cuda_runtime.h>
-#include "device_launch_parameters.h"
 #include <cuComplex.h>
+#include <cublas_v2.h>
+#include <cuda_runtime.h>
 #include <curand.h>
 #include <curand_kernel.h>
-#include <cublas_v2.h>
+
+#include "device_launch_parameters.h"
 
 using gpuStream_t = cudaStream_t;
 using gpuError_t = cudaError_t;
@@ -118,4 +119,4 @@ using gpublasDoubleComplex = cuDoubleComplex;
 
 #endif
 
-#endif  // _GPU_WRAPPING_H_ 
+#endif  // _GPU_WRAPPING_H_

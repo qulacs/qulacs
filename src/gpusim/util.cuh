@@ -10,8 +10,9 @@
 #include <string>
 
 #ifdef __HIP_PLATFORM_AMD__
-#include "hip/hip_runtime.h"
 #include <hip/hip_complex.h>
+
+#include "hip/hip_runtime.h"
 #else
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
@@ -44,11 +45,13 @@ inline void checkGpuErrors(
 // does not lose performance. ref:
 // https://github.com/qulacs/qulacs/issues/618#issuecomment-2011658886
 #ifdef __HIP_PLATFORM_AMD__
-#define get_block_size_to_maximize_occupancy(x) ({ \
-    int min_grid_size, block_size; \
-    hipOccupancyMaxPotentialBlockSize(&min_grid_size, &block_size, (x), 0, 0); \
-    block_size; \
-})
+#define get_block_size_to_maximize_occupancy(x)      \
+    ({                                               \
+        int min_grid_size, block_size;               \
+        hipOccupancyMaxPotentialBlockSize(           \
+            &min_grid_size, &block_size, (x), 0, 0); \
+        block_size;                                  \
+    })
 #else
 template <typename F>
 inline unsigned int get_block_size_to_maximize_occupancy(F func,

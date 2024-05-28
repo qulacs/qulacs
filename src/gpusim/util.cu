@@ -1,5 +1,3 @@
-#include "gpu_wrapping.h"
-
 #include <assert.h>
 
 #include <algorithm>
@@ -9,6 +7,7 @@
 #include <cstdlib>
 #include <cstring>
 
+#include "gpu_wrapping.h"
 #include "memory_ops.h"
 #include "util.cuh"
 #include "util_func.h"
@@ -109,7 +108,7 @@ void copy_quantum_state_from_device_to_device(void* state_gpu_copy,
     const GTYPE* psi_gpu = reinterpret_cast<const GTYPE*>(state_gpu);
     GTYPE* psi_gpu_copy = reinterpret_cast<GTYPE*>(state_gpu_copy);
     checkGpuErrors(gpuMemcpyAsync(psi_gpu_copy, psi_gpu, dim * sizeof(GTYPE),
-                        gpuMemcpyDeviceToDevice, *gpu_stream),
+                       gpuMemcpyDeviceToDevice, *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     state_gpu = reinterpret_cast<const void*>(psi_gpu);
@@ -125,7 +124,7 @@ void copy_quantum_state_from_host_to_device(void* state_gpu_copy,
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     GTYPE* psi_gpu_copy = reinterpret_cast<GTYPE*>(state_gpu_copy);
     checkGpuErrors(gpuMemcpyAsync(psi_gpu_copy, state, dim * sizeof(GTYPE),
-                        gpuMemcpyHostToDevice, *gpu_stream),
+                       gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     state_gpu_copy = reinterpret_cast<void*>(psi_gpu_copy);
@@ -146,9 +145,8 @@ void copy_quantum_state_from_device_to_host(void* state_cpu_copy,
 
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     const GTYPE* psi_gpu = reinterpret_cast<const GTYPE*>(state_gpu_original);
-    checkGpuErrors(
-        gpuMemcpyAsync(state_cpu_copy, psi_gpu, dim * sizeof(GTYPE),
-            gpuMemcpyDeviceToHost, *gpu_stream),
+    checkGpuErrors(gpuMemcpyAsync(state_cpu_copy, psi_gpu, dim * sizeof(GTYPE),
+                       gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     state_gpu_original = reinterpret_cast<const void*>(psi_gpu);
@@ -163,9 +161,8 @@ void get_quantum_state_host(void* state_gpu, void* psi_cpu_copy, ITYPE dim,
     gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
     GTYPE* psi_gpu = reinterpret_cast<GTYPE*>(state_gpu);
     psi_cpu_copy = reinterpret_cast<CPPCTYPE*>(psi_cpu_copy);
-    checkGpuErrors(
-        gpuMemcpyAsync(psi_cpu_copy, psi_gpu, dim * sizeof(CPPCTYPE),
-            gpuMemcpyDeviceToHost, *gpu_stream),
+    checkGpuErrors(gpuMemcpyAsync(psi_cpu_copy, psi_gpu, dim * sizeof(CPPCTYPE),
+                       gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
     state_gpu = reinterpret_cast<void*>(psi_gpu);
 }
@@ -178,7 +175,7 @@ void print_quantum_state_host(
     CPPCTYPE* state_cpu = (CPPCTYPE*)malloc(sizeof(CPPCTYPE) * dim);
     checkGpuErrors(gpuDeviceSynchronize(), __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpy(state_cpu, state_gpu, dim * sizeof(CPPCTYPE),
-                        gpuMemcpyDeviceToHost),
+                       gpuMemcpyDeviceToHost),
         __FILE__, __LINE__);
     for (int i = 0; i < dim; ++i) {
         std::cout << i << " : " << state_cpu[i].real() << "+i"
@@ -514,10 +511,10 @@ int cublas_zgemv_wrapper(ITYPE n, CPPCTYPE alpha, const CPPCTYPE* h_A,
         return EXIT_FAILURE;
     }
     /* Performs operation using cublas */
-    status = gpublasZgemv(
-        handle, GPUBLAS_OP_T, n, n, (gpublasDoubleComplex*)&d_alpha,
-        (gpublasDoubleComplex*)d_A, n, (gpublasDoubleComplex*)d_x, 1,
-        (gpublasDoubleComplex*)&d_beta, (gpublasDoubleComplex*)d_y, 1);
+    status = gpublasZgemv(handle, GPUBLAS_OP_T, n, n,
+        (gpublasDoubleComplex*)&d_alpha, (gpublasDoubleComplex*)d_A, n,
+        (gpublasDoubleComplex*)d_x, 1, (gpublasDoubleComplex*)&d_beta,
+        (gpublasDoubleComplex*)d_y, 1);
 
     if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! kernel execution error.\n");
@@ -606,9 +603,10 @@ int cublas_zgemv_wrapper(ITYPE n, const CPPCTYPE* h_matrix, GTYPE* d_state) {
     }
 
     /* Performs operation using cublas */
-    status = gpublasZgemv(handle, GPUBLAS_OP_T, n, n, (gpublasDoubleComplex*)&d_alpha,
-        (gpublasDoubleComplex*)d_matrix, n, (gpublasDoubleComplex*)d_state, 1,
-        (gpublasDoubleComplex*)&d_beta, (gpublasDoubleComplex*)d_y, 1);
+    status = gpublasZgemv(handle, GPUBLAS_OP_T, n, n,
+        (gpublasDoubleComplex*)&d_alpha, (gpublasDoubleComplex*)d_matrix, n,
+        (gpublasDoubleComplex*)d_state, 1, (gpublasDoubleComplex*)&d_beta,
+        (gpublasDoubleComplex*)d_y, 1);
 
     if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! kernel execution error.\n");
@@ -666,9 +664,10 @@ int cublas_zgemv_wrapper(ITYPE n, const GTYPE* d_matrix, GTYPE* d_state) {
     }
 
     /* Performs operation using cublas */
-    status = gpublasZgemv(handle, GPUBLAS_OP_T, n, n, (gpublasDoubleComplex*)&d_alpha,
-        (gpublasDoubleComplex*)d_matrix, n, (gpublasDoubleComplex*)d_state, 1,
-        (gpublasDoubleComplex*)&d_beta, (gpublasDoubleComplex*)d_y, 1);
+    status = gpublasZgemv(handle, GPUBLAS_OP_T, n, n,
+        (gpublasDoubleComplex*)&d_alpha, (gpublasDoubleComplex*)d_matrix, n,
+        (gpublasDoubleComplex*)d_state, 1, (gpublasDoubleComplex*)&d_beta,
+        (gpublasDoubleComplex*)d_y, 1);
 
     if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! kernel execution error.\n");

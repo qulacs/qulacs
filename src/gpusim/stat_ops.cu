@@ -1,10 +1,10 @@
-#include "gpu_wrapping.h"
-
 #include <cmath>
 #include <complex>
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+
+#include "gpu_wrapping.h"
 // #include <sys/time.h>
 
 #include <limits.h>
@@ -118,7 +118,8 @@ __host__ double state_norm_squared_cublas_host(void* state, ITYPE dim) {
         return EXIT_FAILURE;
     }
 
-    status = gpublasDznrm2(handle, dim, (gpublasDoubleComplex*)state_gpu, 1, &norm);
+    status =
+        gpublasDznrm2(handle, dim, (gpublasDoubleComplex*)state_gpu, 1, &norm);
     if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! cublasDznrm2 execution error.\n");
         return EXIT_FAILURE;
@@ -167,7 +168,7 @@ __host__ double state_norm_squared_host(
     checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpyAsync(&norm, norm_gpu, sizeof(double),
-                        gpuMemcpyDeviceToHost, *gpu_stream),
+                       gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
 
     checkGpuErrors(gpuFree(norm_gpu), __FILE__, __LINE__);
@@ -227,7 +228,7 @@ __host__ double measurement_distribution_entropy_host(
     checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpyAsync(&ent, ent_gpu, sizeof(double),
-                        gpuMemcpyDeviceToHost, *gpu_stream),
+                       gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
 
     checkGpuErrors(gpuFree(ent_gpu), __FILE__, __LINE__);
@@ -381,9 +382,8 @@ __host__ CPPCTYPE inner_product_cublas_host(const void* bra_state,
         return EXIT_FAILURE;
     }
 
-    status =
-        gpublasZdotc(handle, dim, (gpublasDoubleComplex*)bra_state_gpu, 1,
-            (gpublasDoubleComplex*)ket_state_gpu, 1, (gpublasDoubleComplex*)&ret_g);
+    status = gpublasZdotc(handle, dim, (gpublasDoubleComplex*)bra_state_gpu, 1,
+        (gpublasDoubleComplex*)ket_state_gpu, 1, (gpublasDoubleComplex*)&ret_g);
     if (status != GPUBLAS_STATUS_SUCCESS) {
         fprintf(stderr, "!!!! cublasZDotc execution error.\n");
         return EXIT_FAILURE;
@@ -419,7 +419,7 @@ __host__ CPPCTYPE inner_product_original_host(const void* bra_state,
     checkGpuErrors(
         gpuMalloc((void**)&ret_gpu, sizeof(GTYPE)), __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpyAsync(ret_gpu, &ret, sizeof(GTYPE),
-                        gpuMemcpyHostToDevice, *gpu_stream),
+                       gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
 
     ITYPE loop_dim = get_loop_dim_of_reduction_function(dim);
@@ -437,7 +437,7 @@ __host__ CPPCTYPE inner_product_original_host(const void* bra_state,
     checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpyAsync(&ret, ret_gpu, sizeof(GTYPE),
-                        gpuMemcpyDeviceToHost, *gpu_stream),
+                       gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
 
     checkGpuErrors(gpuFree(ret_gpu), __FILE__, __LINE__);
@@ -597,7 +597,7 @@ __host__ double expectation_value_single_qubit_Pauli_operator_host(
 
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpyAsync(&h_ret, d_ret, sizeof(double),
-                        gpuMemcpyDeviceToHost, *gpu_stream),
+                       gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(gpuFree(d_ret), __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
@@ -636,8 +636,7 @@ __host__ void multi_Z_gate_host(int* gates, void* state, ITYPE dim,
         get_block_size_to_maximize_occupancy(multi_Z_gate_gpu);
     unsigned int block = dim <= max_block_size ? dim : max_block_size;
     unsigned int grid = (dim + block - 1) / block;
-    multi_Z_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
-        bit_mask, dim, state_gpu);
+    multi_Z_gate_gpu<<<grid, block, 0, *gpu_stream>>>(bit_mask, dim, state_gpu);
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();
     checkGpuErrors(gpuStatus, __FILE__, __LINE__);
@@ -767,11 +766,10 @@ __host__ double multipauli_get_expectation_value_host(unsigned int* gates,
         unsigned int grid = (loop_dim + block - 1) / block;
         multi_Z_get_expectation_value_gpu<<<grid, block, 0, *gpu_stream>>>(
             ret_gpu, bit_mask[3], dim, state_gpu);
-        checkGpuErrors(
-            gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+        checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
         checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
         checkGpuErrors(gpuMemcpyAsync(ret, ret_gpu, sizeof(CPPCTYPE),
-                            gpuMemcpyDeviceToHost, *gpu_stream),
+                           gpuMemcpyDeviceToHost, *gpu_stream),
             __FILE__, __LINE__);
         checkGpuErrors(gpuFree(ret_gpu), __FILE__, __LINE__);
         state = reinterpret_cast<void*>(state_gpu);
@@ -787,8 +785,8 @@ __host__ double multipauli_get_expectation_value_host(unsigned int* gates,
             sizeof(unsigned int) * 4, 0, gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(
-        gpuMemcpyToSymbolAsync(GPU_SYMBOL(bit_mask_gpu), bit_mask, sizeof(ITYPE) * 4, 0,
-            gpuMemcpyHostToDevice, *gpu_stream),
+        gpuMemcpyToSymbolAsync(GPU_SYMBOL(bit_mask_gpu), bit_mask,
+            sizeof(ITYPE) * 4, 0, gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
 
     multipauli_get_expectation_value_gpu<<<grid, block, 0, *gpu_stream>>>(
@@ -797,7 +795,7 @@ __host__ double multipauli_get_expectation_value_host(unsigned int* gates,
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpyAsync(ret, ret_gpu, sizeof(CPPCTYPE),
-                        gpuMemcpyDeviceToHost, *gpu_stream),
+                       gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(gpuFree(ret_gpu), __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
@@ -853,7 +851,7 @@ __host__ double M0_prob_host(UINT target_qubit_index, void* state, ITYPE dim,
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpyAsync(ret, ret_gpu, sizeof(double),
-                        gpuMemcpyDeviceToHost, *gpu_stream),
+                       gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(gpuFree(ret_gpu), __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
@@ -909,7 +907,7 @@ __host__ double M1_prob_host(UINT target_qubit_index, void* state, ITYPE dim,
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpyAsync(ret, ret_gpu, sizeof(double),
-                        gpuMemcpyDeviceToHost, *gpu_stream),
+                       gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(gpuFree(ret_gpu), __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
@@ -960,23 +958,22 @@ __host__ double marginal_prob_host(UINT* sorted_target_qubit_index_list,
     checkGpuErrors(
         gpuMalloc((void**)&ret_gpu, sizeof(double)), __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpyAsync(ret_gpu, ret, sizeof(double),
-                        gpuMemcpyHostToDevice, *gpu_stream),
+                       gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(gpuMalloc((void**)&sorted_target_qubit_index_list_gpu,
-                        sizeof(UINT) * target_qubit_index_count),
+                       sizeof(UINT) * target_qubit_index_count),
         __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpyAsync(sorted_target_qubit_index_list_gpu,
-                        sorted_target_qubit_index_list,
-                        sizeof(UINT) * target_qubit_index_count,
-                        gpuMemcpyHostToDevice, *gpu_stream),
+                       sorted_target_qubit_index_list,
+                       sizeof(UINT) * target_qubit_index_count,
+                       gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(gpuMalloc((void**)&measured_value_list_gpu,
-                        sizeof(UINT) * target_qubit_index_count),
+                       sizeof(UINT) * target_qubit_index_count),
         __FILE__, __LINE__);
-    checkGpuErrors(
-        gpuMemcpyAsync(measured_value_list_gpu, measured_value_list,
-            sizeof(UINT) * target_qubit_index_count, gpuMemcpyHostToDevice,
-            *gpu_stream),
+    checkGpuErrors(gpuMemcpyAsync(measured_value_list_gpu, measured_value_list,
+                       sizeof(UINT) * target_qubit_index_count,
+                       gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
 
     ITYPE loop_dim =
@@ -993,7 +990,7 @@ __host__ double marginal_prob_host(UINT* sorted_target_qubit_index_list,
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpyAsync(ret, ret_gpu, sizeof(double),
-                        gpuMemcpyDeviceToHost, *gpu_stream),
+                       gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(gpuFree(ret_gpu), __FILE__, __LINE__);
     checkGpuErrors(
@@ -1050,8 +1047,8 @@ __host__ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_host(
     checkGpuErrors(gpuMemsetAsync(ret_gpu, 0, sizeof(double), *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(
-        gpuMemcpyToSymbolAsync(GPU_SYMBOL(PHASE_90ROT_gpu), PHASE_90ROT, sizeof(GTYPE) * 4,
-            0, gpuMemcpyHostToDevice, *gpu_stream),
+        gpuMemcpyToSymbolAsync(GPU_SYMBOL(PHASE_90ROT_gpu), PHASE_90ROT,
+            sizeof(GTYPE) * 4, 0, gpuMemcpyHostToDevice, *gpu_stream),
         __FILE__, __LINE__);
 
     ITYPE loop_dim = get_loop_dim_of_reduction_function(dim >> 1);
@@ -1068,7 +1065,7 @@ __host__ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_host(
     gpuStatus = gpuGetLastError();
     checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpyAsync(&ret, ret_gpu, sizeof(double),
-                        gpuMemcpyDeviceToHost, *gpu_stream),
+                       gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(gpuFree(ret_gpu), __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
@@ -1125,7 +1122,7 @@ __host__ double expectation_value_multi_qubit_Pauli_operator_Z_mask_host(
     gpuStatus = gpuGetLastError();
     checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpyAsync(&ret, ret_gpu, sizeof(double),
-                        gpuMemcpyDeviceToHost, *gpu_stream),
+                       gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(gpuFree(ret_gpu), __FILE__, __LINE__);
     state = reinterpret_cast<void*>(state_gpu);
@@ -1243,7 +1240,7 @@ __host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_XZ_mask_host(
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpyAsync(&ret, ret_gpu, sizeof(GTYPE),
-                        gpuMemcpyDeviceToHost, *gpu_stream),
+                       gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(gpuFree(ret_gpu), __FILE__, __LINE__);
     state_bra = reinterpret_cast<void*>(state_bra_gpu);
@@ -1307,7 +1304,7 @@ __host__ CPPCTYPE transition_amplitude_multi_qubit_Pauli_operator_Z_mask_host(
     gpuStatus = gpuGetLastError();
     checkGpuErrors(gpuStatus, __FILE__, __LINE__);
     checkGpuErrors(gpuMemcpyAsync(&ret, ret_gpu, sizeof(GTYPE),
-                        gpuMemcpyDeviceToHost, *gpu_stream),
+                       gpuMemcpyDeviceToHost, *gpu_stream),
         __FILE__, __LINE__);
     checkGpuErrors(gpuFree(ret_gpu), __FILE__, __LINE__);
     state_bra = reinterpret_cast<void*>(state_bra_gpu);

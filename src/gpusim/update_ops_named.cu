@@ -27,7 +27,7 @@ __global__ void H_gate_gpu(
         state_gpu[basis0] = gpuCadd(tmp, state_gpu[basis1]);
         state_gpu[basis1] =
             gpuCadd(tmp, make_gpuDoubleComplex(-1 * state_gpu[basis1].x,
-                            -1 * state_gpu[basis1].y));
+                             -1 * state_gpu[basis1].y));
         state_gpu[basis0] = make_gpuDoubleComplex(
             state_gpu[basis0].x * inv_sqrt, state_gpu[basis0].y * inv_sqrt);
         state_gpu[basis1] = make_gpuDoubleComplex(
@@ -116,7 +116,8 @@ __global__ void Y_gate_gpu(
         tmp = state_gpu[basis0];
         state_gpu[basis0] = make_gpuDoubleComplex(
             gpuCimag(state_gpu[basis1]), -gpuCreal(state_gpu[basis1]));
-        state_gpu[basis1] = make_gpuDoubleComplex(-gpuCimag(tmp), gpuCreal(tmp));
+        state_gpu[basis1] =
+            make_gpuDoubleComplex(-gpuCimag(tmp), gpuCreal(tmp));
     }
 }
 
