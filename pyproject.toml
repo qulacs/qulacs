@@ -72,7 +72,7 @@ doc = [
     "myst-parser",
     "sphinx-copybutton",
     "ipykernel",
-    "sphinx-autoapi==3.*"
+    "sphinx-autoapi==3.0.0"
 ]
 
 [tool.setuptools]
