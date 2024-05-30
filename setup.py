@@ -53,6 +53,9 @@ class CMakeBuild(build_ext):
         if os.getenv("USE_GPU"):
             cmake_args += ["-DUSE_GPU:STR=" + os.getenv("USE_GPU")]
 
+        if os.getenv("USE_HIP"):
+            cmake_args += ["-DUSE_HIP:STR=" + os.getenv("USE_HIP")]
+
         if os.getenv("USE_OMP"):
             cmake_args += ["-DUSE_OMP:STR=" + os.getenv("USE_OMP")]
 

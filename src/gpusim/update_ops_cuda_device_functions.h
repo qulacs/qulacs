@@ -1,10 +1,19 @@
 #ifndef _UPDATE_OPS_CU_DEVICE_H_
 #define _UPDATE_OPS_CU_DEVICE_H_
 
+#ifdef __HIP_PLATFORM_AMD__
+
+#include <hip/hip_runtime.h>
+
+#else
+
 #include <cuda_runtime.h>
 
 #include "cuda_runtime.h"
 #include "device_launch_parameters.h"
+
+#endif
+
 #include "util_export.h"
 #include "util_type.h"
 #include "util_type_internal.h"
