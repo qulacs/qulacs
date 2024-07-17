@@ -101,7 +101,7 @@ before-test = "rm -rf {project}/build"
 [tool.cibuildwheel.macos]
 before-build = """\
 brew upgrade && brew install -f boost && \
-brew link boost && rm -rf {project}/build\
+brew link --overwrite boost && rm -rf {project}/build\
 """
 archs = ["x86_64", "arm64"]
 repair-wheel-command = "delocate-listdeps {wheel} && script/fix_wheel_osx.sh {wheel} {dest_dir} && delocate-listdeps {wheel}"
