@@ -129,3 +129,17 @@ copyright = "2018 Qulacs Authors"
 # On Read the Docs, the latest version is `latest`` and the specific version
 # is the Git tag name.
 version = qulacs._version.__version__
+
+html_context = {}
+
+# -- Configurations for Read the Docs
+
+# See https://about.readthedocs.com/blog/2024/07/addons-by-default/#how-does-it-affect-my-projects
+import os
+
+# Define the canonical URL if you are using a custom domain on Read the Docs
+html_baseurl = os.environ.get("READTHEDOCS_CANONICAL_URL", "")
+
+# Tell Jinja2 templates the build is running on Read the Docs
+if os.environ.get("READTHEDOCS", "") == "True":
+    html_context["READTHEDOCS"] = True
