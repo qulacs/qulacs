@@ -45,11 +45,6 @@ jobs:
             python-version: "3.11"
           - cibw-python: "cp312"
             python-version: "3.12"
-        exclude:
-          - os-arch: "macosx_arm64"
-            cibw-python: "cp38"
-          - os-arch: "macosx_arm64"
-            cibw-python: "cp39"
 
     runs-on: ${{ matrix.os }}
     env:
