@@ -100,7 +100,8 @@ before-test = "rm -rf {project}/build"
 
 [tool.cibuildwheel.macos]
 before-build = """\
-brew upgrade && brew upgrade && brew install -f boost && \
+rm -rf /usr/local/bin/2to3 && \
+brew upgrade && brew install -f boost && \
 brew link --overwrite boost && rm -rf {project}/build\
 """
 archs = ["x86_64", "arm64"]
