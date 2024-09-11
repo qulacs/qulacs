@@ -100,13 +100,8 @@ before-test = "rm -rf {project}/build"
 
 [tool.cibuildwheel.macos]
 before-build = """\
-rm -rf /usr/local/bin/2to3 && \
-rm -rf /usr/local/bin/2to3-3.12 && \
-rm /usr/local/bin/idle3 && \
-rm /usr/local/bin/pydoc3 && \
-rm /usr/local/bin/python3 && \
-rm /usr/local/bin/python3-config && \
 brew upgrade && brew install -f boost && \
+brew link --overwrite python@3.12 && \
 brew link --overwrite boost && rm -rf {project}/build\
 """
 archs = ["x86_64", "arm64"]
