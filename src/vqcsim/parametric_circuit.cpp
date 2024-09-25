@@ -159,15 +159,30 @@ void ParametricQuantumCircuit::merge_circuit(
 }
 void ParametricQuantumCircuit::add_parametric_RX_gate(
     UINT target_index, double initial_angle) {
-    this->add_parametric_gate(gate::ParametricRX(target_index, initial_angle));
+    UINT total_qubits = this->qubit_count_;
+    std::vector<UINT> target(total_qubits);
+    std::iota(target.begin(), target.end(), 0);
+    std::vector<UINT> pauli_id(total_qubits, 0);
+    pauli_id[target_index] = 1;
+    this->add_parametric_multi_Pauli_rotation_gate(target, pauli_id, initial_angle);
 }
 void ParametricQuantumCircuit::add_parametric_RY_gate(
     UINT target_index, double initial_angle) {
-    this->add_parametric_gate(gate::ParametricRY(target_index, initial_angle));
+    UINT total_qubits = this->qubit_count_;
+    std::vector<UINT> target(total_qubits);
+    std::iota(target.begin(), target.end(), 0);
+    std::vector<UINT> pauli_id(total_qubits, 0);
+    pauli_id[target_index] = 2;
+    this->add_parametric_multi_Pauli_rotation_gate(target, pauli_id, initial_angle);
 }
 void ParametricQuantumCircuit::add_parametric_RZ_gate(
     UINT target_index, double initial_angle) {
-    this->add_parametric_gate(gate::ParametricRZ(target_index, initial_angle));
+    UINT total_qubits = this->qubit_count_;
+    std::vector<UINT> target(total_qubits);
+    std::iota(target.begin(), target.end(), 0);
+    std::vector<UINT> pauli_id(total_qubits, 0);
+    pauli_id[target_index] = 3;
+    this->add_parametric_multi_Pauli_rotation_gate(target, pauli_id, initial_angle);
 }
 
 void ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate(
