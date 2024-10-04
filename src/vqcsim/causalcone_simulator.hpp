@@ -165,7 +165,6 @@ public:
                 }
                 auto& paulioperator = pauli_operators[i];
                 for (UINT j = 0; j < (UINT)term_index_list.size(); j++) {
-                    if ((UINT)uf.root(term_index_list[j]) != root) continue;
                     paulioperator.add_single_Pauli(
                         qubit_encode[term_index_list[j]], pauli_id_list[j]);
                 }
