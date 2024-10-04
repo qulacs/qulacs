@@ -233,7 +233,11 @@ public:
                 target_index_list[index], commutation_relation));
         }
     };
-    virtual ~ClsParametricPauliRotationGate() { delete _pauli; }
+    virtual ~ClsParametricPauliRotationGate() {
+        std::cerr << "PPauliRotation deleted: " << std::hex << (void*)this
+                  << std::endl;
+        delete _pauli;
+    }
     virtual void update_quantum_state(QuantumStateBase* state) override {
         auto target_index_list = _pauli->get_index_list();
         auto pauli_id_list = _pauli->get_pauli_id_list();
@@ -300,7 +304,9 @@ public:
         }
         PauliOperator* pauli = new PauliOperator(
             target_index_list, _pauli->get_pauli_id_list(), _pauli->get_coef());
-        return new ClsParametricPauliRotationGate(_angle, pauli);
+        auto ret = new ClsParametricPauliRotationGate(_angle, pauli);
+        delete pauli;
+        return ret;
     }
 
     virtual ClsParametricPauliRotationGate* get_inverse() const override {

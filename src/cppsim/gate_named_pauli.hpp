@@ -125,7 +125,9 @@ public:
         }
         PauliOperator* pauli = new PauliOperator(
             target_index_list, _pauli->get_pauli_id_list(), _pauli->get_coef());
-        return new ClsPauliGate(pauli);
+        auto ret = new ClsPauliGate(pauli);
+        delete pauli;
+        return ret;
     }
 
     virtual QuantumGateBase* get_inverse() const override { return copy(); }
@@ -254,7 +256,9 @@ public:
         }
         PauliOperator* pauli = new PauliOperator(
             target_index_list, _pauli->get_pauli_id_list(), _pauli->get_coef());
-        return new ClsPauliRotationGate(_angle, pauli);
+        auto ret = new ClsPauliRotationGate(_angle, pauli);
+        delete pauli;
+        return ret;
     }
 
     virtual ClsPauliRotationGate* get_inverse(void) const override {

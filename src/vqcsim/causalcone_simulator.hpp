@@ -4,7 +4,6 @@
 #include <cppsim/observable.hpp>
 #include <cppsim/state.hpp>
 #include <cppsim/type.hpp>
-#include <iostream>
 #include <utility>
 #include <vector>
 #include <vqcsim/parametric_circuit.hpp>
