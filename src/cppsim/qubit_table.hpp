@@ -60,9 +60,10 @@ public:
     /**
      * \~japanese-en 量子ゲートの量子ビットの添え字を書き換える
      *
-     * @param[in,out] g 書き換える量子ゲート
+     * @param[in] g 書き換える量子ゲート
+     * @return 書き換え後のゲート
      */
-    void rewrite_gate_qubit_indexes(QuantumGateBase* g) const;
+    QuantumGateBase* rewrite_gate_qubit_indexes(QuantumGateBase* g) const;
 
     /**
      * \~japanese-en

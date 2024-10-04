@@ -486,10 +486,11 @@ UINT QuantumCircuitOptimizer::move_gates_without_communication(
 
             if (is_dep_solved) {
                 auto g = circuit->gate_list[i];
-                circuit->move_gate(i, gate_idx + moved_gates);
+                auto g_rewrited = qt.rewrite_gate_qubit_indexes(g);
+                circuit->add_gate(g_rewrited, gate_idx + moved_gates);
+                circuit->remove_gate(i);
                 moved_gates++;
 
-                qt.rewrite_gate_qubit_indexes(g);
                 processed_gates.insert(g);
             }
         }
@@ -891,8 +892,16 @@ void QuantumCircuitOptimizer::insert_swap_gates(const UINT level) {
             num_gates += num_inserted_gates;
         }
         LOG << "rewrite_gate_qubit_indexes #" << gate_idx << std::endl;
-        qt.rewrite_gate_qubit_indexes(circuit->gate_list[gate_idx]);
-        processed_gates.insert(circuit->gate_list[gate_idx]);
+        auto g = circuit->gate_list[gate_idx];
+        auto g_rewrited = qt.rewrite_gate_qubit_indexes(g);
+        circuit->remove_gate(gate_idx);
+        circuit->add_gate(g_rewrited, gate_idx);
+        processed_gates.insert(g);
+    }
+
+    // delete overridden gates
+    for (auto g : processed_gates) {
+        delete g;
     }
 
     // reorder qubits to the original order

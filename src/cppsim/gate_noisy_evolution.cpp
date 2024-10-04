@@ -507,7 +507,12 @@ ClsNoisyEvolution_fast::ClsNoisyEvolution_fast(Observable* hamiltonian,
     //(iHという名前だが、実際には-iH)
 
     QuantumGateMatrix* iH = gate::add(gate_list);
-    this->set_target_index_list(iH->get_target_index_list());
+    auto target_index_list = iH->get_target_index_list();
+    _target_qubit_list.clear();
+    _target_qubit_list.reserve(target_index_list.size());
+    for (UINT idx : target_index_list) {
+        _target_qubit_list.emplace_back(idx);
+    }
     // 注意　このtarget_index_listはPや対角行列　に対してのlistである。
     // このlistに入っていないが、c_opsには入っている　というパターンもありうる。
     // ここで、　対角化を求める
