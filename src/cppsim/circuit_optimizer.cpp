@@ -455,8 +455,8 @@ bool QuantumCircuitOptimizer::can_merge_with_swap_insertion(
 }
 
 bool QuantumCircuitOptimizer::needs_communication(
-    const UINT gate_index, const QubitTable& qt) {
-    auto gate = circuit->gate_list[gate_index];
+    const UINT gate_index, const QubitTable& qt, GateReplacer& replacer) {
+    auto gate = replacer.get_replaced_gate(circuit->gate_list[gate_index]);
     auto logical_qubits = get_qubits_needing_communication(gate);
     return std::any_of(
         logical_qubits.cbegin(), logical_qubits.cend(), [&](auto& l_q) {
@@ -469,7 +469,8 @@ UINT QuantumCircuitOptimizer::move_gates_without_communication(
     const UINT gate_idx, const QubitTable& qt,
     const std::multimap<const QuantumGateBase*, const QuantumGateBase*>&
         dep_map,
-    std::unordered_set<const QuantumGateBase*>& processed_gates) {
+    std::unordered_set<const QuantumGateBase*>& processed_gates,
+    GateReplacer& replacer) {
     const UINT num_gates = circuit->gate_list.size();
     UINT moved_gates = 0;
     for (UINT i = gate_idx; i < num_gates; i++) {
@@ -486,11 +487,12 @@ UINT QuantumCircuitOptimizer::move_gates_without_communication(
 
             if (is_dep_solved) {
                 auto g = circuit->gate_list[i];
-                auto g_rewrited = qt.rewrite_gate_qubit_indexes(g);
-                circuit->add_gate(g_rewrited, gate_idx + moved_gates);
-                circuit->remove_gate(i);
+                circuit->move_gate(i, gate_idx + moved_gates);
                 moved_gates++;
 
+                auto rewritten = qt.rewrite_gate_qubit_indexes(
+                    replacer.get_replaced_gate(g));
+                replacer.set_replaced_gate(g, rewritten);
                 processed_gates.insert(g);
             }
         }
@@ -499,13 +501,13 @@ UINT QuantumCircuitOptimizer::move_gates_without_communication(
 }
 
 std::unordered_set<UINT> QuantumCircuitOptimizer::find_next_local_qubits(
-    const UINT start_gate_idx) {
+    const UINT start_gate_idx, GateReplacer& replacer) {
     // next local qubit set (logical index)
     std::unordered_set<UINT> next_local_qubits;
 
     for (UINT gate_idx = start_gate_idx; gate_idx < circuit->gate_list.size();
          gate_idx++) {
-        auto gate = circuit->gate_list[gate_idx];
+        auto gate = replacer.get_replaced_gate(circuit->gate_list[gate_idx]);
         auto addition_qubits = get_qubits_needing_communication(gate);
 
         for (auto q : next_local_qubits) {
@@ -873,19 +875,20 @@ void QuantumCircuitOptimizer::insert_swap_gates(const UINT level) {
     UINT num_gates = circuit->gate_list.size();
     QubitTable qt(circuit->qubit_count);
 
+    GateReplacer replacer;
     std::unordered_set<const QuantumGateBase*> processed_gates;
 
     // add SWAP/FusedSWAP gates
     for (UINT gate_idx = 0; gate_idx < num_gates; gate_idx++) {
         LOG << "processing gate #" << gate_idx << std::endl;
-        if (needs_communication(gate_idx, qt)) {
+        if (needs_communication(gate_idx, qt, replacer)) {
             LOG << "cur: " << qt << std::endl;
             if (gate_reordering_enabled) {
                 gate_idx += move_gates_without_communication(
-                    gate_idx, qt, parent_gate_map, processed_gates);
+                    gate_idx, qt, parent_gate_map, processed_gates, replacer);
             }
             std::unordered_set<UINT> next_local_qubit =
-                find_next_local_qubits(gate_idx);
+                find_next_local_qubits(gate_idx, replacer);
             const UINT num_inserted_gates =
                 rearrange_qubits(gate_idx, next_local_qubit, qt);
             gate_idx += num_inserted_gates;
@@ -894,14 +897,19 @@ void QuantumCircuitOptimizer::insert_swap_gates(const UINT level) {
         LOG << "rewrite_gate_qubit_indexes #" << gate_idx << std::endl;
         auto g = circuit->gate_list[gate_idx];
         auto g_rewrited = qt.rewrite_gate_qubit_indexes(g);
-        circuit->remove_gate(gate_idx);
-        circuit->add_gate(g_rewrited, gate_idx);
+        replacer.set_replaced_gate(g, g_rewrited);
         processed_gates.insert(g);
     }
 
-    // delete overridden gates
-    for (auto g : processed_gates) {
-        delete g;
+    // replace gates
+    for (UINT gate_idx = 0; gate_idx < circuit->gate_list.size(); gate_idx++) {
+        auto g = circuit->gate_list[gate_idx];
+        auto g_replaced = replacer.get_replaced_gate(g);
+        if (g != g_replaced) {
+            circuit->remove_gate(gate_idx);
+            circuit->add_gate(g_replaced, gate_idx);
+            delete g;
+        }
     }
 
     // reorder qubits to the original order

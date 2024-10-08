@@ -34,16 +34,32 @@ private:
     ////////////////////////////////////////////////////////////
     // for swap insertion
     ////////////////////////////////////////////////////////////
+    struct GateReplacer {
+        std::map<QuantumGateBase*, QuantumGateBase*> replace;
+
+        QuantumGateBase* get_replaced_gate(QuantumGateBase* gate) {
+            if (!replace.count(gate)) return gate;
+            return replace[gate] = get_replaced_gate(replace[gate]);
+        }
+
+        QuantumGateBase* set_replaced_gate(
+            QuantumGateBase* from, QuantumGateBase* to) {
+            replace[from] = to;
+        }
+    };
     void set_qubit_count(void);
     bool can_merge_with_swap_insertion(
         UINT gate_idx1, UINT gate_idx2, UINT swap_level);
-    bool needs_communication(const UINT gate_index, const QubitTable& qt);
+    bool needs_communication(
+        const UINT gate_index, const QubitTable& qt, GateReplacer& replacer);
     UINT move_gates_without_communication(const UINT gate_idx,
         const QubitTable& qt,
         const std::multimap<const QuantumGateBase*, const QuantumGateBase*>&
             dep_map,
-        std::unordered_set<const QuantumGateBase*>& processed_gates);
-    std::unordered_set<UINT> find_next_local_qubits(const UINT start_gate_idx);
+        std::unordered_set<const QuantumGateBase*>& processed_gates,
+        GateReplacer& replacer);
+    std::unordered_set<UINT> find_next_local_qubits(
+        const UINT start_gate_idx, GateReplacer& replacer);
     UINT move_matching_qubits_to_local_upper(UINT lowest_idx, QubitTable& qt,
         std::function<bool(UINT)> fn, UINT gate_insertion_pos);
     UINT rearrange_qubits(const UINT gate_idx,
