@@ -76,7 +76,9 @@ void FusedSWAP_gate_global(UINT target_qubit_index_0, UINT target_qubit_index_1,
 #else
     assert(target_qubit_index_0 > nqubits);
     assert(target_qubit_index_1 > nqubits);
-    assert(std::abs(target_qubit_index_0 - target_qubit_index_1) >= block_size);
+    assert(std::abs(static_cast<std::int32_t>(target_qubit_index_0) -
+                    static_cast<std::int32_t>(target_qubit_index_1)) >=
+           block_size);
 
     MPIutil& m = MPIutil::get_inst();
     const int rank = m.get_rank();
