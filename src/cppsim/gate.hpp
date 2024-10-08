@@ -60,6 +60,7 @@
 #include <string>
 #include <vector>
 
+#include "exception.hpp"
 #include "qubit_info.hpp"
 #include "type.hpp"
 #include "utility.hpp"
@@ -107,10 +108,9 @@ public:
      */
     virtual ~QuantumGateBase(){};
 
-    // jupiro変更: setのためにconstを消す
-    std::vector<TargetQubitInfo>&
+    const std::vector<TargetQubitInfo>&
         target_qubit_list; /**< ターゲット量子ビットのリスト */
-    std::vector<ControlQubitInfo>&
+    const std::vector<ControlQubitInfo>&
         control_qubit_list; /**< コントロール量子ビットのリスト */
 
     /**
@@ -274,35 +274,36 @@ public:
     virtual bool is_noise() { return false; }
     virtual void set_seed(int) { return; };
 
-    // ここから勝手にjupiroがつくったやつ
-    void set_target_index_list(const std::vector<UINT>& target_index_list) {
-        if (target_qubit_list.size() < target_index_list.size()) {
-            target_qubit_list.resize(target_index_list.size());
+    /**
+     * \~japanese-en target, controlを置き換えた新しいゲートを作成
+     *
+     * @details get_target_index_list,
+     * get_control_index_listで出力される順番の量子ビットが新しいものに置き換わる
+     */
+    [[nodiscard]] virtual QuantumGateBase*
+    create_gate_whose_qubit_indices_are_replaced(
+        const std::vector<UINT>& target_index_list,
+        const std::vector<UINT>& control_index_list) const {
+        if (_target_qubit_list.size() != target_index_list.size()) {
+            throw InvalidQubitCountException(
+                "Error: "
+                "QuantumGateBase::create_gate_whose_qubit_indices_is_"
+                "replaced\n qubit count of target_index_list does not match.");
         }
-        for (UINT i = 0; i < target_qubit_list.size(); ++i) {
-            target_qubit_list[i].set_index(target_index_list[i]);
+        if (_control_qubit_list.size() != control_index_list.size()) {
+            throw InvalidQubitCountException(
+                "Error: "
+                "QuantumGateBase::create_gate_whose_qubit_indices_is_"
+                "replaced\n qubit count of control_index_list does not match.");
         }
-        if (target_qubit_list.size() < target_index_list.size()) {
-            _target_qubit_list.resize(target_index_list.size());
+        QuantumGateBase* ret = copy();
+        for (UINT i = 0; i < target_index_list.size(); i++) {
+            ret->_target_qubit_list[i].set_index(target_index_list[i]);
         }
-        for (UINT i = 0; i < target_qubit_list.size(); ++i) {
-            _target_qubit_list[i].set_index(target_index_list[i]);
+        for (UINT i = 0; i < control_index_list.size(); i++) {
+            ret->_control_qubit_list[i].set_index(control_index_list[i]);
         }
-    }
-
-    void set_control_index_list(const std::vector<UINT>& control_index_list) {
-        if (control_qubit_list.size() < control_index_list.size()) {
-            control_qubit_list.resize(control_index_list.size());
-        }
-        for (UINT i = 0; i < control_qubit_list.size(); ++i) {
-            control_qubit_list[i].set_index(control_index_list[i]);
-        }
-        if (control_qubit_list.size() < control_index_list.size()) {
-            _control_qubit_list.resize(control_index_list.size());
-        }
-        for (UINT i = 0; i < control_qubit_list.size(); ++i) {
-            _control_qubit_list[i].set_index(control_index_list[i]);
-        }
+        return ret;
     }
 
     [[noreturn]] virtual QuantumGateBase* get_inverse(void) const;

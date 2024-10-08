@@ -59,14 +59,14 @@ UINT QubitTable::add_swap_gate(
     return 1;
 }
 
-void QubitTable::rewrite_gate_qubit_indexes(QuantumGateBase* g) const {
+QuantumGateBase* QubitTable::rewrite_gate_qubit_indexes(
+    QuantumGateBase* g) const {
     std::vector<UINT> target_index_list = g->get_target_index_list();
     for_each(target_index_list.begin(), target_index_list.end(),
         [&](UINT& x) { x = _l2p_table[x]; });
-    g->set_target_index_list(target_index_list);
-
     std::vector<UINT> control_index_list = g->get_control_index_list();
     for_each(control_index_list.begin(), control_index_list.end(),
         [&](UINT& x) { x = _l2p_table[x]; });
-    g->set_control_index_list(control_index_list);
+    return g->create_gate_whose_qubit_indices_are_replaced(
+        target_index_list, control_index_list);
 }
