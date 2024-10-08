@@ -908,7 +908,6 @@ void QuantumCircuitOptimizer::insert_swap_gates(const UINT level) {
         if (g != g_replaced) {
             circuit->remove_gate(gate_idx);
             circuit->add_gate(g_replaced, gate_idx);
-            delete g;
         }
     }
 
