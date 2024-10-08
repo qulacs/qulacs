@@ -42,8 +42,7 @@ private:
             return replace[gate] = get_replaced_gate(replace[gate]);
         }
 
-        QuantumGateBase* set_replaced_gate(
-            QuantumGateBase* from, QuantumGateBase* to) {
+        void set_replaced_gate(QuantumGateBase* from, QuantumGateBase* to) {
             replace[from] = to;
         }
     };

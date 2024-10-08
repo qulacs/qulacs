@@ -475,7 +475,7 @@ UINT QuantumCircuitOptimizer::move_gates_without_communication(
     UINT moved_gates = 0;
     for (UINT i = gate_idx; i < num_gates; i++) {
         // no comm & dependency is solved
-        if (!needs_communication(i, qt)) {
+        if (!needs_communication(i, qt, replacer)) {
             auto range = dep_map.equal_range(circuit->gate_list[i]);
 
             bool is_dep_solved = true;
