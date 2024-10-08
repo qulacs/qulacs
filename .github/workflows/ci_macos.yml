@@ -48,6 +48,7 @@ jobs:
       - name: Install Boost for macOS
         run: |
           unlink /usr/local/bin/2to3
+          unlink /usr/local/bin/2to3-3.12
           brew update
           brew install boost
           brew link boost
