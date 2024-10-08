@@ -44,11 +44,10 @@ jobs:
           key: ${{ github.job }}-macos-12-${{ matrix.compiler }}
           verbose: 2
 
-      # remove 2to3 link to deal with https://github.com/qulacs/qulacs/actions/runs/11227598146/job/31210081471
+      # override python link to deal with https://github.com/qulacs/qulacs/actions/runs/11227598146/job/31210081471
       - name: Install Boost for macOS
         run: |
-          unlink /usr/local/bin/2to3
-          unlink /usr/local/bin/2to3-3.12
+          brew link --overwrite python@3.12
           brew update
           brew install boost
           brew link boost
