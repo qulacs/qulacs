@@ -91,6 +91,14 @@ public:
                         break;
                     }
                 }
+                if (!use_gate[i]) {
+                    for (auto control_index : control_index_list) {
+                        if (use_qubit[control_index]) {
+                            use_gate[i] = true;
+                            break;
+                        }
+                    }
+                }
                 if (use_gate[i]) {
                     for (auto target_index : target_index_list) {
                         use_qubit[target_index] = true;
