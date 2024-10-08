@@ -44,12 +44,12 @@ jobs:
           key: ${{ github.job }}-macos-12-${{ matrix.compiler }}
           verbose: 2
 
-      # override python link to deal with https://github.com/qulacs/qulacs/actions/runs/11227598146/job/31210081471
+      # ignore python link issue https://github.com/qulacs/qulacs/actions/runs/11227598146/job/31210081471
+      # ref: https://github.com/actions/runner-images/issues/8500
       - name: Install Boost for macOS
         run: |
-          brew unlink python@3.12
           brew update
-          brew install boost
+          brew install boost || true
           brew link boost
 
       - name: Setup Python
