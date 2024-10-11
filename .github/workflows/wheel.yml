@@ -69,11 +69,13 @@ jobs:
         if: ${{ contains(matrix.os, 'ubuntu') }}
         run: sudo apt update && sudo apt install libboost-dev
 
+      # ignore python link issue https://github.com/qulacs/qulacs/actions/runs/11227598146/job/31210081471
+      # ref: https://github.com/actions/runner-images/issues/8500
       - name: Install boost if macos
         if: ${{ contains(matrix.os, 'macos') }}
         run: |
           brew update
-          brew install boost
+          brew install boost || echo "::warning:: Temporary fix for macOS brew install python3.12 issue is applied."
           brew link boost
 
       - name: Install boost if windows
