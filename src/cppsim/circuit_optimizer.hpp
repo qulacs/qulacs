@@ -43,6 +43,12 @@ private:
         }
 
         void set_replaced_gate(QuantumGateBase* from, QuantumGateBase* to) {
+            if (replace.count(from)) {
+                throw std::runtime_error(
+                    "QuantumCircuitOptimizer::GateReplacer::set_replaced_gate: "
+                    "The gate passed as `from` is already replaced to other "
+                    "gate.");
+            }
             replace[from] = to;
         }
     };
