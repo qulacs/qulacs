@@ -44,16 +44,18 @@ jobs:
           key: ${{ github.job }}-macos-12-${{ matrix.compiler }}
           verbose: 2
 
+      # ignore python link issue https://github.com/qulacs/qulacs/actions/runs/11227598146/job/31210081471
+      # ref: https://github.com/actions/runner-images/issues/8500
+      - name: Install Boost for macOS
+        run: |
+          brew update
+          brew install boost || echo "::warning:: Temporary fix for macOS brew install python3.12 issue is applied."
+          brew link boost
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-
-      - name: Install Boost for macOS
-        run: |
-          brew update
-          brew install boost
-          brew link boost
 
       - name: Install qulacs for macOS
         run: USE_TEST=Yes ./script/build_gcc.sh
