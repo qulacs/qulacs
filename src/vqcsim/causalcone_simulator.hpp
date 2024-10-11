@@ -4,7 +4,6 @@
 #include <cppsim/observable.hpp>
 #include <cppsim/state.hpp>
 #include <cppsim/type.hpp>
-#include <iostream>
 #include <utility>
 #include <vector>
 #include <vqcsim/parametric_circuit.hpp>
@@ -60,7 +59,7 @@ public:
         delete init_circuit;
         delete init_observable;
         for (auto& circuit1 : circuit_list) {
-            for (auto& circuit2 : circuit1) {
+            for (auto* circuit2 : circuit1) {
                 delete circuit2;
             }
         }
@@ -74,7 +73,7 @@ public:
             const UINT gate_count = init_circuit->gate_list.size();
             const UINT qubit_count = init_circuit->qubit_count;
             const UINT observable_count = observable_index_list.size();
-            UnionFind uf(qubit_count + observable_count);
+            UnionFind uf(qubit_count);
             std::vector<bool> use_qubit(qubit_count);
             std::vector<bool> use_gate(gate_count);
             for (UINT i = 0; i < observable_count; i++) {
@@ -158,7 +157,7 @@ public:
                 for (UINT j = 0; j < gate_count; j++) {
                     if (!use_gate[j]) continue;
 
-                    auto gate = init_circuit->gate_list[j]->copy();
+                    auto gate = init_circuit->gate_list[j];
                     auto target_index_list = gate->get_target_index_list();
                     auto control_index_list = gate->get_control_index_list();
                     if ((UINT)uf.root(target_index_list[0]) != root) continue;
@@ -167,9 +166,10 @@ public:
                     for (auto& control_idx : control_index_list)
                         control_idx = qubit_encode[control_idx];
 
-                    gate->set_target_index_list(target_index_list);
-                    gate->set_control_index_list(control_index_list);
-                    circuit->add_gate(gate);
+                    auto gate_replaced =
+                        gate->create_gate_whose_qubit_indices_are_replaced(
+                            target_index_list, control_index_list);
+                    circuit->add_gate(gate_replaced);
                 }
                 auto& paulioperator = pauli_operators[i];
                 for (UINT j = 0; j < (UINT)term_index_list.size(); j++) {

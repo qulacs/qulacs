@@ -282,6 +282,29 @@ public:
         pt.put_child("pauli", _pauli->to_ptree());
         return pt;
     }
+
+    virtual QuantumGateBase* create_gate_whose_qubit_indices_are_replaced(
+        const std::vector<UINT>& target_index_list,
+        const std::vector<UINT>& control_index_list) const override {
+        if (_target_qubit_list.size() != target_index_list.size()) {
+            throw InvalidQubitCountException(
+                "Error: "
+                "QuantumGateBase::create_gate_whose_qubit_indices_is_"
+                "replaced\n qubit count of target_index_list does not match.");
+        }
+        if (_control_qubit_list.size() != control_index_list.size()) {
+            throw InvalidQubitCountException(
+                "Error: "
+                "QuantumGateBase::create_gate_whose_qubit_indices_is_"
+                "replaced\n qubit count of control_index_list does not match.");
+        }
+        PauliOperator* pauli = new PauliOperator(
+            target_index_list, _pauli->get_pauli_id_list(), _pauli->get_coef());
+        auto ret = new ClsParametricPauliRotationGate(_angle, pauli);
+        delete pauli;
+        return ret;
+    }
+
     virtual ClsParametricPauliRotationGate* get_inverse() const override {
         return new ClsParametricPauliRotationGate(-_angle, _pauli);
     };
