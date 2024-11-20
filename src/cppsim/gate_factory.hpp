@@ -432,6 +432,16 @@ DllExport ClsStateReflectionGate* StateReflection(
  */
 DllExport QuantumGate_Probabilistic* BitFlipNoise(
     UINT target_index, double prob);
+/**
+ * bit-flipノイズを発生させるゲート
+ *
+ * @param[in] target_index ターゲットとなる量子ビットの添え字
+ * @param[in] prob エラーが生じる確率
+ * @param[in] seed 乱数のシード値
+ * @return 作成されたゲートのインスタンス
+ */
+DllExport QuantumGate_Probabilistic* BitFlipNoise(
+    UINT target_index, double prob, UINT seed);
 
 /**
  * phase-flipノイズを発生させるゲート
@@ -442,6 +452,16 @@ DllExport QuantumGate_Probabilistic* BitFlipNoise(
  */
 DllExport QuantumGate_Probabilistic* DephasingNoise(
     UINT target_index, double prob);
+/**
+ * phase-flipノイズを発生させるゲート
+ *
+ * @param[in] target_index ターゲットとなる量子ビットの添え字
+ * @param[in] prob エラーが生じる確率
+ * @param[in] seed 乱数のシード値
+ * @return 作成されたゲートのインスタンス
+ */
+DllExport QuantumGate_Probabilistic* DephasingNoise(
+    UINT target_index, double prob, UINT seed);
 
 /**
  * bit-flipとphase-flipを同じ確率でノイズを発生させるゲート
@@ -452,6 +472,16 @@ DllExport QuantumGate_Probabilistic* DephasingNoise(
  */
 DllExport QuantumGate_Probabilistic* IndependentXZNoise(
     UINT target_index, double prob);
+/**
+ * bit-flipとphase-flipを同じ確率でノイズを発生させるゲート
+ *
+ * @param[in] target_index ターゲットとなる量子ビットの添え字
+ * @param[in] prob エラーが生じる確率
+ * @param[in] seed 乱数のシード値
+ * @return 作成されたゲートのインスタンス
+ */
+DllExport QuantumGate_Probabilistic* IndependentXZNoise(
+    UINT target_index, double prob, UINT seed);
 
 /**
  * Depolarizin noiseを発生させるゲート
@@ -463,6 +493,17 @@ DllExport QuantumGate_Probabilistic* IndependentXZNoise(
  */
 DllExport QuantumGate_Probabilistic* DepolarizingNoise(
     UINT target_index, double prob);
+/**
+ * Depolarizin noiseを発生させるゲート
+ *
+ * X,Y,Zがそれぞれ<code>prob/3</code>の確率で生じる。
+ * @param[in] target_index ターゲットとなる量子ビットの添え字
+ * @param[in] prob エラーが生じる確率
+ * @param[in] seed 乱数のシード値
+ * @return 作成されたゲートのインスタンス
+ */
+DllExport QuantumGate_Probabilistic* DepolarizingNoise(
+    UINT target_index, double prob, UINT seed);
 
 /**
  * Two-qubit depolarizin noiseを発生させるゲート
@@ -476,6 +517,19 @@ DllExport QuantumGate_Probabilistic* DepolarizingNoise(
  */
 DllExport QuantumGate_Probabilistic* TwoQubitDepolarizingNoise(
     UINT target_index1, UINT target_index2, double prob);
+/**
+ * Two-qubit depolarizin noiseを発生させるゲート
+ *
+ * IIを除くtwo qubit Pauli
+ * operationがそれぞれ<code>prob/15</code>の確率で生じる。
+ * @param[in] target_index1 ターゲットとなる量子ビットの添え字
+ * @param[in] target_index2 ターゲットとなる量子ビットの添え字
+ * @param[in] prob エラーが生じる確率
+ * @param[in] seed 乱数のシード値
+ * @return 作成されたゲートのインスタンス
+ */
+DllExport QuantumGate_Probabilistic* TwoQubitDepolarizingNoise(
+    UINT target_index1, UINT target_index2, double prob, UINT seed);
 
 /**
  * Amplitude damping noiseを発生させるゲート
@@ -486,6 +540,16 @@ DllExport QuantumGate_Probabilistic* TwoQubitDepolarizingNoise(
  */
 DllExport QuantumGate_CPTP* AmplitudeDampingNoise(
     UINT target_index, double prob);
+/**
+ * Amplitude damping noiseを発生させるゲート
+ *
+ * @param[in] target_index ターゲットとなる量子ビットの添え字
+ * @param[in] prob エラーが生じる確率
+ * @param[in] seed 乱数のシード値
+ * @return 作成されたゲートのインスタンス
+ */
+DllExport QuantumGate_CPTP* AmplitudeDampingNoise(
+    UINT target_index, double prob, UINT seed);
 
 /**
  * 測定を行う
@@ -496,6 +560,16 @@ DllExport QuantumGate_CPTP* AmplitudeDampingNoise(
  */
 DllExport QuantumGate_Instrument* Measurement(
     UINT target_index, UINT classical_register_address);
+/**
+ * 測定を行う
+ *
+ * @param[in] target_index ターゲットとなる量子ビットの添え字
+ * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
+ * @param[in] seed 乱数のシード値
+ * @return 作成されたゲートのインスタンス
+ */
+DllExport QuantumGate_Instrument* Measurement(
+    UINT target_index, UINT classical_register_address, UINT seed);
 
 /**
  * Noisy Evolution
