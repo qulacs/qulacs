@@ -203,10 +203,6 @@ public:
         return pt;
     }
 
-    /*
-    added by kotamanegi.
-    */
-
     virtual void set_seed(int seed) override { random.set_seed(seed); };
 
     virtual std::vector<double> get_cumulative_distribution() {
@@ -396,6 +392,7 @@ public:
         }
         return pt;
     }
+    virtual void set_seed(int seed) override { random.set_seed(seed); };
     virtual std::vector<QuantumGateBase*> get_gate_list() { return _gate_list; }
 };
 
@@ -555,6 +552,7 @@ public:
         pt.put("assign_zero_if_not_matched", _assign_zero_if_not_matched);
         return pt;
     }
+    virtual void set_seed(int seed) override { random.set_seed(seed); };
     virtual std::vector<QuantumGateBase*> get_gate_list() { return _gate_list; }
 };
 

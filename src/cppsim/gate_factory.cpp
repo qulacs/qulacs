@@ -396,24 +396,38 @@ ClsStateReflectionGate* StateReflection(const QuantumState* reflection_state) {
 }
 
 QuantumGate_Probabilistic* BitFlipNoise(UINT target_index, double prob) {
+    return BitFlipNoise(target_index, prob, std::random_device{}());
+}
+QuantumGate_Probabilistic* BitFlipNoise(
+    UINT target_index, double prob, UINT seed) {
     auto gate0 = X(target_index);
     auto gate1 = Identity(target_index);
     auto new_gate =
         new QuantumGate_Probabilistic({prob, 1 - prob}, {gate0, gate1});
+    new_gate->set_seed(seed);
     delete gate0;
     delete gate1;
     return new_gate;
 }
 QuantumGate_Probabilistic* DephasingNoise(UINT target_index, double prob) {
+    return DephasingNoise(target_index, prob, std::random_device{}());
+}
+QuantumGate_Probabilistic* DephasingNoise(
+    UINT target_index, double prob, UINT seed) {
     auto gate0 = Z(target_index);
     auto gate1 = Identity(target_index);
     auto new_gate =
         new QuantumGate_Probabilistic({prob, 1 - prob}, {gate0, gate1});
+    new_gate->set_seed(seed);
     delete gate0;
     delete gate1;
     return new_gate;
 }
 QuantumGate_Probabilistic* IndependentXZNoise(UINT target_index, double prob) {
+    return IndependentXZNoise(target_index, prob, std::random_device{}());
+}
+QuantumGate_Probabilistic* IndependentXZNoise(
+    UINT target_index, double prob, UINT seed) {
     auto gate0 = X(target_index);
     auto gate1 = Z(target_index);
     auto gate2 = Y(target_index);
@@ -422,6 +436,7 @@ QuantumGate_Probabilistic* IndependentXZNoise(UINT target_index, double prob) {
     double p2 = prob * prob;
     auto new_gate = new QuantumGate_Probabilistic(
         {p1, p1, p2, 1 - 2 * p1 - p2}, {gate0, gate1, gate2, gate3});
+    new_gate->set_seed(seed);
     delete gate0;
     delete gate1;
     delete gate2;
@@ -429,12 +444,17 @@ QuantumGate_Probabilistic* IndependentXZNoise(UINT target_index, double prob) {
     return new_gate;
 }
 QuantumGate_Probabilistic* DepolarizingNoise(UINT target_index, double prob) {
+    return DepolarizingNoise(target_index, prob, std::random_device{}());
+}
+QuantumGate_Probabilistic* DepolarizingNoise(
+    UINT target_index, double prob, UINT seed) {
     auto gate0 = X(target_index);
     auto gate1 = Z(target_index);
     auto gate2 = Y(target_index);
     auto gate3 = Identity(target_index);
     auto new_gate = new QuantumGate_Probabilistic(
         {prob / 3, prob / 3, prob / 3, 1 - prob}, {gate0, gate1, gate2, gate3});
+    new_gate->set_seed(seed);
     delete gate0;
     delete gate1;
     delete gate2;
@@ -443,6 +463,11 @@ QuantumGate_Probabilistic* DepolarizingNoise(UINT target_index, double prob) {
 }
 QuantumGate_Probabilistic* TwoQubitDepolarizingNoise(
     UINT target_index1, UINT target_index2, double prob) {
+    return TwoQubitDepolarizingNoise(
+        target_index1, target_index2, prob, std::random_device{}());
+}
+QuantumGate_Probabilistic* TwoQubitDepolarizingNoise(
+    UINT target_index1, UINT target_index2, double prob, UINT seed) {
     if (target_index1 == target_index2) {
         throw DuplicatedQubitIndexException(
             "Error: gate::TwoQubitDepolarizingNoise(UINT, UINT, double): "
@@ -467,28 +492,40 @@ QuantumGate_Probabilistic* TwoQubitDepolarizingNoise(
     std::vector<double> probabilities(16, prob / 15);
     probabilities[0] = 1 - prob;
     auto new_gate = new QuantumGate_Probabilistic(probabilities, gate_list);
+    new_gate->set_seed(seed);
     for (UINT gate_index = 0; gate_index < 16; ++gate_index) {
         delete gate_list[gate_index];
     }
     return new_gate;
 }
 QuantumGate_CPTP* AmplitudeDampingNoise(UINT target_index, double prob) {
+    return AmplitudeDampingNoise(target_index, prob, std::random_device{}());
+}
+QuantumGate_CPTP* AmplitudeDampingNoise(
+    UINT target_index, double prob, UINT seed) {
     ComplexMatrix damping_matrix_0(2, 2), damping_matrix_1(2, 2);
     damping_matrix_0 << 1, 0, 0, sqrt(1 - prob);
     damping_matrix_1 << 0, sqrt(prob), 0, 0;
     auto gate0 = DenseMatrix(target_index, damping_matrix_0);
     auto gate1 = DenseMatrix(target_index, damping_matrix_1);
     auto new_gate = new QuantumGate_CPTP({gate0, gate1});
+    new_gate->set_seed(seed);
     delete gate0;
     delete gate1;
     return new_gate;
 }
 QuantumGate_Instrument* Measurement(
     UINT target_index, UINT classical_register_address) {
+    return Measurement(
+        target_index, classical_register_address, std::random_device{}());
+}
+QuantumGate_Instrument* Measurement(
+    UINT target_index, UINT classical_register_address, UINT seed) {
     auto gate0 = P0(target_index);
     auto gate1 = P1(target_index);
     auto new_gate =
         new QuantumGate_Instrument({gate0, gate1}, classical_register_address);
+    new_gate->set_seed(seed);
     delete gate0;
     delete gate1;
     return new_gate;
