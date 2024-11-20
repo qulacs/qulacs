@@ -986,28 +986,65 @@ PYBIND11_MODULE(qulacs_core, m) {
         py::return_value_policy::take_ownership, "Create state reflection gate",
         py::arg("state"));
 
-    mgate.def("BitFlipNoise", &gate::BitFlipNoise,
+    mgate.def("BitFlipNoise",
+        py::overload_cast<UINT, double>(&gate::BitFlipNoise),
         py::return_value_policy::take_ownership, "Create bit-flip noise",
         py::arg("index"), py::arg("prob"));
-    mgate.def("DephasingNoise", &gate::DephasingNoise,
+    mgate.def("BitFlipNoise",
+        py::overload_cast<UINT, double, UINT>(&gate::BitFlipNoise),
+        py::return_value_policy::take_ownership, "Create bit-flip noise",
+        py::arg("index"), py::arg("prob"), py::arg("seed"));
+    mgate.def("DephasingNoise",
+        py::overload_cast<UINT, double>(&gate::DephasingNoise),
         py::return_value_policy::take_ownership, "Create dephasing noise",
         py::arg("index"), py::arg("prob"));
-    mgate.def("IndependentXZNoise", &gate::IndependentXZNoise,
+    mgate.def("DephasingNoise",
+        py::overload_cast<UINT, double, UINT>(&gate::DephasingNoise),
+        py::return_value_policy::take_ownership, "Create dephasing noise",
+        py::arg("index"), py::arg("prob"), py::arg("seed"));
+    mgate.def("IndependentXZNoise",
+        py::overload_cast<UINT, double>(&gate::IndependentXZNoise),
         py::return_value_policy::take_ownership, "Create independent XZ noise",
         py::arg("index"), py::arg("prob"));
-    mgate.def("DepolarizingNoise", &gate::DepolarizingNoise,
+    mgate.def("IndependentXZNoise",
+        py::overload_cast<UINT, double, UINT>(&gate::IndependentXZNoise),
+        py::return_value_policy::take_ownership, "Create independent XZ noise",
+        py::arg("index"), py::arg("prob"), py::arg("seed"));
+    mgate.def("DepolarizingNoise",
+        py::overload_cast<UINT, double>(&gate::DepolarizingNoise),
         py::return_value_policy::take_ownership, "Create depolarizing noise",
         py::arg("index"), py::arg("prob"));
-    mgate.def("TwoQubitDepolarizingNoise", &gate::TwoQubitDepolarizingNoise,
+    mgate.def("DepolarizingNoise",
+        py::overload_cast<UINT, double, UINT>(&gate::DepolarizingNoise),
+        py::return_value_policy::take_ownership, "Create depolarizing noise",
+        py::arg("index"), py::arg("prob"), py::arg("seed"));
+    mgate.def("TwoQubitDepolarizingNoise",
+        py::overload_cast<UINT, UINT, double>(&gate::TwoQubitDepolarizingNoise),
         py::return_value_policy::take_ownership,
         "Create two-qubit depolarizing noise", py::arg("index1"),
         py::arg("index2"), py::arg("prob"));
-    mgate.def("AmplitudeDampingNoise", &gate::AmplitudeDampingNoise,
+    mgate.def("TwoQubitDepolarizingNoise",
+        py::overload_cast<UINT, UINT, double, UINT>(
+            &gate::TwoQubitDepolarizingNoise),
+        py::return_value_policy::take_ownership,
+        "Create two-qubit depolarizing noise", py::arg("index1"),
+        py::arg("index2"), py::arg("prob"), py::arg("seed"));
+    mgate.def("AmplitudeDampingNoise",
+        py::overload_cast<UINT, double>(&gate::AmplitudeDampingNoise),
         py::return_value_policy::take_ownership,
         "Create amplitude damping noise", py::arg("index"), py::arg("prob"));
-    mgate.def("Measurement", &gate::Measurement,
+    mgate.def("AmplitudeDampingNoise",
+        py::overload_cast<UINT, double, UINT>(&gate::AmplitudeDampingNoise),
+        py::return_value_policy::take_ownership,
+        "Create amplitude damping noise", py::arg("index"), py::arg("prob"),
+        py::arg("seed"));
+    mgate.def("Measurement", py::overload_cast<UINT, UINT>(&gate::Measurement),
         py::return_value_policy::take_ownership, "Create measurement gate",
         py::arg("index"), py::arg("register"));
+    mgate.def("Measurement",
+        py::overload_cast<UINT, UINT, UINT>(&gate::Measurement),
+        py::return_value_policy::take_ownership, "Create measurement gate",
+        py::arg("index"), py::arg("register"), py::arg("seed"));
 
     mgate.def("merge",
         py::overload_cast<const QuantumGateBase*, const QuantumGateBase*>(
