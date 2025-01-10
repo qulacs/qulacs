@@ -531,6 +531,39 @@ QuantumGate_Instrument* Measurement(
     return new_gate;
 }
 
+QuantumGate_Instrument* MultiQubitPauliMeasurement(
+    const std::vector<UINT>& target_index_list,
+    const std::vector<UINT>& pauli_id_list, UINT classical_register_address) {
+    auto i_gate = Identity(0);
+    auto pauli_gate = Pauli(target_index_list, pauli_id_list);
+    auto gate0 = LinearCombination({.5, .5}, {i_gate, pauli_gate});
+    auto gate1 = LinearCombination({.5, -.5}, {i_gate, pauli_gate});
+    auto new_gate =
+        new QuantumGate_Instrument({gate0, gate1}, classical_register_address);
+    delete i_gate;
+    delete pauli_gate;
+    delete gate0;
+    delete gate1;
+    return new_gate;
+}
+QuantumGate_Instrument* MultiQubitPauliMeasurement(
+    const std::vector<UINT>& target_index_list,
+    const std::vector<UINT>& pauli_id_list, UINT classical_register_address,
+    UINT seed) {
+    auto i_gate = Identity(0);
+    auto pauli_gate = Pauli(target_index_list, pauli_id_list);
+    auto gate0 = LinearCombination({.5, .5}, {i_gate, pauli_gate});
+    auto gate1 = LinearCombination({.5, -.5}, {i_gate, pauli_gate});
+    auto new_gate =
+        new QuantumGate_Instrument({gate0, gate1}, classical_register_address);
+    new_gate->set_seed(seed);
+    delete i_gate;
+    delete pauli_gate;
+    delete gate0;
+    delete gate1;
+    return new_gate;
+}
+
 ClsNoisyEvolution* NoisyEvolution(Observable* hamiltonian,
     std::vector<GeneralQuantumOperator*> c_ops, double time, double dt) {
     return new ClsNoisyEvolution(hamiltonian, c_ops, time, dt);
