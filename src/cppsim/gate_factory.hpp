@@ -432,9 +432,7 @@ DllExport ClsStateReflectionGate* StateReflection(
  */
 DllExport QuantumGate_LinearCombination* LinearCombination(
     const std::vector<CPPCTYPE>& coefs,
-    const std::vector<QuantumGateBase*>& gate_list) {
-    return new QuantumGate_LinearCombination(coefs, gate_list);
-}
+    const std::vector<QuantumGateBase*>& gate_list);
 
 /**
  * bit-flipノイズを発生させるゲート

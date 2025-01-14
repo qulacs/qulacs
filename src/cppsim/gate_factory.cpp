@@ -394,6 +394,11 @@ ClsReversibleBooleanGate* ReversibleBoolean(
 ClsStateReflectionGate* StateReflection(const QuantumState* reflection_state) {
     return new ClsStateReflectionGate(reflection_state);
 }
+QuantumGate_LinearCombination* LinearCombination(
+    const std::vector<CPPCTYPE>& coefs,
+    const std::vector<QuantumGateBase*>& gate_list) {
+    return new QuantumGate_LinearCombination(coefs, gate_list);
+}
 
 QuantumGate_Probabilistic* BitFlipNoise(UINT target_index, double prob) {
     return BitFlipNoise(target_index, prob, std::random_device{}());
