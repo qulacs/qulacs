@@ -764,6 +764,12 @@ PYBIND11_MODULE(qulacs_core, m) {
         m, "ClsReversibleBooleanGate");
     py::class_<ClsNoisyEvolution_fast, QuantumGateBase>(
         m, "ClsNoisyEvolution_fast");
+    py::class_<QuantumGate_LinearCombination, QuantumGateBase>(
+        m, "QuantumGate_LinearCombination")
+        .def("get_coef_list", &QuantumGate_LinearCombination::get_coef_list,
+            "get coef_list")
+        .def("get_gate_list", &QuantumGate_LinearCombination::get_gate_list,
+            "get gate_list");
     py::class_<QuantumGate_Probabilistic, QuantumGateBase>(
         m, "QuantumGate_Probabilistic", "QuantumGate_ProbabilisticInstrument")
         .def("get_gate_list", &QuantumGate_Probabilistic::get_gate_list,
@@ -985,6 +991,10 @@ PYBIND11_MODULE(qulacs_core, m) {
     mgate.def("StateReflection", &gate::StateReflection,
         py::return_value_policy::take_ownership, "Create state reflection gate",
         py::arg("state"));
+    mgate.def("LinearCombination", &gate::LinearCombination,
+        py::return_value_policy::take_ownership,
+        "Create linear combination gate", py::arg("coefs"),
+        py::arg("gate_list"));
 
     mgate.def("BitFlipNoise",
         py::overload_cast<UINT, double>(&gate::BitFlipNoise),
@@ -1045,6 +1055,20 @@ PYBIND11_MODULE(qulacs_core, m) {
         py::overload_cast<UINT, UINT, UINT>(&gate::Measurement),
         py::return_value_policy::take_ownership, "Create measurement gate",
         py::arg("index"), py::arg("register"), py::arg("seed"));
+    mgate.def("MultiQubitPauliMeasurement",
+        py::overload_cast<const std::vector<UINT>&, const std::vector<UINT>&,
+            UINT>(&gate::MultiQubitPauliMeasurement),
+        py::return_value_policy::take_ownership,
+        "Create multi qubit pauli measurement gate",
+        py::arg("target_index_list"), py::arg("pauli_id_list"),
+        py::arg("classical_register_address"));
+    mgate.def("MultiQubitPauliMeasurement",
+        py::overload_cast<const std::vector<UINT>&, const std::vector<UINT>&,
+            UINT, UINT>(&gate::MultiQubitPauliMeasurement),
+        py::return_value_policy::take_ownership,
+        "Create multi qubit pauli measurement gate",
+        py::arg("target_index_list"), py::arg("pauli_id_list"),
+        py::arg("classical_register_address"), py::arg("seed"));
 
     mgate.def("merge",
         py::overload_cast<const QuantumGateBase*, const QuantumGateBase*>(
