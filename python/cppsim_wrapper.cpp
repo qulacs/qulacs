@@ -769,7 +769,7 @@ PYBIND11_MODULE(qulacs_core, m) {
         .def("get_coef_list", &QuantumGate_LinearCombination::get_coef_list,
             "get coef_list")
         .def("get_gate_list", &QuantumGate_LinearCombination::get_gate_list,
-            py::keep_alive<0, 1>, "get gate_list");
+            py::keep_alive<0, 1>(), "get gate_list");
     py::class_<QuantumGate_Probabilistic, QuantumGateBase>(
         m, "QuantumGate_Probabilistic", "QuantumGate_ProbabilisticInstrument")
         .def("get_gate_list", &QuantumGate_Probabilistic::get_gate_list,
