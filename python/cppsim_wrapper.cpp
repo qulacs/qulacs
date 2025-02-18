@@ -766,8 +766,17 @@ PYBIND11_MODULE(qulacs_core, m) {
         m, "ClsNoisyEvolution_fast");
     py::class_<QuantumGate_Probabilistic, QuantumGateBase>(
         m, "QuantumGate_Probabilistic", "QuantumGate_ProbabilisticInstrument")
-        .def("get_gate_list", &QuantumGate_Probabilistic::get_gate_list,
-            py::keep_alive<0, 1>(), "get_gate_list")
+        .def(
+            "get_gate_list",
+            [](QuantumGate_Probabilistic& gate_prob) {
+                py::list ret;
+                for (auto* g : gate_prob.get_gate_list()) {
+                    ret.append(py::cast(
+                        g->copy(), py::return_value_policy::take_ownership));
+                }
+                return ret;
+            },
+            "get_gate_list")
         .def("optimize_ProbablisticGate",
             &QuantumGate_Probabilistic::optimize_ProbablisticGate,
             "optimize_ProbablisticGate")
@@ -778,11 +787,29 @@ PYBIND11_MODULE(qulacs_core, m) {
             "get_cumulative_distribution");
     py::class_<QuantumGate_CPTP, QuantumGateBase>(
         m, "QuantumGate_CPTP", "QuantumGate_Instrument")
-        .def("get_gate_list", &QuantumGate_CPTP::get_gate_list,
-            py::keep_alive<0, 1>(), "get_gate_list");
+        .def(
+            "get_gate_list",
+            [](QuantumGate_CPTP& gate_cptp) {
+                py::list ret;
+                for (auto* g : gate_cptp.get_gate_list()) {
+                    ret.append(py::cast(
+                        g->copy(), py::return_value_policy::take_ownership));
+                }
+                return ret;
+            },
+            "get_gate_list");
     py::class_<QuantumGate_CP, QuantumGateBase>(m, "QuantumGate_CP")
-        .def("get_gate_list", &QuantumGate_CP::get_gate_list,
-            py::keep_alive<0, 1>(), "get_gate_list");
+        .def(
+            "get_gate_list",
+            [](QuantumGate_CPTP& gate_cp) {
+                py::list ret;
+                for (auto* g : gate_cp.get_gate_list()) {
+                    ret.append(py::cast(
+                        g->copy(), py::return_value_policy::take_ownership));
+                }
+                return ret;
+            },
+            "get_gate_list");
     py::class_<QuantumGate_Adaptive, QuantumGateBase>(
         m, "QuantumGate_Adaptive");
     py::class_<QuantumGateDiagonalMatrix, QuantumGateBase>(
@@ -1612,8 +1639,21 @@ Matrix Representation
         .def("get_expectation_value",
             &CausalConeSimulator::get_expectation_value,
             "Return expectation_value")
-        .def("get_circuit_list", &CausalConeSimulator::get_circuit_list,
-            py::keep_alive<0, 1>(), "Return circuit_list")
+        .def(
+            "get_circuit_list",
+            [](CausalConeSimulator& ccs) {
+                py::list ret;
+                for (const auto& circ_list : ccs.get_circuit_list()) {
+                    py::list ret_child;
+                    for (auto* circ : circ_list) {
+                        ret_child.append(py::cast(circ->copy(),
+                            py::return_value_policy::take_ownership));
+                    }
+                    ret.append(ret_child);
+                }
+                return ret;
+            },
+            "Return circuit_list")
         .def("get_pauli_operator_list",
             &CausalConeSimulator::get_pauli_operator_list,
             "Return pauli_operator_list")
