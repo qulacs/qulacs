@@ -767,7 +767,7 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<QuantumGate_Probabilistic, QuantumGateBase>(
         m, "QuantumGate_Probabilistic", "QuantumGate_ProbabilisticInstrument")
         .def("get_gate_list", &QuantumGate_Probabilistic::get_gate_list,
-            py::return_value_policy::reference, "get_gate_list")
+            py::return_value_policy::reference_internal, "get_gate_list")
         .def("optimize_ProbablisticGate",
             &QuantumGate_Probabilistic::optimize_ProbablisticGate,
             "optimize_ProbablisticGate")
@@ -779,10 +779,10 @@ PYBIND11_MODULE(qulacs_core, m) {
     py::class_<QuantumGate_CPTP, QuantumGateBase>(
         m, "QuantumGate_CPTP", "QuantumGate_Instrument")
         .def("get_gate_list", &QuantumGate_CPTP::get_gate_list,
-            py::return_value_policy::reference, "get_gate_list");
+            py::return_value_policy::reference_internal, "get_gate_list");
     py::class_<QuantumGate_CP, QuantumGateBase>(m, "QuantumGate_CP")
         .def("get_gate_list", &QuantumGate_CP::get_gate_list,
-            py::return_value_policy::reference, "get_gate_list");
+            py::return_value_policy::reference_internal, "get_gate_list");
     py::class_<QuantumGate_Adaptive, QuantumGateBase>(
         m, "QuantumGate_Adaptive");
     py::class_<QuantumGateDiagonalMatrix, QuantumGateBase>(
@@ -1613,7 +1613,7 @@ Matrix Representation
             &CausalConeSimulator::get_expectation_value,
             "Return expectation_value")
         .def("get_circuit_list", &CausalConeSimulator::get_circuit_list,
-            "Return circuit_list")
+            py::return_value_policy::reference_internal, "Return circuit_list")
         .def("get_pauli_operator_list",
             &CausalConeSimulator::get_pauli_operator_list,
             "Return pauli_operator_list")
