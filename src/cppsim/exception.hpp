@@ -177,6 +177,20 @@ public:
 };
 
 /**
+ * \~japanese-en 係数リストが不適切という例外
+ */
+class InvalidCoefListException : public std::logic_error {
+public:
+    /**
+     * \~japanese-en コンストラクタ
+     *
+     * @param message エラーメッセージ
+     */
+    InvalidCoefListException(const std::string& message)
+        : std::logic_error(message) {}
+};
+
+/**
  * \~japanese-en 確率分布が不適切という例外
  */
 class InvalidProbabilityDistributionException : public std::logic_error {
