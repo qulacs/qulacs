@@ -24,19 +24,17 @@ jobs:
       matrix:
         os-arch:
           ["manylinux_x86_64", "win_amd64", "macosx_x86_64", "macosx_arm64"]
-        cibw-python: ["cp38", "cp39", "cp310", "cp311", "cp312"]
+        cibw-python: ["cp39", "cp310", "cp311", "cp312", "cp313"]
         # Documentation for `include`: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategymatrixinclude
         include:
           - os-arch: "manylinux_x86_64"
             os: "ubuntu-20.04"
           - os-arch: "win_amd64"
-            os: "windows-2019"
+            os: "windows-2022"
           - os-arch: "macosx_x86_64"
             os: "macos-13"
           - os-arch: "macosx_arm64"
             os: "macos-14"
-          - cibw-python: "cp38"
-            python-version: "3.8"
           - cibw-python: "cp39"
             python-version: "3.9"
           - cibw-python: "cp310"
@@ -45,6 +43,8 @@ jobs:
             python-version: "3.11"
           - cibw-python: "cp312"
             python-version: "3.12"
+          - cibw-python: "cp313"
+            python-version: "3.13"
 
     runs-on: ${{ matrix.os }}
     env:
