@@ -88,7 +88,7 @@ test-requires = "pytest numpy scipy openfermion"
 environment = { QULACS_OPT_FLAGS = "-mtune=haswell -mfpmath=both" }
 before-build = """\
 yum install wget -y && \
-wget -q https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.tar.gz && \
+wget -q https://archives.boost.io/release/1.76.0/source/boost_1_76_0.tar.gz && \
 tar -zxf boost_1_76_0.tar.gz && \
 cd boost_1_76_0 && ./bootstrap.sh && ./b2 headers && \
 cp -r boost /usr/local/include && rm -rf {project}/build \
