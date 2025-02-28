@@ -394,6 +394,11 @@ ClsReversibleBooleanGate* ReversibleBoolean(
 ClsStateReflectionGate* StateReflection(const QuantumState* reflection_state) {
     return new ClsStateReflectionGate(reflection_state);
 }
+QuantumGate_LinearCombination* LinearCombination(
+    const std::vector<CPPCTYPE>& coefs,
+    const std::vector<QuantumGateBase*>& gate_list) {
+    return new QuantumGate_LinearCombination(coefs, gate_list);
+}
 
 QuantumGate_Probabilistic* BitFlipNoise(UINT target_index, double prob) {
     return BitFlipNoise(target_index, prob, std::random_device{}());
@@ -526,6 +531,39 @@ QuantumGate_Instrument* Measurement(
     auto new_gate =
         new QuantumGate_Instrument({gate0, gate1}, classical_register_address);
     new_gate->set_seed(seed);
+    delete gate0;
+    delete gate1;
+    return new_gate;
+}
+
+QuantumGate_Instrument* MultiQubitPauliMeasurement(
+    const std::vector<UINT>& target_index_list,
+    const std::vector<UINT>& pauli_id_list, UINT classical_register_address) {
+    auto i_gate = Identity(0);
+    auto pauli_gate = Pauli(target_index_list, pauli_id_list);
+    auto gate0 = LinearCombination({.5, .5}, {i_gate, pauli_gate});
+    auto gate1 = LinearCombination({.5, -.5}, {i_gate, pauli_gate});
+    auto new_gate =
+        new QuantumGate_Instrument({gate0, gate1}, classical_register_address);
+    delete i_gate;
+    delete pauli_gate;
+    delete gate0;
+    delete gate1;
+    return new_gate;
+}
+QuantumGate_Instrument* MultiQubitPauliMeasurement(
+    const std::vector<UINT>& target_index_list,
+    const std::vector<UINT>& pauli_id_list, UINT classical_register_address,
+    UINT seed) {
+    auto i_gate = Identity(0);
+    auto pauli_gate = Pauli(target_index_list, pauli_id_list);
+    auto gate0 = LinearCombination({.5, .5}, {i_gate, pauli_gate});
+    auto gate1 = LinearCombination({.5, -.5}, {i_gate, pauli_gate});
+    auto new_gate =
+        new QuantumGate_Instrument({gate0, gate1}, classical_register_address);
+    new_gate->set_seed(seed);
+    delete i_gate;
+    delete pauli_gate;
     delete gate0;
     delete gate1;
     return new_gate;

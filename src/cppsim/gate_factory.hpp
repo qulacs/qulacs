@@ -424,6 +424,17 @@ DllExport ClsStateReflectionGate* StateReflection(
     const QuantumState* reflection_state);
 
 /**
+ * 量子ゲートの線型結合を作成する．
+ *
+ * @param[in] coeffs 係数のリスト
+ * @param[in] gate_list ゲートのリスト
+ * @return 作成されたゲートのインスタンス
+ */
+DllExport QuantumGate_LinearCombination* LinearCombination(
+    const std::vector<CPPCTYPE>& coefs,
+    const std::vector<QuantumGateBase*>& gate_list);
+
+/**
  * bit-flipノイズを発生させるゲート
  *
  * @param[in] target_index ターゲットとなる量子ビットの添え字
@@ -570,6 +581,28 @@ DllExport QuantumGate_Instrument* Measurement(
  */
 DllExport QuantumGate_Instrument* Measurement(
     UINT target_index, UINT classical_register_address, UINT seed);
+/**
+ * 測定を行う
+ *
+ * @param[in] pauli 測定を行うパウリ演算子
+ * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
+ * @return 作成されたゲートのインスタンス
+ */
+DllExport QuantumGate_Instrument* MultiQubitPauliMeasurement(
+    const std::vector<UINT>& target_index_list,
+    const std::vector<UINT>& pauli_id_list, UINT classical_register_address);
+/**
+ * 測定を行う
+ *
+ * @param[in] pauli 測定を行うパウリ演算子
+ * @param[in] classical_register_address 測定値を格納する古典レジスタの場所
+ * @param[in] seed 乱数のシード値
+ * @return 作成されたゲートのインスタンス
+ */
+DllExport QuantumGate_Instrument* MultiQubitPauliMeasurement(
+    const std::vector<UINT>& target_index_list,
+    const std::vector<UINT>& pauli_id_list, UINT classical_register_address,
+    UINT seed);
 
 /**
  * Noisy Evolution
