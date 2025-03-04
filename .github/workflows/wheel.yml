@@ -53,6 +53,8 @@ jobs:
       TWINE_USERNAME: "__token__"
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
