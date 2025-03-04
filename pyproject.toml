@@ -92,9 +92,9 @@ test-requires = "pytest numpy scipy openfermion"
 [[tool.cibuildwheel.overrides]]
 select = "cp313-*"
 test-requires = [
-    "pytest"
-    "numpy"
-    "scipy"
+    "pytest",
+    "numpy",
+    "scipy",
     "openfermion<1.7.0"
 ]
 
