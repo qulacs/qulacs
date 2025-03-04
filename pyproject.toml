@@ -44,7 +44,7 @@ dev = [
     "mypy",
     "pybind11-stubgen",
     { version = "<3.13", requires = ["openfermion"] },
-    { version = ">=3.13", requires = ["openfermion<1.7.0"] }
+    { version = ">=3.13", requires = ["openfermion<1.7.0"] },
     "pytest"
 ]
 
@@ -60,7 +60,7 @@ ci = [
     "mypy",
     "pybind11-stubgen",
     { version = "<3.13", requires = ["openfermion"] },
-    { version = ">=3.13", requires = ["openfermion<1.7.0"] }
+    { version = ">=3.13", requires = ["openfermion<1.7.0"] },
     "pytest"
 ]
 
