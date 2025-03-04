@@ -43,12 +43,14 @@ dev = [
     "isort",
     "mypy",
     "pybind11-stubgen",
-    "openfermion",
+    { version = "<3.13", requires = ["openfermion"] },
+    { version = ">=3.13", requires = ["openfermion<1.7.0"] }
     "pytest"
 ]
 
 test = [
-    "openfermion"
+    { version = "<3.13", requires = ["openfermion"] },
+    { version = ">=3.13", requires = ["openfermion<1.7.0"] }
 ]
 
 ci = [
@@ -57,7 +59,8 @@ ci = [
     "isort",
     "mypy",
     "pybind11-stubgen",
-    "openfermion",
+    { version = "<3.13", requires = ["openfermion"] },
+    { version = ">=3.13", requires = ["openfermion<1.7.0"] }
     "pytest"
 ]
 
@@ -82,7 +85,13 @@ zip-safe = false
 [tool.cibuildwheel]
 build-verbosity = "1"
 test-command = "pytest -v -s {project}/python/tests"
-test-requires = "pytest numpy scipy openfermion"
+test-requires = [
+    "pytest",
+    "numpy",
+    "scipy",
+    { version = "<3.13", requires = ["openfermion"] },
+    { version = ">=3.13", requires = ["openfermion<1.7.0"] }
+]
 
 [tool.cibuildwheel.linux]
 environment = { QULACS_OPT_FLAGS = "-mtune=haswell -mfpmath=both" }
