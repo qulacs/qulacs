@@ -43,14 +43,15 @@ dev = [
     "isort",
     "mypy",
     "pybind11-stubgen",
-    { version = "<3.13", requires = ["openfermion"] },
-    { version = ">=3.13", requires = ["openfermion<1.7.0"] },
-    "pytest"
+    "pytest",
+    "openfermion<1.7.0 ; python_version >= '3.13'",
+    "openfermion ; python_version < '3.13'"
 ]
 
 test = [
-    { version = "<3.13", requires = ["openfermion"] },
-    { version = ">=3.13", requires = ["openfermion<1.7.0"] }
+    "pytest",
+    "openfermion<1.7.0 ; python_version >= '3.13'",
+    "openfermion ; python_version < '3.13'"
 ]
 
 ci = [
@@ -59,9 +60,9 @@ ci = [
     "isort",
     "mypy",
     "pybind11-stubgen",
-    { version = "<3.13", requires = ["openfermion"] },
-    { version = ">=3.13", requires = ["openfermion<1.7.0"] },
-    "pytest"
+    "pytest",
+    "openfermion<1.7.0 ; python_version >= '3.13'",
+    "openfermion ; python_version < '3.13'"
 ]
 
 doc = [
@@ -89,8 +90,8 @@ test-requires = [
     "pytest",
     "numpy",
     "scipy",
-    { version = "<3.13", requires = ["openfermion"] },
-    { version = ">=3.13", requires = ["openfermion<1.7.0"] }
+    "openfermion<1.7.0 ; python_version >= '3.13'",
+    "openfermion ; python_version < '3.13'"
 ]
 
 [tool.cibuildwheel.linux]
