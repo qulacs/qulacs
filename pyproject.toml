@@ -91,7 +91,12 @@ test-requires = "pytest numpy scipy openfermion"
 
 [[tool.cibuildwheel.overrides]]
 select = "cp313-*"
-test-requires = "pytest numpy scipy \"openfermion<1.7.0\""
+test-requires = [
+    "pytest"
+    "numpy"
+    "scipy"
+    "openfermion<1.7.0"
+]
 
 [tool.cibuildwheel.linux]
 environment = { QULACS_OPT_FLAGS = "-mtune=haswell -mfpmath=both" }
