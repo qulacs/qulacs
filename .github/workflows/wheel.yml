@@ -85,7 +85,6 @@ jobs:
 
       - name: Run cibuildwheel for Windows
         if: ${{ contains(matrix.os, 'windows') }}
-        shell: pwsh # cibuild wheel passes `pip install 'openfermion<1.7.0' but single-quote cannot be used on cmd
         run: python -m cibuildwheel --output-dir wheels
         env:
           BOOST_ROOT: ${{ steps.install-boost.outputs.BOOST_ROOT }}

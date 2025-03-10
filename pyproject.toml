@@ -45,13 +45,13 @@ dev = [
     "pybind11-stubgen",
     "pytest",
     # openfermion>=1.7.0 does not support numpy>=2.0.0, but numpy<2.0.0 does not support python>=3.13
-    "openfermion<1.7.0 ; python_version >= '3.13'",
+    "openfermion==1.6.1 ; python_version >= '3.13'",
     "openfermion ; python_version < '3.13'"
 ]
 
 test = [
     "pytest",
-    "openfermion<1.7.0 ; python_version >= '3.13'",
+    "openfermion==1.6.1 ; python_version >= '3.13'",
     "openfermion ; python_version < '3.13'"
 ]
 
@@ -62,7 +62,7 @@ ci = [
     "mypy",
     "pybind11-stubgen",
     "pytest",
-    "openfermion<1.7.0 ; python_version >= '3.13'",
+    "openfermion==1.6.1 ; python_version >= '3.13'",
     "openfermion ; python_version < '3.13'"
 ]
 
@@ -95,7 +95,7 @@ test-requires = [
     "pytest",
     "numpy",
     "scipy",
-    "openfermion<1.7.0"
+    "openfermion==1.6.1"
 ]
 
 [tool.cibuildwheel.linux]
