@@ -45,6 +45,10 @@ jobs:
             python-version: "3.12"
           - cibw-python: "cp313"
             python-version: "3.13"
+        exclude:
+          # since `pip install 'openfermion<1.7.0'` fails: https://github.com/qulacs/qulacs/actions/runs/13757608985
+          - os-arch: "win_amd64"
+            cibw-python: "cp313"
 
     runs-on: ${{ matrix.os }}
     env:
