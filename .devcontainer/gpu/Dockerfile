@@ -1,4 +1,4 @@
-FROM nvidia/cuda:12.2.0-devel-ubuntu22.04
+FROM nvidia/cuda:12.6.0-devel-ubuntu24.04
 
 ENV DEBIAN_FRONTEND=noninteractive
 
@@ -9,8 +9,6 @@ ENV PYTHONPATH="${PROJECT_DIR}/dist:${PYTHONPATH}"
 ENV PYTHONPATH="${PROJECT_DIR}/build:${PYTHONPATH}"
 
 RUN apt-get update \
-    # Remove imagemagick due to https://security-tracker.debian.org/tracker/CVE-2019-10131, which is done in Microsoft's devcontainer image.
-    && apt-get purge -y imagemagick imagemagick-6-common \
     && apt-get install -y --no-install-recommends \
     ca-certificates \
     clang-format \
@@ -24,12 +22,13 @@ RUN apt-get update \
     man-db \
     pandoc \
     python3 \
-    python3-distutils \
-    python3-pip \
+    python3-venv \
     wget \
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
 
-RUN ln -s /usr/bin/python3 /usr/bin/python
+RUN python3 -m venv /opt/venv
 
-RUN pip install -U pip \
-    && pip install black flake8 openfermion mypy pybind11-stubgen
+RUN /opt/venv/bin/pip install -U pip \
+    && /opt/venv/bin/pip install black flake8 openfermion mypy pybind11-stubgen setuptools
+
+ENV PATH="/opt/venv/bin:$PATH"

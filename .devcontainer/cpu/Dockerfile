@@ -1,9 +1,9 @@
 # See here for image contents: https://github.com/microsoft/vscode-dev-containers/blob/main/containers/python-3/.devcontainer/base.Dockerfile
 
-# Pick a Python version: 3, 3.11, 3.10, 3.9, 3.8, 3.7, 3.6
+# Pick a Python version: 3, 3.13, 3.12, 3.11, 3.10, 3.9
 # Append -bullseye or -buster to pin to an OS version.
 # Use -bullseye variants on local on arm64/Apple Silicon.
-FROM mcr.microsoft.com/vscode/devcontainers/python:0-3.11-bullseye
+FROM mcr.microsoft.com/vscode/devcontainers/python:3.11-bookworm
 
 ENV DEBIAN_FRONTEND=noninteractive
 
