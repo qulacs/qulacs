@@ -1,5 +1,5 @@
 [build-system]
-requires = ["wheel", "setuptools", "setuptools_scm[toml]"]
+requires = ["wheel", "setuptools >= 77", "setuptools_scm[toml]"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -10,7 +10,8 @@ authors = [
     { name = "QunaSys", email = "qulacs@qunasys.com" }
 ]
 readme = "README.md"
-license = { file = "LICENSE" }
+license = "MIT"
+license-files = ["LICENSE"]
 dependencies = [
     "numpy",
     "scipy"
@@ -19,7 +20,6 @@ classifiers = [
     "Development Status :: 3 - Alpha",
     "Environment :: Console",
     "Intended Audience :: Science/Research",
-    "License :: OSI Approved :: MIT License",
     "Operating System :: MacOS :: MacOS X",
     "Operating System :: Microsoft :: Windows",
     "Operating System :: POSIX",
