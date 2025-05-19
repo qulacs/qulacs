@@ -304,8 +304,8 @@ std::string QuantumCircuit::to_string() const {
     UINT max_block_size = 0;
 
     for (const auto gate : this->_gate_list) {
-        UINT whole_qubit_index_count = (UINT)(
-            gate->target_qubit_list.size() + gate->control_qubit_list.size());
+        UINT whole_qubit_index_count = (UINT)(gate->target_qubit_list.size() +
+                                              gate->control_qubit_list.size());
         if (whole_qubit_index_count == 0) continue;
         gate_size_count[whole_qubit_index_count - 1]++;
         max_block_size = std::max(max_block_size, whole_qubit_index_count);
