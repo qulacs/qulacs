@@ -15,10 +15,12 @@ ENV PYTHONPATH="${PROJECT_DIR}/build:${PYTHONPATH}"
 
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-    clang-format \
+    clang-format-14 \
     gdb \
     cmake \
     libboost-dev \
     doxygen \
     pandoc \
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+
+RUN ln -s /usr/bin/clang-format-14 /usr/bin/clang-format

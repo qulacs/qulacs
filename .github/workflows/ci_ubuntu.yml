@@ -200,7 +200,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: sudo apt install clang-format
+      - run: |
+          sudo apt install clang-format-14
+          sudo ln -s /usr/bin/clang-format-14 /usr/bin/clang-format
 
       - name: format
         run: |

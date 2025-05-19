@@ -11,7 +11,7 @@ ENV PYTHONPATH="${PROJECT_DIR}/build:${PYTHONPATH}"
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
     ca-certificates \
-    clang-format \
+    clang-format-14 \
     cmake \
     curl \
     doxygen \
@@ -25,6 +25,8 @@ RUN apt-get update \
     python3-venv \
     wget \
     && apt-get autoremove -y && apt-get clean -y && rm -rf /var/lib/apt/lists/*
+
+RUN ln -s /usr/bin/clang-format-14 /usr/bin/clang-format
 
 RUN python3 -m venv /opt/venv
 
