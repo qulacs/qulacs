@@ -109,7 +109,7 @@ jobs:
       CXX_COMPILER: "/usr/lib/ccache/g++"
       C_COMPILER: "/usr/lib/ccache/gcc"
       QULACS_OPT_FLAGS: "-mtune=haswell -march=haswell -mfpmath=both"
-      PYTHON: "3.7.5"
+      PYTHON: "3.12.10"
       COVERAGE: "ON"
       USE_TEST: "Yes"
       USE_GPU: "Yes"
@@ -128,7 +128,7 @@ jobs:
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.7.5"
+          python-version: "3.12.10"
           architecture: x64
 
       - name: Install boost
@@ -200,7 +200,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: sudo apt install clang-format=1:10.0-50~exp1
+      - run: sudo apt install clang-format
 
       - name: format
         run: |
