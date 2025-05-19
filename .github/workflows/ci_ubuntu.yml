@@ -135,9 +135,9 @@ jobs:
         run: sudo apt install libboost-dev
 
       - name: Install CUDA toolkit
-        uses: Jimver/cuda-toolkit@v0.2.11
+        uses: Jimver/cuda-toolkit@v0.2.23
         with:
-          cuda: "11.4.2"
+          cuda: "12.6.3"
           method: "network"
 
       - name: Install qulacs for Ubuntu
@@ -153,7 +153,7 @@ jobs:
 
   gcc11-sve-build:
     name: GCC11 + armv8.2-a+sve build
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     env:
       C_COMPILER: "aarch64-linux-gnu-gcc-11"
       CXX_COMPILER: "aarch64-linux-gnu-g++-11"
@@ -261,8 +261,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
 
-      - name: Install mpi-bin
-        run: sudo apt install openmpi-bin
+      - name: Install mpi-bin and libmpi
+        run: sudo apt install openmpi-bin libopenmpi-dev
 
       - name: Install boost
         run: sudo apt install libboost-dev
