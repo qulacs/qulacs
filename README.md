@@ -74,8 +74,8 @@ A binary that is installed via pip command is optimized for Haswell architecture
   - gcc/g++ >= 7.0.0 (checked in Linux, MacOS, cygwin, MinGW, and WSL)
   - Microsoft VisualStudio C++ 2015 or later
 - [Boost](https://github.com/boostorg/boost) >= 1.71.0 (Minimum version tested in CI)
-- Python >= 3.7
-- CMake >= 3.0
+- Python >= 3.9
+- CMake >= 3.5
 - git
 - (option) CUDA >= 8.0
 - (option) AVX2 support
