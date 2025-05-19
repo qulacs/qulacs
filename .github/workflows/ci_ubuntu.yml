@@ -166,9 +166,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build pkg-config libglib2.0-dev gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu
-          wget -q https://download.qemu.org/qemu-7.2.0.tar.xz
-          tar xJf qemu-7.2.0.tar.xz
-          pushd qemu-7.2.0
+          wget -q https://download.qemu.org/qemu-7.2.17.tar.xz
+          tar xJf qemu-7.2.17.tar.xz
+          pushd qemu-7.2.17
           mkdir build; cd build
           ../configure --target-list=aarch64-linux-user
           make -s -j $(nproc)
