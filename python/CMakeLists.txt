@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.0)
+cmake_minimum_required(VERSION 3.5)
 
 
 # In MSYS, Cygwin environment, pybind11_add_module does not work.
