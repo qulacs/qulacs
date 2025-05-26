@@ -20,7 +20,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.11"]
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-24.04"
     env:
       CXX_COMPILER: "/usr/lib/ccache/g++"
       C_COMPILER: "/usr/lib/ccache/gcc"
@@ -36,7 +36,7 @@ jobs:
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: "${{ github.job }}-ubuntu-20.04"
+          key: "${{ github.job }}-ubuntu-24.04"
           verbose: 2
 
       - name: Setup Python
@@ -70,9 +70,9 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
-  gcc10-build-with-address-sanitizer:
-    name: GCC10 build with -fsanitizer=address enabled
-    runs-on: "ubuntu-20.04"
+  gcc-build-with-address-sanitizer:
+    name: GCC build with -fsanitizer=address enabled
+    runs-on: "ubuntu-24.04"
     env:
       CXX_COMPILER: "/usr/lib/ccache/g++"
       C_COMPILER: "/usr/lib/ccache/gcc"
@@ -87,7 +87,7 @@ jobs:
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: "${{ github.job }}-ubuntu-20.04"
+          key: "${{ github.job }}-ubuntu-24.04"
           verbose: 2
 
       - name: Install boost
@@ -104,12 +104,12 @@ jobs:
 
   nvcc-gcc-GPUbuild:
     name: nvcc + gcc build
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-24.04"
     env:
       CXX_COMPILER: "/usr/lib/ccache/g++"
       C_COMPILER: "/usr/lib/ccache/gcc"
       QULACS_OPT_FLAGS: "-mtune=haswell -march=haswell -mfpmath=both"
-      PYTHON: "3.7.5"
+      PYTHON: "3.12.10"
       COVERAGE: "ON"
       USE_TEST: "Yes"
       USE_GPU: "Yes"
@@ -122,22 +122,22 @@ jobs:
       - name: Setup ccache
         uses: hendrikmuhs/ccache-action@v1.2
         with:
-          key: "${{ github.job }}-ubuntu-20.04"
+          key: "${{ github.job }}-ubuntu-24.04"
           verbose: 2
 
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
-          python-version: "3.7.5"
+          python-version: "3.12.10"
           architecture: x64
 
       - name: Install boost
         run: sudo apt install libboost-dev
 
       - name: Install CUDA toolkit
-        uses: Jimver/cuda-toolkit@v0.2.11
+        uses: Jimver/cuda-toolkit@v0.2.23
         with:
-          cuda: "11.4.2"
+          cuda: "12.6.3"
           method: "network"
 
       - name: Install qulacs for Ubuntu
@@ -153,7 +153,7 @@ jobs:
 
   gcc11-sve-build:
     name: GCC11 + armv8.2-a+sve build
-    runs-on: "ubuntu-22.04"
+    runs-on: "ubuntu-24.04"
     env:
       C_COMPILER: "aarch64-linux-gnu-gcc-11"
       CXX_COMPILER: "aarch64-linux-gnu-g++-11"
@@ -166,9 +166,9 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y cmake ninja-build pkg-config libglib2.0-dev gcc-11-aarch64-linux-gnu g++-11-aarch64-linux-gnu
-          wget -q https://download.qemu.org/qemu-7.2.0.tar.xz
-          tar xJf qemu-7.2.0.tar.xz
-          pushd qemu-7.2.0
+          wget -q https://download.qemu.org/qemu-7.2.17.tar.xz
+          tar xJf qemu-7.2.17.tar.xz
+          pushd qemu-7.2.17
           mkdir build; cd build
           ../configure --target-list=aarch64-linux-user
           make -s -j $(nproc)
@@ -196,11 +196,15 @@ jobs:
 
   format:
     name: Format with clang-format
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-24.04"
     steps:
       - uses: actions/checkout@v4
 
-      - run: sudo apt install clang-format=1:10.0-50~exp1
+      - run: |
+          sudo apt-get install clang-format-14
+          sudo ln -s /usr/bin/clang-format-14 /usr/local/bin/clang-format
+          which clang-format
+          clang-format --version
 
       - name: format
         run: |
@@ -215,7 +219,7 @@ jobs:
 
   python-format:
     name: Format with Python formatters
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-24.04"
     strategy:
       matrix:
         python-version: ["3.11"]
@@ -242,7 +246,7 @@ jobs:
     strategy:
       matrix:
         python-version: ["3.11"]
-    runs-on: "ubuntu-20.04"
+    runs-on: "ubuntu-24.04"
     env:
       CXX_COMPILER: "mpic++"
       C_COMPILER: "mpicc"
@@ -261,8 +265,8 @@ jobs:
           python-version: ${{ matrix.python-version }}
           architecture: x64
 
-      - name: Install mpi-bin
-        run: sudo apt install openmpi-bin
+      - name: Install mpi-bin and libmpi
+        run: sudo apt install openmpi-bin libopenmpi-dev
 
       - name: Install boost
         run: sudo apt install libboost-dev
