@@ -482,14 +482,7 @@ SparseComplexMatrixRowMajor GeneralQuantumOperator::get_matrix() const {
 
     int n_terms = this->get_term_count();
     int n_qubits = this->get_qubit_count();
-    SparseComplexMatrixRowMajor hamiltonian_matrix(
-        1 << n_qubits, 1 << n_qubits);
-    hamiltonian_matrix.setZero();
-#ifdef _OPENMP
-#pragma omp declare reduction(+ : SparseComplexMatrixRowMajor : omp_out += \
-                                      omp_in) initializer(omp_priv = omp_orig)
-#pragma omp parallel for reduction(+ : hamiltonian_matrix)
-#endif
+    std::vector<Eigen::Triplet<CPPCTYPE>> triplet_list;
     for (int i = 0; i < n_terms; i++) {
         auto const pauli = this->get_term(i);
         auto const pauli_id_list = pauli->get_pauli_id_list();
@@ -504,11 +497,22 @@ SparseComplexMatrixRowMajor GeneralQuantumOperator::get_matrix() const {
         }
         std::reverse(init_hamiltonian_pauli_matrix_list.begin(),
             init_hamiltonian_pauli_matrix_list.end());
-        hamiltonian_matrix +=
-            pauli->get_coef() *
+        SparseComplexMatrixRowMajor term_matrix =
             _tensor_product(init_hamiltonian_pauli_matrix_list);
+        triplet_list.reserve(triplet_list.size() + term_matrix.nonZeros());
+        for (int row = 0; row < term_matrix.outerSize(); row++) {
+            for (SparseComplexMatrixRowMajor::InnerIterator it(
+                     term_matrix, row);
+                 it; ++it) {
+                triplet_list.emplace_back(
+                    row, it.col(), pauli->get_coef() * it.value());
+            }
+        }
     }
-    hamiltonian_matrix.prune(CPPCTYPE(0, 0));
+    SparseComplexMatrixRowMajor hamiltonian_matrix(
+        1 << n_qubits, 1 << n_qubits);
+    hamiltonian_matrix.setFromTriplets(
+        triplet_list.begin(), triplet_list.end());
     return hamiltonian_matrix;
 }
 
