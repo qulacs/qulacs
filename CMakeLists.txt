@@ -12,6 +12,11 @@ endif()
 
 project(qulacs)
 
+##### Check compiler Version #####
+message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "CMAKE_C_COMPILER_VERSION = ${CMAKE_C_COMPILER_VERSION}")
+message(STATUS "CMAKE_CXX_COMPILER_VERSION = ${CMAKE_CXX_COMPILER_VERSION}")
+
 ##### Set default behavior #####
 set(DEFAULT_USE_OMP Yes)
 set(DEFAULT_USE_MPI No)
@@ -19,25 +24,6 @@ set(DEFAULT_USE_GPU No)
 set(DEFAULT_USE_PYTHON Yes)
 set(DEFAULT_USE_TEST No)
 set(DEFAULT_COVERAGE No)
-if(("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "aarch64") OR
-		("${CMAKE_C_COMPILER}" MATCHES "/usr/bin/aarch64-linux-gnu-gcc*")) # for cross-compile
-	message(STATUS "SIMD SUPPORT: Yes")
-	set(DEFAULT_USE_SIMD Yes)
-elseif(("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "^x86.*") OR
-		("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "AMD64"))
-	message(STATUS "SIMD SUPPORT: Yes")
-	set(DEFAULT_USE_SIMD Yes)
-else()
-	message(STATUS "SIMD SUPPORT: No")
-	set(DEFAULT_USE_SIMD No)
-endif()
-
-set(CMAKE_VERBOSE_MAKEFILE TRUE)
-
-##### Check compiler Version #####
-message(STATUS "CMAKE_CXX_COMPILER_ID = ${CMAKE_CXX_COMPILER_ID}")
-message(STATUS "CMAKE_C_COMPILER_VERSION = ${CMAKE_C_COMPILER_VERSION}")
-message(STATUS "CMAKE_CXX_COMPILER_VERSION = ${CMAKE_CXX_COMPILER_VERSION}")
 
 if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 	if(${CMAKE_C_COMPILER_VERSION} VERSION_LESS 7.0.0)
@@ -47,9 +33,9 @@ if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU")
 		message(FATAL_ERROR "g++ >= 7.0.0 is required.")
 	endif()
 	if("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "^x86.*")
-		set(DEFAULT_OPT_FLAGS "-mtune=native -march=native -mfpmath=both")
+		set(DEFAULT_OPT_FLAGS "-march=native -mfpmath=both")
 	else()
-		set(DEFAULT_OPT_FLAGS "-mtune=native -march=native")
+		set(DEFAULT_OPT_FLAGS "-march=native")
 	endif()
 elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
 	message(STATUS "MSVC_VERSION = ${MSVC_VERSION}")
@@ -64,6 +50,51 @@ elseif (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR (${CMAKE_CXX_COMPILER_I
 else()
 	message(FATAL_ERROR "Unsupported Compiler.")
 endif()
+
+if(NOT DEFINED OPT_FLAGS)
+	set(OPT_FLAGS ${DEFAULT_OPT_FLAGS})
+endif()
+
+if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang") OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "AppleClang"))
+	if("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "aarch64")
+		## Check if SVE is supported
+		include(${PROJECT_SOURCE_DIR}/cmake_script/FindSVE.cmake)
+		CHECK_SVE_LINUX()
+		message(STATUS "SVE_FOUND = ${SVE_FOUND}")
+		if(SVE_FOUND)
+			set(DEFAULT_USE_SIMD Yes)
+		else()
+			set(DEFAULT_USE_SIMD No)
+		endif()
+	elseif(("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "^x86.*") OR
+			("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "AMD64"))
+		## Check if AVX2 is supported
+		include(${PROJECT_SOURCE_DIR}/cmake_script/FindAVX2.cmake)
+		CHECK_AVX2_LINUX()
+		message(STATUS "AVX2_FOUND = ${AVX2_FOUND}")
+		if(AVX2_FOUND)
+			set(DEFAULT_USE_SIMD Yes)
+		else()
+			set(DEFAULT_USE_SIMD No)
+		endif()
+	else()
+	  	set(DEFAULT_USE_SIMD No)
+	endif()
+elseif(MSVC)
+	## Check if AVX2 is supported
+	include(${PROJECT_SOURCE_DIR}/cmake_script/FindAVX2.cmake)
+	CHECK_AVX2_WINDOWS()
+	message(STATUS "AVX2_FOUND = ${AVX2_FOUND}")
+	if(AVX2_FOUND)
+		set(DEFAULT_USE_SIMD Yes)
+	else()
+		set(DEFAULT_USE_SIMD No)
+	endif()
+else()
+	set(DEFAULT_USE_SIMD No)
+endif()
+
+set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 
 ##### Update with given flags #####
@@ -87,9 +118,6 @@ if(NOT DEFINED USE_TEST)
 endif()
 if(NOT DEFINED COVERAGE)
 	set(COVERAGE ${DEFAULT_COVERAGE})
-endif()
-if(NOT DEFINED OPT_FLAGS)
-	set(OPT_FLAGS ${DEFAULT_OPT_FLAGS})
 endif()
 
 message(STATUS "CMAKE_HOST_SYSTEM_PROCESSOR = ${CMAKE_HOST_SYSTEM_PROCESSOR}")
@@ -292,26 +320,20 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 
 	# Enable simd
 	if("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "aarch64")
-		## Check if SVE is supported
-		include(${PROJECT_SOURCE_DIR}/cmake_script/FindSVE.cmake)
-		CHECK_SVE_LINUX()
-		message(STATUS "SVE_FOUND = ${SVE_FOUND}")
-		if(USE_SIMD AND SVE_FOUND)
+		if(USE_SIMD)
 			message(STATUS "SVE Enabled")
 			add_compile_options("-D _USE_SVE")
 		else()
 			message(STATUS "SVE Disabled")
 		endif()
 	elseif("${CMAKE_C_COMPILER}" MATCHES "/usr/bin/aarch64-linux-gnu-gcc*") # for cross-compile
-		message(STATUS "SVE Enabled(force)")
-		add_compile_options("-D _USE_SVE")
+	 	if(USE_SIMD)
+			message(STATUS "SVE Enabled")
+			add_compile_options("-D _USE_SVE")
+		endif()
 	elseif(("${CMAKE_HOST_SYSTEM_PROCESSOR}" MATCHES "^x86.*") OR
 			("${CMAKE_HOST_SYSTEM_PROCESSOR}" STREQUAL "AMD64"))
-		## Check if AVX2 is supported
-		include(${PROJECT_SOURCE_DIR}/cmake_script/FindAVX2.cmake)
-		CHECK_AVX2_LINUX()
-		message(STATUS "AVX2_FOUND = ${AVX2_FOUND}")
-		if(USE_SIMD AND AVX2_FOUND)
+		if(USE_SIMD)
 			message(STATUS "AVX2 Enabled")
 			add_compile_options("-D _USE_SIMD")
 		else()
@@ -355,11 +377,7 @@ elseif(MSVC)
 	endif()
 
 	# Enable simd
-	## Check if AVX2 is supported
-	include(${PROJECT_SOURCE_DIR}/cmake_script/FindAVX2.cmake)
-	CHECK_AVX2_WINDOWS()
-	message(STATUS "AVX2_FOUND = ${AVX2_FOUND}")
-	if(USE_SIMD AND AVX2_FOUND)
+	if(USE_SIMD)
 		message(STATUS "AVX2 Enabled")
 		add_compile_options("/D_USE_SIMD")
 	else()

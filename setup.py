@@ -50,6 +50,9 @@ class CMakeBuild(build_ext):
         if opt_flags:
             cmake_args += ["-DOPT_FLAGS=" + opt_flags]
 
+        if os.getenv("USE_SIMD"):
+            cmake_args += ["-DUSE_SIMD:STR=" + os.getenv("USE_SIMD")]
+
         if os.getenv("USE_GPU"):
             cmake_args += ["-DUSE_GPU:STR=" + os.getenv("USE_GPU")]
 
