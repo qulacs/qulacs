@@ -20,7 +20,7 @@ int main() {
 MACRO(CHECK_SVE_LINUX)
   SET(CMAKE_REQUIRED_FLAGS_SAVE ${CMAKE_REQUIRED_FLAGS})
 
-  SET(CMAKE_REQUIRED_FLAGS "-march=native")
+  SET(CMAKE_REQUIRED_FLAGS ${OPT_FLAGS})
   CHECK_C_SOURCE_RUNS("${SVE_CODE}" C_HAS_SVE)  # Execution checks in cross-compilation are not supported
   CHECK_CXX_SOURCE_RUNS("${SVE_CODE}" CXX_HAS_SVE)  # Execution checks in cross-compilation are not supported
   
