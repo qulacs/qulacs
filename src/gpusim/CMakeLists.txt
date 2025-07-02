@@ -50,9 +50,9 @@ if (MSVC)
 endif()
 
 find_package(CUDAToolkit REQUIRED)
-message("-- CUDA --")
-message("Toolkit Version: " ${CUDAToolkit_VERSION})
-message("Runtime Directory: " ${CUDAToolkit_LIBRARY_DIR})
+message(STATUS "-- CUDA --")
+message(STATUS "Toolkit Version: " ${CUDAToolkit_VERSION})
+message(STATUS "Runtime Directory: " ${CUDAToolkit_LIBRARY_DIR})
 
 add_library(gpusim_static STATIC ${GPUSIM_SRC})
 add_library(gpusim_shared SHARED ${GPUSIM_SRC})
@@ -62,7 +62,7 @@ target_link_libraries(gpusim_shared CUDA::cudart CUDA::curand CUDA::cublas)
 set_source_files_properties(${CUDA_FILES} PROPERTIES LANGUAGE CUDA)
 
 get_target_property(flags gpusim_static COMPILE_OPTIONS)
-message("Flag: " ${flags})
+message(STATUS "Flag: " ${flags})
 
 set_target_properties(gpusim_shared PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
