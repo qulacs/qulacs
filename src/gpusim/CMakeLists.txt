@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.21)
 
 file(GLOB GPUSIM_SRC
     "*.cu"
@@ -39,35 +39,30 @@ set_source_files_properties(${CUDA_FILES} PROPERTIES LANGUAGE HIP)
 elseif(USE_GPU)
 # CUDA for NVIDIA GPU
 
-find_package(CUDA REQUIRED)
+enable_language(CUDA)
 if (MSVC)
-    list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/wd 4819\"")
-    list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/wd 4244\"")
+    add_compile_options("$<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler \"/wd 4819\">")
+    add_compile_options("$<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler \"/wd 4244\">")
     if (USE_OMP)
-        list(APPEND CUDA_NVCC_FLAGS "-Xcompiler \"/openmp\"")
-        list(APPEND CUDA_NVCC_FLAGS "--default-stream per-thread")
+        add_compile_options("$<$<COMPILE_LANGUAGE:CUDA>:-Xcompiler \"/openmp\">")
+        add_compile_options("$<$<COMPILE_LANGUAGE:CUDA>:--default-stream per-thread>")
     endif()
 endif()
 
-message("-- CUDA --")
-message("Version: " ${CUDA_VERSION})
-message("Library: " ${CUDA_CUDA_LIBRARY})
-message("Runtime: " ${CUDA_CUDART_LIBRARY})
+find_package(CUDAToolkit REQUIRED)
+message(STATUS "-- CUDA --")
+message(STATUS "Toolkit Version: " ${CUDAToolkit_VERSION})
+message(STATUS "Runtime Directory: " ${CUDAToolkit_LIBRARY_DIR})
 
-#CUDA_GENERATED_OUTPUT_DIR(CMAKE_CURRENT_BINARY_DIR / build)
-#CUDA_curand_LIBRARY
-#cmake-- help - module FindCUDA
+add_library(gpusim_static STATIC ${GPUSIM_SRC})
+add_library(gpusim_shared SHARED ${GPUSIM_SRC})
 
-CUDA_COMPILE(gpusim_static ${GPUSIM_SRC})
-CUDA_COMPILE(gpusim_shared ${GPUSIM_SRC})
+target_link_libraries(gpusim_static CUDA::cudart_static CUDA::curand_static CUDA::cublas_static)
+target_link_libraries(gpusim_shared CUDA::cudart CUDA::curand CUDA::cublas)
+set_source_files_properties(${CUDA_FILES} PROPERTIES LANGUAGE CUDA)
 
-CUDA_ADD_LIBRARY(gpusim_static ${GPUSIM_SRC} STATIC)
-CUDA_ADD_LIBRARY(gpusim_shared ${GPUSIM_SRC} SHARED)
-
-target_link_libraries(gpusim_static ${CUDA_curand_LIBRARY} ${CUDA_cublas_LIBRARY})
-target_link_libraries(gpusim_shared ${CUDA_curand_LIBRARY} ${CUDA_cublas_LIBRARY})
-
-message("Flag: " ${CUDA_NVCC_FLAGS})
+get_target_property(flags gpusim_static COMPILE_OPTIONS)
+message(STATUS "Flag: " ${flags})
 
 set_target_properties(gpusim_shared PROPERTIES EXCLUDE_FROM_ALL TRUE)
 
