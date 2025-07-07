@@ -46,7 +46,7 @@ Qulacs is tested on the following systems.
 - macOS Big Sur 11
 - Windows Server 2019
 
-If you encounter some troubles, see [troubleshooting](http://qulacs.org/md_4__trouble_shooting.html).
+If you encounter some troubles, see {doc}`2_faq`.
 
 ### How to install
 
