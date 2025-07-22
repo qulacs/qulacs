@@ -75,7 +75,7 @@ A binary that is installed via pip command is optimized for Haswell architecture
   - Microsoft VisualStudio C++ 2015 or later
 - [Boost](https://github.com/boostorg/boost) >= 1.71.0 (Minimum version tested in CI)
 - Python >= 3.9
-- CMake >= 3.5
+- CMake >= 3.21
 - git
 - (option) CUDA >= 8.0
 - (option) AVX2 support
@@ -90,7 +90,7 @@ Qulacs is tested on the following systems.
 - macOS Big Sur 11
 - Windows Server 2019
 
-If you encounter some troubles, see [troubleshooting](http://qulacs.org/md_4__trouble_shooting.html).
+If you encounter some troubles, see [troubleshooting](https://docs.qulacs.org/en/latest/intro/2_faq.html).
 
 ### How to install
 
