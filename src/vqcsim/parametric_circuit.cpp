@@ -13,9 +13,9 @@
 #include "parametric_gate_factory.hpp"
 
 void try_add_parametric_gate(
-    QuantumCircuit* circuit, QuantumGate_SingleParameter* gate);
-void try_add_parametric_gate(
-    QuantumCircuit* circuit, QuantumGate_SingleParameter* gate, UINT index);
+    ParametricQuantumCircuit* circuit, QuantumGate_SingleParameter* gate);
+void try_add_parametric_gate(ParametricQuantumCircuit* circuit,
+    QuantumGate_SingleParameter* gate, UINT index);
 
 void try_add_parametric_gate(
     ParametricQuantumCircuit* circuit, QuantumGate_SingleParameter* gate) {
@@ -377,7 +377,7 @@ ParametricQuantumCircuit* parametric_circuit_from_ptree(
                 throw e;
             }
         }
-        return circuit;
     }
+    return circuit;
 }
 }  // namespace circuit
