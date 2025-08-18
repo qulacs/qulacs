@@ -25,7 +25,7 @@ void try_add_parametric_gate(
 void try_add_parametric_gate(ParametricQuantumCircuit* circuit,
     QuantumGate_SingleParameter* gate, UINT index) {
     try {
-        circuit->add_parametric_gate(gate);
+        circuit->add_parametric_gate(gate, index);
     } catch (const InvalidQubitCountException& e) {
         delete gate;
         throw e;
@@ -374,4 +374,5 @@ ParametricQuantumCircuit* parametric_circuit_from_ptree(
         }
         return circuit;
     }
+}
 }  // namespace circuit
