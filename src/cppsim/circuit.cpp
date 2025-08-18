@@ -28,6 +28,7 @@ void try_add_gate(QuantumCircuit* circuit, QuantumGateBase* gate) {
         throw e;
     }
 }
+
 void try_add_gate(QuantumCircuit* circuit, QuantumGateBase* gate, UINT index) {
     try {
         circuit->add_gate(gate);
