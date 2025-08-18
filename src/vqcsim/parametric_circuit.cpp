@@ -12,6 +12,29 @@
 #include "parametric_gate.hpp"
 #include "parametric_gate_factory.hpp"
 
+void try_add_parametric_gate(
+    ParametricQuantumCircuit* circuit, QuantumGate_SingleParameter* gate) {
+    try {
+        circuit->add_parametric_gate(gate);
+    } catch (const InvalidQubitCountException& e) {
+        delete gate;
+        throw e;
+    }
+}
+
+void try_add_parametric_gate(ParametricQuantumCircuit* circuit,
+    QuantumGate_SingleParameter* gate, UINT index) {
+    try {
+        circuit->add_parametric_gate(gate);
+    } catch (const InvalidQubitCountException& e) {
+        delete gate;
+        throw e;
+    } catch (const GateIndexOutOfRangeException& e) {
+        delete gate;
+        throw e;
+    }
+}
+
 ParametricQuantumCircuit::ParametricQuantumCircuit(UINT qubit_count_)
     : QuantumCircuit(qubit_count_){};
 
@@ -49,14 +72,12 @@ void ParametricQuantumCircuit::add_parametric_gate(
 void ParametricQuantumCircuit::add_parametric_gate_copy(
     QuantumGate_SingleParameter* gate) {
     QuantumGate_SingleParameter* copied_gate = gate->copy();
-    this->add_gate(copied_gate);
-    _parametric_gate_position.push_back((UINT)gate_list.size() - 1);
-    _parametric_gate_list.push_back(copied_gate);
+    try_add_parametric_gate(this, copied_gate);
 };
 void ParametricQuantumCircuit::add_parametric_gate_copy(
     QuantumGate_SingleParameter* gate, UINT index) {
     QuantumGate_SingleParameter* copied_gate = gate->copy();
-    this->add_gate(copied_gate, index);
+    try_add_parametric_gate(this, copied_gate);
     _parametric_gate_position.push_back(index);
     _parametric_gate_list.push_back(copied_gate);
 }
@@ -120,11 +141,11 @@ void ParametricQuantumCircuit::add_gate(QuantumGateBase* gate, UINT index) {
         if (val >= index) val++;
 }
 void ParametricQuantumCircuit::add_gate_copy(const QuantumGateBase* gate) {
-    QuantumCircuit::add_gate(gate->copy());
+    QuantumCircuit::add_gate_copy(gate);
 }
 void ParametricQuantumCircuit::add_gate_copy(
     const QuantumGateBase* gate, UINT index) {
-    QuantumCircuit::add_gate(gate->copy(), index);
+    QuantumCircuit::add_gate_copy(gate, index);
     for (auto& val : _parametric_gate_position)
         if (val >= index) val++;
 }
@@ -159,22 +180,25 @@ void ParametricQuantumCircuit::merge_circuit(
 }
 void ParametricQuantumCircuit::add_parametric_RX_gate(
     UINT target_index, double initial_angle) {
-    this->add_parametric_gate(gate::ParametricRX(target_index, initial_angle));
+    try_add_parametric_gate(
+        this, gate::ParametricRX(target_index, initial_angle));
 }
 void ParametricQuantumCircuit::add_parametric_RY_gate(
     UINT target_index, double initial_angle) {
-    this->add_parametric_gate(gate::ParametricRY(target_index, initial_angle));
+    try_add_parametric_gate(
+        this, gate::ParametricRY(target_index, initial_angle));
 }
 void ParametricQuantumCircuit::add_parametric_RZ_gate(
     UINT target_index, double initial_angle) {
-    this->add_parametric_gate(gate::ParametricRZ(target_index, initial_angle));
+    try_add_parametric_gate(
+        this, gate::ParametricRZ(target_index, initial_angle));
 }
 
 void ParametricQuantumCircuit::add_parametric_multi_Pauli_rotation_gate(
     std::vector<UINT> target, std::vector<UINT> pauli_id,
     double initial_angle) {
-    this->add_parametric_gate(
-        gate::ParametricPauliRotation(target, pauli_id, initial_angle));
+    try_add_parametric_gate(
+        this, gate::ParametricPauliRotation(target, pauli_id, initial_angle));
 }
 
 std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
@@ -247,6 +271,8 @@ std::vector<double> ParametricQuantumCircuit::backprop_inner_product(
                 error_message_stream
                     << "Error: " << gate_now->get_name()
                     << " does not support backprop in parametric";
+                delete Astate;
+                delete state;
                 throw NotImplementedException(error_message_stream.str());
             }
             RcPI->update_quantum_state(Astate);
@@ -336,12 +362,16 @@ ParametricQuantumCircuit* parametric_circuit_from_ptree(
             "Parametric") {
             QuantumGate_SingleParameter* gate =
                 gate::parametric_gate_from_ptree(gate_pair.second);
-            circuit->add_parametric_gate(gate);
+            try_add_parametric_gate(circuit, gate);
         } else {
             QuantumGateBase* gate = gate::from_ptree(gate_pair.second);
-            circuit->add_gate(gate);
+            try {
+                circuit->add_gate(gate);
+            } catch (const InvalidQubitCountException& e) {
+                delete gate;
+                throw e;
+            }
         }
+        return circuit;
     }
-    return circuit;
-}
 }  // namespace circuit

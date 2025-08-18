@@ -100,6 +100,9 @@ double ClsNoisyEvolution::_find_collapse(QuantumStateBase* k1,
         // More likely to happen when dt is not small enough compared to the
         // relaxation times
         if (search_count >= _find_collapse_max_steps) {
+            delete mae_state;
+            delete buf_state;
+            delete bufB_state;
             throw std::runtime_error(
                 "Failed to find the exact jump time. Try with "
                 "smaller dt.");
@@ -406,6 +409,8 @@ double ClsNoisyEvolution_fast::_find_collapse(QuantumStateBase* prev_state,
         // More likely to happen when t_step is not small enough compared to
         // the relaxation times
         if (search_count >= _find_collapse_max_steps) {
+            delete mae_state;
+            delete buf_state;
             throw std::runtime_error(
                 "Failed to find the exact jump time. Try with "
                 "smaller t_step.");
@@ -495,6 +500,9 @@ ClsNoisyEvolution_fast::ClsNoisyEvolution_fast(Observable* hamiltonian,
         }
     }
     if (iH_bit_num > 8) {
+        for (auto it : gate_list) {
+            delete it;
+        }
         throw std::runtime_error(
             "too much use hamiltonian qubit. "
             " If there is an independent bit, please separate gate");
@@ -527,6 +535,9 @@ ClsNoisyEvolution_fast::ClsNoisyEvolution_fast(Observable* hamiltonian,
     auto result = eigen_solver.info();
 
     if (result != Eigen::Success) {
+        for (auto it : gate_list) {
+            delete it;
+        }
         throw std::runtime_error("sorry, This complex don't have eigenvalue.");
     } else {
         const auto eigenvectors = eigen_solver.eigenvectors();
