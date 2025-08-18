@@ -13,6 +13,11 @@
 #include "parametric_gate_factory.hpp"
 
 void try_add_parametric_gate(
+    QuantumCircuit* circuit, QuantumGate_SingleParameter* gate);
+void try_add_parametric_gate(
+    QuantumCircuit* circuit, QuantumGate_SingleParameter* gate, UINT index);
+
+void try_add_parametric_gate(
     ParametricQuantumCircuit* circuit, QuantumGate_SingleParameter* gate) {
     try {
         circuit->add_parametric_gate(gate);

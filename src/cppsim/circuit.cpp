@@ -19,6 +19,8 @@
 
 bool check_gate_index(
     const QuantumCircuit* circuit, const QuantumGateBase* gate);
+void try_add_gate(QuantumCircuit* circuit, QuantumGateBase* gate);
+void try_add_gate(QuantumCircuit* circuit, QuantumGateBase* gate, UINT index);
 
 void try_add_gate(QuantumCircuit* circuit, QuantumGateBase* gate) {
     try {
