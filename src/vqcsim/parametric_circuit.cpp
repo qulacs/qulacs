@@ -83,8 +83,6 @@ void ParametricQuantumCircuit::add_parametric_gate_copy(
     QuantumGate_SingleParameter* gate, UINT index) {
     QuantumGate_SingleParameter* copied_gate = gate->copy();
     try_add_parametric_gate(this, copied_gate, index);
-    _parametric_gate_position.push_back(index);
-    _parametric_gate_list.push_back(copied_gate);
 }
 UINT ParametricQuantumCircuit::get_parameter_count() const {
     return (UINT)_parametric_gate_list.size();
