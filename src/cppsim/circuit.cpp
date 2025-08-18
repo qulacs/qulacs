@@ -31,7 +31,7 @@ void try_add_gate(QuantumCircuit* circuit, QuantumGateBase* gate) {
 
 void try_add_gate(QuantumCircuit* circuit, QuantumGateBase* gate, UINT index) {
     try {
-        circuit->add_gate(gate);
+        circuit->add_gate(gate, index);
     } catch (const InvalidQubitCountException& e) {
         delete gate;
         throw e;
