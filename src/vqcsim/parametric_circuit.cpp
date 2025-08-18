@@ -149,8 +149,6 @@ void ParametricQuantumCircuit::add_gate_copy(const QuantumGateBase* gate) {
 void ParametricQuantumCircuit::add_gate_copy(
     const QuantumGateBase* gate, UINT index) {
     QuantumCircuit::add_gate_copy(gate, index);
-    for (auto& val : _parametric_gate_position)
-        if (val >= index) val++;
 }
 
 void ParametricQuantumCircuit::remove_gate(UINT index) {
