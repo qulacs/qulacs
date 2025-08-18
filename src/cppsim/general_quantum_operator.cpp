@@ -44,7 +44,12 @@ void GeneralQuantumOperator::add_operator(const PauliOperator* mpt) {
 
 void GeneralQuantumOperator::add_operator_copy(const PauliOperator* mpt) {
     PauliOperator* _mpt = mpt->copy();
-    GeneralQuantumOperator::add_operator_move(_mpt);
+    try {
+        GeneralQuantumOperator::add_operator_move(_mpt);
+    } catch (const QubitIndexOutOfRangeException& e) {
+        delete _mpt;
+        throw e;
+    }
 }
 
 void GeneralQuantumOperator::add_operator_move(PauliOperator* mpt) {
@@ -64,6 +69,7 @@ void GeneralQuantumOperator::add_operator(
     CPPCTYPE coef, std::string pauli_string) {
     PauliOperator* _mpt = new PauliOperator(pauli_string, coef);
     if (!check_Pauli_operator(this, _mpt)) {
+        delete _mpt;
         throw QubitIndexOutOfRangeException(
             "Error: "
             "GeneralQuantumOperator::add_operator(double,std::string):"
@@ -82,6 +88,7 @@ void GeneralQuantumOperator::add_operator(
     PauliOperator* _mpt = new PauliOperator(
         target_qubit_index_list, target_qubit_pauli_list, coef);
     if (!check_Pauli_operator(this, _mpt)) {
+        delete _mpt;
         throw QubitIndexOutOfRangeException(
             "Error: "
             "GeneralQuantumOperator::add_operator(double,std::string):"
