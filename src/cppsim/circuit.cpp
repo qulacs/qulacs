@@ -19,6 +19,29 @@
 
 bool check_gate_index(
     const QuantumCircuit* circuit, const QuantumGateBase* gate);
+void try_add_gate(QuantumCircuit* circuit, QuantumGateBase* gate);
+void try_add_gate(QuantumCircuit* circuit, QuantumGateBase* gate, UINT index);
+
+void try_add_gate(QuantumCircuit* circuit, QuantumGateBase* gate) {
+    try {
+        circuit->add_gate(gate);
+    } catch (const InvalidQubitCountException& e) {
+        delete gate;
+        throw e;
+    }
+}
+
+void try_add_gate(QuantumCircuit* circuit, QuantumGateBase* gate, UINT index) {
+    try {
+        circuit->add_gate(gate, index);
+    } catch (const InvalidQubitCountException& e) {
+        delete gate;
+        throw e;
+    } catch (const GateIndexOutOfRangeException& e) {
+        delete gate;
+        throw e;
+    }
+}
 
 void QuantumCircuit::update_quantum_state(QuantumStateBase* state) {
     if (state->qubit_count != this->qubit_count) {
@@ -134,11 +157,11 @@ void QuantumCircuit::add_gate(QuantumGateBase* gate, UINT index) {
 }
 
 void QuantumCircuit::add_gate_copy(const QuantumGateBase* gate) {
-    this->add_gate(gate->copy());
+    try_add_gate(this, gate->copy());
 }
 
 void QuantumCircuit::add_gate_copy(const QuantumGateBase* gate, UINT index) {
-    this->add_gate(gate->copy(), index);
+    try_add_gate(this, gate->copy(), index);
 }
 
 void QuantumCircuit::add_noise_gate(
@@ -336,110 +359,111 @@ std::ostream& operator<<(std::ostream& stream, const QuantumCircuit* gate) {
 }
 
 void QuantumCircuit::add_X_gate(UINT target_index) {
-    this->add_gate(gate::X(target_index));
+    try_add_gate(this, gate::X(target_index));
 }
 void QuantumCircuit::add_Y_gate(UINT target_index) {
-    this->add_gate(gate::Y(target_index));
+    try_add_gate(this, gate::Y(target_index));
 }
 void QuantumCircuit::add_Z_gate(UINT target_index) {
-    this->add_gate(gate::Z(target_index));
+    try_add_gate(this, gate::Z(target_index));
 }
 void QuantumCircuit::add_H_gate(UINT target_index) {
-    this->add_gate(gate::H(target_index));
+    try_add_gate(this, gate::H(target_index));
 }
 void QuantumCircuit::add_S_gate(UINT target_index) {
-    this->add_gate(gate::S(target_index));
+    try_add_gate(this, gate::S(target_index));
 }
 void QuantumCircuit::add_Sdag_gate(UINT target_index) {
-    this->add_gate(gate::Sdag(target_index));
+    try_add_gate(this, gate::Sdag(target_index));
 }
 void QuantumCircuit::add_T_gate(UINT target_index) {
-    this->add_gate(gate::T(target_index));
+    try_add_gate(this, gate::T(target_index));
 }
 void QuantumCircuit::add_Tdag_gate(UINT target_index) {
-    this->add_gate(gate::Tdag(target_index));
+    try_add_gate(this, gate::Tdag(target_index));
 }
 void QuantumCircuit::add_sqrtX_gate(UINT target_index) {
-    this->add_gate(gate::sqrtX(target_index));
+    try_add_gate(this, gate::sqrtX(target_index));
 }
 void QuantumCircuit::add_sqrtXdag_gate(UINT target_index) {
-    this->add_gate(gate::sqrtXdag(target_index));
+    try_add_gate(this, gate::sqrtXdag(target_index));
 }
 void QuantumCircuit::add_sqrtY_gate(UINT target_index) {
-    this->add_gate(gate::sqrtY(target_index));
+    try_add_gate(this, gate::sqrtY(target_index));
 }
 void QuantumCircuit::add_sqrtYdag_gate(UINT target_index) {
-    this->add_gate(gate::sqrtYdag(target_index));
+    try_add_gate(this, gate::sqrtYdag(target_index));
 }
 void QuantumCircuit::add_P0_gate(UINT target_index) {
-    this->add_gate(gate::P0(target_index));
+    try_add_gate(this, gate::P0(target_index));
 }
 void QuantumCircuit::add_P1_gate(UINT target_index) {
-    this->add_gate(gate::P1(target_index));
+    try_add_gate(this, gate::P1(target_index));
 }
 void QuantumCircuit::add_CNOT_gate(UINT control_index, UINT target_index) {
-    this->add_gate(gate::CNOT(control_index, target_index));
+    try_add_gate(this, gate::CNOT(control_index, target_index));
 }
 void QuantumCircuit::add_CZ_gate(UINT control_index, UINT target_index) {
-    this->add_gate(gate::CZ(control_index, target_index));
+    try_add_gate(this, gate::CZ(control_index, target_index));
 }
 void QuantumCircuit::add_SWAP_gate(UINT target_index1, UINT target_index2) {
-    this->add_gate(gate::SWAP(target_index1, target_index2));
+    try_add_gate(this, gate::SWAP(target_index1, target_index2));
 }
 void QuantumCircuit::add_FusedSWAP_gate(
     UINT target_index1, UINT target_index2, UINT block_size) {
-    this->add_gate(gate::FusedSWAP(target_index1, target_index2, block_size));
+    try_add_gate(
+        this, gate::FusedSWAP(target_index1, target_index2, block_size));
 }
 void QuantumCircuit::add_RX_gate(UINT target_index, double angle) {
-    this->add_gate(gate::RX(target_index, angle));
+    try_add_gate(this, gate::RX(target_index, angle));
 }
 void QuantumCircuit::add_RY_gate(UINT target_index, double angle) {
-    this->add_gate(gate::RY(target_index, angle));
+    try_add_gate(this, gate::RY(target_index, angle));
 }
 void QuantumCircuit::add_RZ_gate(UINT target_index, double angle) {
-    this->add_gate(gate::RZ(target_index, angle));
+    try_add_gate(this, gate::RZ(target_index, angle));
 }
 void QuantumCircuit::add_RotInvX_gate(UINT target_index, double angle) {
-    this->add_gate(gate::RotInvX(target_index, angle));
+    try_add_gate(this, gate::RotInvX(target_index, angle));
 }
 void QuantumCircuit::add_RotInvY_gate(UINT target_index, double angle) {
-    this->add_gate(gate::RotInvY(target_index, angle));
+    try_add_gate(this, gate::RotInvY(target_index, angle));
 }
 void QuantumCircuit::add_RotInvZ_gate(UINT target_index, double angle) {
-    this->add_gate(gate::RotInvZ(target_index, angle));
+    try_add_gate(this, gate::RotInvZ(target_index, angle));
 }
 void QuantumCircuit::add_RotX_gate(UINT target_index, double angle) {
-    this->add_gate(gate::RotX(target_index, angle));
+    try_add_gate(this, gate::RotX(target_index, angle));
 }
 void QuantumCircuit::add_RotY_gate(UINT target_index, double angle) {
-    this->add_gate(gate::RotY(target_index, angle));
+    try_add_gate(this, gate::RotY(target_index, angle));
 }
 void QuantumCircuit::add_RotZ_gate(UINT target_index, double angle) {
-    this->add_gate(gate::RotZ(target_index, angle));
+    try_add_gate(this, gate::RotZ(target_index, angle));
 }
 void QuantumCircuit::add_U1_gate(UINT target_index, double lambda) {
-    this->add_gate(gate::U1(target_index, lambda));
+    try_add_gate(this, gate::U1(target_index, lambda));
 }
 void QuantumCircuit::add_U2_gate(UINT target_index, double phi, double lambda) {
-    this->add_gate(gate::U2(target_index, phi, lambda));
+    try_add_gate(this, gate::U2(target_index, phi, lambda));
 }
 void QuantumCircuit::add_U3_gate(
     UINT target_index, double theta, double phi, double lambda) {
-    this->add_gate(gate::U3(target_index, theta, phi, lambda));
+    try_add_gate(this, gate::U3(target_index, theta, phi, lambda));
 }
 void QuantumCircuit::add_multi_Pauli_gate(
     std::vector<UINT> target_index_list, std::vector<UINT> pauli_id_list) {
-    this->add_gate(gate::Pauli(target_index_list, pauli_id_list));
+    try_add_gate(this, gate::Pauli(target_index_list, pauli_id_list));
 }
 void QuantumCircuit::add_multi_Pauli_gate(const PauliOperator& pauli_operator) {
-    this->add_gate(gate::Pauli(
-        pauli_operator.get_index_list(), pauli_operator.get_pauli_id_list()));
+    try_add_gate(this, gate::Pauli(pauli_operator.get_index_list(),
+                           pauli_operator.get_pauli_id_list()));
 }
 void QuantumCircuit::add_multi_Pauli_rotation_gate(
     std::vector<UINT> target_index_list, std::vector<UINT> pauli_id_list,
     double angle) {
-    this->add_gate(
-        gate::PauliRotation(target_index_list, pauli_id_list, angle));
+    try_add_gate(
+        this, gate::PauliRotation(target_index_list, pauli_id_list, angle));
 }
 void QuantumCircuit::add_multi_Pauli_rotation_gate(
     const PauliOperator& pauli_operator) {
@@ -450,8 +474,9 @@ void QuantumCircuit::add_multi_Pauli_rotation_gate(
             "PauliOperator& pauli_operator): not implemented for non "
             "hermitian");
     }
-    this->add_gate(gate::PauliRotation(pauli_operator.get_index_list(),
-        pauli_operator.get_pauli_id_list(), pauli_operator.get_coef().real()));
+    try_add_gate(this, gate::PauliRotation(pauli_operator.get_index_list(),
+                           pauli_operator.get_pauli_id_list(),
+                           pauli_operator.get_coef().real()));
 }
 void QuantumCircuit::add_diagonal_observable_rotation_gate(
     const Observable& observable, double angle) {
@@ -469,7 +494,7 @@ void QuantumCircuit::add_diagonal_observable_rotation_gate(
             throw InvalidObservableException(
                 "ERROR: Observable is not diagonal");
         }
-        this->add_gate(pauli_rotation);
+        try_add_gate(this, pauli_rotation);
     }
 }
 void QuantumCircuit::add_observable_rotation_gate(
@@ -488,9 +513,10 @@ void QuantumCircuit::add_observable_rotation_gate(
     // std::cout << num_repeats << std::endl;
     for (UINT repeat = 0; repeat < num_repeats; ++repeat) {
         for (auto pauli : operator_list) {
-            this->add_gate(gate::PauliRotation(pauli->get_index_list(),
-                pauli->get_pauli_id_list(),
-                pauli->get_coef().real() * angle / num_repeats));
+            try_add_gate(
+                this, gate::PauliRotation(pauli->get_index_list(),
+                          pauli->get_pauli_id_list(),
+                          pauli->get_coef().real() * angle / num_repeats));
         }
     }
 }
@@ -504,7 +530,7 @@ void QuantumCircuit::add_dense_matrix_gate(
             "qubit gate");
     }
 
-    this->add_gate(gate::DenseMatrix(target_index, matrix));
+    try_add_gate(this, gate::DenseMatrix(target_index, matrix));
 }
 void QuantumCircuit::add_dense_matrix_gate(
     std::vector<UINT> target_index_list, const ComplexMatrix& matrix) {
@@ -517,17 +543,17 @@ void QuantumCircuit::add_dense_matrix_gate(
             "matrix.rows()==(1<<target_count)");
     }
 
-    this->add_gate(gate::DenseMatrix(target_index_list, matrix));
+    try_add_gate(this, gate::DenseMatrix(target_index_list, matrix));
 }
 
 void QuantumCircuit::add_random_unitary_gate(
     std::vector<UINT> target_index_list) {
-    this->add_gate(gate::RandomUnitary(target_index_list));
+    try_add_gate(this, gate::RandomUnitary(target_index_list));
 }
 
 void QuantumCircuit::add_random_unitary_gate(
     std::vector<UINT> target_index_list, UINT seed) {
-    this->add_gate(gate::RandomUnitary(target_index_list, seed));
+    try_add_gate(this, gate::RandomUnitary(target_index_list, seed));
 }
 
 boost::property_tree::ptree QuantumCircuit::to_ptree() const {
@@ -563,7 +589,7 @@ QuantumCircuit* from_ptree(const boost::property_tree::ptree& pt) {
     for (const boost::property_tree::ptree::value_type& gate_pair :
         pt.get_child("gate_list")) {
         QuantumGateBase* gate = gate::from_ptree(gate_pair.second);
-        circuit->add_gate(gate);
+        try_add_gate(circuit, gate);
     }
     return circuit;
 }
