@@ -224,3 +224,7 @@ py.typed
 
 # ignore auto-generated version file
 /pysrc/qulacs/_version.py
+
+
+# usendon
+qulacs_mpi_*

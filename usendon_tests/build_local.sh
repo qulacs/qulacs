@@ -5,9 +5,11 @@ ml load qmio/hpc gcc/12.3.0 impi/2021.13.0 boost/1.85.0 cmake/3.27.6 python/3.9.
 if [[ -z "$1" || "$1" != "shared" ]]; then
     echo "Static compilation"
 
+    cd ..
     source script/build_mpicc.sh
+    cd usendon_tests
 
-    g++ -O2 -I./include/ -L./lib/ -Wl,-rpath,./lib/ \
+    g++ -O2 -I../include/ -L../lib/ -Wl,-rpath,../lib/ \
                         proba_ecr.cpp -o proba_ecr \
                         -lcppsim_static -lcsim_static -lvqcsim_static -lmpi \
                         -fopenmp -D_USE_MPI
@@ -15,14 +17,15 @@ if [[ -z "$1" || "$1" != "shared" ]]; then
 else
     echo "Shared compilation"
 
-    source script/build_mpicc.sh
+    cd ..
+    source /script/build_mpicc.sh
     cd build/
     make shared
-    cd ../
+    cd ../usendon_tests
 
-    g++ -O2 -I./include/ -L./build/src/cppsim -Wl,-rpath,./build/src/cppsim \
-                         -L./build/src/csim -Wl,-rpath,build/src/csim \
-                         -L./build/src/vqcsim -Wl,-rpath,./build/src/vqcsim \
+    g++ -O2 -I../include/ -L../build/src/cppsim -Wl,-rpath,../build/src/cppsim \
+                         -L../build/src/csim -Wl,-rpath,../build/src/csim \
+                         -L../build/src/vqcsim -Wl,-rpath,../build/src/vqcsim \
                          proba_ecr.cpp -o proba_ecr \
                          -lcppsim_shared -lcsim_shared -lvqcsim_shared -lmpi \
                          -fopenmp -D_USE_MPI
