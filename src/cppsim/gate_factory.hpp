@@ -37,6 +37,7 @@ namespace gate {
  * CNOT,CX      :   CNOT \<control\> \<target\>, or CX \<control\> \<target\>
  * CZ           :   CZ \<control\> \<target\>
  * SWAP         :   SWAP \<target1\> \<target2\>
+ * ECR          :   ECR \<target1\> \<target2\>
  * FusedSWAP    :   FusedSWAP \<target1\> \<target2\> \<blocksize\>
  * U1           :   U1 \<index\> \<angle1\>
  * U2           :   U2 \<index\> \<angle1\> \<angle2\>
@@ -305,6 +306,19 @@ DllExport ClsOneControlOneTargetGate* CZ(
  * @return 作成されたゲートのインスタンス
  */
 DllExport ClsTwoQubitGate* SWAP(UINT qubit_index1, UINT qubit_index2);
+
+/////////////////////////////////////////////////////////////////// código meu pero aínda non o descomento porque todo o anterior non está
+
+/**
+ * \~japanese-en ECR
+ *
+ * @param[in] qubit_index1 ターゲットとなる量子ビットの添え字
+ * @param[in] qubit_index2 ターゲットとなる量子ビットの添え字
+ * @return 作成されたゲートのインスタンス
+ */
+//DllExport ClsTwoQubitGate* ECR(UINT qubit_index1, UINT qubit_index2);
+
+//////////////////////////////////////////////////////////////////////////
 
 /**
  * \~japanese-en FusedSWAPゲートを作成する

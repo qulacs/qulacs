@@ -24,6 +24,9 @@ DllExport void CNOT_gate_host(unsigned int control_qubit_index,
 DllExport void SWAP_gate_host(unsigned int target_qubit_index0,
     unsigned int target_qubit_index1, void* state, ITYPE dim, void* stream,
     unsigned int device_number);
+//DllExport void ECR_gate_host(unsigned int target_qubit_index0,
+    //unsigned int target_qubit_index1, void* state, ITYPE dim, void* stream,
+    //unsigned int device_number);
 DllExport void RX_gate_host(UINT target_qubit_index, double angle, void* state,
     ITYPE dim, void* stream, unsigned int device_number);
 DllExport void RY_gate_host(UINT target_qubit_index, double angle, void* state,

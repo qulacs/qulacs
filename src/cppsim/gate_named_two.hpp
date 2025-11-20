@@ -90,6 +90,39 @@ public:
         this->_matrix_element << 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1;
     }
 
+///////////////////////////////////////////////////////////////////////// código meu
+
+    void ECRGateinit(UINT target_qubit_index1, UINT target_qubit_index2) {
+        this->_update_func = ECR_gate;
+        this->_update_func_dm = dm_ECR_gate;
+#ifdef _USE_GPU
+        this->_update_func_gpu = ECR_gate_host;
+#endif
+#ifdef _USE_MPI
+        this->_update_func_mpi = ECR_gate_mpi;
+#endif
+        this->_name = "ECR";
+        this->_target_qubit_list.push_back(
+            TargetQubitInfo(target_qubit_index1, 0));
+        this->_target_qubit_list.push_back(
+            TargetQubitInfo(target_qubit_index2, 0));
+        this->_gate_property = FLAG_CLIFFORD;
+        this->_matrix_element = ComplexMatrix::Zero(4, 4);
+        this->_matrix_element << 0, 1, 0, 1.i, 1, 0, -1.i, 0, 0, 1.i, 0, 1, -1.i, 0, 1, 0;
+        const double sqrt2inv = 1./sqrt(2.);
+        this->_matrix_element *= sqrt2inv;
+    }
+
+
+
+
+
+
+
+
+
+/////////////////////////////////////////////////////////////////////////
+
     /**
      * \~japanese-en ptreeに変換する
      *

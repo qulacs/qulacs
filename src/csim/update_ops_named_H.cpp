@@ -2,6 +2,10 @@
 #include "MPIutil.hpp"
 #include "update_ops.hpp"
 #include "utility.hpp"
+////////////////////////////
+
+#include <iostream>
+////////////////////////////
 
 #ifdef _USE_SIMD
 #ifdef _MSC_VER
@@ -210,22 +214,31 @@ void H_gate_parallel_sve(UINT target_qubit_index, CTYPE *state, ITYPE dim) {
 void H_gate_mpi(
     UINT target_qubit_index, CTYPE *state, ITYPE dim, UINT inner_qc) {
     if (target_qubit_index < inner_qc) {
+        std::cout << "O qubit escollido é interno, non se require comunicación MPI" << std::endl;
         H_gate(target_qubit_index, state, dim);
     } else {
         MPIutil &m = MPIutil::get_inst();
         const int rank = m.get_rank();
+        std::cout << "rank = " << rank << std::endl;
         ITYPE dim_work = dim;
+        std::cout << "dim_work = " << dim_work << std::endl;
+
         ITYPE num_work = 0;
         CTYPE *t = m.get_workarea(&dim_work, &num_work);
         assert(num_work > 0);
         const int pair_rank_bit = 1 << (target_qubit_index - inner_qc);
+        std::cout << "pair_rank_bit = " << pair_rank_bit << std::endl;
         const int pair_rank = rank ^ pair_rank_bit;
+        std::cout << "pair_rank = " << pair_rank << std::endl;
 
 #ifdef _OPENMP
         OMPutil::get_inst().set_qulacs_num_threads(dim_work, 13);
 #endif
 
         CTYPE *si = state;
+        std::cout << "num_work = " << num_work;
+        std::cout << "dim_work = " << dim_work;
+
         for (UINT i = 0; i < (UINT)num_work; ++i) {
             m.m_DC_sendrecv(si, t, dim_work, pair_rank);
 

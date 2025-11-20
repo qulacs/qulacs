@@ -411,6 +411,24 @@ void SWAP_gate_parallel_sve(UINT target_qubit_index_0,
 DllExport void SWAP_gate_mpi(UINT target_qubit_index_0,
     UINT target_qubit_index_1, CTYPE* state, ITYPE dim, UINT inner_qc);
 
+/////////////////////////////////////////////////////////////// código meu
+
+DllExport void ECR_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
+    CTYPE* state, ITYPE dim);
+void ECR_gate_parallel_unroll(UINT target_qubit_index_0,
+    UINT target_qubit_index_1, CTYPE* state, ITYPE dim);
+void ECR_gate_parallel_simd(UINT target_qubit_index_0,
+    UINT target_qubit_index_1, CTYPE* state, ITYPE dim);
+void ECR_gate_parallel_sve(UINT target_qubit_index_0, UINT target_qubit_index_1,
+    CTYPE* state, ITYPE dim);
+DllExport void ECR_gate_mpi(UINT target_qubit_index_0,
+    UINT target_qubit_index_1, CTYPE* state, ITYPE dim, UINT inner_qc);
+void _ECR_gate_mpi(CTYPE* t, CTYPE* si, ITYPE dim, ITYPE rtgt_blk_dim);
+void _ECR_gate_mpi_externos(
+    CTYPE* t1, CTYPE* t2, CTYPE* si, ITYPE dim, ITYPE rtgt_blk_dim, bool inA, ITYPE num_proc_bloque);
+
+///////////////////////////////////////////////////////////////////
+
 /**
  * \~english
  * Apply the FusedSWAP to the quantum state.

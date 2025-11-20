@@ -4,6 +4,8 @@
 
 #include "utility.hpp"
 
+#include <iostream>
+
 void MPIutil::MPIFunctionError(
     const std::string &func, UINT ret, const std::string &file, UINT line) {
     std::string msg1 = func;
@@ -60,7 +62,9 @@ int MPIutil::get_size() { return mpisize; }
 
 int MPIutil::get_tag() {
     // pthread_mutex_lock(&mutex);
-    mpitag ^= 1 << 20;  // max 1M-ranks
+    /////////////////////////////////////////////////////////
+    mpitag ^= 1 << 19;  // max 1M-ranks // antes 20
+    ////////////////////////////////////////////////////////
     // pthread_mutex_unlock(&mutex);
     return mpitag;
 }
@@ -119,6 +123,18 @@ void MPIutil::m_DC_sendrecv(
     int tag0 = get_tag();
     int mpi_tag1 = tag0 + ((mpirank & pair_rank) << 1) + (mpirank > pair_rank);
     int mpi_tag2 = mpi_tag1 ^ 1;
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    int flag = 0;
+    // Método estándar: pasar un int directamente
+    int tag_ub_int = -1;
+    MPI_Comm_get_attr(MPI_COMM_WORLD, MPI_TAG_UB, &tag_ub_int, &flag);
+    if (flag) {
+        std::cout << "[rank " << rank << "] MPI_TAG_UB (as int) = " << tag_ub_int << std::endl;
+    } else {
+        std::cout << "[rank " << rank << "] MPI_TAG_UB attribute not found (via int)" << std::endl;
+    }
+    std::cout << "max_tag on rank " << rank << ": " << tag_ub_int << " " << std::endl;
     UINT ret = MPI_Sendrecv(sendbuf, count, MPI_CXX_DOUBLE_COMPLEX, pair_rank,
         mpi_tag1, recvbuf, count, MPI_CXX_DOUBLE_COMPLEX, pair_rank, mpi_tag2,
         mpicomm, &mpistat);

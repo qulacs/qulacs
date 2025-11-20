@@ -772,6 +772,36 @@ void dm_SWAP_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
     target_index[1] = target_qubit_index_1;
     dm_multi_qubit_dense_matrix_gate(target_index, 2, matrix, state, dim);
 }
+
+
+//////////////////////////////////////////////////////////////////////////// código meu
+
+void dm_ECR_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
+    CTYPE* state, ITYPE dim) {
+        
+    const double INV_SQRT2 = 1.0 / sqrt(2.0);
+
+    CTYPE matrix[16] = {};
+
+    matrix[0 * 4 + 1] = CTYPE(INV_SQRT2, 0);       
+    matrix[0 * 4 + 3] = CTYPE(0, INV_SQRT2); 
+
+    matrix[1 * 4 + 0] = CTYPE(INV_SQRT2, 0);       
+    matrix[1 * 4 + 2] = CTYPE(0, -INV_SQRT2);       
+
+    matrix[2 * 4 + 1] = CTYPE(0, INV_SQRT2);       
+    matrix[2 * 4 + 3] = CTYPE(INV_SQRT2, 0);  
+    
+    matrix[3 * 4 + 0] = CTYPE(0, -INV_SQRT2);      
+    matrix[3 * 4 + 2] = CTYPE(INV_SQRT2, 0);        
+
+    UINT target_index[2];
+    target_index[0] = target_qubit_index_0;
+    target_index[1] = target_qubit_index_1;
+    dm_multi_qubit_dense_matrix_gate(target_index, 2, matrix, state, dim);
+}
+
+/////////////////////////////////////////////////////////////////////////
 void dm_RX_gate(
     UINT target_qubit_index, double angle, CTYPE* state, ITYPE dim) {
     UINT i, j;
