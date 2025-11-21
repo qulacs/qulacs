@@ -240,17 +240,17 @@ ClsTwoQubitGate* SWAP(UINT qubit_index1, UINT qubit_index2) {
 
 ///////////////////////////////////////////////////////////// meu pero comentado porque aínda non fixen todo o anterior
 
-//ClsTwoQubitGate* ECR(UINT qubit_index1, UINT qubit_index2) {
-    //if (qubit_index1 == qubit_index2) {
-        //throw DuplicatedQubitIndexException(
-            //"Error: gate::ECR(UINT, UINT): two indices have the same value."
-            //"\nInfo: NULL used to be returned, "
-            //"but it changed to throw exception.");
-    //}
-    //auto ptr = new ClsTwoQubitGate();
-    //ptr->ECRGateinit(qubit_index1, qubit_index2);
-    //return ptr;
-//}
+ClsTwoQubitGate* ECR(UINT qubit_index1, UINT qubit_index2) {
+    if (qubit_index1 == qubit_index2) {
+        throw DuplicatedQubitIndexException(
+            "Error: gate::ECR(UINT, UINT): two indices have the same value."
+            "\nInfo: NULL used to be returned, "
+            "but it changed to throw exception.");
+    }
+    auto ptr = new ClsTwoQubitGate();
+    ptr->ECRGateinit(qubit_index1, qubit_index2);
+    return ptr;
+}
 
 ////////////////////////////////////////////////////////////
 

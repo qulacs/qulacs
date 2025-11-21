@@ -1332,8 +1332,8 @@ PYBIND11_MODULE(qulacs_core, m) {
 
         ////////////////////////////////////////////////////////////////////////// código meu pero non teño todo o anterior por iso está comentado
 
-        //.def("add_ECR_gate", &QuantumCircuit::add_ECR_gate, "Add ECR gate",
-            //py::arg("target1"), py::arg("target2"))
+        .def("add_ECR_gate", &QuantumCircuit::add_ECR_gate, "Add ECR gate",
+            py::arg("target1"), py::arg("target2"))
 
         ////////////////////////////////////////////////////////////////////////////
         .def("add_FusedSWAP_gate", &QuantumCircuit::add_FusedSWAP_gate,

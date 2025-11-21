@@ -412,9 +412,9 @@ void QuantumCircuit::add_SWAP_gate(UINT target_index1, UINT target_index2) {
 
 ////////////////////////////////////////////////////////////////////////////// meu pero comentado pq aínda non teño o anterior feito
 
-//void QuantumCircuit::add_ECR_gate(UINT target_index1, UINT target_index2) {
-    //try_add_gate(this, gate::ECR(target_index1, target_index2));
-//}
+void QuantumCircuit::add_ECR_gate(UINT target_index1, UINT target_index2) {
+    try_add_gate(this, gate::ECR(target_index1, target_index2));
+}
 
 /////////////////////////////////////////////////////////////////////////////
 

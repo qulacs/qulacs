@@ -67,13 +67,13 @@ int main() {
     // ============================================================
     // APLICAMOS TU PUERTA ECR OPTIMIZADA
     // ============================================================
-    SWAP_gate_parallel_unroll(q0, q1, state.data(), dim);
+    ECR_gate_parallel_simd(q0, q1, state.data(), dim);
 
-    /* cout << "\nEstado después de aplicar ECR_gate_parallel_unroll:\n";
+    cout << "\nEstado después de aplicar ECR_gate_parallel_unroll:\n";
     for (ITYPE i = 0; i < dim; i++) {
         cout << i << ": (" << std::real(state[i])
              << ", " << std::imag(state[i]) << ")\n";
-    } */
+    } 
 
     return 0;
 }

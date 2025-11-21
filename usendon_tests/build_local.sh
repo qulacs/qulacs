@@ -10,7 +10,7 @@ if [[ -z "$1" || "$1" != "shared" ]]; then
     cd usendon_tests
 
     g++ -O2 -I../include/ -L../lib/ -Wl,-rpath,../lib/ \
-                        proba_ecr.cpp -o proba_ecr \
+                        ./mpi_test_readme.cpp -o mpi_test \
                         -lcppsim_static -lcsim_static -lvqcsim_static -lmpi \
                         -fopenmp -D_USE_MPI
 
@@ -26,7 +26,7 @@ else
     g++ -O2 -I../include/ -L../build/src/cppsim -Wl,-rpath,../build/src/cppsim \
                          -L../build/src/csim -Wl,-rpath,../build/src/csim \
                          -L../build/src/vqcsim -Wl,-rpath,../build/src/vqcsim \
-                         proba_ecr.cpp -o proba_ecr \
+                         ./mpi_test_readme.cpp -o mpi_test \
                          -lcppsim_shared -lcsim_shared -lvqcsim_shared -lmpi \
                          -fopenmp -D_USE_MPI
     

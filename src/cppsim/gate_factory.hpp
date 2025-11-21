@@ -316,7 +316,7 @@ DllExport ClsTwoQubitGate* SWAP(UINT qubit_index1, UINT qubit_index2);
  * @param[in] qubit_index2 ターゲットとなる量子ビットの添え字
  * @return 作成されたゲートのインスタンス
  */
-//DllExport ClsTwoQubitGate* ECR(UINT qubit_index1, UINT qubit_index2);
+DllExport ClsTwoQubitGate* ECR(UINT qubit_index1, UINT qubit_index2);
 
 //////////////////////////////////////////////////////////////////////////
 
