@@ -1,6 +1,6 @@
 #!/bin/sh
 
-ml load qmio/hpc gcc/12.3.0 impi/2021.13.0 boost/1.85.0 cmake/3.27.6 python/3.9.9
+ml load qmio/hpc gcc/12.3.0  gcccore/12.3.0 impi/2021.13.0 boost/1.85.0 cmake/3.27.6 nlohmann_json/3.11.3 python/3.9.9
 
 if [[ -z "$1" || "$1" != "shared" ]]; then
     echo "Static compilation"
