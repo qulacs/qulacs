@@ -34,7 +34,7 @@ int main(int argc, char *argv[]) {
 
     // Construimos circuito sencillo: X en qubit 0, luego un merge(CNOT(0,1), Y(1)), y RX en 1
     QuantumCircuit circuit(nqubits);
-    circuit.add_ECR_gate(2,3);
+    circuit.add_SWAP_gate(2,3);
 
 
     // aplicar circuito al estado paralelo/multi-cpu (o single si no hay multi)
