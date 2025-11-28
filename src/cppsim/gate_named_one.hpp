@@ -95,14 +95,12 @@ public:
     }
 
     void XGateinit(UINT target_qubit_index) {
-        std::cout << "XGateinit" << "\n";
         this->_update_func = X_gate;
         this->_update_func_dm = dm_X_gate;
 #ifdef _USE_GPU
         this->_update_func_gpu = X_gate_host;
 #endif
 #ifdef _USE_MPI
-        std::cout << "XGateinit _USE_MPI" << "\n";
         this->_update_func_mpi = X_gate_mpi;
 #endif
         this->_name = "X";
