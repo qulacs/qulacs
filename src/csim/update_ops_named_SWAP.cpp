@@ -17,6 +17,7 @@
 #endif
 #endif
 
+
 void SWAP_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
     CTYPE* state, ITYPE dim) {
 #ifdef _OPENMP

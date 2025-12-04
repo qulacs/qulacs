@@ -2,42 +2,45 @@
 #include <complex>
 #include <cmath>
 #include <vector>
-#include "update_ops.hpp"
+#undef _USE_SIMD
+#undef _USE_SVE
+#include "csim/update_ops.hpp"
+#include <cppsim/state.hpp>
 
-// Simula typedefs del código original
-using UINT = unsigned int;
-using ITYPE = unsigned long long;
 using CTYPE = std::complex<double>;
+using UINT  = unsigned int;
+using ITYPE = unsigned long long;
 
-// Declaración
-void print_state(const CTYPE* state, ITYPE dim);
-
-// Definición (puede ir después del main o antes)
+// tu función de impresión (la original)
 void print_state(const CTYPE* state, ITYPE dim) {
     for (ITYPE i = 0; i < dim; ++i) {
-        std::cout << " |" << i << "> : " << state[i] << std::endl;
+        std::cout << state[i] << "\n";
     }
 }
 
-
-
 int main() {
     const UINT nqubits = 4;
-    const ITYPE dim = 1ULL << nqubits;
+    // construye el estado en la base |0001> (según tu clase)
+    QuantumState state(nqubits, 1);
+    state.set_Haar_random_state(2023);
 
-    std::vector<CTYPE> state(dim, 0.);
+    // 1) accede a dim como miembro (sin paréntesis) si es un campo
+    ITYPE dim = state.dim; // <-- sin '()'
 
+    // 2) state.data() devuelve void*, por tanto hay que hacer cast
+    const CTYPE* state_const_ptr = reinterpret_cast<const CTYPE*>(state.data());
+    CTYPE*       state_ptr       = reinterpret_cast<CTYPE*>(state.data());
 
     std::cout << "Estado inicial:\n";
-    print_state(state.data(), dim);
+    print_state(state_const_ptr, dim);
 
     // ====== Aplicar puerta ECR ======
-    std::cout << "\nAplicando ECR_gate(0,1)...\n";
-    ECR_gate(0, 1, state.data(), dim);
+    std::cout << "\nAplicando ECR_gate(1,2)...\n";
+    ECR_gate(1, 2, state_ptr, dim);
 
     std::cout << "\nEstado final:\n";
-    print_state(state.data(), dim);
-
+    print_state(state_const_ptr, dim);
 
     std::cout << "\nEsperado (aproximado): 0.7071|01> + 0.7071i|11>\n";
+    return 0;
 }
