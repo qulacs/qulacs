@@ -27,10 +27,7 @@ using namespace std::complex_literals;
 
 #include <immintrin.h> 
 
-// o _USE_SIMD teño que eliminalo despois, só é para que me entre no unroll
-// o DEBUG_ECR é para que me faga os prints na unroll pero tampouco fai falta
-//#undef _USE_SIMD
-#define DEBUG_ECR 1
+
 
 void ECR_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
     CTYPE* state, ITYPE dim) {
@@ -58,8 +55,7 @@ void ECR_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
 
 void ECR_gate_parallel_unroll(UINT target_qubit_index_0,
     UINT target_qubit_index_1, CTYPE* state, ITYPE dim) {
-
-    std::cout << "Entra en unroll" << std::endl;
+    
     const ITYPE loop_dim = dim / 4;
 
     const ITYPE mask_0 = 1ULL << target_qubit_index_0;
@@ -106,13 +102,13 @@ void ECR_gate_parallel_unroll(UINT target_qubit_index_0,
         state[basis_index_10] = new_v10;
         state[basis_index_11] = new_v11;
     }
-}
+
+} 
 
 #ifdef _USE_SIMD
 void ECR_gate_parallel_simd(UINT target_qubit_index_0,
     UINT target_qubit_index_1, CTYPE* state, ITYPE dim) {
 
-    std::cout << "Estou dentro de simd" << std::endl;
 
     const ITYPE loop_dim = dim / 4;
     const ITYPE mask_0 = 1ULL << target_qubit_index_0;
@@ -149,10 +145,6 @@ void ECR_gate_parallel_simd(UINT target_qubit_index_0,
         double* ptr10 = reinterpret_cast<double*>(state + basis_index_10);
         double* ptr11 = reinterpret_cast<double*>(state + basis_index_11);
 
-        std::cout << "ptr00 = " << ptr00 << std::endl;
-        std::cout << "ptr01 = " << ptr01 << std::endl;
-        std::cout << "ptr10 = " << ptr10 << std::endl;
-        std::cout << "ptr11 = " << ptr11 << std::endl;
 
         __m128d a_lo = _mm_loadu_pd(ptr00); 
         __m128d a_hi = _mm_loadu_pd(ptr01); 
@@ -171,15 +163,15 @@ void ECR_gate_parallel_simd(UINT target_qubit_index_0,
         __m128d i_a_lo = mul_by_i(a_lo);
 
         __m128d tmp_new_v00 = _mm_add_pd(a_hi, i_b_hi);
-        __m128d tmp_new_v10 = _mm_add_pd(b_hi, i_a_hi);
         __m128d tmp_new_v01 = _mm_sub_pd(a_lo, i_b_lo);
+        __m128d tmp_new_v10 = _mm_add_pd(b_hi, i_a_hi);
         __m128d tmp_new_v11 = _mm_sub_pd(b_lo, i_a_lo);
 
 
         __m128d svec = _mm_set1_pd(sqrt2inv);
         tmp_new_v00 = _mm_mul_pd(tmp_new_v00, svec);
-        tmp_new_v10 = _mm_mul_pd(tmp_new_v10, svec);
         tmp_new_v01 = _mm_mul_pd(tmp_new_v01, svec);
+        tmp_new_v10 = _mm_mul_pd(tmp_new_v10, svec);
         tmp_new_v11 = _mm_mul_pd(tmp_new_v11, svec);
 
         _mm_storeu_pd(ptr00, tmp_new_v00); 
@@ -189,103 +181,9 @@ void ECR_gate_parallel_simd(UINT target_qubit_index_0,
 
     }
 
+
 } 
 #endif
-
-
-
-/* 
-void ECR_gate_parallel_unroll(UINT target_qubit_index_0,
-    UINT target_qubit_index_1, CTYPE* state, ITYPE dim) {
-
-    std::cout << "Entra en unroll" << std::endl;
-
-    const ITYPE loop_dim = dim / 4;
-    const ITYPE mask_0 = 1ULL << target_qubit_index_0;
-    const ITYPE mask_1 = 1ULL << target_qubit_index_1;
-    const ITYPE mask = mask_0 + mask_1;
-
-    const UINT min_qubit_index =
-        get_min_ui(target_qubit_index_0, target_qubit_index_1);
-
-    const UINT max_qubit_index =
-        get_max_ui(target_qubit_index_0, target_qubit_index_1);
-
-    const ITYPE min_qubit_mask = 1ULL << min_qubit_index;
-    const ITYPE max_qubit_mask = 1ULL << (max_qubit_index - 1);
-    const ITYPE low_mask = min_qubit_mask - 1;
-    const ITYPE mid_mask = (max_qubit_mask - 1) ^ low_mask;
-    const ITYPE high_mask = ~(max_qubit_mask - 1);
-    const double sqrt2inv = 1. / sqrt(2.);
-
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (ITYPE state_index = 0; state_index < loop_dim; ++state_index) {
-        ITYPE basis_index_00 = (state_index & low_mask) +
-                               ((state_index & mid_mask) << 1) +
-                               ((state_index & high_mask) << 2);
-        ITYPE basis_index_01 = basis_index_00 + mask_0;
-        ITYPE basis_index_10 = basis_index_00 + mask_1;
-        ITYPE basis_index_11 = basis_index_00 + mask;
-
-#ifdef DEBUG_ECR
-        std::cout << "Entra en DEBUG_ECR" << std::endl;
-        // *** BLOQUE DE DEBUG: imprime índices, punteros y strides ***
-        // OJO: static → compartido entre hilos; solo para debug rápido.
-        static int debug_count = 0;
-        if (debug_count < 8) {  // limita el número de líneas que imprime
-            printf("state_index=%zu\n", (size_t)state_index);
-            printf("  basis_index_00=%zu  basis_index_01=%zu  basis_index_10=%zu  basis_index_11=%zu\n",
-                   (size_t)basis_index_00, (size_t)basis_index_01,
-                   (size_t)basis_index_10, (size_t)basis_index_11);
-
-            printf("  ptr00=%p  ptr01=%p  ptr10=%p  ptr11=%p\n",
-                   (void*)&state[basis_index_00],
-                   (void*)&state[basis_index_01],
-                   (void*)&state[basis_index_10],
-                   (void*)&state[basis_index_11]);
-
-            // strides en número de amplitudes (no en bytes)
-            ptrdiff_t s01 = &state[basis_index_01] - &state[basis_index_00];
-            ptrdiff_t s10 = &state[basis_index_10] - &state[basis_index_00];
-            ptrdiff_t s11 = &state[basis_index_11] - &state[basis_index_00];
-
-            printf("  stride(01-00) = %td amplitudes\n", s01);
-            printf("  stride(10-00) = %td amplitudes\n", s10);
-            printf("  stride(11-00) = %td amplitudes\n", s11);
-            printf("\n");
-
-            ++debug_count;
-        }
-#endif
-
-        CTYPE v00 = state[basis_index_00];
-        CTYPE v01 = state[basis_index_01];
-        CTYPE v10 = state[basis_index_10];
-        CTYPE v11 = state[basis_index_11];
-
-        CTYPE new_v00 = sqrt2inv * (v01 + 1.i * v11);
-        CTYPE new_v01 = sqrt2inv * (v00 - 1.i * v10);
-        CTYPE new_v10 = sqrt2inv * (v11 + 1.i * v01);
-        CTYPE new_v11 = sqrt2inv * (v10 - 1.i * v00);
-
-        state[basis_index_00] = new_v00;
-        state[basis_index_01] = new_v01;
-        state[basis_index_10] = new_v10;
-        state[basis_index_11] = new_v11;
-    }
-} */
-
-
-
-
-
-
-
-////////////////////////////////////////////////////////////////////
-
-
 
 
 #include <complex>
