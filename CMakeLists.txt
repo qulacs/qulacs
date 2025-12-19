@@ -192,6 +192,7 @@ endif()
 
 # Pybind11
 if(USE_PYTHON)
+	message(STATUS "Using Python...")
 	if(MSYS OR MINGW OR CYGWIN)
 		set(PYBIND11_BUILD_DIR   ${PROJECT_BINARY_DIR}/pybind11)
 		set(PYBIND11_INSTALL_DIR ${PROJECT_SOURCE_DIR}/python/pybind11)

@@ -2,8 +2,7 @@
 #include <complex>
 #include <cmath>
 #include <vector>
-#undef _USE_SIMD
-#undef _USE_SVE
+//#undef _USE_SVE
 #include "csim/update_ops.hpp"
 #include <cppsim/state.hpp>
 
@@ -19,7 +18,7 @@ void print_state(const CTYPE* state, ITYPE dim) {
 }
 
 int main() {
-    const UINT nqubits = 25;
+    const UINT nqubits = 5;
     // construye el estado en la base |0001> (según tu clase)
     QuantumState state(nqubits, 1);
     state.set_Haar_random_state(2023);
@@ -32,14 +31,14 @@ int main() {
     CTYPE*       state_ptr       = reinterpret_cast<CTYPE*>(state.data());
 
     std::cout << "Estado inicial:\n";
-    //print_state(state_const_ptr, dim);
+    print_state(state_const_ptr, dim);
 
     // ====== Aplicar puerta ECR ======
-    std::cout << "\nAplicando ECR_gate(1,2)...\n";
-    ECR_gate(1, 2, state_ptr, dim);
+    std::cout << "\nAplicando SWAP_gate(0,2)...\n";
+    SWAP_gate(0, 2, state_ptr, dim);
 
     std::cout << "\nEstado final:\n";
-    //print_state(state_const_ptr, dim);
+    print_state(state_const_ptr, dim);
 
     std::cout << "\nEsperado (aproximado): 0.7071|01> + 0.7071i|11>\n";
     return 0;

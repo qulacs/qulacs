@@ -7,6 +7,8 @@
 #include "utility.hpp"
 #ifdef _OPENMP
 #include <omp.h>
+#include <chrono> ///////////////////////////////
+#include <iostream>
 #endif
 
 #ifdef _USE_SIMD
@@ -96,6 +98,11 @@ void SWAP_gate_parallel_unroll(UINT target_qubit_index_0,
 #ifdef _USE_SIMD
 void SWAP_gate_parallel_simd(UINT target_qubit_index_0,
     UINT target_qubit_index_1, CTYPE* state, ITYPE dim) {
+    using clock = std::chrono::high_resolution_clock;
+    std::cout << "Entra en SIMD" << std::endl;
+
+    auto start = clock::now(); 
+
     const ITYPE loop_dim = dim / 4;
 
     const ITYPE mask_0 = 1ULL << target_qubit_index_0;
@@ -144,6 +151,11 @@ void SWAP_gate_parallel_simd(UINT target_qubit_index_0,
             _mm256_storeu_pd(ptr0, data1);
         }
     }
+    auto end = clock::now();   // ⏱️ FINAL MEDICIÓN
+
+    std::chrono::duration<double> elapsed = end - start;
+    std::cout << "Tiempo de ejecución SIMD = "
+              << elapsed.count() << " segundos." << std::endl;
 }
 #endif
 

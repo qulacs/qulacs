@@ -17,6 +17,16 @@ add_library(csim_static STATIC ${CSIM_SRC})
 add_library(csim_shared SHARED ${CSIM_SRC})
 #target_link_libraries(csim_static eigen)
 #target_link_libraries(csim_shared eigen)
+
+##########################################
+set_source_files_properties(
+    update_ops_named_ECR.cpp
+    PROPERTIES COMPILE_FLAGS "-O2 -march=armv8-a+sve -fno-tree-vectorize"
+)
+
+
+
+###########################################
 add_dependencies(csim_static eigen)
 add_dependencies(csim_shared eigen)
 
