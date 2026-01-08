@@ -28,12 +28,6 @@ using namespace std::complex_literals;
 
 //#include <immintrin.h> 
 
-svfloat64_t mul_by_i_sve(svfloat64_t b_hi, svbool_t pg);
-svfloat64_t mul_by_i_sve(svfloat64_t b_hi, svbool_t pg) {
-    // Intercambia real e imaginario: -b_hi (si solo tienes b)
-    svfloat64_t sign = svdup_f64(-1.0);    // multiplica por -1
-    return svmul_f64_m(pg, b_hi, sign);    // -b_hi
-}
 
 void ECR_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
     CTYPE* state, ITYPE dim) {
@@ -195,6 +189,13 @@ void ECR_gate_parallel_simd(UINT target_qubit_index_0,
 ///////////////////////////////////////////////////////////////////// primeira proba SVE
 
 #ifdef _USE_SVE
+svfloat64_t mul_by_i_sve(svfloat64_t b_hi, svbool_t pg);
+svfloat64_t mul_by_i_sve(svfloat64_t b_hi, svbool_t pg) {
+    // Intercambia real e imaginario: -b_hi (si solo tienes b)
+    svfloat64_t sign = svdup_f64(-1.0);    // multiplica por -1
+    return svmul_f64_m(pg, b_hi, sign);    // -b_hi
+}
+
 
 void ECR_gate_parallel_sve(
     UINT target_qubit_index_0,
