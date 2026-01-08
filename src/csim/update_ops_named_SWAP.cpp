@@ -7,7 +7,6 @@
 #include "utility.hpp"
 #ifdef _OPENMP
 #include <omp.h>
-#include <chrono> ///////////////////////////////
 #include <iostream>
 #endif
 
