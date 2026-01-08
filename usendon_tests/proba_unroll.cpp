@@ -35,7 +35,7 @@ int main() {
 
     // ====== Aplicar puerta ECR ======
     std::cout << "\nAplicando SWAP_gate(0,2)...\n";
-    SWAP_gate(0, 2, state_ptr, dim);
+    ECR_gate(0, 2, state_ptr, dim);
 
     std::cout << "\nEstado final:\n";
     print_state(state_const_ptr, dim);

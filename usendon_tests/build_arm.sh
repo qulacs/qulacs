@@ -24,3 +24,5 @@ else
 fi
 make -j $(nproc)
 cd ../
+
+#g++ -O2 -I../include -I/opt/cesga/qmio/hpc/software/Compiler/gcccore/12.3.0/nlohmann_json/3.11.3/include/ -L../lib  proba_unroll.cpp -o proba_unroll -lvqcsim_static -lcppsim_static -lcsim_static -fopenmp -D_USE_SVE  -Wl,-rpath,/opt/cesga/qmio/hpc/software/Compiler/gcccore/12.3.0/nlohmann_json/3.11.3/include/

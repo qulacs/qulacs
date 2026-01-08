@@ -3,10 +3,7 @@
 #include <vector>
 #include <cmath>
 
-// Incluye tu archivo donde ya está definida:
-// - ECR_gate_parallel_unroll
-// - CTYPE, UINT, ITYPE
-// - etc.
+
 #include "csim/update_ops.hpp"
 
 int main() {
@@ -21,7 +18,7 @@ int main() {
     const UINT n_qubits = 5;
     const ITYPE dim = 1ULL << n_qubits;
 
-    cout << "Probando ECR_gate_parallel_simd sobre " << n_qubits 
+    cout << "Probando SWAP_gate_parallel_simd sobre " << n_qubits 
          << " qubits..." << endl;
 
     // ============================================================
@@ -65,11 +62,11 @@ int main() {
 
 
     // ============================================================
-    // APLICAMOS TU PUERTA ECR OPTIMIZADA
+    // APLICAMOS TU PUERTA SWAP OPTIMIZADA
     // ============================================================
-    ECR_gate_parallel_simd(q0, q1, state.data(), dim);
+    SWAP_gate_parallel_simd(q0, q1, state.data(), dim);
 
-    cout << "\nEstado después de aplicar ECR_gate_parallel_simd:\n";
+    cout << "\nEstado después de aplicar SWAP_gate_parallel_simd:\n";
     for (ITYPE i = 0; i < dim; i++) {
         cout << i << ": (" << std::real(state[i])
              << ", " << std::imag(state[i]) << ")\n";

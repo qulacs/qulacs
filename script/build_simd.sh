@@ -16,8 +16,8 @@ CMAKE_OPS="${CMAKE_OPS} -D USE_MPI=${USE_MPI} -D USE_GPU=${USE_GPU}"
 CMAKE_OPS="${CMAKE_OPS} -D USE_TEST=${USE_TEST} -D COVERAGE=${COVERAGE}"
 CMAKE_OPS="${CMAKE_OPS} -D USE_SIMD=${USE_SIMD}"
 
-mkdir -p ./build_simd
-cd ./build_simd
+mkdir -p ./build
+cd ./build
 if [ "${QULACS_OPT_FLAGS:-"__UNSET__"}" = "__UNSET__" ]; then
   cmake -G "Unix Makefiles" ${CMAKE_OPS} ..
 else
