@@ -288,7 +288,7 @@ def convert_QASM_to_qulacs_circuit(
                 terget_indexes.append(mapping[int(deary[bas])])
                 bas += 1
 
-            dense_gate = DenseMatrix(terget_indexes, gate_mat)  # type:ignore
+            dense_gate = DenseMatrix(terget_indexes, gate_mat)  # type: ignore
             for i in range(control_qubit_count):
                 control_index = int(deary[bas])
                 bas += 1
