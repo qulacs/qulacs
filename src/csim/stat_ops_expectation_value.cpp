@@ -15,9 +15,11 @@ double expectation_value_Z_Pauli_operator(
     UINT target_qubit_index, const CTYPE* state, ITYPE dim);
 double expectation_value_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
     ITYPE phase_flip_mask, UINT global_phase_90rot_count,
-    UINT pivot_qubit_index, const CTYPE* state, ITYPE dim);
+    UINT pivot_qubit_index, const CTYPE* state, ITYPE dim,
+    bool single_thread = false);
 double expectation_value_multi_qubit_Pauli_operator_Z_mask(
-    ITYPE phase_flip_mask, const CTYPE* state, ITYPE dim);
+    ITYPE phase_flip_mask, const CTYPE* state, ITYPE dim,
+    bool single_thread = false);
 double expectation_value_multi_qubit_Pauli_operator_XZ_mask_mpi(
     ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count,
     UINT pivot_qubit_index, const CTYPE* state, ITYPE dim, UINT inner_qc);
@@ -34,9 +36,11 @@ double expectation_value_Z_Pauli_operator_sve(
     UINT target_qubit_index, const CTYPE* state, ITYPE dim);
 double expectation_value_multi_qubit_Pauli_operator_XZ_mask_sve(
     ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count,
-    UINT pivot_qubit_index, const CTYPE* state, ITYPE dim);
+    UINT pivot_qubit_index, const CTYPE* state, ITYPE dim,
+    bool single_thread = false);
 double expectation_value_multi_qubit_Pauli_operator_Z_mask_sve(
-    ITYPE phase_flip_mask, const CTYPE* state, ITYPE dim);
+    ITYPE phase_flip_mask, const CTYPE* state, ITYPE dim,
+    bool single_thread = false);
 #endif
 
 // calculate expectation value of X on target qubit
@@ -347,13 +351,13 @@ double expectation_value_single_qubit_Pauli_operator(UINT target_qubit_index,
 // bit-flip mask and phase-flip mask, see get_masks_*_list at utility.h
 double expectation_value_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
     ITYPE phase_flip_mask, UINT global_phase_90rot_count,
-    UINT pivot_qubit_index, const CTYPE* state, ITYPE dim) {
+    UINT pivot_qubit_index, const CTYPE* state, ITYPE dim, bool single_thread) {
     const ITYPE loop_dim = dim / 2;
     const ITYPE pivot_mask = 1ULL << pivot_qubit_index;
     ITYPE state_index;
     double sum = 0.;
 #ifdef _OPENMP
-#pragma omp parallel for reduction(+ : sum)
+#pragma omp parallel for reduction(+ : sum) if (!single_thread)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
         ITYPE basis_0 = insert_zero_to_basis_index(
@@ -371,7 +375,7 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask(ITYPE bit_flip_mask,
 #ifdef _USE_SVE
 double expectation_value_multi_qubit_Pauli_operator_XZ_mask_sve(
     ITYPE bit_flip_mask, ITYPE phase_flip_mask, UINT global_phase_90rot_count,
-    UINT pivot_qubit_index, const CTYPE* state, ITYPE dim) {
+    UINT pivot_qubit_index, const CTYPE* state, ITYPE dim, bool single_thread) {
     const ITYPE loop_dim = dim / 2;
     const ITYPE pivot_mask = 1ULL << pivot_qubit_index;
     ITYPE state_index;
@@ -381,7 +385,7 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_sve(
     ITYPE VL = svcntd() / 2;
 
 #ifdef _OPENMP
-#pragma omp parallel reduction(+ : sum)
+#pragma omp parallel reduction(+ : sum) if (!single_thread)
 #endif
     {
         int img_flag = global_phase_90rot_count & 1;
@@ -461,12 +465,12 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_sve(
 #endif
 
 double expectation_value_multi_qubit_Pauli_operator_Z_mask(
-    ITYPE phase_flip_mask, const CTYPE* state, ITYPE dim) {
+    ITYPE phase_flip_mask, const CTYPE* state, ITYPE dim, bool singlethread) {
     const ITYPE loop_dim = dim;
     ITYPE state_index;
     double sum = 0.;
 #ifdef _OPENMP
-#pragma omp parallel for reduction(+ : sum)
+#pragma omp parallel for reduction(+ : sum) if (!singlethread)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
         int bit_parity = count_population(state_index & phase_flip_mask) % 2;
@@ -478,7 +482,7 @@ double expectation_value_multi_qubit_Pauli_operator_Z_mask(
 
 #ifdef _USE_SVE
 double expectation_value_multi_qubit_Pauli_operator_Z_mask_sve(
-    ITYPE phase_flip_mask, const CTYPE* state, ITYPE dim) {
+    ITYPE phase_flip_mask, const CTYPE* state, ITYPE dim, bool singlethread) {
     const ITYPE loop_dim = dim;
     ITYPE state_index;
     double sum = 0.;
@@ -486,7 +490,7 @@ double expectation_value_multi_qubit_Pauli_operator_Z_mask_sve(
     // # of complex128 numbers in an SVE registers
     ITYPE VL = svcntd() / 2;
 #ifdef _OPENMP
-#pragma omp parallel reduction(+ : sum)
+#pragma omp parallel reduction(+ : sum) if (!singlethread)
 #endif
     {
         svbool_t pall = svptrue_b64();
@@ -655,9 +659,6 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
         Pauli_operator_type_list, target_qubit_index_count, &bit_flip_mask,
         &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
     double result;
-#ifdef _OPENMP
-    OMPutil::get_inst().set_qulacs_num_threads(1, 1);  // set num_thread=1
-#endif
 
 #ifdef _USE_SVE
     // # of complex128 numbers in an SVE register
@@ -668,30 +669,27 @@ double expectation_value_multi_qubit_Pauli_operator_partial_list_single_thread(
 #ifdef _USE_SVE
         if (dim > VL) {
             result = expectation_value_multi_qubit_Pauli_operator_Z_mask_sve(
-                phase_flip_mask, state, dim);
+                phase_flip_mask, state, dim, true);
         } else
 #endif
         {
             result = expectation_value_multi_qubit_Pauli_operator_Z_mask(
-                phase_flip_mask, state, dim);
+                phase_flip_mask, state, dim, true);
         }
     } else {
 #ifdef _USE_SVE
         if (dim > VL) {
             result = expectation_value_multi_qubit_Pauli_operator_XZ_mask_sve(
                 bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
-                pivot_qubit_index, state, dim);
+                pivot_qubit_index, state, dim, true);
         } else
 #endif
         {
             result = expectation_value_multi_qubit_Pauli_operator_XZ_mask(
                 bit_flip_mask, phase_flip_mask, global_phase_90rot_count,
-                pivot_qubit_index, state, dim);
+                pivot_qubit_index, state, dim, true);
         }
     }
-#ifdef _OPENMP
-    OMPutil::get_inst().reset_qulacs_num_threads();
-#endif
     return result;
 }
 
