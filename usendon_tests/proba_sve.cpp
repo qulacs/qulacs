@@ -91,7 +91,7 @@ int main() {
     QuantumCircuit circuit(n); 
 
     // 5️⃣ Añadimos la puerta ECR
-    circuit.add_ECR_gate(0,1);
+    circuit.add_ECR_gate(1,0);
 
     // 6️⃣ Aplicamos el circuito
     circuit.update_quantum_state(&state);

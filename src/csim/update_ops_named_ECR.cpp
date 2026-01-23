@@ -273,93 +273,100 @@ void ECR_gate_parallel_sve(UINT target_qubit_index_0,
 
     // o vector state está almacenado de forma contigua en memoria
 
+    if ((dim > VL) && (min_qubit_mask >= VL)) {
 
     /////////////////////////////////////////////////
 
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (ITYPE state_index = 0; state_index < loop_dim; state_index+=VL) {
+    #ifdef _OPENMP
+    #pragma omp parallel for
+    #endif
+        for (ITYPE state_index = 0; state_index < loop_dim; state_index+=VL) {
 
-        // Igual que en SIMD
+            // Igual que en SIMD
 
-        ITYPE basis_index_00 = (state_index & low_mask) +
-                               ((state_index & mid_mask) << 1) +
-                               ((state_index & high_mask) << 2);
-        std::cout << "basis_index_00 = " << basis_index_00 << std::endl;
-        ITYPE basis_index_01 = basis_index_00 + mask_0;
-        std::cout << "basis_index_01 = " << basis_index_01 << std::endl;
-        ITYPE basis_index_10 = basis_index_00 + mask_1;
-        std::cout << "basis_index_10 = " << basis_index_10 << std::endl;
-        ITYPE basis_index_11 = basis_index_00 + mask;
-        std::cout << "basis_index_11 = " << basis_index_11 << std::endl;
+            ITYPE basis_index_00 = (state_index & low_mask) +
+                                ((state_index & mid_mask) << 1) +
+                                ((state_index & high_mask) << 2);
+            std::cout << "basis_index_00 = " << basis_index_00 << std::endl;
+            ITYPE basis_index_01 = basis_index_00 + mask_0;
+            std::cout << "basis_index_01 = " << basis_index_01 << std::endl;
+            ITYPE basis_index_10 = basis_index_00 + mask_1;
+            std::cout << "basis_index_10 = " << basis_index_10 << std::endl;
+            ITYPE basis_index_11 = basis_index_00 + mask;
+            std::cout << "basis_index_11 = " << basis_index_11 << std::endl;
 
-        // Cargo os valores
+            // Cargo os valores
 
-        svfloat64_t input00 = svld1(svptrue_b64(), (double*)&state[basis_index_00]);
-        std::cout << "input00: " << std::endl;
-        print_svfloat64(input00);
-        svfloat64_t input01 = svld1(svptrue_b64(), (double*)&state[basis_index_01]);
-        std::cout << "input01: " << std::endl;
-        print_svfloat64(input01);
-        svfloat64_t input10 = svld1(svptrue_b64(), (double*)&state[basis_index_10]);
-        std::cout << "input10: " << std::endl;
-        print_svfloat64(input10);
-        svfloat64_t input11 = svld1(svptrue_b64(), (double*)&state[basis_index_11]);
-        std::cout << "input11: " << std::endl;
-        print_svfloat64(input11);
+            svfloat64_t input00 = svld1(svptrue_b64(), (double*)&state[basis_index_00]);
+            std::cout << "input00: " << std::endl;
+            print_svfloat64(input00);
+            svfloat64_t input01 = svld1(svptrue_b64(), (double*)&state[basis_index_01]);
+            std::cout << "input01: " << std::endl;
+            print_svfloat64(input01);
+            svfloat64_t input10 = svld1(svptrue_b64(), (double*)&state[basis_index_10]);
+            std::cout << "input10: " << std::endl;
+            print_svfloat64(input10);
+            svfloat64_t input11 = svld1(svptrue_b64(), (double*)&state[basis_index_11]);
+            std::cout << "input11: " << std::endl;
+            print_svfloat64(input11);
 
-        //////////////////////////////////////////////////////////////////
+            //////////////////////////////////////////////////////////////////
 
-        // Aquí falta o de multiplicar por i
+            // Aquí falta o de multiplicar por i
 
-        // En código de C++ normal const CTYPE imag = 1.i; Supoño que en SVE 
-        // svfloat64_t sv_factor = svdup_f64(imag);?? por ejemplo ns
+            // En código de C++ normal const CTYPE imag = 1.i; Supoño que en SVE 
+            // svfloat64_t sv_factor = svdup_f64(imag);?? por ejemplo ns
 
-        /////////////////////////////////////////////////////////////////
+            /////////////////////////////////////////////////////////////////
 
-        // vou poñer por exemplo que os valores despois de multiplicar por i son
-        // i_00, i_01, i_10 e i_11.
+            // vou poñer por exemplo que os valores despois de multiplicar por i son
+            // i_00, i_01, i_10 e i_11.
 
-        // Vou poñer un valor calquera para estes valores ata que non saiba como se fai ben para poder executar a función
-        // Ao final non é un valor calquera pero non sei se vai ben. O resultado dame mal pero non sei se é por esta parte
-        // ou polas outras, pero esta é da que menos segura estou.
+            // Vou poñer un valor calquera para estes valores ata que non saiba como se fai ben para poder executar a función
+            // Ao final non é un valor calquera pero non sei se vai ben. O resultado dame mal pero non sei se é por esta parte
+            // ou polas outras, pero esta é da que menos segura estou.
 
-        
+            
 
-        svfloat64_t i_00 = mul_by_i(svptrue_b64(),  input00);
-        svfloat64_t i_10 = mul_by_i(svptrue_b64(),  input10);
-        svfloat64_t i_11 = mul_by_i(svptrue_b64(),  input11);
-        svfloat64_t i_01 = mul_by_i(svptrue_b64(),  input01);
-
-
-
-        // Entón ahora vou escribir como se programarían as sumas, restas e o produto por sqrt2inv
-
-        // Fago as sumas e restas
-
-        svfloat64_t output00 = svadd_x(svptrue_b64(), input01, i_11); 
-        svfloat64_t output01 = svsub_x(svptrue_b64(), input00, i_10); 
-        svfloat64_t output10 = svadd_x(svptrue_b64(), input11, i_01); 
-        svfloat64_t output11 = svsub_x(svptrue_b64(), input10, i_00); 
+            svfloat64_t i_00 = mul_by_i(svptrue_b64(),  input00);
+            svfloat64_t i_10 = mul_by_i(svptrue_b64(),  input10);
+            svfloat64_t i_11 = mul_by_i(svptrue_b64(),  input11);
+            svfloat64_t i_01 = mul_by_i(svptrue_b64(),  input01);
 
 
-        // Multiplico polo factor 1/raíz(2)
 
-        svfloat64_t sv_factor = svdup_f64(sqrt2inv);
+            // Entón ahora vou escribir como se programarían as sumas, restas e o produto por sqrt2inv
 
-        output00 = svmul_x(svptrue_b64(), output00, sv_factor);
-        output01 = svmul_x(svptrue_b64(), output01, sv_factor);
-        output10 = svmul_x(svptrue_b64(), output10, sv_factor);
-        output11 = svmul_x(svptrue_b64(), output11, sv_factor);
+            // Fago as sumas e restas
 
-        svst1(svptrue_b64(), (double *)&state[basis_index_00], output00);
-        svst1(svptrue_b64(), (double *)&state[basis_index_01], output01);
-        svst1(svptrue_b64(), (double *)&state[basis_index_10], output10);
-        svst1(svptrue_b64(), (double *)&state[basis_index_11], output11);
+            svfloat64_t output00 = svadd_x(svptrue_b64(), input01, i_11); 
+            svfloat64_t output01 = svsub_x(svptrue_b64(), input00, i_10); 
+            svfloat64_t output10 = svadd_x(svptrue_b64(), input11, i_01); 
+            svfloat64_t output11 = svsub_x(svptrue_b64(), input10, i_00); 
 
-        
+
+            // Multiplico polo factor 1/raíz(2)
+
+            svfloat64_t sv_factor = svdup_f64(sqrt2inv);
+
+            output00 = svmul_x(svptrue_b64(), output00, sv_factor);
+            output01 = svmul_x(svptrue_b64(), output01, sv_factor);
+            output10 = svmul_x(svptrue_b64(), output10, sv_factor);
+            output11 = svmul_x(svptrue_b64(), output11, sv_factor);
+
+            svst1(svptrue_b64(), (double *)&state[basis_index_00], output00);
+            svst1(svptrue_b64(), (double *)&state[basis_index_01], output01);
+            svst1(svptrue_b64(), (double *)&state[basis_index_10], output10);
+            svst1(svptrue_b64(), (double *)&state[basis_index_11], output11);
+
+            
+        }
     }
+
+    else {
+        ECR_gate_parallel_unroll(target_qubit_index_0, target_qubit_index_1, state, dim);
+    }
+
 }
 
 #endif  // _USE_SVE
