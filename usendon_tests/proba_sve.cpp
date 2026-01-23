@@ -74,7 +74,9 @@ int main() {
     initial_state[28] = CTYPE(0.0636509085, -0.0305138954);
     initial_state[29] = CTYPE(-0.0996959250, -0.3243868490);
     initial_state[30] = CTYPE(-0.1503251987, 0.1018871130);
-    initial_state[31] = CTYPE(0.0717523446, -0.0374508447);
+    initial_state[31] = CTYPE(0.0717523446, -0.0374508447); 
+ 
+     
 
     // 2️⃣ Creamos el estado cuántico con n qubits
     QuantumState state(n);
@@ -89,7 +91,7 @@ int main() {
     QuantumCircuit circuit(n); 
 
     // 5️⃣ Añadimos la puerta ECR
-    circuit.add_ECR_gate(0, 4);
+    circuit.add_ECR_gate(0,1);
 
     // 6️⃣ Aplicamos el circuito
     circuit.update_quantum_state(&state);

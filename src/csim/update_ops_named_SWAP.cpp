@@ -152,7 +152,10 @@ void SWAP_gate_parallel_simd(UINT target_qubit_index_0,
 
 
 
+
+
 #ifdef _USE_SVE
+
 void SWAP_gate_parallel_sve(UINT target_qubit_index_0,
     UINT target_qubit_index_1, CTYPE* state, ITYPE dim) {
     const ITYPE loop_dim = dim / 4;

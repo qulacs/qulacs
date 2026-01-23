@@ -188,108 +188,184 @@ void ECR_gate_parallel_simd(UINT target_qubit_index_0,
 #endif
 
 
-///////////////////////////////////////////////////////////////////// primeira proba SVE
+
+////////////////////////////////// outra proba escrita por min
 
 #ifdef _USE_SVE
-#include <arm_sve.h>
+
+static inline svfloat64_t mul_by_i(svbool_t pg, svfloat64_t x) {
+    // Crear tabla de índices que hace swap de cada par (real, imag)
+    svuint64_t tbl_idx = svindex_u64(0, 1);       // [0,1,2,3,...]
+    tbl_idx = sveor_z(pg, tbl_idx, svdup_u64(1)); // XOR 1 → [1,0,3,2,...]
+
+    // Swap de pares: [a,b] -> [b,a]
+    svfloat64_t swapped = svtbl_f64(x, tbl_idx);
+
+    // Crear predicado para signos: -1 para la parte real, +1 para la parte imaginaria
+    svbool_t odd = svcmpne(pg, svand_z(pg, tbl_idx, svdup_u64(1)), svdup_u64(0));
+
+    svfloat64_t sign = svsel(odd, svdup_f64(-1.0), svdup_f64(1.0));
+
+    // Multiplicar elemento a elemento
+    return svmul_x(pg, swapped, sign);
+}
+
+    // proba función para imprimir
 
 
+ static void print_svfloat64(svfloat64_t v) {
+    size_t n = svcntd();                 // número de doubles del vector SVE
+    std::vector<double> tmp(n);
+
+    svbool_t pg = svptrue_b64();
+    svst1(pg, tmp.data(), v);            // guarda el vector en memoria
+
+    for (size_t i = 0; i < n; ++i) {
+        std::cout << tmp[i] << " ";
+    }
+    std::cout << std::endl;
+}
+ 
+
+
+
+// Función principal del gate ECR usando SVE
 void ECR_gate_parallel_sve(UINT target_qubit_index_0,
                            UINT target_qubit_index_1,
-                           CTYPE* state,
-                           ITYPE dim) {
-
-    std::cout << "Estou dentro de SVE" << std::endl;
+                           CTYPE* state, ITYPE dim) {
 
     const ITYPE loop_dim = dim / 4;
-
     const ITYPE mask_0 = 1ULL << target_qubit_index_0;
     const ITYPE mask_1 = 1ULL << target_qubit_index_1;
-    const ITYPE mask   = mask_0 + mask_1;
+    const ITYPE mask = mask_0 + mask_1;
 
-    const UINT min_qubit_index =
-        get_min_ui(target_qubit_index_0, target_qubit_index_1);
-    const UINT max_qubit_index =
-        get_max_ui(target_qubit_index_0, target_qubit_index_1);
+    const UINT min_qubit_index = get_min_ui(target_qubit_index_0, target_qubit_index_1);
+    const UINT max_qubit_index = get_max_ui(target_qubit_index_0, target_qubit_index_1);
 
     const ITYPE min_qubit_mask = 1ULL << min_qubit_index;
     const ITYPE max_qubit_mask = 1ULL << (max_qubit_index - 1);
-
     const ITYPE low_mask  = min_qubit_mask - 1;
     const ITYPE mid_mask  = (max_qubit_mask - 1) ^ low_mask;
     const ITYPE high_mask = ~(max_qubit_mask - 1);
+    const double sqrt2inv = 1. / sqrt(2.);
 
-    const double sqrt2inv = 1.0 / sqrt(2.0);
+    ///////////////////////////////////////// Movidas
 
-    // number of complex<double> per SVE register
-    const ITYPE VL = svcntd() / 2;
+    // # of complex128 numbers in an SVE register
+    ITYPE VL = svcntd() / 2;
 
-#pragma omp parallel
-    {
-        svbool_t pg = svptrue_b64();
+    std::cout << "VL = " << VL << std::endl;
+
+/*     for (ITYPE i = 0; i < 32; ++i) {
+        printf("state[%2llu] addr = %p\n", (unsigned long long)i, (void*)&state[i]);
+    } */
+
+/*     for (ITYPE i = 0; i < 16; ++i) {
+        uintptr_t a = (uintptr_t)&state[i];
+        uintptr_t b = (uintptr_t)&state[i+1];
+
+        printf("i=%2llu  addr=%p  next=%p  stride=%llu bytes\n",
+            (unsigned long long)i,
+            (void*)a,
+            (void*)b,
+            (unsigned long long)(b - a));
+    } */
+
+    // o vector state está almacenado de forma contigua en memoria
+
+
+    /////////////////////////////////////////////////
+
+#ifdef _OPENMP
+#pragma omp parallel for
+#endif
+    for (ITYPE state_index = 0; state_index < loop_dim; state_index+=VL) {
+
+        // Igual que en SIMD
+
+        ITYPE basis_index_00 = (state_index & low_mask) +
+                               ((state_index & mid_mask) << 1) +
+                               ((state_index & high_mask) << 2);
+        std::cout << "basis_index_00 = " << basis_index_00 << std::endl;
+        ITYPE basis_index_01 = basis_index_00 + mask_0;
+        std::cout << "basis_index_01 = " << basis_index_01 << std::endl;
+        ITYPE basis_index_10 = basis_index_00 + mask_1;
+        std::cout << "basis_index_10 = " << basis_index_10 << std::endl;
+        ITYPE basis_index_11 = basis_index_00 + mask;
+        std::cout << "basis_index_11 = " << basis_index_11 << std::endl;
+
+        // Cargo os valores
+
+        svfloat64_t input00 = svld1(svptrue_b64(), (double*)&state[basis_index_00]);
+        std::cout << "input00: " << std::endl;
+        print_svfloat64(input00);
+        svfloat64_t input01 = svld1(svptrue_b64(), (double*)&state[basis_index_01]);
+        std::cout << "input01: " << std::endl;
+        print_svfloat64(input01);
+        svfloat64_t input10 = svld1(svptrue_b64(), (double*)&state[basis_index_10]);
+        std::cout << "input10: " << std::endl;
+        print_svfloat64(input10);
+        svfloat64_t input11 = svld1(svptrue_b64(), (double*)&state[basis_index_11]);
+        std::cout << "input11: " << std::endl;
+        print_svfloat64(input11);
+
+        //////////////////////////////////////////////////////////////////
+
+        // Aquí falta o de multiplicar por i
+
+        // En código de C++ normal const CTYPE imag = 1.i; Supoño que en SVE 
+        // svfloat64_t sv_factor = svdup_f64(imag);?? por ejemplo ns
+
+        /////////////////////////////////////////////////////////////////
+
+        // vou poñer por exemplo que os valores despois de multiplicar por i son
+        // i_00, i_01, i_10 e i_11.
+
+        // Vou poñer un valor calquera para estes valores ata que non saiba como se fai ben para poder executar a función
+        // Ao final non é un valor calquera pero non sei se vai ben. O resultado dame mal pero non sei se é por esta parte
+        // ou polas outras, pero esta é da que menos segura estou.
+
+        
+
+        svfloat64_t i_00 = mul_by_i(svptrue_b64(),  input00);
+        svfloat64_t i_10 = mul_by_i(svptrue_b64(),  input10);
+        svfloat64_t i_11 = mul_by_i(svptrue_b64(),  input11);
+        svfloat64_t i_01 = mul_by_i(svptrue_b64(),  input01);
+
+
+
+        // Entón ahora vou escribir como se programarían as sumas, restas e o produto por sqrt2inv
+
+        // Fago as sumas e restas
+
+        svfloat64_t output00 = svadd_x(svptrue_b64(), input01, i_11); 
+        svfloat64_t output01 = svsub_x(svptrue_b64(), input00, i_10); 
+        svfloat64_t output10 = svadd_x(svptrue_b64(), input11, i_01); 
+        svfloat64_t output11 = svsub_x(svptrue_b64(), input10, i_00); 
+
+
+        // Multiplico polo factor 1/raíz(2)
+
         svfloat64_t sv_factor = svdup_f64(sqrt2inv);
 
-        // indices for swapping re/im : [1,0,3,2,5,4,...]
-        svuint64_t swap_index = svindex_u64(0, 1);
-        swap_index = sveor_x(pg, swap_index, svdup_u64(1));
+        output00 = svmul_x(svptrue_b64(), output00, sv_factor);
+        output01 = svmul_x(svptrue_b64(), output01, sv_factor);
+        output10 = svmul_x(svptrue_b64(), output10, sv_factor);
+        output11 = svmul_x(svptrue_b64(), output11, sv_factor);
 
-        auto mul_by_i = [&](svfloat64_t x) {
-            // swap real/imag
-            svfloat64_t swapped = svtbl(x, swap_index);
+        svst1(svptrue_b64(), (double *)&state[basis_index_00], output00);
+        svst1(svptrue_b64(), (double *)&state[basis_index_01], output01);
+        svst1(svptrue_b64(), (double *)&state[basis_index_10], output10);
+        svst1(svptrue_b64(), (double *)&state[basis_index_11], output11);
 
-            // flip sign bit on first element of each complex
-            svuint64_t signmask = svdup_u64(0x8000000000000000ULL);
-
-            svfloat64_t out = svreinterpret_f64_u64(
-                sveor_x(pg,
-                        svreinterpret_u64_f64(swapped),
-                        signmask));
-            return out;
-        };
-
-#pragma omp for
-        for (ITYPE state_index = 0;
-             state_index < loop_dim;
-             state_index += VL) {
-
-            ITYPE base =
-                (state_index & low_mask) +
-                ((state_index & mid_mask) << 1) +
-                ((state_index & high_mask) << 2);
-
-            ITYPE b00 = base;
-            ITYPE b01 = base + mask_0;
-            ITYPE b10 = base + mask_1;
-            ITYPE b11 = base + mask;
-
-            svfloat64_t a00 = svld1(pg, (double*)&state[b00]);
-            svfloat64_t a01 = svld1(pg, (double*)&state[b01]);
-            svfloat64_t a10 = svld1(pg, (double*)&state[b10]);
-            svfloat64_t a11 = svld1(pg, (double*)&state[b11]);
-
-            svfloat64_t i_a00 = mul_by_i(a00);
-            svfloat64_t i_a01 = mul_by_i(a01);
-            svfloat64_t i_a10 = mul_by_i(a10);
-            svfloat64_t i_a11 = mul_by_i(a11);
-
-            svfloat64_t v00 = svadd_x(pg, a01, i_a11);
-            svfloat64_t v01 = svsub_x(pg, a00, i_a10);
-            svfloat64_t v10 = svadd_x(pg, a11, i_a01);
-            svfloat64_t v11 = svsub_x(pg, a10, i_a00);
-
-            v00 = svmul_x(pg, v00, sv_factor);
-            v01 = svmul_x(pg, v01, sv_factor);
-            v10 = svmul_x(pg, v10, sv_factor);
-            v11 = svmul_x(pg, v11, sv_factor);
-
-            svst1(pg, (double*)&state[b00], v00);
-            svst1(pg, (double*)&state[b01], v01);
-            svst1(pg, (double*)&state[b10], v10);
-            svst1(pg, (double*)&state[b11], v11);
-        }
+        
     }
 }
-#endif
+
+#endif  // _USE_SVE
+
+
+////////////////////////////////////////////////
 
 
 
