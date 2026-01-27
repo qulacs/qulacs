@@ -16,13 +16,13 @@ int main() {
     // ============================================================
     // CONFIGURACIÓN DEL TEST
     // ============================================================
-    const UINT q0 = 0;
-    const UINT q1 = 4;
+    const UINT q0 = 1;
+    const UINT q1 = 0;
     const UINT n_qubits = 5;
     const ITYPE dim = 1ULL << n_qubits;
 
-    cout << "Probando ECR_gate_parallel_simd sobre " << n_qubits 
-         << " qubits..." << endl;
+    /* cout << "Probando ECR_gate_parallel_unroll sobre " << n_qubits 
+         << " qubits..." << endl; */
 
     // ============================================================
     // CREAMOS UN ESTADO SENCILLO
@@ -67,13 +67,13 @@ int main() {
     // ============================================================
     // APLICAMOS TU PUERTA ECR OPTIMIZADA
     // ============================================================
-    ECR_gate_parallel_simd(q0, q1, state.data(), dim);
+    ECR_gate_parallel_unroll(q0, q1, state.data(), dim);
 
     cout << "\nEstado después de aplicar ECR_gate_parallel_simd:\n";
     for (ITYPE i = 0; i < dim; i++) {
-        cout << i << ": (" << std::real(state[i])
+        cout << " (" << std::real(state[i])
              << ", " << std::imag(state[i]) << ")\n";
-    } 
+    }  
 
     return 0;
 }

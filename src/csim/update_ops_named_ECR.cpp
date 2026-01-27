@@ -33,7 +33,6 @@ using namespace std::complex_literals;
 
 void ECR_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
     CTYPE* state, ITYPE dim) {
-    std::cout << "Estou dentro de ECR_gate" << std::endl;
 #ifdef _OPENMP
     OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
 #endif
@@ -98,7 +97,6 @@ void ECR_gate_parallel_unroll(UINT target_qubit_index_0,
         CTYPE new_v10 = sqrt2inv * (v11 + 1.i * v01);
         CTYPE new_v11 = sqrt2inv * (v10 - 1.i * v00);
 
-        // Actualizamos el estado
         state[basis_index_00] = new_v00;
         state[basis_index_01] = new_v01;
         state[basis_index_10] = new_v10;
@@ -188,48 +186,22 @@ void ECR_gate_parallel_simd(UINT target_qubit_index_0,
 #endif
 
 
-
-////////////////////////////////// outra proba escrita por min
-
 #ifdef _USE_SVE
 
 static inline svfloat64_t mul_by_i(svbool_t pg, svfloat64_t x) {
-    // Crear tabla de índices que hace swap de cada par (real, imag)
-    svuint64_t tbl_idx = svindex_u64(0, 1);       // [0,1,2,3,...]
-    tbl_idx = sveor_z(pg, tbl_idx, svdup_u64(1)); // XOR 1 → [1,0,3,2,...]
+    svuint64_t tbl_idx = svindex_u64(0, 1);      
+    tbl_idx = sveor_z(pg, tbl_idx, svdup_u64(1));
 
-    // Swap de pares: [a,b] -> [b,a]
     svfloat64_t swapped = svtbl_f64(x, tbl_idx);
 
-    // Crear predicado para signos: -1 para la parte real, +1 para la parte imaginaria
     svbool_t odd = svcmpne(pg, svand_z(pg, tbl_idx, svdup_u64(1)), svdup_u64(0));
 
     svfloat64_t sign = svsel(odd, svdup_f64(-1.0), svdup_f64(1.0));
 
-    // Multiplicar elemento a elemento
     return svmul_x(pg, swapped, sign);
 }
 
-    // proba función para imprimir
 
-
- static void print_svfloat64(svfloat64_t v) {
-    size_t n = svcntd();                 // número de doubles del vector SVE
-    std::vector<double> tmp(n);
-
-    svbool_t pg = svptrue_b64();
-    svst1(pg, tmp.data(), v);            // guarda el vector en memoria
-
-    for (size_t i = 0; i < n; ++i) {
-        std::cout << tmp[i] << " ";
-    }
-    std::cout << std::endl;
-}
- 
-
-
-
-// Función principal del gate ECR usando SVE
 void ECR_gate_parallel_sve(UINT target_qubit_index_0,
                            UINT target_qubit_index_1,
                            CTYPE* state, ITYPE dim) {
@@ -249,84 +221,30 @@ void ECR_gate_parallel_sve(UINT target_qubit_index_0,
     const ITYPE high_mask = ~(max_qubit_mask - 1);
     const double sqrt2inv = 1. / sqrt(2.);
 
-    ///////////////////////////////////////// Movidas
-
     // # of complex128 numbers in an SVE register
     ITYPE VL = svcntd() / 2;
 
-    std::cout << "VL = " << VL << std::endl;
-
-/*     for (ITYPE i = 0; i < 32; ++i) {
-        printf("state[%2llu] addr = %p\n", (unsigned long long)i, (void*)&state[i]);
-    } */
-
-/*     for (ITYPE i = 0; i < 16; ++i) {
-        uintptr_t a = (uintptr_t)&state[i];
-        uintptr_t b = (uintptr_t)&state[i+1];
-
-        printf("i=%2llu  addr=%p  next=%p  stride=%llu bytes\n",
-            (unsigned long long)i,
-            (void*)a,
-            (void*)b,
-            (unsigned long long)(b - a));
-    } */
-
-    // o vector state está almacenado de forma contigua en memoria
 
     if ((dim > VL) && (min_qubit_mask >= VL)) {
-
-    /////////////////////////////////////////////////
 
     #ifdef _OPENMP
     #pragma omp parallel for
     #endif
         for (ITYPE state_index = 0; state_index < loop_dim; state_index+=VL) {
 
-            // Igual que en SIMD
-
             ITYPE basis_index_00 = (state_index & low_mask) +
                                 ((state_index & mid_mask) << 1) +
                                 ((state_index & high_mask) << 2);
-            std::cout << "basis_index_00 = " << basis_index_00 << std::endl;
             ITYPE basis_index_01 = basis_index_00 + mask_0;
-            std::cout << "basis_index_01 = " << basis_index_01 << std::endl;
             ITYPE basis_index_10 = basis_index_00 + mask_1;
-            std::cout << "basis_index_10 = " << basis_index_10 << std::endl;
             ITYPE basis_index_11 = basis_index_00 + mask;
-            std::cout << "basis_index_11 = " << basis_index_11 << std::endl;
 
-            // Cargo os valores
 
             svfloat64_t input00 = svld1(svptrue_b64(), (double*)&state[basis_index_00]);
-            std::cout << "input00: " << std::endl;
-            print_svfloat64(input00);
             svfloat64_t input01 = svld1(svptrue_b64(), (double*)&state[basis_index_01]);
-            std::cout << "input01: " << std::endl;
-            print_svfloat64(input01);
             svfloat64_t input10 = svld1(svptrue_b64(), (double*)&state[basis_index_10]);
-            std::cout << "input10: " << std::endl;
-            print_svfloat64(input10);
             svfloat64_t input11 = svld1(svptrue_b64(), (double*)&state[basis_index_11]);
-            std::cout << "input11: " << std::endl;
-            print_svfloat64(input11);
 
-            //////////////////////////////////////////////////////////////////
-
-            // Aquí falta o de multiplicar por i
-
-            // En código de C++ normal const CTYPE imag = 1.i; Supoño que en SVE 
-            // svfloat64_t sv_factor = svdup_f64(imag);?? por ejemplo ns
-
-            /////////////////////////////////////////////////////////////////
-
-            // vou poñer por exemplo que os valores despois de multiplicar por i son
-            // i_00, i_01, i_10 e i_11.
-
-            // Vou poñer un valor calquera para estes valores ata que non saiba como se fai ben para poder executar a función
-            // Ao final non é un valor calquera pero non sei se vai ben. O resultado dame mal pero non sei se é por esta parte
-            // ou polas outras, pero esta é da que menos segura estou.
-
-            
 
             svfloat64_t i_00 = mul_by_i(svptrue_b64(),  input00);
             svfloat64_t i_10 = mul_by_i(svptrue_b64(),  input10);
@@ -334,18 +252,11 @@ void ECR_gate_parallel_sve(UINT target_qubit_index_0,
             svfloat64_t i_01 = mul_by_i(svptrue_b64(),  input01);
 
 
-
-            // Entón ahora vou escribir como se programarían as sumas, restas e o produto por sqrt2inv
-
-            // Fago as sumas e restas
-
             svfloat64_t output00 = svadd_x(svptrue_b64(), input01, i_11); 
             svfloat64_t output01 = svsub_x(svptrue_b64(), input00, i_10); 
             svfloat64_t output10 = svadd_x(svptrue_b64(), input11, i_01); 
             svfloat64_t output11 = svsub_x(svptrue_b64(), input10, i_00); 
 
-
-            // Multiplico polo factor 1/raíz(2)
 
             svfloat64_t sv_factor = svdup_f64(sqrt2inv);
 
@@ -372,12 +283,6 @@ void ECR_gate_parallel_sve(UINT target_qubit_index_0,
 #endif  // _USE_SVE
 
 
-////////////////////////////////////////////////
-
-
-
-
-////////////////////////////////////////////////////////////////////
 
 
 #include <complex>
@@ -496,7 +401,7 @@ void ECR_gate_mpi(UINT target_qubit_index_0, UINT target_qubit_index_1,
 
         bool inA = std::find(listA.begin(), listA.end(), (int)rank) != listA.end();
         for (UINT k = 0; k < (UINT)num_work; ++k) {
-            _ECR_gate_mpi_externos(t1, t2, si, dim_work, rtgt_blk_dim, inA, num_proc_bloque);
+            _ECR_gate_mpi_external(t1, t2, si, dim_work, rtgt_blk_dim, inA, num_proc_bloque);
 
             si += dim_work;
         }
@@ -524,7 +429,7 @@ void _ECR_gate_mpi(CTYPE* t, CTYPE* si, ITYPE dim, ITYPE rtgt_blk_dim) {
     }
 }
 
-void _ECR_gate_mpi_externos(
+void _ECR_gate_mpi_external(
     CTYPE* t1, CTYPE* t2, CTYPE* si, ITYPE dim, ITYPE rtgt_blk_dim, bool inA, ITYPE num_proc_bloque) {
     const double sqrt2inv = 1. / sqrt(2.);
     ITYPE state_index = 0;

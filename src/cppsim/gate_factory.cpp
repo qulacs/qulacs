@@ -642,10 +642,10 @@ QuantumGateBase* create_quantum_gate_from_string(std::string gate_string) {
 
     ////////////////////////////////////////////// meu pero aínda non o descomento porque todo o anterior non está
 
-    //} else if (strcasecmp(sbuf, "ECR") == 0) {
-        //unsigned int target1 = atoi(strtok(NULL, delim));
-        //unsigned int target2 = atoi(strtok(NULL, delim));
-        //gate = gate::ECR(target1, target2);
+    } else if (strcasecmp(sbuf, "ECR") == 0) {
+        unsigned int target1 = atoi(strtok(NULL, delim));
+        unsigned int target2 = atoi(strtok(NULL, delim));
+        gate = gate::ECR(target1, target2);
 
 
 
@@ -796,10 +796,10 @@ QuantumGateBase* from_ptree(const boost::property_tree::ptree& pt) {
 
     //////////////////////////////////////////////////////////////////////////// código meu
 
-    //} else if (name == "ECRGate") {
-        //std::vector<UINT> target_qubit_list =
-            //ptree::uint_array_from_ptree(pt.get_child("target_qubit_list"));
-        //return ECR(target_qubit_list[0], target_qubit_list[1]);
+    } else if (name == "ECRGate") {
+        std::vector<UINT> target_qubit_list =
+            ptree::uint_array_from_ptree(pt.get_child("target_qubit_list"));
+        return ECR(target_qubit_list[0], target_qubit_list[1]);
 
     /////////////////////////////////////////////////////////////////////////////
 

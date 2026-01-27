@@ -907,8 +907,8 @@ PYBIND11_MODULE(qulacs_core, m) {
 
     ///////////////////////////////////////////// meu pero aínda non teño todo o anterior por iso o poño comentado
 
-    //mgate.def("ECR", &gate::ECR, py::return_value_policy::take_ownership,
-    //"Create ECR gate", py::arg("target1"), py::arg("target2"));
+    mgate.def("ECR", &gate::ECR, py::return_value_policy::take_ownership,
+        "Create ECR gate", py::arg("target1"), py::arg("target2"));
 
     /////////////////////////////////////////////////
 
