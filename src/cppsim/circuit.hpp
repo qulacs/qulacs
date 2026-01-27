@@ -371,9 +371,6 @@ public:
      */
     virtual void add_SWAP_gate(UINT target_index1, UINT target_index2);
 
-
-    /////////////////////////////////////////////////////////////////////// meu 
-
     /**
      * \~english ECR gate
      *
@@ -381,10 +378,6 @@ public:
      * @param[in] target_index2
      */
     virtual void add_ECR_gate(UINT target_index1, UINT target_index2);
-
-
-
-    ///////////////////////////////////////////////////////////////////////////
 
     /**
      * \~japanese-en FusedSWAP gateを追加する。

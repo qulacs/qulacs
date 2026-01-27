@@ -237,9 +237,6 @@ ClsTwoQubitGate* SWAP(UINT qubit_index1, UINT qubit_index2) {
     ptr->SWAPGateinit(qubit_index1, qubit_index2);
     return ptr;
 }
-
-///////////////////////////////////////////////////////////// meu pero comentado porque aínda non fixen todo o anterior
-
 ClsTwoQubitGate* ECR(UINT qubit_index1, UINT qubit_index2) {
     if (qubit_index1 == qubit_index2) {
         throw DuplicatedQubitIndexException(
@@ -251,9 +248,6 @@ ClsTwoQubitGate* ECR(UINT qubit_index1, UINT qubit_index2) {
     ptr->ECRGateinit(qubit_index1, qubit_index2);
     return ptr;
 }
-
-////////////////////////////////////////////////////////////
-
 ClsNpairQubitGate* FusedSWAP(
     UINT qubit_index1, UINT qubit_index2, UINT block_size) {
     if (std::min(qubit_index1, qubit_index2) + block_size >
@@ -639,17 +633,10 @@ QuantumGateBase* create_quantum_gate_from_string(std::string gate_string) {
         unsigned int target1 = atoi(strtok(NULL, delim));
         unsigned int target2 = atoi(strtok(NULL, delim));
         gate = gate::SWAP(target1, target2);
-
-    ////////////////////////////////////////////// meu pero aínda non o descomento porque todo o anterior non está
-
     } else if (strcasecmp(sbuf, "ECR") == 0) {
         unsigned int target1 = atoi(strtok(NULL, delim));
         unsigned int target2 = atoi(strtok(NULL, delim));
         gate = gate::ECR(target1, target2);
-
-
-
-    ///////////////////////////////////////////////////
     } else if (strcasecmp(sbuf, "U1") == 0) {
         unsigned int target = atoi(strtok(NULL, delim));
         double theta1 = atof(strtok(NULL, delim));
@@ -793,16 +780,10 @@ QuantumGateBase* from_ptree(const boost::property_tree::ptree& pt) {
         std::vector<UINT> target_qubit_list =
             ptree::uint_array_from_ptree(pt.get_child("target_qubit_list"));
         return SWAP(target_qubit_list[0], target_qubit_list[1]);
-
-    //////////////////////////////////////////////////////////////////////////// código meu
-
     } else if (name == "ECRGate") {
         std::vector<UINT> target_qubit_list =
             ptree::uint_array_from_ptree(pt.get_child("target_qubit_list"));
         return ECR(target_qubit_list[0], target_qubit_list[1]);
-
-    /////////////////////////////////////////////////////////////////////////////
-
     } else if (name == "CNOTGate") {
         UINT control_qubit = pt.get<UINT>("control_qubit");
         UINT target_qubit = pt.get<UINT>("target_qubit");

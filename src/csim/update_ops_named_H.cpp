@@ -2,10 +2,6 @@
 #include "MPIutil.hpp"
 #include "update_ops.hpp"
 #include "utility.hpp"
-////////////////////////////
-
-#include <iostream>
-////////////////////////////
 
 #ifdef _USE_SIMD
 #ifdef _MSC_VER

@@ -772,10 +772,6 @@ void dm_SWAP_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
     target_index[1] = target_qubit_index_1;
     dm_multi_qubit_dense_matrix_gate(target_index, 2, matrix, state, dim);
 }
-
-
-//////////////////////////////////////////////////////////////////////////// código meu
-
 void dm_ECR_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
     CTYPE* state, ITYPE dim) {
         
@@ -800,8 +796,6 @@ void dm_ECR_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
     target_index[1] = target_qubit_index_1;
     dm_multi_qubit_dense_matrix_gate(target_index, 2, matrix, state, dim);
 }
-
-/////////////////////////////////////////////////////////////////////////
 void dm_RX_gate(
     UINT target_qubit_index, double angle, CTYPE* state, ITYPE dim) {
     UINT i, j;

@@ -90,8 +90,6 @@ public:
         this->_matrix_element << 1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 1;
     }
 
-///////////////////////////////////////////////////////////////////////// código meu
-
     void ECRGateinit(UINT target_qubit_index1, UINT target_qubit_index2) {
         this->_update_func = ECR_gate;
         this->_update_func_dm = dm_ECR_gate;
@@ -115,13 +113,6 @@ public:
 
 
 
-
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////////
 
     /**
      * \~japanese-en ptreeに変換する

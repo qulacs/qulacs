@@ -10,8 +10,8 @@ authors = [
     { name = "QunaSys", email = "qulacs@qunasys.com" }
 ]
 readme = "README.md"
-license = { text = "MIT" } # esto cambieino eu
-#license-files = ["LICENSE"] # esto comenteino eu
+license = { text = "MIT" }
+#license-files = ["LICENSE"] 
 dependencies = [
     "numpy",
     "scipy"

@@ -307,8 +307,6 @@ DllExport ClsOneControlOneTargetGate* CZ(
  */
 DllExport ClsTwoQubitGate* SWAP(UINT qubit_index1, UINT qubit_index2);
 
-/////////////////////////////////////////////////////////////////// código meu pero aínda non o descomento porque todo o anterior non está
-
 /**
  * \~japanese-en ECR
  *
@@ -317,8 +315,6 @@ DllExport ClsTwoQubitGate* SWAP(UINT qubit_index1, UINT qubit_index2);
  * @return 作成されたゲートのインスタンス
  */
 DllExport ClsTwoQubitGate* ECR(UINT qubit_index1, UINT qubit_index2);
-
-//////////////////////////////////////////////////////////////////////////
 
 /**
  * \~japanese-en FusedSWAPゲートを作成する

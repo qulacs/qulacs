@@ -903,15 +903,8 @@ PYBIND11_MODULE(qulacs_core, m) {
         "Create CZ gate", py::arg("control"), py::arg("target"));
     mgate.def("SWAP", &gate::SWAP, py::return_value_policy::take_ownership,
         "Create SWAP gate", py::arg("target1"), py::arg("target2"));
-
-
-    ///////////////////////////////////////////// meu pero aínda non teño todo o anterior por iso o poño comentado
-
     mgate.def("ECR", &gate::ECR, py::return_value_policy::take_ownership,
         "Create ECR gate", py::arg("target1"), py::arg("target2"));
-
-    /////////////////////////////////////////////////
-
     mgate.def("FusedSWAP", &gate::FusedSWAP,
         py::return_value_policy::take_ownership, "Create FusedSWAP gate",
         py::arg("target1"), py::arg("target2"), py::arg("block_size"));
@@ -1329,13 +1322,8 @@ PYBIND11_MODULE(qulacs_core, m) {
             py::arg("control"), py::arg("target"))
         .def("add_SWAP_gate", &QuantumCircuit::add_SWAP_gate, "Add SWAP gate",
             py::arg("target1"), py::arg("target2"))
-
-        ////////////////////////////////////////////////////////////////////////// código meu pero non teño todo o anterior por iso está comentado
-
         .def("add_ECR_gate", &QuantumCircuit::add_ECR_gate, "Add ECR gate",
             py::arg("target1"), py::arg("target2"))
-
-        ////////////////////////////////////////////////////////////////////////////
         .def("add_FusedSWAP_gate", &QuantumCircuit::add_FusedSWAP_gate,
             "Add FusedSWAP gate", py::arg("target1"), py::arg("target2"),
             py::arg("block_size"))
