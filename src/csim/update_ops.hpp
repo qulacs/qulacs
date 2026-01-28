@@ -442,7 +442,7 @@ void ECR_gate_parallel_sve(UINT target_qubit_index_0, UINT target_qubit_index_1,
 DllExport void ECR_gate_mpi(UINT target_qubit_index_0,
     UINT target_qubit_index_1, CTYPE* state, ITYPE dim, UINT inner_qc);
 void _ECR_gate_mpi(CTYPE* t, CTYPE* si, ITYPE dim, ITYPE rtgt_blk_dim);
-void _ECR_gate_mpi_externos(
+void _ECR_gate_mpi_external(
     CTYPE* t1, CTYPE* t2, CTYPE* si, ITYPE dim, ITYPE rtgt_blk_dim, bool inA, ITYPE num_proc_bloque);
 
 /**
