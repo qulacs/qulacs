@@ -3,13 +3,13 @@
 #include <Eigen/Dense>
 
 // Incluye tus propias cabeceras:
-#include "cppsim/gate.hpp"         // debe incluir QuantumGateBase
-#include "cppsim/gate_named_one.hpp"  // o como se llame tu archivo con ClsOneQubitGate
-#include "cppsim/gate_named_two.hpp"
+#include <cppsim/gate.hpp>         // debe incluir QuantumGateBase
+#include <cppsim/gate_named_one.hpp>  // o como se llame tu archivo con ClsOneQubitGate
+#include <cppsim/gate_named_two.hpp>
 
 
 int main() {
-    QuantumGate_OneQubit x_gate;
+/*     QuantumGate_OneQubit x_gate;
     x_gate.XGateinit(0); // Inicializa la puerta X en el qubit 0
 
     ComplexMatrix matrix_x;
@@ -27,7 +27,7 @@ int main() {
     swap_gate.set_matrix(matrix_swap);
 
     std::cout << "Matriz de la puerta SWAP:" << std::endl;
-    std::cout << matrix_swap << std::endl;
+    std::cout << matrix_swap << std::endl; */
 
     ///////////////////////////
 
@@ -92,3 +92,6 @@ int main() {
 
     return 0;
 }
+
+
+// g++ -O2 -I ../include -L ../lib proba_matrices.cpp -o proba_dm -lvqcsim_static -lcppsim_static -lcsim_static -fopenmp
