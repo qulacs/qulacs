@@ -95,6 +95,9 @@ jobs:
 
       - name: Install qulacs for Ubuntu
         run: ./script/build_gcc_with_memory_sanitizer.sh
+      
+      - name: Check CPU
+        run: lscpu
 
       - name: Test in Ubuntu
         # -j option is not appended because running this test in parallel is slower than sequential version.
