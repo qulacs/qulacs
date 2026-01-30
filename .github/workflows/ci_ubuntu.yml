@@ -1,6 +1,7 @@
 name: Ubuntu CI
 
 on:
+  push:
   workflow_dispatch:
 
 jobs:
