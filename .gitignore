@@ -228,3 +228,4 @@ py.typed
 
 # usendon
 usendon_tests/
+build*/
