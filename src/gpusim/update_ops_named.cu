@@ -270,10 +270,6 @@ __global__ void CNOT_gate_gpu(unsigned int control_qubit_index,
     }
 }
 
-// en la CNOT no se incluye lógica para ordenar los índices de los qubits porque no es
-// conmutativa respecto a los qubits sobre los que actúa: CNOT(control, target) no es lo mismo 
-// que CNOT(target, control)
-// En cambio, la puerta CZ si es simétrica.
 
 __host__ void CNOT_gate_host(unsigned int control_qubit_index,
     unsigned int target_qubit_index, void* state, ITYPE dim, void* stream,
