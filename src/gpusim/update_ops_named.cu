@@ -359,54 +359,6 @@ __host__ void SWAP_gate_host(unsigned int target_qubit_index0,
     state = reinterpret_cast<void*>(state_gpu);
 }
 
-
-
-/////////////////////////////////////////////////////////////////// código meu
-
-
-// para la ECR gate voy a usar una estructura del tipo de la CNOT gate porque ambas
-// son no simétricas. El orden en el que pase los índices en la línea de código
-//     ECR_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
-//      control_qubit_index, target_qubit_index, state_gpu, dim);
-// dentro de la función ECR_gate_gpu
-
-
-
-__host__ void ECR_gate_host(unsigned int target_qubit_index0,
-    unsigned int target_qubit_index1, void* state, ITYPE dim, void* stream,
-    unsigned int device_number) {
-    int current_device = get_current_device();
-    if (device_number != current_device) gpuSetDevice(device_number);
-
-    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
-    gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
-    gpuError_t gpuStatus;
-    ITYPE quad_dim = dim >> 2;
-    unsigned int max_block_size =
-        get_block_size_to_maximize_occupancy(CNOT_gate_gpu);
-    unsigned int block = quad_dim <= max_block_size ? quad_dim : max_block_size;
-    unsigned int grid = (quad_dim + block - 1) / block;
-
-    ECR_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
-        target_qubit_index0, target_qubit_index1, state_gpu, dim);
-
-    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
-    gpuStatus = gpuGetLastError();
-    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
-    state = reinterpret_cast<void*>(state_gpu);
-}
-
-
-
-
-
-
-
-
-
-/////////////////////////////////////////////////////////////////////
-
-
 __global__ void P0_gate_gpu(
     UINT target_qubit_index, GTYPE* state_gpu, ITYPE dim) {
     ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x;

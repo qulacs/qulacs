@@ -833,6 +833,7 @@ void dm_RZ_gate(
         target_qubit_index, rotation_gate, state, dim);
 }
 
+
 void dm_multi_qubit_Pauli_gate_partial_list(const UINT* target_qubit_index_list,
     const UINT* Pauli_operator_type_list, UINT target_qubit_index_count,
     CTYPE* state, ITYPE dim) {
