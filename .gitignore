@@ -227,6 +227,4 @@ py.typed
 
 
 # usendon
-qulacs_mpi_*
-build*/
-usendon_tests/*
+usendon_tests/
