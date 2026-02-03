@@ -110,14 +110,12 @@ class TestQASM:
 
     def test_qasm_converter_from_qasm_str(self) -> None:
         # equals RX(1, np.pi / 4.0)
-        qasm = textwrap.dedent(
-            """
+        qasm = textwrap.dedent("""
             OPENQASM 2.0;
             include "qelib1.inc";
             qreg q[4];
             rx(-0.785398163397448) q[1];
-            """
-        ).strip()
+            """).strip()
 
         circuit = convert_QASM_to_qulacs_circuit(qasm.splitlines())
         recoverd = convert_qulacs_circuit_to_QASM(circuit)
