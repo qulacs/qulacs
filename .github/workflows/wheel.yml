@@ -49,6 +49,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CIBW_BUILD: ${{ matrix.cibw-python }}-${{ matrix.os-arch }}
+      CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
       PYTHON: ${{ matrix.python-version }}
       TWINE_USERNAME: "__token__"
     steps:

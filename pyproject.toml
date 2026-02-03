@@ -64,7 +64,7 @@ ci = [
 doc = [
     "mypy",
     "pybind11-stubgen",
-    "sphinx==7.*",
+    "sphinx==9.*",
     "sphinx-rtd-theme",
     "breathe",
     "exhale",
@@ -72,7 +72,7 @@ doc = [
     "myst-parser",
     "sphinx-copybutton",
     "ipykernel",
-    "sphinx-autoapi==3.0.0"
+    "sphinx-autoapi==3.6.*"
 ]
 
 [tool.setuptools]
