@@ -28,9 +28,9 @@ protected:
 
 public:
     const UINT& qubit_count; /**< \~japanese-en 量子ビット数 */
-    const UINT& inner_qc; /**< \~japanese-en ノード内量子ビット数 */
-    const UINT& outer_qc; /**< \~japanese-en ノード外量子ビット数 */
-    const ITYPE& dim;     /**< \~japanese-en 量子状態の次元 */
+    const UINT& inner_qc;    /**< \~japanese-en ノード内量子ビット数 */
+    const UINT& outer_qc;    /**< \~japanese-en ノード外量子ビット数 */
+    const ITYPE& dim;        /**< \~japanese-en 量子状態の次元 */
     const std::vector<UINT>&
         classical_register; /**< \~japanese-en 古典ビットのレジスタ */
     const UINT& device_number;
@@ -85,11 +85,22 @@ public:
                 "mpi-size must be power of 2");
         }
         UINT log_nodes = std::log2(mpisize);
+        /*         if (qubit_count_ < (log_nodes + 2)) {
+                    std::cout
+                        << "WARNING: this will initialize all local statevectors
+           to "
+                           "(1, "
+                           "0, 0, ... , 0). Not the desire with MPI. Check
+           number of " "processes"
+                        << "\n";
+                } */
+
         if (use_multi_cpu &&
             (qubit_count_ >= (log_nodes + 2))) {  // minimum inner_qc=2
             this->_inner_qc = qubit_count_ - log_nodes;
             this->_outer_qc = log_nodes;
-        } else {
+        } else {  // esto non funciona ben. Se entra aquí aplica mal as portas.
+            // Ver se ten sentido e se non dicirllo aos de qulacs.
             this->_inner_qc = qubit_count_;
             this->_outer_qc = 0;
         }
@@ -418,10 +429,10 @@ public:
 
 class QuantumStateCpu : public QuantumStateBase {
 private:
-    CPPCTYPE* _state_vector;
     Random random;
 
 public:
+    CPPCTYPE* _state_vector;
     /**
      * \~japanese-en コンストラクタ
      *

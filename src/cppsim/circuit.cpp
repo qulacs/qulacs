@@ -409,6 +409,13 @@ void QuantumCircuit::add_CZ_gate(UINT control_index, UINT target_index) {
 void QuantumCircuit::add_SWAP_gate(UINT target_index1, UINT target_index2) {
     try_add_gate(this, gate::SWAP(target_index1, target_index2));
 }
+
+void QuantumCircuit::add_ECR_gate(UINT target_index1, UINT target_index2) {
+    try_add_gate(this, gate::ECR(target_index1, target_index2));
+}
+
+
+
 void QuantumCircuit::add_FusedSWAP_gate(
     UINT target_index1, UINT target_index2, UINT block_size) {
     try_add_gate(

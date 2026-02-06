@@ -215,6 +215,7 @@ void H_gate_mpi(
         MPIutil &m = MPIutil::get_inst();
         const int rank = m.get_rank();
         ITYPE dim_work = dim;
+
         ITYPE num_work = 0;
         CTYPE *t = m.get_workarea(&dim_work, &num_work);
         assert(num_work > 0);
@@ -226,6 +227,7 @@ void H_gate_mpi(
 #endif
 
         CTYPE *si = state;
+
         for (UINT i = 0; i < (UINT)num_work; ++i) {
             m.m_DC_sendrecv(si, t, dim_work, pair_rank);
 

@@ -54,6 +54,8 @@ DllExport void dm_CZ_gate(
     UINT control_qubit_index, UINT target_qubit_index, CTYPE* state, ITYPE dim);
 DllExport void dm_SWAP_gate(UINT target_qubit_index_0,
     UINT target_qubit_index_1, CTYPE* state, ITYPE dim);
+DllExport void dm_ECR_gate(UINT target_qubit_index_0,
+    UINT target_qubit_index_1, CTYPE* state, ITYPE dim);
 DllExport void dm_P0_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 DllExport void dm_P1_gate(UINT target_qubit_index, CTYPE* state, ITYPE dim);
 DllExport void dm_RX_gate(

@@ -36,3 +36,4 @@ inline static void pclose(FILE* fp) { _pclose(fp); }
 #else
 #define DllExport __attribute__((visibility("default")))
 #endif
+

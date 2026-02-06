@@ -224,3 +224,8 @@ py.typed
 
 # ignore auto-generated version file
 /pysrc/qulacs/_version.py
+
+
+# usendon
+usendon_tests/
+build*/

@@ -7,6 +7,8 @@
 #include "util_func.h"
 #include "util_type.h"
 #include "util_type_internal.h"
+#include <cstdio>
+
 
 __global__ void H_gate_gpu(
     unsigned int target_qubit_index, GTYPE* state_gpu, ITYPE dim) {
@@ -270,6 +272,7 @@ __global__ void CNOT_gate_gpu(unsigned int control_qubit_index,
     }
 }
 
+
 __host__ void CNOT_gate_host(unsigned int control_qubit_index,
     unsigned int target_qubit_index, void* state, ITYPE dim, void* stream,
     unsigned int device_number) {
@@ -347,6 +350,102 @@ __host__ void SWAP_gate_host(unsigned int target_qubit_index0,
 
     SWAP_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
         small_index, large_index, state_gpu, dim);
+
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    gpuStatus = gpuGetLastError();
+    checkGpuErrors(gpuStatus, __FILE__, __LINE__);
+    state = reinterpret_cast<void*>(state_gpu);
+}
+
+__global__ void ECR_gate_gpu(unsigned int target_qubit_index0,
+    unsigned int target_qubit_index1, GTYPE* state_gpu, ITYPE dim) {
+    ITYPE head, body, tail;
+    ITYPE basis01, basis10, basis00, basis11;
+    GTYPE some_v00, some_v01, some_v10, some_v11;
+    GTYPE tmp00, tmp01, tmp10, tmp11;
+    ITYPE quarter_dim = dim >> 2;
+    ITYPE j = blockIdx.x * blockDim.x + threadIdx.x;
+    unsigned int large_index, small_index;
+
+    if (target_qubit_index1 > target_qubit_index0) {
+        large_index = target_qubit_index1;
+        small_index = target_qubit_index0;
+    } else {
+        large_index = target_qubit_index0;
+        small_index = target_qubit_index1;
+    }
+
+    if (j < quarter_dim) {
+        head = j >> (large_index - 1);
+        body = (j & ((1ULL << (large_index - 1)) - 1)) >>
+               small_index;                      // (j % 2^(k-1)) >> i
+        tail = j & ((1ULL << small_index) - 1);  // j%(2^i)
+
+        basis01 = (head << (large_index + 1)) +
+                  (body << (small_index + 1)) +
+                  (1ULL << target_qubit_index0) + tail;
+
+        basis10 = (head << (large_index + 1)) +
+                  (body << (small_index + 1)) +
+                  (1ULL << target_qubit_index1) + tail;
+
+        basis00 = (head << (large_index + 1)) +
+                  (body << (small_index + 1)) +
+                  tail;
+
+        basis11 = (head << (large_index + 1)) +
+                  (body << (small_index + 1)) +
+                  (1ULL << target_qubit_index1) + 
+                  (1ULL << target_qubit_index0)+ tail;
+
+        const double sqrt2inv = 1. / sqrt(2.);
+
+        some_v00 = make_gpuDoubleComplex(
+            -gpuCimag(state_gpu[basis11]),
+            gpuCreal(state_gpu[basis11]));
+
+        some_v01 = make_gpuDoubleComplex(
+            gpuCimag(state_gpu[basis10]),
+            -gpuCreal(state_gpu[basis10]));
+
+        some_v10 = make_gpuDoubleComplex(
+            -gpuCimag(state_gpu[basis01]),
+            gpuCreal(state_gpu[basis01]));
+
+        some_v11 = make_gpuDoubleComplex(
+            gpuCimag(state_gpu[basis00]),
+            -gpuCreal(state_gpu[basis00]));
+
+        tmp00 = cuCmul(make_cuDoubleComplex(sqrt2inv,0), cuCadd(state_gpu[basis01], some_v00));
+        tmp01 = cuCmul(make_cuDoubleComplex(sqrt2inv,0), cuCadd(state_gpu[basis00], some_v01));
+        tmp10 = cuCmul(make_cuDoubleComplex(sqrt2inv,0), cuCadd(state_gpu[basis11], some_v10));
+        tmp11 = cuCmul(make_cuDoubleComplex(sqrt2inv,0), cuCadd(state_gpu[basis10], some_v11));
+
+        state_gpu[basis00] = tmp00;
+        state_gpu[basis01] = tmp01;
+        state_gpu[basis10] = tmp10;
+        state_gpu[basis11] = tmp11;
+
+    }
+}
+
+__host__ void ECR_gate_host(unsigned int target_qubit_index0,
+    unsigned int target_qubit_index1, void* state, ITYPE dim, void* stream,
+    unsigned int device_number) {
+    int current_device = get_current_device();
+    if (device_number != current_device) gpuSetDevice(device_number);
+
+    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+    gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
+    gpuError_t gpuStatus;
+    ITYPE quad_dim = dim >> 2;
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(ECR_gate_gpu);
+    unsigned int block = quad_dim <= max_block_size ? quad_dim : max_block_size;
+    unsigned int grid = (quad_dim + block - 1) / block;
+
+    ECR_gate_gpu<<<grid, block, 0, *gpu_stream>>>(
+        target_qubit_index0, target_qubit_index1, state_gpu, dim);
 
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     gpuStatus = gpuGetLastError();

@@ -122,7 +122,7 @@ void QuantumCircuitOptimizer::optimize(
         merged_flag = false;
         for (UINT ind1 = 0; ind1 < circuit->gate_list.size(); ++ind1) {
             for (UINT ind2 = ind1 + 1; ind2 < circuit->gate_list.size();
-                 ++ind2) {
+                ++ind2) {
                 // parametric gate cannot be merged
                 if (circuit->gate_list[ind1]->is_parametric() ||
                     circuit->gate_list[ind2]->is_parametric())
@@ -410,7 +410,8 @@ void QuantumCircuitOptimizer::set_qubit_count(void) {
     if (circuit->qubit_count >= log_nodes + 2) {
         local_qc = circuit->qubit_count - log_nodes;
         global_qc = log_nodes;
-    } else {
+    } else {  // esto non funciona ben. Se entra aquí aplica mal as portas.
+              // Ver se ten sentido e se non dicirllo aos de qulacs.
         local_qc = circuit->qubit_count;
         global_qc = 0;
     }
@@ -506,7 +507,7 @@ std::unordered_set<UINT> QuantumCircuitOptimizer::find_next_local_qubits(
     std::unordered_set<UINT> next_local_qubits;
 
     for (UINT gate_idx = start_gate_idx; gate_idx < circuit->gate_list.size();
-         gate_idx++) {
+        gate_idx++) {
         auto gate = replacer.get_replaced_gate(circuit->gate_list[gate_idx]);
         auto addition_qubits = get_qubits_needing_communication(gate);
 
