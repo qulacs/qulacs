@@ -7,7 +7,6 @@
 #include "utility.hpp"
 #ifdef _OPENMP
 #include <omp.h>
-#include <iostream>
 #endif
 
 #ifdef _USE_SIMD

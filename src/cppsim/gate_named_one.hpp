@@ -8,8 +8,6 @@
 #include "state.hpp"
 #include "utility.hpp"
 
-#include <iostream>
-
 #ifdef _USE_GPU
 #include <gpusim/update_ops_cuda.h>
 #endif

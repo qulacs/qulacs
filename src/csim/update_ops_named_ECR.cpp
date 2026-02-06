@@ -26,10 +26,6 @@ using namespace std::complex_literals;
 #endif
 #endif
 
-//#include <immintrin.h> 
-
-#include <iostream>
-
 
 void ECR_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
     CTYPE* state, ITYPE dim) {
@@ -293,7 +289,6 @@ void ECR_gate_parallel_sve(UINT target_qubit_index_0,
 
 #ifdef _USE_MPI
 #include <bitset>
-#include <iostream>
 
 void ECR_gate_mpi(UINT target_qubit_index_0, UINT target_qubit_index_1,
     CTYPE* state, ITYPE dim, UINT inner_qc) {
