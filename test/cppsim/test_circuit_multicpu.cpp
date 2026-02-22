@@ -1663,9 +1663,9 @@ TEST(CircuitTest_multicpu, FSWAPOptimizer_bug706) {
     circuit.add_random_unitary_gate({0, 3, 4}, seed);
     circuit.add_random_unitary_gate({0, 3, 1}, seed);
 
-    UINT block_size = -1; // use optimizer_light
+    UINT block_size = -1;  // use optimizer_light
     UINT swap_level = 2;
-    UINT n_expected_swaps = 10000; // don't care # of swaps
+    UINT n_expected_swaps = 10000;  // don't care # of swaps
     _ApplyOptimizer(&circuit, block_size, swap_level, n_expected_swaps);
 }
 #endif
