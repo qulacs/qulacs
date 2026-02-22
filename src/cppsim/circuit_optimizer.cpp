@@ -753,7 +753,7 @@ void QuantumCircuitOptimizer::revert_qubit_order(QubitTable& qt) {
                 move_matching_qubits_to_local_upper(
                     local_qc - swap_width, qt,
                     [&](UINT q) { return corr_ref_qubits.count(q) == 0; },
-                    circuit->qubit_count /*end of circuit*/);
+                    circuit->gate_list.size() /*end of circuit*/);
 
                 // and then fused-swap between local and global qubits
                 // e.g.
