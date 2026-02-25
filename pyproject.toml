@@ -11,7 +11,7 @@ authors = [
 ]
 readme = "README.md"
 license = "MIT"
-license-files = ["LICENSE"] 
+license-files = ["LICENSE"]
 dependencies = [
     "numpy",
     "scipy"

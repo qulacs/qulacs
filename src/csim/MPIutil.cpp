@@ -59,8 +59,9 @@ int MPIutil::get_rank() { return mpirank; }
 int MPIutil::get_size() { return mpisize; }
 
 int MPIutil::get_tag() {
-    mpitag ^= 1 << 20;  // max 1M-ranks. 
-
+    // pthread_mutex_lock(&mutex);
+    mpitag ^= 1 << 20;  // max 1M-ranks
+    // pthread_mutex_unlock(&mutex);
     return mpitag;
 }
 

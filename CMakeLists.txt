@@ -94,7 +94,7 @@ else()
 	set(DEFAULT_USE_SIMD No)
 endif()
 
-set(CMAKE_VERBOSE_MAKEFILE TRUE) 
+set(CMAKE_VERBOSE_MAKEFILE TRUE)
 
 
 ##### Update with given flags #####

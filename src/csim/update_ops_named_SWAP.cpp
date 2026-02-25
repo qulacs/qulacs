@@ -26,7 +26,7 @@ void SWAP_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
 #ifdef _USE_SIMD
     SWAP_gate_parallel_simd(
         target_qubit_index_0, target_qubit_index_1, state, dim);
-#elif defined(_USE_SVE)  
+#elif defined(_USE_SVE)
     SWAP_gate_parallel_sve(
         target_qubit_index_0, target_qubit_index_1, state, dim);
 #else
@@ -143,7 +143,7 @@ void SWAP_gate_parallel_simd(UINT target_qubit_index_0,
         }
     }
 }
-#endif 
+#endif
 
 #ifdef _USE_SVE
 void SWAP_gate_parallel_sve(UINT target_qubit_index_0,

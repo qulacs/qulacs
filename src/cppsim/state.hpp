@@ -30,7 +30,7 @@ public:
     const UINT& qubit_count; /**< \~japanese-en 量子ビット数 */
     const UINT& inner_qc; /**< \~japanese-en ノード内量子ビット数 */
     const UINT& outer_qc; /**< \~japanese-en ノード外量子ビット数 */
-    const ITYPE& dim; /**< \~japanese-en 量子状態の次元 */
+    const ITYPE& dim;     /**< \~japanese-en 量子状態の次元 */
     const std::vector<UINT>&
         classical_register; /**< \~japanese-en 古典ビットのレジスタ */
     const UINT& device_number;
@@ -89,7 +89,7 @@ public:
             (qubit_count_ >= (log_nodes + 2))) {  // minimum inner_qc=2
             this->_inner_qc = qubit_count_ - log_nodes;
             this->_outer_qc = log_nodes;
-        } else { 
+        } else {
             this->_inner_qc = qubit_count_;
             this->_outer_qc = 0;
         }
