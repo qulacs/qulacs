@@ -304,6 +304,7 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 
 	# Enable openmpi
 	if(USE_MPI)
+	    find_package(MPI REQUIRED)
 		if((NOT "${CMAKE_C_COMPILER}" MATCHES ".*mpicc") OR
 			(NOT "${CMAKE_CXX_COMPILER}" MATCHES ".*mpic\\+\\+"))
 			message(FATAL_ERROR, "USE_MPI must be used in mpicc/mpic++.")
