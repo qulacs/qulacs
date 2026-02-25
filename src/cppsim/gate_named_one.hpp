@@ -355,7 +355,6 @@ protected:
 public:
     explicit ClsOneQubitRotationGate(){};
     explicit ClsOneQubitRotationGate(double angle) : _angle(angle){};
-
     /**
      * \~japanese-en 量子状態を更新する
      *
@@ -455,7 +454,6 @@ public:
         this->_matrix_element << cos(_angle / 2) + 1.i * sin(_angle / 2), 0, 0,
             cos(_angle / 2) - 1.i * sin(_angle / 2);
     }
-
 
     virtual boost::property_tree::ptree to_ptree() const override {
         boost::property_tree::ptree pt;

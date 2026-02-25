@@ -8,7 +8,6 @@
 #include <cppsim/utility.hpp>
 #include <csim/update_ops.hpp>
 #include <csim/update_ops_dm.hpp>
-#include <cmath>
 
 #ifdef _USE_GPU
 #include <gpusim/update_ops_cuda.h>
@@ -310,5 +309,3 @@ public:
         return new ClsParametricPauliRotationGate(-_angle, _pauli);
     };
 };
-
-

@@ -94,7 +94,7 @@ else()
 	set(DEFAULT_USE_SIMD No)
 endif()
 
-set(CMAKE_VERBOSE_MAKEFILE FALSE) ########################## Antes TRUE
+set(CMAKE_VERBOSE_MAKEFILE TRUE) 
 
 
 ##### Update with given flags #####
@@ -192,7 +192,6 @@ endif()
 
 # Pybind11
 if(USE_PYTHON)
-	message(STATUS "Using Python...")
 	if(MSYS OR MINGW OR CYGWIN)
 		set(PYBIND11_BUILD_DIR   ${PROJECT_BINARY_DIR}/pybind11)
 		set(PYBIND11_INSTALL_DIR ${PROJECT_SOURCE_DIR}/python/pybind11)
@@ -306,8 +305,7 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 	# Enable openmpi
 	if(USE_MPI)
 		if((NOT "${CMAKE_C_COMPILER}" MATCHES ".*mpicc") OR
-			#(NOT "${CMAKE_CXX_COMPILER}" MATCHES ".*mpic\\+\\+"))
-			(NOT "${CMAKE_CXX_COMPILER}" MATCHES ".*mpigxx"))
+			(NOT "${CMAKE_CXX_COMPILER}" MATCHES ".*mpic\\+\\+"))
 			message(FATAL_ERROR, "USE_MPI must be used in mpicc/mpic++.")
 		endif()
 		add_compile_options("-D _USE_MPI -lmpi")

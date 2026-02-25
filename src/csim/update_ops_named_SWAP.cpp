@@ -17,7 +17,6 @@
 #endif
 #endif
 
-
 void SWAP_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
     CTYPE* state, ITYPE dim) {
 #ifdef _OPENMP
@@ -27,7 +26,7 @@ void SWAP_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
 #ifdef _USE_SIMD
     SWAP_gate_parallel_simd(
         target_qubit_index_0, target_qubit_index_1, state, dim);
-#elif defined(_USE_SVE)  // SVE (Scalable Vector Extension).
+#elif defined(_USE_SVE)  
     SWAP_gate_parallel_sve(
         target_qubit_index_0, target_qubit_index_1, state, dim);
 #else
@@ -59,7 +58,6 @@ void SWAP_gate_parallel_unroll(UINT target_qubit_index_0,
     const ITYPE high_mask = ~(max_qubit_mask - 1);
 
     ITYPE state_index = 0;
-
     if (target_qubit_index_0 == 0 || target_qubit_index_1 == 0) {
 #ifdef _OPENMP
 #pragma omp parallel for
@@ -96,7 +94,6 @@ void SWAP_gate_parallel_unroll(UINT target_qubit_index_0,
 #ifdef _USE_SIMD
 void SWAP_gate_parallel_simd(UINT target_qubit_index_0,
     UINT target_qubit_index_1, CTYPE* state, ITYPE dim) {
-
     const ITYPE loop_dim = dim / 4;
 
     const ITYPE mask_0 = 1ULL << target_qubit_index_0;
@@ -148,13 +145,7 @@ void SWAP_gate_parallel_simd(UINT target_qubit_index_0,
 }
 #endif 
 
-
-
-
-
-
 #ifdef _USE_SVE
-
 void SWAP_gate_parallel_sve(UINT target_qubit_index_0,
     UINT target_qubit_index_1, CTYPE* state, ITYPE dim) {
     const ITYPE loop_dim = dim / 4;
@@ -209,7 +200,6 @@ void SWAP_gate_parallel_sve(UINT target_qubit_index_0,
     }  // if ((dim > VL) && (min_qubit_mask >= VL))
 }
 #endif
-
 
 #ifdef _USE_MPI
 void SWAP_gate_mpi(UINT target_qubit_index_0, UINT target_qubit_index_1,

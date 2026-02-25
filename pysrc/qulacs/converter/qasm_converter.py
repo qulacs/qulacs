@@ -45,15 +45,10 @@ def convert_qulacs_circuit_to_QASM(cir: QuantumCircuit) -> typing.List[str]:
             out_strs.append(f"cz q[{clis[0]}],q[{tlis[0]}];")
         elif it.get_name() == "SWAP":
             out_strs.append(f"swap q[{tlis[0]}],q[{tlis[1]}];")
-        elif it.get_name() == "FusedSWAP":
-            print("# FusedSWAP is not supported yet")
-        ######################################################### meu, non sei se funcionará
-
         elif it.get_name() == "ECR":
             out_strs.append(f"ecr q[{tlis[0]}],q[{tlis[1]}];")
-
-
-        #########################################################
+        elif it.get_name() == "FusedSWAP":
+            print("# FusedSWAP is not supported yet")
         elif it.get_name() == "Identity" or it.get_name() == "I":
             out_strs.append(f"id q[{tlis[0]}];")
         elif it.get_name() == "X":
@@ -159,16 +154,11 @@ def convert_QASM_to_qulacs_circuit(
             assert matchobj is not None
             ary = matchobj.groups()
             cir.add_SWAP_gate(mapping[int(ary[0])], mapping[int(ary[1])])
-
-        ############################################################### meu
-        elif instr[0:4] == "swap":
-            matchobj = re.match(r"swapq\[(\d+)\],q\[(\d+)\];", instr)
+        elif instr[0:3] == "ecr":
+            matchobj = re.match(r"ecrq\[(\d+)\],q\[(\d+)\];", instr)
             assert matchobj is not None
             ary = matchobj.groups()
-            cir.add_SWAP_gate(mapping[int(ary[0])], mapping[int(ary[1])])
-
-        ###############################################################
-        
+            cir.add_ECR_gate(mapping[int(ary[0])], mapping[int(ary[1])]) 
         elif instr[0:2] == "id":
             matchobj = re.match(r"idq\[(\d+)\];", instr)
             assert matchobj is not None

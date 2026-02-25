@@ -59,7 +59,7 @@ int MPIutil::get_rank() { return mpirank; }
 int MPIutil::get_size() { return mpisize; }
 
 int MPIutil::get_tag() {
-    mpitag ^= 1 << 19;  // max 1M-ranks. Before: 20
+    mpitag ^= 1 << 20;  // max 1M-ranks. 
 
     return mpitag;
 }

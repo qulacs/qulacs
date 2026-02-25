@@ -110,10 +110,6 @@ public:
         this->_matrix_element /= sqrt(2.);
     }
 
-
-
-
-
     /**
      * \~japanese-en ptreeに変換する
      *

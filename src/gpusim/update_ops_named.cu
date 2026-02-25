@@ -7,8 +7,6 @@
 #include "util_func.h"
 #include "util_type.h"
 #include "util_type_internal.h"
-#include <cstdio>
-
 
 __global__ void H_gate_gpu(
     unsigned int target_qubit_index, GTYPE* state_gpu, ITYPE dim) {
@@ -271,7 +269,6 @@ __global__ void CNOT_gate_gpu(unsigned int control_qubit_index,
         psi_gpu[basis10] = tmp_psi;
     }
 }
-
 
 __host__ void CNOT_gate_host(unsigned int control_qubit_index,
     unsigned int target_qubit_index, void* state, ITYPE dim, void* stream,
