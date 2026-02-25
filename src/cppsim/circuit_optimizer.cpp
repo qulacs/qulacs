@@ -410,7 +410,7 @@ void QuantumCircuitOptimizer::set_qubit_count(void) {
     if (circuit->qubit_count >= log_nodes + 2) {
         local_qc = circuit->qubit_count - log_nodes;
         global_qc = log_nodes;
-    } else { 
+    } else {
         local_qc = circuit->qubit_count;
         global_qc = 0;
     }
