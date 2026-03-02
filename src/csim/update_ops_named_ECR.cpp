@@ -279,14 +279,6 @@ void ECR_gate_parallel_sve(UINT target_qubit_index_0,
 #endif  // _USE_SVE
 
 
-
-
-#include <complex>
-#include <cstdio>
-#include <type_traits>
-
-
-
 #ifdef _USE_MPI
 #include <bitset>
 
