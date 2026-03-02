@@ -407,7 +407,7 @@ void _ECR_gate_mpi(CTYPE* t, CTYPE* si, ITYPE dim, ITYPE rtgt_blk_dim) {
            
             const ITYPE idx0 = state_index + offset; 
             const ITYPE idx1 = idx0 + rtgt_blk_dim; 
-            const CPPCTYPE si0 = si[idx0];
+            const CTYPE si0 = si[idx0];
 
             si[idx0] = (si[idx1] + t[idx1] * 1i) * sqrt2inv;
 
