@@ -10,6 +10,9 @@
 #ifdef _OPENMP
 #include <omp.h>
 #endif
+#ifdef _USE_MPI
+#include "MPIutil.hpp"
+#endif
 
 /**
  * perform multi_qubit_Pauli_gate with XZ mask.
@@ -456,3 +459,278 @@ void multi_qubit_Pauli_rotation_gate_whole_list_single_thread(
             state, dim);
     }
 }
+
+#ifdef _USE_MPI
+/**
+ * MPI-aware multi-qubit Pauli gate.
+ *
+ * Handles global qubits (those >= inner_qc, whose values are encoded in the
+ * MPI rank number) by using sendrecv to exchange amplitudes with the partner
+ * rank that holds the other half of each amplitude pair.
+ *
+ * Three cases:
+ *   A) No global X/Y qubits: all pairs are local; delegate to the serial
+ *      implementation with the global-Z rank-parity folded into the phase.
+ *   B1) Global X/Y, no local X/Y: pair j with recv[j] from partner rank.
+ *   B2) Mixed local+global X/Y: pair j with recv[j^local_bit_flip_mask].
+ *       Requires local_bit_flip_mask < dim_work (pairs within one work chunk).
+ */
+void multi_qubit_Pauli_gate_partial_list_mpi(
+    const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
+    UINT target_qubit_index_count, CTYPE* state, ITYPE dim, UINT inner_qc) {
+    // Build masks (identical to the local wrapper)
+    ITYPE bit_flip_mask = 0;
+    ITYPE phase_flip_mask = 0;
+    UINT global_phase_90rot_count = 0;
+    UINT pivot_qubit_index = 0;
+    get_Pauli_masks_partial_list(target_qubit_index_list,
+        Pauli_operator_type_list, target_qubit_index_count, &bit_flip_mask,
+        &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
+
+    // Partition at the MPI boundary
+    const ITYPE inner_mask = (1ULL << inner_qc) - 1;
+    const ITYPE local_bit_flip_mask = bit_flip_mask & inner_mask;
+    const ITYPE global_bit_flip_rank_bits = bit_flip_mask >> inner_qc;
+    const ITYPE local_phase_flip_mask = phase_flip_mask & inner_mask;
+    const ITYPE global_phase_flip_rank_bits = phase_flip_mask >> inner_qc;
+
+    const UINT rank = (UINT)MPIutil::get_inst().get_rank();
+    const UINT global_rank_parity =
+        (UINT)(count_population((ITYPE)rank & global_phase_flip_rank_bits) % 2);
+
+    // ---- Case A: no global X/Y qubits: no MPI communication needed ----
+    if (global_bit_flip_rank_bits == 0) {
+        const UINT adj_count =
+            (global_phase_90rot_count + 2 * global_rank_parity) % 4;
+        if (bit_flip_mask == 0) {
+            // Pure Z: flip sign of all affected amplitudes; global Z folds
+            // into sign via adj_count parity (odd → negate all)
+            if (adj_count % 2 == 0) {
+                multi_qubit_Pauli_gate_Z_mask(
+                    local_phase_flip_mask, state, dim);
+            } else {
+                // adj_count odd means global rank parity flips the overall
+                // sign: invert Z mask action by negating the whole state then
+                // applying the Z_mask with complement, or equivalently just
+                // apply on local_phase_flip_mask with toggled parity.
+                // Simplest: use XZ path with bit_flip_mask=0 special case.
+                // For Pauli gate (not rotation) Z-only case the formula is
+                // state[j] *= (-1)^{parity(j & phase_flip_mask)}.
+                // With global rank parity odd we need the complement, so we
+                // just flip every element and then apply Z_mask, equivalent
+                // to negating all then applying. Use state_multiply(-1) +
+                // Z_mask on complement, but simplest is inline:
+                for (ITYPE j = 0; j < dim; ++j) {
+                    int bp =
+                        (int)(count_population(j & local_phase_flip_mask) % 2);
+                    // total parity = global_rank_parity(1) XOR bp
+                    if ((1 ^ bp) == 0) state[j] *= -1;
+                }
+            }
+        } else {
+            multi_qubit_Pauli_gate_XZ_mask(local_bit_flip_mask,
+                local_phase_flip_mask, adj_count, pivot_qubit_index, state,
+                dim);
+        }
+        return;
+    }
+
+    // ---- Case B: global X/Y qubits - sendrecv with partner rank ----
+    const UINT pair_rank = rank ^ (UINT)global_bit_flip_rank_bits;
+    MPIutil& m = MPIutil::get_inst();
+    ITYPE dim_work = dim;
+    ITYPE num_work = 0;
+    CTYPE* ptr_recv = m.get_workarea(&dim_work, &num_work);
+    assert(num_work > 0);
+    // Pairs must fit within one work chunk (see implementation notes)
+    assert(local_bit_flip_mask == 0 || local_bit_flip_mask < dim_work);
+
+    const UINT adj_count =
+        (global_phase_90rot_count + 2 * global_rank_parity) % 4;
+    CTYPE* ptr_state = state;
+
+#ifdef _OPENMP
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
+#endif
+    for (ITYPE iter = 0; iter < num_work; ++iter) {
+        m.m_DC_sendrecv(ptr_state, ptr_recv, dim_work, pair_rank);
+
+        if (local_bit_flip_mask == 0) {
+            // B1: all X/Y global - pair j with recv[j]
+#pragma omp parallel for
+            for (ITYPE j = 0; j < dim_work; ++j) {
+                int bp = (int)((global_rank_parity +
+                                   count_population(j & local_phase_flip_mask)) %
+                               2);
+                ptr_state[j] =
+                    ptr_recv[j] *
+                    PHASE_M90ROT[(adj_count + (UINT)bp * 2) % 4];
+            }
+        } else {
+            // B2: mixed - pair j with recv[j ^ local_bit_flip_mask]
+            const UINT local_pivot =
+                (UINT)__builtin_ctzll((unsigned long long)local_bit_flip_mask);
+            const ITYPE lp_mask = 1ULL << local_pivot;
+            const ITYPE lp_mask_low = lp_mask - 1;
+            const ITYPE lp_mask_high = ~lp_mask_low;
+            const ITYPE loop_dim = dim_work / 2;
+#pragma omp parallel for
+            for (ITYPE si = 0; si < loop_dim; ++si) {
+                const ITYPE j =
+                    (si & lp_mask_low) + ((si & lp_mask_high) << 1);
+                const ITYPE j_pair = j ^ local_bit_flip_mask;
+
+                int bp_j =
+                    (int)((global_rank_parity +
+                              count_population(j & local_phase_flip_mask)) %
+                          2);
+                int bp_jp =
+                    (int)((global_rank_parity +
+                              count_population(j_pair & local_phase_flip_mask)) %
+                          2);
+
+                ptr_state[j] =
+                    ptr_recv[j_pair] *
+                    PHASE_M90ROT[(adj_count + (UINT)bp_j * 2) % 4];
+                ptr_state[j_pair] =
+                    ptr_recv[j] *
+                    PHASE_M90ROT[(adj_count + (UINT)bp_jp * 2) % 4];
+            }
+        }
+        ptr_state += dim_work;
+    }
+#ifdef _OPENMP
+    OMPutil::get_inst().reset_qulacs_num_threads();
+#endif
+}
+
+/**
+ * MPI-aware multi-qubit Pauli rotation gate exp(-i*angle/2 * P).
+ *
+ * Same three-case structure as multi_qubit_Pauli_gate_partial_list_mpi but
+ * applies the rotation formula instead of a plain swap.
+ */
+void multi_qubit_Pauli_rotation_gate_partial_list_mpi(
+    const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
+    UINT target_qubit_index_count, double angle, CTYPE* state, ITYPE dim,
+    UINT inner_qc) {
+    // Build masks
+    ITYPE bit_flip_mask = 0;
+    ITYPE phase_flip_mask = 0;
+    UINT global_phase_90rot_count = 0;
+    UINT pivot_qubit_index = 0;
+    get_Pauli_masks_partial_list(target_qubit_index_list,
+        Pauli_operator_type_list, target_qubit_index_count, &bit_flip_mask,
+        &phase_flip_mask, &global_phase_90rot_count, &pivot_qubit_index);
+
+    // Partition at the MPI boundary
+    const ITYPE inner_mask = (1ULL << inner_qc) - 1;
+    const ITYPE local_bit_flip_mask = bit_flip_mask & inner_mask;
+    const ITYPE global_bit_flip_rank_bits = bit_flip_mask >> inner_qc;
+    const ITYPE local_phase_flip_mask = phase_flip_mask & inner_mask;
+    const ITYPE global_phase_flip_rank_bits = phase_flip_mask >> inner_qc;
+
+    const UINT rank = (UINT)MPIutil::get_inst().get_rank();
+    const UINT global_rank_parity =
+        (UINT)(count_population((ITYPE)rank & global_phase_flip_rank_bits) % 2);
+
+    // ---- Case A: no global X/Y qubits - no MPI communication needed ----
+    if (global_bit_flip_rank_bits == 0) {
+        const UINT adj_count =
+            (global_phase_90rot_count + 2 * global_rank_parity) % 4;
+        if (bit_flip_mask == 0) {
+            // Pure Z rotation: negate angle if global rank parity is odd
+            double adj_angle = (global_rank_parity % 2) ? -angle : angle;
+            multi_qubit_Pauli_rotation_gate_Z_mask(
+                local_phase_flip_mask, adj_angle, state, dim);
+        } else {
+            // XZ rotation: pivot is guaranteed < inner_qc when no global X/Y
+            multi_qubit_Pauli_rotation_gate_XZ_mask(local_bit_flip_mask,
+                local_phase_flip_mask, adj_count, pivot_qubit_index, angle,
+                state, dim);
+        }
+        return;
+    }
+
+    // ---- Case B: global X/Y qubits - sendrecv with partner rank ----
+    const UINT pair_rank = rank ^ (UINT)global_bit_flip_rank_bits;
+    MPIutil& m = MPIutil::get_inst();
+    ITYPE dim_work = dim;
+    ITYPE num_work = 0;
+    CTYPE* ptr_recv = m.get_workarea(&dim_work, &num_work);
+    assert(num_work > 0);
+    // Pairs must fit within one work chunk (see implementation notes).
+    // This holds whenever dim <= _NQUBIT_WORK capacity (2^22 * 16 B = 64 MB),
+    // which covers all practical QSCI benchmark cases.  For larger distributed
+    // states with mixed local+global X qubits this assertion will fire and the
+    // implementation needs to be extended (TODO).
+    assert(local_bit_flip_mask == 0 || local_bit_flip_mask < dim_work);
+
+    const UINT adj_count =
+        (global_phase_90rot_count + 2 * global_rank_parity) % 4;
+    const double cosval = cos(angle / 2);
+    const double sinval = sin(angle / 2);
+    CTYPE* ptr_state = state;
+
+#ifdef _OPENMP
+    OMPutil::get_inst().set_qulacs_num_threads(dim, 13);
+#endif
+    for (ITYPE iter = 0; iter < num_work; ++iter) {
+        m.m_DC_sendrecv(ptr_state, ptr_recv, dim_work, pair_rank);
+
+        if (local_bit_flip_mask == 0) {
+            // B1: all X/Y global - pair state[j] with recv[j]
+#pragma omp parallel for
+            for (ITYPE j = 0; j < dim_work; ++j) {
+                int bp = (int)((global_rank_parity +
+                                   count_population(j & local_phase_flip_mask)) %
+                               2);
+                CTYPE phase =
+                    PHASE_M90ROT[(adj_count + (UINT)bp * 2) % 4];
+                ptr_state[j] = cosval * ptr_state[j] +
+                               1.i * sinval * ptr_recv[j] * phase;
+            }
+        } else {
+            // B2: mixed local+global - pair state[j] with recv[j^local_bfm]
+            const UINT local_pivot =
+                (UINT)__builtin_ctzll((unsigned long long)local_bit_flip_mask);
+            const ITYPE lp_mask = 1ULL << local_pivot;
+            const ITYPE lp_mask_low = lp_mask - 1;
+            const ITYPE lp_mask_high = ~lp_mask_low;
+            const ITYPE loop_dim = dim_work / 2;
+#pragma omp parallel for
+            for (ITYPE si = 0; si < loop_dim; ++si) {
+                const ITYPE j =
+                    (si & lp_mask_low) + ((si & lp_mask_high) << 1);
+                const ITYPE j_pair = j ^ local_bit_flip_mask;
+
+                // Save originals before overwriting
+                const CTYPE a = ptr_state[j];
+                const CTYPE b = ptr_state[j_pair];
+
+                int bp_j =
+                    (int)((global_rank_parity +
+                              count_population(j & local_phase_flip_mask)) %
+                          2);
+                int bp_jp =
+                    (int)((global_rank_parity +
+                              count_population(j_pair & local_phase_flip_mask)) %
+                          2);
+
+                ptr_state[j] =
+                    cosval * a +
+                    1.i * sinval * ptr_recv[j_pair] *
+                        PHASE_M90ROT[(adj_count + (UINT)bp_j * 2) % 4];
+                ptr_state[j_pair] =
+                    cosval * b +
+                    1.i * sinval * ptr_recv[j] *
+                        PHASE_M90ROT[(adj_count + (UINT)bp_jp * 2) % 4];
+            }
+        }
+        ptr_state += dim_work;
+    }
+#ifdef _OPENMP
+    OMPutil::get_inst().reset_qulacs_num_threads();
+#endif
+}
+#endif  // _USE_MPI
