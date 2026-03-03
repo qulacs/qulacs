@@ -503,28 +503,19 @@ void multi_qubit_Pauli_gate_partial_list_mpi(
         const UINT adj_count =
             (global_phase_90rot_count + 2 * global_rank_parity) % 4;
         if (bit_flip_mask == 0) {
-            // Pure Z: flip sign of all affected amplitudes; global Z folds
-            // into sign via adj_count parity (odd → negate all)
-            if (adj_count % 2 == 0) {
+            // Pure Z: global_phase_90rot_count == 0 here, so adj_count is 0
+            // (global_rank_parity==0) or 2 (global_rank_parity==1).
+            // Total sign for amplitude j: (-1)^(global_rank_parity + local_bp)
+            if (adj_count % 4 == 0) {
                 multi_qubit_Pauli_gate_Z_mask(
                     local_phase_flip_mask, state, dim);
             } else {
-                // adj_count odd means global rank parity flips the overall
-                // sign: invert Z mask action by negating the whole state then
-                // applying the Z_mask with complement, or equivalently just
-                // apply on local_phase_flip_mask with toggled parity.
-                // Simplest: use XZ path with bit_flip_mask=0 special case.
-                // For Pauli gate (not rotation) Z-only case the formula is
-                // state[j] *= (-1)^{parity(j & phase_flip_mask)}.
-                // With global rank parity odd we need the complement, so we
-                // just flip every element and then apply Z_mask, equivalent
-                // to negating all then applying. Use state_multiply(-1) +
-                // Z_mask on complement, but simplest is inline:
+                // global_rank_parity == 1: negate where local parity is even
+                // (total parity = 1+0 = odd -> negate)
                 for (ITYPE j = 0; j < dim; ++j) {
                     int bp =
                         (int)(count_population(j & local_phase_flip_mask) % 2);
-                    // total parity = global_rank_parity(1) XOR bp
-                    if ((1 ^ bp) == 0) state[j] *= -1;
+                    if (bp == 0) state[j] *= -1;
                 }
             }
         } else {
@@ -559,9 +550,8 @@ void multi_qubit_Pauli_gate_partial_list_mpi(
             // B1: all X/Y global - pair j with recv[j]
 #pragma omp parallel for
             for (ITYPE j = 0; j < dim_work; ++j) {
-                int bp = (int)((global_rank_parity +
-                                   count_population(j & local_phase_flip_mask)) %
-                               2);
+                int bp =
+                    (int)(count_population(j & local_phase_flip_mask) % 2);
                 ptr_state[j] =
                     ptr_recv[j] *
                     PHASE_M90ROT[(adj_count + (UINT)bp * 2) % 4];
@@ -581,13 +571,9 @@ void multi_qubit_Pauli_gate_partial_list_mpi(
                 const ITYPE j_pair = j ^ local_bit_flip_mask;
 
                 int bp_j =
-                    (int)((global_rank_parity +
-                              count_population(j & local_phase_flip_mask)) %
-                          2);
+                    (int)(count_population(j & local_phase_flip_mask) % 2);
                 int bp_jp =
-                    (int)((global_rank_parity +
-                              count_population(j_pair & local_phase_flip_mask)) %
-                          2);
+                    (int)(count_population(j_pair & local_phase_flip_mask) % 2);
 
                 ptr_state[j] =
                     ptr_recv[j_pair] *
@@ -660,10 +646,9 @@ void multi_qubit_Pauli_rotation_gate_partial_list_mpi(
     CTYPE* ptr_recv = m.get_workarea(&dim_work, &num_work);
     assert(num_work > 0);
     // Pairs must fit within one work chunk (see implementation notes).
-    // This holds whenever dim <= _NQUBIT_WORK capacity (2^22 * 16 B = 64 MB),
-    // which covers all practical QSCI benchmark cases.  For larger distributed
-    // states with mixed local+global X qubits this assertion will fire and the
-    // implementation needs to be extended (TODO).
+    // This holds whenever dim <= _NQUBIT_WORK capacity (2^22 * 16 B = 64 MB).
+    // For larger distributed states with mixed local+global X qubits this 
+    // assertion will fire and the implementation needs to be extended (TODO).
     assert(local_bit_flip_mask == 0 || local_bit_flip_mask < dim_work);
 
     const UINT adj_count =
@@ -682,9 +667,8 @@ void multi_qubit_Pauli_rotation_gate_partial_list_mpi(
             // B1: all X/Y global - pair state[j] with recv[j]
 #pragma omp parallel for
             for (ITYPE j = 0; j < dim_work; ++j) {
-                int bp = (int)((global_rank_parity +
-                                   count_population(j & local_phase_flip_mask)) %
-                               2);
+                int bp =
+                    (int)(count_population(j & local_phase_flip_mask) % 2);
                 CTYPE phase =
                     PHASE_M90ROT[(adj_count + (UINT)bp * 2) % 4];
                 ptr_state[j] = cosval * ptr_state[j] +
@@ -709,13 +693,9 @@ void multi_qubit_Pauli_rotation_gate_partial_list_mpi(
                 const CTYPE b = ptr_state[j_pair];
 
                 int bp_j =
-                    (int)((global_rank_parity +
-                              count_population(j & local_phase_flip_mask)) %
-                          2);
+                    (int)(count_population(j & local_phase_flip_mask) % 2);
                 int bp_jp =
-                    (int)((global_rank_parity +
-                              count_population(j_pair & local_phase_flip_mask)) %
-                          2);
+                    (int)(count_population(j_pair & local_phase_flip_mask) % 2);
 
                 ptr_state[j] =
                     cosval * a +
