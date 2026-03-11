@@ -550,11 +550,9 @@ void multi_qubit_Pauli_gate_partial_list_mpi(
             // B1: all X/Y global - pair j with recv[j]
 #pragma omp parallel for
             for (ITYPE j = 0; j < dim_work; ++j) {
-                int bp =
-                    (int)(count_population(j & local_phase_flip_mask) % 2);
+                int bp = (int)(count_population(j & local_phase_flip_mask) % 2);
                 ptr_state[j] =
-                    ptr_recv[j] *
-                    PHASE_M90ROT[(adj_count + (UINT)bp * 2) % 4];
+                    ptr_recv[j] * PHASE_M90ROT[(adj_count + (UINT)bp * 2) % 4];
             }
         } else {
             // B2: mixed - pair j with recv[j ^ local_bit_flip_mask]
@@ -566,8 +564,7 @@ void multi_qubit_Pauli_gate_partial_list_mpi(
             const ITYPE loop_dim = dim_work / 2;
 #pragma omp parallel for
             for (ITYPE si = 0; si < loop_dim; ++si) {
-                const ITYPE j =
-                    (si & lp_mask_low) + ((si & lp_mask_high) << 1);
+                const ITYPE j = (si & lp_mask_low) + ((si & lp_mask_high) << 1);
                 const ITYPE j_pair = j ^ local_bit_flip_mask;
 
                 int bp_j =
@@ -575,9 +572,8 @@ void multi_qubit_Pauli_gate_partial_list_mpi(
                 int bp_jp =
                     (int)(count_population(j_pair & local_phase_flip_mask) % 2);
 
-                ptr_state[j] =
-                    ptr_recv[j_pair] *
-                    PHASE_M90ROT[(adj_count + (UINT)bp_j * 2) % 4];
+                ptr_state[j] = ptr_recv[j_pair] *
+                               PHASE_M90ROT[(adj_count + (UINT)bp_j * 2) % 4];
                 ptr_state[j_pair] =
                     ptr_recv[j] *
                     PHASE_M90ROT[(adj_count + (UINT)bp_jp * 2) % 4];
@@ -647,7 +643,7 @@ void multi_qubit_Pauli_rotation_gate_partial_list_mpi(
     assert(num_work > 0);
     // Pairs must fit within one work chunk (see implementation notes).
     // This holds whenever dim <= _NQUBIT_WORK capacity (2^22 * 16 B = 64 MB).
-    // For larger distributed states with mixed local+global X qubits this 
+    // For larger distributed states with mixed local+global X qubits this
     // assertion will fire and the implementation needs to be extended (TODO).
     assert(local_bit_flip_mask == 0 || local_bit_flip_mask < dim_work);
 
@@ -667,12 +663,10 @@ void multi_qubit_Pauli_rotation_gate_partial_list_mpi(
             // B1: all X/Y global - pair state[j] with recv[j]
 #pragma omp parallel for
             for (ITYPE j = 0; j < dim_work; ++j) {
-                int bp =
-                    (int)(count_population(j & local_phase_flip_mask) % 2);
-                CTYPE phase =
-                    PHASE_M90ROT[(adj_count + (UINT)bp * 2) % 4];
-                ptr_state[j] = cosval * ptr_state[j] +
-                               1.i * sinval * ptr_recv[j] * phase;
+                int bp = (int)(count_population(j & local_phase_flip_mask) % 2);
+                CTYPE phase = PHASE_M90ROT[(adj_count + (UINT)bp * 2) % 4];
+                ptr_state[j] =
+                    cosval * ptr_state[j] + 1.i * sinval * ptr_recv[j] * phase;
             }
         } else {
             // B2: mixed local+global - pair state[j] with recv[j^local_bfm]
@@ -684,8 +678,7 @@ void multi_qubit_Pauli_rotation_gate_partial_list_mpi(
             const ITYPE loop_dim = dim_work / 2;
 #pragma omp parallel for
             for (ITYPE si = 0; si < loop_dim; ++si) {
-                const ITYPE j =
-                    (si & lp_mask_low) + ((si & lp_mask_high) << 1);
+                const ITYPE j = (si & lp_mask_low) + ((si & lp_mask_high) << 1);
                 const ITYPE j_pair = j ^ local_bit_flip_mask;
 
                 // Save originals before overwriting

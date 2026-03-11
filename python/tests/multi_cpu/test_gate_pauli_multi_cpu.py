@@ -55,9 +55,9 @@ _PAULI_GATE_CASES = [
     # Case A-Z: global Z/I only (bit_flip_mask==0, no communication)
     ("Z_global[g0]|000001>", 0b000001, [_G0], [3]),
     ("Z_global[g0]|100001>", 1 << _G0 | 1, [_G0], [3]),
-    ("ZZ_local_global|000001>",0b000001, [_Q0, _G0], [3, 3]),
-    ("ZZ_local_global|000000>",0b000000, [_Q0, _G0], [3, 3]),
-    ("ZZ_local_global|100001>",1 << _G0 | 1, [_Q0, _G0], [3, 3]),
+    ("ZZ_local_global|000001>", 0b000001, [_Q0, _G0], [3, 3]),
+    ("ZZ_local_global|000000>", 0b000000, [_Q0, _G0], [3, 3]),
+    ("ZZ_local_global|100001>", 1 << _G0 | 1, [_Q0, _G0], [3, 3]),
     # Case A-XZ: local X/Y + global Z (no communication)
     ("X_local_Z_global|000001>", 0b000001, [_Q0, _G0], [1, 3]),
     ("Y_local_Z_global|000001>", 0b000001, [_Q0, _G0], [2, 3]),
@@ -168,9 +168,7 @@ class TestPauliGateMultiCpu:
         mpi_s.set_computational_basis(basis)
         gate.update_quantum_state(mpi_s)
 
-        np.testing.assert_allclose(
-            np.array(mpi_s.get_vector()), local_ref, atol=1e-10
-        )
+        np.testing.assert_allclose(np.array(mpi_s.get_vector()), local_ref, atol=1e-10)
 
     @pytest.mark.parametrize("label,basis,qubits,pauli_ids", _PAULI_GATE_CASES)
     @pytest.mark.usefixtures("init_state")
