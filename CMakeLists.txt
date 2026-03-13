@@ -304,11 +304,14 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU") OR (${CMAKE_CXX_COMPILER_ID} STREQ
 
 	# Enable openmpi
 	if(USE_MPI)
+	    find_package(MPI REQUIRED)
 		if((NOT "${CMAKE_C_COMPILER}" MATCHES ".*mpicc") OR
 			(NOT "${CMAKE_CXX_COMPILER}" MATCHES ".*mpic\\+\\+"))
 			message(FATAL_ERROR, "USE_MPI must be used in mpicc/mpic++.")
 		endif()
-		add_compile_options("-D _USE_MPI -lmpi")
+		add_compile_options("-D _USE_MPI")
+		include_directories(${MPI_CXX_INCLUDE_DIRS})
+		link_libraries(${MPI_CXX_LIBRARIES})
 	endif()
 
 	# Enable gpu
@@ -529,6 +532,6 @@ if(USE_PYTHON)
 	)
 	add_custom_target(pythontest
 		DEPENDS qulacs_core
-		COMMAND pytest -v -s ${CMAKE_CURRENT_SOURCE_DIR}/python/tests
+		COMMAND python -m pytest -v -s ${CMAKE_CURRENT_SOURCE_DIR}/python/tests
 	)
 endif()
