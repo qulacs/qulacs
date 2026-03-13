@@ -47,8 +47,8 @@ And you execute these commands at the root directory of this project:
 ### For macOS and Linux
 
 ```console
-$ ./script/build_gcc.sh
-$ python setup.py install
+$ USE_TEST=ON ./script/build_gcc.sh
+$ pip install .
 $ cd build
 $ make test
 $ make pythontest
@@ -57,14 +57,19 @@ $ make pythontest
 ### For Windows
 
 ```console
-$ ./script/build_msvc_2015.bat
-$ python setup.py install
+$ USE_TEST=ON ./script/build_msvc_2015.bat
+$ pip install .
 $ cmake --build ./visualstudio --target test --config Release
 $ cmake --build ./visualstudio --target pythontest --config Release
 ```
 
 ### Tips
 
-- We recommend use Python from [pyenv](https://github.com/pyenv/pyenv) and [virtualenv](https://pypi.org/project/virtualenv/) for the local test.
-    - Since we run `python setup.py install` at global Python unstable qulacs would be installed unintentionally.
-    - And it would be difficult to show dependencies version when we need for debug
+We recommend use Python virtual environment from [uv](https://github.com/astral-sh/uv) for the local test.
+- Since we run `pip install .` at global Python unstable qulacs would be installed unintentionally.
+- And it would be difficult to show dependencies version when we need for debug
+
+With uv, we can setup virtual environment with `uv venv` and activate by `source .venv/bin/activate`.
+Then, we can install qulacs by `uv pip install .`.
+
+If you run `pythontest`, `openfermion` and `pyparsing` must be installed. With uv environment, you can install them by `uv pip install openfermion pyparsing`.
