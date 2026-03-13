@@ -45,7 +45,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install boost
-        run: sudo apt install libboost-dev
+        run: |
+          sudo apt update
+          sudo apt install libboost-dev
 
       - name: Install LCOV
         run: |
@@ -91,7 +93,9 @@ jobs:
           verbose: 2
 
       - name: Install boost
-        run: sudo apt install libboost-dev
+        run: |
+          sudo apt update
+          sudo apt install libboost-dev
 
       - name: Install qulacs for Ubuntu
         run: ./script/build_gcc_with_memory_sanitizer.sh
@@ -132,13 +136,17 @@ jobs:
           architecture: x64
 
       - name: Install boost
-        run: sudo apt install libboost-dev
+        run: |
+          sudo apt update
+          sudo apt install libboost-dev
 
       - name: Install CUDA toolkit
         uses: Jimver/cuda-toolkit@v0.2.23
         with:
           cuda: "12.6.3"
-          method: "network"
+          method: "local"
+          linux-local-args: '["--toolkit"]'
+          log-file-suffix: '${{ github.job }}'
 
       - name: Install qulacs for Ubuntu
         run: ./script/build_gcc_with_gpu.sh
@@ -175,7 +183,9 @@ jobs:
           sudo make install
 
       - name: Install boost
-        run: sudo apt-get install libboost-dev
+        run: |
+          sudo apt update
+          sudo apt-get install libboost-dev
 
       - name: Install qulacs for Ubuntu
         run: USE_TEST=Yes ./script/build_gcc.sh
@@ -269,7 +279,9 @@ jobs:
         run: sudo apt install openmpi-bin libopenmpi-dev
 
       - name: Install boost
-        run: sudo apt install libboost-dev
+        run: |
+          sudo apt update
+          sudo apt install libboost-dev
 
       - name: Install LCOV
         run: |
