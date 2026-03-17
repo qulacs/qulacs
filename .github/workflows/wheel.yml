@@ -23,11 +23,13 @@ jobs:
       fail-fast: false
       matrix:
         os-arch:
-          ["manylinux_x86_64", "win_amd64", "macosx_x86_64", "macosx_arm64"]
+          ["manylinux_x86_64", "manylinux_aarch64", "win_amd64", "macosx_x86_64", "macosx_arm64"]
         cibw-python: ["cp39", "cp310", "cp311", "cp312", "cp313"]
         # Documentation for `include`: https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions#jobsjob_idstrategymatrixinclude
         include:
           - os-arch: "manylinux_x86_64"
+            os: "ubuntu-24.04"
+          - os-arch: "manylinux_aarch64"
             os: "ubuntu-24.04"
           - os-arch: "win_amd64"
             os: "windows-2022"
@@ -39,7 +41,9 @@ jobs:
     runs-on: ${{ matrix.os }}
     env:
       CIBW_BUILD: ${{ matrix.cibw-python }}-${{ matrix.os-arch }}
+      CIBW_ARCHS_LINUX: "x86_64 aarch64"
       CIBW_MANYLINUX_X86_64_IMAGE: manylinux_2_28
+      CIBW_MANYLINUX_AARCH64_IMAGE: manylinux_2_28
       PYTHON: ${{ matrix.python-version }}
       TWINE_USERNAME: "__token__"
     steps:
@@ -52,6 +56,12 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.13"
+
+      - name: Setup QEMU for aarch64 wheel build
+        if: ${{ matrix.os-arch == 'manylinux_aarch64' }}
+        uses: docker/setup-qemu-action@v3
+        with:
+          platforms: arm64
 
       - name: Install Python dependencies
         run: python -m pip install cibuildwheel twine
