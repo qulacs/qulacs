@@ -1004,8 +1004,11 @@ DllExport void multi_qubit_Pauli_gate_partial_list(
     const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
     UINT target_qubit_index_count, CTYPE* state, ITYPE dim);
 // This function is used in apply_to_state and gate_noisy_evolution
-// TODO: multi_qubit_Pauli_gate_partial_list is not implemented for multi-cpu
-// yet
+#ifdef _USE_MPI
+DllExport void multi_qubit_Pauli_gate_partial_list_mpi(
+    const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
+    UINT target_qubit_index_count, CTYPE* state, ITYPE dim, UINT inner_qc);
+#endif
 
 /**
  * \~english
@@ -1189,8 +1192,12 @@ DllExport void multi_qubit_Pauli_rotation_gate_partial_list(
     const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
     UINT target_qubit_index_count, double angle, CTYPE* state, ITYPE dim);
 // This function is used in ClsPauliRotationGate
-// TODO: multi_qubit_Pauli_rotation_gate_partial_list is not implemented for
-// multi-cpu yet
+#ifdef _USE_MPI
+DllExport void multi_qubit_Pauli_rotation_gate_partial_list_mpi(
+    const UINT* target_qubit_index_list, const UINT* Pauli_operator_type_list,
+    UINT target_qubit_index_count, double angle, CTYPE* state, ITYPE dim,
+    UINT inner_qc);
+#endif
 
 /**
  * \~english
