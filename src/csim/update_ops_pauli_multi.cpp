@@ -514,6 +514,7 @@ void multi_qubit_Pauli_gate_partial_list_mpi(
             } else {
                 // global_rank_parity == 1: negate where local parity is even
                 // (total parity = 1+0 = odd -> negate)
+#pragma omp parallel for
                 for (ITYPE j = 0; j < dim; ++j) {
                     int bp =
                         (int)(count_population(j & local_phase_flip_mask) % 2);
