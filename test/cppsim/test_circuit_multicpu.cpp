@@ -1648,4 +1648,24 @@ TEST(CircuitTest_multicpu, FSWAPOptimizer_with_mpisize) {
     ASSERT_TRUE(has_swap_gate)
         << "circuit optimized with mpi_size=4 should have FusedSWAP gates";
 }
+
+TEST(CircuitTest_multicpu, FSWAPOptimizer_bug706) {
+    MPIutil& m = MPIutil::get_inst();
+    const UINT mpi_size = m.get_size();
+
+    // only for mpi ranks == 4
+    if (mpi_size != 4) {
+        return;
+    }
+
+    QuantumCircuit circuit(5);
+    int seed = 2026;
+    circuit.add_random_unitary_gate({0, 3, 4}, seed);
+    circuit.add_random_unitary_gate({0, 3, 1}, seed);
+
+    UINT block_size = -1;  // use optimizer_light
+    UINT swap_level = 2;
+    UINT n_expected_swaps = 10000;  // don't care # of swaps
+    _ApplyOptimizer(&circuit, block_size, swap_level, n_expected_swaps);
+}
 #endif
