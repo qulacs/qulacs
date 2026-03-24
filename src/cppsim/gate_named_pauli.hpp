@@ -63,14 +63,35 @@ public:
                 // _update_func_gpu(this->_target_qubit_list[0].index(), _angle,
                 // state->data(), state->dim);
             } else {
+#ifdef _USE_MPI
+                if (state->outer_qc > 0) {
+                    multi_qubit_Pauli_gate_partial_list_mpi(
+                        target_index_list.data(), pauli_id_list.data(),
+                        (UINT)target_index_list.size(), state->data_c(),
+                        state->dim, state->inner_qc);
+                } else
+#endif
+                {
+                    multi_qubit_Pauli_gate_partial_list(
+                        target_index_list.data(), pauli_id_list.data(),
+                        (UINT)target_index_list.size(), state->data_c(),
+                        state->dim);
+                }
+            }
+#else
+#ifdef _USE_MPI
+            if (state->outer_qc > 0) {
+                multi_qubit_Pauli_gate_partial_list_mpi(
+                    target_index_list.data(), pauli_id_list.data(),
+                    (UINT)target_index_list.size(), state->data_c(), state->dim,
+                    state->inner_qc);
+            } else
+#endif
+            {
                 multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
                     pauli_id_list.data(), (UINT)target_index_list.size(),
                     state->data_c(), state->dim);
             }
-#else
-            multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
-                pauli_id_list.data(), (UINT)target_index_list.size(),
-                state->data_c(), state->dim);
 #endif
         } else {
             dm_multi_qubit_Pauli_gate_partial_list(target_index_list.data(),
@@ -186,16 +207,36 @@ public:
                     (UINT)target_index_list.size(), _angle, state->data(),
                     state->dim, state->get_cuda_stream(), state->device_number);
             } else {
+#ifdef _USE_MPI
+                if (state->outer_qc > 0) {
+                    multi_qubit_Pauli_rotation_gate_partial_list_mpi(
+                        target_index_list.data(), pauli_id_list.data(),
+                        (UINT)target_index_list.size(), _angle, state->data_c(),
+                        state->dim, state->inner_qc);
+                } else
+#endif
+                {
+                    multi_qubit_Pauli_rotation_gate_partial_list(
+                        target_index_list.data(), pauli_id_list.data(),
+                        (UINT)target_index_list.size(), _angle, state->data_c(),
+                        state->dim);
+                }
+            }
+#else
+#ifdef _USE_MPI
+            if (state->outer_qc > 0) {
+                multi_qubit_Pauli_rotation_gate_partial_list_mpi(
+                    target_index_list.data(), pauli_id_list.data(),
+                    (UINT)target_index_list.size(), _angle, state->data_c(),
+                    state->dim, state->inner_qc);
+            } else
+#endif
+            {
                 multi_qubit_Pauli_rotation_gate_partial_list(
                     target_index_list.data(), pauli_id_list.data(),
                     (UINT)target_index_list.size(), _angle, state->data_c(),
                     state->dim);
             }
-#else
-            multi_qubit_Pauli_rotation_gate_partial_list(
-                target_index_list.data(), pauli_id_list.data(),
-                (UINT)target_index_list.size(), _angle, state->data_c(),
-                state->dim);
 #endif
         } else {
             dm_multi_qubit_Pauli_rotation_gate_partial_list(
