@@ -283,7 +283,6 @@ void ECR_gate_parallel_sve(UINT target_qubit_index_0,
 
 void ECR_gate_mpi(UINT target_qubit_index_0, UINT target_qubit_index_1,
     CTYPE* state, ITYPE dim, UINT inner_qc) {
-
     UINT left_qubit, right_qubit;
     if (target_qubit_index_0 > target_qubit_index_1) {
         left_qubit = target_qubit_index_0;
@@ -306,99 +305,54 @@ void ECR_gate_mpi(UINT target_qubit_index_0, UINT target_qubit_index_1,
         const ITYPE rtgt_blk_dim = 1 << right_qubit;
         const int pair_rank = rank ^ tgt_rank_bit;
         bool is_lower_rank = !(rank & tgt_rank_bit);
-
         CTYPE* si = state;
 
         for (UINT i = 0; i < (UINT)num_work; ++i) {
             m.m_DC_sendrecv(si, t, dim_work, pair_rank);
-
-            if (target_qubit_index_0 < target_qubit_index_1) {
-                _ECR_gate_mpi_local_global(t, si, dim_work, rtgt_blk_dim);
-            } else {
-                _ECR_gate_mpi_global_local(t, si, dim, rtgt_blk_dim, is_lower_rank);
-            }
-
+            _ECR_gate_mpi_local_global(t, si, dim_work, rtgt_blk_dim, is_lower_rank);
             si += dim_work;
         }
 
     } else {  // both targets are outer
         MPIutil& m = MPIutil::get_inst();
         const UINT rank = m.get_rank();
-
         int world_size_int = 0;
         MPI_Comm_size(MPI_COMM_WORLD, &world_size_int); 
         const int world_size = world_size_int; 
-
         ITYPE dim_work = dim;
         ITYPE num_work = 0;
-        const UINT tgt0_rank_bit = 1 << (left_qubit - inner_qc);  
-        const UINT tgt1_rank_bit = 1 << (right_qubit - inner_qc);  
+        const UINT tgt0_rank_bit = 1 << (target_qubit_index_0 - inner_qc);  
+        const UINT tgt1_rank_bit = 1 << (target_qubit_index_1 - inner_qc);  
         const UINT tgt_rank_bit = tgt0_rank_bit + tgt1_rank_bit; 
-
-        const int pair_rank = rank ^ tgt_rank_bit;  
-        const int pair_rank1 = rank ^ tgt1_rank_bit;  
-
+        const int pair_rank = rank ^ tgt0_rank_bit;  
+        const int pair_rank1 = rank ^ tgt_rank_bit;  
         CTYPE* tmp = m.get_workarea(
             &dim_work, &num_work); 
         (void)tmp;            
-
         std::vector<CTYPE> t1_buf(dim_work);
         std::vector<CTYPE> t2_buf(dim_work);
-
         CTYPE* t1 = t1_buf.data();
         CTYPE* t2 = t2_buf.data();
-
         CTYPE* si = state; 
 
         for (UINT i = 0; i < (UINT)num_work; ++i) {
             CTYPE* si_i = state + i * dim_work; 
-
             m.m_DC_sendrecv(si_i, t1, dim_work, pair_rank);
-
         }
 
         for (UINT j = 0; j < (UINT)num_work; ++j) {
             CTYPE* si_j = state + j * dim_work;  
-
             m.m_DC_sendrecv(si_j, t2, dim_work, pair_rank1);
-
         }
 
-        const ITYPE rtgt_blk_dim = 1 << right_qubit;
-
-        ITYPE num_proc_bloque = rtgt_blk_dim/dim_work; 
-
-        auto split_ranks_alternate = [&](int world_sz, int group_size)
-            -> std::pair<std::vector<int>, std::vector<int>> {
-            std::vector<int> listA, listB;
-            if (group_size <= 0) return {listA, listB};
-            int nblocks = (world_sz + group_size - 1) / group_size; 
-            for (int b = 0; b < nblocks; ++b) {
-                int start = b * group_size; 
-                int end = std::min(world_sz, start + group_size); 
-                if ((b % 2) == 0) { 
-                    for (int r = start; r < end; ++r) listA.push_back(r);
-                } else {  
-                    for (int r = start; r < end; ++r) listB.push_back(r);
-                }
-            }
-            return {listA, listB};
-        };
-
-        auto lists = split_ranks_alternate(world_size, static_cast<int>(num_proc_bloque));
-        const std::vector<int>& listA = lists.first;
-        const std::vector<int>& listB = lists.second;
-
-        bool inA = std::find(listA.begin(), listA.end(), (int)rank) != listA.end();
-        for (UINT k = 0; k < (UINT)num_work; ++k) {
-            _ECR_gate_mpi_external(t1, t2, si, dim_work, rtgt_blk_dim, inA, num_proc_bloque);
-
-            si += dim_work;
-        }
+        const UINT local_qc = (UINT)std::log2(dim);
+        bool is_lower_rank = !(rank & tgt0_rank_bit);
+        _ECR_gate_mpi_external(t1, t2, si, dim_work, is_lower_rank);
+        si += dim_work;
     }
 }
 
-void _ECR_gate_mpi_local_global(CTYPE* t, CTYPE* si, ITYPE dim, ITYPE rtgt_blk_dim) {
+void _ECR_gate_mpi_local_global(CTYPE* t, CTYPE* si, ITYPE dim, ITYPE rtgt_blk_dim, bool is_lower_rank) {
     const double sqrt2inv = 1. / sqrt(2.);
     const ITYPE amplitude_block_size = rtgt_blk_dim << 1; 
 
@@ -408,64 +362,34 @@ void _ECR_gate_mpi_local_global(CTYPE* t, CTYPE* si, ITYPE dim, ITYPE rtgt_blk_d
             const ITYPE offset = k%rtgt_blk_dim;
             const ITYPE idx0 = state_index + offset; 
             const ITYPE idx1 = idx0 + rtgt_blk_dim; 
-            const CTYPE si0 = si[idx0];
-
-            si[idx0] = (si[idx1] + t[idx1] * 1i) * sqrt2inv;
-
-            si[idx1] = (si0 - t[idx0] * 1i) * sqrt2inv;
+            if (target_qubit_index_0 < target_qubit_index_1) {
+                const CTYPE si0 = si[idx0];
+                si[idx0] = (si[idx1] + t[idx1] * 1i) * sqrt2inv;
+                si[idx1] = (si0 - t[idx0] * 1i) * sqrt2inv;
+            } else {
+                if (is_lower_rank) {
+                    si[idx0] = ( t[idx0] + t[idx1] * 1i) * sqrt2inv; 
+                    si[idx1] = ( t[idx0] * 1i + t[idx1]) * sqrt2inv;   
+                } else {
+                    si[idx0] = ( t[idx0] - t[idx1] * 1i) * sqrt2inv;
+                    si[idx1] = (-t[idx0] * 1i + t[idx1]) * sqrt2inv;
+                }
+            }
     }  
 }
 
-void _ECR_gate_mpi_global_local(CTYPE* t, CTYPE* si, ITYPE dim, ITYPE rtgt_blk_dim,
-                                 bool is_lower_rank) {
-    const double sqrt2inv = 1. / sqrt(2.);
-    const ITYPE amplitude_block_size = rtgt_blk_dim << 1;
-
-#pragma omp parallel for
-    for (ITYPE k = 0; k < dim/2; ++k) {
-        const ITYPE state_index = k/rtgt_blk_dim * amplitude_block_size;
-        const ITYPE offset = k % rtgt_blk_dim;
-        const ITYPE idx0 = state_index + offset;
-        const ITYPE idx1 = idx0 + rtgt_blk_dim;
-
-        if (is_lower_rank) {
-            si[idx0] = ( t[idx0] + t[idx1] * 1i) * sqrt2inv; 
-            si[idx1] = ( t[idx0] * 1i + t[idx1]) * sqrt2inv;   
-        } else {
-            si[idx0] = ( t[idx0] - t[idx1] * 1i) * sqrt2inv;
-            si[idx1] = (-t[idx0] * 1i + t[idx1]) * sqrt2inv;
-        }
-    }
-}
-
-
-
 void _ECR_gate_mpi_external(
-    CTYPE* t1, CTYPE* t2, CTYPE* si, ITYPE dim, ITYPE rtgt_blk_dim, bool inA, ITYPE num_proc_bloque) {
+    CTYPE* t1, CTYPE* t2, CTYPE* si, ITYPE dim, bool is_lower_rank) {
     const double sqrt2inv = 1. / sqrt(2.);
     ITYPE state_index = 0;
-    const ITYPE amplitude_block_size = rtgt_blk_dim << 1;
-
-    
     #pragma omp parallel for
-        for (state_index = 0; state_index < dim;
-            state_index += amplitude_block_size) {
-
-            const ITYPE fin = (num_proc_bloque == 1) ? rtgt_blk_dim : dim;
-            
-
-            for (ITYPE offset = 0; offset < fin; ++offset) {
-                const ITYPE idx0 = state_index + offset;
-
-                if (inA) {
-                    si[idx0] = (t2[idx0] + t1[idx0] * 1i) * sqrt2inv;
-                } else {
-                    si[idx0] = (t2[idx0] - t1[idx0] * 1i) * sqrt2inv;
-                }
+        for (ITYPE i = 0; i < dim; ++i) {
+            if (is_lower_rank) {
+                si[i] = (t1[i] + t2[i] * 1i) * sqrt2inv;
+            } else {
+                si[i] = (t1[i] - t2[i] * 1i) * sqrt2inv;
             }
         }
 }
-
-
 
 #endif
