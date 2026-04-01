@@ -255,6 +255,8 @@ TEST(GateTest, ApplyTwoQubitGate) {
     funclist.clear();
     funclist.push_back(
         std::make_pair(gate::SWAP, get_eigen_matrix_full_qubit_SWAP));
+    funclist.push_back(
+        std::make_pair(gate::ECR, get_eigen_matrix_full_qubit_ECR));
     for (UINT repeat = 0; repeat < 10; ++repeat) {
         for (auto func_mat : funclist) {
             UINT control = random.int32() % n;
