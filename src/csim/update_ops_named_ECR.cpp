@@ -104,19 +104,16 @@ void ECR_gate_parallel_unroll(UINT target_qubit_index_0,
 #ifdef _USE_SIMD
 void ECR_gate_parallel_simd(UINT target_qubit_index_0,
     UINT target_qubit_index_1, CTYPE* state, ITYPE dim) {
-
-
     const ITYPE loop_dim = dim / 4;
+
     const ITYPE mask_0 = 1ULL << target_qubit_index_0;
     const ITYPE mask_1 = 1ULL << target_qubit_index_1;
     const ITYPE mask = mask_0 + mask_1;
 
     const UINT min_qubit_index =
         get_min_ui(target_qubit_index_0, target_qubit_index_1);
-
     const UINT max_qubit_index =
         get_max_ui(target_qubit_index_0, target_qubit_index_1);
-
     const ITYPE min_qubit_mask = 1ULL << min_qubit_index;
     const ITYPE max_qubit_mask = 1ULL << (max_qubit_index - 1);
     const ITYPE low_mask = min_qubit_mask - 1;
@@ -124,60 +121,59 @@ void ECR_gate_parallel_simd(UINT target_qubit_index_0,
     const ITYPE high_mask = ~(max_qubit_mask - 1);
     const double sqrt2inv = 1. / sqrt(2.);
 
+    if (min_qubit_index == 0) {
+        ECR_gate_parallel_unroll(target_qubit_index_0,
+    target_qubit_index_1, state, dim);
+    } else {
+    #ifdef _OPENMP
+    #pragma omp parallel for
+    #endif
+        for (ITYPE state_index = 0; state_index < loop_dim; state_index+=2) {
+            ITYPE basis_index_00 = (state_index & low_mask) +
+                                ((state_index & mid_mask) << 1) +
+                                ((state_index & high_mask) << 2);
+            ITYPE basis_index_01 = basis_index_00 + mask_0;
+            ITYPE basis_index_10 = basis_index_00 + mask_1;
+            ITYPE basis_index_11 = basis_index_00 + mask;
 
-#ifdef _OPENMP
-#pragma omp parallel for
-#endif
-    for (ITYPE state_index = 0; state_index < loop_dim; ++state_index) {
-        ITYPE basis_index_00 = (state_index & low_mask) +
-                               ((state_index & mid_mask) << 1) +
-                               ((state_index & high_mask) << 2);
-        ITYPE basis_index_01 = basis_index_00 + mask_0;
-        ITYPE basis_index_10 = basis_index_00 + mask_1;
-        ITYPE basis_index_11 = basis_index_00 + mask;
+            double* ptr00 = (double*)(state + basis_index_00);
+            double* ptr01 = (double*)(state + basis_index_01);
+            double* ptr10 = (double*)(state + basis_index_10);
+            double* ptr11 = (double*)(state + basis_index_11);
 
-        double* ptr00 = reinterpret_cast<double*>(state + basis_index_00);
-        double* ptr01 = reinterpret_cast<double*>(state + basis_index_01);
-        double* ptr10 = reinterpret_cast<double*>(state + basis_index_10);
-        double* ptr11 = reinterpret_cast<double*>(state + basis_index_11);
+            __m256d a_lo = _mm256_loadu_pd(ptr00); 
+            __m256d a_hi = _mm256_loadu_pd(ptr01); 
+            __m256d b_lo = _mm256_loadu_pd(ptr10); 
+            __m256d b_hi = _mm256_loadu_pd(ptr11); 
 
+            auto mul_by_i_256 = [](const __m256d& x) -> __m256d {
+                __m256d swapped = _mm256_permute_pd(x, 0b0101); // swap Re <-> Im
+                const __m256d sign = _mm256_set_pd(1.0, -1.0, 1.0, -1.0);
+                return _mm256_mul_pd(swapped, sign);
+            };
 
-        __m128d a_lo = _mm_loadu_pd(ptr00); 
-        __m128d a_hi = _mm_loadu_pd(ptr01); 
-        __m128d b_lo = _mm_loadu_pd(ptr10); 
-        __m128d b_hi = _mm_loadu_pd(ptr11); 
+            __m256d i_b_hi = mul_by_i_256(b_hi);
+            __m256d i_b_lo = mul_by_i_256(b_lo);
+            __m256d i_a_hi = mul_by_i_256(a_hi);
+            __m256d i_a_lo = mul_by_i_256(a_lo);
 
-        auto mul_by_i = [](__m128d x) -> __m128d {
-            __m128d swapped = _mm_shuffle_pd(x, x, 0x1);
-            const __m128d sign = _mm_set_pd(1.0, -1.0); 
-            return _mm_mul_pd(swapped, sign);
-        };
+            __m256d tmp_new_v00 = _mm256_add_pd(a_hi, i_b_hi);
+            __m256d tmp_new_v01 = _mm256_sub_pd(a_lo, i_b_lo);
+            __m256d tmp_new_v10 = _mm256_add_pd(b_hi, i_a_hi);
+            __m256d tmp_new_v11 = _mm256_sub_pd(b_lo, i_a_lo);
 
-        __m128d i_b_hi = mul_by_i(b_hi);
-        __m128d i_b_lo = mul_by_i(b_lo);
-        __m128d i_a_hi = mul_by_i(a_hi);
-        __m128d i_a_lo = mul_by_i(a_lo);
+            __m256d svec = _mm256_set1_pd(sqrt2inv);
+            tmp_new_v00 = _mm256_mul_pd(tmp_new_v00, svec);
+            tmp_new_v01 = _mm256_mul_pd(tmp_new_v01, svec);
+            tmp_new_v10 = _mm256_mul_pd(tmp_new_v10, svec);
+            tmp_new_v11 = _mm256_mul_pd(tmp_new_v11, svec);
 
-        __m128d tmp_new_v00 = _mm_add_pd(a_hi, i_b_hi);
-        __m128d tmp_new_v01 = _mm_sub_pd(a_lo, i_b_lo);
-        __m128d tmp_new_v10 = _mm_add_pd(b_hi, i_a_hi);
-        __m128d tmp_new_v11 = _mm_sub_pd(b_lo, i_a_lo);
-
-
-        __m128d svec = _mm_set1_pd(sqrt2inv);
-        tmp_new_v00 = _mm_mul_pd(tmp_new_v00, svec);
-        tmp_new_v01 = _mm_mul_pd(tmp_new_v01, svec);
-        tmp_new_v10 = _mm_mul_pd(tmp_new_v10, svec);
-        tmp_new_v11 = _mm_mul_pd(tmp_new_v11, svec);
-
-        _mm_storeu_pd(ptr00, tmp_new_v00); 
-        _mm_storeu_pd(ptr01, tmp_new_v01); 
-        _mm_storeu_pd(ptr10, tmp_new_v10); 
-        _mm_storeu_pd(ptr11, tmp_new_v11); 
-
+            _mm256_storeu_pd(ptr00, tmp_new_v00); 
+            _mm256_storeu_pd(ptr01, tmp_new_v01); 
+            _mm256_storeu_pd(ptr10, tmp_new_v10); 
+            _mm256_storeu_pd(ptr11, tmp_new_v11); 
+        }
     }
-
-
 } 
 #endif
 
