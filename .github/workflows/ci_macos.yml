@@ -32,13 +32,13 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
       CACHE_NAME: "ccache-qulacs-build-v2"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
       - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@v1.2
+        uses: hendrikmuhs/ccache-action@v1.2.21
         with:
           # Include compiler to distinguish cache for each compiler.
           key: ${{ github.job }}-macos-12-${{ matrix.compiler }}
@@ -51,7 +51,7 @@ jobs:
           brew link boost
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
