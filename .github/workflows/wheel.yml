@@ -83,7 +83,7 @@ jobs:
         id: install-boost
         with:
           boost_version: 1.77.0
-          platform_version: 2022
+          # platform_version: 2022 Not specified for now because the impact is unpredictable
 
       - name: Run cibuildwheel for Windows
         if: ${{ contains(matrix.os, 'windows') }}
