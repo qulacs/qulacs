@@ -28,19 +28,19 @@ jobs:
       COVERAGE: "Yes"
       USE_TEST: "Yes"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
       - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@v1.2
+        uses: hendrikmuhs/ccache-action@v1.2.21
         with:
           key: "${{ github.job }}-ubuntu-24.04"
           verbose: 2
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -68,7 +68,7 @@ jobs:
           make pythontest -j $(nproc)
 
       - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
 
@@ -81,13 +81,13 @@ jobs:
       QULACS_OPT_FLAGS: "-mtune=haswell -march=haswell -mfpmath=both"
       USE_TEST: "Yes"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
       - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@v1.2
+        uses: hendrikmuhs/ccache-action@v1.2.21
         with:
           key: "${{ github.job }}-ubuntu-24.04"
           verbose: 2
@@ -118,19 +118,19 @@ jobs:
       USE_TEST: "Yes"
       USE_GPU: "Yes"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
       - name: Setup ccache
-        uses: hendrikmuhs/ccache-action@v1.2
+        uses: hendrikmuhs/ccache-action@v1.2.21
         with:
           key: "${{ github.job }}-ubuntu-24.04"
           verbose: 2
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: "3.12.10"
           architecture: x64
@@ -141,7 +141,7 @@ jobs:
           sudo apt install libboost-dev
 
       - name: Install CUDA toolkit
-        uses: Jimver/cuda-toolkit@v0.2.23
+        uses: Jimver/cuda-toolkit@v0.2.35
         with:
           cuda: "12.6.3"
           method: "local"
@@ -168,7 +168,7 @@ jobs:
       QULACS_OPT_FLAGS: "-march=armv8.2-a+sve"
       QEMU_LD_PREFIX: "/usr/aarch64-linux-gnu"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup qemu
         run: |
@@ -208,7 +208,7 @@ jobs:
     name: Format with clang-format
     runs-on: "ubuntu-24.04"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - run: |
           sudo apt-get install clang-format-14
@@ -235,10 +235,10 @@ jobs:
         python-version: ["3.11"]
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -264,13 +264,13 @@ jobs:
       PYTHON: ${{ matrix.python-version }}
       COVERAGE: "ON"
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v6
 
       - name: Setup cmake
         uses: lukka/get-cmake@latest
 
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           architecture: x64
@@ -312,4 +312,4 @@ jobs:
           mpirun -n 2 pytest python/tests/multi_cpu
 
       - name: Upload coverage to codecov
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v6
