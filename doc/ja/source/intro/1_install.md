@@ -29,7 +29,11 @@ A binary that is installed via pip command is optimized for Haswell architecture
 - C++ compiler (gcc or VisualStudio)
   - gcc/g++ >= 7.0.0 (checked in Linux, MacOS, cygwin, MinGW, and WSL)
   - Microsoft VisualStudio C++ 2015 or later
-- [Boost](https://github.com/boostorg/boost) >= 1.71.0 (Minimum version tested in CI)
+- [Boost](https://github.com/boostorg/boost) >= 1.71.0 (Development environment)  
+(Version tested in CI)
+  - macOS == 1.90.0
+  - Ubuntu == 1.76.0
+  - Windows == 1.83.0
 - Python >= 3.9
 - CMake >= 3.21
 - git
@@ -42,9 +46,9 @@ Note that `qulacs-gpu` includes CPU simulator. You don't need to install both.
 
 Qulacs is tested on the following systems.
 
-- Ubuntu 20.04
-- macOS Big Sur 11
-- Windows Server 2019
+- Ubuntu 24.04
+- macOS 15
+- Windows Server 2022
 
 If you encounter some troubles, see {doc}`2_faq`.
 
