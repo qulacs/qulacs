@@ -162,6 +162,38 @@ static Eigen::MatrixXcd get_eigen_matrix_full_qubit_SWAP(
     return result;
 }
 
+static Eigen::MatrixXcd get_eigen_matrix_full_qubit_ECR( UINT qubit1, UINT qubit2, UINT qubit_count) { 
+    ITYPE dim = 1ULL << qubit_count;
+    Eigen::MatrixXcd result = Eigen::MatrixXcd::Zero(dim, dim);
+    Eigen::Matrix4cd ecr;
+    ecr << 0, 1, 0, 1.i,
+        1, 0, -1.i, 0,
+        0, 1.i, 0, 1,
+        -1.i, 0, 1, 0;
+    ecr /= sqrt(2.);
+    
+    for (ITYPE col = 0; col < dim; ++col) {
+        int bit_qubit1 = (col >> qubit1) & 1;
+        int bit_qubit2 = (col >> qubit2) & 1;
+        int local_index = (bit_qubit2 << 1) | bit_qubit1;
+
+        for (int row_local = 0; row_local < 4; ++row_local) {
+            auto val = ecr(row_local, local_index);
+            if (std::abs(val) == 0) continue; 
+
+            ITYPE row = col;
+            int new_qubit2 = (row_local >> 1) & 1;
+            int new_qubit1 = row_local & 1;
+            row &= ~(1ULL << qubit2);
+            row &= ~(1ULL << qubit1);
+            row |= (new_qubit2 << qubit2);
+            row |= (new_qubit1 << qubit1);
+            result(row, col) = val;
+        } 
+    }
+    return result;  
+}  
+
 // utils
 static std::string convert_CTYPE_array_to_string(
     const CTYPE* state, ITYPE dim) {
