@@ -4,6 +4,7 @@ from scipy.sparse import lil_matrix
 
 from qulacs import (
     DensityMatrix,
+    GradCalculator,
     Observable,
     ParametricQuantumCircuit,
     QuantumCircuit,
@@ -425,6 +426,50 @@ class TestPointerHandling:
         check(pqc, [3, 1, 0, 5, 2])
         pqc.remove_gate(3)  # [1, 0, 3, *, 2]
         check(pqc, [1, 0, 4, 2])
+
+    def test_copied_parametric_circuit_parameter_order(self) -> None:
+        circuit = ParametricQuantumCircuit(2)
+        circuit.add_parametric_gate(ParametricRX(0, 0.3))  # parameter 0
+        circuit.add_parametric_gate(ParametricRZ(1, 0.7), 0)  # parameter 1
+        copied = circuit.copy()
+
+        assert copied.get_parameter_count() == circuit.get_parameter_count()
+        for ind in range(circuit.get_parameter_count()):
+            assert copied.get_parametric_gate_position(
+                ind
+            ) == circuit.get_parametric_gate_position(ind)
+            assert copied.get_parameter(ind) == pytest.approx(
+                circuit.get_parameter(ind)
+            )
+
+        # setting the same parameter index on both circuits must keep the copy
+        # equal to the original
+        for ind in range(circuit.get_parameter_count()):
+            circuit.set_parameter(ind, 1.0 + ind)
+            copied.set_parameter(ind, 1.0 + ind)
+        original_state = QuantumState(2)
+        original_state.set_computational_basis(0)
+        copied_state = QuantumState(2)
+        copied_state.set_computational_basis(0)
+        circuit.update_quantum_state(original_state)
+        copied.update_quantum_state(copied_state)
+        assert np.allclose(original_state.get_vector(), copied_state.get_vector())
+
+    def test_grad_calculator_with_positional_insert(self) -> None:
+        circuit = ParametricQuantumCircuit(2)
+        circuit.add_parametric_gate(ParametricRX(0, 0.3))  # parameter 0
+        circuit.add_parametric_gate(ParametricRZ(1, 0.7), 0)  # parameter 1
+        circuit.add_CNOT_gate(0, 1)
+
+        observable = Observable(2)
+        observable.add_operator(1.0, "Z 0")
+        observable.add_operator(0.5, "X 1")
+
+        # GradCalculator copies the circuit internally, so it must agree with
+        # backprop, which uses the circuit as it is
+        grad = GradCalculator().calculate_grad(circuit, observable)
+        backprop = circuit.backprop(observable)
+        assert np.allclose([g.real for g in grad], backprop), "gradient order"
 
 
 class TestDensityMatrixHandling:

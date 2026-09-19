@@ -46,18 +46,20 @@ ParametricQuantumCircuit::ParametricQuantumCircuit(UINT qubit_count_)
 ParametricQuantumCircuit* ParametricQuantumCircuit::copy() const {
     ParametricQuantumCircuit* new_circuit =
         new ParametricQuantumCircuit(this->qubit_count);
-    std::vector<bool> is_parametric_gate(this->_gate_list.size(), false);
-    for (UINT parametric_gate_pos : this->_parametric_gate_position) {
-        is_parametric_gate[parametric_gate_pos] = true;
+    for (auto gate : this->gate_list) {
+        new_circuit->add_gate_copy(gate);
     }
-    for (UINT gate_pos = 0; gate_pos < this->gate_list.size(); gate_pos++) {
-        if (is_parametric_gate[gate_pos]) {
-            new_circuit->add_parametric_gate(
-                (QuantumGate_SingleParameter*)this->gate_list[gate_pos]
-                    ->copy());
-        } else {
-            new_circuit->add_gate(this->gate_list[gate_pos]->copy());
-        }
+    // The gates are copied in gate order, but the parameters of this circuit
+    // are numbered in the order in which they were added (a parametric gate
+    // can be inserted in front of an already registered one, see
+    // add_parametric_gate(QuantumGate_SingleParameter*, UINT)).  Rebuild the
+    // parameter index -> gate position mapping against the copied gates so
+    // that the parameter indices of this circuit are preserved exactly.
+    for (auto parametric_gate_pos : this->_parametric_gate_position) {
+        new_circuit->_parametric_gate_position.push_back(parametric_gate_pos);
+        new_circuit->_parametric_gate_list.push_back(
+            dynamic_cast<QuantumGate_SingleParameter*>(
+                new_circuit->gate_list[parametric_gate_pos]));
     }
     return new_circuit;
 }
