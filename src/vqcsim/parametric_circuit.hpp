@@ -33,6 +33,16 @@ public:
         const QuantumGateBase* gate, UINT index) override;
     virtual void remove_gate(UINT index) override;
     /**
+     *  \~japanese-en
+     * ゲートを別の位置に移動する。登録済みのゲート位置も移動に追従させる。
+     *  \~english Move a gate to another position, keeping the registered gate
+     *  positions consistent with the moved gates.
+     *
+     * @param[in] from_index 位置を移動するゲートのインデックス
+     * @param[in] to_index 移動先のインデックス
+     */
+    virtual void move_gate(UINT from_index, UINT to_index) override;
+    /**
      *  \~japanese-en 量子回路をマージする。
      *
      * 引数で与えた量子回路のゲートを後ろに追加していく。
