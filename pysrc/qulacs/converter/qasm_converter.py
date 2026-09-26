@@ -158,7 +158,7 @@ def convert_QASM_to_qulacs_circuit(
             matchobj = re.match(r"ecrq\[(\d+)\],q\[(\d+)\];", instr)
             assert matchobj is not None
             ary = matchobj.groups()
-            cir.add_ECR_gate(mapping[int(ary[0])], mapping[int(ary[1])]) 
+            cir.add_ECR_gate(mapping[int(ary[0])], mapping[int(ary[1])])
         elif instr[0:2] == "id":
             matchobj = re.match(r"idq\[(\d+)\];", instr)
             assert matchobj is not None

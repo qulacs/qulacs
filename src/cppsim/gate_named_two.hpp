@@ -106,7 +106,8 @@ public:
             TargetQubitInfo(target_qubit_index2, 0));
         this->_gate_property = FLAG_CLIFFORD;
         this->_matrix_element = ComplexMatrix::Zero(4, 4);
-        this->_matrix_element << 0, 1, 0, 1.i, 1, 0, -1.i, 0, 0, 1.i, 0, 1, -1.i, 0, 1, 0;
+        this->_matrix_element << 0, 1, 0, 1.i, 1, 0, -1.i, 0, 0, 1.i, 0, 1,
+            -1.i, 0, 1, 0;
         this->_matrix_element /= sqrt(2.);
     }
 

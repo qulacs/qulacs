@@ -425,9 +425,9 @@ DllExport void SWAP_gate_mpi(UINT target_qubit_index_0,
  * ECR
  *
  * 2
- * @param[in] target_qubit_index_0 
+ * @param[in] target_qubit_index_0
  * @param[in] target_qubit_index_1
- * @param[in,out] state 
+ * @param[in,out] state
  * @param[in] dim
  */
 DllExport void ECR_gate(UINT target_qubit_index_0, UINT target_qubit_index_1,
@@ -440,7 +440,10 @@ void ECR_gate_parallel_sve(UINT target_qubit_index_0, UINT target_qubit_index_1,
     CTYPE* state, ITYPE dim);
 DllExport void ECR_gate_mpi(UINT target_qubit_index_0,
     UINT target_qubit_index_1, CTYPE* state, ITYPE dim, UINT inner_qc);
-void _ECR_gate_mpi_local_global(ITYPE rw, UINT rank, UINT target_qubit_index_0, UINT target_qubit_index_1, UINT left_qubit, UINT right_qubit, const CTYPE* old_si, CTYPE* si, CTYPE* t, ITYPE dim, ITYPE dim_work, ITYPE num_work);
+void _ECR_gate_mpi_local_global(ITYPE rw, UINT rank, UINT target_qubit_index_0,
+    UINT target_qubit_index_1, UINT left_qubit, UINT right_qubit,
+    const CTYPE* old_si, CTYPE* si, CTYPE* t, ITYPE dim, ITYPE dim_work,
+    ITYPE num_work);
 void _ECR_gate_mpi_external(
     CTYPE* t1, CTYPE* t2, CTYPE* si, ITYPE dim, bool is_lower_rank);
 

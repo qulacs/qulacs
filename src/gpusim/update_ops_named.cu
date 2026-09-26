@@ -378,51 +378,46 @@ __global__ void ECR_gate_gpu(unsigned int target_qubit_index0,
                small_index;                      // (j % 2^(k-1)) >> i
         tail = j & ((1ULL << small_index) - 1);  // j%(2^i)
 
-        basis01 = (head << (large_index + 1)) +
-                  (body << (small_index + 1)) +
+        basis01 = (head << (large_index + 1)) + (body << (small_index + 1)) +
                   (1ULL << target_qubit_index0) + tail;
 
-        basis10 = (head << (large_index + 1)) +
-                  (body << (small_index + 1)) +
+        basis10 = (head << (large_index + 1)) + (body << (small_index + 1)) +
                   (1ULL << target_qubit_index1) + tail;
 
-        basis00 = (head << (large_index + 1)) +
-                  (body << (small_index + 1)) +
-                  tail;
+        basis00 =
+            (head << (large_index + 1)) + (body << (small_index + 1)) + tail;
 
-        basis11 = (head << (large_index + 1)) +
-                  (body << (small_index + 1)) +
-                  (1ULL << target_qubit_index1) + 
-                  (1ULL << target_qubit_index0)+ tail;
+        basis11 = (head << (large_index + 1)) + (body << (small_index + 1)) +
+                  (1ULL << target_qubit_index1) +
+                  (1ULL << target_qubit_index0) + tail;
 
         const double sqrt2inv = 1. / sqrt(2.);
 
         some_v00 = make_gpuDoubleComplex(
-            -gpuCimag(state_gpu[basis11]),
-            gpuCreal(state_gpu[basis11]));
+            -gpuCimag(state_gpu[basis11]), gpuCreal(state_gpu[basis11]));
 
         some_v01 = make_gpuDoubleComplex(
-            gpuCimag(state_gpu[basis10]),
-            -gpuCreal(state_gpu[basis10]));
+            gpuCimag(state_gpu[basis10]), -gpuCreal(state_gpu[basis10]));
 
         some_v10 = make_gpuDoubleComplex(
-            -gpuCimag(state_gpu[basis01]),
-            gpuCreal(state_gpu[basis01]));
+            -gpuCimag(state_gpu[basis01]), gpuCreal(state_gpu[basis01]));
 
         some_v11 = make_gpuDoubleComplex(
-            gpuCimag(state_gpu[basis00]),
-            -gpuCreal(state_gpu[basis00]));
+            gpuCimag(state_gpu[basis00]), -gpuCreal(state_gpu[basis00]));
 
-        tmp00 = cuCmul(make_cuDoubleComplex(sqrt2inv,0), cuCadd(state_gpu[basis01], some_v00));
-        tmp01 = cuCmul(make_cuDoubleComplex(sqrt2inv,0), cuCadd(state_gpu[basis00], some_v01));
-        tmp10 = cuCmul(make_cuDoubleComplex(sqrt2inv,0), cuCadd(state_gpu[basis11], some_v10));
-        tmp11 = cuCmul(make_cuDoubleComplex(sqrt2inv,0), cuCadd(state_gpu[basis10], some_v11));
+        tmp00 = cuCmul(make_cuDoubleComplex(sqrt2inv, 0),
+            cuCadd(state_gpu[basis01], some_v00));
+        tmp01 = cuCmul(make_cuDoubleComplex(sqrt2inv, 0),
+            cuCadd(state_gpu[basis00], some_v01));
+        tmp10 = cuCmul(make_cuDoubleComplex(sqrt2inv, 0),
+            cuCadd(state_gpu[basis11], some_v10));
+        tmp11 = cuCmul(make_cuDoubleComplex(sqrt2inv, 0),
+            cuCadd(state_gpu[basis10], some_v11));
 
         state_gpu[basis00] = tmp00;
         state_gpu[basis01] = tmp01;
         state_gpu[basis10] = tmp10;
         state_gpu[basis11] = tmp11;
-
     }
 }
 
