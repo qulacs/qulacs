@@ -405,14 +405,14 @@ __global__ void ECR_gate_gpu(unsigned int target_qubit_index0,
         some_v11 = make_gpuDoubleComplex(
             gpuCimag(state_gpu[basis00]), -gpuCreal(state_gpu[basis00]));
 
-        tmp00 = cuCmul(make_cuDoubleComplex(sqrt2inv, 0),
-            cuCadd(state_gpu[basis01], some_v00));
-        tmp01 = cuCmul(make_cuDoubleComplex(sqrt2inv, 0),
-            cuCadd(state_gpu[basis00], some_v01));
-        tmp10 = cuCmul(make_cuDoubleComplex(sqrt2inv, 0),
-            cuCadd(state_gpu[basis11], some_v10));
-        tmp11 = cuCmul(make_cuDoubleComplex(sqrt2inv, 0),
-            cuCadd(state_gpu[basis10], some_v11));
+        tmp00 = gpuCmul(make_cuDoubleComplex(sqrt2inv, 0),
+            gpuCadd(state_gpu[basis01], some_v00));
+        tmp01 = gpuCmul(make_cuDoubleComplex(sqrt2inv, 0),
+            gpuCadd(state_gpu[basis00], some_v01));
+        tmp10 = gpuCmul(make_cuDoubleComplex(sqrt2inv, 0),
+            gpuCadd(state_gpu[basis11], some_v10));
+        tmp11 = gpuCmul(make_cuDoubleComplex(sqrt2inv, 0),
+            gpuCadd(state_gpu[basis10], some_v11));
 
         state_gpu[basis00] = tmp00;
         state_gpu[basis01] = tmp01;
