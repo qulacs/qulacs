@@ -131,7 +131,7 @@ public:
     }
 
     virtual ClsTwoQubitGate* get_inverse(void) const override {
-        if (this->_name == "SWAP") {
+        if (this->_name == "SWAP" || this->_name == "ECR") {
             return this->copy();
         }
         throw NotImplementedException(
