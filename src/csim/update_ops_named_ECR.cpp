@@ -317,6 +317,7 @@ void ECR_gate_mpi(UINT target_qubit_index_0, UINT target_qubit_index_1,
                 }
             } else {
                 si = state;
+                rw = 0;
             }
 
             m.m_DC_sendrecv(si, t, dim_work, pair_rank);
