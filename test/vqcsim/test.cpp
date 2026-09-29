@@ -160,6 +160,204 @@ TEST(ParametricCircuit, ParametricGatePosition) {
     ASSERT_EQ(circuit.get_parametric_gate_position(4), 6);
 }
 
+// Regression test: moving a gate has to keep the registered parametric gate
+// positions up to date.  Otherwise get_parametric_gate_position() silently
+// reports the wrong gate, and every consumer of the positions (copy(),
+// GradientByHalfPi, CausalConeSimulator) works on the wrong mapping.
+TEST(ParametricCircuit, MoveGateKeepsParameterPositions) {
+    const UINT n = 2;
+    ParametricQuantumCircuit circuit(n);
+    circuit.add_parametric_RX_gate(0, 0.3);  // parameter 0, gate 0
+    circuit.add_X_gate(0);                   // gate 1
+    circuit.add_parametric_RZ_gate(1, 0.7);  // parameter 1, gate 2
+    circuit.add_H_gate(1);                   // gate 3
+
+    circuit.move_gate(0, 3);
+    // the moved parametric gate is at the back of the circuit, and the
+    // parametric gate that was at gate 2 has been shifted to gate 1
+    ASSERT_EQ(circuit.get_parametric_gate_position(0), 3);
+    ASSERT_EQ(circuit.get_parametric_gate_position(1), 1);
+    ASSERT_TRUE(circuit.gate_list[3]->is_parametric());
+    ASSERT_TRUE(circuit.gate_list[1]->is_parametric());
+    ASSERT_NEAR(circuit.get_parameter(0), 0.3, eps);
+    ASSERT_NEAR(circuit.get_parameter(1), 0.7, eps);
+
+    // the moved circuit must be equivalent to a circuit built in that order
+    ParametricQuantumCircuit expected(n);
+    expected.add_X_gate(0);
+    expected.add_parametric_RZ_gate(1, 0.);  // parameter 0 of expected
+    expected.add_H_gate(1);
+    expected.add_parametric_RX_gate(0, 0.);  // parameter 1 of expected
+    const double rx_angle = 1.1;
+    const double rz_angle = 2.2;
+    circuit.set_parameter(0, rx_angle);   // parameter 0 is the RX gate
+    circuit.set_parameter(1, rz_angle);   // parameter 1 is the RZ gate
+    expected.set_parameter(1, rx_angle);  // parameter 1 of expected is RX
+    expected.set_parameter(0, rz_angle);  // parameter 0 of expected is RZ
+
+    QuantumState state(n), expected_state(n);
+    state.set_Haar_random_state();
+    expected_state.load(&state);
+    circuit.update_quantum_state(&state);
+    expected.update_quantum_state(&expected_state);
+    ASSERT_STATE_NEAR(state, expected_state, eps);
+}
+
+TEST(ParametricCircuit, MoveGateNonParametricGateShiftsParameters) {
+    const UINT n = 2;
+    ParametricQuantumCircuit circuit(n);
+    circuit.add_parametric_RX_gate(0, 0.3);  // parameter 0, gate 0
+    circuit.add_X_gate(0);                   // gate 1
+    circuit.add_parametric_RZ_gate(1, 0.7);  // parameter 1, gate 2
+
+    circuit.move_gate(1, 2);  // the X gate moves behind the RZ gate
+    ASSERT_EQ(circuit.get_parametric_gate_position(0), 0);
+    ASSERT_EQ(circuit.get_parametric_gate_position(1), 1);
+    ASSERT_TRUE(circuit.gate_list[1]->is_parametric());
+
+    ParametricQuantumCircuit expected(n);
+    expected.add_parametric_RX_gate(0, 0.);
+    expected.add_parametric_RZ_gate(1, 0.);
+    expected.add_X_gate(0);
+    const double rx_angle = 1.1;
+    const double rz_angle = 2.2;
+    circuit.set_parameter(0, rx_angle);
+    circuit.set_parameter(1, rz_angle);
+    expected.set_parameter(0, rx_angle);
+    expected.set_parameter(1, rz_angle);
+
+    QuantumState state(n), expected_state(n);
+    state.set_Haar_random_state();
+    expected_state.load(&state);
+    circuit.update_quantum_state(&state);
+    expected.update_quantum_state(&expected_state);
+    ASSERT_STATE_NEAR(state, expected_state, eps);
+}
+
+TEST(ParametricCircuit, MoveGateBackwardKeepsParameterPositions) {
+    const UINT n = 3;
+    ParametricQuantumCircuit circuit(n);
+    circuit.add_X_gate(0);                   // gate 0
+    circuit.add_parametric_RX_gate(0, 0.3);  // parameter 0, gate 1
+    circuit.add_parametric_RZ_gate(1, 0.7);  // parameter 1, gate 2
+    circuit.add_CNOT_gate(0, 1);             // gate 3
+    circuit.add_parametric_RY_gate(2, 1.5);  // parameter 2, gate 4
+
+    circuit.move_gate(4, 0);
+    ASSERT_EQ(circuit.get_parametric_gate_position(0), 2);
+    ASSERT_EQ(circuit.get_parametric_gate_position(1), 3);
+    ASSERT_EQ(circuit.get_parametric_gate_position(2), 0);
+    for (UINT i = 0; i < circuit.get_parameter_count(); ++i) {
+        ASSERT_TRUE(circuit.gate_list[circuit.get_parametric_gate_position(i)]
+                        ->is_parametric());
+    }
+
+    ParametricQuantumCircuit expected(n);
+    expected.add_parametric_RY_gate(2, 0.);  // parameter 0 of expected
+    expected.add_X_gate(0);
+    expected.add_parametric_RX_gate(0, 0.);  // parameter 1 of expected
+    expected.add_parametric_RZ_gate(1, 0.);  // parameter 2 of expected
+    expected.add_CNOT_gate(0, 1);
+    const double rx_angle = 1.1;
+    const double rz_angle = 2.2;
+    const double ry_angle = 3.3;
+    circuit.set_parameter(0, rx_angle);   // parameter 0 is the RX gate
+    circuit.set_parameter(1, rz_angle);   // parameter 1 is the RZ gate
+    circuit.set_parameter(2, ry_angle);   // parameter 2 is the RY gate
+    expected.set_parameter(0, ry_angle);  // parameter 0 of expected is RY
+    expected.set_parameter(1, rx_angle);  // parameter 1 of expected is RX
+    expected.set_parameter(2, rz_angle);  // parameter 2 of expected is RZ
+
+    QuantumState state(n), expected_state(n);
+    state.set_Haar_random_state();
+    expected_state.load(&state);
+    circuit.update_quantum_state(&state);
+    expected.update_quantum_state(&expected_state);
+    ASSERT_STATE_NEAR(state, expected_state, eps);
+}
+
+// Regression test: the destination bound of the backward shift is inclusive.
+// A parametric gate that already sits at to_index has to shift up when another
+// gate is moved backward into to_index.  This distinguishes the correct
+// `lower <= position` from the plausible wrong `lower < position`.
+TEST(ParametricCircuit, MoveGateBackwardDestinationBoundary) {
+    const UINT n = 1;
+    ParametricQuantumCircuit circuit(n);
+    circuit.add_parametric_RX_gate(0, 0.3);  // parameter 0, gate 0 (= to_index)
+    circuit.add_X_gate(0);                   // gate 1
+    circuit.add_parametric_RZ_gate(0, 0.7);  // parameter 1, gate 2
+
+    circuit.move_gate(2, 0);
+
+    ASSERT_EQ(circuit.get_parametric_gate_position(1), 0);  // moved gate
+    ASSERT_EQ(circuit.get_parametric_gate_position(0), 1);  // shifted up
+    ASSERT_TRUE(circuit.gate_list[0]->is_parametric());
+    ASSERT_TRUE(circuit.gate_list[1]->is_parametric());
+    ASSERT_FALSE(circuit.gate_list[2]->is_parametric());
+    ASSERT_NEAR(circuit.get_parameter(0), 0.3, eps);
+    ASSERT_NEAR(circuit.get_parameter(1), 0.7, eps);
+}
+
+// Regression test: move_gate(i, i) is a no-op and must leave both the gate
+// order and the registered parametric gate positions untouched.
+TEST(ParametricCircuit, MoveGateSameIndexIsNoOp) {
+    const UINT n = 2;
+    ParametricQuantumCircuit circuit(n);
+    circuit.add_parametric_RX_gate(0, 0.3);  // parameter 0, gate 0
+    circuit.add_X_gate(0);                   // gate 1
+    circuit.add_parametric_RZ_gate(1, 0.7);  // parameter 1, gate 2
+
+    const std::vector<QuantumGateBase*> before = circuit.gate_list;
+
+    circuit.move_gate(1, 1);  // non-parametric gate
+    ASSERT_EQ(circuit.gate_list.size(), before.size());
+    for (UINT i = 0; i < before.size(); ++i)
+        ASSERT_EQ(circuit.gate_list[i], before[i]);
+    ASSERT_EQ(circuit.get_parametric_gate_position(0), 0);
+    ASSERT_EQ(circuit.get_parametric_gate_position(1), 2);
+
+    circuit.move_gate(2, 2);  // parametric gate
+    ASSERT_EQ(circuit.gate_list.size(), before.size());
+    for (UINT i = 0; i < before.size(); ++i)
+        ASSERT_EQ(circuit.gate_list[i], before[i]);
+    ASSERT_EQ(circuit.get_parametric_gate_position(0), 0);
+    ASSERT_EQ(circuit.get_parametric_gate_position(1), 2);
+    ASSERT_NEAR(circuit.get_parameter(0), 0.3, eps);
+    ASSERT_NEAR(circuit.get_parameter(1), 0.7, eps);
+}
+
+// Regression test: an out-of-range index throws and leaves the circuit
+// unchanged.  The base implementation validates both indices before mutating,
+// so the derived override must preserve that guarantee.  The invariant is
+// re-checked after every individual call, not only once at the end.
+TEST(ParametricCircuit, MoveGateInvalidIndexThrows) {
+    const UINT n = 2;
+    ParametricQuantumCircuit circuit(n);
+    circuit.add_parametric_RX_gate(0, 0.3);  // parameter 0, gate 0
+    circuit.add_X_gate(0);                   // gate 1
+    circuit.add_parametric_RZ_gate(1, 0.7);  // parameter 1, gate 2
+
+    const std::vector<QuantumGateBase*> before = circuit.gate_list;
+    auto check_unchanged = [&]() {
+        ASSERT_EQ(circuit.gate_list.size(), before.size());
+        for (UINT i = 0; i < before.size(); ++i)
+            ASSERT_EQ(circuit.gate_list[i], before[i]);
+        ASSERT_EQ(circuit.get_parametric_gate_position(0), 0);
+        ASSERT_EQ(circuit.get_parametric_gate_position(1), 2);
+        ASSERT_NEAR(circuit.get_parameter(0), 0.3, eps);
+        ASSERT_NEAR(circuit.get_parameter(1), 0.7, eps);
+    };
+
+    ASSERT_THROW(circuit.move_gate(3, 0), GateIndexOutOfRangeException);
+    check_unchanged();
+
+    ASSERT_THROW(circuit.move_gate(0, 3), GateIndexOutOfRangeException);
+    check_unchanged();
+
+    ASSERT_THROW(circuit.move_gate(3, 3), GateIndexOutOfRangeException);
+    check_unchanged();
+}
+
 class MyRandomCircuit : public ParametricCircuitBuilder {
     ParametricQuantumCircuit* create_circuit(
         UINT output_dim, UINT param_count) const override {

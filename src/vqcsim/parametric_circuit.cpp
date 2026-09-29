@@ -1,6 +1,7 @@
 #define _USE_MATH_DEFINES
 #include "parametric_circuit.hpp"
 
+#include <algorithm>
 #include <cppsim/exception.hpp>
 #include <cppsim/gate_factory.hpp>
 #include <cppsim/gate_matrix.hpp>
@@ -163,6 +164,22 @@ void ParametricQuantumCircuit::remove_gate(UINT index) {
     QuantumCircuit::remove_gate(index);
     for (auto& val : _parametric_gate_position)
         if (val >= index) val--;
+}
+void ParametricQuantumCircuit::move_gate(UINT from_index, UINT to_index) {
+    QuantumCircuit::move_gate(from_index, to_index);
+    // The gate at from_index is moved to to_index and the gates between the two
+    // positions are shifted by one, so the registered gate positions have to
+    // follow.  The parametric gates themselves are moved, not copied, so their
+    // parameter indices do not change and _parametric_gate_list stays valid.
+    const UINT lower = std::min(from_index, to_index);
+    const UINT upper = std::max(from_index, to_index);
+    for (auto& position : _parametric_gate_position) {
+        if (position == from_index) {
+            position = to_index;
+        } else if (lower <= position && position <= upper) {
+            position = from_index < to_index ? position - 1 : position + 1;
+        }
+    }
 }
 void ParametricQuantumCircuit::merge_circuit(
     const ParametricQuantumCircuit* circuit) {
