@@ -372,6 +372,14 @@ public:
     virtual void add_SWAP_gate(UINT target_index1, UINT target_index2);
 
     /**
+     * \~english ECR gate
+     *
+     * @param[in] target_index1
+     * @param[in] target_index2
+     */
+    virtual void add_ECR_gate(UINT target_index1, UINT target_index2);
+
+    /**
      * \~japanese-en FusedSWAP gateを追加する。
      *
      * @param[in] target_index1 作用するqubitブロックの先頭の添え字

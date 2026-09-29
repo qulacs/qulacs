@@ -18,6 +18,7 @@ __all__ = [
     "DephasingNoise",
     "DepolarizingNoise",
     "DiagonalMatrix",
+    "ECR",
     "FREDKIN",
     "FusedSWAP",
     "H",
@@ -155,6 +156,11 @@ def DiagonalMatrix(
 ) -> qulacs_core.QuantumGateDiagonalMatrix:
     """
     Create diagonal matrix gate
+    """
+
+def ECR(target1: int, target2: int) -> qulacs_core.ClsTwoQubitGate:
+    """
+    Create ECR gate
     """
 
 def FREDKIN(control: int, target1: int, target2: int) -> qulacs_core.QuantumGateMatrix:
