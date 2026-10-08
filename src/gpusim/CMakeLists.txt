@@ -57,7 +57,13 @@ message(STATUS "Runtime Directory: " ${CUDAToolkit_LIBRARY_DIR})
 add_library(gpusim_static STATIC ${GPUSIM_SRC})
 add_library(gpusim_shared SHARED ${GPUSIM_SRC})
 
-target_link_libraries(gpusim_static CUDA::cudart_static CUDA::curand_static CUDA::cublas_static)
+# Set -DQULACS_CUDA_SHARED_RUNTIME=ON to link the shared CUDA runtime and libraries instead of static ones,
+# e.g. to run the tests on a CUDA driver/runtime replacement such as a GPU simulator.
+if(QULACS_CUDA_SHARED_RUNTIME)
+    target_link_libraries(gpusim_static CUDA::cudart CUDA::curand CUDA::cublas)
+else()
+    target_link_libraries(gpusim_static CUDA::cudart_static CUDA::curand_static CUDA::cublas_static)
+endif()
 target_link_libraries(gpusim_shared CUDA::cudart CUDA::curand CUDA::cublas)
 set_source_files_properties(${CUDA_FILES} PROPERTIES LANGUAGE CUDA)
 
