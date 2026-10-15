@@ -765,7 +765,9 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_mpi(
 
                     sum += _creal(
                         state[basis_0 & inner_mask] *
-                        conj(recvptr[basis_1 & inner_mask]) *
+                        // recvptr holds only the current communication chunk.
+                        // basis_1 & inner_mask indexes the full local state.
+                        conj(recvptr[j]) *
                         PHASE_90ROT[(global_phase_90rot_count + sign_0 * 2) %
                                     4] *
                         2.0);
