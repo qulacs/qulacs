@@ -729,12 +729,11 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_mpi(
     double sum = 0.;
 
     int comm_flag = bit_flip_mask >> inner_qc;
-    assert(comm_flag != 0);
 
     MPIutil& m = MPIutil::get_inst();
     int mpirank = m.get_rank();
     int pair_rank = mpirank ^ comm_flag;
-    ITYPE global_offset = mpirank << inner_qc;
+    ITYPE global_offset = (ITYPE)mpirank << inner_qc;
 
     if (comm_flag) {
         ITYPE dim_work = dim;
@@ -758,7 +757,8 @@ double expectation_value_multi_qubit_Pauli_operator_XZ_mask_mpi(
 #pragma omp parallel for reduction(+ : sum)
 #endif
                 for (j = 0; j < dim_work; ++j) {
-                    ITYPE basis_1 = state_index + j + (pair_rank << inner_qc);
+                    ITYPE basis_1 =
+                        state_index + j + ((ITYPE)pair_rank << inner_qc);
                     ITYPE basis_0 = basis_1 ^ bit_flip_mask;
                     UINT sign_0 =
                         count_population(basis_0 & phase_flip_mask) % 2;
@@ -812,7 +812,7 @@ double expectation_value_multi_qubit_Pauli_operator_Z_mask_mpi(
 #pragma omp parallel for reduction(+ : sum)
 #endif
     for (state_index = 0; state_index < loop_dim; ++state_index) {
-        ITYPE global_index = state_index + (rank << inner_qc);
+        ITYPE global_index = state_index + ((ITYPE)rank << inner_qc);
         // A
         int bit_parity = count_population(global_index & phase_flip_mask) % 2;
         // B
