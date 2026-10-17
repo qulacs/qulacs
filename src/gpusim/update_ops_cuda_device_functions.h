@@ -33,6 +33,8 @@ __global__ void CNOT_gate_gpu(unsigned int control_qubit_index,
     unsigned int target_qubit_index, GTYPE* psi_gpu, ITYPE dim);
 __global__ void SWAP_gate_gpu(unsigned int target_qubit_index0,
     unsigned int target_qubit_index1, GTYPE* state_gpu, ITYPE dim);
+__global__ void ECR_gate_gpu(unsigned int target_qubit_index0,
+    unsigned int target_qubit_index1, GTYPE* state_gpu, ITYPE dim);
 __global__ void P0_gate_gpu(
     UINT target_qubit_index, GTYPE* state_gpu, ITYPE dim);
 __global__ void P1_gate_gpu(
