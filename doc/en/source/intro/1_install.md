@@ -54,6 +54,17 @@ If you encounter some troubles, see {doc}`2_faq`.
 
 ### How to install
 
+After installing the requirements above, clone the source repository and enter it:
+
+```sh
+git clone https://github.com/qulacs/qulacs.git
+cd qulacs
+```
+
+If you already have a checkout, use that directory instead. Run the installation
+commands below from the repository root, which contains `pyproject.toml` and
+`setup.py`. The `.` in `pip install .` refers to this directory.
+
 Install with default options (Multi-thread without GPU):
 
 ```
