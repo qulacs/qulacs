@@ -757,6 +757,11 @@ class QuantumCircuit:
         Add CZ gate
         """
 
+    def add_ECR_gate(self, target1: int, target2: int) -> None:
+        """
+        Add ECR gate
+        """
+
     def add_FusedSWAP_gate(self, target1: int, target2: int, block_size: int) -> None:
         """
         Add FusedSWAP gate
