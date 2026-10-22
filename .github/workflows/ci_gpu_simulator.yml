@@ -1,0 +1,57 @@
+name: GPU tests on a simulated GPU
+
+# Optional, non-required check. The hosted runners have no GPU, so the regular
+# "nvcc + gcc build" job only compiles the CUDA code. This workflow also runs
+# gpusim_test, on a simulated NVIDIA GPU (https://github.com/pantheongpu/pantheonsim).
+# A simulator cannot reproduce hardware-specific behaviour, so it complements
+# real-GPU testing and does not replace it.
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "17 3 * * 1"
+  pull_request:
+    paths:
+      - "src/gpusim/**"
+      - "test/gpusim/**"
+      - ".github/workflows/ci_gpu_simulator.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  gpusim-test:
+    name: gpusim_test on simulated NVIDIA T4
+    runs-on: "ubuntu-24.04"
+    timeout-minutes: 60
+    env:
+      QULACS_OPT_FLAGS: "-mtune=haswell -march=haswell -mfpmath=both"
+    steps:
+      - uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+
+      - name: Install boost
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libboost-dev
+
+      - name: Set up the simulated GPU and CUDA toolkit
+        uses: pantheongpu/setup-pantheonsim@23932d9b811269d55c8d65687332fefc65daeb2c # v0.1.3
+        with:
+          gpu: nvidia/t4
+          cuda-toolkit: "12.6"
+
+      - name: Build gpusim_test
+        run: |
+          cmake -S . -B build -G "Unix Makefiles" \
+            -D CMAKE_BUILD_TYPE=Release \
+            -D OPT_FLAGS="$QULACS_OPT_FLAGS" \
+            -D USE_GPU=Yes -D USE_TEST=Yes \
+            -D CMAKE_CUDA_ARCHITECTURES=75-virtual \
+            -D QULACS_CUDA_SHARED_RUNTIME=ON
+          # 75-virtual embeds PTX only: the simulator JIT-compiles PTX and does not run SASS.
+          make -C build gpusim_test -j "$(nproc)"
+
+      - name: Run gpusim_test
+        run: ./bin/gpusim_test
