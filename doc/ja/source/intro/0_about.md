@@ -34,23 +34,6 @@ Note that the plots with names ending with "opt" and "heavy opt" perform circuit
 
 ![multi thread benchmark](https://storage.googleapis.com/qunasys/fig_both_gpu.png)
 
-## Requirement
-
-- C++ compiler (gcc or VisualStudio)
-    - gcc/g++ >= 7.0.0 (checked in Linux, MacOS, cygwin, MinGW, and WSL)
-    - Microsoft VisualStudio C++ 2015 or 2017
-- Python 2.7 or 3.x
-- CMake >= 3.0
-- Git
-- (option) CUDA >= 8.0
-- (option) AVX2 support
-
-If your system supports AVX2 instructions, SIMD optimization is automatically enabled.
-If you want to enable GPU simulator, install qulacs through `qulacs-gpu` package or build from source.
-Note that `qulacs-gpu` includes a CPU simulator. You don't need to install both.
-
-If you encounter some troubles, see {doc}`2_faq`.
-
 ### How to cite
 
 Please cite this arXiv paper: [Qulacs: a fast and versatile quantum circuit simulator for research purpose](https://arxiv.org/abs/2011.13524).
