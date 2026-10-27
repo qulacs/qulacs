@@ -78,7 +78,7 @@ A binary that is installed via pip command is optimized for Haswell architecture
   - macOS == 1.90.0
   - Ubuntu == 1.76.0
   - Windows == 1.83.0
-- Python >= 3.9
+- Python >= 3.10
 - CMake >= 3.21
 - git
 - (option) CUDA >= 8.0
