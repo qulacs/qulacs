@@ -958,6 +958,22 @@ TEST(StateTest, SetState) {
     }
 }
 
+TEST(StateTest, ZeroNormState) {
+    const UINT n = 5;
+    int ngpus = get_num_device();
+    for (int idx = 0; idx < ngpus; ++idx) {
+        QuantumStateGpu state(n, idx);
+        state.set_Haar_random_state();
+        state.set_zero_norm_state();
+
+        auto ptr = state.duplicate_data_cpp();
+        for (ITYPE i = 0; i < (1 << n); ++i) {
+            ASSERT_EQ(ptr[i], std::complex<double>(0, 0));
+        }
+        free(ptr);
+    }
+}
+
 TEST(StateTest, CopyState) {
     const UINT n = 7;
     int ngpus = get_num_device();

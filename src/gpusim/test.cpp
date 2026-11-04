@@ -12,14 +12,14 @@ int main(int argc, char* argv[]) {
     ITYPE len = 1ULL << n_qubits;
     void* state = allocate_quantum_state_host(len);
     initialize_quantum_state_host(state, len);
-    X_gate_host(0, state, len);
+    X_gate_host(0, state, len);    
     // print_quantum_state_host(state, len);
     X_gate_host(1, state, len);
     // print_quantum_state_host(state, len);
     // CZ_gate_host(0, 1, state, len);
     // print_quantum_state_host(state, len);
     // CNOT_gate_host(0, 1, state, len);
-    // print_quantum_state_host(state, len);
+    // print_quantum_state_host(state, len);    
     initialize_Haar_random_state_host(state, len);
     printf("haar random state\n");
     // print_quantum_state_host(state, len);

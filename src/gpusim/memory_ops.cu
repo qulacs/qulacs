@@ -47,6 +47,13 @@ __global__ void init_qstate(GTYPE* state_gpu, ITYPE dim) {
     if (idx == 0) state_gpu[idx] = make_gpuDoubleComplex(1.0, 0.0);
 }
 
+__global__ void init_zero_norm_qstate(GTYPE* state_gpu, ITYPE dim) {
+    ITYPE idx = blockIdx.x * blockDim.x + threadIdx.x;
+    if (idx < dim) {
+        state_gpu[idx] = make_gpuDoubleComplex(0.0, 0.0);
+    }
+}
+
 __host__ void* allocate_quantum_state_host(
     ITYPE dim, unsigned int device_number) {
     int current_device = get_current_device();
@@ -70,6 +77,23 @@ __host__ void initialize_quantum_state_host(
     unsigned int block = dim <= max_block_size ? dim : max_block_size;
     unsigned int grid = (dim + block - 1) / block;
     init_qstate<<<grid, block, 0, *gpu_stream>>>(state_gpu, dim);
+
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
+}
+
+__host__ void initialize_quantum_zero_state_host(
+    void* state, ITYPE dim, void* stream, unsigned int device_number) {
+    int current_device = get_current_device();
+    if (device_number != current_device) gpuSetDevice(device_number);
+    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+    gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
+
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(init_zero_norm_qstate);
+    unsigned int block = dim <= max_block_size ? dim : max_block_size;
+    unsigned int grid = (dim + block - 1) / block;
+    init_zero_norm_qstate<<<grid, block, 0, *gpu_stream>>>(state_gpu, dim);
 
     checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
     checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
