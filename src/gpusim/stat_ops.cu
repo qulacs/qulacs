@@ -242,12 +242,45 @@ __global__ void state_add_gpu(
     const GTYPE* state_added, GTYPE* state, ITYPE dim) {
     ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x;
 
-    // loop varaibles
+    // loop variables
     const ITYPE loop_dim = dim;
     if (state_index < loop_dim) {
         state[state_index] =
             gpuCadd(state[state_index], state_added[state_index]);
     }
+}
+
+__global__ void state_add_scaled_gpu(
+    const GTYPE coef, const GTYPE* state_added, GTYPE* state, ITYPE dim) {
+    ITYPE state_index = blockIdx.x * blockDim.x + threadIdx.x;
+    const ITYPE loop_dim = dim;
+    if (state_index < loop_dim) {
+        state[state_index] = gpuCadd(state[state_index], gpuCmul(state_added[state_index], coef));
+    }
+}
+
+__host__ void state_add_scaled_host(CPPCTYPE coef, void* state_added, void* state,
+    ITYPE dim, void* stream, unsigned int device_number) {
+    int current_device = get_current_device();
+    if (device_number != current_device) gpuSetDevice(device_number);
+    GTYPE* state_gpu = reinterpret_cast<GTYPE*>(state);
+    GTYPE* state_added_gpu = reinterpret_cast<GTYPE*>(state_added);
+    gpuStream_t* gpu_stream = reinterpret_cast<gpuStream_t*>(stream);
+
+    GTYPE coef_gpu = make_gpuDoubleComplex(coef.real(), coef.imag());
+
+    unsigned int max_block_size =
+        get_block_size_to_maximize_occupancy(state_add_scaled_gpu);
+    unsigned int block = dim <= max_block_size ? dim : max_block_size;
+    unsigned int grid = (dim + block - 1) / block;
+
+    state_add_scaled_gpu<<<grid, block, 0, *gpu_stream>>>(
+        coef_gpu, state_added_gpu, state_gpu, dim);
+
+    checkGpuErrors(gpuGetLastError(), __FILE__, __LINE__);
+    checkGpuErrors(gpuStreamSynchronize(*gpu_stream), __FILE__, __LINE__);
+    state = reinterpret_cast<void*>(state_gpu);
+    state_added = reinterpret_cast<void*>(state_added_gpu);
 }
 
 __host__ void state_add_host(void* state_added, void* state, ITYPE dim,

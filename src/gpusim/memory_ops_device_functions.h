@@ -23,6 +23,7 @@
 #include "util_type_internal.h"
 
 __global__ void init_qstate(GTYPE* state_gpu, ITYPE dim);
+__global__ void init_zero_norm_qstate(GTYPE* stage_gpu, ITYPE dim);
 #ifdef __HIP_PLATFORM_AMD__
 __global__ void init_rnd(
     hiprandState* const rnd_state, const unsigned int seed, ITYPE dim);

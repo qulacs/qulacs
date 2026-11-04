@@ -59,12 +59,10 @@ public:
     }
     /**
      * \~japanese-en 量子状態を計算基底の0状態に初期化する
-     * TODO: implement this
      */
     virtual void set_zero_norm_state() override {
-        throw NotImplementedException(
-            "set_zero_norm_state for QuantumStateGpu is not implemented "
-            "yet");
+        initialize_quantum_zero_state_host(
+            this->data(), _dim, _cuda_stream, device_number);
     }
     /**
      * \~japanese-en 量子状態を<code>comp_basis</code>の基底状態に初期化する
@@ -314,11 +312,8 @@ public:
                 "const QuantumStateBase*): "
                 "cannot add DensityMatrix to StateVector");
         }
-        state_multiply_host(
-            coef, this->data(), this->dim, _cuda_stream, device_number);
-        state_add_host(state->data(), this->data(), this->dim, _cuda_stream,
-            device_number);
-        state_multiply_host(CPPCTYPE(1) / coef, this->data(), this->dim,
+        // this->data() += coef * state->data()
+        state_add_scaled_host(coef, state->data(), this->data(), this->dim,
             _cuda_stream, device_number);
     }
 
@@ -334,12 +329,9 @@ public:
                 "const QuantumStateBase*): "
                 "cannot add DensityMatrix to StateVector");
         }
-        state_multiply_host(CPPCTYPE(1) / coef, this->data(), this->dim,
+        // this->data() += coef * state->data()
+        state_add_scaled_host(coef, state->data(), this->data(), this->dim,
             _cuda_stream, device_number);
-        state_add_host(state->data(), this->data(), this->dim, _cuda_stream,
-            device_number);
-        state_multiply_host(
-            coef, this->data(), this->dim, _cuda_stream, device_number);
     }
 
     /**
