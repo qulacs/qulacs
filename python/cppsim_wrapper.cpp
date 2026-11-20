@@ -124,10 +124,18 @@ PYBIND11_MODULE(qulacs_core, m) {
             [](const GeneralQuantumOperator& self,
                 const QuantumStateBase& state, QuantumStateBase* dst_state) {
                 QuantumStateBase* work_state;
-                if (state.is_state_vector())
-                    work_state = new QuantumState(state.qubit_count);
-                else
-                    work_state = new DensityMatrix(state.qubit_count);
+#ifdef _USE_GPU
+                if (state.get_device_name() == "gpu") {
+                    work_state = new QuantumStateGpu(
+                        state.qubit_count, state.device_number);
+                } else
+#endif
+                {
+                    if (state.is_state_vector())
+                        work_state = new QuantumState(state.qubit_count);
+                    else
+                        work_state = new DensityMatrix(state.qubit_count);
+                }
                 self.apply_to_state(work_state, state, dst_state);
                 delete work_state;
             },
